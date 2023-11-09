@@ -1,0 +1,42 @@
+user
+- id
+- role (0: pembeli, 1:admin)
+- email
+- password
+
+toko
+- diskon/promo global
+
+pembeli
+- id user
+- alamat
+- wishlist
+  - id barang
+- keranjang
+  [id barang => jumlah]
+
+barang
+- id barang
+- nama
+- gambar
+- harga
+- rate
+- stok
+- deskripsi
+- id toko
+- kategori
+
+kategori:
+- tumbuhan
+- elektronik
+- fashion (pakaian, riasan, sepatu, tas)
+- mebel
+- kesehatan
+- makanan & minuman
+- olahraga
+- dapur
+- bangunan
+- kamar
+- peliharaan
+- perhiasan
+- kendaraan
