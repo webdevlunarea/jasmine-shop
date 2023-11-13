@@ -36,6 +36,14 @@ class Pages extends BaseController
         ];
         return view('pages/all', $data);
     }
+    public function listProduct() {
+        $produk = $this->barangModel->getBarang();
+        $data = [
+            'title' => 'List Produk',
+            'produk' => $produk,
+        ];
+        return view('pages/listProduct', $data);
+    }
     public function signup()
     {
         $data = [
@@ -158,7 +166,7 @@ class Pages extends BaseController
                 'isLogin' => true
             ];
             session()->set($ses_data);
-            echo "Anda masuk sebagai Admin";
+            return redirect()->to('/');
         }
     }
     public function actionLogout()
@@ -259,12 +267,23 @@ class Pages extends BaseController
     }
     public function checkout()
     {
+        $keranjang = session()->get('keranjang');
+        $produk = [];
+        $jumlah = [];
+        if (!empty($keranjang)) {
+            foreach ($keranjang as $key => $value) {
+                array_push($produk, $this->barangModel->getBarang($key));
+                array_push($jumlah, $value);
+            }
+        }
         $user = [
             'alamat' => session()->get('alamat'),
             'email' => session()->get('email'),
         ];
         $data = [
             'title' => 'Check Out',
+            'produk' => $produk,
+            'jumlah' => $jumlah,
             'user' => $user
         ];
         return view('pages/checkout', $data);

@@ -23,11 +23,15 @@
                 <p>Stok : <?= $produk['stok']; ?></p>
                 <p><?= $produk['deskripsi']; ?></p>
                 <?php if (session()->get('isLogin')) { ?>
-                    <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
-                    <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                        <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                    <?php if (session()->get('role') == 0 ) { ?>
+                        <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
+                        <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
+                            <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                        <?php } else { ?>
+                            <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                        <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                        <a class="btn btn-danger" href="/editbarang">Edit produk</a>
                     <?php } ?>
                 <?php } else { ?>
                     <a class="btn btn-danger" href="/login">Masuk untuk membeli</a>

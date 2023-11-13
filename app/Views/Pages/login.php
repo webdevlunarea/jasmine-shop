@@ -32,6 +32,7 @@
                     </div>
                     <input class="btn btn-danger" type="submit" value="Masuk">
                 </form>
+                <p class="mt-3">Belum punya akun? <a href="/signup" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Daftar disini</a></p>
             </div>
         </div>
     </div>

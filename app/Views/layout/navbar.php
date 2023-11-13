@@ -30,9 +30,14 @@
                 </div>
             </form>
             <?php if (session()->get('isLogin')) { ?>
-                <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
-                <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
-                <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
+                <?php if (session()->get('role') == 0 ) { ?>
+                    <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
+                    <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
+                    <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
+                <?php } else { ?>
+                    <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
+                    <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
+                <?php } ?>
             <?php } ?>
         </div>
     </div>

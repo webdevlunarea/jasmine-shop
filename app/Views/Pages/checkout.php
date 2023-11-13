@@ -19,7 +19,31 @@
                 </div>
             </div>
             <div class="col">
-                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                <div>
+                    <table class="table table-borderless">
+                        <tbody>
+                            <?php foreach ($produk as $index => $p) { ?>
+                                <tr>
+                                    <td><?= $p['nama']; ?></td>
+                                    <td><?= $jumlah[$index]; ?></td>
+                                    <td class="text-end">Rp 
+                                        <?php
+                                            if ($p['diskon']) {
+                                                $persen = (100 - $p['diskon']) / 100;
+                                                $hasil = $persen * $p['harga'];
+                                                echo number_format($hasil, 0, ",", ".");
+                                            } else {
+                                                $hasil = $p['harga'];
+                                                echo number_format($p['harga'], 0, ",", ".");
+                                            }
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-between border-bottom border-top mt-3" style="gap: 10em;">
                     <p class="my-2">Subtotal:</p>
                     <p class="my-2"><b>Rp <?= number_format(session()->get('subtotal'), 0, ",", "."); ?></b></p>
                 </div>

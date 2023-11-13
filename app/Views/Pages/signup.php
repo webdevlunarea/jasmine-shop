@@ -34,7 +34,7 @@
                     </div>
                     <input class="btn btn-danger" type="submit" value="Buat">
                 </form>
-                <p>Sudah punya akun? <a href="/login" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Masuk</a></p>
+                <p class="mt-3">Sudah punya akun? <a href="/login" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Masuk</a></p>
             </div>
         </div>
     </div>

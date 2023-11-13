@@ -1,0 +1,100 @@
+// =============== STRUKTUR DATABASE ============= //
+user
+- id
+- role (0: pembeli, 1:admin)
+- email
+- password
+
+toko
+- diskon/promo global
+
+pembeli
+- id user
+- alamat
+- wishlist
+  - id barang
+- keranjang
+  [id barang => jumlah]
+
+barang
+- id barang
+- nama
+- gambar
+- harga
+- rate
+- stok
+- deskripsi
+- id toko
+- kategori
+
+kategori:
+- tumbuhan
+- elektronik
+- fashion (pakaian, riasan, sepatu, tas)
+- mebel
+- kesehatan
+- makanan & minuman
+- olahraga
+- dapur
+- bangunan
+- kamar
+- peliharaan
+- perhiasan
+- kendaraan
+
+
+
+// ============ ENDPOINT ============= //
+
+GET '/' = tampilkan page beranda
+GET '/all' = tampilkan page seluruh produk
+GET '/all/:kategori' = tampilkan page seluruh produk berdasarkan kategori 
+
+GET '/signup' = tampilkan page daftar
+POST '/daftar' = menambah pembeli dan user
+GET '/login' = tampilkan page login
+POST '/masuk' = melakukan login (mendapatkan dan menyimpan data user ke session)
+GET '/keluar' = melakukan logout (menghapus data user dr session)
+
+GET '/wishlist' = tampilkan page wishlist
+GET '/addwishlist/:idBarang' = menambah wishlist berdasarkan id barang
+GET '/delwishlist/:idBarang' = menghapus wishlist berdasarkan id barang
+
+GET '/cart' = tampilkan page keranjang
+GET '/addcart/idBarang' = menambah keranjang berdasarkan id barang
+GET '/redcart/idbarang' = mengurangi keranjang berdasarkan id barang
+GET '/delcart/idBarang' = menghapus keranjang berdasarkan id barang
+
+GET '/checkout' = tampilkan page checkout
+GET '/account' = tampilkan page akun
+GET '/contact' = tampilkan page kontak
+GET '/about' = tampilkan page about
+
+GET '/product/:idBarang' = tampilkan page detail produk beradasarkan id barang
+
+
+
+// ============ Pages Controller ========== //
+
+index()               = tampilkan page beranda
+all(kategori)         = tampilkan page semua produk berdasarkan kategori
+signup()              = tampilkan page daftar
+actionSignup()        = menambah pembeli dan user
+login()               = tampilkan page login
+actionLogin()         = melakukan login
+actionLogout()        = melakukan logout
+wishlist()            = tampilkan page wishlist
+addWishlist(idbarang) = menambah wishlist berdasarkan id barang
+delWishlist(idbarang) = menghapus wishlist berdasarkan id barang
+cart()                = tampilkan page cart
+addCart(idbarang)     = menambah keranjang berdasarkan id barang
+redCart(idbarang)     = mengurangi keranjang berdasarkan id barang
+delCart(idbarang)     = menghapus keranjang berdasarkan id barang
+checkout()            = tampilkan page checkout
+account()             = tampilkan page akun
+contact()             = tampilkan page kontak
+about()               = tampilkan page about
+product(idbarang)     = tampilkan page detail produk
+
+
+

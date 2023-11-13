@@ -79,6 +79,15 @@ a {
     border-radius: 0.5em;
 }
 
+.card2 {
+    background-color: whitesmoke;
+    display: flex;
+    color: black;
+}
+.card2 img {
+    height: 100px;
+}
+
 .jdl-section {
     color: var(--merah);
     align-items: center;
