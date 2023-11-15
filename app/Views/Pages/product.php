@@ -31,7 +31,7 @@
                             <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-danger" href="/editbarang">Edit produk</a>
+                        <a class="btn btn-danger" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
                     <?php } ?>
                 <?php } else { ?>
                     <a class="btn btn-danger" href="/login">Masuk untuk membeli</a>

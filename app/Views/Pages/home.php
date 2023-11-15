@@ -199,9 +199,6 @@
         </div>
     </div>
     <div class="container my-5">
-        <div style="background-color: black; height: 300px"></div>
-    </div>
-    <div class="container my-5">
         <h5 class="jdl-section">Terbaru</h5>
         <h1>Kedatangan Baru</h1>
         <div class="row">

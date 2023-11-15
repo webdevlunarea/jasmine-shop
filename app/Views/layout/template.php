@@ -11,6 +11,15 @@
 </head>
 
 <body>
+    <div class="toast z-3 start-50 translate-middle">
+        <div class="toast-body">
+            <p>Hello, world! This is a toast message.</p>
+            <div class="mt-2 pt-2 border-top">
+                <a type="button" class="btn btn-danger btn-sm">Ok</a>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="hapusToast()">Batal</button>
+            </div>
+        </div>
+    </div>
     <?= $this->include('layout/navbar'); ?>
     <?= $this->renderSection('content'); ?>
     <?= $this->include('layout/footer'); ?>
@@ -18,6 +27,9 @@
     <script>
         const scrollKategoriElm = document.querySelectorAll(".scroll-kategori");
         const scrollKategoriContainer = document.querySelector('.container-kategori');
+        const toastElm = document.querySelector(".toast")
+        const toastTeksElm = document.querySelector(".toast p")
+        const toastOkElm = document.querySelector(".toast a")
 
         scrollKategoriElm[0].onclick = function() {
             let i = 1
@@ -45,6 +57,15 @@
                 clearInterval(intervalId);
             }, 500);
         };
+
+        function triggerToast(text, linkAction) {
+            toastElm.classList.add("show")
+            toastTeksElm.innerHTML = text
+            toastOkElm.href = linkAction
+        }
+        function hapusToast() {
+            toastElm.classList.remove("show")
+        }
     </script>
 </body>
 

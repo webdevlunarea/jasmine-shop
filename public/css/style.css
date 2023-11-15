@@ -169,3 +169,23 @@ a {
     max-height: calc(100vh - 265.5px - 56px - 100px);
     object-fit: cover;
 }
+.table-input .baris {
+    padding: 0.3em 0 0.3em 2em;
+}
+.add-gambar {
+    background-color: #f2f2f2;
+}
+.add-gambar img {
+    display: block;
+    margin-inline: auto;
+    max-width: 100%;
+}
+.toast {
+    position: fixed;
+    top: -60px;
+    transition: 1s;
+}
+.toast.show {
+    top: 100px;
+    transition: 1s;
+}

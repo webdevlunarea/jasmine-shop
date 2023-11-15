@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BarangModel;
 use App\Models\PembeliModel;
 use App\Models\UserModel;
+use CodeIgniter\Files\Exceptions\FileNotFoundException;
 
 class Pages extends BaseController
 {
@@ -35,14 +36,6 @@ class Pages extends BaseController
             'kategori' => $kategori
         ];
         return view('pages/all', $data);
-    }
-    public function listProduct() {
-        $produk = $this->barangModel->getBarang();
-        $data = [
-            'title' => 'List Produk',
-            'produk' => $produk,
-        ];
-        return view('pages/listProduct', $data);
     }
     public function signup()
     {
@@ -317,5 +310,53 @@ class Pages extends BaseController
             'produk' => $produk
         ];
         return view('pages/product', $data);
+    }
+
+    //============ ADMIN ==============//
+    public function listProduct() {
+        $produk = $this->barangModel->getBarang();
+        $data = [
+            'title' => 'List Produk',
+            'produk' => $produk,
+        ];
+        return view('pages/listProduct', $data);
+    }
+    public function addProduct() {
+        $data = [
+            'title' => 'Tambah Produk'
+        ];
+        return view('pages/addProduct', $data);
+    }
+    public function actionAddProduct() {
+        $d = strtotime("+7 Hours");
+        $tanggal = "B".date("Ymdhis", $d);
+
+        $gambarnya = addslashes(file_get_contents($this->request->getFile('gambar')));
+        
+        $this->barangModel->insert([
+            'id' => $tanggal,
+            'nama' => $this->request->getVar('nama'),
+            'gambar' => $gambarnya,
+            'harga' => $this->request->getVar('harga'),
+            'stok' => $this->request->getVar('stok'),
+            'deskripsi' => $this->request->getVar('deskripsi'),
+            'kategori' => $this->request->getVar('kategori'),
+            'diskon' => $this->request->getVar('diskon'),
+        ]);
+
+        session()->setFlashdata('msg', 'Produk telah ditambahkan');
+        return redirect()->to('/listproduct');
+    }
+    public function editProduct($id) {
+        $produk = $this->barangModel->getBarang($id);
+        $data = [
+            'title' => 'Edit Produk',
+            'produk' => $produk
+        ];
+        return view('pages/editProduct', $data);
+    }
+    public function delProduct($id) {
+        $produk = $this->barangModel->where('id', $id)->delete();
+        return redirect()->to('/listproduct');
     }
 }

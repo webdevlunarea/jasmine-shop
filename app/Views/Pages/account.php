@@ -19,7 +19,7 @@
                     <form class="row g-3">
                         <div class="col-md-6">
                             <label for="inputEmail4" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="inputEmail4">
+                            <input type="email" class="form-control" id="inputEmail4" value="<?= session()->get("email") ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="inputPassword4" class="form-label">Sandi</label>
@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-12">
                             <label for="inputAddress" class="form-label">Alamat</label>
-                            <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+                            <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" value="<?= session()->get("alamat") ?>">
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-danger">Simpan</button>

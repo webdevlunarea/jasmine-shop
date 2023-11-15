@@ -31,4 +31,7 @@ $routes->get('/about', 'Pages::about');
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/listproduct', 'Pages::listProduct');
-
+$routes->get('/addproduct', 'Pages::addProduct');
+$routes->post('/addproduct', 'Pages::actionAddProduct');
+$routes->get('/editproduct/(:any)', 'Pages::editProduct/$1');
+$routes->get('/delproduct/(:any)', 'Pages::delProduct/$1');
