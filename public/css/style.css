@@ -19,7 +19,7 @@ a {
     text-decoration: none;
 }
 .konten {
-    min-height: calc(100vh - 265.5px - 56px);
+    min-height: calc(100vh - 234.5px - 57.74px);
     padding-block: 2em;
 }
 .card-group1 {
@@ -34,21 +34,23 @@ a {
     flex-wrap: wrap;
 }
 .card1 {
-    flex-basis: 300px;
+    /* flex-basis: 300px;
     flex-grow: 0;
-    flex-shrink: 0;
+    flex-shrink: 0; */
+    flex: 1 0 250px;
     color: black;
     transition: 0.5s;
     scroll-snap-align: start;
-}
-.card-group1.no-scroll .card1 {
-    flex-grow: 0;
+    /* border: 1px solid black; */
 }
 .card1 img {
     width: 100%;
-    height: 300px;
+    aspect-ratio: 1 / 1;
     display: block;
     object-fit: cover;
+    border-bottom-width: 3px;
+    border-color: rgba(0, 0, 0, 0);
+    border-bottom-style: solid;
     transition: 0.5s;
 }
 .card1 div {
@@ -60,7 +62,7 @@ a {
     transition: 0.5s;
 }
 .card1:hover img {
-    transform: scale(1.05);
+    border-color: var(--merah);
     transition: 0.5s;
 }
 .harga {
@@ -69,23 +71,16 @@ a {
 .card1 .diskon {
     background-color: var(--merah);
     color: white;
-    margin-bottom: -20px;
+    margin-bottom: -30px;
     position: relative;
-    transform: translate(20px, -385px);
+    transform: translate(20px, 20px);
     display: block;
     width: fit-content;
-    padding: 0.2em 0.5em;
+    /* padding: 4px 6px; */
+    line-height: 30px;
+    padding-inline: 6px;
     text-align: center;
     border-radius: 0.5em;
-}
-
-.card2 {
-    background-color: whitesmoke;
-    display: flex;
-    color: black;
-}
-.card2 img {
-    height: 100px;
 }
 
 .jdl-section {
@@ -113,10 +108,10 @@ a {
 }
 .kategori {
     border: 1px solid gainsboro;
-    flex-basis: 200px;
+    flex-basis: 170px;
     flex-grow: 0;
     flex-shrink: 0;
-    height: 130px;
+    aspect-ratio: 1 / 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -165,8 +160,9 @@ a {
     margin: 0;
 }
 .img-produk {
-    width: 100%;
-    max-height: calc(100vh - 265.5px - 56px - 100px);
+    width: 50%;
+    /* max-height: calc(100vh - 265.5px - 56px - 100px); */
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 .table-input .baris {
@@ -188,4 +184,92 @@ a {
 .toast.show {
     top: 100px;
     transition: 1s;
+}
+.bundar {
+    background-color: black;
+    color: white;
+    border-radius: 2em;
+    width: 4em;
+    height: 4em;
+    padding: 0.8em 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.baris-ke-kolom {
+    display: flex;
+    gap: 2em;
+}
+.baris-ke-kolom-reverse {
+    display: flex;
+    gap: 2em;
+}
+
+.hide-ke-show-flex {
+    display: none;
+}
+.hide-ke-show-block {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .baris-ke-kolom {
+        flex-direction: column;
+        gap: 1em;
+    }
+    .baris-ke-kolom-reverse {
+        flex-direction: column-reverse;
+        gap: 1em;
+    }
+    .jdl-section {
+        color: var(--merah);
+        align-items: center;
+        display: flex;
+        gap: 0.7em;
+    }
+    .jdl-section::before {
+        content: "";
+        display: inline-block;
+        height: 1em;
+        width: 0.5em;
+        background-color: var(--merah);
+    }
+    .card1 .diskon {
+        display: none;
+    }
+    .card-group1.no-scroll .card1 {
+        flex: 1 0 200px;
+    }
+    .card-group1 .card1 {
+        flex: 0 0 200px;
+    }
+    .kategori {
+        flex-basis: 130px;
+    }
+    .kategori i {
+        font-size: 2em;
+    }
+    .hide-ke-show-flex {
+        display: flex;
+    }
+    .hide-ke-show-block {
+        display: block;
+    }
+    .show-ke-hide {
+        display: none;
+    }
+    .konten {
+        padding-block: 1em;
+    }
+    .img-produk {
+        width: 100%;
+    }
+}
+@media (max-width: 450px) {
+    .card-group1.no-scroll .card1 {
+        flex: 1 0 150px;
+    }
+    .card-group1 .card1 {
+        flex: 0 0 150px;
+    }
 }

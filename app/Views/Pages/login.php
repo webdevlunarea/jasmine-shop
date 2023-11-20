@@ -2,11 +2,11 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
-        <div class="row">
-            <div class="col">
+        <div class="d-flex gap-5">
+            <div class="show-ke-hide">
                 <img src="img/nopic.jpg" alt="nopic.jpg">
             </div>
-            <div class="col">
+            <div style="flex: 1;">
                 <?php if ($val['msg']) { ?>
                     <div class="alert alert-success" role="alert">
                         <?= $val['msg']; ?>

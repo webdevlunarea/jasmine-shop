@@ -5,7 +5,7 @@
         <h1 class="mb-3">Tambah Produk</h1>
         <form method="post" action="/addproduct" enctype="multipart/form-data">
             <?= csrf_field(); ?>
-            <div class="d-flex gap-5">
+            <div class="baris-ke-kolom">
                 <div>
                     <table class="table-input">
                         <tbody>
@@ -40,7 +40,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button class="btn btn-danger" type="submit">Simpan</button>
+                    <button class="btn btn-danger show-ke-hide" type="submit">Simpan</button>
                 </div>
                 <div style="flex: 1;">
                     <h5 class="jdl-section">Gambar Produk</h5>
@@ -52,6 +52,9 @@
                         <img src="img/nopic.jpg" id="addProduct_PreviewGambar">
                     </div>
                 </div>
+            </div>
+            <div class="hide-ke-show-flex justify-content-center mt-3">
+                <button class="btn btn-danger" type="submit">Simpan</button>
             </div>
         </form>
     </div>

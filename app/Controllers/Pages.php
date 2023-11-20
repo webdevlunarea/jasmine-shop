@@ -331,7 +331,7 @@ class Pages extends BaseController
         $d = strtotime("+7 Hours");
         $tanggal = "B".date("Ymdhis", $d);
 
-        $gambarnya = addslashes(file_get_contents($this->request->getFile('gambar')));
+        $gambarnya = file_get_contents($this->request->getFile('gambar'));
         
         $this->barangModel->insert([
             'id' => $tanggal,
@@ -354,6 +354,34 @@ class Pages extends BaseController
             'produk' => $produk
         ];
         return view('pages/editProduct', $data);
+    }
+    public function actionEditProduct($id) {
+        if(!empty($_FILES['gambar']['tmp_name'])){
+            $gambarnya = file_get_contents($this->request->getFile('gambar'));
+            $this->barangModel->save([
+                'id' => $id,
+                'nama' => $this->request->getVar('nama'),
+                'gambar' => $gambarnya,
+                'harga' => $this->request->getVar('harga'),
+                'stok' => $this->request->getVar('stok'),
+                'deskripsi' => $this->request->getVar('deskripsi'),
+                'kategori' => $this->request->getVar('kategori'),
+                'diskon' => $this->request->getVar('diskon'),
+            ]);
+        } else {
+            $this->barangModel->save([
+                'id' => $id,
+                'nama' => $this->request->getVar('nama'),
+                'harga' => $this->request->getVar('harga'),
+                'stok' => $this->request->getVar('stok'),
+                'deskripsi' => $this->request->getVar('deskripsi'),
+                'kategori' => $this->request->getVar('kategori'),
+                'diskon' => $this->request->getVar('diskon'),
+            ]);
+        }
+
+        session()->setFlashdata('msg', 'Produk telah ditambahkan');
+        return redirect()->to('/listproduct');
     }
     public function delProduct($id) {
         $produk = $this->barangModel->where('id', $id)->delete();

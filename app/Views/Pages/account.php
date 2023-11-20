@@ -2,18 +2,20 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
-        <div class="row">
-            <div class="col-3">
+        <div class="baris-ke-kolom-reverse">
+            <div style="width: 30%;" class="show-ke-hide">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">Profileku</li>
-                    <li class="list-group-item">Buku Alamat</li>
                     <li class="list-group-item">Pilih Pembayaran</li>
                     <li class="list-group-item">Pesananku</li>
                     <li class="list-group-item">Wishlist</li>
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>
-            <div class="col">
+            <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
+                <a class="btn btn-outline-danger" style="width: fit-content;" href="/keluar">Keluar</a>
+            </div>
+            <div>
                 <div class="p-2">
                     <h3>Edit Profilemu</h3>
                     <form class="row g-3">

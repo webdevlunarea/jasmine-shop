@@ -10,6 +10,9 @@
             <?php if (count($wishlist) > 0) { ?>
                 <?php foreach ($produk as $p) { ?>
                     <a class="card1" href="/product/<?= $p['id']; ?>">
+                        <?php if ($p['diskon']) { ?>
+                            <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                        <?php } ?>
                         <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                         <div class="mt-3">
                             <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -26,9 +29,6 @@
                             <?php } ?>
                             <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
                         </div>
-                        <?php if ($p['diskon']) { ?>
-                            <p class="diskon">-<?= $p['diskon']; ?>%</p>
-                        <?php } ?>
                     </a>
                 <?php } ?>
             <?php } else { ?>

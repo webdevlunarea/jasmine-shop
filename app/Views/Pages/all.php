@@ -5,9 +5,9 @@
         <h5 class="jdl-section">Kategori</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Cari Berdasarkan Kategori</h1>
-            <div>
-                <button class="btn btn-icon scroll-kategori"><i class="material-icons">arrow_back</i></button>
-                <button class="btn btn-icon scroll-kategori"><i class="material-icons">arrow_forward</i></button>
+            <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-icon scroll-kategori show-ke-hide"><i class="material-icons">arrow_back</i></button>
+                <button class="btn btn-icon scroll-kategori show-ke-hide"><i class="material-icons">arrow_forward</i></button>
             </div>
         </div>
         <div class="container-kategori">
@@ -63,6 +63,9 @@
         <div class="card-group1 no-scroll">
             <?php foreach ($produk as $p) { ?>
                 <a class="card1" href="/product/<?= $p['id']; ?>">
+                    <?php if ($p['diskon']) { ?>
+                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                    <?php } ?>
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -79,9 +82,6 @@
                         <?php } ?>
                         <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
                     </div>
-                    <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
-                    <?php } ?>
                 </a>
             <?php } ?>
         </div>

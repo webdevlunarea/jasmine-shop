@@ -2,11 +2,9 @@
 <?= $this->section("content"); ?>
 <div class="konten">
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <img src="data:image/jpeg;base64,<?= base64_encode($produk['gambar']); ?>" alt="" class="img-produk">
-            </div>
-            <div class="col">
+        <div class="baris-ke-kolom">
+            <img src="data:image/jpeg;base64,<?= base64_encode($produk['gambar']); ?>" alt="" class="img-produk">
+            <div>
                 <h3><?= $produk['nama']; ?></h3>
                 <?php if ($produk['diskon']) { ?>
                     <p class="mb-0 harga d-inline">Rp

@@ -31,30 +31,13 @@
     </div>
     <div class="container my-5">
         <h5 class="jdl-section">Hari ini</h5>
-        <div class="d-flex gap-5 mb-3">
-            <h1 class="mb-0">Flash Sales</h1>
-            <div class="row align-items-center gap-2">
-                <div class="col">
-                    Hari
-                    <h2>03</h2>
-                </div> :
-                <div class="col">
-                    Jam
-                    <h2>23</h2>
-                </div> :
-                <div class="col">
-                    Menit
-                    <h2>19</h2>
-                </div> :
-                <div class="col">
-                    Detik
-                    <h2>05</h2>
-                </div>
-            </div>
-        </div>
+        <h1 class="mb-3">Produk Baru</h1>
         <div class="card-group1">
             <?php foreach ($produk as $p) { ?>
                 <a class="card1" href="/product/<?= $p['id']; ?>">
+                    <?php if ($p['diskon']) { ?>
+                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                    <?php } ?>
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -71,9 +54,6 @@
                         <?php } ?>
                         <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
                     </div>
-                    <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
-                    <?php } ?>
                 </a>
             <?php } ?>
         </div>
@@ -85,9 +65,9 @@
         <h5 class="jdl-section">Kategori</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Cari Berdasarkan Kategori</h1>
-            <div>
-                <button class="btn btn-icon scroll-kategori"><i class="material-icons">arrow_back</i></button>
-                <button class="btn btn-icon scroll-kategori"><i class="material-icons">arrow_forward</i></button>
+            <div class="d-flex gap-1 justify-content-end">
+                <button class="btn btn-icon scroll-kategori show-ke-hide"><i class="material-icons">arrow_back</i></button>
+                <button class="btn btn-icon scroll-kategori show-ke-hide"><i class="material-icons">arrow_forward</i></button>
             </div>
         </div>
         <div class="container-kategori">
@@ -198,7 +178,7 @@
             </div>
         </div>
     </div>
-    <div class="container my-5">
+    <!-- <div class="container my-5">
         <h5 class="jdl-section">Terbaru</h5>
         <h1>Kedatangan Baru</h1>
         <div class="row">
@@ -235,21 +215,21 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <div class="container">
         <div class="row text-center">
             <div class="col">
-                <div style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;"><i class="material-icons">local_shipping</i></div>
+                <div class="bundar mx-auto mb-3"><i class="material-icons">local_shipping</i></div>
                 <h5>ANTAR GRATIS DAN CEPAT</h5>
                 <p>Gratis pengantaran untuk semua orderan yang lebih dari Rp 50.000</p>
             </div>
             <div class="col">
-                <div style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;"><i class="material-icons">headset_mic</i></div>
+                <div class="bundar mx-auto mb-3"><i class="material-icons">headset_mic</i></div>
                 <h5>24/7 CUSTOMER SERVICE</h5>
                 <p>Friendly 24/7 layanan pelanggan</p>
             </div>
             <div class="col">
-                <div style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;"><i class="material-icons">monetization_on</i></div>
+                <div class="bundar mx-auto mb-3"><i class="material-icons">monetization_on</i></div>
                 <h5>GARANSI UANG KEMBALI</h5>
                 <p>Garansi yang kami berikan selama 30 hari</p>
             </div>

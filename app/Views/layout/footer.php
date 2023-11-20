@@ -1,5 +1,5 @@
 <div style="background-color: black; color: white; font-size: small;">
-    <div class="container pt-5 pb-2">
+    <div class="container py-5">
         <div class="row">
             <div class="col">
                 <h5>Eksklusif</h5>
@@ -15,10 +15,8 @@
             <div class="col">
                 <h5>Akun</h5>
                 <p>Akun Saya</p>
-                <p>Masuk / Daftar</p>
                 <p>Keranjang</p>
                 <p>Wishlist</p>
-                <p>Beli</p>
             </div>
             <div class="col">
                 <h5>Sosial Media</h5>
