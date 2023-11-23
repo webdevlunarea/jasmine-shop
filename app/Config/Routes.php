@@ -29,7 +29,6 @@ $routes->get('/account', 'Pages::account');
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 
-// $routes->get('/gambar/(:any)', 'Pages::showGambar/$1');
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/listproduct', 'Pages::listProduct');
 $routes->get('/addproduct', 'Pages::addProduct');

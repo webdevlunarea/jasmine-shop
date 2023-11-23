@@ -144,10 +144,20 @@ a {
     width: 50px;
     height: 100%;
 }
+.card-cart {
+    padding-block: 2em;
+    border-bottom: 0.3em solid whitesmoke;
+}
+.card-cart img {
+    border-radius: 1em;
+    width: 100px;
+}
 .cart-total {
     border: 1px solid black;
     border-radius: 5px;
     padding: 1em;
+    height: fit-content;
+    width: 30%;
 }
 .jumlah {
     width: 150px;
@@ -262,6 +272,12 @@ a {
         padding-block: 1em;
     }
     .img-produk {
+        width: 100%;
+    }
+    .card-cart {
+        padding-block: 1em;
+    }
+    .cart-total {
         width: 100%;
     }
 }

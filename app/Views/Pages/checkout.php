@@ -14,7 +14,7 @@
                     <label for="floatingPassword">Alamat</label>
                 </div>
                 <div class="form-floating mb-1">
-                    <input type="text" class="form-control" placeholder="Phone" name="hp">
+                    <input type="number" class="form-control" placeholder="Phone" name="hp">
                     <label for="floatingInput">No. HP</label>
                 </div>
             </div>
