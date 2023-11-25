@@ -11,32 +11,56 @@
                         <tbody>
                             <tr>
                                 <td>Nama</td>
-                                <td><div class="baris"><input type="text" class="form-control" name="nama" required></div></td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="nama" required>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Harga</td>
-                                <td><div class="baris"><input type="number" class="form-control" name="harga" required></div></td>
+                                <td>
+                                    <div class="baris"><input type="number" class="form-control" name="harga" required>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Diskon</td>
-                                <td><div class="baris">
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" name="diskon" required>
-                                        <span class="input-group-text">%</span>
+                                <td>
+                                    <div class="baris">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="diskon" required>
+                                            <span class="input-group-text">%</span>
+                                        </div>
                                     </div>
-                                </div></td>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Stok</td>
-                                <td><div class="baris"><input type="number" class="form-control" name="stok" required></div></td>
+                                <td>
+                                    <div class="baris"><input type="number" class="form-control" name="stok" required>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Kategori</td>
-                                <td><div class="baris"><input type="text" class="form-control" name="kategori" required></div></td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="kategori" required>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Sub Kategori</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="subkategori"
+                                            required></div>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Deskripsi</td>
-                                <td><div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div></td>
+                                <td>
+                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi"
+                                            required></textarea></div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -60,13 +84,15 @@
     </div>
 </div>
 <script>
-    const addProduct_inputGambar = document.getElementById("addProduct_InputGambar")
-    const addProduct_PreviewGambar = document.getElementById("addProduct_PreviewGambar")
-    addProduct_inputGambar.addEventListener("change", (e) => {
-        const file = addProduct_inputGambar.files[0];
-        const blobFile = new Blob([file], { type: file.type });
-        var blobUrl = URL.createObjectURL(blobFile);
-        addProduct_PreviewGambar.src = blobUrl;
+const addProduct_inputGambar = document.getElementById("addProduct_InputGambar")
+const addProduct_PreviewGambar = document.getElementById("addProduct_PreviewGambar")
+addProduct_inputGambar.addEventListener("change", (e) => {
+    const file = addProduct_inputGambar.files[0];
+    const blobFile = new Blob([file], {
+        type: file.type
     });
+    var blobUrl = URL.createObjectURL(blobFile);
+    addProduct_PreviewGambar.src = blobUrl;
+});
 </script>
 <?= $this->endSection(); ?>

@@ -15,6 +15,7 @@ class BarangModel extends Model
         'stok',
         'deskripsi',
         'kategori',
+        'subkategori',
         'diskon'
     ];
 

@@ -341,6 +341,7 @@ class Pages extends BaseController
             'stok' => $this->request->getVar('stok'),
             'deskripsi' => $this->request->getVar('deskripsi'),
             'kategori' => $this->request->getVar('kategori'),
+            'subkategori' => $this->request->getVar('subkategori'),
             'diskon' => $this->request->getVar('diskon'),
         ]);
 
@@ -366,6 +367,7 @@ class Pages extends BaseController
                 'stok' => $this->request->getVar('stok'),
                 'deskripsi' => $this->request->getVar('deskripsi'),
                 'kategori' => $this->request->getVar('kategori'),
+                'subkategori' => $this->request->getVar('subkategori'),
                 'diskon' => $this->request->getVar('diskon'),
             ]);
         } else {
@@ -376,6 +378,7 @@ class Pages extends BaseController
                 'stok' => $this->request->getVar('stok'),
                 'deskripsi' => $this->request->getVar('deskripsi'),
                 'kategori' => $this->request->getVar('kategori'),
+                'subkategori' => $this->request->getVar('subkategori'),
                 'diskon' => $this->request->getVar('diskon'),
             ]);
         }
