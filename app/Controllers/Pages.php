@@ -33,7 +33,8 @@ class Pages extends BaseController
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
-            'kategori' => $kategori
+            'kategori' => $kategori,
+            'nama' => false
         ];
         return view('pages/all', $data);
     }
@@ -310,6 +311,18 @@ class Pages extends BaseController
             'produk' => $produk
         ];
         return view('pages/product', $data);
+    }
+
+    public function productFilter($nama)
+    {
+        $produk = $this->barangModel->like("nama", $nama, "both")->findAll();
+        $data = [
+            'title' => 'Produk',
+            'produk' => $produk,
+            'nama' => $nama,
+            'kategori' => false,
+        ];
+        return view('pages/all', $data);
     }
 
     //============ ADMIN ==============//

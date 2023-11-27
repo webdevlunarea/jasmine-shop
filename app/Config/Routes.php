@@ -30,6 +30,7 @@ $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
+$routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
 $routes->get('/listproduct', 'Pages::listProduct');
 $routes->get('/addproduct', 'Pages::addProduct');
 $routes->post('/addproduct', 'Pages::actionAddProduct');
