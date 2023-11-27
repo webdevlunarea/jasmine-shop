@@ -63,6 +63,7 @@
             toastTeksElm.innerHTML = text
             toastOkElm.href = linkAction
         }
+
         function hapusToast() {
             toastElm.classList.remove("show")
         }
