@@ -213,17 +213,36 @@ class Pages extends BaseController
         $keranjang = session()->get('keranjang');
         $produk = [];
         $jumlah = [];
+        $subtotal = 0;
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
                 array_push($produk, $this->barangModel->getBarang($key));
                 array_push($jumlah, $value);
+
+                $p = $this->barangModel->getBarang($key);
+                $persen = (100 - $p['diskon']) / 100;
+                $hasil = $persen * $p['harga'];
+                $subtotal += $hasil * $value;
             }
+            $total = $subtotal + 10000;
         }
+
+        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        \Midtrans\Config::$isProduction = false;
+        $params = array(
+            'transaction_details' => array(
+                'order_id' => rand(),
+                'gross_amount' => $total,
+            )
+        );
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
         $data = [
             'title' => 'Keranjang',
             'produk' => $produk,
             'jumlah' => $jumlah,
-            'keranjang' => $keranjang
+            'keranjang' => $keranjang,
+            'tokenMid' => $snapToken
         ];
         return view('pages/cart', $data);
     }
@@ -259,6 +278,24 @@ class Pages extends BaseController
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
+    public function successPay() {
+        $data = [
+            'title' => 'Pembayaran Sukses'
+        ];
+        return view('pages/successPay', $data);
+    }
+    public function progressPay() {
+        $data = [
+            'title' => 'Pembayaran Pending'
+        ];
+        return view('pages/progressPay', $data);
+    }
+    public function errorPay() {
+        $data = [
+            'title' => 'Pembayaran Gagal'
+        ];
+        return view('pages/errorPay', $data);
+    }
     public function checkout()
     {
         $keranjang = session()->get('keranjang');
@@ -282,6 +319,32 @@ class Pages extends BaseController
         ];
         return view('pages/checkout', $data);
     }
+    public function actionCheckout() {
+        // Set your Merchant Server Key
+        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
+        \Midtrans\Config::$isProduction = false;
+
+        $params = array(
+            'transaction_details' => array(
+                'order_id' => rand(),
+                'gross_amount' => 10000,
+            ),
+            '' => array(
+                'order_id' => rand(),
+                'gross_amount' => 10000,
+            ),
+        );
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+        // $paymentUrl = \Midtrans\Snap::createTransaction($params)->redirect_url;
+        // header("Location: ".$paymentUrl);
+        $data = [
+            'title' => 'Tentang',
+            'token' => $snapToken
+        ];
+        return view('pages/about', $data);
+    }
     public function account()
     {
         $data = [
@@ -299,7 +362,8 @@ class Pages extends BaseController
     public function about()
     {
         $data = [
-            'title' => 'Tentang'
+            'title' => 'Tentang',
+            'token' => false
         ];
         return view('pages/about', $data);
     }

@@ -4,11 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Tentang Kami</h1>
-                <?php if($token) { ?>
-                <p><?= $token ?></p>
-                <button onclick="tampilkanMidtrans('<?= $token ?>')">Tampikan midtrans</button>
-                <?php } ?>
+                <h1>Pembayaran Pending</h1>
             </div>
         </div>
     </div>
