@@ -83,3 +83,4 @@ class Database extends Config
         }
     }
 }
+}
