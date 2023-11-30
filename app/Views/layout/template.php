@@ -38,32 +38,34 @@
     const toastTeksElm = document.querySelector(".toast p")
     const toastOkElm = document.querySelector(".toast a")
 
-    scrollKategoriElm[0].onclick = function() {
-        let i = 1
-        let cek = false
-        let intervalId = setInterval(() => {
-            scrollKategoriContainer.scrollLeft -= 0.35 * i;
-            if (i >= 26) cek = true
-            if (!cek) i++;
-            else i--;
-        }, 10);
-        setTimeout(() => {
-            clearInterval(intervalId);
-        }, 500);
-    };
-    scrollKategoriElm[1].onclick = function() {
-        let i = 1
-        let cek = false
-        let intervalId = setInterval(() => {
-            scrollKategoriContainer.scrollLeft += 0.35 * i;
-            if (i >= 26) cek = true
-            if (!cek) i++;
-            else i--;
-        }, 10);
-        setTimeout(() => {
-            clearInterval(intervalId);
-        }, 500);
-    };
+    if (scrollKategoriElm.length > 0) {
+        scrollKategoriElm[0].onclick = function() {
+            let i = 1
+            let cek = false
+            let intervalId = setInterval(() => {
+                scrollKategoriContainer.scrollLeft -= 0.35 * i;
+                if (i >= 26) cek = true
+                if (!cek) i++;
+                else i--;
+            }, 10);
+            setTimeout(() => {
+                clearInterval(intervalId);
+            }, 500);
+        };
+        scrollKategoriElm[1].onclick = function() {
+            let i = 1
+            let cek = false
+            let intervalId = setInterval(() => {
+                scrollKategoriContainer.scrollLeft += 0.35 * i;
+                if (i >= 26) cek = true
+                if (!cek) i++;
+                else i--;
+            }, 10);
+            setTimeout(() => {
+                clearInterval(intervalId);
+            }, 500);
+        };
+    }
 
     function triggerToast(text, linkAction) {
         toastElm.classList.add("show")
@@ -77,6 +79,47 @@
 
     function tampilkanMidtrans(token) {
         window.snap.pay(token)
+    }
+
+
+    const btnCheckoutElm = document.getElementById('btn-checkout')
+    const formCheckoutElm = document.getElementById('form-checkout')
+    const formCheckoutNama = document.querySelector('#form-checkout input[name="nama"]')
+    const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
+    const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
+    const formCheckoutNoHp = document.querySelector('#form-checkout input[name="nohp"]')
+    const formCheckout = document.querySelectorAll('#form-checkout .form-control')
+
+    if (btnCheckoutElm) {
+        btnCheckoutElm.addEventListener("click", () => {
+            const data = {
+                nama: formCheckoutNama.value,
+                alamat: formCheckoutAlamat.value,
+                email: formCheckoutEmail.value,
+                noHp: formCheckoutNoHp.value,
+            }
+            console.log(data)
+            async function getTokenMditrans() {
+                var formBody = [];
+                for (var property in data) {
+                    var encodedKey = encodeURIComponent(property);
+                    var encodedValue = encodeURIComponent(data[property]);
+                    formBody.push(encodedKey + "=" + encodedValue);
+                }
+                formBody = formBody.join("&");
+
+                const response = await fetch("/actioncheckout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: formBody,
+                });
+                const snaptoken = await response.json();
+                console.log(snaptoken);
+            }
+            getTokenMditrans()
+        })
     }
     </script>
 </body>

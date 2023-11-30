@@ -211,39 +211,60 @@ class Pages extends BaseController
     public function cart()
     {
         $keranjang = session()->get('keranjang');
+        $email = session()->get('email');
         $produk = [];
         $jumlah = [];
+        $itemDetails = [];
         $subtotal = 0;
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
-                array_push($produk, $this->barangModel->getBarang($key));
+                $produknya = $this->barangModel->getBarang($key);
+                array_push($produk, $produknya);
                 array_push($jumlah, $value);
+                $item = array(
+                    'id' => $produknya["id"],
+                    'price' => $produknya["harga"],
+                    'quantity' => $value,
+                    'name' => $produknya["nama"],
+                );
+                array_push($itemDetails, $item);
 
-                $p = $this->barangModel->getBarang($key);
-                $persen = (100 - $p['diskon']) / 100;
-                $hasil = $persen * $p['harga'];
+                // $p = $this->barangModel->getBarang($key);
+                $persen = (100 - $produknya['diskon']) / 100;
+                $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $value;
             }
+            $item = array(
+                'id' => 'Biaya Tambahan',
+                'price' => 10000,
+                'quantity' => 1,
+                'name' => 'Biaya Ongkir',
+            );
+            array_push($itemDetails, $item);
             $total = $subtotal + 10000;
         }
-
-        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
-        \Midtrans\Config::$isProduction = false;
-        $params = array(
-            'transaction_details' => array(
-                'order_id' => rand(),
-                'gross_amount' => $total,
-            )
-        );
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
 
         $data = [
             'title' => 'Keranjang',
             'produk' => $produk,
             'jumlah' => $jumlah,
             'keranjang' => $keranjang,
-            'tokenMid' => $snapToken
+            'tokenMid' => false
         ];
+
+        if(!isset($total)){
+            return view('pages/cart', $data);
+        }
+
+        // $data = [
+        //     'title' => 'Keranjang',
+        //     'produk' => $produk,
+        //     'jumlah' => $jumlah,
+        //     'keranjang' => $keranjang,
+        //     'tokenMid' => $snapToken
+        // ];
+        
+
         return view('pages/cart', $data);
     }
     public function addCart($id_barang)
@@ -279,8 +300,27 @@ class Pages extends BaseController
         return redirect()->to('/cart');
     }
     public function successPay() {
+        $keranjang = session()->get('keranjang');
+        $email = session()->get('email');
+        $ceking = [];
+        if (!empty($keranjang)) {
+            foreach ($keranjang as $key => $value) {
+                $produknya = $this->barangModel->getBarang($key);
+                $this->barangModel->save([
+                    'id' => $key,
+                    'stok' => (int)$produknya['stok'] - (int)$value,
+                ]);
+                array_push($ceking, $value);
+            }
+        }
+        
+        session()->set(['keranjang' => []]);
+        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
+
         $data = [
-            'title' => 'Pembayaran Sukses'
+            'title' => 'Pembayaran Sukses',
+            'ceking' => implode(" ", $ceking),
+            'keranjang' => implode(" ", $keranjang)
         ];
         return view('pages/successPay', $data);
     }
@@ -299,51 +339,102 @@ class Pages extends BaseController
     public function checkout()
     {
         $keranjang = session()->get('keranjang');
+        $email = session()->get('email');
         $produk = [];
         $jumlah = [];
+        $subtotal = 0;
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
-                array_push($produk, $this->barangModel->getBarang($key));
+                $produknya = $this->barangModel->getBarang($key);
+                array_push($produk, $produknya);
                 array_push($jumlah, $value);
+
+                $persen = (100 - $produknya['diskon']) / 100;
+                $hasil = $persen * $produknya['harga'];
+                $subtotal += $hasil * $value;
             }
+            $total = $subtotal + 10000;
         }
+
         $user = [
             'alamat' => session()->get('alamat'),
-            'email' => session()->get('email'),
+            'email' => $email,
         ];
         $data = [
             'title' => 'Check Out',
             'produk' => $produk,
             'jumlah' => $jumlah,
-            'user' => $user
+            'user' => $user,
+            'total' => $total
         ];
         return view('pages/checkout', $data);
     }
     public function actionCheckout() {
-        // Set your Merchant Server Key
-        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
-        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
-        \Midtrans\Config::$isProduction = false;
+        $nama = $this->request->getVar('nama');
+        $alamat = $this->request->getVar('alamat');
+        $nohp = $this->request->getVar('nohp');
+        $email = $this->request->getVar('email');
 
+        $keranjang = session()->get('keranjang');
+        $produk = [];
+        $jumlah = [];
+        if (!empty($keranjang)) {
+            foreach ($keranjang as $key => $value) {
+                $produknya = $this->barangModel->getBarang($key);
+                array_push($produk, $produknya);
+                array_push($jumlah, $value);
+                $item = array(
+                    'id' => $produknya["id"],
+                    'price' => $produknya["harga"],
+                    'quantity' => $value,
+                    'name' => $produknya["nama"],
+                );
+                array_push($itemDetails, $item);
+
+                $persen = (100 - $produknya['diskon']) / 100;
+                $hasil = $persen * $produknya['harga'];
+                $subtotal += $hasil * $value;
+            }
+            $item = array(
+                'id' => 'Biaya Tambahan',
+                'price' => 10000,
+                'quantity' => 1,
+                'name' => 'Biaya Ongkir',
+            );
+            array_push($itemDetails, $item);
+            $total = $subtotal + 10000;
+        }
+        
+        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        \Midtrans\Config::$isProduction = false;
         $params = array(
             'transaction_details' => array(
                 'order_id' => rand(),
-                'gross_amount' => 10000,
+                'gross_amount' => $total,
             ),
-            '' => array(
-                'order_id' => rand(),
-                'gross_amount' => 10000,
+            'customer_details' => array(
+                'email' => $email,
+                'first_name' => $nama,
+                'phone' => $nohp,
+                'billing_address' => array(
+                    'email' => $email,
+                    'first_name' => $nama,
+                    'phone' => $nohp,
+                    'address' => $alamat,
+                ),
+                'shipping_address' => array(
+                    'email' => $email,
+                    'first_name' => $nama,
+                    'phone' => $nohp,
+                    'address' => $alamat,
+                )
             ),
+            'item_details' => $itemDetails
         );
-
         $snapToken = \Midtrans\Snap::getSnapToken($params);
-        // $paymentUrl = \Midtrans\Snap::createTransaction($params)->redirect_url;
-        // header("Location: ".$paymentUrl);
-        $data = [
-            'title' => 'Tentang',
-            'token' => $snapToken
-        ];
-        return view('pages/about', $data);
+        $arr = array('snapToken' => $snapToken);
+        header('Content-Type: application/json');
+        echo json_encode($arr);
     }
     public function account()
     {

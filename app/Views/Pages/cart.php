@@ -69,9 +69,9 @@
                 <p class="my-2">Total:</p>
                 <p class="my-2"><b>Rp <?= number_format(($subtotal + 10000), 0, ",", "."); ?></b></p>
             </div>
-            <!-- <a class="btn btn-danger <?= !empty($keranjang) ? "" : "disabled"; ?>" href="/checkout">Proses Checkout</a> -->
-            <button class="btn btn-danger <?= !empty($keranjang) ? "" : "disabled"; ?>"
-                onclick="tampilkanMidtrans('<?= $tokenMid ?>')">Proses Checkout</button>
+            <a class="btn btn-danger <?= !empty($keranjang) ? "" : "disabled"; ?>" href="/checkout">Proses Checkout</a>
+            <!-- <button class="btn btn-danger <?= !empty($keranjang) ? "" : "disabled"; ?>"
+                onclick="tampilkanMidtrans('<?= $tokenMid ?>')">Proses Checkout</button> -->
             <!-- <form method="post" action="/checkout">
                 <input type="number" name="harga" />
                 <button type="submit">submit</button>

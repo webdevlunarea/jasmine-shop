@@ -25,7 +25,7 @@ $routes->get('/redcart/(:any)', 'Pages::redCart/$1');
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1');
 
 $routes->get('/checkout', 'Pages::checkout');
-$routes->post('/checkout', 'Pages::actionCheckout');
+$routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->get('/successpay', 'Pages::successPay');
 $routes->get('/progresspay', 'Pages::progressPay');
 $routes->get('/errorpay', 'Pages::errorPay');
