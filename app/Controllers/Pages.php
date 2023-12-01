@@ -229,7 +229,6 @@ class Pages extends BaseController
                 );
                 array_push($itemDetails, $item);
 
-                // $p = $this->barangModel->getBarang($key);
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $value;
@@ -252,7 +251,7 @@ class Pages extends BaseController
             'tokenMid' => false
         ];
 
-        if(!isset($total)){
+        if (!isset($total)) {
             return view('pages/cart', $data);
         }
 
@@ -263,7 +262,7 @@ class Pages extends BaseController
         //     'keranjang' => $keranjang,
         //     'tokenMid' => $snapToken
         // ];
-        
+
 
         return view('pages/cart', $data);
     }
@@ -299,7 +298,8 @@ class Pages extends BaseController
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
-    public function successPay() {
+    public function successPay()
+    {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
         $ceking = [];
@@ -313,7 +313,7 @@ class Pages extends BaseController
                 array_push($ceking, $value);
             }
         }
-        
+
         session()->set(['keranjang' => []]);
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
 
@@ -324,13 +324,15 @@ class Pages extends BaseController
         ];
         return view('pages/successPay', $data);
     }
-    public function progressPay() {
+    public function progressPay()
+    {
         $data = [
             'title' => 'Pembayaran Pending'
         ];
         return view('pages/progressPay', $data);
     }
-    public function errorPay() {
+    public function errorPay()
+    {
         $data = [
             'title' => 'Pembayaran Gagal'
         ];
@@ -340,6 +342,7 @@ class Pages extends BaseController
     {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
+        $alamat = session()->get('alamat');
         $produk = [];
         $jumlah = [];
         $subtotal = 0;
@@ -357,7 +360,7 @@ class Pages extends BaseController
         }
 
         $user = [
-            'alamat' => session()->get('alamat'),
+            'alamat' => $alamat,
             'email' => $email,
         ];
         $data = [
@@ -369,15 +372,19 @@ class Pages extends BaseController
         ];
         return view('pages/checkout', $data);
     }
-    public function actionCheckout() {
+    public function actionCheckout()
+    {
         $nama = $this->request->getVar('nama');
         $alamat = $this->request->getVar('alamat');
         $nohp = $this->request->getVar('nohp');
         $email = $this->request->getVar('email');
 
-        $keranjang = session()->get('keranjang');
+        $getPembeli = $this->pembeliModel->getPembeli($email);
+        $keranjang = (array)json_decode($getPembeli['keranjang']);
         $produk = [];
         $jumlah = [];
+        $subtotal = 0;
+        $itemDetails = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
                 $produknya = $this->barangModel->getBarang($key);
@@ -404,7 +411,7 @@ class Pages extends BaseController
             array_push($itemDetails, $item);
             $total = $subtotal + 10000;
         }
-        
+
         \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
         \Midtrans\Config::$isProduction = false;
         $params = array(
@@ -433,8 +440,21 @@ class Pages extends BaseController
         );
         $snapToken = \Midtrans\Snap::getSnapToken($params);
         $arr = array('snapToken' => $snapToken);
-        header('Content-Type: application/json');
-        echo json_encode($arr);
+        return $this->response->setJSON($arr, false);
+    }
+    public function cobaGetJson()
+    {
+        $email = $this->request->getVar('email');
+        $getUser = $this->userModel->getUser($email);
+        $getPembeli = $this->pembeliModel->getPembeli($email);
+        $ses_data = [
+            'email' => $getUser['email'],
+            'role' => $getUser['role'],
+            'alamat' => $getPembeli['alamat'],
+            'wishlist' => json_decode($getPembeli['wishlist']),
+            'keranjang' => (array)json_decode($getPembeli['keranjang']),
+        ];
+        return $this->response->setJSON($ses_data, false);
     }
     public function account()
     {
@@ -481,7 +501,8 @@ class Pages extends BaseController
     }
 
     //============ ADMIN ==============//
-    public function listProduct() {
+    public function listProduct()
+    {
         $produk = $this->barangModel->getBarang();
         $data = [
             'title' => 'List Produk',
@@ -489,18 +510,20 @@ class Pages extends BaseController
         ];
         return view('pages/listProduct', $data);
     }
-    public function addProduct() {
+    public function addProduct()
+    {
         $data = [
             'title' => 'Tambah Produk'
         ];
         return view('pages/addProduct', $data);
     }
-    public function actionAddProduct() {
+    public function actionAddProduct()
+    {
         $d = strtotime("+7 Hours");
-        $tanggal = "B".date("Ymdhis", $d);
+        $tanggal = "B" . date("Ymdhis", $d);
 
         $gambarnya = file_get_contents($this->request->getFile('gambar'));
-        
+
         $this->barangModel->insert([
             'id' => $tanggal,
             'nama' => $this->request->getVar('nama'),
@@ -516,7 +539,8 @@ class Pages extends BaseController
         session()->setFlashdata('msg', 'Produk telah ditambahkan');
         return redirect()->to('/listproduct');
     }
-    public function editProduct($id) {
+    public function editProduct($id)
+    {
         $produk = $this->barangModel->getBarang($id);
         $data = [
             'title' => 'Edit Produk',
@@ -524,8 +548,9 @@ class Pages extends BaseController
         ];
         return view('pages/editProduct', $data);
     }
-    public function actionEditProduct($id) {
-        if(!empty($_FILES['gambar']['tmp_name'])){
+    public function actionEditProduct($id)
+    {
+        if (!empty($_FILES['gambar']['tmp_name'])) {
             $gambarnya = file_get_contents($this->request->getFile('gambar'));
             $this->barangModel->save([
                 'id' => $id,
@@ -554,7 +579,8 @@ class Pages extends BaseController
         session()->setFlashdata('msg', 'Produk telah ditambahkan');
         return redirect()->to('/listproduct');
     }
-    public function delProduct($id) {
+    public function delProduct($id)
+    {
         $produk = $this->barangModel->where('id', $id)->delete();
         return redirect()->to('/listproduct');
     }

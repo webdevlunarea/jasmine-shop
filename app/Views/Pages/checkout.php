@@ -10,13 +10,11 @@
                     <label for="floatingInput">Nama Lengkap</label>
                 </div>
                 <div class="form-floating mb-1">
-                    <input type="email" class="form-control" placeholder="Email" name="email" required
-                        value="<?= $user['email']; ?>">
+                    <input type="email" class="form-control" placeholder="Email" name="email" required value="<?= $user['email']; ?>">
                     <label for="floatingInput">Email</label>
                 </div>
                 <div class="form-floating mb-1">
-                    <input type="text" class="form-control" placeholder="Alamat" name="alamat" required
-                        value="<?= $user['alamat']; ?>">
+                    <input type="text" class="form-control" placeholder="Alamat" name="alamat" required value="<?= $user['alamat']; ?>">
                     <label for="floatingPassword">Alamat</label>
                 </div>
                 <div class="form-floating mb-1">
@@ -29,22 +27,22 @@
                     <table class="table table-borderless">
                         <tbody>
                             <?php foreach ($produk as $index => $p) { ?>
-                            <tr>
-                                <td><?= $p['nama']; ?></td>
-                                <td><?= $jumlah[$index]; ?></td>
-                                <td class="text-end">Rp
-                                    <?php
-                                            if ($p['diskon']) {
-                                                $persen = (100 - $p['diskon']) / 100;
-                                                $hasil = $persen * $p['harga'];
-                                                echo number_format($hasil, 0, ",", ".");
-                                            } else {
-                                                $hasil = $p['harga'];
-                                                echo number_format($p['harga'], 0, ",", ".");
-                                            }
+                                <tr>
+                                    <td><?= $p['nama']; ?></td>
+                                    <td><?= $jumlah[$index]; ?></td>
+                                    <td class="text-end">Rp
+                                        <?php
+                                        if ($p['diskon']) {
+                                            $persen = (100 - $p['diskon']) / 100;
+                                            $hasil = $persen * $p['harga'];
+                                            echo number_format($hasil, 0, ",", ".");
+                                        } else {
+                                            $hasil = $p['harga'];
+                                            echo number_format($p['harga'], 0, ",", ".");
+                                        }
                                         ?>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             <?php } ?>
                         </tbody>
                     </table>
@@ -62,7 +60,7 @@
                     <p class="my-2"><b>Rp <?= number_format(session()->get('subtotal') + 10000, 0, ",", "."); ?></b>
                     </p>
                 </div>
-                <button id="btn-checkout" class="btn btn-danger">Pesan</button>
+                <button id="btn-checkout" class="btn btn-danger" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
             </div>
         </div>
     </div>

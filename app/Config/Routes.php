@@ -42,3 +42,5 @@ $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1');
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1');
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1');
 $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1');
+
+$routes->post('/coba', 'Pages::cobaGetJson');
