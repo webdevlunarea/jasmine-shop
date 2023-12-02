@@ -29,7 +29,10 @@ $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->get('/successpay', 'Pages::successPay', ['filter'=>'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter'=>'harusUser']);
 $routes->get('/errorpay', 'Pages::errorPay', ['filter'=>'harusUser']);
+
+
 $routes->get('/account', 'Pages::account', ['filter'=>'harusUser']);
+$routes->post('/account', 'Pages::editAccount', ['filter'=>'harusUser']);
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 

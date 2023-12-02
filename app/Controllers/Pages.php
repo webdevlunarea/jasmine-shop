@@ -447,6 +447,31 @@ class Pages extends BaseController
         ];
         return view('pages/account', $data);
     }
+
+    public function editAccount()
+    {
+        $email=$this->request->getVar('email');
+        $sandi=$this->request->getVar('sandi');
+        $alamat=$this->request->getVar('alamat');
+        
+        if($sandi != ''){
+            $this->userModel->where('email',$email)->set([
+                'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
+                ])->update();
+        }
+        $this->pembeliModel->where('email_user',$email)->set([
+            'alamat'=> $alamat
+        ])->update();
+
+        session()->set([
+            'alamat' => $alamat,
+        ]);
+
+        $data = [
+            'title' => 'Akun Saya'
+        ];
+        return view('pages/account', $data);
+    }
     public function contact()
     {
         $data = [
