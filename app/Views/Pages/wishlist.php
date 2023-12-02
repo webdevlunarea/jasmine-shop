@@ -4,7 +4,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <p class="mb-0">Wishlist (4)</p>
-            <button class="btn btn-outline-dark">Beli Semua</button>
+            <a class="btn btn-outline-dark" href="/wishlisttocart">Beli Semua</a>
         </div>
         <div class="card-group1 no-scroll">
             <?php if (count($wishlist) > 0) { ?>

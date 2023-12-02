@@ -152,7 +152,7 @@ class Pages extends BaseController
                 'isLogin' => true
             ];
             session()->set($ses_data);
-            return redirect()->to('/');
+            return redirect()->to(site_url('/'));
         } else {
             $ses_data = [
                 'email' => $getUser['email'],
@@ -207,6 +207,21 @@ class Pages extends BaseController
 
         $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
         return redirect()->to('/wishlist');
+    }
+
+    public function wishlistToCart()
+    {
+        $wishlist = session()->get('wishlist');
+        $keranjang = session()->get('keranjang');
+        $email = session()->get('email');
+        foreach ($wishlist as $id_barang) {
+            if (array_key_exists($id_barang, $keranjang)) $keranjang[$id_barang] += 1;
+            else $keranjang[$id_barang] = 1;
+            session()->set(['keranjang' => $keranjang]);
+        }
+
+        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        return redirect()->to('/cart');
     }
     public function cart()
     {
@@ -450,17 +465,17 @@ class Pages extends BaseController
 
     public function editAccount()
     {
-        $email=$this->request->getVar('email');
-        $sandi=$this->request->getVar('sandi');
-        $alamat=$this->request->getVar('alamat');
-        
-        if($sandi != ''){
-            $this->userModel->where('email',$email)->set([
+        $email = $this->request->getVar('email');
+        $sandi = $this->request->getVar('sandi');
+        $alamat = $this->request->getVar('alamat');
+
+        if ($sandi != '') {
+            $this->userModel->where('email', $email)->set([
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
-                ])->update();
+            ])->update();
         }
-        $this->pembeliModel->where('email_user',$email)->set([
-            'alamat'=> $alamat
+        $this->pembeliModel->where('email_user', $email)->set([
+            'alamat' => $alamat
         ])->update();
 
         session()->set([
