@@ -8,7 +8,7 @@
             </div>
             <div class="col">
                 <h5>Info</h5>
-                <p>Jl. Manahan 4, Tokyo</p>
+                <p>Kaliwungu, Kendal</p>
                 <p>jualan@gamil.com</p>
                 <p>+62 81234567</p>
             </div>

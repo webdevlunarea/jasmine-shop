@@ -1,10 +1,10 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
-<div class="konten">
+<div class="konten d-flex align-items-center">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1 class="display-5 mt-5">Pembayaran Sedang Diproses</h1>
+        <div class="justify-content-center">
+            <div class="text-center">
+                <h1 class="display-5">Pembayaran Sedang Diproses</h1>
                 <p class="lead">Pembayaran Anda sedang dalam proses verifikasi. Harap tunggu konfirmasi lebih lanjut.
                 </p>
                 <i class="bi bi-hourglass-split text-warning display-1 mt-4 mb-4"></i>

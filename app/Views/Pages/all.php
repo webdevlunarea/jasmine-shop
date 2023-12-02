@@ -3,15 +3,15 @@
 <div class="konten">
     <div class="container">
         <h5 class="jdl-section">Kategori</h5>
-        <div class="d-flex justify-content-between mb-3">
-            <h1 class="mb-0">Cari Berdasarkan Kategori</h1>
+        <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
+        <!-- <div class="d-flex justify-content-between mb-3">
             <div class="d-flex justify-content-end gap-1">
                 <button class="btn btn-icon scroll-kategori show-ke-hide"><i
                         class="material-icons">arrow_back</i></button>
                 <button class="btn btn-icon scroll-kategori show-ke-hide"><i
                         class="material-icons">arrow_forward</i></button>
             </div>
-        </div>
+        </div> -->
         <div class="container-kategori">
             <a class="kategori" href="/all/meja">
                 <span class="material-symbols-outlined">

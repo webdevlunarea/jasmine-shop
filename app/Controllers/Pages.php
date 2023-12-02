@@ -20,7 +20,7 @@ class Pages extends BaseController
     }
     public function index()
     {
-        $produk = $this->barangModel->getBarang();
+        $produk = $this->barangModel->getBarangLimit();
         $data = [
             'title' => 'Beranda',
             'produk' => $produk,
@@ -147,7 +147,7 @@ class Pages extends BaseController
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'alamat' => $getPembeli['alamat'],
-                'wishlist' => json_decode($getPembeli['wishlist']),
+                'wishlist' => (array)json_decode($getPembeli['wishlist']),
                 'keranjang' => (array)json_decode($getPembeli['keranjang']),
                 'isLogin' => true
             ];
@@ -255,15 +255,6 @@ class Pages extends BaseController
             return view('pages/cart', $data);
         }
 
-        // $data = [
-        //     'title' => 'Keranjang',
-        //     'produk' => $produk,
-        //     'jumlah' => $jumlah,
-        //     'keranjang' => $keranjang,
-        //     'tokenMid' => $snapToken
-        // ];
-
-
         return view('pages/cart', $data);
     }
     public function addCart($id_barang)
@@ -320,7 +311,7 @@ class Pages extends BaseController
         $data = [
             'title' => 'Pembayaran Sukses',
             'ceking' => implode(" ", $ceking),
-            'keranjang' => implode(" ", $keranjang)
+            'keranjang' => implode(" ", $keranjang),
         ];
         return view('pages/successPay', $data);
     }
@@ -376,7 +367,7 @@ class Pages extends BaseController
     {
         $nama = $this->request->getVar('nama');
         $alamat = $this->request->getVar('alamat');
-        $nohp = $this->request->getVar('nohp');
+        $phone = $this->request->getVar('phone');
         $email = $this->request->getVar('email');
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
@@ -384,6 +375,7 @@ class Pages extends BaseController
         $produk = [];
         $jumlah = [];
         $subtotal = 0;
+        $total = 0;
         $itemDetails = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
@@ -422,39 +414,31 @@ class Pages extends BaseController
             'customer_details' => array(
                 'email' => $email,
                 'first_name' => $nama,
-                'phone' => $nohp,
+                'phone' => $phone,
                 'billing_address' => array(
                     'email' => $email,
                     'first_name' => $nama,
-                    'phone' => $nohp,
+                    'phone' => $phone,
                     'address' => $alamat,
                 ),
                 'shipping_address' => array(
                     'email' => $email,
                     'first_name' => $nama,
-                    'phone' => $nohp,
+                    'phone' => $phone,
                     'address' => $alamat,
                 )
             ),
             'item_details' => $itemDetails
         );
         $snapToken = \Midtrans\Snap::getSnapToken($params);
-        $arr = array('snapToken' => $snapToken);
+        $arr = array(
+            'snapToken' => $snapToken,
+            'email' => $email,
+            'alamat' => $alamat,
+            'nama' => $nama,
+            'phone' => $phone,
+        );
         return $this->response->setJSON($arr, false);
-    }
-    public function cobaGetJson()
-    {
-        $email = $this->request->getVar('email');
-        $getUser = $this->userModel->getUser($email);
-        $getPembeli = $this->pembeliModel->getPembeli($email);
-        $ses_data = [
-            'email' => $getUser['email'],
-            'role' => $getUser['role'],
-            'alamat' => $getPembeli['alamat'],
-            'wishlist' => json_decode($getPembeli['wishlist']),
-            'keranjang' => (array)json_decode($getPembeli['keranjang']),
-        ];
-        return $this->response->setJSON($ses_data, false);
     }
     public function account()
     {

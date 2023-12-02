@@ -35,7 +35,7 @@
         </div>
     </div>
     <div class="container my-5">
-        <h5 class="jdl-section">Hari ini besok</h5>
+        <h5 class="jdl-section">Hari ini</h5>
         <h1 class="mb-3">Produk Baru</h1>
         <div class="card-group1">
             <?php foreach ($produk as $p) { ?>
@@ -69,15 +69,15 @@
     </div>
     <div class="container my-5">
         <h5 class="jdl-section">Kategori</h5>
-        <div class="d-flex justify-content-between mb-3">
-            <h1 class="mb-0">Cari Berdasarkan Kategori</h1>
+        <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
+        <!-- <div class="d-flex justify-content-between mb-3">
             <div class="d-flex gap-1 justify-content-end">
                 <button class="btn btn-icon scroll-kategori show-ke-hide"><i
                         class="material-icons">arrow_back</i></button>
                 <button class="btn btn-icon scroll-kategori show-ke-hide"><i
                         class="material-icons">arrow_forward</i></button>
             </div>
-        </div>
+        </div> -->
         <div class="container-kategori">
             <a class="kategori" href="/all/meja">
                 <span class="material-symbols-outlined">
@@ -208,7 +208,7 @@
             </div>
         </div>
     </div> -->
-    <div class="container">
+    <!-- <div class="container">
         <div class="row text-center">
             <div class="col">
                 <div class="bundar mx-auto mb-3"><i class="material-icons">local_shipping</i></div>
@@ -226,6 +226,11 @@
                 <p>Garansi yang kami berikan selama 30 hari</p>
             </div>
         </div>
+    </div> -->
+    <div class="container">
+        <h3>Metode Pembayaran</h3>
+
+
     </div>
 </div>
 <?= $this->endSection(); ?>

@@ -26,4 +26,8 @@ class BarangModel extends Model
         }
         return $this->where(['id' => $id])->first();
     }
+    public function getBarangLimit()
+    {
+        return $this->findAll(10,0);
+    }
 }

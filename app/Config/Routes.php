@@ -9,38 +9,36 @@ $routes->get('/', 'Pages::index');
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 
-$routes->get('/signup', 'Pages::signup');
-$routes->post('/daftar', 'Pages::actionSignup');
-$routes->get('/login', 'Pages::login');
-$routes->post('/masuk', 'Pages::actionLogin');
+$routes->get('/signup', 'Pages::signup', ['filter'=>'harusLogout']);
+$routes->post('/daftar', 'Pages::actionSignup', ['filter'=>'harusLogout']);
+$routes->get('/login', 'Pages::login', ['filter'=>'harusLogout']);
+$routes->post('/masuk', 'Pages::actionLogin', ['filter'=>'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
 
-$routes->get('/wishlist', 'Pages::wishlist');
-$routes->get('/addwishlist/(:any)', 'Pages::addWishlist/$1');
-$routes->get('/delwishlist/(:any)', 'Pages::delWishlist/$1');
+$routes->get('/wishlist', 'Pages::wishlist', ['filter'=>'harusUser']);
+$routes->get('/addwishlist/(:any)', 'Pages::addWishlist/$1', ['filter'=>'harusUser']);
+$routes->get('/delwishlist/(:any)', 'Pages::delWishlist/$1', ['filter'=>'harusUser']);
 
-$routes->get('/cart', 'Pages::cart');
-$routes->get('/addcart/(:any)', 'Pages::addCart/$1');
-$routes->get('/redcart/(:any)', 'Pages::redCart/$1');
-$routes->get('/delcart/(:any)', 'Pages::delCart/$1');
+$routes->get('/cart', 'Pages::cart', ['filter'=>'harusUser']);
+$routes->get('/addcart/(:any)', 'Pages::addCart/$1', ['filter'=>'harusUser']);
+$routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter'=>'harusUser']);
+$routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter'=>'harusUser']);
 
-$routes->get('/checkout', 'Pages::checkout');
+$routes->get('/checkout', 'Pages::checkout', ['filter'=>'harusUser']);
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
-$routes->get('/successpay', 'Pages::successPay');
-$routes->get('/progresspay', 'Pages::progressPay');
-$routes->get('/errorpay', 'Pages::errorPay');
-$routes->get('/account', 'Pages::account');
+$routes->get('/successpay', 'Pages::successPay', ['filter'=>'harusUser']);
+$routes->get('/progresspay', 'Pages::progressPay', ['filter'=>'harusUser']);
+$routes->get('/errorpay', 'Pages::errorPay', ['filter'=>'harusUser']);
+$routes->get('/account', 'Pages::account', ['filter'=>'harusUser']);
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
-$routes->get('/listproduct', 'Pages::listProduct');
-$routes->get('/addproduct', 'Pages::addProduct');
-$routes->post('/addproduct', 'Pages::actionAddProduct');
-$routes->get('/editproduct/(:any)', 'Pages::editProduct/$1');
-$routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1');
-$routes->get('/delproduct/(:any)', 'Pages::delProduct/$1');
-$routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1');
-
-$routes->post('/coba', 'Pages::cobaGetJson');
+$routes->get('/listproduct', 'Pages::listProduct', ['filter'=>'harusAdmin']);
+$routes->get('/addproduct', 'Pages::addProduct', ['filter'=>'harusAdmin']);
+$routes->post('/addproduct', 'Pages::actionAddProduct', ['filter'=>'harusAdmin']);
+$routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter'=>'harusAdmin']);
+$routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter'=>'harusAdmin']);
+$routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter'=>'harusAdmin']);
+$routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter'=>'harusAdmin']);

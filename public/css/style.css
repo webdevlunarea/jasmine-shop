@@ -99,9 +99,7 @@ a {
 .container-kategori {
   display: flex;
   gap: 1em;
-  justify-content: center;
   overflow-x: scroll;
-  -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none;
 }
 .container-kategori::-webkit-scrollbar {
@@ -109,10 +107,13 @@ a {
 }
 .kategori {
   border: 1px solid gainsboro;
-  flex-basis: 170px;
+  /* flex-basis: 170px;
   flex-grow: 0;
-  flex-shrink: 0;
-  aspect-ratio: 1 / 1;
+  flex-shrink: 0; */
+  /* aspect-ratio: 1 / 1; */
+  height: 150px;
+  min-width: 150px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -122,8 +123,9 @@ a {
   color: black;
   cursor: pointer;
 }
-.kategori i {
-  font-size: 2.5em;
+.kategori span {
+  display: block;
+  font-size: 3em;
 }
 .kategori:hover {
   background-color: var(--merah);
@@ -224,6 +226,9 @@ a {
 .hide-ke-show-block {
   display: none;
 }
+.limapuluh-ke-seratus {
+  width: 50%;
+}
 
 @media (max-width: 600px) {
   .baris-ke-kolom {
@@ -256,12 +261,6 @@ a {
   .card-group1 .card1 {
     flex: 0 0 200px;
   }
-  .kategori {
-    flex-basis: 130px;
-  }
-  .kategori i {
-    font-size: 2em;
-  }
   .hide-ke-show-flex {
     display: flex;
   }
@@ -281,6 +280,15 @@ a {
     padding-block: 1em;
   }
   .cart-total {
+    width: 100%;
+  }
+  .container-kategori {
+    gap: 0.5em;
+  }
+  .kategori span {
+    font-size: 2em;
+  }
+  .limapuluh-ke-seratus {
     width: 100%;
   }
 }

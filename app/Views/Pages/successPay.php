@@ -1,12 +1,10 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
-<div class="konten">
+<div class="konten d-flex align-items-center">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <p><?= $ceking; ?></p>
-                <p><?= $keranjang; ?></p>
-                <h1 class="display-5 mt-5">Pembayaran Berhasil</h1>
+        <div class="justify-content-center">
+            <div class="text-center">
+                <h1 class="display-5">Pembayaran Berhasil</h1>
                 <p class="lead">Terima kasih telah melakukan pembayaran.</p>
                 <i class="bi bi-check-circle text-success display-1 mt-4 mb-4"></i>
                 <div class="mb-3">
@@ -16,4 +14,16 @@
         </div>
     </div>
 </div>
+<script>
+const queryString = window.location.search
+const urlParams = new URLSearchParams(queryString)
+const status = urlParams.get("transaction_status")
+if (urlParams.has('transaction_status')) {
+    if (status == "pending") {
+        window.location.href = "/"
+    }
+} else {
+    window.location.href = "/"
+}
+</script>
 <?= $this->endSection(); ?>
