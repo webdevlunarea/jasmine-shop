@@ -38,6 +38,7 @@ class Pages extends BaseController
         ];
         return view('pages/all', $data);
     }
+
     public function signup()
     {
         $data = [

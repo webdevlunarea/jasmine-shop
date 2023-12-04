@@ -11,8 +11,8 @@
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
                     aria-label="Slide 3"></button>
             </div>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
+            <div class="carousel-inner" style="border-radius: 1.5em;">
+                <div class=" carousel-item active">
                     <img src="img/promo1.webp" class="d-block w-100" alt="...">
                 </div>
                 <div class="carousel-item">
@@ -227,10 +227,23 @@
             </div>
         </div>
     </div> -->
-    <div class="container">
-        <h3>Metode Pembayaran</h3>
-
-
+    <span class="garis my-5 container"></span>
+    <div class="container baris-ke-kolom">
+        <div class="limapuluh-ke-seratus">
+            <h3>Metode Pembayaran</h3>
+            <img class="logo-pembayaran" src="/img/logo/bca.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/bni.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/bri.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/mandiri.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/permata.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/cbbank.webp" alt="">
+        </div>
+        <div class="limapuluh-ke-seratus">
+            <h3>Metode Pengiriman</h3>
+            <img class="logo-pembayaran" src="/img/logo/jnt.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/jne.webp" alt="">
+        </div>
     </div>
+    <span class="garis container my-5"></span>
 </div>
 <?= $this->endSection(); ?>

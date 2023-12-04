@@ -11,10 +11,16 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
     </script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
+    <!-- icon google -->
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-lDi-03j_XL3PVN0_">
     </script>
+
+    <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -132,6 +138,23 @@
             }
         })
     }
+
+    function bukaDropdown(id) {
+        const elementDropdown = document.getElementById(id);
+        if (elementDropdown.style.height == "100%") {
+            elementDropdown.style.height = "0";
+        } else {
+            elementDropdown.style.height = "100%";
+        }
+    }
+
+    const searchBox = document.getElementById("search-box");
+    const searchBoxInput = document.querySelector('#search-box input')
+    searchBox.addEventListener("submit", (e) => {
+        e.preventDefault()
+        const isinya = searchBoxInput.value
+        window.location.href = "/productNama/" + isinya
+    })
     </script>
 </body>
 

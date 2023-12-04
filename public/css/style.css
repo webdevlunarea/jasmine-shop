@@ -52,6 +52,7 @@ a {
   border-color: rgba(0, 0, 0, 0);
   border-bottom-style: solid;
   transition: 0.5s;
+  border-radius: 1.5em;
 }
 .card1 div {
   position: relative;
@@ -229,6 +230,33 @@ a {
 .limapuluh-ke-seratus {
   width: 50%;
 }
+.garis {
+  display: block;
+  height: 2px;
+  background-color: whitesmoke;
+}
+.logo-pembayaran {
+  height: 64px;
+}
+
+/* Footer */
+footer > .atas > div {
+  width: 100%;
+}
+
+.dropdown-footer {
+  height: 0;
+  overflow-y: hidden;
+  margin-bottom: 1em;
+  transition: 0.3s;
+}
+.dropdown-footer a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  line-height: 2.5em;
+}
+/* end footer */
 
 @media (max-width: 600px) {
   .baris-ke-kolom {
@@ -290,6 +318,9 @@ a {
   }
   .limapuluh-ke-seratus {
     width: 100%;
+  }
+  .logo-pembayaran {
+    height: 44px;
   }
 }
 @media (max-width: 450px) {

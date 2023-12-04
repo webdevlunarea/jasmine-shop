@@ -78,33 +78,23 @@
             <?php } ?>
         </div>
     </div>
-    <div class="container">
-        <div class="row text-center">
-            <div class="col">
-                <div
-                    style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;">
-                    <i class="material-icons">local_shipping</i>
-                </div>
-                <h5>ANTAR GRATIS DAN CEPAT</h5>
-                <p>Gratis pengantaran untuk semua orderan yang lebih dari Rp 50.000</p>
-            </div>
-            <div class="col">
-                <div
-                    style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;">
-                    <i class="material-icons">headset_mic</i>
-                </div>
-                <h5>24/7 CUSTOMER SERVICE</h5>
-                <p>Friendly 24/7 layanan pelanggan</p>
-            </div>
-            <div class="col">
-                <div
-                    style="background-color: black; color: white; border-radius: 2em; width:fit-content; padding: 0.8em 1em; margin-inline: auto; margin-bottom: 1em;">
-                    <i class="material-icons">monetization_on</i>
-                </div>
-                <h5>GARANSI UANG KEMBALI</h5>
-                <p>Garansi yang kami berikan selama 30 hari</p>
-            </div>
+    <span class="garis my-5 container"></span>
+    <div class="container baris-ke-kolom">
+        <div class="limapuluh-ke-seratus">
+            <h3>Metode Pembayaran</h3>
+            <img class="logo-pembayaran" src="/img/logo/bca.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/bni.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/bri.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/mandiri.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/permata.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/cbbank.webp" alt="">
+        </div>
+        <div class="limapuluh-ke-seratus">
+            <h3>Metode Pengiriman</h3>
+            <img class="logo-pembayaran" src="/img/logo/jnt.webp" alt="">
+            <img class="logo-pembayaran" src="/img/logo/jne.webp" alt="">
         </div>
     </div>
+    <span class="garis  container my-5"></span>
 </div>
 <?= $this->endSection(); ?>

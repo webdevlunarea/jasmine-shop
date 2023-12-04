@@ -8,7 +8,7 @@
                 <p class="lead">Terima kasih telah melakukan pembayaran.</p>
                 <i class="bi bi-check-circle text-success display-1 mt-4 mb-4"></i>
                 <div class="mb-3">
-                    <a href="<?= base_url(); ?>" class="btn btn-primary btn-lg me-3">Kembali ke Halaman Utama</a>
+                    <a href="<?= base_url(); ?>" class="btn btn-danger btn-lg me-3 mb-2">Kembali ke Halaman Utama</a>
                 </div>
             </div>
         </div>
