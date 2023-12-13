@@ -26,6 +26,7 @@ class Filters extends BaseConfig
         'secureheaders' => SecureHeaders::class,
         'harusAdmin'    => \App\Filters\AdminFilter::class,
         'harusUser'    => \App\Filters\UserFilter::class,
+        'harusLogin'    => \App\Filters\LoginFilter::class,
         'harusLogout'    => \App\Filters\LogoutFilter::class,
     ];
 

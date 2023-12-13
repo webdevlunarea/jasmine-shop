@@ -3,8 +3,21 @@
 <div class="konten">
     <div class="container">
         <div class="baris-ke-kolom">
-            <img src="data:image/jpeg;base64,<?= base64_encode($produk['gambar']); ?>" alt="" class="img-produk">
-            <div>
+            <div class="img-produk limapuluh-ke-seratus">
+                <img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev">
+                <div>
+                    <div class="img-produk-select selected"><img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>" alt=""></div>
+                    <div class="img-produk-select"><img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar2']); ?>" alt=""></div>
+                    <div class="img-produk-select"><img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar3']); ?>" alt=""></div>
+                    <?php if ($gambar['gambar4']) { ?>
+                        <div class="img-produk-select"><img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar4']); ?>" alt=""></div>
+                    <?php }
+                    if ($gambar['gambar5']) { ?>
+                        <div class="img-produk-select"><img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar5']); ?>" alt=""></div>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="limapuluh-ke-seratus">
                 <h3><?= $produk['nama']; ?></h3>
                 <?php if ($produk['diskon']) { ?>
                     <p class="mb-0 harga d-inline">Rp
@@ -21,7 +34,7 @@
                 <p>Stok : <?= $produk['stok']; ?></p>
                 <p><?= $produk['deskripsi']; ?></p>
                 <?php if (session()->get('isLogin')) { ?>
-                    <?php if (session()->get('role') == 0 ) { ?>
+                    <?php if (session()->get('role') == 0) { ?>
                         <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
                         <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                             <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>

@@ -3,18 +3,23 @@
 namespace App\Controllers;
 
 use App\Models\BarangModel;
+use App\Models\GambarBarangModel;
 use App\Models\PembeliModel;
 use App\Models\UserModel;
 use CodeIgniter\Files\Exceptions\FileNotFoundException;
 
+use function PHPUnit\Framework\isEmpty;
+
 class Pages extends BaseController
 {
     protected $barangModel;
+    protected $gambarBarangModel;
     protected $userModel;
     protected $pembeliModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
+        $this->gambarBarangModel = new GambarBarangModel();
         $this->userModel = new UserModel();
         $this->pembeliModel = new PembeliModel();
     }
@@ -466,7 +471,8 @@ class Pages extends BaseController
 
     public function editAccount()
     {
-        $email = $this->request->getVar('email');
+        $email = session()->get("email");
+        $role = session()->get("role");
         $sandi = $this->request->getVar('sandi');
         $alamat = $this->request->getVar('alamat');
 
@@ -475,13 +481,15 @@ class Pages extends BaseController
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
             ])->update();
         }
-        $this->pembeliModel->where('email_user', $email)->set([
-            'alamat' => $alamat
-        ])->update();
+        if ($role == '0') {
+            $this->pembeliModel->where('email_user', $email)->set([
+                'alamat' => $alamat
+            ])->update();
 
-        session()->set([
-            'alamat' => $alamat,
-        ]);
+            session()->set([
+                'alamat' => $alamat,
+            ]);
+        }
 
         $data = [
             'title' => 'Akun Saya'
@@ -498,17 +506,18 @@ class Pages extends BaseController
     public function about()
     {
         $data = [
-            'title' => 'Tentang',
-            'token' => false
+            'title' => 'Tentang'
         ];
         return view('pages/about', $data);
     }
     public function product($id = false)
     {
         $produk = $this->barangModel->getBarang($id);
+        $gambarnya = $this->gambarBarangModel->getGambar($id);
         $data = [
             'title' => 'Produk',
-            'produk' => $produk
+            'produk' => $produk,
+            'gambar' => $gambarnya
         ];
         return view('pages/product', $data);
     }
@@ -548,6 +557,10 @@ class Pages extends BaseController
         $tanggal = "B" . date("Ymdhis", $d);
 
         $gambarnya = file_get_contents($this->request->getFile('gambar'));
+        $gambarnya1 = file_get_contents($this->request->getFile('gambar1'));
+        $gambarnya2 = file_get_contents($this->request->getFile('gambar2'));
+        $gambarnya3 = !isEmpty($this->request->getFile('gambar3')) ? file_get_contents($this->request->getFile('gambar3')) : null;
+        $gambarnya4 = !isEmpty($this->request->getFile('gambar4')) ? file_get_contents($this->request->getFile('gambar4')) : null;
 
         $this->barangModel->insert([
             'id' => $tanggal,
@@ -560,6 +573,14 @@ class Pages extends BaseController
             'subkategori' => $this->request->getVar('subkategori'),
             'diskon' => $this->request->getVar('diskon'),
         ]);
+        $this->gambarBarangModel->insert([
+            'id' => $tanggal,
+            'gambar1' => $gambarnya,
+            'gambar2' => $gambarnya1,
+            'gambar3' => $gambarnya2,
+            'gambar4' => $gambarnya3,
+            'gambar5' => $gambarnya4,
+        ]);
 
         session()->setFlashdata('msg', 'Produk telah ditambahkan');
         return redirect()->to('/listproduct');
@@ -567,9 +588,11 @@ class Pages extends BaseController
     public function editProduct($id)
     {
         $produk = $this->barangModel->getBarang($id);
+        $gambar = $this->gambarBarangModel->getGambar($id);
         $data = [
             'title' => 'Edit Produk',
-            'produk' => $produk
+            'produk' => $produk,
+            'gambar' => $gambar
         ];
         return view('pages/editProduct', $data);
     }
@@ -577,6 +600,10 @@ class Pages extends BaseController
     {
         if (!empty($_FILES['gambar']['tmp_name'])) {
             $gambarnya = file_get_contents($this->request->getFile('gambar'));
+            $gambarnya1 = file_get_contents($this->request->getFile('gambar1'));
+            $gambarnya2 = file_get_contents($this->request->getFile('gambar2'));
+            $gambarnya3 = !isEmpty($this->request->getFile('gambar3')) ? file_get_contents($this->request->getFile('gambar3')) : null;
+            $gambarnya4 = !isEmpty($this->request->getFile('gambar4')) ? file_get_contents($this->request->getFile('gambar4')) : null;
             $this->barangModel->save([
                 'id' => $id,
                 'nama' => $this->request->getVar('nama'),
@@ -587,6 +614,14 @@ class Pages extends BaseController
                 'kategori' => $this->request->getVar('kategori'),
                 'subkategori' => $this->request->getVar('subkategori'),
                 'diskon' => $this->request->getVar('diskon'),
+            ]);
+            $this->gambarBarangModel->save([
+                'id' => $id,
+                'gambar1' => $gambarnya,
+                'gambar2' => $gambarnya1,
+                'gambar3' => $gambarnya2,
+                'gambar4' => $gambarnya3,
+                'gambar5' => $gambarnya4,
             ]);
         } else {
             $this->barangModel->save([

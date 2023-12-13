@@ -24,11 +24,12 @@
                             <label for="inputPassword4" class="form-label">Sandi</label>
                             <input name="sandi" type="password" class="form-control" id="inputPassword4">
                         </div>
-                        <div class="col-12">
-                            <label for="inputAddress" class="form-label">Alamat</label>
-                            <input name="alamat" type="text" class="form-control" id="inputAddress"
-                                placeholder="Jl.Jasmine No.1" value="<?= session()->get("alamat") ?>" required>
-                        </div>
+                        <?php if (session()->get('alamat')) { ?>
+                            <div class="col-12">
+                                <label for="inputAddress" class="form-label">Alamat</label>
+                                <input name="alamat" type="text" class="form-control" id="inputAddress" placeholder="alamat" value="<?= session()->get("alamat") ?>" required>
+                            </div>
+                        <?php } ?>
                         <div class="col-12">
                             <button type="submit" class="btn btn-danger">Simpan</button>
                         </div>

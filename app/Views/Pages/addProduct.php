@@ -51,15 +51,13 @@
                             <tr>
                                 <td>Sub Kategori</td>
                                 <td>
-                                    <div class="baris"><input type="text" class="form-control" name="subkategori"
-                                            required></div>
+                                    <div class="baris"><input type="text" class="form-control" name="subkategori" required></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Deskripsi</td>
                                 <td>
-                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi"
-                                            required></textarea></div>
+                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -68,12 +66,46 @@
                 </div>
                 <div style="flex: 1;">
                     <h5 class="jdl-section">Gambar Produk</h5>
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="inputGroupFile01">Upload</label>
-                        <input type="file" class="form-control" id="addProduct_InputGambar" name="gambar" required>
+                    <div class="add-gambar mb-1">
+                        <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">Preview</p>
+                        <img src="img/nopic.jpg" id="addProduct_PreviewUtama">
                     </div>
-                    <div class="add-gambar">
-                        <img src="img/nopic.jpg" id="addProduct_PreviewGambar">
+                    <div class="d-flex gap-2" style="overflow-y: auto;">
+                        <div class="input-group-gambar">
+                            <div id="addProduct_Input" class="addProduct_Input">
+                                <label class="input-gambar-label" for="addProduct_InputGambar"><i class="material-icons">add</i></label>
+                                <input type="file" class="input-gambar" id="addProduct_InputGambar" name="gambar" required>
+                            </div>
+                            <img src="img/nopic.jpg" id="addProduct_PreviewGambar" class="addProduct_Preview">
+                        </div>
+                        <div class="input-group-gambar">
+                            <div id="addProduct_Input1" class="addProduct_Input">
+                                <label class="input-gambar-label" for="addProduct_InputGambar1"><i class="material-icons">add</i></label>
+                                <input type="file" class="input-gambar" id="addProduct_InputGambar1" name="gambar1" required>
+                            </div>
+                            <img src="img/nopic.jpg" id="addProduct_PreviewGambar1" class="addProduct_Preview">
+                        </div>
+                        <div class="input-group-gambar">
+                            <div id="addProduct_Input2" class="addProduct_Input">
+                                <label class="input-gambar-label" for="addProduct_InputGambar2"><i class="material-icons">add</i></label>
+                                <input type="file" class="input-gambar" id="addProduct_InputGambar2" name="gambar2" required>
+                            </div>
+                            <img src="img/nopic.jpg" id="addProduct_PreviewGambar2" class="addProduct_Preview">
+                        </div>
+                        <div class="input-group-gambar">
+                            <div id="addProduct_Input3" class="addProduct_Input">
+                                <label class="input-gambar-label" for="addProduct_InputGambar3"><i class="material-icons">add</i></label>
+                                <input type="file" class="input-gambar" id="addProduct_InputGambar3" name="gambar3">
+                            </div>
+                            <img src="img/nopic.jpg" id="addProduct_PreviewGambar3" class="addProduct_Preview">
+                        </div>
+                        <div class="input-group-gambar">
+                            <div id="addProduct_Input4" class="addProduct_Input">
+                                <label class="input-gambar-label" for="addProduct_InputGambar4"><i class="material-icons">add</i></label>
+                                <input type="file" class="input-gambar" id="addProduct_InputGambar4" name="gambar4">
+                            </div>
+                            <img src="img/nopic.jpg" id="addProduct_PreviewGambar4" class="addProduct_Preview">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,15 +116,24 @@
     </div>
 </div>
 <script>
-const addProduct_inputGambar = document.getElementById("addProduct_InputGambar")
-const addProduct_PreviewGambar = document.getElementById("addProduct_PreviewGambar")
-addProduct_inputGambar.addEventListener("change", (e) => {
-    const file = addProduct_inputGambar.files[0];
-    const blobFile = new Blob([file], {
-        type: file.type
-    });
-    var blobUrl = URL.createObjectURL(blobFile);
-    addProduct_PreviewGambar.src = blobUrl;
-});
+    const addProduct_inputGambar = document.querySelectorAll(".input-gambar");
+    const addProduct_previewGambar = document.querySelectorAll(".addProduct_Preview");
+    const addProduct_input = document.querySelectorAll(".addProduct_Input");
+    const addProduct_previewUtama = document.getElementById("addProduct_PreviewUtama");
+    const addProduct_form = document.querySelector("form");
+
+    addProduct_inputGambar.forEach((item, index) => {
+        item.addEventListener("change", () => {
+            const file = addProduct_inputGambar[index].files[0];
+            const blobFile = new Blob([file], {
+                type: file.type
+            });
+            var blobUrl = URL.createObjectURL(blobFile);
+            addProduct_previewGambar[index].src = blobUrl;
+            addProduct_previewUtama.src = blobUrl;
+            addProduct_previewGambar[index].style.display = "block";
+            addProduct_input[index].style.display = 'none';
+        })
+    })
 </script>
 <?= $this->endSection(); ?>

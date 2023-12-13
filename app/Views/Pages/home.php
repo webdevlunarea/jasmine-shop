@@ -8,7 +8,7 @@
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
             </div>
-            <div class="carousel-inner" style="border-radius: 1.5em;">
+            <div class="carousel-inner" style="border-radius: 1em;">
                 <div class=" carousel-item active">
                     <img src="img/promo1.webp" class="d-block w-100" alt="...">
                 </div>
@@ -65,14 +65,6 @@
     <div class="container my-5">
         <h5 class="jdl-section">Kategori</h5>
         <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
-        <!-- <div class="d-flex justify-content-between mb-3">
-            <div class="d-flex gap-1 justify-content-end">
-                <button class="btn btn-icon scroll-kategori show-ke-hide"><i
-                        class="material-icons">arrow_back</i></button>
-                <button class="btn btn-icon scroll-kategori show-ke-hide"><i
-                        class="material-icons">arrow_forward</i></button>
-            </div>
-        </div> -->
         <div class="container-kategori">
             <a class="kategori" href="/all/meja">
                 <span class="material-symbols-outlined">
