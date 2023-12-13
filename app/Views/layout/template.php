@@ -88,6 +88,7 @@
         const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
         const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
         const formCheckoutNoHp = document.querySelector('#form-checkout input[name="phone"]')
+        const formCheckoutPaket = document.querySelector('#form-checkout select[name="paket"]')
         const formCheckout = document.querySelectorAll('#form-checkout .form-control')
 
         if (btnCheckoutElm) {
@@ -95,13 +96,21 @@
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
             btnCheckoutElm.addEventListener("click", () => {
                 if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
-                    formCheckoutNoHp.value) {
+                    formCheckoutNoHp.value && formCheckoutPaket.value > 0) {
+
+                    formCheckoutNama.classList.remove("is-invalid")
+                    formCheckoutAlamat.classList.remove("is-invalid")
+                    formCheckoutEmail.classList.remove("is-invalid")
+                    formCheckoutNoHp.classList.remove("is-invalid")
+                    formCheckoutPaket.classList.remove("is-invalid")
+
                     btnCheckoutElm.innerHTML = "Loading"
                     const data = {
                         nama: formCheckoutNama.value,
                         alamat: formCheckoutAlamat.value,
                         email: formCheckoutEmail.value,
                         phone: formCheckoutNoHp.value,
+                        paket: formCheckoutPaket.value
                     }
                     console.log(data)
                     async function getTokenMditrans() {
@@ -131,6 +140,7 @@
                     if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
                     if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
                     if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
+                    if (formCheckoutPaket.value < 0) formCheckoutPaket.classList.add("is-invalid")
                 }
             })
         }

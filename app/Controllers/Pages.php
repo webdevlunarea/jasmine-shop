@@ -269,7 +269,8 @@ class Pages extends BaseController
             'produk' => $produk,
             'jumlah' => $jumlah,
             'keranjang' => $keranjang,
-            'tokenMid' => false
+            'tokenMid' => false,
+            // 'ongkir' => (array)json_decode($ongkir)
         ];
 
         if (!isset($total)) {
@@ -371,6 +372,29 @@ class Pages extends BaseController
             $total = $subtotal + 10000;
         }
 
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.rajaongkir.com/starter/province",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "key: cc2c0bc6b0af484079a445cc8da39490"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $provinsi = json_decode($response, true);
+
         $user = [
             'alamat' => $alamat,
             'email' => $email,
@@ -380,9 +404,64 @@ class Pages extends BaseController
             'produk' => $produk,
             'jumlah' => $jumlah,
             'user' => $user,
-            'total' => $total
+            'total' => $total,
+            'provinsi' => $provinsi["rajaongkir"]["results"]
         ];
         return view('pages/checkout', $data);
+    }
+    public function getKota($id_prov)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.rajaongkir.com/starter/city?province=" . $id_prov,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "key: cc2c0bc6b0af484079a445cc8da39490"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $kota = json_decode($response, true);
+        return $this->response->setJSON($kota, false);
+    }
+    public function getPaket($asal, $tujuan, $kurir)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.rajaongkir.com/starter/cost",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => "origin=" . $asal . "&destination=" . $tujuan . "&weight=1700&courier=" . $kurir,
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/x-www-form-urlencoded",
+                "key: cc2c0bc6b0af484079a445cc8da39490"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $paket = json_decode($response, true);
+        return $this->response->setJSON($paket, false);
     }
     public function actionCheckout()
     {
@@ -390,6 +469,7 @@ class Pages extends BaseController
         $alamat = $this->request->getVar('alamat');
         $phone = $this->request->getVar('phone');
         $email = $this->request->getVar('email');
+        $paket = $this->request->getVar('paket');
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
         $keranjang = (array)json_decode($getPembeli['keranjang']);
@@ -417,12 +497,12 @@ class Pages extends BaseController
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
-                'price' => 10000,
+                'price' => $paket,
                 'quantity' => 1,
                 'name' => 'Biaya Ongkir',
             );
             array_push($itemDetails, $item);
-            $total = $subtotal + 10000;
+            $total = $subtotal + $paket;
         }
 
         \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
@@ -642,6 +722,7 @@ class Pages extends BaseController
     public function delProduct($id)
     {
         $produk = $this->barangModel->where('id', $id)->delete();
+        $gambar = $this->gambarBarangModel->where('id', $id)->delete();
         return redirect()->to('/listproduct');
     }
 }

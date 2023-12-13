@@ -26,6 +26,8 @@ $routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
+$routes->get('/getkota/(:any)', 'Pages::getKota/$1');
+$routes->get('/getpaket/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
