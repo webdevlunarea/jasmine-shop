@@ -603,10 +603,14 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarang($id);
         $gambarnya = $this->gambarBarangModel->getGambar($id);
+        $varian = (array)json_decode($produk['varian']);
+        $dimensi = explode("X", $produk['dimensi']);
         $data = [
             'title' => 'Produk',
             'produk' => $produk,
-            'gambar' => $gambarnya
+            'gambar' => $gambarnya,
+            'varian' => $varian,
+            'dimensi' => $dimensi
         ];
         return view('pages/product', $data);
     }
