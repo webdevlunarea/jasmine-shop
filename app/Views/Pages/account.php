@@ -6,9 +6,8 @@
             <div style="width: 30%;" class="show-ke-hide">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">Profileku</li>
-                    <li class="list-group-item">Pilih Pembayaran</li>
-                    <li class="list-group-item">Pesananku</li>
-                    <li class="list-group-item">Wishlist</li>
+                    <li class="list-group-item"><a href="/cart" class="text-dark">Pesananku</a></li>
+                    <li class="list-group-item"><a href="/wishlist" class="text-dark">Wishlist</a></li>
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>

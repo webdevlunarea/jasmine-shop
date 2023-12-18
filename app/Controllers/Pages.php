@@ -7,6 +7,9 @@ use App\Models\GambarBarangModel;
 use App\Models\PembeliModel;
 use App\Models\UserModel;
 use CodeIgniter\Files\Exceptions\FileNotFoundException;
+use KiriminAja\Base\Config\Cache\Mode;
+use KiriminAja\Base\Config\KiriminAjaConfig;
+use KiriminAja\Services\KiriminAja;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -237,6 +240,7 @@ class Pages extends BaseController
         $jumlah = [];
         $itemDetails = [];
         $subtotal = 0;
+        $berat = 0;
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
                 $produknya = $this->barangModel->getBarang($key);
@@ -253,6 +257,7 @@ class Pages extends BaseController
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $value;
+                $berat += $produknya['berat'] * $value;
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
@@ -270,6 +275,7 @@ class Pages extends BaseController
             'jumlah' => $jumlah,
             'keranjang' => $keranjang,
             'tokenMid' => false,
+            'berat' => $berat
             // 'ongkir' => (array)json_decode($ongkir)
         ];
 
@@ -359,6 +365,7 @@ class Pages extends BaseController
         $produk = [];
         $jumlah = [];
         $subtotal = 0;
+        $berat = 0;
         if (!empty($keranjang)) {
             foreach ($keranjang as $key => $value) {
                 $produknya = $this->barangModel->getBarang($key);
@@ -368,6 +375,7 @@ class Pages extends BaseController
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $value;
+                $berat += $produknya['berat'] * $value;
             }
             $total = $subtotal + 10000;
         }
@@ -403,6 +411,7 @@ class Pages extends BaseController
             'title' => 'Check Out',
             'produk' => $produk,
             'jumlah' => $jumlah,
+            'berat' => $berat,
             'user' => $user,
             'total' => $total,
             'provinsi' => $provinsi["rajaongkir"]["results"]
@@ -435,7 +444,7 @@ class Pages extends BaseController
         $kota = json_decode($response, true);
         return $this->response->setJSON($kota, false);
     }
-    public function getPaket($asal, $tujuan, $kurir)
+    public function getPaket($asal, $tujuan, $berat, $kurir)
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -448,7 +457,7 @@ class Pages extends BaseController
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "origin=" . $asal . "&destination=" . $tujuan . "&weight=1700&courier=" . $kurir,
+            CURLOPT_POSTFIELDS => "origin=" . $asal . "&destination=" . $tujuan . "&weight=" . $berat . "&courier=" . $kurir,
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/x-www-form-urlencoded",
                 "key: cc2c0bc6b0af484079a445cc8da39490"

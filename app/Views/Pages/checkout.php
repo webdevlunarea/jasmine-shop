@@ -84,9 +84,14 @@
                     <p class="my-2">Pengiriman:</p>
                     <p class="my-2"><b id="total-pengiriman">-</b></p>
                 </div>
-                <div class="d-flex justify-content-between" style="gap: 10em;">
+                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Total:</p>
                     <p class="my-2"><b id="total-semua">Rp <?= number_format(session()->get('subtotal'), 0, ",", "."); ?></b>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-between" style="gap: 10em;">
+                    <p class="my-2">Berat:</p>
+                    <p class="my-2"><b id="total-semua"><?= $berat; ?> gram</b>
                     </p>
                 </div>
                 <button id="btn-checkout" class="btn btn-danger" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
@@ -102,6 +107,7 @@
     const costElm = document.getElementById("total-pengiriman");
     const totalElm = document.getElementById("total-semua");
     const subtotal = <?= session()->get('subtotal'); ?>;
+    const beratTotal = Number("<?= $berat; ?>");
 
     async function getKota(idprov) {
         const response = await fetch("getkota/" + idprov);
@@ -115,8 +121,9 @@
             kotaElm.appendChild(optElm);
         });
     }
-    async function getPaket(asal, tujuan, kurir) {
-        const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + kurir);
+    async function getPaket(asal, tujuan, berat, kurir) {
+        console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
+        const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
         const paket = await response.json();
         const hasil = paket.rajaongkir.results[0].costs;
         paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
@@ -141,7 +148,7 @@
         const idkota = Number(e.target.value)
         const ekspedisi = ekspedisiElm.value;
         if (idkota > 0)
-            getPaket("399", idkota, ekspedisi) //399 adalah id kota semarang
+            getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
     })
     ekspedisiElm.addEventListener("change", (e) => {
         paketElm.innerHTML = '<option value="-1">Loading..</option>'
@@ -149,7 +156,7 @@
         const idkota = kotaElm.value;
         const ekspedisi = e.target.value;
         if (idkota > 0)
-            getPaket("399", idkota, ekspedisi) //399 adalah id kota semarang
+            getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
     })
     paketElm.addEventListener("change", (e) => {
         costElm.innerHTML = `Rp ${e.target.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;

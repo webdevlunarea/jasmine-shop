@@ -28,6 +28,11 @@ class BarangModel extends Model
     }
     public function getBarangLimit()
     {
-        return $this->findAll(10,0);
+        return $this->findAll(10, 0);
+    }
+    public function getBarangPage($page)
+    {
+        $hitungPag = floor($page / 20);
+        return $this->findAll(20, $hitungPag);
     }
 }

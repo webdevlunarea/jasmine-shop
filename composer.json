@@ -12,6 +12,7 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "codeigniter4/framework": "^4.0",
+        "kiriminaja/kiriminaja-php": "^1.2",
         "midtrans/midtrans-php": "^2.5"
     },
     "require-dev": {
