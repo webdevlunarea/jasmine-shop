@@ -156,8 +156,8 @@ class Pages extends BaseController
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'alamat' => $getPembeli['alamat'],
-                'wishlist' => (array)json_decode($getPembeli['wishlist']),
-                'keranjang' => (array)json_decode($getPembeli['keranjang']),
+                'wishlist' => json_decode($getPembeli['wishlist'], true),
+                'keranjang' => json_decode($getPembeli['keranjang'], true),
                 'isLogin' => true
             ];
             session()->set($ses_data);
@@ -224,11 +224,26 @@ class Pages extends BaseController
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
         foreach ($wishlist as $id_barang) {
-            if (array_key_exists($id_barang, $keranjang)) $keranjang[$id_barang] += 1;
-            else $keranjang[$id_barang] = 1;
-            session()->set(['keranjang' => $keranjang]);
+            $produknya = $this->barangModel->getBarang($id_barang);
+            $varian = json_decode($produknya['varian'], true)[0];
+            $ketemu = false;
+            foreach ($keranjang as $index => $element) {
+                if($element['id'] == $id_barang && $element['varian'] == $varian){
+                    $keranjang[$index]['jumlah'] += 1;
+                    $ketemu = true;
+                }
+            }
+            if(!$ketemu) {
+                $keranjangBaru = array(
+                    'id' => $id_barang,
+                    'jumlah' => 1,
+                    'varian' => $varian,
+                    'index_gambar' => 0
+                );
+                array_push($keranjang, $keranjangBaru);
+            }
         }
-
+        session()->set(['keranjang' => $keranjang]);
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
@@ -237,27 +252,30 @@ class Pages extends BaseController
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
         $produk = [];
+        $gambar = [];
         $jumlah = [];
         $itemDetails = [];
         $subtotal = 0;
         $berat = 0;
         if (!empty($keranjang)) {
-            foreach ($keranjang as $key => $value) {
-                $produknya = $this->barangModel->getBarang($key);
+            foreach ($keranjang as $element) {
+                $produknya = $this->barangModel->getBarang($element['id']);
+                $gambarnya = $this->gambarBarangModel->getGambar($element['id']);
                 array_push($produk, $produknya);
-                array_push($jumlah, $value);
+                array_push($gambar, $gambarnya["gambar".($element['index_gambar'] + 1)]);
+                array_push($jumlah, $element['jumlah']);
                 $item = array(
                     'id' => $produknya["id"],
                     'price' => $produknya["harga"],
-                    'quantity' => $value,
+                    'quantity' => $element['jumlah'],
                     'name' => $produknya["nama"],
                 );
                 array_push($itemDetails, $item);
 
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
-                $subtotal += $hasil * $value;
-                $berat += $produknya['berat'] * $value;
+                $subtotal += $hasil * $element['jumlah'];
+                $berat += $produknya['berat'] * $element['jumlah'];
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
@@ -272,6 +290,7 @@ class Pages extends BaseController
         $data = [
             'title' => 'Keranjang',
             'produk' => $produk,
+            'gambar' => $gambar,
             'jumlah' => $jumlah,
             'keranjang' => $keranjang,
             'tokenMid' => false,
@@ -285,61 +304,75 @@ class Pages extends BaseController
 
         return view('pages/cart', $data);
     }
-    public function addCart($id_barang)
+    public function addCart($id_barang, $varian, $index_gambar)
     {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
-        if (array_key_exists($id_barang, $keranjang)) $keranjang[$id_barang] += 1;
-        else $keranjang[$id_barang] = 1;
+        $ketemu = false;
+        foreach ($keranjang as $index => $element) {
+            if($element['id'] == $id_barang && $element['varian'] == $varian){
+                $keranjang[$index]['jumlah'] += 1;
+                $ketemu = true;
+            }
+        }
+        if(!$ketemu) {
+            $keranjangBaru = array(
+                'id' => $id_barang,
+                'jumlah' => 1,
+                'varian' => $varian,
+                'index_gambar' => $index_gambar
+            );
+            array_push($keranjang, $keranjangBaru);
+        }
+        session()->set(['keranjang' => $keranjang]);
+        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        return redirect()->to('/cart');
+    }
+    public function redCart($index_cart)
+    {
+        $keranjang = session()->get('keranjang');
+        $email = session()->get('email');
+        $keranjang[$index_cart]['jumlah'] -= 1;
+        if($keranjang[$index_cart]['jumlah'] == 0) {
+            unset($keranjang[$index_cart]);
+            $keranjangBaru = array_values($keranjang);
+            session()->set(['keranjang' => $keranjangBaru]);
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+            return redirect()->to('/cart');
+        }
         session()->set(['keranjang' => $keranjang]);
 
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
-    public function redCart($id_barang)
+    public function delCart($index_cart)
     {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
-        if ($keranjang[$id_barang] > 1) $keranjang[$id_barang] -= 1;
-        else unset($keranjang[$id_barang]);
-        session()->set(['keranjang' => $keranjang]);
-
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
-        return redirect()->to('/cart');
-    }
-    public function delCart($id_barang)
-    {
-        $keranjang = session()->get('keranjang');
-        $email = session()->get('email');
-        unset($keranjang[$id_barang]);
-        session()->set(['keranjang' => $keranjang]);
-
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        unset($keranjang[$index_cart]);
+        $keranjangBaru = array_values($keranjang);
+        session()->set(['keranjang' => $keranjangBaru]);
+        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
         return redirect()->to('/cart');
     }
     public function successPay()
     {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
-        $ceking = [];
         if (!empty($keranjang)) {
-            foreach ($keranjang as $key => $value) {
-                $produknya = $this->barangModel->getBarang($key);
+            foreach ($keranjang as $element) {
+                $produknya = $this->barangModel->getBarang($element['id']);
                 $this->barangModel->save([
-                    'id' => $key,
-                    'stok' => (int)$produknya['stok'] - (int)$value,
+                    'id' => $element['id'],
+                    'stok' => (int)$produknya['stok'] - (int)$element['jumlah'],
                 ]);
-                array_push($ceking, $value);
             }
         }
-
         session()->set(['keranjang' => []]);
         $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
 
         $data = [
-            'title' => 'Pembayaran Sukses',
-            'ceking' => implode(" ", $ceking),
-            'keranjang' => implode(" ", $keranjang),
+            'title' => 'Pembayaran Sukses'
         ];
         return view('pages/successPay', $data);
     }
@@ -367,15 +400,15 @@ class Pages extends BaseController
         $subtotal = 0;
         $berat = 0;
         if (!empty($keranjang)) {
-            foreach ($keranjang as $key => $value) {
-                $produknya = $this->barangModel->getBarang($key);
+            foreach ($keranjang as $element) {
+                $produknya = $this->barangModel->getBarang($element['id']);
                 array_push($produk, $produknya);
-                array_push($jumlah, $value);
+                array_push($jumlah, $element['jumlah']);
 
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
-                $subtotal += $hasil * $value;
-                $berat += $produknya['berat'] * $value;
+                $subtotal += $hasil * $element['jumlah'];
+                $berat += $produknya['berat'] * $element['jumlah'];
             }
             $total = $subtotal + 10000;
         }
@@ -481,28 +514,28 @@ class Pages extends BaseController
         $paket = $this->request->getVar('paket');
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
-        $keranjang = (array)json_decode($getPembeli['keranjang']);
+        $keranjang = json_decode($getPembeli['keranjang'], true);
         $produk = [];
         $jumlah = [];
         $subtotal = 0;
         $total = 0;
         $itemDetails = [];
         if (!empty($keranjang)) {
-            foreach ($keranjang as $key => $value) {
-                $produknya = $this->barangModel->getBarang($key);
+            foreach ($keranjang as $element) {
+                $produknya = $this->barangModel->getBarang($element['id']);
                 array_push($produk, $produknya);
-                array_push($jumlah, $value);
+                array_push($jumlah, $element['jumlah']);
                 $item = array(
                     'id' => $produknya["id"],
                     'price' => $produknya["harga"],
-                    'quantity' => $value,
+                    'quantity' => $element['jumlah'],
                     'name' => $produknya["nama"],
                 );
                 array_push($itemDetails, $item);
 
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
-                $subtotal += $hasil * $value;
+                $subtotal += $hasil * $element['jumlah'];
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
@@ -603,7 +636,7 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarang($id);
         $gambarnya = $this->gambarBarangModel->getGambar($id);
-        $varian = (array)json_decode($produk['varian']);
+        $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
         $data = [
             'title' => 'Produk',

@@ -45,7 +45,7 @@
                 <p><?= $produk['deskripsi']; ?></p>
                 <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
+                <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                 <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i
                         class="material-icons">favorite</i></a>
@@ -63,4 +63,50 @@
         </div>
     </div>
 </div>
+<script>
+const elmVarianSelect = document.querySelectorAll(".btn-check")
+const imgProdukSelect = document.querySelectorAll(".img-produk-select")
+const imgProdukPrev = document.querySelector(".img-produk-prev")
+const elmVarian = document.getElementById('varian-group')
+const elmBtnBeli = document.getElementById('btn-beli-product')
+const jmlVarian = "<?= $produk['jml_varian'] ?>";
+const idProduk = "<?= $produk['id'] ?>";
+
+if (imgProdukSelect.length > 0) {
+    imgProdukSelect.forEach((element, index) => {
+        element.addEventListener("click", () => {
+            imgProdukSelect.forEach(e => e.classList.remove("selected"));
+            element.classList.add("selected");
+            imgProdukPrev.src = element.childNodes[0].src;
+            const hitungBagi4 = Math.floor(index / Number(jmlVarian));
+            elmVarianSelect.forEach(e => e.checked = false);
+            elmVarianSelect[hitungBagi4].checked = true
+            setUrlElmBeli()
+        })
+    });
+}
+elmVarian.addEventListener("change", (e) => {
+    imgProdukSelect.forEach(e => e.classList.remove("selected"));
+    imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
+    imgProdukPrev.src = imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src
+    setUrlElmBeli()
+});
+
+function setUrlElmBeli() {
+    let elmSelected;
+    elmVarianSelect.forEach((e) => {
+        if (e.checked) elmSelected = e.value
+    })
+    const varians = "<?php 
+        foreach ($varian as $i => $v) {
+            echo $v;
+            if($i < (count($varian) - 1)) echo ",";
+        }
+        ?>";
+    const varianArray = varians.split(",")
+    const indexGambar = Number(elmSelected) * Number(jmlVarian)
+    elmBtnBeli.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+}
+setUrlElmBeli()
+</script>
 <?= $this->endSection(); ?>

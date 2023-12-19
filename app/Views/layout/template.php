@@ -165,29 +165,6 @@
         const isinya = searchBoxInput.value
         window.location.href = "/productNama/" + isinya
     })
-
-
-    const elmVarianSelect = document.querySelectorAll(".btn-check")
-    const imgProdukSelect = document.querySelectorAll(".img-produk-select")
-    const imgProdukPrev = document.querySelector(".img-produk-prev")
-    const elmVarian = document.getElementById('varian-group')
-    if (imgProdukSelect.length > 0) {
-        imgProdukSelect.forEach((element, index) => {
-            element.addEventListener("click", () => {
-                imgProdukSelect.forEach(e => e.classList.remove("selected"));
-                element.classList.add("selected");
-                imgProdukPrev.src = element.childNodes[0].src;
-                const hitungBagi4 = Math.floor(index / 4);
-                elmVarianSelect.forEach(e => e.checked = false);
-                elmVarianSelect[hitungBagi4].checked = true
-            })
-        });
-    }
-    elmVarian.addEventListener("change", (e) => {
-        imgProdukSelect.forEach(e => e.classList.remove("selected"));
-        imgProdukSelect[Number(e.target.value) * 4].classList.add("selected");
-        imgProdukPrev.src = imgProdukSelect[Number(e.target.value) * 4].childNodes[0].src
-    });
     </script>
 </body>
 

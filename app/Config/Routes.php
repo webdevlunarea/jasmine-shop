@@ -21,7 +21,7 @@ $routes->get('/delwishlist/(:any)', 'Pages::delWishlist/$1', ['filter' => 'harus
 $routes->get('/wishlisttocart', 'Pages::wishlistToCart', ['filter' => 'harusUser']);
 
 $routes->get('/cart', 'Pages::cart', ['filter' => 'harusUser']);
-$routes->get('/addcart/(:any)', 'Pages::addCart/$1', ['filter' => 'harusUser']);
+$routes->get('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filter' => 'harusUser']);
 $routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
