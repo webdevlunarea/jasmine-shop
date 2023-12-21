@@ -13,10 +13,13 @@ class BarangModel extends Model
         'gambar',
         'harga',
         'stok',
+        'dimensi',
         'deskripsi',
         'kategori',
         'subkategori',
-        'diskon'
+        'diskon',
+        'varian',
+        'jml_varian'
     ];
 
     public function getBarang($id = false)

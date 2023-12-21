@@ -447,7 +447,8 @@ class Pages extends BaseController
             'berat' => $berat,
             'user' => $user,
             'total' => $total,
-            'provinsi' => $provinsi["rajaongkir"]["results"]
+            'provinsi' => $provinsi["rajaongkir"]["results"],
+            'keranjang' => $keranjang
         ];
         return view('pages/checkout', $data);
     }
@@ -529,7 +530,7 @@ class Pages extends BaseController
                     'id' => $produknya["id"],
                     'price' => $produknya["harga"],
                     'quantity' => $element['jumlah'],
-                    'name' => $produknya["nama"],
+                    'name' => $produknya["nama"]." (".$element['varian'].")",
                 );
                 array_push($itemDetails, $item);
 
@@ -681,84 +682,90 @@ class Pages extends BaseController
     {
         $d = strtotime("+7 Hours");
         $tanggal = "B" . date("Ymdhis", $d);
-
-        $gambarnya = file_get_contents($this->request->getFile('gambar'));
-        $gambarnya1 = file_get_contents($this->request->getFile('gambar1'));
-        $gambarnya2 = file_get_contents($this->request->getFile('gambar2'));
-        $gambarnya3 = !isEmpty($this->request->getFile('gambar3')) ? file_get_contents($this->request->getFile('gambar3')) : null;
-        $gambarnya4 = !isEmpty($this->request->getFile('gambar4')) ? file_get_contents($this->request->getFile('gambar4')) : null;
+        $varian = explode(",",$this->request->getVar('varian'));
+        $hasilVarian = count(explode(",",$this->request->getVar('varian')))*(int)$this->request->getVar('jml_varian');
+        $gambarnya = [];
+        $insertGambarBarang = [
+            'id'=> $tanggal
+        ];
+        for ($i=1; $i <= $hasilVarian; $i++) { 
+            array_push($gambarnya,file_get_contents($this->request->getFile("gambar".$i)));
+            $insertGambarBarang["gambar".$i] = file_get_contents($this->request->getFile("gambar".$i));
+        }
 
         $this->barangModel->insert([
-            'id' => $tanggal,
-            'nama' => $this->request->getVar('nama'),
-            'gambar' => $gambarnya,
-            'harga' => $this->request->getVar('harga'),
-            'stok' => $this->request->getVar('stok'),
-            'deskripsi' => $this->request->getVar('deskripsi'),
-            'kategori' => $this->request->getVar('kategori'),
-            'subkategori' => $this->request->getVar('subkategori'),
-            'diskon' => $this->request->getVar('diskon'),
+            'id'            => $tanggal,
+            'nama'          => $this->request->getVar('nama'),
+            'gambar'        => $gambarnya[0],
+            'harga'         => $this->request->getVar('harga'),
+            'stok'          => $this->request->getVar('stok'),
+            'dimensi'       => $this->request->getVar('dimensi'),
+            'deskripsi'     => $this->request->getVar('deskripsi'),
+            'kategori'      => $this->request->getVar('kategori'),
+            'subkategori'   => $this->request->getVar('subkategori'),
+            'diskon'        => $this->request->getVar('diskon'),
+            'varian'        => json_encode($varian),
+            'jml_varian'    => $this->request->getVar('jml_varian'),
         ]);
-        $this->gambarBarangModel->insert([
-            'id' => $tanggal,
-            'gambar1' => $gambarnya,
-            'gambar2' => $gambarnya1,
-            'gambar3' => $gambarnya2,
-            'gambar4' => $gambarnya3,
-            'gambar5' => $gambarnya4,
-        ]);
+        $this->gambarBarangModel->insert($insertGambarBarang);
 
-        session()->setFlashdata('msg', 'Produk telah ditambahkan');
+        session()->setFlashdata('msg', 'Produk berhasil ditambahkan');
         return redirect()->to('/listproduct');
     }
     public function editProduct($id)
     {
         $produk = $this->barangModel->getBarang($id);
         $gambar = $this->gambarBarangModel->getGambar($id);
+        $varian = json_decode($produk['varian'],true);
         $data = [
-            'title' => 'Edit Produk',
-            'produk' => $produk,
-            'gambar' => $gambar
+            'title'     => 'Edit Produk',
+            'produk'    => $produk,
+            'gambar'    => $gambar,
+            'varian'    => implode(',',$varian)
         ];
         return view('pages/editProduct', $data);
     }
     public function actionEditProduct($id)
     {
-        if (!empty($_FILES['gambar']['tmp_name'])) {
-            $gambarnya = file_get_contents($this->request->getFile('gambar'));
-            $gambarnya1 = file_get_contents($this->request->getFile('gambar1'));
-            $gambarnya2 = file_get_contents($this->request->getFile('gambar2'));
-            $gambarnya3 = !isEmpty($this->request->getFile('gambar3')) ? file_get_contents($this->request->getFile('gambar3')) : null;
-            $gambarnya4 = !isEmpty($this->request->getFile('gambar4')) ? file_get_contents($this->request->getFile('gambar4')) : null;
+        $varian = explode(",",$this->request->getVar('varian'));
+        if (!empty($_FILES['gambar1']['tmp_name'])) {
+            $hasilVarian = count(explode(",",$this->request->getVar('varian')))*(int)$this->request->getVar('jml_varian');
+            $gambarnya = [];
+            $insertGambarBarang = [
+                'id'=> $id
+            ];
+            for ($i=1; $i <= $hasilVarian; $i++) { 
+                array_push($gambarnya,file_get_contents($this->request->getFile("gambar".$i)));
+                $insertGambarBarang["gambar".$i] = file_get_contents($this->request->getFile("gambar".$i));
+            }
             $this->barangModel->save([
-                'id' => $id,
-                'nama' => $this->request->getVar('nama'),
-                'gambar' => $gambarnya,
-                'harga' => $this->request->getVar('harga'),
-                'stok' => $this->request->getVar('stok'),
-                'deskripsi' => $this->request->getVar('deskripsi'),
-                'kategori' => $this->request->getVar('kategori'),
-                'subkategori' => $this->request->getVar('subkategori'),
-                'diskon' => $this->request->getVar('diskon'),
+                'id'            => $id,
+                'nama'          => $this->request->getVar('nama'),
+                'gambar'        => $gambarnya[0],
+                'harga'         => $this->request->getVar('harga'),
+                'stok'          => $this->request->getVar('stok'),
+                'dimensi'       => $this->request->getVar('dimensi'),
+                'deskripsi'     => $this->request->getVar('deskripsi'),
+                'kategori'      => $this->request->getVar('kategori'),
+                'subkategori'   => $this->request->getVar('subkategori'),
+                'diskon'        => $this->request->getVar('diskon'),
+                'varian'        => json_encode($varian),
+                'jml_varian'    => $this->request->getVar('jml_varian'),
             ]);
-            $this->gambarBarangModel->save([
-                'id' => $id,
-                'gambar1' => $gambarnya,
-                'gambar2' => $gambarnya1,
-                'gambar3' => $gambarnya2,
-                'gambar4' => $gambarnya3,
-                'gambar5' => $gambarnya4,
-            ]);
+            $this->gambarBarangModel->save($insertGambarBarang);
         } else {
             $this->barangModel->save([
                 'id' => $id,
-                'nama' => $this->request->getVar('nama'),
-                'harga' => $this->request->getVar('harga'),
-                'stok' => $this->request->getVar('stok'),
-                'deskripsi' => $this->request->getVar('deskripsi'),
-                'kategori' => $this->request->getVar('kategori'),
-                'subkategori' => $this->request->getVar('subkategori'),
-                'diskon' => $this->request->getVar('diskon'),
+                'nama'          => $this->request->getVar('nama'),
+                'harga'         => $this->request->getVar('harga'),
+                'stok'          => $this->request->getVar('stok'),
+                'dimensi'       => $this->request->getVar('dimensi'),
+                'deskripsi'     => $this->request->getVar('deskripsi'),
+                'kategori'      => $this->request->getVar('kategori'),
+                'subkategori'   => $this->request->getVar('subkategori'),
+                'diskon'        => $this->request->getVar('diskon'),
+                'varian'        => json_encode($varian),
+                'jml_varian'    => $this->request->getVar('jml_varian'),
             ]);
         }
 
