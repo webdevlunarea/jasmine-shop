@@ -40,7 +40,7 @@
                     <?php } ?>
                 </div>
                 <h5>Dimensi</h5>
-                <p><?= $dimensi[0]." x ".$dimensi[1]." x ".$dimensi[2]; ?></p>
+                <p><?= $dimensi[0]." cm x ".$dimensi[1]." cm x ".$dimensi[2]." cm"; ?></p>
                 <h5>Deskripsi</h5>
                 <p><?= $produk['deskripsi']; ?></p>
                 <?php if (session()->get('isLogin')) { ?>
