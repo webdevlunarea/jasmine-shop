@@ -228,12 +228,12 @@ class Pages extends BaseController
             $varian = json_decode($produknya['varian'], true)[0];
             $ketemu = false;
             foreach ($keranjang as $index => $element) {
-                if($element['id'] == $id_barang && $element['varian'] == $varian){
+                if ($element['id'] == $id_barang && $element['varian'] == $varian) {
                     $keranjang[$index]['jumlah'] += 1;
                     $ketemu = true;
                 }
             }
-            if(!$ketemu) {
+            if (!$ketemu) {
                 $keranjangBaru = array(
                     'id' => $id_barang,
                     'jumlah' => 1,
@@ -262,7 +262,7 @@ class Pages extends BaseController
                 $produknya = $this->barangModel->getBarang($element['id']);
                 $gambarnya = $this->gambarBarangModel->getGambar($element['id']);
                 array_push($produk, $produknya);
-                array_push($gambar, $gambarnya["gambar".($element['index_gambar'] + 1)]);
+                array_push($gambar, $gambarnya["gambar" . ($element['index_gambar'] + 1)]);
                 array_push($jumlah, $element['jumlah']);
                 $item = array(
                     'id' => $produknya["id"],
@@ -310,12 +310,12 @@ class Pages extends BaseController
         $email = session()->get('email');
         $ketemu = false;
         foreach ($keranjang as $index => $element) {
-            if($element['id'] == $id_barang && $element['varian'] == $varian){
+            if ($element['id'] == $id_barang && $element['varian'] == $varian) {
                 $keranjang[$index]['jumlah'] += 1;
                 $ketemu = true;
             }
         }
-        if(!$ketemu) {
+        if (!$ketemu) {
             $keranjangBaru = array(
                 'id' => $id_barang,
                 'jumlah' => 1,
@@ -333,7 +333,7 @@ class Pages extends BaseController
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
         $keranjang[$index_cart]['jumlah'] -= 1;
-        if($keranjang[$index_cart]['jumlah'] == 0) {
+        if ($keranjang[$index_cart]['jumlah'] == 0) {
             unset($keranjang[$index_cart]);
             $keranjangBaru = array_values($keranjang);
             session()->set(['keranjang' => $keranjangBaru]);
@@ -478,6 +478,33 @@ class Pages extends BaseController
         $kota = json_decode($response, true);
         return $this->response->setJSON($kota, false);
     }
+    public function getArea($kota)
+    {
+        $curl = curl_init();
+        $input = str_replace(" ", "+", $kota);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.biteship.com/v1/maps/areas?countries=ID&input=" . $input . "&type=single",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "authorization: biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiamFzbWluZSB0ZXN0aW5nIiwidXNlcklkIjoiNjU4M2I1MmY2YzAyMTAxZjVhZTJlNWY5IiwiaWF0IjoxNzAzMTMxOTQ5fQ.22F0VWJe-JavNsxaw_s68ErNv41cTVcYIm1OWtJF9og"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $kota = json_decode($response, true);
+        return $this->response->setJSON($kota, false);
+    }
     public function getPaket($asal, $tujuan, $berat, $kurir)
     {
         $curl = curl_init();
@@ -530,7 +557,7 @@ class Pages extends BaseController
                     'id' => $produknya["id"],
                     'price' => $produknya["harga"],
                     'quantity' => $element['jumlah'],
-                    'name' => $produknya["nama"]." (".$element['varian'].")",
+                    'name' => $produknya["nama"] . " (" . $element['varian'] . ")",
                 );
                 array_push($itemDetails, $item);
 
@@ -682,15 +709,15 @@ class Pages extends BaseController
     {
         $d = strtotime("+7 Hours");
         $tanggal = "B" . date("Ymdhis", $d);
-        $varian = explode(",",$this->request->getVar('varian'));
-        $hasilVarian = count(explode(",",$this->request->getVar('varian')))*(int)$this->request->getVar('jml_varian');
+        $varian = explode(",", $this->request->getVar('varian'));
+        $hasilVarian = count(explode(",", $this->request->getVar('varian'))) * (int)$this->request->getVar('jml_varian');
         $gambarnya = [];
         $insertGambarBarang = [
-            'id'=> $tanggal
+            'id' => $tanggal
         ];
-        for ($i=1; $i <= $hasilVarian; $i++) { 
-            array_push($gambarnya,file_get_contents($this->request->getFile("gambar".$i)));
-            $insertGambarBarang["gambar".$i] = file_get_contents($this->request->getFile("gambar".$i));
+        for ($i = 1; $i <= $hasilVarian; $i++) {
+            array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
+            $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
         }
 
         $this->barangModel->insert([
@@ -716,27 +743,27 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarang($id);
         $gambar = $this->gambarBarangModel->getGambar($id);
-        $varian = json_decode($produk['varian'],true);
+        $varian = json_decode($produk['varian'], true);
         $data = [
             'title'     => 'Edit Produk',
             'produk'    => $produk,
             'gambar'    => $gambar,
-            'varian'    => implode(',',$varian)
+            'varian'    => implode(',', $varian)
         ];
         return view('pages/editProduct', $data);
     }
     public function actionEditProduct($id)
     {
-        $varian = explode(",",$this->request->getVar('varian'));
+        $varian = explode(",", $this->request->getVar('varian'));
         if (!empty($_FILES['gambar1']['tmp_name'])) {
-            $hasilVarian = count(explode(",",$this->request->getVar('varian')))*(int)$this->request->getVar('jml_varian');
+            $hasilVarian = count(explode(",", $this->request->getVar('varian'))) * (int)$this->request->getVar('jml_varian');
             $gambarnya = [];
             $insertGambarBarang = [
-                'id'=> $id
+                'id' => $id
             ];
-            for ($i=1; $i <= $hasilVarian; $i++) { 
-                array_push($gambarnya,file_get_contents($this->request->getFile("gambar".$i)));
-                $insertGambarBarang["gambar".$i] = file_get_contents($this->request->getFile("gambar".$i));
+            for ($i = 1; $i <= $hasilVarian; $i++) {
+                array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
+                $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
             }
             $this->barangModel->save([
                 'id'            => $id,
