@@ -50,6 +50,12 @@
                     </select>
                     <label for="floatingProvinsi">Paket</label>
                 </div>
+                <div class="form-floating mb-1">
+                    <select class="form-select" aria-label="Default select example" name="postal">
+                        <option value="-1">-- Pilih Postal Code --</option>
+                    </select>
+                    <label for="floatingProvinsi">Paket</label>
+                </div>
             </div>
             <div class="limapuluh-ke-seratus">
                 <div>
@@ -105,31 +111,38 @@
     const kotaElm = document.querySelector('select[name="kota"]');
     const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
     const paketElm = document.querySelector('select[name="paket"]');
+    const postalElm = document.querySelector('select[name="postal"]');
     const costElm = document.getElementById("total-pengiriman");
     const totalElm = document.getElementById("total-semua");
     const subtotal = <?= session()->get('subtotal'); ?>;
     const beratTotal = Number("<?= $berat; ?>");
 
     async function getArea(kota) {
-        const response = await fetch("getArea/" + kota);
-        const kota = await response.json();
-        const hasil = kota.rajaongkir.results;
-        kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
+        const response = await fetch("getarea/" + kota);
+        const res = await response.json();
+        const hasil = res.areas
+        postalElm.innerHTML = '<option value="-1">-- Pilih postal code --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = element.city_id
-            optElm.innerHTML = element.city_name
-            kotaElm.appendChild(optElm);
+            optElm.value = element.id
+            optElm.innerHTML = element.name
+            postalElm.appendChild(optElm);
         });
+    }
+    async function getRates() {
+        const response = await fetch("getrates/" + kota);
+        const res = await response.json();
+        console.log(res)
     }
     async function getKota(idprov) {
         const response = await fetch("getkota/" + idprov);
         const kota = await response.json();
         const hasil = kota.rajaongkir.results;
+        console.log(hasil)
         kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = element.city_id
+            optElm.value = element.city_id + "-" + element.city_name.replace(/\s+/g, '+')
             optElm.innerHTML = element.city_name
             kotaElm.appendChild(optElm);
         });
@@ -158,11 +171,15 @@
     })
     kotaElm.addEventListener("change", (e) => {
         paketElm.innerHTML = '<option value="-1">Loading..</option>'
+        postalElm.innerHTML = '<option value="-1">Loading..</option>'
         costElm.innerHTML = '-'
-        const idkota = Number(e.target.value)
+        const value = e.target.value.split("-")
+        const idkota = Number(value[0])
         const ekspedisi = ekspedisiElm.value;
-        if (idkota > 0)
+        if (idkota > 0) {
             getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
+            getArea(value[1])
+        }
     })
     ekspedisiElm.addEventListener("change", (e) => {
         paketElm.innerHTML = '<option value="-1">Loading..</option>'
