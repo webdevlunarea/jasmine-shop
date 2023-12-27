@@ -149,7 +149,7 @@
         kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = element.city_id + "-" + element.city_name.replace(/\s+/g, '+')
+            optElm.value = element.city_id
             optElm.innerHTML = element.city_name
             kotaElm.appendChild(optElm);
         });

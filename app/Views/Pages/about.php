@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <span class="garis container show-ke-hide mb-4"></span>
+    <!-- <span class="garis container show-ke-hide mb-4"></span>
 
     <div class="baris-ke-kolom-reverse justify-content-center align-content-center container gap-3 pb-5">
         <div><img src="" alt="" style="width: 100%" /></div>
@@ -92,6 +92,6 @@
                 qui! Molestias.
             </p>
         </div>
-    </div>
+    </div> -->
 </div>
 <?= $this->endSection(); ?>
