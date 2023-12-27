@@ -413,6 +413,7 @@ class Pages extends BaseController
             $total = $subtotal + 10000;
         }
 
+        //Dapatkan data provinsi
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.rajaongkir.com/starter/province",
@@ -448,7 +449,7 @@ class Pages extends BaseController
             'user' => $user,
             'total' => $total,
             'provinsi' => $provinsi["rajaongkir"]["results"],
-            'keranjang' => $keranjang
+            'keranjang' => $keranjang,
         ];
         return view('pages/checkout', $data);
     }
@@ -737,7 +738,7 @@ class Pages extends BaseController
     public function actionAddProduct()
     {
         $d = strtotime("+7 Hours");
-        $tanggal = "B" . date("Ymdhis", $d);
+        $tanggal = "B" . date("YmdHis", $d);
         $varian = explode(",", $this->request->getVar('varian'));
         $hasilVarian = count(explode(",", $this->request->getVar('varian'))) * (int)$this->request->getVar('jml_varian');
         $gambarnya = [];
@@ -748,7 +749,6 @@ class Pages extends BaseController
             array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
             $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
         }
-
         $this->barangModel->insert([
             'id'            => $tanggal,
             'nama'          => $this->request->getVar('nama'),

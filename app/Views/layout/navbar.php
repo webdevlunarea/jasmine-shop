@@ -28,7 +28,7 @@
             </ul>
             <form class="d-flex" role="search" id="search-box">
                 <div class="input-group">
-                    <input id="search-input" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+                    <input required id="search-input" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
                     <button class="btn btn-dark" type="submit"><i class="material-icons">search</i></button>
                 </div>
             </form>
