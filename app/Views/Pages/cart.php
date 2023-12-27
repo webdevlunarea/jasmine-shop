@@ -52,7 +52,8 @@
             <?php } ?>
             <?php } else { ?>
             <div>
-                <p class="text-center">Keranjang kosong</p>
+                <p class="text-center">Oops, keranjangmu masih kosong!
+                    Sepertinya belum nentuin produk favoritmu ya.</p>
             </div>
             <?php } ?>
         </div>
