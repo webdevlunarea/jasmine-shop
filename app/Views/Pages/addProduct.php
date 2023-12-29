@@ -6,8 +6,8 @@
         <form method="post" action="/addproduct" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="baris-ke-kolom">
-                <div>
-                    <table class="table-input">
+                <div style="width:50%;">
+                    <table class="table-input w-100">
                         <tbody>
                             <tr>
                                 <td>Nama</td>
@@ -87,7 +87,7 @@
                     </table>
                     <button class="btn btn-danger show-ke-hide" type="submit">Simpan</button>
                 </div>
-                <div style="flex: 1;">
+                <div style="width:50%;">
                     <h5 class="jdl-section">Gambar Produk</h5>
                     <div class="add-gambar mb-1">
                         <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">

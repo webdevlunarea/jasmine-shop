@@ -6,8 +6,8 @@
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="baris-ke-kolom">
-                <div>
-                    <table class="table-input">
+                <div style="width:50%;">
+                    <table class="table-input w-100">
                         <tbody>
                             <tr>
                                 <td>Nama</td>
@@ -92,14 +92,14 @@
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
                     </div>
                 </div>
-                <div style="flex: 1;">
+                <div style="width:50%;">
                     <h5 class="jdl-section">Gambar Produk</h5>
                     <div class="add-gambar mb-1">
                         <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">
                             Preview</p>
                         <img src="/img/nopic.jpg" id="addProduct_PreviewUtama">
                     </div>
-                    <div id="foto-varian" class="d-flex gap-2" style="overflow-y: auto;">
+                    <div id="foto-varian" class="d-flex gap-2" style="overflow-y: auto; width:100%">
                     </div>
                 </div>
             </div>
