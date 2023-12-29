@@ -4,7 +4,9 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="jdl-section">List Produk</h5>
-            <a href="/addproduct" class="btn btn-danger d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i><p class="mb-0">Tambah Produk</p></a>
+            <a href="/addproduct" class="btn btn-danger d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
+                <p class="mb-0">Tambah Produk</p>
+            </a>
         </div>
         <div class="card-group1 no-scroll">
             <?php foreach ($produk as $p) { ?>

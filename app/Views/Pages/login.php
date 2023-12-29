@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten d-flex justify-content-center align-items-center">
     <div class="container">
         <div class="d-flex gap-5">
             <div class="show-ke-hide">
