@@ -13,6 +13,9 @@ class UserFilter implements FilterInterface
         if (!session("isLogin")) {
             return redirect()->to(site_url('login'));
         }
+        if (session("active") != "1") {
+            return redirect()->to(site_url('verify'));
+        }
         if (session("role") != "0") {
             return redirect()->to(site_url('/'));
         }

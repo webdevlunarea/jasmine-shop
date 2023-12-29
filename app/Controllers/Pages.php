@@ -89,10 +89,24 @@ class Pages extends BaseController
             return redirect()->to('/signup')->withInput();
         }
 
+        $otp_number = rand(100000, 999999);
+        $pesanEmail = "Masukan nomor OTP berikut pada akun Jasmine Furniture Store Anda\n" . $otp_number;
+        // mail($this->request->getVar('email'), "OTP Jasmine Furniture Store", $pesanEmail);
+
+        $emailLibrary = \Config\Services::email();
+        $emailLibrary->setFrom('galih8.4.2001@gmail.com', 'Jasmine Furniture Store');
+        $emailLibrary->setTo($this->request->getVar('email'));
+        $emailLibrary->setSubject('Verifikasi OTP Jasmine Furniture Store');
+        $emailLibrary->setMessage($pesanEmail);
+        $emailLibrary->send();
+        //blm berhasil kirim ke email
+
         $this->userModel->save([
             'email' => $this->request->getVar('email'),
             'sandi' => password_hash($this->request->getVar('sandi'), PASSWORD_DEFAULT),
             'role' => '0',
+            'otp' => $otp_number,
+            'active' => '0'
         ]);
         $this->pembeliModel->save([
             'email_user' => $this->request->getVar('email'),
@@ -101,8 +115,52 @@ class Pages extends BaseController
             'keranjang' => json_encode([]),
         ]);
 
-        session()->setFlashdata('msg', 'Anda berhasil mendaftar');
-        return redirect()->to('/login');
+        $email = $this->request->getVar('email');
+        $getUser = $this->userModel->getUser($email);
+        $ses_data = [
+            'email' => $getUser['email'],
+            'active' => '0',
+            'isLogin' => true
+        ];
+        session()->set($ses_data);
+        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $email);
+        return redirect()->to('/verify');
+    }
+    public function verify()
+    {
+        $data = [
+            'title' => 'Verifikasi',
+            'val' => [
+                'msg' => session()->getFlashdata('msg'),
+                'val_verify' => session()->getFlashdata('val_verify')
+            ]
+        ];
+        return view('pages/verify', $data);
+    }
+    public function actionVerify()
+    {
+        $otp = $this->request->getVar("otp");
+        $email = session()->get("email");
+        $getUser = $this->userModel->getUser($email);
+        if ($otp != $getUser['otp']) {
+            session()->setFlashdata('val_verify', "OTP salah");
+            return redirect()->to("/verify");
+        }
+
+        $getPembeli = $this->pembeliModel->getPembeli($email);
+        $ses_data = [
+            'active' => '1',
+            'role' => $getUser['role'],
+            'alamat' => $getPembeli['alamat'],
+            'wishlist' => json_decode($getPembeli['wishlist'], true),
+            'keranjang' => json_decode($getPembeli['keranjang'], true)
+        ];
+        $this->userModel->where('email', $email)->set([
+            'active' => '1',
+            'otp' => '0',
+        ])->update();
+        session()->set($ses_data);
+        return redirect()->to(site_url('/'));
     }
     public function login()
     {
@@ -150,9 +208,20 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Sandi salah');
             return redirect()->to('/login');
         }
+        if ($getUser['active'] == '0') {
+            $ses_data = [
+                'email' => $getUser['email'],
+                'active' => '0',
+                'isLogin' => true
+            ];
+            session()->set($ses_data);
+            session()->setFlashdata('msg', "Email " . $email . " perlu diverifikasi");
+            return redirect()->to('/verify');
+        }
         if ($getUser['role'] == '0') {
             $getPembeli = $this->pembeliModel->getPembeli($email);
             $ses_data = [
+                'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'alamat' => $getPembeli['alamat'],
@@ -164,6 +233,7 @@ class Pages extends BaseController
             return redirect()->to(site_url('/'));
         } else {
             $ses_data = [
+                'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'isLogin' => true
@@ -174,7 +244,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');

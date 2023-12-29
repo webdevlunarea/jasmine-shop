@@ -10,7 +10,9 @@ class UserModel extends Model
     protected $allowedFields = [
         'email',
         'sandi',
-        'role'
+        'role',
+        'otp',
+        'active',
     ];
 
     public function getUser($email = false)
