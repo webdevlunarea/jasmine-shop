@@ -763,6 +763,7 @@ class Pages extends BaseController
     public function product($id = false)
     {
         $produk = $this->barangModel->getBarang($id);
+        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->findAll();
         $gambarnya = $this->gambarBarangModel->getGambar($id);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
@@ -771,7 +772,8 @@ class Pages extends BaseController
             'produk' => $produk,
             'gambar' => $gambarnya,
             'varian' => $varian,
-            'dimensi' => $dimensi
+            'dimensi' => $dimensi,
+            'produksekategori' => $produksekategori
         ];
         return view('pages/product', $data);
     }
