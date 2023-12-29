@@ -14,6 +14,8 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
+$routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
+$routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
 
 $routes->get('/wishlist', 'Pages::wishlist', ['filter' => 'harusUser']);
 $routes->get('/addwishlist/(:any)', 'Pages::addWishlist/$1', ['filter' => 'harusUser']);
