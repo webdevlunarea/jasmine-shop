@@ -34,7 +34,7 @@
                 <div class="btn-group mb-3" id="varian-group" role="group" aria-label="Basic radio toggle button group">
                     <?php foreach ($varian as $key => $value) { ?>
                         <input type="radio" value="<?= $key ?>" class="btn-check" name="btnradio" autocomplete="off" id="btnradio<?= $key ?>" <?= $key == 0 ? "checked" : "" ?>>
-                        <label class="btn btn-outline-danger" for="btnradio<?= $key ?>"><?= $value ?></label>
+                        <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= $value ?></label>
                     <?php } ?>
                 </div>
                 <h5>Dimensi</h5>
@@ -44,20 +44,20 @@
                 <?php if (session()->get('isLogin')) { ?>
                     <?php if (session()->get('role') == 0) { ?>
                         <?php if (session()->get('active') == '1') { ?>
-                            <a class="btn btn-danger" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
+                            <a class="btn btn-primary" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
                             <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                 <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
                             <?php } else { ?>
                                 <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
                             <?php } ?>
                         <?php } else { ?>
-                            <a class="btn btn-danger" href="/verify">Verifikasi Email</a>
+                            <a class="btn btn-primary" href="/verify">Verifikasi Email</a>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-danger" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                        <a class="btn btn-primary" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
                     <?php } ?>
                 <?php } else { ?>
-                    <a class="btn btn-danger" href="/login">Masuk untuk membeli</a>
+                    <a class="btn btn-primary" href="/login">Masuk untuk membeli</a>
                 <?php } ?>
 
                 <div class="mt-2">

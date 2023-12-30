@@ -8,12 +8,12 @@
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
             </div>
-            <div class="carousel-inner" style="border-radius: 1em;">
+            <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
-                    <img src="img/promo1.webp" class="d-block w-100" alt="...">
+                    <img src="img/promo1.jpg" class="d-block w-100" alt="...">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/promo2.webp" class="d-block w-100" alt="...">
+                    <img src="img/promo2.jpg" class="d-block w-100" alt="...">
                 </div>
                 <div class="carousel-item">
                     <img src="img/promo3.webp" class="d-block w-100" alt="...">
@@ -89,14 +89,14 @@
             <?php } ?>
         </div>
         <div class="mx-auto mt-2" style="width: fit-content;">
-            <a href="/all" class="btn btn-danger mx-auto" style="width: fit-content;">View All Products</a>
+            <a href="/all" class="btn mx-auto btn-primary" style="width: fit-content;">View All Products</a>
         </div>
     </div>
     <div class="container my-5">
         <h5 class="jdl-section">Bulan Ini</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Produk Terbaik</h1>
-            <button class="btn btn-danger">Lihat Semua</button>
+            <button class="btn btn-primary">Lihat Semua</button>
         </div>
         <div class="card-group1">
             <div class="card1">

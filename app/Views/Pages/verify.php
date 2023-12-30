@@ -17,9 +17,9 @@
                     <?= $val['val_verify']; ?>
                 </div>
             </div>
-            <input class="btn btn-danger w-100" type="submit" value="Verifikasi">
+            <input class="btn btn-primary w-100" type="submit" value="Verifikasi">
         </form>
-        <p class="mt-3">OTP belum terkirim? <a class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Klik disini</a> untuk mengirim ulang</p>
+        <p class="mt-3">OTP belum terkirim? <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Klik disini</a> untuk mengirim ulang</p>
     </div>
 </div>
 <?= $this->endSection(); ?>

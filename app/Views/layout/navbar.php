@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/" style="font-weight: bold;">
             <img src="../img/Logo Jasmine.png" height="30em">
