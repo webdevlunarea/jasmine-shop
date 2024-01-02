@@ -46,7 +46,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="jdl-section mb-3"><?= $kategori ? ucfirst($kategori) : "Semua Kategori"; ?></h5>
                 <?php if ($kategori) { ?>
-                    <a class="btn btn-primary" href="/all">Semua Kategori</a>
+                    <a class="btn btn-primary1" href="/all">Semua Kategori</a>
                 <?php } ?>
             </div>
         <?php } ?>
@@ -60,6 +60,7 @@
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
+                        <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
                         <?php if ($p['diskon']) { ?>
                             <p class="mb-0 harga d-inline">Rp
                                 <?php

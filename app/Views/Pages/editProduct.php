@@ -78,7 +78,7 @@
                         </tbody>
                     </table>
                     <div class="show-ke-hide mt-2">
-                        <button class="btn btn-primary" type="submit">Simpan</button>
+                        <button class="btn btn-primary1" type="submit">Simpan</button>
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                 </div>
             </div>
             <div class="justify-content-center hide-ke-show-flex gap-2 mt-3">
-                <button class="btn btn-primary" type="submit">Simpan</button>
+                <button class="btn btn-primary1" type="submit">Simpan</button>
                 <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
             </div>
         </form>

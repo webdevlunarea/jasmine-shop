@@ -82,7 +82,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button class="btn btn-primary show-ke-hide" type="submit">Simpan</button>
+                    <button class="btn btn-primary1 show-ke-hide" type="submit">Simpan</button>
                 </div>
                 <div style="width:50%;">
                     <h5 class="jdl-section">Gambar Produk</h5>
@@ -96,7 +96,7 @@
                 </div>
             </div>
             <div class="hide-ke-show-flex justify-content-center mt-3">
-                <button class="btn btn-primary" type="submit">Simpan</button>
+                <button class="btn btn-primary1" type="submit">Simpan</button>
             </div>
         </form>
     </div>

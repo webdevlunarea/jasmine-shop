@@ -30,7 +30,7 @@
                             </div>
                         <?php } ?>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="submit" class="btn btn-primary1">Simpan</button>
                         </div>
                     </form>
                 </div>

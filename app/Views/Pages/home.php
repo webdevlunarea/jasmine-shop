@@ -71,6 +71,7 @@
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
+                        <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
                         <?php if ($p['diskon']) { ?>
                             <p class="mb-0 harga d-inline">Rp
                                 <?php
@@ -89,14 +90,14 @@
             <?php } ?>
         </div>
         <div class="mx-auto mt-2" style="width: fit-content;">
-            <a href="/all" class="btn mx-auto btn-primary" style="width: fit-content;">View All Products</a>
+            <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">View All Products</a>
         </div>
     </div>
     <div class="container my-5">
         <h5 class="jdl-section">Bulan Ini</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Produk Terbaik</h1>
-            <button class="btn btn-primary">Lihat Semua</button>
+            <button class="btn btn-primary1">Lihat Semua</button>
         </div>
         <div class="card-group1">
             <div class="card1">

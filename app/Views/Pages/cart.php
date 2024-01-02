@@ -65,7 +65,7 @@
                 <p class="my-2">Total Berat:</p>
                 <p class="my-2"><b><?= $berat; ?> gram</b></p>
             </div>
-            <a class="btn btn-primary mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?>" href="/checkout">Proses
+            <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?>" href="/checkout">Proses
                 Checkout</a>
         </div>
     </div>

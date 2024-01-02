@@ -32,7 +32,7 @@
                             <?= $val['val_alamat']; ?>
                         </div>
                     </div>
-                    <input class="btn btn-primary" type="submit" value="Buat">
+                    <input class="btn btn-primary1" type="submit" value="Buat">
                 </form>
                 <p class="mt-3">Sudah punya akun? <a href="/login" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Masuk</a></p>
             </div>

@@ -4,7 +4,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="jdl-section">List Produk</h5>
-            <a href="/addproduct" class="btn btn-primary d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
+            <a href="/addproduct" class="btn btn-primary1 d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
                 <p class="mb-0">Tambah Produk</p>
             </a>
         </div>

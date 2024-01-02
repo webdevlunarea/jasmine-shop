@@ -30,7 +30,7 @@
                             <?= $val['val_sandi']; ?>
                         </div>
                     </div>
-                    <input class="btn btn-primary" type="submit" value="Masuk">
+                    <input class="btn btn-primary1" type="submit" value="Masuk">
                 </form>
                 <p class="mt-3">Belum punya akun? <a href="/signup" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Daftar disini</a></p>
             </div>

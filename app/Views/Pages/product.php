@@ -44,20 +44,20 @@
                 <?php if (session()->get('isLogin')) { ?>
                     <?php if (session()->get('role') == 0) { ?>
                         <?php if (session()->get('active') == '1') { ?>
-                            <a class="btn btn-primary" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
+                            <a class="btn btn-primary1" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
                             <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                 <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
                             <?php } else { ?>
                                 <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
                             <?php } ?>
                         <?php } else { ?>
-                            <a class="btn btn-primary" href="/verify">Verifikasi Email</a>
+                            <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-primary" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                        <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
                     <?php } ?>
                 <?php } else { ?>
-                    <a class="btn btn-primary" href="/login">Masuk untuk membeli</a>
+                    <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
                 <?php } ?>
 
                 <div class="mt-2">

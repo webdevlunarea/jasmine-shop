@@ -95,7 +95,7 @@
                     <p class="my-2"><b id="total-semua"><?= $berat; ?> gram</b>
                     </p>
                 </div>
-                <button id="btn-checkout" class="btn btn-primary" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
+                <button id="btn-checkout" class="btn btn-primary1" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
             </div>
         </div>
     </div>

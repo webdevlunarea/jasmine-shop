@@ -49,16 +49,16 @@ a {
 /* body {
     background-color: var(--hijaumuda);
 } */
-.btn-primary {
+.btn-primary1 {
     background-color: var(--hijau);
     color: white;
     border: none;
 }
-.btn-primary:hover {
+.btn-primary1:hover {
     background-color: var(--hijaumuda);
     color: var(--hijau);
 }
-.btn-primary:active {
+.btn-primary1:active {
     background-color: var(--hijaumuda);
     color: var(--hijau);
 }
@@ -90,7 +90,7 @@ a {
 .card-group1 {
     overflow-x: scroll;
     display: flex;
-    gap: 1.5em;
+    gap: 1em;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     padding-block: 1em;
@@ -98,6 +98,7 @@ a {
 .card-group1.no-scroll {
     overflow: visible;
     display: grid;
+    gap: 1em;
     /* flex-wrap: wrap; */
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
 }
@@ -126,7 +127,7 @@ a {
     border-color: rgba(0, 0, 0, 0);
     border-bottom-style: solid;
     transition: 0.5s;
-    border-radius: 1.5em;
+    border-radius: 1em;
 }
 .card1 div {
     position: relative;
@@ -431,7 +432,11 @@ footer > .atas > div {
     .card1 .diskon {
         display: none;
     }
+    .card-group1 {
+        gap: 0.6em;
+    }
     .card-group1.no-scroll {
+        gap: 0.6em;
         grid-template-columns: repeat(
             auto-fit,
             minmax(min(100%, 100px), 0.5fr)
