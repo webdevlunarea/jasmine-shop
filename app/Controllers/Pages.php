@@ -59,6 +59,21 @@ class Pages extends BaseController
         ];
         return view('pages/signup', $data);
     }
+    public function kirimOTP()
+    {
+        $emailUser = session()->get('email');
+        $getUser = $this->userModel->getUser($emailUser);
+        $otp_number = $getUser['otp'];
+        $email = \Config\Services::email();
+        $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
+        $email->setTo(session()->get('email'));
+        $email->setSubject('Jasmine Store - Verifikasi OTP');
+        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1>");
+        $email->send();
+
+        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser);
+        return redirect()->to('/verify');
+    }
     public function actionSignup()
     {
         if (!$this->validate([
@@ -90,16 +105,12 @@ class Pages extends BaseController
         }
 
         $otp_number = rand(100000, 999999);
-        $pesanEmail = "Masukan nomor OTP berikut pada akun Jasmine Furniture Store Anda\n" . $otp_number;
-        // mail($this->request->getVar('email'), "OTP Jasmine Furniture Store", $pesanEmail);
-
-        $emailLibrary = \Config\Services::email();
-        $emailLibrary->setFrom('galih8.4.2001@gmail.com', 'Jasmine Furniture Store');
-        $emailLibrary->setTo($this->request->getVar('email'));
-        $emailLibrary->setSubject('Verifikasi OTP Jasmine Furniture Store');
-        $emailLibrary->setMessage($pesanEmail);
-        $emailLibrary->send();
-        //blm berhasil kirim ke email
+        $email = \Config\Services::email();
+        $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
+        $email->setTo($this->request->getVar('email'));
+        $email->setSubject('Jasmine Store - Verifikasi OTP');
+        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1>");
+        $email->send();
 
         $this->userModel->save([
             'email' => $this->request->getVar('email'),
@@ -663,7 +674,6 @@ class Pages extends BaseController
                     'name' => $produknya["nama"] . " (" . $element['varian'] . ")",
                 );
                 array_push($itemDetails, $item);
-
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
