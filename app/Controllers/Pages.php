@@ -35,13 +35,13 @@ class Pages extends BaseController
         ];
         return view('pages/home', $data);
     }
-    public function all($kategori = false)
+    public function all($subkategori = false)
     {
-        $produk = $this->barangModel->where('kategori', $kategori)->findAll();
+        $produk = $this->barangModel->where('subkategori', $subkategori)->findAll();
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
-            'kategori' => $kategori,
+            'kategori' => $subkategori,
             'nama' => false
         ];
         return view('pages/all', $data);
@@ -480,7 +480,7 @@ class Pages extends BaseController
                 $subtotal += $hasil * $element['jumlah'];
                 $berat += $produknya['berat'] * $element['jumlah'];
             }
-            $total = $subtotal + 10000;
+            $total = $subtotal + 5000;
         }
 
         //Dapatkan data provinsi
@@ -653,17 +653,17 @@ class Pages extends BaseController
                 $produknya = $this->barangModel->getBarang($element['id']);
                 array_push($produk, $produknya);
                 array_push($jumlah, $element['jumlah']);
+                $persen = (100 - $produknya['diskon']) / 100;
+                $hasil = $persen * $produknya['harga'];
+                $subtotal += $hasil * $element['jumlah'];
                 $item = array(
                     'id' => $produknya["id"],
-                    'price' => $produknya["harga"],
+                    'price' => $hasil,
                     'quantity' => $element['jumlah'],
                     'name' => $produknya["nama"] . " (" . $element['varian'] . ")",
                 );
                 array_push($itemDetails, $item);
 
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = $persen * $produknya['harga'];
-                $subtotal += $hasil * $element['jumlah'];
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
@@ -671,8 +671,15 @@ class Pages extends BaseController
                 'quantity' => 1,
                 'name' => 'Biaya Ongkir',
             );
+            $biayaadmin = array(
+                'id' => 'Biaya Admin',
+                'price' => 5000,
+                'quantity' => 1,
+                'name' => 'Biaya Admin',
+            );
             array_push($itemDetails, $item);
-            $total = $subtotal + $paket;
+            array_push($itemDetails, $biayaadmin);
+            $total = $subtotal + $paket + 5000;
         }
 
         \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
