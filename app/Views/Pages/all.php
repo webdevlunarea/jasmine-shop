@@ -4,133 +4,127 @@
     <div class="container">
         <h5 class="jdl-section">Kategori</h5>
         <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
-        <!-- <div class="d-flex justify-content-between mb-3">
-            <div class="d-flex justify-content-end gap-1">
-                <button class="btn btn-icon scroll-kategori show-ke-hide"><i
-                        class="material-icons">arrow_back</i></button>
-                <button class="btn btn-icon scroll-kategori show-ke-hide"><i
-                        class="material-icons">arrow_forward</i></button>
+        <div class="container-kategori-scroll">
+            <div class="container-kategori">
+                <a class="kategori" href="/all/lemari-dewasa">
+                    <span class="material-symbols-outlined">
+                        kitchen
+                    </span>
+                    <p>Lemari Dewasa</p>
+                </a>
+                <a class="kategori" href="/all/lemari-anak">
+                    <span class="material-symbols-outlined">
+                        kitchen
+                    </span>
+                    <p>Lemari Anak</p>
+                </a>
+                <a class="kategori" href="/all/meja-rias">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Rias</p>
+                </a>
+                <a class="kategori" href="/all/meja-belajar">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Belajar</p>
+                </a>
+                <a class="kategori" href="/all/meja-belajar-kaki-besi">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Belajar Kaki Besi</p>
+                </a>
+                <a class="kategori" href="/all/meja-tv">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja TV</p>
+                </a>
+                <a class="kategori" href="/all/meja-tulis">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Tulis</p>
+                </a>
+                <a class="kategori" href="/all/meja-komputer">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Komputer</p>
+                </a>
+                <a class="kategori" href="/all/meja-komputer-kaki-besi">
+                    <span class="material-symbols-outlined">
+                        desk
+                    </span>
+                    <p>Meja Komputer Kaki Besi</p>
+                </a>
+                <a class="kategori" href="/all/rak-sepatu">
+                    <span class="material-symbols-outlined">
+                        two_pager
+                    </span>
+                    <p>Rak Sepatu</p>
+                </a>
+                <a class="kategori" href="/all/rak-besi">
+                    <span class="material-symbols-outlined">
+                        two_pager
+                    </span>
+                    <p>Rak Besi</p>
+                </a>
+                <a class="kategori" href="/all/rak-serbaguna">
+                    <span class="material-symbols-outlined">
+                        two_pager
+                    </span>
+                    <p>Rak Serbaguna</p>
+                </a>
+                <a class="kategori" href="/all/kursi">
+                    <span class="material-symbols-outlined">
+                        chair_alt
+                    </span>
+                    <p>Kursi</p>
+                </a>
             </div>
-        </div> -->
-        <div class="container-kategori">
-            <a class="kategori" href="/all/lemari-dewasa">
-                <span class="material-symbols-outlined">
-                    kitchen
-                </span>
-                <p>Lemari Dewasa</p>
-            </a>
-            <a class="kategori" href="/all/lemari-anak">
-                <span class="material-symbols-outlined">
-                    kitchen
-                </span>
-                <p>Lemari Anak</p>
-            </a>
-            <a class="kategori" href="/all/meja-rias">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Rias</p>
-            </a>
-            <a class="kategori" href="/all/meja-belajar">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Belajar</p>
-            </a>
-            <a class="kategori" href="/all/meja-belajar-kaki-besi">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Belajar Kaki Besi</p>
-            </a>
-            <a class="kategori" href="/all/meja-tv">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja TV</p>
-            </a>
-            <a class="kategori" href="/all/meja-tulis">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Tulis</p>
-            </a>
-            <a class="kategori" href="/all/meja-komputer">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Komputer</p>
-            </a>
-            <a class="kategori" href="/all/meja-komputer-kaki-besi">
-                <span class="material-symbols-outlined">
-                    desk
-                </span>
-                <p>Meja Komputer Kaki Besi</p>
-            </a>
-            <a class="kategori" href="/all/rak-sepatu">
-                <span class="material-symbols-outlined">
-                    two_pager
-                </span>
-                <p>Rak Sepatu</p>
-            </a>
-            <a class="kategori" href="/all/rak-besi">
-                <span class="material-symbols-outlined">
-                    two_pager
-                </span>
-                <p>Rak Besi</p>
-            </a>
-            <a class="kategori" href="/all/rak-serbaguna">
-                <span class="material-symbols-outlined">
-                    two_pager
-                </span>
-                <p>Rak Serbaguna</p>
-            </a>
-            <a class="kategori" href="/all/kursi">
-                <span class="material-symbols-outlined">
-                    chair_alt
-                </span>
-                <p>Kursi</p>
-            </a>
         </div>
     </div>
     <div class="container my-5">
         <?php if ($nama) { ?>
-        <h5 class="mb-3">Anda mencari "<?= $nama ?>"</h5>
+            <h5 class="mb-3">Anda mencari "<?= $nama ?>"</h5>
         <?php } else { ?>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="jdl-section mb-3"><?= $kategori ? str_replace('-',' ', ucfirst($kategori)) : "Semua Kategori"; ?>
-            </h5>
-            <?php if ($kategori) { ?>
-            <a class="btn btn-primary1" href="/all">Semua Kategori</a>
-            <?php } ?>
-        </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="jdl-section mb-3"><?= $kategori ? str_replace('-', ' ', ucfirst($kategori)) : "Semua Kategori"; ?>
+                </h5>
+                <?php if ($kategori) { ?>
+                    <a class="btn btn-primary1" href="/all">Semua Kategori</a>
+                <?php } ?>
+            </div>
         <?php } ?>
 
-        <div class="card-group1 no-scroll">
+        <div class="card-group1 no-scroll mb-3">
             <?php foreach ($produk as $p) { ?>
-            <a class="card1" href="/product/<?= $p['id']; ?>">
-                <?php if ($p['diskon']) { ?>
-                <p class="diskon">-<?= $p['diskon']; ?>%</p>
-                <?php } ?>
-                <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                    <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
+                <a class="card1" href="/product/<?= $p['id']; ?>">
                     <?php if ($p['diskon']) { ?>
-                    <p class="mb-0 harga d-inline">Rp
-                        <?php
+                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                    <?php } ?>
+                    <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <div class="mt-3">
+                        <h5 class="mb-0"><?= $p['nama']; ?></h5>
+                        <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
+                        <?php if ($p['diskon']) { ?>
+                            <p class="mb-0 harga d-inline">Rp
+                                <?php
                                 $persen = (100 - $p['diskon']) / 100;
                                 $hasil = $persen * $p['harga'];
                                 echo number_format($hasil, 0, ",", ".");
                                 ?></p>
-                    <p class="mb-0 d-inline" style="text-decoration: line-through; font-size: small; color: grey;">Rp
-                        <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                    <?php } else { ?>
-                    <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                    <?php } ?>
-                    <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
-                </div>
-            </a>
+                            <p class="mb-0 d-inline" style="text-decoration: line-through; font-size: small; color: grey;">Rp
+                                <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                        <?php } else { ?>
+                            <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                        <?php } ?>
+                        <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
+                    </div>
+                </a>
             <?php } ?>
         </div>
 
