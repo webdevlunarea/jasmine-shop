@@ -13,6 +13,7 @@ class UserModel extends Model
         'role',
         'otp',
         'active',
+        'waktu_otp'
     ];
 
     public function getUser($email = false)

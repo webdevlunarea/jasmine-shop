@@ -7,6 +7,7 @@ use App\Models\GambarBarangModel;
 use App\Models\PembeliModel;
 use App\Models\UserModel;
 use CodeIgniter\Files\Exceptions\FileNotFoundException;
+use Faker\Core\Number;
 use KiriminAja\Base\Config\Cache\Mode;
 use KiriminAja\Base\Config\KiriminAjaConfig;
 use KiriminAja\Services\KiriminAja;
@@ -62,16 +63,25 @@ class Pages extends BaseController
     public function kirimOTP()
     {
         $emailUser = session()->get('email');
-        $getUser = $this->userModel->getUser($emailUser);
-        $otp_number = $getUser['otp'];
+        $otp_number = rand(100000, 999999);
+        $waktu_otp = time() + 300;
+        $d = strtotime("+425 Minutes");
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
+
         $email = \Config\Services::email();
         $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
         $email->setTo(session()->get('email'));
         $email->setSubject('Jasmine Store - Verifikasi OTP');
-        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1>");
+        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1><p>Kode ini berlaku hingga " . $waktu_otp_tanggal . "</p>");
         $email->send();
 
-        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser);
+        $this->userModel->where('email', $emailUser)->set([
+            'otp' => $otp_number,
+            'waktu_otp' => $waktu_otp
+        ])->update();
+
+        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
         return redirect()->to('/verify');
     }
     public function actionSignup()
@@ -105,11 +115,16 @@ class Pages extends BaseController
         }
 
         $otp_number = rand(100000, 999999);
+        $waktu_otp = time() + 300;
+        $d = strtotime("+425 Minutes");
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
+
         $email = \Config\Services::email();
         $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
         $email->setTo($this->request->getVar('email'));
         $email->setSubject('Jasmine Store - Verifikasi OTP');
-        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1>");
+        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1><p>Kode ini berlaku hingga " . $waktu_otp_tanggal . "</p>");
         $email->send();
 
         $this->userModel->save([
@@ -117,7 +132,8 @@ class Pages extends BaseController
             'sandi' => password_hash($this->request->getVar('sandi'), PASSWORD_DEFAULT),
             'role' => '0',
             'otp' => $otp_number,
-            'active' => '0'
+            'active' => '0',
+            'waktu_otp' => $waktu_otp
         ]);
         $this->pembeliModel->save([
             'email_user' => $this->request->getVar('email'),
@@ -126,15 +142,15 @@ class Pages extends BaseController
             'keranjang' => json_encode([]),
         ]);
 
-        $email = $this->request->getVar('email');
-        $getUser = $this->userModel->getUser($email);
+        $emailUser = $this->request->getVar('email');
+        $getUser = $this->userModel->getUser($emailUser);
         $ses_data = [
             'email' => $getUser['email'],
             'active' => '0',
             'isLogin' => true
         ];
         session()->set($ses_data);
-        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $email);
+        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
         return redirect()->to('/verify');
     }
     public function verify()
@@ -157,6 +173,11 @@ class Pages extends BaseController
             session()->setFlashdata('val_verify', "OTP salah");
             return redirect()->to("/verify");
         }
+        $waktu_otp = time();
+        if ($waktu_otp > (int)$getUser['waktu_otp']) {
+            session()->setFlashdata('msg', "OTP telah berakhir. Minta kirim ulang<br>dibawah untuk mendapatkan kembali");
+            return redirect()->to("/verify");
+        }
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
         $ses_data = [
@@ -169,6 +190,7 @@ class Pages extends BaseController
         $this->userModel->where('email', $email)->set([
             'active' => '1',
             'otp' => '0',
+            'waktu_otp' => '0'
         ])->update();
         session()->set($ses_data);
         return redirect()->to(site_url('/'));

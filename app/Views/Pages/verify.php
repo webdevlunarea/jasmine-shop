@@ -19,7 +19,7 @@
             </div>
             <input class="btn btn-primary1 w-100" type="submit" value="Verifikasi">
         </form>
-        <p class="mt-3">OTP belum terkirim? <a href="/kirimotp" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Klik disini</a> untuk mengirim ulang</p>
+        <p class="mt-3 text-center">OTP belum terkirim? <a href="/kirimotp" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Klik disini</a> untuk mengirim ulang</p>
     </div>
 </div>
 <?= $this->endSection(); ?>
