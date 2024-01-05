@@ -38,16 +38,38 @@ class Pages extends BaseController
     }
     public function all($subkategori = false)
     {
-        $produk = $this->barangModel->where('subkategori', $subkategori)->findAll();
+        $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, 0);
+        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->findAll();
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
             'kategori' => $subkategori,
-            'nama' => false
+            'page' => 1,
+            'nama' => false,
+            'semuaProduk' => $semuaproduk
         ];
         return view('pages/all', $data);
     }
-
+    public function allPage($page, $subkategori = false)
+    {
+        $pagination = (int)$page;
+        if ($pagination > 1) {
+            $hitungOffset = 20 * ($pagination - 1);
+            $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, $hitungOffset);
+        } else {
+            $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, 0);
+        }
+        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->findAll();
+        $data = [
+            'title' => 'Semua Produk',
+            'produk' => $produk,
+            'kategori' => $subkategori,
+            'page' => $page,
+            'nama' => false,
+            'semuaProduk' => $semuaproduk
+        ];
+        return view('pages/all', $data);
+    }
     public function signup()
     {
         $data = [
@@ -358,27 +380,37 @@ class Pages extends BaseController
         $gambar = [];
         $jumlah = [];
         $itemDetails = [];
+        $indElementNotFound = [];
+        $indElementStokHabis = [];
         $subtotal = 0;
         $berat = 0;
         if (!empty($keranjang)) {
-            foreach ($keranjang as $element) {
+            foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
-                $gambarnya = $this->gambarBarangModel->getGambar($element['id']);
-                array_push($produk, $produknya);
-                array_push($gambar, $gambarnya["gambar" . ($element['index_gambar'] + 1)]);
-                array_push($jumlah, $element['jumlah']);
-                $item = array(
-                    'id' => $produknya["id"],
-                    'price' => $produknya["harga"],
-                    'quantity' => $element['jumlah'],
-                    'name' => $produknya["nama"],
-                );
-                array_push($itemDetails, $item);
+                if ($produknya) {
+                    $gambarnya = $this->gambarBarangModel->getGambar($element['id']);
+                    array_push($produk, $produknya);
+                    array_push($gambar, $gambarnya["gambar" . ($element['index_gambar'] + 1)]);
+                    array_push($jumlah, $element['jumlah']);
+                    $item = array(
+                        'id' => $produknya["id"],
+                        'price' => $produknya["harga"],
+                        'quantity' => $element['jumlah'],
+                        'name' => $produknya["nama"],
+                    );
+                    array_push($itemDetails, $item);
 
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = $persen * $produknya['harga'];
-                $subtotal += $hasil * $element['jumlah'];
-                $berat += $produknya['berat'] * $element['jumlah'];
+                    $persen = (100 - $produknya['diskon']) / 100;
+                    $hasil = $persen * $produknya['harga'];
+                    $subtotal += $hasil * $element['jumlah'];
+                    $berat += $produknya['berat'] * $element['jumlah'];
+
+                    //cek stok habis
+                    if ((int)$produknya['stok'] - (int)$element['jumlah'] < 0)
+                        array_push($indElementStokHabis, $ind);
+                } else {
+                    array_push($indElementNotFound, $ind);
+                }
             }
             $item = array(
                 'id' => 'Biaya Tambahan',
@@ -390,6 +422,17 @@ class Pages extends BaseController
             $total = $subtotal + 10000;
         }
 
+        if (count($indElementNotFound) > 0) {
+            session()->setFlashdata('msg', 'Terdapat produk yang dihapus dari keranjang karena produk sudah tidak tersedia');
+            foreach ($indElementNotFound as $ind) {
+                unset($keranjang[$ind]);
+            }
+            $keranjangBaru = array_values($keranjang);
+            session()->set(['keranjang' => $keranjangBaru]);
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+            return redirect()->to('/cart');
+        }
+
         $data = [
             'title' => 'Keranjang',
             'produk' => $produk,
@@ -397,8 +440,9 @@ class Pages extends BaseController
             'jumlah' => $jumlah,
             'keranjang' => $keranjang,
             'tokenMid' => false,
-            'berat' => $berat
-            // 'ongkir' => (array)json_decode($ongkir)
+            'berat' => $berat,
+            'msg' => session()->getFlashdata('msg'),
+            'indStokHabis' => $indElementStokHabis
         ];
 
         if (!isset($total)) {
@@ -414,6 +458,11 @@ class Pages extends BaseController
         $ketemu = false;
         foreach ($keranjang as $index => $element) {
             if ($element['id'] == $id_barang && $element['varian'] == $varian) {
+                $produknya = $this->barangModel->getBarang($element['id']);
+                if ((int)$produknya['stok'] - (int)$keranjang[$index]['jumlah'] - 1 < 0) {
+                    session()->setFlashdata('msg', 'Stok kurang');
+                    return redirect()->to("/product/" . $produknya['id']);
+                }
                 $keranjang[$index]['jumlah'] += 1;
                 $ketemu = true;
             }
@@ -503,7 +552,7 @@ class Pages extends BaseController
         $subtotal = 0;
         $berat = 0;
         if (!empty($keranjang)) {
-            foreach ($keranjang as $element) {
+            foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
                 array_push($produk, $produknya);
                 array_push($jumlah, $element['jumlah']);
@@ -512,6 +561,10 @@ class Pages extends BaseController
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $element['jumlah'];
                 $berat += $produknya['berat'] * $element['jumlah'];
+
+                //cek stok habis
+                if ((int)$produknya['stok'] - (int)$element['jumlah'] < 0)
+                    return redirect()->to('cart');
             }
             $total = $subtotal + 5000;
         }
@@ -552,7 +605,7 @@ class Pages extends BaseController
             'user' => $user,
             'total' => $total,
             'provinsi' => $provinsi["rajaongkir"]["results"],
-            'keranjang' => $keranjang,
+            'keranjang' => $keranjang
         ];
         return view('pages/checkout', $data);
     }
@@ -812,7 +865,8 @@ class Pages extends BaseController
             'gambar' => $gambarnya,
             'varian' => $varian,
             'dimensi' => $dimensi,
-            'produksekategori' => $produksekategori
+            'produksekategori' => $produksekategori,
+            'msg' => session()->getFlashdata('msg')
         ];
         return view('pages/product', $data);
     }

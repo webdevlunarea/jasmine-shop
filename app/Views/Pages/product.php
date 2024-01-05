@@ -14,6 +14,11 @@
                 </div>
             </div>
             <div class="limapuluh-ke-seratus">
+                <?php if ($msg) { ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?= $msg; ?>
+                    </div>
+                <?php } ?>
                 <h3><?= $produk['nama']; ?></h3>
                 <?php if ($produk['diskon']) { ?>
                     <p class="mb-0 harga d-inline">Rp
@@ -28,7 +33,11 @@
                     <p class="mb-0 harga">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
                 <?php } ?>
                 <p class="mb-0">★★★☆☆ (<?= $produk['rate']; ?>)</p>
-                <p>Stok : <?= $produk['stok']; ?></p>
+                <?php if ((int)$produk['stok'] > 0) { ?>
+                    <p class="<?= (int)$produk['stok'] < 5 ? "text-danger " : "text-dark"; ?>"><b>Stok : <?= $produk['stok']; ?></b></p>
+                <?php } else { ?>
+                    <p class="text-danger"><b>Stok habis</b></p>
+                <?php } ?>
                 <span class="garis mb-2"></span>
                 <h5>Varian</h5>
                 <div class="btn-group mb-3" id="varian-group" role="group" aria-label="Basic radio toggle button group">
@@ -44,7 +53,7 @@
                 <?php if (session()->get('isLogin')) { ?>
                     <?php if (session()->get('role') == 0) { ?>
                         <?php if (session()->get('active') == '1') { ?>
-                            <a class="btn btn-primary1" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product">Beli Sekarang</a>
+                            <a class="btn btn-primary1" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
                             <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                 <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
                             <?php } else { ?>

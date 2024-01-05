@@ -11,21 +11,26 @@
                         <a href="/product/<?= $p['id']; ?>" class="d-flex gap-4 text-dark" style="height: 100%;">
                             <img src="data:image/jpeg;base64,<?= base64_encode($gambar[$index]); ?>" alt="">
                             <div>
-                                <p class="mb-0"><?= $p['nama']; ?></p>
-                                <p class="mb-0">Varian : <?= $keranjang[$index]['varian'] ?></p>
-                                <?php if ($p['diskon']) { ?>
-                                    <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp
-                                        <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                    <p class="mb-0 harga" style="display: inline;">Rp
-                                        <?php
-                                        $persen = (100 - $p['diskon']) / 100;
-                                        $hasil = $persen * $p['harga'];
-                                        echo number_format($hasil, 0, ",", ".");
-                                        ?></p>
-                                <?php } else {
-                                    $hasil = $p['harga']; ?>
-                                    <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                                <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>"><?= $p['nama']; ?></p>
+                                <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>">Varian : <?= $keranjang[$index]['varian'] ?></p>
+                                <?php if (in_array($index, $indStokHabis)) { ?>
+                                    <p class="mb-0 text-danger"><b>Stok kurang</b></p>
+                                <?php } else { ?>
+                                    <?php if ($p['diskon']) { ?>
+                                        <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp
+                                            <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                                        <p class="mb-0 harga" style="display: inline;">Rp
+                                            <?php
+                                            $persen = (100 - $p['diskon']) / 100;
+                                            $hasil = $persen * $p['harga'];
+                                            echo number_format($hasil, 0, ",", ".");
+                                            ?></p>
+                                    <?php } else {
+                                        $hasil = $p['harga']; ?>
+                                        <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                                    <?php } ?>
                                 <?php } ?>
+
                             </div>
                         </a>
                         <div>
@@ -41,7 +46,7 @@
                                 <a href="/delcart/<?= $index; ?>" class="btn btn-light"><i class="material-icons">delete</i></a>
                                 <div class="input-group jumlah">
                                     <a class="input-group-text" href="/redcart/<?= $index; ?>">-</a>
-                                    <input disabled type="number" class="form-control text-center" value="<?= $jumlah[$index]; ?>">
+                                    <input disabled type="number" class="form-control text-center <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>" value="<?= $jumlah[$index]; ?>">
                                     <a class="input-group-text" href="/addcart/<?= $p['id']; ?>/<?= $keranjang[$index]['varian'] ?>/<?= $keranjang[$index]['index_gambar'] ?>">+</a>
                                 </div>
                             </div>
@@ -65,7 +70,7 @@
                 <p class="my-2">Total Berat:</p>
                 <p class="my-2"><b><?= $berat; ?> gram</b></p>
             </div>
-            <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?>" href="/checkout">Proses
+            <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?><?= in_array($index, $indStokHabis) ? "disabled" : ""; ?>" href="/checkout">Proses
                 Checkout</a>
         </div>
     </div>

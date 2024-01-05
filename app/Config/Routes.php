@@ -9,6 +9,8 @@ $routes->get('/', 'Pages::index');
 $routes->get('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
+$routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
+$routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
 $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
