@@ -11,6 +11,8 @@ $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
 $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
+$routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
+$routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
 $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);

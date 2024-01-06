@@ -36,6 +36,20 @@ class Pages extends BaseController
         ];
         return view('pages/home', $data);
     }
+    public function kebijakanprivasi()
+    {
+        $data = [
+            'title' => 'Kebijakan Privasi',
+        ];
+        return view('pages/kebijakanprivasi', $data);
+    }
+    public function syaratdanketentuan()
+    {
+        $data = [
+            'title' => 'Syarat dan Ketentuan',
+        ];
+        return view('pages/syaratdanketentuan', $data);
+    }
     public function all($subkategori = false)
     {
         $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, 0);
