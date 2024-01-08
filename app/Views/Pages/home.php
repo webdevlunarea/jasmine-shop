@@ -40,47 +40,47 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
                     <p>Lemari Dewasa</p>
                 </a>
                 <a class="kategori" href="/all/lemari-anak">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Lemari Anak</p>
                 </a>
                 <a class="kategori" href="/all/meja-rias">
-                    <img src="img/logokategori/Meja_Rias.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Rias.png" alt="" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar">
-                    <img src="img/logokategori/Meja_Belajar.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Belajar.png" alt="" width="50px">
                     <p>Meja Belajar</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar-kaki-besi">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja Belajar Kaki Besi</p>
                 </a>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="img/logokategori/Meja_Tulis.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Tulis.png" alt="" width="50px">
                     <p>Meja Tulis</p>
                 </a>
                 <a class="kategori" href="/all/meja-komputer">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja Komputer</p>
                 </a>
                 <a class="kategori" href="/all/meja-komputer-kaki-besi">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja Komputer Kaki Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-sepatu">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Rak Sepatu</p>
                 </a>
                 <a class="kategori" href="/all/rak-besi">
-                    <img src="img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Rak Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-serbaguna">
