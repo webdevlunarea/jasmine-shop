@@ -83,6 +83,9 @@ a {
 .navbar {
     background-color: white;
 }
+.nav-item {
+    cursor: pointer;
+}
 .konten {
     min-height: calc(100vh - 234.5px - 57.74px);
     padding-block: 2em;
@@ -397,6 +400,49 @@ a {
     width: 100px;
     height: 100px;
     display: block;
+}
+
+.tombol-pilih-kurir {
+    border: 1px solid rgb(214, 214, 214);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5em;
+    cursor: pointer;
+    transition: 0.1s;
+}
+.tombol-pilih-kurir:hover {
+    transition: 0.1s;
+    border: 1px solid var(--hijau);
+}
+.tombol-pilih-kurir .parent-img {
+    width: 100px;
+    display: flex;
+    justify-content: center;
+}
+.tombol-pilih-kurir img {
+    width: 100px;
+    height: 100%;
+}
+.tombol-pilih-kurir img.dakota {
+    width: 60px;
+}
+#container-pilih-kurir {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 99;
+    width: 100vw;
+    height: calc(100vh - 100px);
+}
+.container-pilih-kurir {
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    border-radius: 5px;
+    padding: 20px;
 }
 
 /* Footer */
