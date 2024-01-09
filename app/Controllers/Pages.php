@@ -887,12 +887,15 @@ class Pages extends BaseController
 
     public function productFilter($nama)
     {
-        $produk = $this->barangModel->like("nama", $nama, "both")->findAll();
+        $produk = $this->barangModel->like("nama", $nama, "both")->findAll(20, 0);
+        $semuaproduk = $this->barangModel->like("nama", $nama, "both")->findAll();
         $data = [
             'title' => 'Produk',
             'produk' => $produk,
             'nama' => $nama,
             'kategori' => false,
+            'semuaProduk' => $semuaproduk,
+            'page' => 1,
         ];
         return view('pages/all', $data);
     }

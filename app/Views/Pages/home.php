@@ -34,9 +34,9 @@
             </button>
         </div>
     </div>
-    <div class="container my-5">
+    <div class="container my-3">
         <h5 class="jdl-section">Kategori</h5>
-        <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
+        <h1 class="mb-1">Kategori Produk</h1>
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
@@ -98,9 +98,9 @@
             </div>
         </div>
     </div>
-    <div class="container my-5">
+    <div class="container my-3">
         <h5 class="jdl-section">Hari ini</h5>
-        <h1 class="mb-3">Produk Baru</h1>
+        <h1 class="mb-1">Produk Baru</h1>
         <div class="card-group1 no-scroll">
             <?php foreach ($produk as $p) { ?>
             <a class="card1" href="/product/<?= $p['id']; ?>">
@@ -132,7 +132,7 @@
             <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">View All Products</a>
         </div>
     </div>
-    <div class="container my-5">
+    <div class="container my-3">
         <h5 class="jdl-section">Bulan Ini</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Produk Terbaik</h1>
@@ -337,7 +337,7 @@
             </div>
         </div> -->
     </div>
-    <!-- <div class="container my-5">
+    <!-- <div class="container my-3">
         <h5 class="jdl-section">Terbaru</h5>
         <h1>Kedatangan Baru</h1>
         <div class="row">
@@ -394,7 +394,7 @@
             </div>
         </div>
     </div> -->
-    <!-- <span class="garis my-5 container"></span>
+    <!-- <span class="garis my-3 container"></span>
     <div class="container baris-ke-kolom">
         <div class="limapuluh-ke-seratus">
             <h3>Metode Pembayaran</h3>
@@ -411,6 +411,6 @@
             <img class="logo-pembayaran" src="/img/logo/jne.webp" alt="">
         </div>
     </div>
-    <span class="garis container my-5"></span> -->
+    <span class="garis container my-3"></span> -->
 </div>
 <?= $this->endSection(); ?>
