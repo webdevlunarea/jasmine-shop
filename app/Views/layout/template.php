@@ -154,12 +154,14 @@
             }
         }
 
-        const searchBox = document.getElementById("search-box");
-        const searchBoxInput = document.querySelector('#search-box input')
-        searchBox.addEventListener("submit", (e) => {
-            e.preventDefault()
-            const isinya = searchBoxInput.value
-            window.location.href = "/productNama/" + isinya
+        const searchBox = document.querySelectorAll(".search-box");
+        const searchBoxInput = document.querySelectorAll('.search-input');
+        searchBox.forEach((elm, ind) => {
+            elm.addEventListener('submit', (e) => {
+                e.preventDefault()
+                const isinya = searchBoxInput[ind].value
+                window.location.href = "/productNama/" + isinya
+            })
         })
     </script>
 </body>
