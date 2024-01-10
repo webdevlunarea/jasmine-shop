@@ -38,7 +38,7 @@
                             <p class="fw-bold mb-2 text-end">Rp
                                 <?php
                                 $subtotal += $hasil * $jumlah[$index];
-                                session()->set(['subtotal' => $subtotal]);
+                                // session()->set(['subtotal' => $subtotal]);
                                 echo number_format(($hasil * $jumlah[$index]), 0, ",", ".");
                                 ?>
                             </p>

@@ -76,7 +76,7 @@
                     <div>
                         <a href="#" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.png" class="marketplace">
                         </a>
-                        <a href="#" title="Shopee" target="blank" style=""><img src="/img/logo/shopee.png" class="marketplace">
+                        <a href="#" title="Shopee" target="blank"><img src="/img/logo/shopee.png" class="marketplace">
                         </a>
                     </div>
                 </div>

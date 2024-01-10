@@ -82,69 +82,6 @@
             toastElm.classList.remove("show")
         }
 
-        const btnCheckoutElm = document.getElementById('btn-checkout')
-        const formCheckoutElm = document.getElementById('form-checkout')
-        const formCheckoutNama = document.querySelector('#form-checkout input[name="nama"]')
-        const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
-        const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
-        const formCheckoutNoHp = document.querySelector('#form-checkout input[name="phone"]')
-        const formCheckoutPaket = document.querySelector('#form-checkout select[name="paket"]')
-        const formCheckout = document.querySelectorAll('#form-checkout .form-control')
-
-        if (btnCheckoutElm) {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-            btnCheckoutElm.addEventListener("click", () => {
-                if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
-                    formCheckoutNoHp.value && formCheckoutPaket.value > 0) {
-
-                    formCheckoutNama.classList.remove("is-invalid")
-                    formCheckoutAlamat.classList.remove("is-invalid")
-                    formCheckoutEmail.classList.remove("is-invalid")
-                    formCheckoutNoHp.classList.remove("is-invalid")
-                    formCheckoutPaket.classList.remove("is-invalid")
-
-                    btnCheckoutElm.innerHTML = "Loading"
-                    const data = {
-                        nama: formCheckoutNama.value,
-                        alamat: formCheckoutAlamat.value,
-                        email: formCheckoutEmail.value,
-                        phone: formCheckoutNoHp.value,
-                        paket: formCheckoutPaket.value
-                    }
-                    console.log(data)
-                    async function getTokenMditrans() {
-                        var formBody = [];
-                        for (var property in data) {
-                            var encodedKey = encodeURIComponent(property);
-                            var encodedValue = encodeURIComponent(data[property]);
-                            formBody.push(encodedKey + "=" + encodedValue);
-                        }
-                        formBody = formBody.join("&");
-
-                        const response = await fetch("actioncheckout", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(data),
-                        });
-                        const snaptoken = await response.json();
-                        console.log(snaptoken);
-                        btnCheckoutElm.innerHTML = "Pesan"
-                        window.snap.pay(snaptoken.snapToken);
-                    }
-                    getTokenMditrans()
-                } else {
-                    if (!formCheckoutNama.value) formCheckoutNama.classList.add("is-invalid")
-                    if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
-                    if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
-                    if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
-                    if (formCheckoutPaket.value < 0) formCheckoutPaket.classList.add("is-invalid")
-                }
-            })
-        }
-
         function bukaDropdown(id) {
             const elementDropdown = document.getElementById(id);
             if (elementDropdown.style.height == "100%") {

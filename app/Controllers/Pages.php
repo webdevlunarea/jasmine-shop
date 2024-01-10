@@ -12,6 +12,7 @@ use KiriminAja\Base\Config\Cache\Mode;
 use KiriminAja\Base\Config\KiriminAjaConfig;
 use KiriminAja\Services\KiriminAja;
 
+use function PHPSTORM_META\map;
 use function PHPUnit\Framework\isEmpty;
 
 class Pages extends BaseController
@@ -563,6 +564,7 @@ class Pages extends BaseController
         $alamat = session()->get('alamat');
         $produk = [];
         $jumlah = [];
+        $produkJson = [];
         $subtotal = 0;
         $berat = 0;
         if (!empty($keranjang)) {
@@ -575,6 +577,18 @@ class Pages extends BaseController
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $element['jumlah'];
                 $berat += $produknya['berat'] * $element['jumlah'];
+
+                $dimensi = explode("X", $produknya['dimensi']);
+                array_push($produkJson, array(
+                    'name' => $produknya['nama'],
+                    'description' => $produknya['deskripsi'],
+                    'value' => $hasil,
+                    'length' => (float)$dimensi[0],
+                    'width' => (float)$dimensi[1],
+                    'height' => (float)$dimensi[2],
+                    'weight' => (float)$produknya['berat'],
+                    'quantity' => (int)$element['jumlah'],
+                ));
 
                 //cek stok habis
                 if ((int)$produknya['stok'] - (int)$element['jumlah'] < 0)
@@ -614,10 +628,12 @@ class Pages extends BaseController
         $data = [
             'title' => 'Check Out',
             'produk' => $produk,
+            'produkJson' => json_encode($produkJson),
             'jumlah' => $jumlah,
             'berat' => $berat,
             'user' => $user,
             'total' => $total,
+            'subtotal' => $subtotal,
             'provinsi' => $provinsi["rajaongkir"]["results"],
             'keranjang' => $keranjang
         ];

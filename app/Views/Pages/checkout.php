@@ -105,10 +105,11 @@
                     <label for="floatingProvinsi">Ekspedisi</label>
                 </div>
                 <div class="form-floating mb-1 d-none">
-                    <select class="form-select" aria-label="Default select example" name="paket">
+                    <select class="form-select" aria-label="Default select example" name="paket1">
                         <option value="-1">-- Pilih paket --</option>
                     </select>
                     <label for="floatingProvinsi">Paket</label>
+                    <input id="set-paket" name="paket" type="number" value="0" />
                 </div>
             </div>
             <div class="limapuluh-ke-seratus">
@@ -138,7 +139,7 @@
                 </div>
                 <div class="d-flex justify-content-between border-bottom border-top mt-3" style="gap: 10em;">
                     <p class="my-2">Subtotal:</p>
-                    <p class="my-2"><b>Rp <?= number_format(session()->get('subtotal'), 0, ",", "."); ?></b></p>
+                    <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
                 </div>
                 <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Biaya Admin:</p>
@@ -156,7 +157,7 @@
                 </div>
                 <div class="d-flex justify-content-between" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
-                    <p class="my-2"><b id="total-semua"><?= $berat; ?> gram</b>
+                    <p class="my-2"><b><?= $berat; ?> gram</b>
                     </p>
                 </div>
                 <button id="btn-checkout" class="btn btn-primary1" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
@@ -167,8 +168,8 @@
 <script>
     const provElm = document.querySelector('select[name="provinsi"]');
     const kotaElm = document.querySelector('select[name="kota"]');
-    const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
-    const paketElm = document.querySelector('select[name="paket"]');
+    // const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
+    // const paketElm = document.querySelector('select[name="paket"]');
     const areaElm = document.querySelector('select[name="area"]');
     const costElm = document.getElementById("total-pengiriman");
     const totalElm = document.getElementById("total-semua");
@@ -176,9 +177,73 @@
     const pilihKurirElm = document.getElementById("pilih-kurir");
     const tabsElm = document.getElementById("tabs");
     const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
-    const subtotal = "<?= session()->get('subtotal'); ?>";
+    const inputPaketElm = document.getElementById("set-paket");
+    const subtotal = "<?= $subtotal; ?>";
+    console.log(subtotal)
     const beratTotal = Number("<?= $berat; ?>");
     let hasilApiKurir = [];
+    const produk = JSON.parse(<?= json_encode($produkJson); ?>);
+
+    const btnCheckoutElm = document.getElementById('btn-checkout')
+    const formCheckoutElm = document.getElementById('form-checkout')
+    const formCheckoutNama = document.querySelector('#form-checkout input[name="nama"]')
+    const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
+    const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
+    const formCheckoutNoHp = document.querySelector('#form-checkout input[name="phone"]')
+    const formCheckoutPaket = document.querySelector('#form-checkout input[name="paket"]')
+    const formCheckout = document.querySelectorAll('#form-checkout .form-control')
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    btnCheckoutElm.addEventListener("click", () => {
+        if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
+            formCheckoutNoHp.value && formCheckoutPaket.value > 0) {
+
+            formCheckoutNama.classList.remove("is-invalid")
+            formCheckoutAlamat.classList.remove("is-invalid")
+            formCheckoutEmail.classList.remove("is-invalid")
+            formCheckoutNoHp.classList.remove("is-invalid")
+            btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
+
+            btnCheckoutElm.innerHTML = "Loading"
+            const data = {
+                nama: formCheckoutNama.value,
+                alamat: formCheckoutAlamat.value,
+                email: formCheckoutEmail.value,
+                phone: formCheckoutNoHp.value,
+                paket: formCheckoutPaket.value
+            }
+            console.log(data)
+            async function getTokenMditrans() {
+                var formBody = [];
+                for (var property in data) {
+                    var encodedKey = encodeURIComponent(property);
+                    var encodedValue = encodeURIComponent(data[property]);
+                    formBody.push(encodedKey + "=" + encodedValue);
+                }
+                formBody = formBody.join("&");
+
+                const response = await fetch("actioncheckout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+                const snaptoken = await response.json();
+                console.log(snaptoken);
+                btnCheckoutElm.innerHTML = "Pesan"
+                window.snap.pay(snaptoken.snapToken);
+            }
+            getTokenMditrans()
+        } else {
+            if (!formCheckoutNama.value) formCheckoutNama.classList.add("is-invalid")
+            if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
+            if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
+            if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
+            if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
+        }
+    })
 
     async function getKota(idprov) {
         const response = await fetch("getkota/" + idprov);
@@ -206,125 +271,90 @@
             areaElm.appendChild(optElm);
         });
     }
-    async function getPaket(asal, tujuan, berat, kurir) {
-        console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
-        const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
-        const paket = await response.json();
-        const hasil = paket.rajaongkir.results[0].costs;
-        paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
-        hasil.forEach(element => {
-            const optElm = document.createElement("option");
-            optElm.value = element.cost[0].value
-            optElm.innerHTML =
-                `${element.description} | Rp ${element.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            paketElm.appendChild(optElm);
+    async function getRates(data) {
+        const response = await fetch("getrates", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
         });
+        const result = await response.json();
+        if (result.success) hasilApiKurir = result.pricing;
+    }
+    // async function getPaket(asal, tujuan, berat, kurir) {
+    //     console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
+    //     const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
+    //     const paket = await response.json();
+    //     const hasil = paket.rajaongkir.results[0].costs;
+    //     paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
+    //     hasil.forEach(element => {
+    //         const optElm = document.createElement("option");
+    //         optElm.value = element.cost[0].value
+    //         optElm.innerHTML =
+    //             `${element.description} | Rp ${element.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //         paketElm.appendChild(optElm);
+    //     });
+    // }
+
+    function resetUIBtnPilihKurir() {
+        inputPaketElm.value = "0";
+        // <p class="mb-0">Pilih Kurir</p>
+        //             <span><i class="material-icons">chevron_right</i></span>
+        const pElm = document.createElement("p");
+        pElm.classList.add("mb-0");
+        pElm.innerHTML = "Pilih Kurir";
+        const spanElm = document.createElement("span");
+        spanElm.innerHTML = '<i class="material-icons">chevron_right</i>';
+        btnPilihKurirElm.innerHTML = ""
+        btnPilihKurirElm.appendChild(pElm)
+        btnPilihKurirElm.appendChild(spanElm)
     }
     provElm.addEventListener("change", (e) => {
         kotaElm.innerHTML = '<option value="-1">Loading..</option>'
-        paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
+        // paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
+        areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
         costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        resetUIBtnPilihKurir();
         const idprov = Number(e.target.value)
         if (idprov > 0)
             getKota(idprov)
     })
     kotaElm.addEventListener("change", (e) => {
-        paketElm.innerHTML = '<option value="-1">Loading..</option>'
+        // paketElm.innerHTML = '<option value="-1">Loading..</option>'
         areaElm.innerHTML = '<option value="-1">Loading..</option>'
         costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        resetUIBtnPilihKurir();
         const value = e.target.value.split("-")
         const idkota = Number(value[0])
-        const ekspedisi = ekspedisiElm.value;
+        // const ekspedisi = ekspedisiElm.value;
         if (idkota > 0) {
-            getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
+            // getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
             getArea(value[1])
         }
     })
-    ekspedisiElm.addEventListener("change", (e) => {
-        paketElm.innerHTML = '<option value="-1">Loading..</option>'
-        costElm.innerHTML = '-'
-        const idkota = kotaElm.value;
-        const ekspedisi = e.target.value;
-        if (idkota > 0)
-            getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
-    })
-    paketElm.addEventListener("change", (e) => {
-        costElm.innerHTML = `Rp ${e.target.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-        totalElm.innerHTML =
-            `Rp ${(5000 + Number(e.target.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    })
+    // ekspedisiElm.addEventListener("change", (e) => {
+    //     paketElm.innerHTML = '<option value="-1">Loading..</option>'
+    //     costElm.innerHTML = '-'
+    //     const idkota = kotaElm.value;
+    //     const ekspedisi = e.target.value;
+    //     if (idkota > 0)
+    //         getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
+    // })
+    // paketElm.addEventListener("change", (e) => {
+    //     costElm.innerHTML = `Rp ${e.target.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    //     totalElm.innerHTML =
+    //         `Rp ${(5000 + Number(e.target.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    // })
 
     function pilihKurir() {
         if (hasilApiKurir.length > 0) {
             const hasilApi = hasilApiKurir
-            // const hasilApi = [{
-            //         available_collection_method: [
-            //             "pickup"
-            //         ],
-            //         available_for_cash_on_delivery: true,
-            //         available_for_proof_of_delivery: false,
-            //         available_for_instant_waybill_id: true,
-            //         available_for_insurance: true,
-            //         company: "jne",
-            //         courier_name: "JNE",
-            //         courier_code: "jne",
-            //         courier_service_name: "Reguler",
-            //         courier_service_code: "reg",
-            //         description: "Layanan reguler",
-            //         duration: "1 - 2 days",
-            //         shipment_duration_range: "1 - 2",
-            //         shipment_duration_unit: "days",
-            //         service_type: "standard",
-            //         shipping_type: "parcel",
-            //         price: 40000,
-            //         type: "reg"
-            //     },
-            //     {
-            //         available_collection_method: [
-            //             "pickup"
-            //         ],
-            //         available_for_cash_on_delivery: false,
-            //         available_for_proof_of_delivery: false,
-            //         available_for_instant_waybill_id: true,
-            //         available_for_insurance: true,
-            //         company: "jne",
-            //         courier_name: "JNE",
-            //         courier_code: "jne",
-            //         courier_service_name: "Yakin Esok Sampai (YES)",
-            //         courier_service_code: "yes",
-            //         description: "Yakin esok sampai",
-            //         duration: "1 - 1 days",
-            //         shipment_duration_range: "1 - 1",
-            //         shipment_duration_unit: "days",
-            //         service_type: "overnight",
-            //         shipping_type: "parcel",
-            //         price: 72000,
-            //         type: "yes"
-            //     },
-            //     {
-            //         available_collection_method: [
-            //             "pickup"
-            //         ],
-            //         available_for_cash_on_delivery: false,
-            //         available_for_proof_of_delivery: false,
-            //         available_for_instant_waybill_id: true,
-            //         available_for_insurance: true,
-            //         company: "jnt",
-            //         courier_name: "J&T",
-            //         courier_code: "jnt",
-            //         courier_service_name: "EZ",
-            //         courier_service_code: "ez",
-            //         description: "Layanan reguler",
-            //         duration: "2 - 3 days",
-            //         shipment_duration_range: "2 - 3",
-            //         shipment_duration_unit: "days",
-            //         price: 32000,
-            //         service_type: "standard",
-            //         shipping_type: "parcel",
-            //         type: "ez"
-            //     }
-            // ]
-            console.log(hasilApi);
+            // console.log(hasilApi);
             let cekTabs = []
             tabsElm.innerHTML = "";
             hasilApi.forEach((element, ind) => {
@@ -409,6 +439,7 @@
                 costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
                 totalElm.innerHTML =
                     `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                inputPaketElm.value = Number(elm.price);
 
                 containerPilihKurir.style.display = "none";
             })
@@ -416,23 +447,18 @@
     }
 
     areaElm.addEventListener("change", (e) => {
+        costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        resetUIBtnPilihKurir();
         const id_area = e.target.value;
         const bodynya = {
             origin_area_id: "IDNP10IDNC393IDND4705IDZ50122", //id kota semarang (tpi belum fix bener ato nggk postal codenya)
             destination_area_id: id_area,
             couriers: "jne,jnt,wahana",
-            items: [{
-                name: "Shoes",
-                description: "Black colored size 45",
-                value: 199000,
-                length: 30,
-                width: 15,
-                height: 20,
-                weight: 200,
-                quantity: 2
-            }]
+            items: produk
         }
-        console.log(bodynya)
+        getRates(bodynya);
     })
 </script>
 <?= $this->endSection(); ?>
