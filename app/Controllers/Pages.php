@@ -297,6 +297,7 @@ class Pages extends BaseController
                 'alamat' => $getPembeli['alamat'],
                 'wishlist' => json_decode($getPembeli['wishlist'], true),
                 'keranjang' => json_decode($getPembeli['keranjang'], true),
+                'transaksi' => json_decode($getPembeli['transaksi'], true),
                 'isLogin' => true
             ];
             session()->set($ses_data);
@@ -314,7 +315,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
@@ -832,6 +833,42 @@ class Pages extends BaseController
             'phone' => $phone,
         );
         return $this->response->setJSON($arr, false);
+    }
+    public function actionAddTransaction()
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        $transaksi = session()->get("transaksi");
+        array_push($transaksi, $body['data']);
+
+        session()->set(['transaksi' => $transaksi]);
+        $this->pembeliModel->where('email_user', $body['email'])->set(['transaksi' => json_encode($transaksi)])->update();
+
+        // {
+        //     "status_code": "200",
+        //     "status_message": "Success, transaction is found",
+        //     "transaction_id": "2e7e57a5-6fb8-4394-ab31-b9df79926ce2",
+        //     "order_id": "502437951",
+        //     "gross_amount": "4185000.00",
+        //     "payment_type": "bank_transfer",
+        //     "transaction_time": "2024-01-11 09:32:19",
+        //     "transaction_status": "settlement",
+        //     "fraud_status": "accept",
+        //     "va_numbers": [
+        //         {
+        //             "bank": "bca",
+        //             "va_number": "98098759923"
+        //         }
+        //     ],
+        //     "bca_va_number": "98098759923",
+        //     "pdf_url": "https://app.sandbox.midtrans.com/snap/v1/transactions/b54d885f-1953-4074-8386-6cb5ce475ae0/pdf",
+        //     "finish_redirect_url": "https://be8c-2001-448a-b010-4522-7543-642c-4f44-6e7.ngrok-free.app/successpay?order_id=502437951&status_code=200&transaction_status=settlement"
+        // }
+
+        $arr = array(
+            'success' => true,
+        );
+        return $this->response->setJSON($body, false);
     }
     public function account()
     {

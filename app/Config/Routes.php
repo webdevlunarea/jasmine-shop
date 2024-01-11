@@ -38,6 +38,7 @@ $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->post('/getrates', 'Pages::getRates');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
+$routes->post('/addtransaction', 'Pages::actionAddTransaction');
 $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
 $routes->get('/errorpay', 'Pages::errorPay', ['filter' => 'harusUser']);

@@ -179,6 +179,7 @@
     const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
     const inputPaketElm = document.getElementById("set-paket");
     const subtotal = "<?= $subtotal; ?>";
+    const email = "<?= session()->get('email') ?>";
     console.log(subtotal)
     const beratTotal = Number("<?= $berat; ?>");
     let hasilApiKurir = [];
@@ -212,6 +213,7 @@
                 email: formCheckoutEmail.value,
                 phone: formCheckoutNoHp.value,
                 paket: formCheckoutPaket.value
+                // paket: 120000
             }
             console.log(data)
             async function getTokenMditrans() {
@@ -233,7 +235,24 @@
                 const snaptoken = await response.json();
                 console.log(snaptoken);
                 btnCheckoutElm.innerHTML = "Pesan"
-                window.snap.pay(snaptoken.snapToken);
+                window.snap.pay(snaptoken.snapToken, {
+                    onSuccess: function(result) {
+                        alert("payment success!");
+                        console.log(result);
+                    },
+                    onPending: function(result) {
+                        alert("wating your payment!");
+                        console.log(result);
+                        addTransaction(result);
+                    },
+                    onError: function(result) {
+                        alert("payment failed!");
+                        console.log(result);
+                    },
+                    onClose: function() {
+                        alert('you closed the popup without finishing the payment');
+                    }
+                });
             }
             getTokenMditrans()
         } else {
@@ -244,6 +263,23 @@
             if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
         }
     })
+
+    async function addTransaction(data) {
+        const dataYgdikirim = {
+            email: email,
+            data: data,
+        }
+        const response = await fetch("addtransaction", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataYgdikirim),
+        });
+        const result = await response.json();
+        console.log(result)
+
+    }
 
     async function getKota(idprov) {
         const response = await fetch("getkota/" + idprov);
