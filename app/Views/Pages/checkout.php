@@ -238,16 +238,14 @@
                 window.snap.pay(snaptoken.snapToken, {
                     onSuccess: function(result) {
                         alert("payment success!");
-                        console.log(result);
+                        addTransaction(result);
                     },
                     onPending: function(result) {
                         alert("wating your payment!");
-                        console.log(result);
                         addTransaction(result);
                     },
                     onError: function(result) {
                         alert("payment failed!");
-                        console.log(result);
                     },
                     onClose: function() {
                         alert('you closed the popup without finishing the payment');
@@ -267,6 +265,7 @@
     async function addTransaction(data) {
         const dataYgdikirim = {
             email: email,
+            items: produk,
             data: data,
         }
         const response = await fetch("addtransaction", {
@@ -277,8 +276,9 @@
             body: JSON.stringify(dataYgdikirim),
         });
         const result = await response.json();
-        console.log(result)
-
+        console.log(result.success);
+        if (result.success) return window.location.href("/transaction");
+        else console.log(result);
     }
 
     async function getKota(idprov) {

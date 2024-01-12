@@ -115,7 +115,11 @@ a {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 200px));
 }
 
-.margin-buttom-responsif {
+.list-group-item a.list {
+    color: black;
+}
+.list-group-item a.list:hover {
+    color: var(--hijau);
 }
 
 .card1 {
@@ -489,6 +493,13 @@ footer > .atas > div {
     line-height: 2.5em;
 }
 /* end footer */
+
+.accordion {
+    border: none;
+}
+.accordion-item {
+    margin-bottom: 5px;
+}
 
 @media (max-width: 600px) {
     p,

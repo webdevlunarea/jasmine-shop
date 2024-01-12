@@ -834,12 +834,22 @@ class Pages extends BaseController
         );
         return $this->response->setJSON($arr, false);
     }
+    public function transaction()
+    {
+        $email = session()->get("email");
+        $transaksi = session()->get("transaksi");
+        $data = [
+            'title' => 'Transaksi Pembayaran',
+            'transaksi' => $transaksi
+        ];
+        return view('pages/transaction', $data);
+    }
     public function actionAddTransaction()
     {
         $bodyJson = $this->request->getBody();
         $body = json_decode($bodyJson, true);
         $transaksi = session()->get("transaksi");
-        array_push($transaksi, $body['data']);
+        array_push($transaksi, $body);
 
         session()->set(['transaksi' => $transaksi]);
         $this->pembeliModel->where('email_user', $body['email'])->set(['transaksi' => json_encode($transaksi)])->update();
@@ -868,7 +878,7 @@ class Pages extends BaseController
         $arr = array(
             'success' => true,
         );
-        return $this->response->setJSON($body, false);
+        return $this->response->setJSON($arr, false);
     }
     public function account()
     {
