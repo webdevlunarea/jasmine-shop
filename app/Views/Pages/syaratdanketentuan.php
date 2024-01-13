@@ -2,6 +2,12 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Syarat dan Ketentuan</li>
+            </ol>
+        </nav>
         <h4>Syarat Dan Ketentuan</h4>
         <p><span>Selamat datang di </span><a style="color: var(--hijau);"
                 class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"

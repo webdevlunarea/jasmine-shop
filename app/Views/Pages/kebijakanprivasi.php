@@ -2,6 +2,12 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Kebijakan Privasi</li>
+            </ol>
+        </nav>
         <h3>Kebijakan Privasi</h3>
         <p>Seluruh informasi pribadi yang Anda berikan kepada melodyfurniture.co.id hanya akan digunakan dan dilindungi
             oleh

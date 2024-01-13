@@ -2,8 +2,14 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Produk</li>
+            </ol>
+        </nav>
         <h5 class="jdl-section">Kategori</h5>
-        <h1 class="mb-3">Cari Berdasarkan Kategori</h1>
+        <h1 class="mb-3">Kategori Produk</h1>
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">

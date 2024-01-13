@@ -2,6 +2,12 @@
 <?= $this->section("content"); ?>
 <div class="konten">
     <div class="container mb-3">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                <li class="breadcrumb-item active" aria-current="page">tentang</li>
+            </ol>
+        </nav>
         <h1>
             Sejarah Perusahaan
         </h1>
