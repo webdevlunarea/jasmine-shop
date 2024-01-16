@@ -38,8 +38,10 @@ $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->post('/getrates', 'Pages::getRates');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
-$routes->get('/transaction', 'Pages::transaction');
-$routes->post('/addtransaction', 'Pages::actionAddTransaction');
+
+$routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
+$routes->post('/addtransaction', 'Pages::addTransaction');
+$routes->post('/updatetransaction', 'Pages::updateTransaction');
 $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
 $routes->get('/errorpay', 'Pages::errorPay', ['filter' => 'harusUser']);

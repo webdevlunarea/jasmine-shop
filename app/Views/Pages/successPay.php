@@ -14,16 +14,4 @@
         </div>
     </div>
 </div>
-<script>
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    const status = urlParams.get("transaction_status")
-    if (urlParams.has('transaction_status')) {
-        if (status == "pending") {
-            window.location.href = "/"
-        }
-    } else {
-        window.location.href = "/"
-    }
-</script>
 <?= $this->endSection(); ?>

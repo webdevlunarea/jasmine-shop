@@ -525,36 +525,37 @@ class Pages extends BaseController
     }
     public function successPay()
     {
-        $keranjang = session()->get('keranjang');
-        $email = session()->get('email');
-        if (!empty($keranjang)) {
-            foreach ($keranjang as $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
-                $this->barangModel->save([
-                    'id' => $element['id'],
-                    'stok' => (int)$produknya['stok'] - (int)$element['jumlah'],
-                ]);
-            }
-        }
-        session()->set(['keranjang' => []]);
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
-
+        if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
         $data = [
-            'title' => 'Pembayaran Sukses'
+            'title' => 'Pembayaran Sukses',
+            'data_transaksi' => array(
+                'status' => session()->getFlashdata('status_transaksi'),
+                'id' => session()->getFlashdata('id_pesanan'),
+            ),
         ];
         return view('pages/successPay', $data);
     }
     public function progressPay()
     {
+        if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
         $data = [
-            'title' => 'Pembayaran Pending'
+            'title' => 'Pembayaran Pending',
+            'data_transaksi' => array(
+                'status' => session()->getFlashdata('status_transaksi'),
+                'id' => session()->getFlashdata('id_pesanan'),
+            ),
         ];
         return view('pages/progressPay', $data);
     }
     public function errorPay()
     {
+        if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
         $data = [
-            'title' => 'Pembayaran Gagal'
+            'title' => 'Pembayaran Gagal',
+            'data_transaksi' => array(
+                'status' => session()->getFlashdata('status_transaksi'),
+                'id' => session()->getFlashdata('id_pesanan'),
+            ),
         ];
         return view('pages/errorPay', $data);
     }
@@ -666,6 +667,34 @@ class Pages extends BaseController
         $kota = json_decode($response, true);
         return $this->response->setJSON($kota, false);
     }
+    public function getPaket($asal, $tujuan, $berat, $kurir)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.rajaongkir.com/starter/cost",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => "origin=" . $asal . "&destination=" . $tujuan . "&weight=" . $berat . "&courier=" . $kurir,
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/x-www-form-urlencoded",
+                "key: cc2c0bc6b0af484079a445cc8da39490"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $paket = json_decode($response, true);
+        return $this->response->setJSON($paket, false);
+    }
     public function getArea($kota)
     {
         $curl = curl_init();
@@ -711,34 +740,6 @@ class Pages extends BaseController
             CURLOPT_HTTPHEADER => array(
                 "authorization: biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiamFzbWluZSB0ZXN0aW5nIiwidXNlcklkIjoiNjU4M2I1MmY2YzAyMTAxZjVhZTJlNWY5IiwiaWF0IjoxNzAzMTMxOTQ5fQ.22F0VWJe-JavNsxaw_s68ErNv41cTVcYIm1OWtJF9og",
                 "content-type: application/json"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $paket = json_decode($response, true);
-        return $this->response->setJSON($paket, false);
-    }
-    public function getPaket($asal, $tujuan, $berat, $kurir)
-    {
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.rajaongkir.com/starter/cost",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "origin=" . $asal . "&destination=" . $tujuan . "&weight=" . $berat . "&courier=" . $kurir,
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/x-www-form-urlencoded",
-                "key: cc2c0bc6b0af484079a445cc8da39490"
             ),
         ));
         $response = curl_exec($curl);
@@ -838,13 +839,53 @@ class Pages extends BaseController
     {
         $email = session()->get("email");
         $transaksi = session()->get("transaksi");
+        $auth = base64_encode("SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f" . ":");
+        $transaksi_new = $transaksi;
+        $cek_transaksi_new = false;
+
+        foreach ($transaksi as $t_ind => $t) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $t['data']['order_id'] . "/status",
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "authorization: Basic " . $auth,
+                    "content-type: application/json",
+                    "Accept: application/json"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $item_status = json_decode($response, true);
+            if ($item_status['transaction_status'] != $t['data']['transaction_status']) {
+                $transaksi_new[$t_ind]['data']['transaction_status'] = $item_status['transaction_status'];
+                $cek_transaksi_new = true;
+            }
+        }
+
+        if ($cek_transaksi_new) {
+            session()->set(['transaksi' => $transaksi_new]);
+            $this->pembeliModel->where('email_user', $email)->set(['transaksi' => json_encode($transaksi_new)])->update();
+        }
+
         $data = [
             'title' => 'Transaksi Pembayaran',
-            'transaksi' => $transaksi
+            'transaksi' => $transaksi_new
         ];
         return view('pages/transaction', $data);
     }
-    public function actionAddTransaction()
+    public function addTransaction()
     {
         $bodyJson = $this->request->getBody();
         $body = json_decode($bodyJson, true);
@@ -879,6 +920,52 @@ class Pages extends BaseController
             'success' => true,
         );
         return $this->response->setJSON($arr, false);
+    }
+    public function updateTransaction()
+    {
+        // $bodyJson = $this->request->getBody();
+        // $body = json_decode($bodyJson, true);
+        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        \Midtrans\Config::$isProduction = false;
+
+        $notif = new \Midtrans\Notification();
+        $transaction = $notif->transaction_status;
+        $order_id = $notif->order_id;
+        $fraud = $notif->fraud_status;
+
+        session()->setFlashdata('status_transaksi', $transaction);
+        session()->setFlashdata('id_pesanan', $order_id);
+        if ($fraud == "accept") {
+            switch ($transaction) {
+                case 'settlement':
+                    return redirect()->to('/successpay');
+                    break;
+                case 'capture':
+                    return redirect()->to('/successpay');
+                    break;
+                case 'pending':
+                    return redirect()->to('/progresspay');
+                    break;
+                case 'expire':
+                    return redirect()->to('/errorpay');
+                    break;
+                case 'deny':
+                    return redirect()->to('/errorpay');
+                    break;
+                case 'failure':
+                    return redirect()->to('/errorpay');
+                    break;
+                case 'refund':
+                    echo "Pembayaran Id:" . $order_id . " status:" . $transaction;
+                    break;
+                case 'partial_refund':
+                    echo "Pembayaran Id:" . $order_id . " status:" . $transaction;
+                    break;
+                default:
+                    echo "Pembayaran Id:" . $order_id . " status:" . $transaction;
+                    break;
+            }
+        }
     }
     public function account()
     {
