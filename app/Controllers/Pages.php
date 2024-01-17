@@ -757,7 +757,8 @@ class Pages extends BaseController
         $alamat = $this->request->getVar('alamat');
         $phone = $this->request->getVar('phone');
         $email = $this->request->getVar('email');
-        $paket = $this->request->getVar('paket');
+        $paketData = $this->request->getVar('paket');
+        $paket = base64_decode($paketData);
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
         $keranjang = json_decode($getPembeli['keranjang'], true);

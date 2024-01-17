@@ -199,7 +199,7 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     btnCheckoutElm.addEventListener("click", () => {
         if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
-            formCheckoutNoHp.value && formCheckoutPaket.value > 0) {
+            formCheckoutNoHp.value && formCheckoutPaket.value.length > 0) {
 
             formCheckoutNama.classList.remove("is-invalid")
             formCheckoutAlamat.classList.remove("is-invalid")
@@ -213,7 +213,7 @@
                 alamat: formCheckoutAlamat.value,
                 email: formCheckoutEmail.value,
                 phone: formCheckoutNoHp.value,
-                paket: formCheckoutPaket.value //diganti "ind_kurir@ind_serice"
+                paket: formCheckoutPaket.value
                 // paket: 120000
             }
             console.log(data)
@@ -498,8 +498,8 @@
                 costElm.innerHTML = `Rp ${elm.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
                 totalElm.innerHTML =
                     `Rp ${(5000 + Number(elm.cost[0].value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                inputPaketElm.value = `${ind_kurir}@${ind_service}` //Number(elm.cost[0].value);
-
+                const timeSkrg = "<?= time(); ?>";
+                inputPaketElm.value = btoa(`${elm.cost[0].value}%`);
                 containerPilihKurir.style.display = "none";
             })
         })

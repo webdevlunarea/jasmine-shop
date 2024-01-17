@@ -2,6 +2,14 @@
 <?= $this->section("content"); ?>
 <div class="konten">
     <div class="container">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="/all">Produk</a></li>
+                <li class="breadcrumb-item"><a href="/all/<?= $produk['subkategori']; ?>"><?= str_replace('-', ' ', ucfirst($produk['subkategori'])) ?></a></li>
+                <li class="breadcrumb-item active"><a><?= $produk['nama']; ?></a></li>
+            </ol>
+        </nav>
         <div class="baris-ke-kolom">
             <div class="img-produk limapuluh-ke-seratus">
                 <img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev">
