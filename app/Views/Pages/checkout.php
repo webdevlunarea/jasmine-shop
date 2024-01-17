@@ -109,7 +109,7 @@
                         <option value="-1">-- Pilih paket --</option>
                     </select>
                     <label for="floatingProvinsi">Paket</label>
-                    <input id="set-paket" name="paket" type="number" value="0" />
+                    <input id="set-paket" name="paket" type="text" value="0" />
                 </div>
             </div>
             <div class="limapuluh-ke-seratus">
@@ -213,7 +213,7 @@
                 alamat: formCheckoutAlamat.value,
                 email: formCheckoutEmail.value,
                 phone: formCheckoutNoHp.value,
-                paket: formCheckoutPaket.value
+                paket: formCheckoutPaket.value //diganti "ind_kurir@ind_serice"
                 // paket: 120000
             }
             console.log(data)
@@ -439,14 +439,14 @@
                 aElm.classList.add("text-dark");
                 if (ind == 0) {
                     aElm.classList.add("active");
-                    tampilkanPilihanKurirRO(element.code, element.costs);
+                    tampilkanPilihanKurirRO(element.code, element.costs, ind);
                 }
                 aElm.innerHTML = element.code.toUpperCase();
                 liElm.appendChild(aElm);
                 liElm.addEventListener("click", (e) => {
                     removeActiveTabs();
                     e.target.classList.add("active")
-                    tampilkanPilihanKurirRO(element.code, element.costs)
+                    tampilkanPilihanKurirRO(element.code, element.costs, ind)
                 })
                 tabsElm.appendChild(liElm);
             })
@@ -460,9 +460,9 @@
         seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
     }
 
-    function tampilkanPilihanKurirRO(kurir, costs) {
+    function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
         pilihKurirElm.innerHTML = ""
-        costs.forEach((elm) => {
+        costs.forEach((elm, ind_service) => {
             const tmbPilihElm = document.createElement("div");
             tmbPilihElm.classList.add("tombol-pilih-kurir");
             const tmbPilihElmChild = document.createElement("div")
@@ -498,7 +498,7 @@
                 costElm.innerHTML = `Rp ${elm.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
                 totalElm.innerHTML =
                     `Rp ${(5000 + Number(elm.cost[0].value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                inputPaketElm.value = Number(elm.cost[0].value);
+                inputPaketElm.value = `${ind_kurir}@${ind_service}` //Number(elm.cost[0].value);
 
                 containerPilihKurir.style.display = "none";
             })
