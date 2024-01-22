@@ -75,7 +75,7 @@
                     <select class="form-select" aria-label="Default select example" name="provinsi">
                         <option selected value="-1">-- Pilih provinsi --</option>
                         <?php foreach ($provinsi as $p) { ?>
-                            <option value="<?= $p['province_id']; ?>"><?= $p['province']; ?></option>
+                            <option value="<?= $p['province_id']; ?>@<?= $p['province']; ?>"><?= $p['province']; ?></option>
                         <?php } ?>
                     </select>
                     <label for="floatingProvinsi">Provinsi</label>
@@ -184,6 +184,7 @@
     const beratTotal = Number("<?= $berat; ?>");
     let hasilApiKurir = [];
     let hasilApiKurirRO = [];
+    let prov_kab = ["", ""];
     const produk = JSON.parse(<?= json_encode($produkJson); ?>);
 
     const btnCheckoutElm = document.getElementById('btn-checkout')
@@ -286,7 +287,6 @@
         const response = await fetch("getkota/" + idprov);
         const kota = await response.json();
         const hasil = kota.rajaongkir.results;
-        console.log(hasil)
         kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
@@ -299,7 +299,6 @@
         const response = await fetch("getarea/" + kota);
         const result = await response.json();
         const hasil = result.areas;
-        console.log(hasil)
         areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
@@ -328,11 +327,59 @@
             const paket = await response.json();
             hasil.push(paket.rajaongkir.results[0])
             if (ind >= ekspedisi.length - 1) {
+                const kecamatan = await fetch("http://192.168.1.39:8082/getkec/" + prov_kab[1])
+                const dataYgdikirim = {
+                    prov: prov_kab[0],
+                    kab: prov_kab[1],
+                    kec: (await kecamatan.json()).data[0].KecamatanDistrik
+                }
+                const responseDakota = await fetch("http://192.168.1.39:8082/dakota", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataYgdikirim)
+                });
+                const dakota = await responseDakota.json();
+                if (dakota.pesan != 'Ok') {
+                    return console.log(dakota)
+                }
+                const costs = Object.keys(dakota.data)
+                    .filter((eFilter) => {
+                        if (
+                            eFilter.toLowerCase() == "reguler" ||
+                            eFilter.toLowerCase() == "kurir"
+                        )
+                            return true;
+                        else return false;
+                    })
+                    .map((e, ind) => {
+                        let cost = dakota.data[e][0];
+                        let harga = [];
+                        harga.push({
+                            value: (Number(beratTotal) / 1000) > Number(cost.minkg) ?
+                                Number(cost.kgnext) * (Number(beratTotal) / 1000) : Number(cost.pokok),
+                            etd: cost.LT,
+                        });
+                        return {
+                            description: e.charAt(0).toUpperCase() + e.slice(1),
+                            cost: {
+                                value: (Number(beratTotal) / 1000) > Number(cost.minkg) ?
+                                    Number(cost.kgnext) * (Number(beratTotal) / 1000) : Number(cost.pokok),
+                                etd: cost.LT,
+                            },
+                        };
+                    });
+                hasil.push({
+                    code: 'dakota',
+                    costs: costs
+                })
                 console.log(hasil);
                 hasilApiKurirRO = hasil;
                 resetUIBtnPilihKurir();
             }
         })
+
     }
 
     function resetUIBtnPilihKurir() {
@@ -357,9 +404,12 @@
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
-        const idprov = Number(e.target.value)
-        if (idprov > 0)
+        const valuenya = e.target.value.split("@");
+        const idprov = Number(valuenya[0]);
+        if (idprov > 0) {
+            prov_kab[0] = valuenya[1]
             getKota(idprov)
+        }
     })
     kotaElm.addEventListener("change", (e) => {
         // paketElm.innerHTML = '<option value="-1">Loading..</option>'
@@ -372,6 +422,7 @@
         const value = e.target.value.split("-")
         const idkota = Number(value[0])
         if (idkota > 0) {
+            prov_kab[1] = value[1];
             const pElm = document.createElement("p");
             pElm.classList.add("mb-0");
             pElm.innerHTML = "Loading..";
@@ -463,6 +514,7 @@
     function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
         pilihKurirElm.innerHTML = ""
         costs.forEach((elm, ind_service) => {
+            const costnya = elm.cost[0] ? elm.cost[0] : elm.cost;
             const tmbPilihElm = document.createElement("div");
             tmbPilihElm.classList.add("tombol-pilih-kurir");
             const tmbPilihElmChild = document.createElement("div")
@@ -471,7 +523,7 @@
             parentImgElm.classList.add("parent-img");
             const keteranganElm = document.createElement("p");
             keteranganElm.classList.add("mb-0");
-            keteranganElm.innerHTML = `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${elm.cost[0].etd} Hari<br>Rp ${elm.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+            keteranganElm.innerHTML = `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
             const imgElm = document.createElement("img");
             imgElm.src = `img/kurir/${kurir}.png`;
             parentImgElm.appendChild(imgElm)
@@ -487,7 +539,7 @@
                 imgElmPK.src = `img/kurir/${kurir}.png`;
                 const keteranganElmPK = document.createElement("p");
                 keteranganElmPK.classList.add("mb-0");
-                keteranganElmPK.innerHTML = `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${elm.cost[0].etd} Hari<br>Rp ${elm.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                keteranganElmPK.innerHTML = `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
                 const iconElmPK = document.createElement("span");
                 iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
                 divElmPK.appendChild(imgElmPK)
@@ -495,11 +547,11 @@
                 btnPilihKurirElm.appendChild(divElmPK)
                 btnPilihKurirElm.appendChild(iconElmPK);
 
-                costElm.innerHTML = `Rp ${elm.cost[0].value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+                costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
                 totalElm.innerHTML =
-                    `Rp ${(5000 + Number(elm.cost[0].value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                    `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
                 const timeSkrg = "<?= time(); ?>";
-                inputPaketElm.value = btoa(`${elm.cost[0].value}%`);
+                inputPaketElm.value = btoa(`${costnya.value}%`);
                 containerPilihKurir.style.display = "none";
             })
         })

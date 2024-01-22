@@ -36,6 +36,7 @@ $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->get('/getarea/(:any)', 'Pages::getArea/$1');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->post('/getrates', 'Pages::getRates');
+$routes->get('/getdakota', 'Pages::getDakota');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
 
