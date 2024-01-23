@@ -316,9 +316,28 @@ a {
     border-radius: 0.7em;
 }
 .img-produk .img-produk-prev {
-    width: 100%;
+    width: 550px;
+    /* height: 400px; */
+    aspect-ratio: 1/1;
     border-radius: 0.7em;
     margin-bottom: 0.5em;
+    margin-inline: auto;
+    background-size: cover;
+}
+@media (max-width: 1200px) {
+    .img-produk .img-produk-prev {
+        width: 450px;
+    }
+}
+@media (max-width: 993px) {
+    .img-produk .img-produk-prev {
+        width: 350px;
+    }
+}
+@media (max-width: 768px) {
+    .img-produk .img-produk-prev {
+        width: 250px;
+    }
 }
 .img-produk .img-produk-select {
     display: block;
@@ -582,6 +601,12 @@ footer > .atas > div {
     }
     .logo-pembayaran {
         height: 44px;
+    }
+    .img-produk figure.img-produk-prev {
+        display: none;
+    }
+    .img-produk .img-produk-prev {
+        width: 100%;
     }
 }
 @media (max-width: 450px) {

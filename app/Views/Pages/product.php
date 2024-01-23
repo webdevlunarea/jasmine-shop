@@ -12,7 +12,8 @@
         </nav>
         <div class="baris-ke-kolom">
             <div class="img-produk limapuluh-ke-seratus">
-                <img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev">
+                <figure onmousemove="zoom(event)" onmouseleave="mouseoff(event)" class="img-produk-prev" style="background-image: url('data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>')"></figure>
+                <img src="data:image/jpeg;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
                 <div>
                     <?php foreach ($gambar as $key => $value) {
                         if ($value && $key != 'id') { ?>
@@ -129,6 +130,7 @@
     const elmVarianSelect = document.querySelectorAll(".btn-check")
     const imgProdukSelect = document.querySelectorAll(".img-produk-select")
     const imgProdukPrev = document.querySelector(".img-produk-prev")
+    const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.getElementById('btn-beli-product')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
@@ -139,7 +141,8 @@
             element.addEventListener("click", () => {
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
                 element.classList.add("selected");
-                imgProdukPrev.src = element.childNodes[0].src;
+                imgProdukPrev.style = "background-image: url('" + element.childNodes[0].src + "')";
+                imgProdukPrevImg.src = element.childNodes[0].src;
                 const hitungBagi4 = Math.floor(index / Number(jmlVarian));
                 elmVarianSelect.forEach(e => e.checked = false);
                 elmVarianSelect[hitungBagi4].checked = true
@@ -150,9 +153,27 @@
     elmVarian.addEventListener("change", (e) => {
         imgProdukSelect.forEach(e => e.classList.remove("selected"));
         imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
-        imgProdukPrev.src = imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src
+        imgProdukPrev.src = "background-image: url('" + imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src + "')"
+        imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src
         setUrlElmBeli()
     });
+
+    function zoom(e) {
+        e.target.style.backgroundSize = "auto"
+        const widthGambar = e.target.offsetWidth;
+        const gmbrPosition = [
+            (e.offsetX / widthGambar) * 100,
+            (e.offsetY / widthGambar) * 100,
+        ];
+        // console.log("X: " + (e.offsetX / widthGambar) * 100);
+        // console.log("Y: " + (e.offsetY / widthGambar) * 100);
+        e.target.style.backgroundPosition =
+            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
+    }
+
+    function mouseoff(e) {
+        e.target.style.backgroundSize = "cover"
+    }
 
     function setUrlElmBeli() {
         let elmSelected;
