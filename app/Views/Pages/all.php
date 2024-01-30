@@ -37,10 +37,6 @@
                     <img src="/img/logokategori/Meja_Belajar.png" alt="" width="50px">
                     <p>Meja Belajar</p>
                 </a>
-                <a class="kategori" href="/all/meja-belajar-kaki-besi">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
-                    <p>Meja Belajar Kaki Besi</p>
-                </a>
                 <a class="kategori" href="/all/meja-tv">
                     <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja TV</p>
@@ -52,10 +48,6 @@
                 <a class="kategori" href="/all/meja-komputer">
                     <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja Komputer</p>
-                </a>
-                <a class="kategori" href="/all/meja-komputer-kaki-besi">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
-                    <p>Meja Komputer Kaki Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-sepatu">
                     <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">

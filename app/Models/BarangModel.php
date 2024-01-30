@@ -12,6 +12,7 @@ class BarangModel extends Model
         'nama',
         'gambar',
         'harga',
+        'berat',
         'stok',
         'dimensi',
         'deskripsi',

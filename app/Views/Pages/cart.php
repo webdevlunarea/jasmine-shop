@@ -68,7 +68,7 @@
             </div>
             <div class="d-flex justify-content-between border-bottom">
                 <p class="my-2">Total Berat:</p>
-                <p class="my-2"><b><?= $berat; ?> gram</b></p>
+                <p class="my-2"><b><?= $berat; ?> kg</b></p>
             </div>
             <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?><?= count($indStokHabis) > 0 ? "disabled" : ""; ?>" href="/checkout">Proses
                 Checkout</a>

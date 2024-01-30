@@ -524,6 +524,51 @@ footer > .atas > div {
     color: black;
 }
 
+.container-list-customer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+}
+.container-list-customer .list-customer {
+    background-color: var(--hijaumuda);
+    cursor: pointer;
+    border-radius: 1em;
+    transition: 0.3s;
+    padding: 1em 2em;
+}
+.container-list-customer .list-customer-detail {
+    border-top: 1px solid var(--hijau);
+    /* background-color: white; */
+    padding-top: 10px;
+}
+.container-list-customer .list-customer:hover {
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+.container-list-customer .list-customer .nama {
+    color: var(--hijau);
+}
+.container-list-customer .list-customer div:not(:first-child) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container-list-customer .list-customer p {
+    width: fit-content;
+}
+.badge {
+    font-size: medium;
+}
+#container-edit-resi {
+    /* class="position-fixed d-none justify-content-center align-items-center" style="width: 100vw; height: calc(100vh - 200px);" */
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: calc(100vh - 200px);
+}
+
 @media (max-width: 600px) {
     p,
     h1 {
@@ -695,3 +740,58 @@ footer > .atas > div {
 }
 
 /* baru */
+
+.print {
+    /* width: 2480px;
+    height: 3508px; */
+    width: 210mm;
+    height: 297mm;
+    /* width: 793px;
+    height: 996px; */
+    font-family: "Times New Roman", Times, serif;
+    display: none;
+    /* padding: 5em; */
+}
+/* .print input {
+    width: 20px;
+    aspect-ratio: 1 /1;
+} */
+/* .print p,
+.print th,
+.print td {
+    font-size: 35px;
+} */
+/* .print h4 {
+    font-size: 45px;
+} */
+
+.print .table td,
+.print .table th {
+    /* line-height: 25px;
+    padding-block: 20px; */
+    line-height: 17px;
+}
+.print .table tr td,
+.print .table tr th {
+    text-align: center;
+}
+.print .table tr td:nth-child(2) {
+    text-align: left;
+}
+.print .table tr td:nth-child(5),
+.print .table tr td:nth-child(6),
+.print .table tr:not(:has(:nth-child(3))) td:nth-child(2) {
+    text-align: end;
+}
+
+@media print {
+    @page {
+        size: 210mm 297mm;
+    }
+    .no-print {
+        display: none;
+    }
+    .print {
+        display: block;
+    }
+}

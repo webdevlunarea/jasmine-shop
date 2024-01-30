@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BarangModel;
 use App\Models\GambarBarangModel;
 use App\Models\PembeliModel;
+use App\Models\PemesananModel;
 use App\Models\UserModel;
 use CodeIgniter\Files\Exceptions\FileNotFoundException;
 use Faker\Core\Number;
@@ -21,12 +22,14 @@ class Pages extends BaseController
     protected $gambarBarangModel;
     protected $userModel;
     protected $pembeliModel;
+    protected $pemesananModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
         $this->gambarBarangModel = new GambarBarangModel();
         $this->userModel = new UserModel();
         $this->pembeliModel = new PembeliModel();
+        $this->pemesananModel = new PemesananModel();
     }
     public function index()
     {
@@ -177,6 +180,7 @@ class Pages extends BaseController
             'alamat' => $this->request->getVar('alamat'),
             'wishlist' => json_encode([]),
             'keranjang' => json_encode([]),
+            'transaksi' => json_encode([]),
         ]);
 
         $emailUser = $this->request->getVar('email');
@@ -222,7 +226,8 @@ class Pages extends BaseController
             'role' => $getUser['role'],
             'alamat' => $getPembeli['alamat'],
             'wishlist' => json_decode($getPembeli['wishlist'], true),
-            'keranjang' => json_decode($getPembeli['keranjang'], true)
+            'keranjang' => json_decode($getPembeli['keranjang'], true),
+            'transaksi' => json_decode($getPembeli['transaksi'], true)
         ];
         $this->userModel->where('email', $email)->set([
             'active' => '1',
@@ -569,6 +574,8 @@ class Pages extends BaseController
         $produkJson = [];
         $subtotal = 0;
         $berat = 0;
+        $beratHitung = 0;
+        $dimensiSemua = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -578,11 +585,13 @@ class Pages extends BaseController
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = $persen * $produknya['harga'];
                 $subtotal += $hasil * $element['jumlah'];
-                $berat += $produknya['berat'] * $element['jumlah'];
-
                 $dimensi = explode("X", $produknya['dimensi']);
+                array_push($dimensiSemua, $produknya['dimensi']);
+                $berat += $produknya['berat'] * $element['jumlah'];
+                $beratHitung += (float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 4000; //kg
+
                 array_push($produkJson, array(
-                    'name' => $produknya['nama'],
+                    'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
                     'description' => $produknya['deskripsi'],
                     'value' => $hasil,
                     'length' => (float)$dimensi[0],
@@ -632,7 +641,9 @@ class Pages extends BaseController
             'produk' => $produk,
             'produkJson' => json_encode($produkJson),
             'jumlah' => $jumlah,
-            'berat' => $berat,
+            'berat' => $berat, //kilogram
+            'beratHitung' => $beratHitung, //kilogram
+            'dimensiSemua' => implode("-", $dimensiSemua),
             'user' => $user,
             'total' => $total,
             'subtotal' => $subtotal,
@@ -867,13 +878,12 @@ class Pages extends BaseController
         $email = session()->get("email");
         $transaksi = session()->get("transaksi");
         $auth = base64_encode("SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f" . ":");
-        $transaksi_new = $transaksi;
-        $cek_transaksi_new = false;
 
+        $cekAdaEror = false;
         foreach ($transaksi as $t_ind => $t) {
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $t['data']['order_id'] . "/status",
+                CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $t . "/status",
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_RETURNTRANSFER => true,
@@ -895,20 +905,54 @@ class Pages extends BaseController
                 return "cURL Error #:" . $err;
             }
             $item_status = json_decode($response, true);
-            if ($item_status['transaction_status'] != $t['data']['transaction_status']) {
-                $transaksi_new[$t_ind]['data']['transaction_status'] = $item_status['transaction_status'];
-                $cek_transaksi_new = true;
+
+            if (!isset($item_status['transaction_status'])) {
+                $cekAdaEror = true;
+                break;
+            }
+            $oldTransaction = $this->pemesananModel->getPemesanan($t);
+            if ($item_status['transaction_status'] != json_decode($oldTransaction['data_mid'], true)['transaction_status']) {
+                switch ($item_status['transaction_status']) {
+                    case 'settlement':
+                        $status = "Proses";
+                        break;
+                    case 'capture':
+                        $status = "Proses";
+                        break;
+                    case 'pending':
+                        $status = "Menunggu Pembayaran";
+                        break;
+                    case 'expire':
+                        $status = "Kadaluarsa";
+                        break;
+                    case 'deny':
+                        $status = "Ditolak";
+                        break;
+                    case 'failure':
+                        $status = "Gagal";
+                        break;
+                    case 'refund':
+                        $status = "Refund";
+                        break;
+                    case 'partial_refund':
+                        $status = "Partial Refund";
+                        break;
+                    default:
+                        $status = "No Status";
+                        break;
+                }
+                $this->pemesananModel->where('id_midtrans', $t)->set([
+                    'status' => $status,
+                    'data_mid' => json_encode($item_status),
+                ])->update();
             }
         }
 
-        if ($cek_transaksi_new) {
-            session()->set(['transaksi' => $transaksi_new]);
-            $this->pembeliModel->where('email_user', $email)->set(['transaksi' => json_encode($transaksi_new)])->update();
-        }
-
+        $detailTransaksi = $this->pemesananModel->getPemesananCus($email);
         $data = [
             'title' => 'Transaksi Pembayaran',
-            'transaksi' => $transaksi_new
+            'transaksi' => $detailTransaksi,
+            'cekEror' => $cekAdaEror
         ];
         return view('pages/transaction', $data);
     }
@@ -916,37 +960,50 @@ class Pages extends BaseController
     {
         $bodyJson = $this->request->getBody();
         $body = json_decode($bodyJson, true);
-        $transaksi = session()->get("transaksi");
-        array_push($transaksi, $body);
+        $getPembeli = $this->pembeliModel->getPembeli($body['emailCus']);
+        $transaksi = json_decode($getPembeli['transaksi'], true);
+        array_push($transaksi, $body['idMid']);
 
-        session()->set(['transaksi' => $transaksi]);
-        $this->pembeliModel->where('email_user', $body['email'])->set(['transaksi' => json_encode($transaksi)])->update();
+        $d = strtotime("+7 Hours");
+        $tanggal = date("d/m/Y", $d);
 
-        // {
-        //     "status_code": "200",
-        //     "status_message": "Success, transaction is found",
-        //     "transaction_id": "2e7e57a5-6fb8-4394-ab31-b9df79926ce2",
-        //     "order_id": "502437951",
-        //     "gross_amount": "4185000.00",
-        //     "payment_type": "bank_transfer",
-        //     "transaction_time": "2024-01-11 09:32:19",
-        //     "transaction_status": "settlement",
-        //     "fraud_status": "accept",
-        //     "va_numbers": [
-        //         {
-        //             "bank": "bca",
-        //             "va_number": "98098759923"
-        //         }
-        //     ],
-        //     "bca_va_number": "98098759923",
-        //     "pdf_url": "https://app.sandbox.midtrans.com/snap/v1/transactions/b54d885f-1953-4074-8386-6cb5ce475ae0/pdf",
-        //     "finish_redirect_url": "https://be8c-2001-448a-b010-4522-7543-642c-4f44-6e7.ngrok-free.app/successpay?order_id=502437951&status_code=200&transaction_status=settlement"
-        // }
+        $this->pembeliModel->where('email_user', $body['emailCus'])->set(['transaksi' => json_encode($transaksi)])->update();
+        $this->pemesananModel->insert([
+            'nama_cus' => $body['namaCus'],
+            'email_cus' => $body['emailCus'],
+            'alamat_cus' => $body['alamatCus'],
+            'hp_cus' => $body['hpCus'],
+            'resi' => $body['resi'],
+            'id_midtrans' => $body['idMid'],
+            'items' => json_encode($body['items']),
+            'status' => $body['status'],
+            'kurir' => $body['kurir'],
+            'data_mid' => json_encode($body['dataMid']),
+        ]);
 
         $arr = array(
             'success' => true,
+            'transaksi' => implode("-", $transaksi),
+            'hasil' => [
+                'nama_cus' => $body['namaCus'],
+                'email_cus' => $body['emailCus'],
+                'alamat_cus' => $body['alamatCus'],
+                'hp_cus' => $body['hpCus'],
+                'resi' => $body['resi'],
+                'id_midtrans' => $body['idMid'],
+                'items' => $body['items'],
+                'status' => $body['status'],
+                'kurir' => $body['kurir'],
+                'data_mid' => json_encode($body['dataMid']),
+            ]
         );
         return $this->response->setJSON($arr, false);
+    }
+    public function afterAddTransaction($transaksi)
+    {
+        $hasilnya = explode("-", $transaksi);
+        session()->set(['transaksi' => $hasilnya]);
+        return redirect()->to('/transaction');
     }
     public function updateTransaction()
     {
@@ -1078,6 +1135,69 @@ class Pages extends BaseController
     }
 
     //============ ADMIN ==============//
+    public function listCustomer()
+    {
+        $transaksiCus = $this->pemesananModel->getPemesanan();
+        $transaksiCusNoJSON = [];
+        foreach ($transaksiCus as $transaksi) {
+            $arr = [
+                'id' => $transaksi['id'],
+                'nama_cus' => $transaksi['nama_cus'],
+                'email_cus' => $transaksi['email_cus'],
+                'alamat_cus' => $transaksi['alamat_cus'],
+                'hp_cus' => $transaksi['hp_cus'],
+                'resi' => $transaksi['resi'],
+                'id_midtrans' => $transaksi['id_midtrans'],
+                'items' => json_decode($transaksi['items'], true),
+                'status' => $transaksi['status'],
+                'kurir' => $transaksi['kurir'],
+                'data_mid' => json_decode($transaksi['data_mid'], true),
+            ];
+            array_push($transaksiCusNoJSON, $arr);
+        }
+        $transaksiJson = json_encode($transaksiCusNoJSON);
+        $data = [
+            'title' => 'List Customer',
+            'transaksiCus' => $transaksiCus,
+            'transaksiJson' => $transaksiJson,
+        ];
+        return view('pages/listCustomer', $data);
+    }
+    public function editResi()
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        $this->pemesananModel->where('id_midtrans', $body['idMid'])->set([
+            'resi' => $body['resi'],
+            'status' => 'Dikirim',
+        ])->update();
+
+        $list_item = "";
+        foreach ($body['data']['items'] as $item) {
+            $list_item = $list_item . "<p>" . $item['quantity'] . " " . $item['name'] . "</p>";
+        }
+        $email = \Config\Services::email();
+        $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
+        $email->setTo($body['data']['email_cus']);
+        $email->setSubject('Jasmine Store - Pesananmu sudah dikirim');
+        $email->setMessage("<p>Berikut nomor resi pada pesanan " . $body['data']['id_midtrans'] . "</p>
+        <h1>" . $body['resi'] . '</h1>
+        <p style="margin-bottom: 10px">' . $body['data']['kurir'] . '</p>
+        <span style="margin-bottom: 10px>-------------------------------------------------</span>       
+        <p style="margin-bottom: 10px"><b>Informasi terkait pesanan</b></p>
+        <p>Nama : ' . $body['data']['nama_cus'] . '</p>
+        <p>Email : ' . $body['data']['email_cus'] . '</p>
+        <p style="margin-bottom: 10px">Kode Pesanan : ' . $body['data']['id_midtrans'] . '</p>
+        <p>Item Pesanan :</p>' . $list_item);
+        $email->send();
+
+        $arr = [
+            'success' => true,
+            'status' => 'Dikirim',
+            'resi' => $body['resi']
+        ];
+        return $this->response->setJSON($arr, false);
+    }
     public function listProduct()
     {
         $produk = $this->barangModel->getBarang();
@@ -1113,6 +1233,7 @@ class Pages extends BaseController
             'nama'          => $this->request->getVar('nama'),
             'gambar'        => $gambarnya[0],
             'harga'         => $this->request->getVar('harga'),
+            'berat'         => $this->request->getVar('berat'),
             'stok'          => $this->request->getVar('stok'),
             'dimensi'       => $this->request->getVar('dimensi'),
             'deskripsi'     => $this->request->getVar('deskripsi'),
@@ -1158,6 +1279,7 @@ class Pages extends BaseController
                 'nama'          => $this->request->getVar('nama'),
                 'gambar'        => $gambarnya[0],
                 'harga'         => $this->request->getVar('harga'),
+                'berat'         => $this->request->getVar('berat'),
                 'stok'          => $this->request->getVar('stok'),
                 'dimensi'       => $this->request->getVar('dimensi'),
                 'deskripsi'     => $this->request->getVar('deskripsi'),
@@ -1173,6 +1295,7 @@ class Pages extends BaseController
                 'id' => $id,
                 'nama'          => $this->request->getVar('nama'),
                 'harga'         => $this->request->getVar('harga'),
+                'berat'         => $this->request->getVar('berat'),
                 'stok'          => $this->request->getVar('stok'),
                 'dimensi'       => $this->request->getVar('dimensi'),
                 'deskripsi'     => $this->request->getVar('deskripsi'),

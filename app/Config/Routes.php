@@ -42,6 +42,7 @@ $routes->post('/actioncheckout', 'Pages::actionCheckout');
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
+$routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
 $routes->post('/updatetransaction', 'Pages::updateTransaction');
 $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
@@ -55,6 +56,9 @@ $routes->get('/about', 'Pages::about');
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
+
+$routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
+$routes->post('/editresi', 'Pages::editResi');
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);
 $routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin']);

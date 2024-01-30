@@ -15,6 +15,7 @@
                 <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
                 <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
             <?php } else { ?>
+                <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                 <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
             <?php } ?>
@@ -72,6 +73,7 @@
                     <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
                 <?php } else { ?>
+                    <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
                 <?php } ?>

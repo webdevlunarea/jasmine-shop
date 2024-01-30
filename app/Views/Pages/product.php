@@ -153,7 +153,7 @@
     elmVarian.addEventListener("change", (e) => {
         imgProdukSelect.forEach(e => e.classList.remove("selected"));
         imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
-        imgProdukPrev.src = "background-image: url('" + imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src + "')"
+        imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src + "')"
         imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src
         setUrlElmBeli()
     });

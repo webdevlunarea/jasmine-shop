@@ -33,9 +33,16 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Dimensi</td>
+                                <td>Dimensi (cm)</td>
                                 <td>
                                     <div class="baris"><input value="<?= $produk['dimensi']; ?>" type="text" class="form-control" name="dimensi" required>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Berat (kg)</td>
+                                <td>
+                                    <div class="baris"><input value="<?= $produk['berat']; ?>" type="number" class="form-control" name="berat" required>
                                     </div>
                                 </td>
                             </tr>

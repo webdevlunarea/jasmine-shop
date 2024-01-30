@@ -54,7 +54,7 @@
     <div class="container">
         <h1>Detail Pembayaran</h1>
         <div class="baris-ke-kolom gap-5 mt-3">
-            <div id="form-checkout" class="limapuluh-ke-seratus">
+            <div id="form-checkout" class="w-100">
                 <div class="form-floating mb-1">
                     <input type="text" class="form-control" placeholder="Email" name="nama" required>
                     <label for="floatingInput">Nama Lengkap</label>
@@ -71,20 +71,36 @@
                     <input type="number" class="form-control" placeholder="Nomor Handphone" name="phone" required>
                     <label for="floatingInput">No. HP</label>
                 </div>
-                <div class="form-floating mb-1">
-                    <select class="form-select" aria-label="Default select example" name="provinsi">
-                        <option selected value="-1">-- Pilih provinsi --</option>
-                        <?php foreach ($provinsi as $p) { ?>
-                            <option value="<?= $p['province_id']; ?>@<?= $p['province']; ?>"><?= $p['province']; ?></option>
-                        <?php } ?>
-                    </select>
-                    <label for="floatingProvinsi">Provinsi</label>
+                <div class="d-flex mb-1 gap-1">
+                    <div class="form-floating w-50">
+                        <select class="form-select" aria-label="Default select example" name="provinsi">
+                            <option selected value="-1">-- Pilih provinsi --</option>
+                            <?php foreach ($provinsi as $p) { ?>
+                                <option value="<?= $p['province_id']; ?>@<?= $p['province']; ?>"><?= $p['province']; ?></option>
+                            <?php } ?>
+                        </select>
+                        <label for="floatingProvinsi">Provinsi</label>
+                    </div>
+                    <div class="form-floating w-50">
+                        <select class="form-select" aria-label="Default select example" name="kota">
+                            <option value="-1">-- Pilih kota --</option>
+                        </select>
+                        <label for="floatingProvinsi">Kabupaten/Kota</label>
+                    </div>
                 </div>
-                <div class="form-floating mb-1">
-                    <select class="form-select" aria-label="Default select example" name="kota">
-                        <option value="-1">-- Pilih kota --</option>
-                    </select>
-                    <label for="floatingProvinsi">Kota</label>
+                <div class="d-flex mb-1 gap-1">
+                    <div class="form-floating w-50">
+                        <select class="form-select" aria-label="Default select example" name="kecamatan">
+                            <option selected value="-1">-- Pilih kecamatan --</option>
+                        </select>
+                        <label for="floatingProvinsi">Kecamatan</label>
+                    </div>
+                    <div class="form-floating w-50">
+                        <select class="form-select" aria-label="Default select example" name="kodepos">
+                            <option value="-1">-- Pilih kodepos --</option>
+                        </select>
+                        <label for="floatingProvinsi">Kode Pos</label>
+                    </div>
                 </div>
                 <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="area">
@@ -112,25 +128,30 @@
                     <input id="set-paket" name="paket" type="text" value="0" />
                 </div>
             </div>
-            <div class="limapuluh-ke-seratus">
+            <div style="width: 100%; max-width: 400px;">
                 <div>
                     <table class="table table-borderless">
                         <tbody>
                             <?php foreach ($produk as $index => $p) { ?>
                                 <tr>
-                                    <td><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></td>
-                                    <td><?= $jumlah[$index]; ?></td>
-                                    <td class="text-end">Rp
-                                        <?php
-                                        if ($p['diskon']) {
-                                            $persen = (100 - $p['diskon']) / 100;
-                                            $hasil = $persen * $p['harga'];
-                                            echo number_format($hasil, 0, ",", ".");
-                                        } else {
-                                            $hasil = $p['harga'];
-                                            echo number_format($p['harga'], 0, ",", ".");
-                                        }
-                                        ?>
+                                    <td>
+                                        <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0"><?= $jumlah[$index]; ?></p>
+                                    </td>
+                                    <td class="text-end">
+                                        <p class="mb-0">Rp
+                                            <?php
+                                            if ($p['diskon']) {
+                                                $persen = (100 - $p['diskon']) / 100;
+                                                $hasil = $persen * $p['harga'];
+                                                echo number_format($hasil, 0, ",", ".");
+                                            } else {
+                                                $hasil = $p['harga'];
+                                                echo number_format($p['harga'], 0, ",", ".");
+                                            }
+                                            ?></p>
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -157,7 +178,8 @@
                 </div>
                 <div class="d-flex justify-content-between" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
-                    <p class="my-2"><b><?= $berat; ?> gram</b>
+                    <!-- <p class="my-2"><b><?= $berat > $beratHitung ? $berat : $beratHitung; ?> kg</b> -->
+                    <p class="my-2"><b><?= $berat; ?> kg</b>
                     </p>
                 </div>
                 <button id="btn-checkout" class="btn btn-primary1" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
@@ -180,12 +202,15 @@
     const inputPaketElm = document.getElementById("set-paket");
     const subtotal = "<?= $subtotal; ?>";
     const email = "<?= session()->get('email') ?>";
-    console.log(subtotal)
-    const beratTotal = Number("<?= $berat; ?>");
+    // const beratTotal = Number("<?= $berat > $beratHitung ? $berat : $beratHitung; ?>"); //kg
+    const beratTotal = Number("<?= $berat; ?>"); // cuma sementara
+    const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
     let hasilApiKurir = [];
     let hasilApiKurirRO = [];
-    let prov_kab = ["", ""];
+    let prov_kab_kec_kodepos = ["", "", "", ""];
     const produk = JSON.parse(<?= json_encode($produkJson); ?>);
+    console.log(produk)
+    console.log(dimensiSemua)
 
     const btnCheckoutElm = document.getElementById('btn-checkout')
     const formCheckoutElm = document.getElementById('form-checkout')
@@ -214,7 +239,7 @@
                 alamat: formCheckoutAlamat.value,
                 email: formCheckoutEmail.value,
                 phone: formCheckoutNoHp.value,
-                paket: formCheckoutPaket.value
+                paket: btoa((formCheckoutPaket.value).split("-")[0])
                 // paket: 120000
             }
             console.log(data)
@@ -240,11 +265,11 @@
                 window.snap.pay(snaptoken.snapToken, {
                     onSuccess: function(result) {
                         alert("payment success!");
-                        addTransaction(result);
+                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
                     },
                     onPending: function(result) {
                         alert("wating your payment!");
-                        addTransaction(result);
+                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
                     },
                     onError: function(result) {
                         alert("payment failed!");
@@ -264,11 +289,48 @@
         }
     })
 
-    async function addTransaction(data) {
+    async function addTransaction(dataMid, dataCus, kurir) {
+        let status;
+        switch (dataMid.transaction_status) {
+            case 'settlement':
+                status = "Proses";
+                break;
+            case 'capture':
+                status = "Proses";
+                break;
+            case 'pending':
+                status = "Menunggu Pembayaran";
+                break;
+            case 'expire':
+                status = "Kadaluarsa";
+                break;
+            case 'deny':
+                status = "Ditolak";
+                break;
+            case 'failure':
+                status = "Gagal";
+                break;
+            case 'refund':
+                status = "Refund";
+                break;
+            case 'partial_refund':
+                status = "Partial Refund";
+                break;
+            default:
+                status = "No Status";
+                break;
+        }
         const dataYgdikirim = {
-            email: email,
+            namaCus: dataCus.nama,
+            emailCus: dataCus.email,
+            alamatCus: dataCus.alamat,
+            hpCus: dataCus.phone,
+            resi: "Menunggu pengiriman",
+            idMid: dataMid.order_id,
             items: produk,
-            data: data,
+            status: status,
+            kurir: kurir,
+            dataMid: dataMid,
         }
         const response = await fetch("addtransaction", {
             method: "POST",
@@ -278,8 +340,8 @@
             body: JSON.stringify(dataYgdikirim),
         });
         const result = await response.json();
-        console.log(result.success);
-        if (result.success) return window.location.href("/transaction");
+        const transaksi = result.transaksi;
+        if (result.success) return window.location.href = "/afteraddtransaction/" + transaksi;
         else console.log(result);
     }
 
@@ -318,7 +380,7 @@
         const result = await response.json();
         if (result.success) hasilApiKurir = result.pricing;
     }
-    async function getPaket(asal, tujuan, berat) {
+    async function getPaket(asal, tujuan, berat) { //berat gram
         const ekspedisi = ["jne", "pos", "tiki"];
         let hasil = [];
         ekspedisi.forEach(async (kurir, ind) => {
@@ -327,13 +389,13 @@
             const paket = await response.json();
             hasil.push(paket.rajaongkir.results[0])
             if (ind >= ekspedisi.length - 1) {
-                const kecamatan = await fetch("http://192.168.1.39:8082/getkec/" + prov_kab[1])
+                const kecamatan = await fetch("http://192.168.1.36:8082/getkec/" + prov_kab_kec_kodepos[1])
                 const dataYgdikirim = {
-                    prov: prov_kab[0],
-                    kab: prov_kab[1],
-                    kec: (await kecamatan.json()).data[0].KecamatanDistrik
+                    prov: prov_kab_kec_kodepos[0],
+                    kab: prov_kab_kec_kodepos[1],
+                    kec: (await kecamatan.json()).data[0].KecamatanDistrik,
                 }
-                const responseDakota = await fetch("http://192.168.1.39:8082/dakota", {
+                const responseDakota = await fetch("http://192.168.1.36:8082/dakota", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -349,23 +411,25 @@
                         if (
                             eFilter.toLowerCase() == "reguler" ||
                             eFilter.toLowerCase() == "kurir"
-                        )
-                            return true;
-                        else return false;
+                        ) {
+                            if (dakota.data[eFilter][0].pokok > 0) {
+                                return true;
+                            } else return false;
+                        } else return false;
                     })
                     .map((e, ind) => {
                         let cost = dakota.data[e][0];
                         let harga = [];
                         harga.push({
-                            value: (Number(beratTotal) / 1000) > Number(cost.minkg) ?
-                                Number(cost.kgnext) * (Number(beratTotal) / 1000) : Number(cost.pokok),
+                            value: (Number(berat) / 1000) > Number(cost.minkg) ?
+                                Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost.pokok),
                             etd: cost.LT,
                         });
                         return {
                             description: e.charAt(0).toUpperCase() + e.slice(1),
                             cost: {
-                                value: (Number(beratTotal) / 1000) > Number(cost.minkg) ?
-                                    Number(cost.kgnext) * (Number(beratTotal) / 1000) : Number(cost.pokok),
+                                value: (Number(berat) / 1000) > Number(cost.minkg) ?
+                                    Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost.pokok),
                                 etd: cost.LT,
                             },
                         };
@@ -375,6 +439,7 @@
                     costs: costs
                 })
                 console.log(hasil);
+                console.log(dakota);
                 hasilApiKurirRO = hasil;
                 resetUIBtnPilihKurir();
             }
@@ -407,7 +472,7 @@
         const valuenya = e.target.value.split("@");
         const idprov = Number(valuenya[0]);
         if (idprov > 0) {
-            prov_kab[0] = valuenya[1]
+            prov_kab_kec_kodepos[0] = valuenya[1]
             getKota(idprov)
         }
     })
@@ -422,13 +487,13 @@
         const value = e.target.value.split("-")
         const idkota = Number(value[0])
         if (idkota > 0) {
-            prov_kab[1] = value[1];
+            prov_kab_kec_kodepos[1] = value[1];
             const pElm = document.createElement("p");
             pElm.classList.add("mb-0");
             pElm.innerHTML = "Loading..";
             btnPilihKurirElm.innerHTML = ""
             btnPilihKurirElm.appendChild(pElm)
-            getPaket("399", idkota, beratTotal) //399 adalah id kota semarang
+            getPaket("399", idkota, beratTotal * 1000) //399 adalah id kota semarang
             getArea(value[1])
         }
     })
@@ -551,7 +616,8 @@
                 totalElm.innerHTML =
                     `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
                 const timeSkrg = "<?= time(); ?>";
-                inputPaketElm.value = btoa(`${costnya.value}%`);
+                // inputPaketElm.value = btoa(`${costnya.value}`);
+                inputPaketElm.value = `${costnya.value}-${kurir}`;
                 containerPilihKurir.style.display = "none";
             })
         })
