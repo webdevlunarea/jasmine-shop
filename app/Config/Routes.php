@@ -32,6 +32,10 @@ $routes->get('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filte
 $routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
+
+$routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
+
+
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->get('/getarea/(:any)', 'Pages::getArea/$1');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');

@@ -873,6 +873,110 @@ class Pages extends BaseController
         );
         return $this->response->setJSON($arr, false);
     }
+
+    public function tracking($tipe, $resi)
+    {
+        $curl = curl_init();
+        if($tipe == "da"){
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "http://www.dakotacargo.co.id/api/api_trace_package.asp?b=" . $resi,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $hasilnya = json_decode($response, true)['detail'];
+        } else if($tipe == "ro"){
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://pro.rajaongkir.com/api/waybill",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => "waybill=SOCAG00183235715&courier=jne",
+                CURLOPT_HTTPHEADER => array(
+                  "content-type: application/x-www-form-urlencoded",
+                  "key: your-api-key"
+                ),
+              ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $hasilnya = json_decode($response, true)['rajaongkir']['results']['manifest'];
+
+        }
+
+
+        $bulan= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        // $hasilnya= [
+        //     [
+        //     'tanggal' => "9/3/2022 1:15:56 PM",
+        //     "keterangan"=> "Barang Diterima Oleh : JAKARTA CABANG Toko Purnama Baru, Jam :01:15",
+        //     "posisi"=> "DITERIMA",
+        //     "status"=> "Delivered"
+        // ],
+        //     [
+        //     "tanggal"=> "9/3/2022 11:10:05 AM",
+        //     "keterangan"=> "Barang  Diloper Oleh Petugas :  JAKARTA CABANG 002000062/09/2022/LA",
+        //     "posisi"=> "Jakarta Timur",
+        //     "status"=> "shipped"
+        //     ],
+        //     [
+        //     "tanggal"=> "9/3/2022 10:13:05 AM",
+        //     "keterangan"=> "Barang Sampai (Transit) di : JAKARTA CABANG ",
+        //     "posisi"=> "Jakarta Timur",
+        //     "status"=> "shipped"
+        //     ],
+            
+        // ];
+
+        // $hasilnyaRO = [
+        //     [
+        //        "manifest_code"=>"1",
+        //        "manifest_description"=>"Manifested",
+        //        "manifest_date"=>"2015-03-04",
+        //        "manifest_time"=>"03:41",
+        //        "city_name"=>"SOLO"
+        // ],
+        //     [
+        //        "manifest_code"=>"2",
+        //        "manifest_description"=>"On Transit",
+        //        "manifest_date"=>"2015-03-04",
+        //        "manifest_time"=>"15:44",
+        //        "city_name"=>"JAKARTA"
+        // ],
+        //     [
+        //        "manifest_code"=>"3",
+        //        "manifest_description"=>"Received On Destination",
+        //        "manifest_date"=>"2015-03-05",
+        //        "manifest_time"=>"08:57",
+        //        "city_name"=>"PALEMBANG"
+        // ],
+        // ];
+        
+        $data = [
+            'title' => 'Tracking',
+            'hasilnya'=> $hasilnya,
+            'bulan'=> $bulan,
+        ];
+        return view('pages/tracking', $data);
+
+    }
     public function transaction()
     {
         $email = session()->get("email");
