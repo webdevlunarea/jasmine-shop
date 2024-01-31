@@ -37,7 +37,7 @@
         </div>
         <div class="container-list-customer">
             <?php foreach ($transaksiCus as $t_ind => $t) { ?>
-                <div class="list-customer">
+                <div class="list-customer" onclick="bukaList('<?= $t_ind; ?>')">
                     <div class="d-flex">
                         <div style="flex: 4;">
                             <p class="mb-0 fw-bold nama"><?= $t['nama_cus']; ?></p>
@@ -85,7 +85,7 @@
                             <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download" onclick="downloadpesanan('<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">file_download</i></a>
                         </div>
                     </div>
-                    <div class="list-customer-detail baris-ke-kolom justify-content-between align-items-start mt-2">
+                    <div class="list-customer-detail baris-ke-kolom justify-content-between align-items-start mt-2 d-none">
                         <div class="w-100 pd-2">
                             <p class="fw-bold mb-0">Item Pesanan</p>
                             <div class="d-flex flex-column w-100 mb-2">
@@ -154,11 +154,19 @@
     const pNamaPenerima = document.getElementById("print-nama-penerima");
     const pAlamatPenerima = document.getElementById("print-alamat-penerima");
     const pKota = document.getElementById("print-kota");
-    const pContainer = document.querySelector(".print")
+    const pContainer = document.querySelector(".print");
+    const listCustomerDetailElm = document.querySelectorAll(".list-customer-detail");
     console.log(transaksiJson)
     console.log(pInfoBayar)
     let idMidSelected;
     let indexItemSelected;
+
+    function bukaList(ind) {
+        listCustomerDetailElm.forEach(element => {
+            element.classList.add("d-none")
+        });
+        listCustomerDetailElm[ind].classList.remove('d-none');
+    }
 
     function editresi(id_mid, index_item) {
         containerEditResiElm.style.display = 'flex'
