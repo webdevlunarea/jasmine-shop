@@ -389,13 +389,13 @@
             const paket = await response.json();
             hasil.push(paket.rajaongkir.results[0])
             if (ind >= ekspedisi.length - 1) {
-                const kecamatan = await fetch("https://5301-2001-448a-b010-7f34-6d0b-8a00-614b-3b35.ngrok-free.app/getkec/" + prov_kab_kec_kodepos[1])
+                const kecamatan = await fetch("http://192.168.1.4:8082/getkec/" + prov_kab_kec_kodepos[1])
                 const dataYgdikirim = {
                     prov: prov_kab_kec_kodepos[0],
                     kab: prov_kab_kec_kodepos[1],
                     kec: (await kecamatan.json()).data[0].KecamatanDistrik,
                 }
-                const responseDakota = await fetch("https://5301-2001-448a-b010-7f34-6d0b-8a00-614b-3b35.ngrok-free.app/dakota", {
+                const responseDakota = await fetch("http://192.168.1.4:8082/dakota", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

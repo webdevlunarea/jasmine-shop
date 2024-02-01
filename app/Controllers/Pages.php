@@ -877,7 +877,7 @@ class Pages extends BaseController
     public function tracking($tipe, $resi)
     {
         $curl = curl_init();
-        if($tipe == "da"){
+        if ($tipe == "da") {
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "http://www.dakotacargo.co.id/api/api_trace_package.asp?b=" . $resi,
                 CURLOPT_SSL_VERIFYHOST => 0,
@@ -896,7 +896,7 @@ class Pages extends BaseController
                 return "cURL Error #:" . $err;
             }
             $hasilnya = json_decode($response, true)['detail'];
-        } else if($tipe == "ro"){
+        } else if ($tipe == "ro") {
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://pro.rajaongkir.com/api/waybill",
                 CURLOPT_RETURNTRANSFER => true,
@@ -907,10 +907,10 @@ class Pages extends BaseController
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => "waybill=SOCAG00183235715&courier=jne",
                 CURLOPT_HTTPHEADER => array(
-                  "content-type: application/x-www-form-urlencoded",
-                  "key: your-api-key"
+                    "content-type: application/x-www-form-urlencoded",
+                    "key: your-api-key"
                 ),
-              ));
+            ));
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
@@ -918,11 +918,10 @@ class Pages extends BaseController
                 return "cURL Error #:" . $err;
             }
             $hasilnya = json_decode($response, true)['rajaongkir']['results']['manifest'];
-
         }
 
 
-        $bulan= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
         // $hasilnya= [
         //     [
         //     'tanggal' => "9/3/2022 1:15:56 PM",
@@ -942,7 +941,7 @@ class Pages extends BaseController
         //     "posisi"=> "Jakarta Timur",
         //     "status"=> "shipped"
         //     ],
-            
+
         // ];
 
         // $hasilnyaRO = [
@@ -968,14 +967,13 @@ class Pages extends BaseController
         //        "city_name"=>"PALEMBANG"
         // ],
         // ];
-        
+
         $data = [
             'title' => 'Tracking',
-            'hasilnya'=> $hasilnya,
-            'bulan'=> $bulan,
+            'hasilnya' => $hasilnya,
+            'bulan' => $bulan,
         ];
         return view('pages/tracking', $data);
-
     }
     public function transaction()
     {
@@ -1266,6 +1264,29 @@ class Pages extends BaseController
             'transaksiJson' => $transaksiJson,
         ];
         return view('pages/listCustomer', $data);
+    }
+    public function pdf($id_mid)
+    {
+        $transaksi = $this->pemesananModel->getPemesanan($id_mid);
+        $arr = [
+            'id' => $transaksi['id'],
+            'nama_cus' => $transaksi['nama_cus'],
+            'email_cus' => $transaksi['email_cus'],
+            'alamat_cus' => $transaksi['alamat_cus'],
+            'hp_cus' => $transaksi['hp_cus'],
+            'resi' => $transaksi['resi'],
+            'id_midtrans' => $transaksi['id_midtrans'],
+            'items' => json_decode($transaksi['items'], true),
+            'status' => $transaksi['status'],
+            'kurir' => $transaksi['kurir'],
+            'data_mid' => json_decode($transaksi['data_mid'], true),
+        ];
+        $data = [
+            'title' => 'Print Preview',
+            'transaksi' => $arr,
+            'transaksiJson' => json_encode($arr),
+        ];
+        return view('pages/pdf', $data);
     }
     public function editResi()
     {

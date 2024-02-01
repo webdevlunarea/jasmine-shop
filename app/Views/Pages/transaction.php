@@ -79,6 +79,7 @@
                                                 <p class="mb-0"><b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b></p>
                                                 <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?></p>
                                                 <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?></p>
+                                                <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?></p>
                                             <?php } else { ?>
                                                 <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?></p>
                                             <?php } ?>

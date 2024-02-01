@@ -52,7 +52,6 @@ $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
 $routes->get('/errorpay', 'Pages::errorPay', ['filter' => 'harusUser']);
 
-
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
 $routes->get('/contact', 'Pages::contact');
@@ -62,6 +61,7 @@ $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
 
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
+$routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editresi', 'Pages::editResi');
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);
