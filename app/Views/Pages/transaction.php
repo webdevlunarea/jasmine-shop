@@ -21,17 +21,23 @@
                     <div class="accordion" id="accordionExample">
                         <?php
                         if ($cekEror) { ?>
-                            <p>Terdapat kesalahan, mohon halaman dimuat ulang</p>
-                            <?php } else {
+                        <p>Terdapat kesalahan, mohon halaman dimuat ulang</p>
+                        <?php } else {
                             foreach ($transaksi as $index_transaksi => $item_transaksi) { ?>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index_transaksi; ?>" aria-expanded="false" aria-controls="collapse<?= $index_transaksi; ?>">
-                                            <div class="d-flex justify-content-between" style="width: 100%;">
-                                                <div>
-                                                    <h5 class="mb-0">Rp <?= number_format((int)json_decode($item_transaksi['data_mid'], true)['gross_amount'], 0, ",", "."); ?></h5>
-                                                    <p class="mb-1" style="font-size: 12px;">ID Pesanan: <?= $item_transaksi['id_midtrans']; ?></p>
-                                                    <span class="badge rounded-pill <?php
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse<?= $index_transaksi; ?>" aria-expanded="false"
+                                    aria-controls="collapse<?= $index_transaksi; ?>">
+                                    <div class="d-flex justify-content-between" style="width: 100%;">
+                                        <div>
+                                            <h5 class="mb-0">Rp
+                                                <?= number_format((int)json_decode($item_transaksi['data_mid'], true)['gross_amount'], 0, ",", "."); ?>
+                                            </h5>
+                                            <p class="mb-1" style="font-size: 12px;">ID Pesanan:
+                                                <?= $item_transaksi['id_midtrans']; ?></p>
+                                            <span
+                                                class="badge rounded-pill <?php
                                                                                     switch ($item_transaksi['status']) {
                                                                                         case 'Menunggu Pembayaran':
                                                                                             echo "text-bg-primary";
@@ -45,47 +51,73 @@
                                                                                         case 'Selesai':
                                                                                             echo "text-bg-success";
                                                                                             break;
+                                                                                        case 'Dibatalkan':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
+                                                                                        case 'Gagal':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
                                                                                         default:
                                                                                             echo "text-bg-dark";
                                                                                             break;
                                                                                     }
                                                                                     ?>"><?= ucfirst($item_transaksi['status']); ?></span>
-                                                </div>
-                                                <div class="d-flex flex-column justify-content-end">
-                                                    <p class="mb-0 text-secondary" style="font-size: 12px;"><?= json_decode($item_transaksi['data_mid'], true)['transaction_time']; ?></p>
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </h2>
-                                    <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-                                            <p class="mb-0"><b>Items</b></p>
-                                            <div>
-                                                <table class="table table-borderless">
-                                                    <tbody>
-                                                        <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
-                                                            <tr>
-                                                                <td><?= $item['name']; ?></td>
-                                                                <td><?= $item['quantity'] ?></td>
-                                                                <td class="text-end">Rp
-                                                                    <?= number_format($item['value'], 0, ",", "."); ?>
-                                                                </td>
-                                                            </tr>
-                                                        <?php } ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
-                                                <p class="mb-0"><b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b></p>
-                                                <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?></p>
-                                                <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?></p>
-                                                <p class="mb-0"><?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?></p>
-                                            <?php } else { ?>
-                                                <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?></p>
-                                            <?php } ?>
+                                        </div>
+                                        <div class="d-flex flex-column justify-content-end">
+                                            <p class="mb-0 text-secondary" style="font-size: 12px;">
+                                                <?= json_decode($item_transaksi['data_mid'], true)['transaction_time']; ?>
+                                            </p>
                                         </div>
                                     </div>
+                                </button>
+                            </h2>
+                            <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <p class="mb-0"><b>Items</b></p>
+                                    <div>
+                                        <table class="table table-borderless">
+                                            <tbody>
+                                                <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
+                                                <tr>
+                                                    <td><?= $item['name']; ?></td>
+                                                    <td><?= $item['quantity'] ?></td>
+                                                    <td class="text-end">Rp
+                                                        <?= number_format($item['value'], 0, ",", "."); ?>
+                                                    </td>
+                                                </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                    <p class="mb-0">
+                                        <b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b>
+                                    </p>
+                                    <p class="mb-0">
+                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?>
+                                    </p>
+                                    <p class="mb-0">
+                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?>
+                                    </p>
+                                    <p class="mb-0">
+                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?>
+                                    </p>
+                                    <?php } else if($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
+
+                                    <?php } else{ ?>
+                                    <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?> <a class="btn"
+                                            onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i
+                                                class="material-icons">content_copy</i></a>
+                                    </p>
+                                    <a class="btn btn-primary1"
+                                        href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da":"ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
+                                        Nomor Resi</a>
+
+                                    <?php }?>
                                 </div>
+                            </div>
+                        </div>
                         <?php }
                         } ?>
                     </div>
@@ -94,4 +126,10 @@
         </div>
     </div>
 </div>
+<script>
+function copyresi(resi) {
+    console.log(resi);
+    navigator.clipboard.writeText(resi);
+}
+</script>
 <?= $this->endSection(); ?>

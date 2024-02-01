@@ -8,7 +8,10 @@
             <?php 
             if(isset($hasilnya[0]['tanggal'])){
 
-            foreach ($hasilnya as $ind_list => $list) { ?>
+            foreach ($hasilnya as $ind_list => $list) {
+                if(isset(explode(" ",$list['tanggal'])[1])) {
+            ?>
+
             <div class="list-tracking <?= $ind_list == 0 ? '' : 'done' ?>">
                 <div style="width:40px;">
                     <?= explode(" ",$list['tanggal'])[1] ?>
@@ -22,7 +25,7 @@
                     <div class="container-keterangan-tracking">
                         <div style="width:80px;">
                             <p class="mb-0 text-black-50"><?= explode("/",explode(" ",$list['tanggal'])[0])[0] ?>
-                                <?= $bulan[explode("/",explode(" ",$list['tanggal'])[0])[1] - 1] ?></p>
+                                <?= $bulan[explode("/",explode(" ",$list['tanggal'])[0])[0] - 1] ?></p>
                             <p class="mb-0 text-black-50"><?= explode("/",explode(" ",$list['tanggal'])[0])[2] ?></p>
                         </div>
                         <div>
@@ -32,9 +35,8 @@
                     </div>
                 </div>
             </div>
-
             <?php }}
-            else {
+            } else {
 
              foreach ($hasilnya as $ind_list => $list) { ?>
             <div class="list-tracking <?= $ind_list == 0 ? '' : 'done' ?>">

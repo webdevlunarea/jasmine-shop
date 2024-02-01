@@ -56,8 +56,8 @@ class Pages extends BaseController
     }
     public function all($subkategori = false)
     {
-        $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, 0);
-        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->findAll();
+        $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama','asc')->findAll(20, 0);
+        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama','asc')->findAll();
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
@@ -73,11 +73,11 @@ class Pages extends BaseController
         $pagination = (int)$page;
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, $hitungOffset);
+            $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama','asc')->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->where('subkategori', $subkategori)->findAll(20, 0);
+            $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama','asc')->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->findAll();
+        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama','asc')->findAll();
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
@@ -879,7 +879,7 @@ class Pages extends BaseController
         $curl = curl_init();
         if ($tipe == "da") {
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "http://www.dakotacargo.co.id/api/api_trace_package.asp?b=" . $resi,
+                CURLOPT_URL => "https://staging.dakotacargo.co.id/api/trace/?b=" . $resi,
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_RETURNTRANSFER => true,
@@ -1038,6 +1038,9 @@ class Pages extends BaseController
                         break;
                     case 'partial_refund':
                         $status = "Partial Refund";
+                        break;
+                    case 'cancel':
+                        $status = "Dibatalkan";
                         break;
                     default:
                         $status = "No Status";
@@ -1205,7 +1208,7 @@ class Pages extends BaseController
     public function product($id = false)
     {
         $produk = $this->barangModel->getBarang($id);
-        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->findAll();
+        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->orderBy('nama','asc')->findAll();
         $gambarnya = $this->gambarBarangModel->getGambar($id);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
@@ -1223,8 +1226,8 @@ class Pages extends BaseController
 
     public function productFilter($nama)
     {
-        $produk = $this->barangModel->like("nama", $nama, "both")->findAll(20, 0);
-        $semuaproduk = $this->barangModel->like("nama", $nama, "both")->findAll();
+        $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama','asc')->findAll(20, 0);
+        $semuaproduk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama','asc')->findAll();
         $data = [
             'title' => 'Produk',
             'produk' => $produk,
