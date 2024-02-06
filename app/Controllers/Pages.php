@@ -1388,8 +1388,12 @@ class Pages extends BaseController
     }
     public function account()
     {
+        $nama = session()->get("nama");
+        $nohp = session()->get("nohp");
         $data = [
-            'title' => 'Akun Saya'
+            'title' => 'Akun Saya',
+            'nama' => $nama,
+            'nohp' => $nohp,
         ];
         return view('pages/account', $data);
     }
@@ -1399,7 +1403,8 @@ class Pages extends BaseController
         $email = session()->get("email");
         $role = session()->get("role");
         $sandi = $this->request->getVar('sandi');
-        $alamat = $this->request->getVar('alamat');
+        $nama = $this->request->getVar('nama');
+        $nohp = $this->request->getVar('nohp');
 
         if ($sandi != '') {
             $this->userModel->where('email', $email)->set([
@@ -1408,16 +1413,20 @@ class Pages extends BaseController
         }
         if ($role == '0') {
             $this->pembeliModel->where('email_user', $email)->set([
-                'alamat' => $alamat
+                'nama' => $nama,
+                'nohp' => $nohp,
             ])->update();
 
             session()->set([
-                'alamat' => $alamat,
+                'nama' => $nama,
+                'nohp' => $nohp,
             ]);
         }
 
         $data = [
-            'title' => 'Akun Saya'
+            'title' => 'Akun Saya',
+            'nama' => $nama,
+            'nohp' => $nohp
         ];
         return view('pages/account', $data);
     }

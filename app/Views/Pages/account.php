@@ -24,15 +24,19 @@
                             <label for="inputPassword4" class="form-label">Sandi</label>
                             <input name="sandi" type="password" class="form-control" id="inputPassword4">
                         </div>
-                        <?php if (session()->get('alamat')) { ?>
+                        <?php if (session()->get('role') == '0') { ?>
                             <div class="col-12">
-                                <label for="inputAddress" class="form-label">Alamat</label>
-                                <input name="alamat" type="text" class="form-control" id="inputAddress" placeholder="alamat" value="<?= session()->get("alamat") ?>" required>
+                                <label for="inputAddress" class="form-label">Nama Lengkap</label>
+                                <input name="nama" type="text" class="form-control" placeholder="Nama Lengkap" value="<?= $nama ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="inputAddress" class="form-label">Nomor Handphone</label>
+                                <input name="nohp" type="number" class="form-control" placeholder="No HP" value="<?= $nohp ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary1">Simpan</button>
                             </div>
                         <?php } ?>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary1">Simpan</button>
-                        </div>
                     </form>
                 </div>
             </div>
