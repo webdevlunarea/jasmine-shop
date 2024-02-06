@@ -197,7 +197,7 @@ class Pages extends BaseController
             'nama' => $this->request->getVar('nama'),
             'email_user' => $this->request->getVar('email'),
             'nohp' => $this->request->getVar('nohp'),
-            // 'alamat' => $this->request->getVar('alamat'),
+            'alamat' => json_encode([]),
             'wishlist' => json_encode([]),
             'keranjang' => json_encode([]),
             'transaksi' => json_encode([]),
