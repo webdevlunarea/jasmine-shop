@@ -9,6 +9,8 @@ class PembeliModel extends Model
     protected $table = 'pembeli';
     protected $allowedFields = [
         'email_user',
+        'nama',
+        'nohp',
         'alamat',
         'wishlist',
         'keranjang',

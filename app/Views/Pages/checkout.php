@@ -52,77 +52,99 @@
 </div>
 <div class="konten">
     <div class="container">
-        <h1>Detail Pembayaran</h1>
         <div class="baris-ke-kolom gap-5 mt-3">
             <div id="form-checkout" class="w-100">
-                <div class="form-floating mb-1">
-                    <input type="text" class="form-control" placeholder="Email" name="nama" required>
-                    <label for="floatingInput">Nama Lengkap</label>
+                <div class="pb-3 border-bottom">
+                    <h5 class="mb-0">Informasi Pemesan</h5>
+                    <p class="mb-0"><?= $user['nama']; ?> </p>
+                    <p class="mb-0"><?= $user['nohp']; ?></p>
                 </div>
-                <div class="form-floating mb-1">
-                    <input type="email" class="form-control" placeholder="Email" name="email" required
-                        value="<?= $user['email']; ?>">
+                <div class="py-3">
+                    <h5 class="mb-2">Informasi Penerima</h5>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
+                        <label for="floatingInput">Nama Lengkap</label>
+                    </div>
+                    <!-- <div class="form-floating mb-1">
+                    <input type="email" class="form-control" placeholder="Email" name="email" required value="<?= $user['email']; ?>">
                     <label for="floatingInput">Email</label>
-                </div>
-                <div class="form-floating mb-1">
-                    <input type="text" class="form-control" placeholder="Alamat Lengkap" name="alamat" required
-                        value="<?= $user['alamat']; ?>">
+                </div> -->
+                    <div class="form-floating mb-1">
+                        <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required value="<?= $user['nohp']; ?>">
+                        <label for="floatingInput">No. HP</label>
+                    </div>
+                    <!-- <div class="form-floating mb-1">
+                    <input type="text" class="form-control" placeholder="Alamat Lengkap" name="alamat" required value="">
                     <label for="floatingPassword">Alamat Lengkap</label>
-                </div>
-                <div class="form-floating mb-1">
-                    <input type="number" class="form-control" placeholder="Nomor Handphone" name="phone" required>
-                    <label for="floatingInput">No. HP</label>
-                </div>
-                <div class="d-flex mb-1 gap-1">
-                    <div class="form-floating w-50">
-                        <select class="form-select" aria-label="Default select example" name="provinsi">
-                            <option selected value="-1">-- Pilih provinsi --</option>
-                            <?php foreach ($provinsi as $p) { ?>
-                            <option value="<?= $p['province_id']; ?>@<?= $p['province']; ?>"><?= $p['province']; ?>
-                            </option>
-                            <?php } ?>
-                        </select>
-                        <label for="floatingProvinsi">Provinsi</label>
+                </div> -->
+                    <div class="form-alamat d-flex mb-1 gap-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
+                        <div class="form-floating w-50">
+                            <select class="form-select" aria-label="Default select example" name="provinsi">
+                                <option value="-1">-- Pilih provinsi --</option>
+                                <?php foreach ($provinsi as $p) { ?>
+                                    <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>" <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>><?= $p['province']; ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                            <label for="floatingProvinsi">Provinsi</label>
+                        </div>
+                        <div class="form-floating w-50">
+                            <select class="form-select" aria-label="Default select example" name="kota">
+                                <option value="-1">-- Pilih kota --</option>
+                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['kab_id'] . '-' . $user['alamat']['kab'] . '" selected>' . $user['alamat']['kab'] . '</option>' : ''; ?>
+                            </select>
+                            <label for="floatingProvinsi">Kabupaten/Kota</label>
+                        </div>
                     </div>
-                    <div class="form-floating w-50">
-                        <select class="form-select" aria-label="Default select example" name="kota">
-                            <option value="-1">-- Pilih kota --</option>
-                        </select>
-                        <label for="floatingProvinsi">Kabupaten/Kota</label>
+                    <div class="form-alamat d-flex mb-1 gap-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
+                        <div class="form-floating w-50">
+                            <select class="form-select" aria-label="Default select example" name="kecamatan">
+                                <option selected value="-1">-- Pilih kecamatan --</option>
+                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['kec_id'] . '-' . $user['alamat']['kec'] . '" selected>' . $user['alamat']['kec'] . '</option>' : ''; ?>
+                            </select>
+                            <label for="floatingProvinsi">Kecamatan</label>
+                        </div>
+                        <div class="form-floating w-50">
+                            <select class="form-select" aria-label="Default select example" name="kodepos">
+                                <option value="-1">-- Pilih Desa --</option>
+                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['desa'] . '-' . $user['alamat']['kodepos'] . '" selected>' . $user['alamat']['desa'] . '</option>' : ''; ?>
+                            </select>
+                            <label for="floatingProvinsi">Desa/Kelurahan</label>
+                        </div>
                     </div>
-                </div>
-                <div class="d-flex mb-1 gap-1">
-                    <div class="form-floating w-50">
-                        <select class="form-select" aria-label="Default select example" name="kecamatan">
-                            <option selected value="-1">-- Pilih kecamatan --</option>
-                        </select>
-                        <label for="floatingProvinsi">Kecamatan</label>
+                    <div class="form-alamat form-floating mb-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
+                        <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
+                        <label for="floatingInput">Jalan, Nomor Rumah, RT/RW</label>
                     </div>
-                    <div class="form-floating w-50">
-                        <select class="form-select" aria-label="Default select example" name="kodepos">
-                            <option value="-1">-- Pilih kodepos --</option>
-                        </select>
-                        <label for="floatingProvinsi">Kode Pos</label>
+                    <div class="form-alamat <?= $user['alamat'] ? '' : 'd-none'; ?>">
+                        <fieldset disabled>
+                            <div class="form-floating mb-1">
+                                <input type="text" class="form-control" placeholder="Email" name="alamat" required value="<?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?>">
+                                <label for="floatingInput">Alamat Lengkap</label>
+                            </div>
+                        </fieldset>
                     </div>
-                </div>
-                <div class="form-floating mb-1 d-none">
+                    <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="area">
                         <option value="-1">-- Pilih area --</option>
                     </select>
                     <label for="floatingProvinsi">Area</label>
+                </div> -->
+                    <!-- <button class="btn btn-primary1" onclick="handleSubmit()">Simpan</button> -->
+                    <a onclick="handleSubmit()" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
                 </div>
-                <div class="tombol-pilih-kurir" id="btn-pilih-kurir" onclick="pilihKurirRO()">
+                <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
                     <span><i class="material-icons">chevron_right</i></span>
                 </div>
-                <div class="form-floating mb-1 d-none">
+                <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="ekspedisi">
                         <option value="pos">Pos Indonesia</option>
                         <option value="tiki">TIKI</option>
                         <option value="jne" selected>JNE</option>
                     </select>
                     <label for="floatingProvinsi">Ekspedisi</label>
-                </div>
+                </div> -->
                 <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="paket1">
                         <option value="-1">-- Pilih paket --</option>
@@ -136,16 +158,16 @@
                     <table class="table table-borderless">
                         <tbody>
                             <?php foreach ($produk as $index => $p) { ?>
-                            <tr>
-                                <td>
-                                    <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
-                                </td>
-                                <td>
-                                    <p class="mb-0"><?= $jumlah[$index]; ?></p>
-                                </td>
-                                <td class="text-end">
-                                    <p class="mb-0">Rp
-                                        <?php
+                                <tr>
+                                    <td>
+                                        <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0"><?= $jumlah[$index]; ?></p>
+                                    </td>
+                                    <td class="text-end">
+                                        <p class="mb-0">Rp
+                                            <?php
                                             if ($p['diskon']) {
                                                 $persen = (100 - $p['diskon']) / 100;
                                                 $hasil = $persen * $p['harga'];
@@ -155,8 +177,8 @@
                                                 echo number_format($p['harga'], 0, ",", ".");
                                             }
                                             ?></p>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             <?php } ?>
                         </tbody>
                     </table>
@@ -181,528 +203,652 @@
                 </div>
                 <div class="d-flex justify-content-between" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
-                    <!-- <p class="my-2"><b><?= $berat > $beratHitung ? $berat : $beratHitung; ?> kg</b> -->
-                    <p class="my-2"><b><?= $berat; ?> kg</b>
+                    <p class="my-2"><b><?= $beratAkhir; ?> kg</b>
                     </p>
                 </div>
-                <button id="btn-checkout" class="btn btn-primary1" type="button" data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
+                <button id="btn-checkout" class="btn btn-primary1 <?= $user['alamat'] ? '' : 'd-none disabled'; ?>" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
             </div>
         </div>
     </div>
 </div>
 <script>
-const provElm = document.querySelector('select[name="provinsi"]');
-const kotaElm = document.querySelector('select[name="kota"]');
-// const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
-// const paketElm = document.querySelector('select[name="paket"]');
-const areaElm = document.querySelector('select[name="area"]');
-const costElm = document.getElementById("total-pengiriman");
-const totalElm = document.getElementById("total-semua");
-const containerPilihKurir = document.getElementById("container-pilih-kurir");
-const pilihKurirElm = document.getElementById("pilih-kurir");
-const tabsElm = document.getElementById("tabs");
-const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
-const inputPaketElm = document.getElementById("set-paket");
-const subtotal = "<?= $subtotal; ?>";
-const email = "<?= session()->get('email') ?>";
-// const beratTotal = Number("<?= $berat > $beratHitung ? $berat : $beratHitung; ?>"); //kg
-const beratTotal = Number("<?= $berat; ?>"); // cuma sementara
-const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
-let hasilApiKurir = [];
-let hasilApiKurirRO = [];
-let prov_kab_kec_kodepos = ["", "", "", ""];
-const produk = JSON.parse(<?= json_encode($produkJson); ?>);
-console.log(produk)
-console.log(dimensiSemua)
+    const formAlamatElm = document.querySelectorAll(".form-alamat")
+    const inputNamaElm = document.querySelector('input[name="nama"]');
+    const inputNohpElm = document.querySelector('input[name="nohp"]');
+    const inputAlamatAddElm = document.querySelector('input[name="alamat_add"]');
+    const inputAlamatElm = document.querySelector('input[name="alamat"]');
+    const provElm = document.querySelector('select[name="provinsi"]');
+    const kotaElm = document.querySelector('select[name="kota"]');
+    const kecElm = document.querySelector('select[name="kecamatan"]');
+    const kodeElm = document.querySelector('select[name="kodepos"]');
+    // const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
+    // const paketElm = document.querySelector('select[name="paket"]');
+    // const areaElm = document.querySelector('select[name="area"]');
+    const costElm = document.getElementById("total-pengiriman");
+    const totalElm = document.getElementById("total-semua");
+    const containerPilihKurir = document.getElementById("container-pilih-kurir");
+    const pilihKurirElm = document.getElementById("pilih-kurir");
+    const tabsElm = document.getElementById("tabs");
+    const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
+    const inputPaketElm = document.getElementById("set-paket");
+    const subtotal = "<?= $subtotal; ?>";
+    const email = "<?= session()->get('email') ?>";
+    const beratTotal = Number("<?= $beratAkhir; ?>"); // cuma sementara
+    const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
+    let hasilApiKurir = [];
+    let hasilApiKurirRO = JSON.parse(<?= json_encode($paketJson); ?>);
+    let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] . "-" . $user['alamat']['kodepos'] : ''; ?>"];
+    const produk = JSON.parse(<?= json_encode($produkJson); ?>);
+    let isiAlamat = ["<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kodepos'] : ''; ?>"]
+    let isEditAlamat = <?= $user['alamat'] ? 'false' : 'true'; ?>;
+    console.log(produk)
+    console.log(dimensiSemua)
 
-const btnCheckoutElm = document.getElementById('btn-checkout')
-const formCheckoutElm = document.getElementById('form-checkout')
-const formCheckoutNama = document.querySelector('#form-checkout input[name="nama"]')
-const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
-const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
-const formCheckoutNoHp = document.querySelector('#form-checkout input[name="phone"]')
-const formCheckoutPaket = document.querySelector('#form-checkout input[name="paket"]')
-const formCheckout = document.querySelectorAll('#form-checkout .form-control')
-
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-btnCheckoutElm.addEventListener("click", () => {
-    if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
-        formCheckoutNoHp.value && formCheckoutPaket.value.length > 0) {
-
-        formCheckoutNama.classList.remove("is-invalid")
-        formCheckoutAlamat.classList.remove("is-invalid")
-        formCheckoutEmail.classList.remove("is-invalid")
-        formCheckoutNoHp.classList.remove("is-invalid")
-        btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
-
-        btnCheckoutElm.innerHTML = "Loading"
-        const data = {
-            nama: formCheckoutNama.value,
-            alamat: formCheckoutAlamat.value,
-            email: formCheckoutEmail.value,
-            phone: formCheckoutNoHp.value,
-            paket: btoa((formCheckoutPaket.value).split("-")[0])
-            // paket: 120000
+    function titleCase(str) {
+        var splitStr = str.toLowerCase().split(' ');
+        for (var i = 0; i < splitStr.length; i++) {
+            splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
         }
-        console.log(data)
-        async function getTokenMditrans() {
-            var formBody = [];
-            for (var property in data) {
-                var encodedKey = encodeURIComponent(property);
-                var encodedValue = encodeURIComponent(data[property]);
-                formBody.push(encodedKey + "=" + encodedValue);
-            }
-            formBody = formBody.join("&");
+        return splitStr.join(' ');
+    }
 
-            const response = await fetch("actioncheckout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            const snaptoken = await response.json();
-            console.log(snaptoken);
-            btnCheckoutElm.innerHTML = "Pesan"
-            window.snap.pay(snaptoken.snapToken, {
-                onSuccess: function(result) {
-                    alert("payment success!");
-                    addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
-                },
-                onPending: function(result) {
-                    alert("wating your payment!");
-                    addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
-                },
-                onError: function(result) {
-                    alert("payment failed!");
-                },
-                onClose: function() {
-                    alert('you closed the popup without finishing the payment');
+    const btnCheckoutElm = document.getElementById('btn-checkout')
+    const formCheckoutElm = document.getElementById('form-checkout')
+    const formCheckoutNama = document.querySelector('#form-checkout input[name="nama"]')
+    const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
+    const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
+    const formCheckoutNoHp = document.querySelector('#form-checkout input[name="nohp"]')
+    const formCheckoutPaket = document.querySelector('#form-checkout input[name="paket"]')
+    const formCheckout = document.querySelectorAll('#form-checkout .form-control')
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    btnCheckoutElm.addEventListener("click", () => {
+        if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
+            formCheckoutNoHp.value && formCheckoutPaket.value.length > 0 && !isEditAlamat) {
+
+            formCheckoutNama.classList.remove("is-invalid")
+            formCheckoutAlamat.classList.remove("is-invalid")
+            formCheckoutEmail.classList.remove("is-invalid")
+            formCheckoutNoHp.classList.remove("is-invalid")
+            btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
+
+            btnCheckoutElm.innerHTML = "Loading"
+            const data = {
+                nama: formCheckoutNama.value,
+                alamat: formCheckoutAlamat.value,
+                email: formCheckoutEmail.value,
+                nohp: formCheckoutNoHp.value,
+                paket: btoa((formCheckoutPaket.value).split("-")[0])
+                // paket: 120000
+            }
+            console.log(data)
+            async function getTokenMditrans() {
+                var formBody = [];
+                for (var property in data) {
+                    var encodedKey = encodeURIComponent(property);
+                    var encodedValue = encodeURIComponent(data[property]);
+                    formBody.push(encodedKey + "=" + encodedValue);
                 }
-            });
-        }
-        getTokenMditrans()
-    } else {
-        if (!formCheckoutNama.value) formCheckoutNama.classList.add("is-invalid")
-        if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
-        if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
-        if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
-        if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
-    }
-})
+                formBody = formBody.join("&");
 
-async function addTransaction(dataMid, dataCus, kurir) {
-    let status;
-    switch (dataMid.transaction_status) {
-        case 'settlement':
-            status = "Proses";
-            break;
-        case 'capture':
-            status = "Proses";
-            break;
-        case 'pending':
-            status = "Menunggu Pembayaran";
-            break;
-        case 'expire':
-            status = "Kadaluarsa";
-            break;
-        case 'deny':
-            status = "Ditolak";
-            break;
-        case 'failure':
-            status = "Gagal";
-            break;
-        case 'refund':
-            status = "Refund";
-            break;
-        case 'partial_refund':
-            status = "Partial Refund";
-            break;
-        default:
-            status = "No Status";
-            break;
-    }
-    const dataYgdikirim = {
-        namaCus: dataCus.nama,
-        emailCus: dataCus.email,
-        alamatCus: dataCus.alamat,
-        hpCus: dataCus.phone,
-        resi: "Menunggu pengiriman",
-        idMid: dataMid.order_id,
-        items: produk,
-        status: status,
-        kurir: kurir,
-        dataMid: dataMid,
-    }
-    const response = await fetch("addtransaction", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataYgdikirim),
-    });
-    const result = await response.json();
-    const transaksi = result.transaksi;
-    if (result.success) return window.location.href = "/afteraddtransaction/" + transaksi;
-    else console.log(result);
-}
-
-async function getKota(idprov) {
-    const response = await fetch("getkota/" + idprov);
-    const kota = await response.json();
-    const hasil = kota.rajaongkir.results;
-    kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
-    hasil.forEach(element => {
-        const optElm = document.createElement("option");
-        optElm.value = element.city_id + "-" + element.city_name
-        optElm.innerHTML = element.city_name
-        kotaElm.appendChild(optElm);
-    });
-}
-async function getArea(kota) {
-    const response = await fetch("getarea/" + kota);
-    const result = await response.json();
-    const hasil = result.areas;
-    areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
-    hasil.forEach(element => {
-        const optElm = document.createElement("option");
-        optElm.value = element.id;
-        optElm.innerHTML = element.name
-        areaElm.appendChild(optElm);
-    });
-}
-async function getRates(data) {
-    const response = await fetch("getrates", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (result.success) hasilApiKurir = result.pricing;
-}
-async function getPaket(asal, tujuan, berat) { //berat gram
-    const ekspedisi = ["jne", "pos", "tiki"];
-    let hasil = [];
-    ekspedisi.forEach(async (kurir, ind) => {
-        console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
-        const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
-        const paket = await response.json();
-        hasil.push(paket.rajaongkir.results[0])
-        if (ind >= ekspedisi.length - 1) {
-            const kecamatan = await fetch("http://192.168.1.13:8082/getkec/" + prov_kab_kec_kodepos[1])
-            const dataYgdikirim = {
-                prov: prov_kab_kec_kodepos[0],
-                kab: prov_kab_kec_kodepos[1],
-                kec: (await kecamatan.json()).data[0].KecamatanDistrik,
-            }
-            const responseDakota = await fetch("http://192.168.1.13:8082/dakota", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataYgdikirim)
-            });
-            const dakota = await responseDakota.json();
-            if (dakota.pesan != 'Ok') {
-                return console.log(dakota)
-            }
-            const costs = Object.keys(dakota.data)
-                .filter((eFilter) => {
-                    if (
-                        eFilter.toLowerCase() == "reguler" ||
-                        eFilter.toLowerCase() == "kurir"
-                    ) {
-                        if (dakota.data[eFilter][0].pokok > 0) {
-                            return true;
-                        } else return false;
-                    } else return false;
-                })
-                .map((e, ind) => {
-                    let cost = dakota.data[e][0];
-                    let harga = [];
-                    harga.push({
-                        value: (Number(berat) / 1000) > Number(cost.minkg) ?
-                            Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost
-                                .pokok),
-                        etd: cost.LT,
-                    });
-                    return {
-                        description: e.charAt(0).toUpperCase() + e.slice(1),
-                        cost: {
-                            value: (Number(berat) / 1000) > Number(cost.minkg) ?
-                                Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost.pokok),
-                            etd: cost.LT,
-                        },
-                    };
+                const response = await fetch("actioncheckout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
                 });
-            hasil.push({
-                code: 'dakota',
-                costs: costs
-            })
-            console.log(hasil);
-            console.log(dakota);
-            hasilApiKurirRO = hasil;
-            resetUIBtnPilihKurir();
+                const snaptoken = await response.json();
+                console.log(snaptoken);
+                btnCheckoutElm.innerHTML = "Pesan"
+                window.snap.pay(snaptoken.snapToken, {
+                    onSuccess: function(result) {
+                        alert("payment success!");
+                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
+                    },
+                    onPending: function(result) {
+                        alert("wating your payment!");
+                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
+                    },
+                    onError: function(result) {
+                        alert("payment failed!");
+                    },
+                    onClose: function() {
+                        alert('you closed the popup without finishing the payment');
+                    }
+                });
+            }
+            getTokenMditrans()
+        } else {
+            if (!formCheckoutNama.value) formCheckoutNama.classList.add("is-invalid")
+            if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
+            if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
+            if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
+            if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
         }
     })
 
-}
+    function handleSubmit() {
+        if (isEditAlamat) {
+            inputNamaElm.classList.remove("is-invalid")
+            inputNohpElm.classList.remove("is-invalid")
+            inputAlamatAddElm.classList.remove("is-invalid")
+            provElm.classList.remove("is-invalid")
+            kotaElm.classList.remove("is-invalid")
+            kecElm.classList.remove("is-invalid")
+            kodeElm.classList.remove("is-invalid")
+            if (inputNamaElm.value == '') return inputNamaElm.classList.add("is-invalid")
+            if (inputNohpElm.value == '') return inputNohpElm.classList.add("is-invalid")
+            if (Number(provElm.value) < 0) return provElm.classList.add("is-invalid")
+            if (Number(kotaElm.value) < 0) return kotaElm.classList.add("is-invalid")
+            if (Number(kecElm.value) < 0) return kecElm.classList.add("is-invalid")
+            if (Number(kodeElm.value) < 0) return kodeElm.classList.add("is-invalid")
+            if (inputAlamatAddElm.value == '') return inputAlamatAddElm.classList.add("is-invalid");
+            window.location.href = `updatealamat/${provElm.value}&${kotaElm.value}&${kecElm.value}&${kodeElm.value}&${inputAlamatAddElm.value}&${inputAlamatElm.value}&${email}`
+        } else {
+            formAlamatElm.forEach((form, ind) => {
+                if (ind < formAlamatElm.length - 1)
+                    form.classList.remove("d-none")
+                else form.classList.add("d-none")
+            })
+            btnCheckoutElm.classList.add("d-none")
+            btnCheckoutElm.classList.add("disabled")
+            btnPilihKurirElm.classList.add("d-none")
+            isEditAlamat = true;
+        }
+        // async function updateAlamat() {
+        //     const response = await fetch("updatealamat", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({
+        //             prov_id: prov_kab_kec_desa[0].split("-")[0],
+        //             prov: prov_kab_kec_desa[0].split("-")[1],
+        //             kab_id: prov_kab_kec_desa[1].split("-")[0],
+        //             kab: prov_kab_kec_desa[1].split("-")[1],
+        //             kec_id: prov_kab_kec_desa[2].split("-")[0],
+        //             kec: prov_kab_kec_desa[2].split("-")[1],
+        //             desa: prov_kab_kec_desa[3].split("-")[0],
+        //             kodepos: prov_kab_kec_desa[3].split("-")[1],
+        //             add: inputAlamatAddElm.value,
+        //             alamat: infoPenerimaElm[2].innerHTML,
+        //             email: email
+        //         }),
+        //     });
+        //     const result = await response.json();
+        //     if (result.success) {
 
-function resetUIBtnPilihKurir() {
-    inputPaketElm.value = "0";
-    // <p class="mb-0">Pilih Kurir</p>
-    //             <span><i class="material-icons">chevron_right</i></span>
-    const pElm = document.createElement("p");
-    pElm.classList.add("mb-0");
-    pElm.innerHTML = "Pilih Kurir";
-    const spanElm = document.createElement("span");
-    spanElm.innerHTML = '<i class="material-icons">chevron_right</i>';
-    btnPilihKurirElm.innerHTML = ""
-    btnPilihKurirElm.appendChild(pElm)
-    btnPilihKurirElm.appendChild(spanElm)
-}
-provElm.addEventListener("change", (e) => {
-    kotaElm.innerHTML = '<option value="-1">Loading..</option>'
-    // paketElm.innerHTML = '<option value="-1">-- Pilih paket --</option>';
-    areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
-    costElm.innerHTML = '-'
-    totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    hasilApiKurir = [];
-    hasilApiKurirRO = [];
-    resetUIBtnPilihKurir();
-    const valuenya = e.target.value.split("@");
-    const idprov = Number(valuenya[0]);
-    if (idprov > 0) {
-        prov_kab_kec_kodepos[0] = valuenya[1]
-        getKota(idprov)
+        //     }
+        // }
+        // updateAlamat()
     }
-})
-kotaElm.addEventListener("change", (e) => {
-    // paketElm.innerHTML = '<option value="-1">Loading..</option>'
-    areaElm.innerHTML = '<option value="-1">Loading..</option>'
-    costElm.innerHTML = '-'
-    totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    hasilApiKurir = [];
-    hasilApiKurirRO = [];
-    resetUIBtnPilihKurir();
-    const value = e.target.value.split("-")
-    const idkota = Number(value[0])
-    if (idkota > 0) {
-        prov_kab_kec_kodepos[1] = value[1];
+
+    async function addTransaction(dataMid, dataCus, kurir) {
+        let status;
+        switch (dataMid.transaction_status) {
+            case 'settlement':
+                status = "Proses";
+                break;
+            case 'capture':
+                status = "Proses";
+                break;
+            case 'pending':
+                status = "Menunggu Pembayaran";
+                break;
+            case 'expire':
+                status = "Kadaluarsa";
+                break;
+            case 'deny':
+                status = "Ditolak";
+                break;
+            case 'failure':
+                status = "Gagal";
+                break;
+            case 'refund':
+                status = "Refund";
+                break;
+            case 'partial_refund':
+                status = "Partial Refund";
+                break;
+            default:
+                status = "No Status";
+                break;
+        }
+        const dataYgdikirim = {
+            namaCus: dataCus.nama,
+            emailCus: dataCus.email,
+            alamatCus: dataCus.alamat,
+            hpCus: dataCus.nohp,
+            resi: "Menunggu pengiriman",
+            idMid: dataMid.order_id,
+            items: produk,
+            status: status,
+            kurir: kurir,
+            dataMid: dataMid,
+        }
+        const response = await fetch("addtransaction", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataYgdikirim),
+        });
+        const result = await response.json();
+        const transaksi = result.transaksi;
+        if (result.success) return window.location.href = "/afteraddtransaction/" + transaksi;
+        else console.log(result);
+    }
+
+    async function getKota(idprov) {
+        const response = await fetch("getkota/" + idprov);
+        const kota = await response.json();
+        const hasil = kota.rajaongkir.results;
+        // console.log(hasil)
+        kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
+        hasil.forEach(element => {
+            const optElm = document.createElement("option");
+            optElm.value = element.city_id + "-" + element.city_name
+            optElm.innerHTML = element.type == 'Kota' ? `${element.city_name} Kota` : element.city_name
+            kotaElm.appendChild(optElm);
+        });
+    }
+    async function getKec(idkota) {
+        const response = await fetch("getkec/" + idkota);
+        const kecamatan = await response.json();
+        const hasil = kecamatan.rajaongkir.results;
+        // console.log(hasil)
+        kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
+        hasil.forEach(element => {
+            const optElm = document.createElement("option");
+            optElm.value = element.subdistrict_id + "-" + element.subdistrict_name
+            optElm.innerHTML = element.subdistrict_name
+            kecElm.appendChild(optElm);
+        });
+    }
+    async function getKode(kec) {
+        const response = await fetch("http://192.168.1.53:8082/getkode/" + kec);
+        const kode = await response.json();
+        const hasil = kode.data;
+        // console.log(hasil)
+        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
+        hasil.forEach(element => {
+            const optElm = document.createElement("option");
+            optElm.value = titleCase(element.DesaKelurahan) + "-" + element.KodePos
+            optElm.innerHTML = titleCase(element.DesaKelurahan)
+            kodeElm.appendChild(optElm);
+        });
+    }
+    // async function getArea(kota) {
+    //     const response = await fetch("getarea/" + kota);
+    //     const result = await response.json();
+    //     const hasil = result.areas;
+    //     areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
+    //     hasil.forEach(element => {
+    //         const optElm = document.createElement("option");
+    //         optElm.value = element.id;
+    //         optElm.innerHTML = element.name
+    //         areaElm.appendChild(optElm);
+    //     });
+    // }
+    async function getRates(data) {
+        const response = await fetch("getrates", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        if (result.success) hasilApiKurir = result.pricing;
+    }
+    async function getPaket(asal, tujuan, berat) { //berat gram
+        const ekspedisi = ["jne", "jnt", "wahana"];
+        let hasil = [];
+        ekspedisi.forEach(async (kurir, ind) => {
+            console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
+            const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
+            const paket = await response.json();
+            hasil.push(paket.rajaongkir.results[0])
+            if (ind >= ekspedisi.length - 1) {
+                const dataYgdikirim = {
+                    prov: prov_kab_kec_desa[0].split("-")[1],
+                    kab: prov_kab_kec_desa[1].split("-")[1],
+                    kec: prov_kab_kec_desa[2].split("-")[1],
+                }
+                const responseDakota = await fetch("http://192.168.1.53:8082/dakota", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataYgdikirim)
+                });
+                const dakota = await responseDakota.json();
+                if (dakota.pesan != 'Ok') {
+                    return console.log(dakota)
+                }
+                const costs = Object.keys(dakota.data)
+                    .filter((eFilter) => {
+                        if (
+                            eFilter.toLowerCase() == "reguler" ||
+                            eFilter.toLowerCase() == "kurir"
+                        ) {
+                            if (dakota.data[eFilter][0].pokok > 0) {
+                                return true;
+                            } else return false;
+                        } else return false;
+                    })
+                    .map((e, ind) => {
+                        let cost = dakota.data[e][0];
+                        let harga = [];
+                        harga.push({
+                            value: (Number(berat) / 1000) > Number(cost.minkg) ?
+                                Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost
+                                    .pokok),
+                            etd: cost.LT,
+                        });
+                        return {
+                            description: e.charAt(0).toUpperCase() + e.slice(1),
+                            cost: {
+                                value: (Number(berat) / 1000) > Number(cost.minkg) ?
+                                    Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost.pokok),
+                                etd: cost.LT,
+                            },
+                        };
+                    });
+                hasil.push({
+                    code: 'dakota',
+                    costs: costs
+                })
+                console.log(hasil);
+                console.log(dakota);
+                hasilApiKurirRO = hasil;
+                resetUIBtnPilihKurir();
+            }
+        })
+    }
+
+    function resetUIBtnPilihKurir() {
+        inputPaketElm.value = "0";
+        // <p class="mb-0">Pilih Kurir</p>
+        //             <span><i class="material-icons">chevron_right</i></span>
         const pElm = document.createElement("p");
         pElm.classList.add("mb-0");
-        pElm.innerHTML = "Loading..";
+        pElm.innerHTML = "Pilih Kurir";
+        const spanElm = document.createElement("span");
+        spanElm.innerHTML = '<i class="material-icons">chevron_right</i>';
         btnPilihKurirElm.innerHTML = ""
         btnPilihKurirElm.appendChild(pElm)
-        getPaket("399", idkota, beratTotal * 1000) //399 adalah id kota semarang
-        getArea(value[1])
+        btnPilihKurirElm.appendChild(spanElm)
     }
-})
-// ekspedisiElm.addEventListener("change", (e) => {
-//     paketElm.innerHTML = '<option value="-1">Loading..</option>'
-//     costElm.innerHTML = '-'
-//     const idkota = kotaElm.value;
-//     const ekspedisi = e.target.value;
-//     if (idkota > 0)
-//         getPaket("399", idkota, beratTotal, ekspedisi) //399 adalah id kota semarang
-// })
-// paketElm.addEventListener("change", (e) => {
-//     costElm.innerHTML = `Rp ${e.target.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-//     totalElm.innerHTML =
-//         `Rp ${(5000 + Number(e.target.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-// })
 
-function pilihKurir() {
-    if (hasilApiKurir.length > 0) {
-        const hasilApi = hasilApiKurir
-        // console.log(hasilApi);
-        let cekTabs = []
-        tabsElm.innerHTML = "";
-        hasilApi.forEach((element, ind) => {
-            const liElm = document.createElement("li");
-            liElm.classList.add("nav-item");
-            const aElm = document.createElement("a")
-            aElm.classList.add("nav-link");
-            aElm.classList.add("text-dark");
-            if (ind == 0) {
-                aElm.classList.add("active");
-                tampilkanPilihanKurir(element.service_type, hasilApi);
-            }
-            aElm.innerHTML = element.service_type;
-            liElm.appendChild(aElm);
-            if (!cekTabs.includes(element.service_type)) {
-                tabsElm.appendChild(liElm);
-                cekTabs.push(element.service_type);
+    function generateAlamat(isi, posisi) {
+        //posisi : 1.jln 2.desa 3.kec 4.kab 5.prov 6.kodepos
+        isiAlamat[posisi - 1] = isi;
+        const stringAlamat = `${isiAlamat[0]} ${isiAlamat[1]}, ${isiAlamat[2]}, ${isiAlamat[3]}, ${isiAlamat[4]} ${isiAlamat[5]}`
+        inputAlamatElm.value = stringAlamat
+    }
+
+    provElm.addEventListener("change", (e) => {
+        generateAlamat(e.target.value.split("-")[1], 5);
+        kotaElm.innerHTML = '<option value="-1">Loading..</option>'
+        // areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
+        costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        hasilApiKurirRO = [];
+        resetUIBtnPilihKurir();
+        const valuenya = e.target.value.split("-");
+        const idprov = Number(valuenya[0]);
+        if (idprov > 0) {
+            prov_kab_kec_desa[0] = e.target.value
+            getKota(idprov)
+        }
+    })
+    kotaElm.addEventListener("change", (e) => {
+        generateAlamat(e.target.value.split("-")[1], 4);
+        kecElm.innerHTML = '<option value="-1">Loading..</option>'
+        costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        hasilApiKurirRO = [];
+        resetUIBtnPilihKurir();
+        const value = e.target.value.split("-")
+        const idkota = Number(value[0])
+        if (idkota > 0) {
+            prov_kab_kec_desa[1] = e.target.value;
+            getKec(idkota)
+        }
+    })
+    kecElm.addEventListener("change", (e) => {
+        generateAlamat(e.target.value.split("-")[1], 3);
+        kodeElm.innerHTML = '<option value="-1">Loading..</option>'
+        costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        hasilApiKurirRO = [];
+        resetUIBtnPilihKurir();
+        const value = e.target.value.split("-")
+        const idkec = Number(value[0])
+        if (idkec > 0) {
+            prov_kab_kec_desa[2] = e.target.value;
+            getKode(value[1])
+        }
+    })
+    kodeElm.addEventListener("change", (e) => {
+        generateAlamat(e.target.value.split("-")[0], 2);
+        generateAlamat(e.target.value.split("-")[1], 6);
+        // kodeElm.innerHTML = '<option value="-1">Loading..</option>'
+        costElm.innerHTML = '-'
+        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+        hasilApiKurir = [];
+        hasilApiKurirRO = [];
+        resetUIBtnPilihKurir();
+        const value = e.target.value.split("-")
+        const kodepos = Number(value[1])
+        if (kodepos > 0) {
+            prov_kab_kec_desa[3] = e.target.value;
+            // const pElm = document.createElement("p");
+            // pElm.classList.add("mb-0");
+            // pElm.innerHTML = "Loading..";
+            // btnPilihKurirElm.innerHTML = ""
+            // btnPilihKurirElm.appendChild(pElm)
+            // getPaket("5485", prov_kab_kec_desa[2].split("-")[0], beratTotal * 1000) //5485 adalah id kecamatan bringin
+            // getArea(value[1])
+        }
+    })
+
+    inputAlamatAddElm.addEventListener('change', (e) => {
+        generateAlamat(e.target.value, 1);
+    })
+
+    function pilihKurir() {
+        if (hasilApiKurir.length > 0) {
+            const hasilApi = hasilApiKurir
+            // console.log(hasilApi);
+            let cekTabs = []
+            tabsElm.innerHTML = "";
+            hasilApi.forEach((element, ind) => {
+                const liElm = document.createElement("li");
+                liElm.classList.add("nav-item");
+                const aElm = document.createElement("a")
+                aElm.classList.add("nav-link");
+                aElm.classList.add("text-dark");
+                if (ind == 0) {
+                    aElm.classList.add("active");
+                    tampilkanPilihanKurir(element.service_type, hasilApi);
+                }
+                aElm.innerHTML = element.service_type;
+                liElm.appendChild(aElm);
+                if (!cekTabs.includes(element.service_type)) {
+                    tabsElm.appendChild(liElm);
+                    cekTabs.push(element.service_type);
+                    liElm.addEventListener("click", (e) => {
+                        removeActiveTabs();
+                        e.target.classList.add("active")
+                        tampilkanPilihanKurir(element.service_type, hasilApi)
+                    })
+                }
+            })
+            containerPilihKurir.style.display = "flex";
+        }
+    }
+
+    function pilihKurirRO() {
+        if (hasilApiKurirRO.length > 0) {
+            const hasilApi = hasilApiKurirRO
+            tabsElm.innerHTML = "";
+            hasilApi.forEach((element, ind) => {
+                const liElm = document.createElement("li");
+                liElm.classList.add("nav-item");
+                const aElm = document.createElement("a")
+                aElm.classList.add("nav-link");
+                aElm.classList.add("text-dark");
+                if (ind == 0) {
+                    aElm.classList.add("active");
+                    tampilkanPilihanKurirRO(element.code, element.costs, ind);
+                }
+                aElm.innerHTML = element.code.toUpperCase();
+                liElm.appendChild(aElm);
                 liElm.addEventListener("click", (e) => {
                     removeActiveTabs();
                     e.target.classList.add("active")
-                    tampilkanPilihanKurir(element.service_type, hasilApi)
+                    tampilkanPilihanKurirRO(element.code, element.costs, ind)
                 })
-            }
-        })
-        containerPilihKurir.style.display = "flex";
-    }
-}
-
-function pilihKurirRO() {
-    if (hasilApiKurirRO.length > 0) {
-        const hasilApi = hasilApiKurirRO
-        tabsElm.innerHTML = "";
-        hasilApi.forEach((element, ind) => {
-            const liElm = document.createElement("li");
-            liElm.classList.add("nav-item");
-            const aElm = document.createElement("a")
-            aElm.classList.add("nav-link");
-            aElm.classList.add("text-dark");
-            if (ind == 0) {
-                aElm.classList.add("active");
-                tampilkanPilihanKurirRO(element.code, element.costs, ind);
-            }
-            aElm.innerHTML = element.code.toUpperCase();
-            liElm.appendChild(aElm);
-            liElm.addEventListener("click", (e) => {
-                removeActiveTabs();
-                e.target.classList.add("active")
-                tampilkanPilihanKurirRO(element.code, element.costs, ind)
+                tabsElm.appendChild(liElm);
             })
-            tabsElm.appendChild(liElm);
-        })
-        containerPilihKurir.style.display = "flex";
+            containerPilihKurir.style.display = "flex";
+        }
     }
-}
 
-function removeActiveTabs() {
-    const seluruhTabsElm = document.querySelectorAll('a[class="nav-link"]');
-    console.log(seluruhTabsElm);
-    seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
-}
+    function removeActiveTabs() {
+        const seluruhTabsElm = document.querySelectorAll('a[class="nav-link"]');
+        console.log(seluruhTabsElm);
+        seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
+    }
 
-function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
-    pilihKurirElm.innerHTML = ""
-    costs.forEach((elm, ind_service) => {
-        const costnya = elm.cost[0] ? elm.cost[0] : elm.cost;
-        const tmbPilihElm = document.createElement("div");
-        tmbPilihElm.classList.add("tombol-pilih-kurir");
-        const tmbPilihElmChild = document.createElement("div")
-        tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
-        const parentImgElm = document.createElement("div");
-        parentImgElm.classList.add("parent-img");
-        const keteranganElm = document.createElement("p");
-        keteranganElm.classList.add("mb-0");
-        keteranganElm.innerHTML =
-            `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-        const imgElm = document.createElement("img");
-        imgElm.src = `img/kurir/${kurir}.png`;
-        parentImgElm.appendChild(imgElm)
-        tmbPilihElmChild.appendChild(parentImgElm)
-        tmbPilihElmChild.appendChild(keteranganElm)
-        tmbPilihElm.appendChild(tmbPilihElmChild);
-        pilihKurirElm.appendChild(tmbPilihElm);
-        tmbPilihElm.addEventListener("click", () => {
-            btnPilihKurirElm.innerHTML = "";
-            const divElmPK = document.createElement("div");
-            divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
-            const imgElmPK = document.createElement("img")
-            imgElmPK.src = `img/kurir/${kurir}.png`;
-            const keteranganElmPK = document.createElement("p");
-            keteranganElmPK.classList.add("mb-0");
-            keteranganElmPK.innerHTML =
+    function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
+        pilihKurirElm.innerHTML = ""
+        costs.forEach((elm, ind_service) => {
+            const costnya = elm.cost[0] ? elm.cost[0] : elm.cost;
+            const tmbPilihElm = document.createElement("div");
+            tmbPilihElm.classList.add("tombol-pilih-kurir");
+            const tmbPilihElmChild = document.createElement("div")
+            tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
+            const parentImgElm = document.createElement("div");
+            parentImgElm.classList.add("parent-img");
+            const keteranganElm = document.createElement("p");
+            keteranganElm.classList.add("mb-0");
+            keteranganElm.innerHTML =
                 `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            const iconElmPK = document.createElement("span");
-            iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
-            divElmPK.appendChild(imgElmPK)
-            divElmPK.appendChild(keteranganElmPK)
-            btnPilihKurirElm.appendChild(divElmPK)
-            btnPilihKurirElm.appendChild(iconElmPK);
+            const imgElm = document.createElement("img");
+            imgElm.src = `img/kurir/${kurir}.png`;
+            parentImgElm.appendChild(imgElm)
+            tmbPilihElmChild.appendChild(parentImgElm)
+            tmbPilihElmChild.appendChild(keteranganElm)
+            tmbPilihElm.appendChild(tmbPilihElmChild);
+            pilihKurirElm.appendChild(tmbPilihElm);
+            tmbPilihElm.addEventListener("click", () => {
+                btnPilihKurirElm.innerHTML = "";
+                const divElmPK = document.createElement("div");
+                divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
+                const imgElmPK = document.createElement("img")
+                imgElmPK.src = `img/kurir/${kurir}.png`;
+                const keteranganElmPK = document.createElement("p");
+                keteranganElmPK.classList.add("mb-0");
+                keteranganElmPK.innerHTML =
+                    `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                const iconElmPK = document.createElement("span");
+                iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
+                divElmPK.appendChild(imgElmPK)
+                divElmPK.appendChild(keteranganElmPK)
+                btnPilihKurirElm.appendChild(divElmPK)
+                btnPilihKurirElm.appendChild(iconElmPK);
 
-            costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-            totalElm.innerHTML =
-                `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            const timeSkrg = "<?= time(); ?>";
-            // inputPaketElm.value = btoa(`${costnya.value}`);
-            inputPaketElm.value = `${costnya.value}-${kurir}`;
-            containerPilihKurir.style.display = "none";
+                costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+                totalElm.innerHTML =
+                    `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                const timeSkrg = "<?= time(); ?>";
+                // inputPaketElm.value = btoa(`${costnya.value}`);
+                inputPaketElm.value = `${costnya.value}-${kurir}`;
+                containerPilihKurir.style.display = "none";
+            })
         })
-    })
-}
-
-function tampilkanPilihanKurir(serviceType, hasilApi) {
-    const filterHasilApi = hasilApi.filter((elm) => {
-        if (elm.service_type == serviceType) return true;
-        else return false;
-    }).map((e) => {
-        return e
-    });
-    console.log(filterHasilApi);
-    pilihKurirElm.innerHTML = ""
-    filterHasilApi.forEach((elm) => {
-        const tmbPilihElm = document.createElement("div");
-        tmbPilihElm.classList.add("tombol-pilih-kurir");
-        const tmbPilihElmChild = document.createElement("div")
-        tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
-        const parentImgElm = document.createElement("div");
-        parentImgElm.classList.add("parent-img");
-        const keteranganElm = document.createElement("p");
-        keteranganElm.classList.add("mb-0");
-        keteranganElm.innerHTML =
-            `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-        const imgElm = document.createElement("img");
-        imgElm.src = `img/kurir/${elm.courier_code}.png`;
-        parentImgElm.appendChild(imgElm)
-        tmbPilihElmChild.appendChild(parentImgElm)
-        tmbPilihElmChild.appendChild(keteranganElm)
-        tmbPilihElm.appendChild(tmbPilihElmChild);
-        pilihKurirElm.appendChild(tmbPilihElm);
-        tmbPilihElm.addEventListener("click", () => {
-            //     <div class="d-flex align-items-center gap-3">
-            //         <img src="img/kurir/jnt.png" />
-            //         <p class="mb-0">J&T Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
-            //     </div>
-            //     <span><i class="material-icons">chevron_right</i></span>
-            btnPilihKurirElm.innerHTML = "";
-            const divElmPK = document.createElement("div");
-            divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
-            const imgElmPK = document.createElement("img")
-            imgElmPK.src = `img/kurir/${elm.courier_code}.png`;
-            const keteranganElmPK = document.createElement("p");
-            keteranganElmPK.classList.add("mb-0");
-            keteranganElmPK.innerHTML =
-                `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            const iconElmPK = document.createElement("span");
-            iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
-            divElmPK.appendChild(imgElmPK)
-            divElmPK.appendChild(keteranganElmPK)
-            btnPilihKurirElm.appendChild(divElmPK)
-            btnPilihKurirElm.appendChild(iconElmPK);
-
-            costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-            totalElm.innerHTML =
-                `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            inputPaketElm.value = Number(elm.price);
-
-            containerPilihKurir.style.display = "none";
-        })
-    })
-}
-
-areaElm.addEventListener("change", (e) => {
-    costElm.innerHTML = '-'
-    totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    hasilApiKurir = [];
-    resetUIBtnPilihKurir();
-    const id_area = e.target.value;
-    const bodynya = {
-        origin_area_id: "IDNP10IDNC393IDND4705IDZ50122", //id kota semarang (tpi belum fix bener ato nggk postal codenya)
-        destination_area_id: id_area,
-        couriers: "jne,jnt,wahana",
-        items: produk
     }
-    getRates(bodynya);
-})
+
+    function tampilkanPilihanKurir(serviceType, hasilApi) {
+        const filterHasilApi = hasilApi.filter((elm) => {
+            if (elm.service_type == serviceType) return true;
+            else return false;
+        }).map((e) => {
+            return e
+        });
+        console.log(filterHasilApi);
+        pilihKurirElm.innerHTML = ""
+        filterHasilApi.forEach((elm) => {
+            const tmbPilihElm = document.createElement("div");
+            tmbPilihElm.classList.add("tombol-pilih-kurir");
+            const tmbPilihElmChild = document.createElement("div")
+            tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
+            const parentImgElm = document.createElement("div");
+            parentImgElm.classList.add("parent-img");
+            const keteranganElm = document.createElement("p");
+            keteranganElm.classList.add("mb-0");
+            keteranganElm.innerHTML =
+                `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+            const imgElm = document.createElement("img");
+            imgElm.src = `img/kurir/${elm.courier_code}.png`;
+            parentImgElm.appendChild(imgElm)
+            tmbPilihElmChild.appendChild(parentImgElm)
+            tmbPilihElmChild.appendChild(keteranganElm)
+            tmbPilihElm.appendChild(tmbPilihElmChild);
+            pilihKurirElm.appendChild(tmbPilihElm);
+            tmbPilihElm.addEventListener("click", () => {
+                //     <div class="d-flex align-items-center gap-3">
+                //         <img src="img/kurir/jnt.png" />
+                //         <p class="mb-0">J&T Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
+                //     </div>
+                //     <span><i class="material-icons">chevron_right</i></span>
+                btnPilihKurirElm.innerHTML = "";
+                const divElmPK = document.createElement("div");
+                divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
+                const imgElmPK = document.createElement("img")
+                imgElmPK.src = `img/kurir/${elm.courier_code}.png`;
+                const keteranganElmPK = document.createElement("p");
+                keteranganElmPK.classList.add("mb-0");
+                keteranganElmPK.innerHTML =
+                    `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                const iconElmPK = document.createElement("span");
+                iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
+                divElmPK.appendChild(imgElmPK)
+                divElmPK.appendChild(keteranganElmPK)
+                btnPilihKurirElm.appendChild(divElmPK)
+                btnPilihKurirElm.appendChild(iconElmPK);
+
+                costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+                totalElm.innerHTML =
+                    `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                inputPaketElm.value = Number(elm.price);
+
+                containerPilihKurir.style.display = "none";
+            })
+        })
+    }
+
+    // areaElm.addEventListener("change", (e) => {
+    //     costElm.innerHTML = '-'
+    //     totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //     hasilApiKurir = [];
+    //     resetUIBtnPilihKurir();
+    //     const id_area = e.target.value;
+    //     const bodynya = {
+    //         origin_area_id: "IDNP10IDNC393IDND4705IDZ50122", //id kota semarang (tpi belum fix bener ato nggk postal codenya)
+    //         destination_area_id: id_area,
+    //         couriers: "jne,jnt,wahana",
+    //         items: produk
+    //     }
+    //     getRates(bodynya);
+    // })
 </script>
 <?= $this->endSection(); ?>

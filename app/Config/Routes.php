@@ -39,6 +39,8 @@ $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'h
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->get('/getarea/(:any)', 'Pages::getArea/$1');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
+$routes->get('/getkec/(:any)', 'Pages::getKec/$1');
+$routes->get('/updatealamat/(:any)', 'Pages::updateAlamat/$1');
 $routes->post('/getrates', 'Pages::getRates');
 $routes->get('/getdakota', 'Pages::getDakota');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
