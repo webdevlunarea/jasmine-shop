@@ -602,6 +602,7 @@ class Pages extends BaseController
         $berat = 0;
         $beratHitung = 0;
         $dimensiSemua = [];
+        $paket = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -660,7 +661,7 @@ class Pages extends BaseController
         }
         $provinsi = json_decode($response, true);
 
-        if (isset($alamat)) {
+        if (count($alamat) > 0) {
             $curl_jne = curl_init();
             curl_setopt_array($curl_jne, array(
                 CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
@@ -743,7 +744,7 @@ class Pages extends BaseController
                 'kec' => $alamat['kec'],
             ];
             curl_setopt_array($curl_dakota, array(
-                CURLOPT_URL => "http://192.168.1.53:8082/dakota",
+                CURLOPT_URL => "https://api.jasminefurniture.co.id/dakota",
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_RETURNTRANSFER => true,
@@ -803,6 +804,7 @@ class Pages extends BaseController
             'title' => 'Check Out',
             'produk' => $produk,
             'produkJson' => json_encode($produkJson),
+            'alamatJson' => json_encode($alamat),
             'jumlah' => $jumlah,
             'beratAkhir' => $beratAkhir, //kilogram
             'dimensiSemua' => implode("-", $dimensiSemua),
@@ -811,10 +813,6 @@ class Pages extends BaseController
             'subtotal' => $subtotal,
             'provinsi' => $provinsi["rajaongkir"]["results"],
             'keranjang' => $keranjang,
-            // 'jne' => $jne,
-            // 'jnt' => $jnt,
-            // 'wahana' => $wahana,
-            // 'dakota' => $dakota,
             'paket' => $paket,
             'paketJson' => json_encode($paket),
         ];
@@ -914,62 +912,6 @@ class Pages extends BaseController
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/x-www-form-urlencoded",
                 "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $paket = json_decode($response, true);
-        return $this->response->setJSON($paket, false);
-    }
-    public function getArea($kota)
-    {
-        $curl = curl_init();
-        $input = str_replace(" ", "+", $kota);
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.biteship.com/v1/maps/areas?countries=ID&input=" . $input . "&type=single",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "authorization: biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiamFzbWluZSB0ZXN0aW5nIiwidXNlcklkIjoiNjU4M2I1MmY2YzAyMTAxZjVhZTJlNWY5IiwiaWF0IjoxNzAzMTMxOTQ5fQ.22F0VWJe-JavNsxaw_s68ErNv41cTVcYIm1OWtJF9og"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $kota = json_decode($response, true);
-        return $this->response->setJSON($kota, false);
-    }
-    public function getRates()
-    {
-        $curl = curl_init();
-        $body = $this->request->getBody();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.biteship.com/v1/rates/couriers",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => $body,
-            CURLOPT_HTTPHEADER => array(
-                "authorization: biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiamFzbWluZSB0ZXN0aW5nIiwidXNlcklkIjoiNjU4M2I1MmY2YzAyMTAxZjVhZTJlNWY5IiwiaWF0IjoxNzAzMTMxOTQ5fQ.22F0VWJe-JavNsxaw_s68ErNv41cTVcYIm1OWtJF9og",
-                "content-type: application/json"
             ),
         ));
         $response = curl_exec($curl);
@@ -1243,6 +1185,7 @@ class Pages extends BaseController
                 break;
             }
             $oldTransaction = $this->pemesananModel->getPemesanan($t);
+            // dd($oldTransaction);
             if ($item_status['transaction_status'] != json_decode($oldTransaction['data_mid'], true)['transaction_status']) {
                 switch ($item_status['transaction_status']) {
                     case 'settlement':
@@ -1306,8 +1249,10 @@ class Pages extends BaseController
         $this->pemesananModel->insert([
             'nama_cus' => $body['namaCus'],
             'email_cus' => $body['emailCus'],
-            'alamat_cus' => $body['alamatCus'],
             'hp_cus' => $body['hpCus'],
+            'nama_pen' => $body['namaPen'],
+            'hp_pen' => $body['hpPen'],
+            'alamat_pen' => json_encode($body['alamatPen']),
             'resi' => $body['resi'],
             'id_midtrans' => $body['idMid'],
             'items' => json_encode($body['items']),
@@ -1322,8 +1267,10 @@ class Pages extends BaseController
             'hasil' => [
                 'nama_cus' => $body['namaCus'],
                 'email_cus' => $body['emailCus'],
-                'alamat_cus' => $body['alamatCus'],
                 'hp_cus' => $body['hpCus'],
+                'nama_pen' => $body['namaPen'],
+                'hp_pen' => $body['hpPen'],
+                'alamat_pen' => $body['alamatPen'],
                 'resi' => $body['resi'],
                 'id_midtrans' => $body['idMid'],
                 'items' => $body['items'],
@@ -1488,8 +1435,10 @@ class Pages extends BaseController
                 'id' => $transaksi['id'],
                 'nama_cus' => $transaksi['nama_cus'],
                 'email_cus' => $transaksi['email_cus'],
-                'alamat_cus' => $transaksi['alamat_cus'],
                 'hp_cus' => $transaksi['hp_cus'],
+                'nama_pen' => $transaksi['nama_pen'],
+                'hp_pen' => $transaksi['hp_pen'],
+                'alamat_pen' => json_decode($transaksi['alamat_pen'], true),
                 'resi' => $transaksi['resi'],
                 'id_midtrans' => $transaksi['id_midtrans'],
                 'items' => json_decode($transaksi['items'], true),
@@ -1499,10 +1448,11 @@ class Pages extends BaseController
             ];
             array_push($transaksiCusNoJSON, $arr);
         }
+        // dd($transaksiCusNoJSON);
         $transaksiJson = json_encode($transaksiCusNoJSON);
         $data = [
             'title' => 'List Customer',
-            'transaksiCus' => $transaksiCus,
+            'transaksiCus' => $transaksiCusNoJSON,
             'transaksiJson' => $transaksiJson,
         ];
         return view('pages/listCustomer', $data);
@@ -1514,8 +1464,10 @@ class Pages extends BaseController
             'id' => $transaksi['id'],
             'nama_cus' => $transaksi['nama_cus'],
             'email_cus' => $transaksi['email_cus'],
-            'alamat_cus' => $transaksi['alamat_cus'],
             'hp_cus' => $transaksi['hp_cus'],
+            'nama_pen' => $transaksi['nama_pen'],
+            'hp_pen' => $transaksi['hp_pen'],
+            'alamat_pen' => json_decode($transaksi['alamat_pen'], true),
             'resi' => $transaksi['resi'],
             'id_midtrans' => $transaksi['id_midtrans'],
             'items' => json_decode($transaksi['items'], true),

@@ -206,7 +206,9 @@
                     <p class="my-2"><b><?= $beratAkhir; ?> kg</b>
                     </p>
                 </div>
-                <button id="btn-checkout" class="btn btn-primary1 <?= $user['alamat'] ? '' : 'd-none disabled'; ?>" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pastikan seluruh detail pembayaran telah diisi">Pesan</button>
+                <?php if ($user['alamat']) { ?>
+                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button">Pesan</button>
+                <?php } ?>
             </div>
         </div>
     </div>
@@ -221,9 +223,6 @@
     const kotaElm = document.querySelector('select[name="kota"]');
     const kecElm = document.querySelector('select[name="kecamatan"]');
     const kodeElm = document.querySelector('select[name="kodepos"]');
-    // const ekspedisiElm = document.querySelector('select[name="ekspedisi"]');
-    // const paketElm = document.querySelector('select[name="paket"]');
-    // const areaElm = document.querySelector('select[name="area"]');
     const costElm = document.getElementById("total-pengiriman");
     const totalElm = document.getElementById("total-semua");
     const containerPilihKurir = document.getElementById("container-pilih-kurir");
@@ -233,6 +232,9 @@
     const inputPaketElm = document.getElementById("set-paket");
     const subtotal = "<?= $subtotal; ?>";
     const email = "<?= session()->get('email') ?>";
+    const nama = "<?= session()->get('nama') ?>";
+    const nohp = "<?= session()->get('nohp') ?>";
+    const alamat = JSON.parse(<?= json_encode($alamatJson); ?>);
     const beratTotal = Number("<?= $beratAkhir; ?>"); // cuma sementara
     const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
     let hasilApiKurir = [];
@@ -264,25 +266,23 @@
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     btnCheckoutElm.addEventListener("click", () => {
-        if (formCheckoutNama.value && formCheckoutAlamat.value && formCheckoutEmail.value &&
-            formCheckoutNoHp.value && formCheckoutPaket.value.length > 0 && !isEditAlamat) {
-
-            formCheckoutNama.classList.remove("is-invalid")
-            formCheckoutAlamat.classList.remove("is-invalid")
-            formCheckoutEmail.classList.remove("is-invalid")
-            formCheckoutNoHp.classList.remove("is-invalid")
+        if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
             btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
 
             btnCheckoutElm.innerHTML = "Loading"
             const data = {
-                nama: formCheckoutNama.value,
-                alamat: formCheckoutAlamat.value,
-                email: formCheckoutEmail.value,
-                nohp: formCheckoutNoHp.value,
+                nama: nama,
+                alamat: alamat.alamat,
+                email: email,
+                nohp: nohp,
                 paket: btoa((formCheckoutPaket.value).split("-")[0])
                 // paket: 120000
             }
-            console.log(data)
+            const dataPen = {
+                nama: inputNamaElm.value,
+                nohp: inputNohpElm.value,
+            }
+
             async function getTokenMditrans() {
                 var formBody = [];
                 for (var property in data) {
@@ -305,11 +305,11 @@
                 window.snap.pay(snaptoken.snapToken, {
                     onSuccess: function(result) {
                         alert("payment success!");
-                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
+                        addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
                     },
                     onPending: function(result) {
                         alert("wating your payment!");
-                        addTransaction(result, data, (formCheckoutPaket.value).split("-")[1]);
+                        addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
                     },
                     onError: function(result) {
                         alert("payment failed!");
@@ -321,10 +321,6 @@
             }
             getTokenMditrans()
         } else {
-            if (!formCheckoutNama.value) formCheckoutNama.classList.add("is-invalid")
-            if (!formCheckoutAlamat.value) formCheckoutAlamat.classList.add("is-invalid")
-            if (!formCheckoutEmail.value) formCheckoutEmail.classList.add("is-invalid")
-            if (!formCheckoutNoHp.value) formCheckoutNoHp.classList.add("is-invalid")
             if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
         }
     })
@@ -357,35 +353,9 @@
             btnPilihKurirElm.classList.add("d-none")
             isEditAlamat = true;
         }
-        // async function updateAlamat() {
-        //     const response = await fetch("updatealamat", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify({
-        //             prov_id: prov_kab_kec_desa[0].split("-")[0],
-        //             prov: prov_kab_kec_desa[0].split("-")[1],
-        //             kab_id: prov_kab_kec_desa[1].split("-")[0],
-        //             kab: prov_kab_kec_desa[1].split("-")[1],
-        //             kec_id: prov_kab_kec_desa[2].split("-")[0],
-        //             kec: prov_kab_kec_desa[2].split("-")[1],
-        //             desa: prov_kab_kec_desa[3].split("-")[0],
-        //             kodepos: prov_kab_kec_desa[3].split("-")[1],
-        //             add: inputAlamatAddElm.value,
-        //             alamat: infoPenerimaElm[2].innerHTML,
-        //             email: email
-        //         }),
-        //     });
-        //     const result = await response.json();
-        //     if (result.success) {
-
-        //     }
-        // }
-        // updateAlamat()
     }
 
-    async function addTransaction(dataMid, dataCus, kurir) {
+    async function addTransaction(dataMid, dataCus, dataPen, kurir) {
         let status;
         switch (dataMid.transaction_status) {
             case 'settlement':
@@ -418,9 +388,11 @@
         }
         const dataYgdikirim = {
             namaCus: dataCus.nama,
-            emailCus: dataCus.email,
-            alamatCus: dataCus.alamat,
             hpCus: dataCus.nohp,
+            emailCus: dataCus.email,
+            namaPen: dataPen.nama,
+            hpPen: dataPen.nohp,
+            alamatPen: alamat,
             resi: "Menunggu pengiriman",
             idMid: dataMid.order_id,
             items: produk,
@@ -468,7 +440,7 @@
         });
     }
     async function getKode(kec) {
-        const response = await fetch("http://192.168.1.53:8082/getkode/" + kec);
+        const response = await fetch("https://api.jasminefurniture.co.id/getkode/" + kec);
         const kode = await response.json();
         const hasil = kode.data;
         // console.log(hasil)
@@ -479,94 +451,6 @@
             optElm.innerHTML = titleCase(element.DesaKelurahan)
             kodeElm.appendChild(optElm);
         });
-    }
-    // async function getArea(kota) {
-    //     const response = await fetch("getarea/" + kota);
-    //     const result = await response.json();
-    //     const hasil = result.areas;
-    //     areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
-    //     hasil.forEach(element => {
-    //         const optElm = document.createElement("option");
-    //         optElm.value = element.id;
-    //         optElm.innerHTML = element.name
-    //         areaElm.appendChild(optElm);
-    //     });
-    // }
-    async function getRates(data) {
-        const response = await fetch("getrates", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-        const result = await response.json();
-        if (result.success) hasilApiKurir = result.pricing;
-    }
-    async function getPaket(asal, tujuan, berat) { //berat gram
-        const ekspedisi = ["jne", "jnt", "wahana"];
-        let hasil = [];
-        ekspedisi.forEach(async (kurir, ind) => {
-            console.log("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir)
-            const response = await fetch("getpaket/" + asal + "/" + tujuan + "/" + berat + "/" + kurir);
-            const paket = await response.json();
-            hasil.push(paket.rajaongkir.results[0])
-            if (ind >= ekspedisi.length - 1) {
-                const dataYgdikirim = {
-                    prov: prov_kab_kec_desa[0].split("-")[1],
-                    kab: prov_kab_kec_desa[1].split("-")[1],
-                    kec: prov_kab_kec_desa[2].split("-")[1],
-                }
-                const responseDakota = await fetch("http://192.168.1.53:8082/dakota", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dataYgdikirim)
-                });
-                const dakota = await responseDakota.json();
-                if (dakota.pesan != 'Ok') {
-                    return console.log(dakota)
-                }
-                const costs = Object.keys(dakota.data)
-                    .filter((eFilter) => {
-                        if (
-                            eFilter.toLowerCase() == "reguler" ||
-                            eFilter.toLowerCase() == "kurir"
-                        ) {
-                            if (dakota.data[eFilter][0].pokok > 0) {
-                                return true;
-                            } else return false;
-                        } else return false;
-                    })
-                    .map((e, ind) => {
-                        let cost = dakota.data[e][0];
-                        let harga = [];
-                        harga.push({
-                            value: (Number(berat) / 1000) > Number(cost.minkg) ?
-                                Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost
-                                    .pokok),
-                            etd: cost.LT,
-                        });
-                        return {
-                            description: e.charAt(0).toUpperCase() + e.slice(1),
-                            cost: {
-                                value: (Number(berat) / 1000) > Number(cost.minkg) ?
-                                    Number(cost.kgnext) * (Number(berat) / 1000) : Number(cost.pokok),
-                                etd: cost.LT,
-                            },
-                        };
-                    });
-                hasil.push({
-                    code: 'dakota',
-                    costs: costs
-                })
-                console.log(hasil);
-                console.log(dakota);
-                hasilApiKurirRO = hasil;
-                resetUIBtnPilihKurir();
-            }
-        })
     }
 
     function resetUIBtnPilihKurir() {
@@ -595,7 +479,6 @@
         kotaElm.innerHTML = '<option value="-1">Loading..</option>'
         // areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
         costElm.innerHTML = '-'
-        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -610,7 +493,6 @@
         generateAlamat(e.target.value.split("-")[1], 4);
         kecElm.innerHTML = '<option value="-1">Loading..</option>'
         costElm.innerHTML = '-'
-        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -625,7 +507,6 @@
         generateAlamat(e.target.value.split("-")[1], 3);
         kodeElm.innerHTML = '<option value="-1">Loading..</option>'
         costElm.innerHTML = '-'
-        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -641,7 +522,6 @@
         generateAlamat(e.target.value.split("-")[1], 6);
         // kodeElm.innerHTML = '<option value="-1">Loading..</option>'
         costElm.innerHTML = '-'
-        totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -654,8 +534,6 @@
             // pElm.innerHTML = "Loading..";
             // btnPilihKurirElm.innerHTML = ""
             // btnPilihKurirElm.appendChild(pElm)
-            // getPaket("5485", prov_kab_kec_desa[2].split("-")[0], beratTotal * 1000) //5485 adalah id kecamatan bringin
-            // getArea(value[1])
         }
     })
 
@@ -663,37 +541,37 @@
         generateAlamat(e.target.value, 1);
     })
 
-    function pilihKurir() {
-        if (hasilApiKurir.length > 0) {
-            const hasilApi = hasilApiKurir
-            // console.log(hasilApi);
-            let cekTabs = []
-            tabsElm.innerHTML = "";
-            hasilApi.forEach((element, ind) => {
-                const liElm = document.createElement("li");
-                liElm.classList.add("nav-item");
-                const aElm = document.createElement("a")
-                aElm.classList.add("nav-link");
-                aElm.classList.add("text-dark");
-                if (ind == 0) {
-                    aElm.classList.add("active");
-                    tampilkanPilihanKurir(element.service_type, hasilApi);
-                }
-                aElm.innerHTML = element.service_type;
-                liElm.appendChild(aElm);
-                if (!cekTabs.includes(element.service_type)) {
-                    tabsElm.appendChild(liElm);
-                    cekTabs.push(element.service_type);
-                    liElm.addEventListener("click", (e) => {
-                        removeActiveTabs();
-                        e.target.classList.add("active")
-                        tampilkanPilihanKurir(element.service_type, hasilApi)
-                    })
-                }
-            })
-            containerPilihKurir.style.display = "flex";
-        }
-    }
+    // function pilihKurir() {
+    //     if (hasilApiKurir.length > 0) {
+    //         const hasilApi = hasilApiKurir
+    //         // console.log(hasilApi);
+    //         let cekTabs = []
+    //         tabsElm.innerHTML = "";
+    //         hasilApi.forEach((element, ind) => {
+    //             const liElm = document.createElement("li");
+    //             liElm.classList.add("nav-item");
+    //             const aElm = document.createElement("a")
+    //             aElm.classList.add("nav-link");
+    //             aElm.classList.add("text-dark");
+    //             if (ind == 0) {
+    //                 aElm.classList.add("active");
+    //                 tampilkanPilihanKurir(element.service_type, hasilApi);
+    //             }
+    //             aElm.innerHTML = element.service_type;
+    //             liElm.appendChild(aElm);
+    //             if (!cekTabs.includes(element.service_type)) {
+    //                 tabsElm.appendChild(liElm);
+    //                 cekTabs.push(element.service_type);
+    //                 liElm.addEventListener("click", (e) => {
+    //                     removeActiveTabs();
+    //                     e.target.classList.add("active")
+    //                     tampilkanPilihanKurir(element.service_type, hasilApi)
+    //                 })
+    //             }
+    //         })
+    //         containerPilihKurir.style.display = "flex";
+    //     }
+    // }
 
     function pilihKurirRO() {
         if (hasilApiKurirRO.length > 0) {
@@ -773,82 +651,68 @@
                 // inputPaketElm.value = btoa(`${costnya.value}`);
                 inputPaketElm.value = `${costnya.value}-${kurir}`;
                 containerPilihKurir.style.display = "none";
+                btnCheckoutElm.classList.remove("disabled")
             })
         })
     }
 
-    function tampilkanPilihanKurir(serviceType, hasilApi) {
-        const filterHasilApi = hasilApi.filter((elm) => {
-            if (elm.service_type == serviceType) return true;
-            else return false;
-        }).map((e) => {
-            return e
-        });
-        console.log(filterHasilApi);
-        pilihKurirElm.innerHTML = ""
-        filterHasilApi.forEach((elm) => {
-            const tmbPilihElm = document.createElement("div");
-            tmbPilihElm.classList.add("tombol-pilih-kurir");
-            const tmbPilihElmChild = document.createElement("div")
-            tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
-            const parentImgElm = document.createElement("div");
-            parentImgElm.classList.add("parent-img");
-            const keteranganElm = document.createElement("p");
-            keteranganElm.classList.add("mb-0");
-            keteranganElm.innerHTML =
-                `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            const imgElm = document.createElement("img");
-            imgElm.src = `img/kurir/${elm.courier_code}.png`;
-            parentImgElm.appendChild(imgElm)
-            tmbPilihElmChild.appendChild(parentImgElm)
-            tmbPilihElmChild.appendChild(keteranganElm)
-            tmbPilihElm.appendChild(tmbPilihElmChild);
-            pilihKurirElm.appendChild(tmbPilihElm);
-            tmbPilihElm.addEventListener("click", () => {
-                //     <div class="d-flex align-items-center gap-3">
-                //         <img src="img/kurir/jnt.png" />
-                //         <p class="mb-0">J&T Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
-                //     </div>
-                //     <span><i class="material-icons">chevron_right</i></span>
-                btnPilihKurirElm.innerHTML = "";
-                const divElmPK = document.createElement("div");
-                divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
-                const imgElmPK = document.createElement("img")
-                imgElmPK.src = `img/kurir/${elm.courier_code}.png`;
-                const keteranganElmPK = document.createElement("p");
-                keteranganElmPK.classList.add("mb-0");
-                keteranganElmPK.innerHTML =
-                    `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                const iconElmPK = document.createElement("span");
-                iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
-                divElmPK.appendChild(imgElmPK)
-                divElmPK.appendChild(keteranganElmPK)
-                btnPilihKurirElm.appendChild(divElmPK)
-                btnPilihKurirElm.appendChild(iconElmPK);
+    // function tampilkanPilihanKurir(serviceType, hasilApi) {
+    //     const filterHasilApi = hasilApi.filter((elm) => {
+    //         if (elm.service_type == serviceType) return true;
+    //         else return false;
+    //     }).map((e) => {
+    //         return e
+    //     });
+    //     console.log(filterHasilApi);
+    //     pilihKurirElm.innerHTML = ""
+    //     filterHasilApi.forEach((elm) => {
+    //         const tmbPilihElm = document.createElement("div");
+    //         tmbPilihElm.classList.add("tombol-pilih-kurir");
+    //         const tmbPilihElmChild = document.createElement("div")
+    //         tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
+    //         const parentImgElm = document.createElement("div");
+    //         parentImgElm.classList.add("parent-img");
+    //         const keteranganElm = document.createElement("p");
+    //         keteranganElm.classList.add("mb-0");
+    //         keteranganElm.innerHTML =
+    //             `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //         const imgElm = document.createElement("img");
+    //         imgElm.src = `img/kurir/${elm.courier_code}.png`;
+    //         parentImgElm.appendChild(imgElm)
+    //         tmbPilihElmChild.appendChild(parentImgElm)
+    //         tmbPilihElmChild.appendChild(keteranganElm)
+    //         tmbPilihElm.appendChild(tmbPilihElmChild);
+    //         pilihKurirElm.appendChild(tmbPilihElm);
+    //         tmbPilihElm.addEventListener("click", () => {
+    //             //     <div class="d-flex align-items-center gap-3">
+    //             //         <img src="img/kurir/jnt.png" />
+    //             //         <p class="mb-0">J&T Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
+    //             //     </div>
+    //             //     <span><i class="material-icons">chevron_right</i></span>
+    //             btnPilihKurirElm.innerHTML = "";
+    //             const divElmPK = document.createElement("div");
+    //             divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
+    //             const imgElmPK = document.createElement("img")
+    //             imgElmPK.src = `img/kurir/${elm.courier_code}.png`;
+    //             const keteranganElmPK = document.createElement("p");
+    //             keteranganElmPK.classList.add("mb-0");
+    //             keteranganElmPK.innerHTML =
+    //                 `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //             const iconElmPK = document.createElement("span");
+    //             iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
+    //             divElmPK.appendChild(imgElmPK)
+    //             divElmPK.appendChild(keteranganElmPK)
+    //             btnPilihKurirElm.appendChild(divElmPK)
+    //             btnPilihKurirElm.appendChild(iconElmPK);
 
-                costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-                totalElm.innerHTML =
-                    `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                inputPaketElm.value = Number(elm.price);
+    //             costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    //             totalElm.innerHTML =
+    //                 `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //             inputPaketElm.value = Number(elm.price);
 
-                containerPilihKurir.style.display = "none";
-            })
-        })
-    }
-
-    // areaElm.addEventListener("change", (e) => {
-    //     costElm.innerHTML = '-'
-    //     totalElm.innerHTML = `Rp ${(5000 + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    //     hasilApiKurir = [];
-    //     resetUIBtnPilihKurir();
-    //     const id_area = e.target.value;
-    //     const bodynya = {
-    //         origin_area_id: "IDNP10IDNC393IDND4705IDZ50122", //id kota semarang (tpi belum fix bener ato nggk postal codenya)
-    //         destination_area_id: id_area,
-    //         couriers: "jne,jnt,wahana",
-    //         items: produk
-    //     }
-    //     getRates(bodynya);
-    // })
+    //             containerPilihKurir.style.display = "none";
+    //         })
+    //     })
+    // }
 </script>
 <?= $this->endSection(); ?>

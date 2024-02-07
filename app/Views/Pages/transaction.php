@@ -103,11 +103,15 @@
                                                 <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
 
                                                 <?php } else { ?>
-                                                    <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?> <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
+                                                    <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
+                                                        <?php if ($item_transaksi['status'] != "Proses") { ?>
+                                                            <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
+                                                        <?php } ?>
                                                     </p>
-                                                    <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
-                                                        Nomor Resi</a>
-
+                                                    <?php if ($item_transaksi['status'] != "Proses") { ?>
+                                                        <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
+                                                            Nomor Resi</a>
+                                                    <?php } ?>
                                                 <?php } ?>
                                             </div>
                                         </div>

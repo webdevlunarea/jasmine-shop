@@ -50,8 +50,6 @@
                             <th>Nama Barang</th>
                             <th>Kode Barang</th>
                             <th>Qty</th>
-                            <th>Harga</th>
-                            <th>Jumlah</th>
                         </tr>
                         <?php
                         $hitungTotal = 0;
@@ -63,22 +61,8 @@
                                 <td><?= $item['name']; ?></td>
                                 <td><?= explode("- ", $item['name'])[1]; ?></td>
                                 <td><?= $item['quantity']; ?></td>
-                                <td>Rp <?= number_format($item['value'], 0, ",", ".") ?></td>
-                                <td>Rp <?= number_format($item['value'] * $item['quantity'], 0, ",", ".") ?></td>
                             </tr>
                         <?php } ?>
-                        <tr>
-                            <td colspan="5">Total</td>
-                            <td>Rp <?= number_format($hitungTotal, 0, ",", ".") ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="5">Biaya Admin dan Ongkir</td>
-                            <td>Rp <?= number_format((int)$transaksi['data_mid']['gross_amount'] - $hitungTotal, 0, ",", ".") ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="5">Total</td>
-                            <td>Rp <?= number_format($transaksi['data_mid']['gross_amount'], 0, ",", ".") ?></td>
-                        </tr>
                     </thead>
                 </table>
             </div>
@@ -134,17 +118,16 @@
                     <tbody>
                         <tr>
                             <td>Nama</td>
-                            <td id="print-nama-penerima">: _____________</td>
+                            <td id="print-nama-penerima">: <?= $transaksi['nama_pen']; ?></td>
                         </tr>
                         <tr>
                             <td class="pe-1">Alamat</td>
-                            <td id="print-alamat-penerima">: _____________</td>
+                            <td id="print-alamat-penerima">: <?= $transaksi['alamat_pen']['alamat']; ?></td>
                         </tr>
                         <tr>
                             <td>Kota</td>
                             <td id="print-kota">
-                                : _____________Kode Pos :_____________ Telp.
-                                ___________
+                                : <?= $transaksi['alamat_pen']['kab']; ?> Kode Pos : <?= $transaksi['alamat_pen']['kodepos']; ?> Telp. <?= $transaksi['hp_pen']; ?>
                             </td>
                         </tr>
                     </tbody>
