@@ -52,6 +52,8 @@ $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
 $routes->get('/errorpay', 'Pages::errorPay', ['filter' => 'harusUser']);
 
+$routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusUser']);
+
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
 $routes->get('/contact', 'Pages::contact');

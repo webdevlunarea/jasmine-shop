@@ -63,8 +63,15 @@
                                                     </div>
                                                     <div class="d-flex flex-column justify-content-end">
                                                         <p class="mb-0 text-secondary" style="font-size: 12px;">
-                                                            <?= json_decode($item_transaksi['data_mid'], true)['transaction_time']; ?>
-                                                        </p>
+                                                            <?= json_decode($item_transaksi['data_mid'], true)['transaction_time']; ?></p>
+                                                        <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                            <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
+                                                                                                                                    $d = strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time']);
+                                                                                                                                    $enddate = strtotime("+1 hour", $d);
+                                                                                                                                    echo date("Y-m-d H:i:s", $enddate);
+                                                                                                                                    ?>
+                                                            </p>
+                                                        <?php } ?>
                                                     </div>
                                                 </div>
                                             </button>
@@ -72,47 +79,54 @@
                                         <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
                                                 <p class="mb-0"><b>Items</b></p>
-                                                <div>
-                                                    <table class="table table-borderless">
-                                                        <tbody>
-                                                            <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
-                                                                <tr>
-                                                                    <td><?= $item['name']; ?></td>
-                                                                    <td><?= $item['quantity'] ?></td>
-                                                                    <td class="text-end">Rp
-                                                                        <?= number_format($item['value'], 0, ",", "."); ?>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php } ?>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
-                                                    <p class="mb-0">
-                                                        <b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b>
-                                                    </p>
-                                                    <p class="mb-0">
-                                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?>
-                                                    </p>
-                                                    <p class="mb-0">
-                                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?>
-                                                    </p>
-                                                    <p class="mb-0">
-                                                        <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?>
-                                                    </p>
-                                                <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
-
-                                                <?php } else { ?>
-                                                    <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
-                                                        <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                            <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
-                                                        <?php } ?>
-                                                    </p>
-                                                    <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                        <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
-                                                            Nomor Resi</a>
+                                                <div class="w-100 mb-2">
+                                                    <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
+                                                        <div class="w-100 d-flex">
+                                                            <div style="flex: 2;">
+                                                                <p class="mb-0"><?= $item['name']; ?></p>
+                                                            </div>
+                                                            <div style="flex: 1;" class="text-center">
+                                                                <p class="mb-0"><?= $item['quantity']; ?></p>
+                                                            </div>
+                                                            <div style="flex: 1;" class="text-end">
+                                                                <p class="mb-0">Rp <?= number_format($item['value'], 0, ",", "."); ?></p>
+                                                            </div>
+                                                        </div>
                                                     <?php } ?>
-                                                <?php } ?>
+                                                </div>
+                                                <div class="w-100 d-flex justify-content-between">
+                                                    <div class="w-100">
+                                                        <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                            <p class="mb-0">
+                                                                <b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b>
+                                                            </p>
+                                                            <p class="mb-0">
+                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?>
+                                                            </p>
+                                                            <p class="mb-0">
+                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?>
+                                                            </p>
+                                                            <p class="mb-0">
+                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?>
+                                                            </p>
+                                                        <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
+
+                                                        <?php } else { ?>
+                                                            <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
+                                                                <?php if ($item_transaksi['status'] != "Proses") { ?>
+                                                                    <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
+                                                                <?php } ?>
+                                                            </p>
+                                                            <?php if ($item_transaksi['status'] != "Proses") { ?>
+                                                                <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
+                                                                    Nomor Resi</a>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                    </div>
+                                                    <div class="w-100 d-flex flex-column align-items-end">
+                                                        <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

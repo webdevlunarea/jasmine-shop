@@ -4,6 +4,7 @@
     font-family: "Outfit", sans-serif;
     /* --merah: #db4444; */
     --merah: #df2e38;
+    --merahLogo: #b00404;
     --hijaumuda: #f2fbf4;
     --hijaumuda1: #ddf7e3;
     --hijaumuda2: #c7e8ca;
@@ -613,8 +614,13 @@ footer > .atas > div {
 
 @media (max-width: 600px) {
     p,
-    h1 {
+    h1,
+    input,
+    option {
         font-size: smaller;
+    }
+    .carousel.slide .carousel-indicators button {
+        display: none;
     }
     .baris-ke-kolom {
         flex-direction: column;
@@ -644,6 +650,10 @@ footer > .atas > div {
         gap: 0.6em;
     }
     .card-group1.no-scroll {
+        gap: 0.6em;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    }
+    .card-group1.no-scroll:not(:has(a:nth-child(4))) {
         gap: 0.6em;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
     }

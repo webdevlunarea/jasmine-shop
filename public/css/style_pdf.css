@@ -1,0 +1,51 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Times New Roman", Times, serif;
+    --merahLogo: #b00404;
+}
+.print {
+    padding: 1em;
+    width: 210mm;
+    /* background-color: aqua; */
+    /* border: 1px solid gray; */
+    font-family: "Times New Roman", Times, serif;
+    /* display: flex;
+    flex-direction: column; */
+}
+.print .table td,
+.print .table th {
+    line-height: 5px;
+}
+.print-lunas {
+    /* background-color: rgba(0, 0, 0, 0.1); */
+    position: absolute;
+    width: calc(210mm - 2em);
+    height: 130mm;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 20%;
+}
+.print-lunas p {
+    font-size: 4em;
+    text-align: center;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 900;
+    margin: 0;
+    initial-letter-align: center;
+    transform: rotate(-15deg);
+    padding: 0.5em 1em;
+    border: 10px solid var(--merahLogo);
+    color: var(--merahLogo);
+    border-radius: 0.5em;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+    .print {
+        display: block;
+    }
+}

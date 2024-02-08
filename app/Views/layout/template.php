@@ -15,7 +15,8 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
     <!-- icon google -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-lDi-03j_XL3PVN0_">
+    <!-- <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-9sUvUz3XTM_xqGOp"> -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd">
     </script>
 
     <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>

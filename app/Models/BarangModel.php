@@ -26,17 +26,17 @@ class BarangModel extends Model
     public function getBarang($id = false)
     {
         if ($id == false) {
-            return $this->orderBy('nama','asc')->findAll();
+            return $this->orderBy('nama', 'asc')->findAll();
         }
         return $this->where(['id' => $id])->first();
     }
     public function getBarangLimit()
     {
-        return $this->orderBy('nama','asc')->findAll(10, 0);
+        return $this->orderBy('nama', 'asc')->findAll(10, 0);
     }
     public function getBarangPage($page)
     {
         $hitungPag = floor($page / 20);
-        return $this->orderBy('nama','asc')->findAll(20, $hitungPag);
+        return $this->orderBy('nama', 'asc')->findAll(20, $hitungPag);
     }
 }

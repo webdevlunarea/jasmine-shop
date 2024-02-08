@@ -20,7 +20,7 @@
 
     <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style_gudang.css">
 </head>
 
 <body>

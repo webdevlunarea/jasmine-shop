@@ -29,7 +29,6 @@
                             <?php } else { ?>
                                 <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                             <?php } ?>
-                            <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
                         </div>
                     </a>
                 <?php } ?>

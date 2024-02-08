@@ -998,11 +998,12 @@ class Pages extends BaseController
             $total = $subtotal + $paket + 5000;
         }
 
-        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
         \Midtrans\Config::$isProduction = false;
+        $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $params = array(
             'transaction_details' => array(
-                'order_id' => rand(),
+                'order_id' => sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1),
                 'gross_amount' => $total,
             ),
             'customer_details' => array(
@@ -1151,7 +1152,7 @@ class Pages extends BaseController
     {
         $email = session()->get("email");
         $transaksi = session()->get("transaksi");
-        $auth = base64_encode("SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f" . ":");
+        $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
 
         $cekAdaEror = false;
         foreach ($transaksi as $t_ind => $t) {
@@ -1291,7 +1292,7 @@ class Pages extends BaseController
     {
         // $bodyJson = $this->request->getBody();
         // $body = json_decode($bodyJson, true);
-        \Midtrans\Config::$serverKey = "SB-Mid-server-PyBwfT6Pz13tcj4IBVtlwp9f";
+        \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
         \Midtrans\Config::$isProduction = false;
 
         $notif = new \Midtrans\Notification();
@@ -1423,6 +1424,34 @@ class Pages extends BaseController
             'page' => 1,
         ];
         return view('pages/all', $data);
+    }
+
+    public function invoice($id_mid)
+    {
+        $transaksi = $this->pemesananModel->getPemesanan($id_mid);
+        $arr = [
+            'id' => $transaksi['id'],
+            'nama_cus' => $transaksi['nama_cus'],
+            'email_cus' => $transaksi['email_cus'],
+            'hp_cus' => $transaksi['hp_cus'],
+            'nama_pen' => $transaksi['nama_pen'],
+            'hp_pen' => $transaksi['hp_pen'],
+            'alamat_pen' => json_decode($transaksi['alamat_pen'], true),
+            'resi' => $transaksi['resi'],
+            'id_midtrans' => $transaksi['id_midtrans'],
+            'items' => json_decode($transaksi['items'], true),
+            'status' => $transaksi['status'],
+            'kurir' => $transaksi['kurir'],
+            'data_mid' => json_decode($transaksi['data_mid'], true),
+        ];
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $data = [
+            'title' => 'Print Preview',
+            'transaksi' => $arr,
+            'transaksiJson' => json_encode($arr),
+            'bulan' => $bulan
+        ];
+        return view('pages/invoice', $data);
     }
 
     //============ ADMIN ==============//

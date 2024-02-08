@@ -114,7 +114,8 @@
                     </div>
                     <div class="form-alamat form-floating mb-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
                         <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
-                        <label for="floatingInput">Jalan, Nomor Rumah, RT/RW</label>
+                        <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
+                        <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
                     </div>
                     <div class="form-alamat <?= $user['alamat'] ? '' : 'd-none'; ?>">
                         <fieldset disabled>
@@ -130,8 +131,8 @@
                     </select>
                     <label for="floatingProvinsi">Area</label>
                 </div> -->
-                    <!-- <button class="btn btn-primary1" onclick="handleSubmit()">Simpan</button> -->
-                    <a onclick="handleSubmit()" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
+                    <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
+                    <a onclick="handleEditAlamat()" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
                 </div>
                 <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
@@ -235,7 +236,7 @@
     const nama = "<?= session()->get('nama') ?>";
     const nohp = "<?= session()->get('nohp') ?>";
     const alamat = JSON.parse(<?= json_encode($alamatJson); ?>);
-    const beratTotal = Number("<?= $beratAkhir; ?>"); // cuma sementara
+    const beratTotal = Number("<?= $beratAkhir; ?>");
     const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
     let hasilApiKurir = [];
     let hasilApiKurirRO = JSON.parse(<?= json_encode($paketJson); ?>);
@@ -265,67 +266,66 @@
 
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-    btnCheckoutElm.addEventListener("click", () => {
-        if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
-            btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
+    if (btnCheckoutElm) {
+        btnCheckoutElm.addEventListener("click", () => {
+            if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
+                btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
 
-            btnCheckoutElm.innerHTML = "Loading"
-            const data = {
-                nama: nama,
-                alamat: alamat.alamat,
-                email: email,
-                nohp: nohp,
-                paket: btoa((formCheckoutPaket.value).split("-")[0])
-                // paket: 120000
-            }
-            const dataPen = {
-                nama: inputNamaElm.value,
-                nohp: inputNohpElm.value,
-            }
-
-            async function getTokenMditrans() {
-                var formBody = [];
-                for (var property in data) {
-                    var encodedKey = encodeURIComponent(property);
-                    var encodedValue = encodeURIComponent(data[property]);
-                    formBody.push(encodedKey + "=" + encodedValue);
+                btnCheckoutElm.innerHTML = "Loading"
+                const data = {
+                    nama: nama,
+                    alamat: alamat.alamat,
+                    email: email,
+                    nohp: nohp,
+                    paket: btoa((formCheckoutPaket.value).split("-")[0])
                 }
-                formBody = formBody.join("&");
-
-                const response = await fetch("actioncheckout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                });
-                const snaptoken = await response.json();
-                console.log(snaptoken);
-                btnCheckoutElm.innerHTML = "Pesan"
-                window.snap.pay(snaptoken.snapToken, {
-                    onSuccess: function(result) {
-                        alert("payment success!");
-                        addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
-                    },
-                    onPending: function(result) {
-                        alert("wating your payment!");
-                        addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
-                    },
-                    onError: function(result) {
-                        alert("payment failed!");
-                    },
-                    onClose: function() {
-                        alert('you closed the popup without finishing the payment');
+                const dataPen = {
+                    nama: inputNamaElm.value,
+                    nohp: inputNohpElm.value,
+                }
+                console.log(data, dataPen)
+                async function getTokenMditrans() {
+                    var formBody = [];
+                    for (var property in data) {
+                        var encodedKey = encodeURIComponent(property);
+                        var encodedValue = encodeURIComponent(data[property]);
+                        formBody.push(encodedKey + "=" + encodedValue);
                     }
-                });
-            }
-            getTokenMditrans()
-        } else {
-            if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
-        }
-    })
+                    formBody = formBody.join("&");
 
-    function handleSubmit() {
+                    const response = await fetch("actioncheckout", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    });
+                    const snaptoken = await response.json();
+                    console.log(snaptoken);
+                    btnCheckoutElm.innerHTML = "Pesan"
+                    window.snap.pay(snaptoken.snapToken, {
+                        onSuccess: function(result) {
+                            // alert("payment success!");
+                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
+                        },
+                        onPending: function(result) {
+                            // alert("wating your payment!");
+                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
+                        },
+                        onError: function(result) {
+                            alert("Pembayaran Gagal");
+                        },
+                        onClose: function() {}
+                    });
+                }
+                getTokenMditrans()
+            } else {
+                if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
+            }
+        })
+    }
+
+    function handleEditAlamat() {
         if (isEditAlamat) {
             inputNamaElm.classList.remove("is-invalid")
             inputNohpElm.classList.remove("is-invalid")
@@ -341,6 +341,7 @@
             if (Number(kecElm.value) < 0) return kecElm.classList.add("is-invalid")
             if (Number(kodeElm.value) < 0) return kodeElm.classList.add("is-invalid")
             if (inputAlamatAddElm.value == '') return inputAlamatAddElm.classList.add("is-invalid");
+            if (inputAlamatAddElm.value.includes("/")) return inputAlamatAddElm.classList.add("is-invalid");
             window.location.href = `updatealamat/${provElm.value}&${kotaElm.value}&${kecElm.value}&${kodeElm.value}&${inputAlamatAddElm.value}&${inputAlamatElm.value}&${email}`
         } else {
             formAlamatElm.forEach((form, ind) => {
@@ -541,38 +542,6 @@
         generateAlamat(e.target.value, 1);
     })
 
-    // function pilihKurir() {
-    //     if (hasilApiKurir.length > 0) {
-    //         const hasilApi = hasilApiKurir
-    //         // console.log(hasilApi);
-    //         let cekTabs = []
-    //         tabsElm.innerHTML = "";
-    //         hasilApi.forEach((element, ind) => {
-    //             const liElm = document.createElement("li");
-    //             liElm.classList.add("nav-item");
-    //             const aElm = document.createElement("a")
-    //             aElm.classList.add("nav-link");
-    //             aElm.classList.add("text-dark");
-    //             if (ind == 0) {
-    //                 aElm.classList.add("active");
-    //                 tampilkanPilihanKurir(element.service_type, hasilApi);
-    //             }
-    //             aElm.innerHTML = element.service_type;
-    //             liElm.appendChild(aElm);
-    //             if (!cekTabs.includes(element.service_type)) {
-    //                 tabsElm.appendChild(liElm);
-    //                 cekTabs.push(element.service_type);
-    //                 liElm.addEventListener("click", (e) => {
-    //                     removeActiveTabs();
-    //                     e.target.classList.add("active")
-    //                     tampilkanPilihanKurir(element.service_type, hasilApi)
-    //                 })
-    //             }
-    //         })
-    //         containerPilihKurir.style.display = "flex";
-    //     }
-    // }
-
     function pilihKurirRO() {
         if (hasilApiKurirRO.length > 0) {
             const hasilApi = hasilApiKurirRO
@@ -601,7 +570,7 @@
     }
 
     function removeActiveTabs() {
-        const seluruhTabsElm = document.querySelectorAll('a[class="nav-link"]');
+        const seluruhTabsElm = document.querySelectorAll('a.nav-link');
         console.log(seluruhTabsElm);
         seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
     }
@@ -655,64 +624,5 @@
             })
         })
     }
-
-    // function tampilkanPilihanKurir(serviceType, hasilApi) {
-    //     const filterHasilApi = hasilApi.filter((elm) => {
-    //         if (elm.service_type == serviceType) return true;
-    //         else return false;
-    //     }).map((e) => {
-    //         return e
-    //     });
-    //     console.log(filterHasilApi);
-    //     pilihKurirElm.innerHTML = ""
-    //     filterHasilApi.forEach((elm) => {
-    //         const tmbPilihElm = document.createElement("div");
-    //         tmbPilihElm.classList.add("tombol-pilih-kurir");
-    //         const tmbPilihElmChild = document.createElement("div")
-    //         tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
-    //         const parentImgElm = document.createElement("div");
-    //         parentImgElm.classList.add("parent-img");
-    //         const keteranganElm = document.createElement("p");
-    //         keteranganElm.classList.add("mb-0");
-    //         keteranganElm.innerHTML =
-    //             `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    //         const imgElm = document.createElement("img");
-    //         imgElm.src = `img/kurir/${elm.courier_code}.png`;
-    //         parentImgElm.appendChild(imgElm)
-    //         tmbPilihElmChild.appendChild(parentImgElm)
-    //         tmbPilihElmChild.appendChild(keteranganElm)
-    //         tmbPilihElm.appendChild(tmbPilihElmChild);
-    //         pilihKurirElm.appendChild(tmbPilihElm);
-    //         tmbPilihElm.addEventListener("click", () => {
-    //             //     <div class="d-flex align-items-center gap-3">
-    //             //         <img src="img/kurir/jnt.png" />
-    //             //         <p class="mb-0">J&T Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
-    //             //     </div>
-    //             //     <span><i class="material-icons">chevron_right</i></span>
-    //             btnPilihKurirElm.innerHTML = "";
-    //             const divElmPK = document.createElement("div");
-    //             divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
-    //             const imgElmPK = document.createElement("img")
-    //             imgElmPK.src = `img/kurir/${elm.courier_code}.png`;
-    //             const keteranganElmPK = document.createElement("p");
-    //             keteranganElmPK.classList.add("mb-0");
-    //             keteranganElmPK.innerHTML =
-    //                 `${elm.courier_name} ${elm.description}<br>Estimasi Pengiriman ${elm.duration}<br>Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    //             const iconElmPK = document.createElement("span");
-    //             iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
-    //             divElmPK.appendChild(imgElmPK)
-    //             divElmPK.appendChild(keteranganElmPK)
-    //             btnPilihKurirElm.appendChild(divElmPK)
-    //             btnPilihKurirElm.appendChild(iconElmPK);
-
-    //             costElm.innerHTML = `Rp ${elm.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-    //             totalElm.innerHTML =
-    //                 `Rp ${(5000 + Number(elm.price) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-    //             inputPaketElm.value = Number(elm.price);
-
-    //             containerPilihKurir.style.display = "none";
-    //         })
-    //     })
-    // }
 </script>
 <?= $this->endSection(); ?>
