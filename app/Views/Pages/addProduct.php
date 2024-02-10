@@ -28,7 +28,7 @@
                                 <td>
                                     <div class="baris">
                                         <div class="input-group">
-                                            <input type="number" class="form-control" name="diskon" required>
+                                            <input type="number" class="form-control" name="diskon" step="any" required>
                                             <span class="input-group-text">%</span>
                                         </div>
                                     </div>

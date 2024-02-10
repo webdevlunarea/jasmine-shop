@@ -26,7 +26,7 @@
                                 <td>
                                     <div class="baris">
                                         <div class="input-group mb-3">
-                                            <input type="number" class="form-control" value="<?= $produk['diskon']; ?>" name="diskon" required>
+                                            <input type="number" class="form-control" value="<?= $produk['diskon']; ?>" name="diskon" step="any" required>
                                             <span class="input-group-text">%</span>
                                         </div>
                                     </div>

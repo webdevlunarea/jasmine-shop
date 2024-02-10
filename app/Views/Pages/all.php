@@ -90,7 +90,7 @@
             <?php foreach ($produk as $p) { ?>
                 <a class="card1" href="/product/<?= $p['id']; ?>">
                     <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                        <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">

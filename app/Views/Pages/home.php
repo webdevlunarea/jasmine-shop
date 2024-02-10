@@ -10,13 +10,13 @@
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
-                    <img src="img/promo1.jpg" class="d-block w-100" alt="...">
+                    <img src="img/banner1.webp" class="d-block w-100" alt="...">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/promo2.jpg" class="d-block w-100" alt="...">
+                    <img src="img/banner2.webp" class="d-block w-100" alt="...">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/promo3.webp" class="d-block w-100" alt="...">
+                    <img src="img/banner3.webp" class="d-block w-100" alt="...">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -89,10 +89,10 @@
         <h5 class="jdl-section">Hari ini</h5>
         <h1 class="mb-1">Produk Baru</h1>
         <div class="card-group1 no-scroll">
-            <?php foreach ($produk as $p) { ?>
+            <?php foreach ($produkBaru as $p) { ?>
                 <a class="card1" href="/product/<?= $p['id']; ?>">
                     <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                        <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
                     <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
@@ -119,7 +119,7 @@
             <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">View All Products</a>
         </div>
     </div>
-    <div class="container my-3">
+    <!-- <div class="container my-3">
         <h5 class="jdl-section">Bulan Ini</h5>
         <div class="d-flex justify-content-between mb-3">
             <h1 class="mb-0">Produk Terbaik</h1>
@@ -223,181 +223,6 @@
                 </div>
             </a>
         </div>
-        <!-- <div class="card-group1 dua-row">
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-            <div class="card1">
-                <img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </div>
-        </div> -->
-    </div>
-    <!-- <div class="container my-3">
-        <h5 class="jdl-section">Terbaru</h5>
-        <h1>Kedatangan Baru</h1>
-        <div class="row">
-            <div class="col">
-                <div class="container-text-bwh-kiri" style="background-color: black; background-image: url('img/ps5 hitam.jpg'); background-size: cover ; background-repeat: no-repeat; height: 100%;">
-                    <h3>PlayStation 5</h3>
-                    <p>PS5 versi black and white<br>sudah tersedia</p>
-                    <a href="" style="color: white;">Shop Nom</a>
-                </div>
-            </div>
-            <div class="col">
-                <div class="row pb-1">
-                    <div class="container-text-bwh-kiri" style="background-color: black; height: 200px">
-                        <h3>PlayStation 5</h3>
-                        <p>PS5 versi black and white<br>sudah tersedia</p>
-                        <a href="" style="color: white;">Shop Nom</a>
-                    </div>
-                </div>
-                <div class="row pt-2">
-                    <div class="col px-0 pe-1">
-                        <div class="container-text-bwh-kiri" style="background-color: black; height: 200px; width: 100%;">
-                            <h3>PlayStation 5</h3>
-                            <p>PS5 versi black</p>
-                            <a href="" style="color: white;">Shop Nom</a>
-                        </div>
-                    </div>
-                    <div class="col px-0 ps-2">
-                        <div class="container-text-bwh-kiri" style="background-color: black; height: 200px; width: 100%;">
-                            <h3>PlayStation 5</h3>
-                            <p>PS5 versi black</p>
-                            <a href="" style="color: white;">Shop Nom</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div> -->
-    <!-- <div class="container">
-        <div class="row text-center">
-            <div class="col">
-                <div class="bundar mx-auto mb-3"><i class="material-icons">local_shipping</i></div>
-                <h5>ANTAR GRATIS DAN CEPAT</h5>
-                <p>Gratis pengantaran untuk semua orderan yang lebih dari Rp 50.000</p>
-            </div>
-            <div class="col">
-                <div class="bundar mx-auto mb-3"><i class="material-icons">headset_mic</i></div>
-                <h5>24/7 CUSTOMER SERVICE</h5>
-                <p>Friendly 24/7 layanan pelanggan</p>
-            </div>
-            <div class="col">
-                <div class="bundar mx-auto mb-3"><i class="material-icons">monetization_on</i></div>
-                <h5>GARANSI UANG KEMBALI</h5>
-                <p>Garansi yang kami berikan selama 30 hari</p>
-            </div>
-        </div>
-    </div> -->
-    <!-- <span class="garis my-3 container"></span>
-    <div class="container baris-ke-kolom">
-        <div class="limapuluh-ke-seratus">
-            <h3>Metode Pembayaran</h3>
-            <img class="logo-pembayaran" src="/img/logo/bca.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/bni.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/bri.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/mandiri.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/permata.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/cbbank.webp" alt="">
-        </div>
-        <div class="limapuluh-ke-seratus">
-            <h3>Metode Pengiriman</h3>
-            <img class="logo-pembayaran" src="/img/logo/jnt.webp" alt="">
-            <img class="logo-pembayaran" src="/img/logo/jne.webp" alt="">
-        </div>
-    </div>
-    <span class="garis container my-3"></span> -->
 </div>
 <?= $this->endSection(); ?>

@@ -28,9 +28,11 @@ class Pages extends BaseController
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
+        $produkBaru = $this->barangModel->getBarangBaru();
         $data = [
             'title' => 'Beranda',
             'produk' => $produk,
+            'produkBaru' => $produkBaru,
         ];
         return view('pages/home', $data);
     }
@@ -610,7 +612,7 @@ class Pages extends BaseController
                 array_push($jumlah, $element['jumlah']);
 
                 $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = $persen * $produknya['harga'];
+                $hasil = floor($persen * $produknya['harga']);
                 $subtotal += $hasil * $element['jumlah'];
                 $dimensi = explode("X", $produknya['dimensi']);
                 array_push($dimensiSemua, $produknya['dimensi']);
@@ -956,7 +958,7 @@ class Pages extends BaseController
         $nohp = $this->request->getVar('nohp');
         $email = $this->request->getVar('email');
         $paketData = $this->request->getVar('paket');
-        $paket = base64_decode($paketData);
+        $paket = (int)base64_decode($paketData);
 
         $getPembeli = $this->pembeliModel->getPembeli($email);
         $keranjang = json_decode($getPembeli['keranjang'], true);
@@ -971,7 +973,7 @@ class Pages extends BaseController
                 array_push($produk, $produknya);
                 array_push($jumlah, $element['jumlah']);
                 $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = $persen * $produknya['harga'];
+                $hasil = floor($persen * $produknya['harga']);
                 $subtotal += $hasil * $element['jumlah'];
                 $item = array(
                     'id' => $produknya["id"],

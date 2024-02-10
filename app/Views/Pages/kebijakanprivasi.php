@@ -9,22 +9,23 @@
             </ol>
         </nav>
         <h3>Kebijakan Privasi</h3>
-        <p>Seluruh informasi pribadi yang Anda berikan kepada melodyfurniture.co.id hanya akan digunakan dan dilindungi
+        <p>Seluruh informasi pribadi yang Anda berikan kepada <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> hanya akan digunakan dan dilindungi
             oleh
-            melodyfurniture.co.id. Setiap informasi yang Anda berikan terbatas untuk tujuan proses yang berkaitan dengan
-            melodyfurniture.co.id dan tanpa tujuan lainnya. Kami dapat mengubah Kebijakan Privasi ini dari waktu ke
+            <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>. Setiap informasi yang Anda berikan terbatas untuk tujuan proses yang berkaitan dengan
+            <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> dan tanpa tujuan lainnya. Kami dapat mengubah Kebijakan Privasi ini dari waktu ke
             waktu
             dengan melakukan pengurangan ataupun penambahan ketentuan pada halaman ini. Perubahan terhadap kebijakan ini
-            akan diumumkan melalui situs melodyfurniture.co.id atau melalui alamat dari media lain yang Anda berikan
+            akan diumumkan melalui situs <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> atau melalui alamat dari media lain yang Anda berikan
             kepada
             kami. Anda dianjurkan untuk membaca Kebijakan Privasi ini secara berkala agar mengetahui perubahan-perubahan
-            terbaru.</p>
+            terbaru.
+        </p>
         <p><b>Pendaftaran</b><br>Semua orang dapat mengakses dan melihat materi di situs kami, namun Anda dibutuhkan
             untuk
             melakukan pendaftaran untuk dapat mengakses informasi dan layanan pada situs ini secara penuh. Fitur seperti
-            pesanan barang hanya dapat dilakukan apabila Anda sudah menjadi anggota (member) melodyfurniture.co.id.
+            pesanan barang hanya dapat dilakukan apabila Anda sudah menjadi anggota (member) <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>.
             Untuk
-            mendaftar pada situs melodyfurniture.co.id, kami memerlukan informasi seperti berikut:</p>
+            mendaftar pada situs <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>, kami memerlukan informasi seperti berikut:</p>
         <ul>
             <li>Nama Lengkap</li>
             <li>Email</li>
@@ -63,9 +64,9 @@
             pihak ketiga atau rekanan kami. Jika informasi ini akan dibagi bersama pihak ketiga, kami akan
             memberitahukan
             kepada Anda pada saat pengumpulan data.</p>
-        <p><b>Berlangganan Email di melodyfurniture.co.id</b><br>Anda akan mendapatkan pilihan untuk ingin menerima
+        <p><b>Berlangganan Email di <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a></b><br>Anda akan mendapatkan pilihan untuk ingin menerima
             email
-            promosi melodyfurniture.co.id Jika Anda memilih untuk berlangganan maka melodyfurniture.co.id akan
+            promosi <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> Jika Anda memilih untuk berlangganan maka <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> akan
             mengirimkan
             e-mail secara berkala kepada Anda yang berisikan informasi tentang produk terbaru dan program promosi apa
             yang

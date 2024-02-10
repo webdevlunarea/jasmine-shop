@@ -616,7 +616,7 @@
                 costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
                 totalElm.innerHTML =
                     `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                const timeSkrg = "<?= time(); ?>";
+                console.log(costnya.value, subtotal)
                 // inputPaketElm.value = btoa(`${costnya.value}`);
                 inputPaketElm.value = `${costnya.value}-${kurir}`;
                 containerPilihKurir.style.display = "none";

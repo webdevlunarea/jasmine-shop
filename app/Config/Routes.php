@@ -32,9 +32,7 @@ $routes->get('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filte
 $routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
-
 $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
-
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
@@ -72,3 +70,13 @@ $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harus
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
+
+$routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/kategori/(:any)/(:any)', 'ApiCompany::kategori/$1/$2', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/subkategori/(:any)/(:any)', 'ApiCompany::subkategori/$1/$2', ['filter' => 'corsFilter']);
+$routes->post('/apicomp/cari', 'ApiCompany::cari', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);

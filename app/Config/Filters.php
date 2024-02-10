@@ -28,6 +28,7 @@ class Filters extends BaseConfig
         'harusUser'    => \App\Filters\UserFilter::class,
         'harusLogin'    => \App\Filters\LoginFilter::class,
         'harusLogout'    => \App\Filters\LogoutFilter::class,
+        'corsFilter'    => \App\Filters\CorsFilter::class,
     ];
 
     /**
