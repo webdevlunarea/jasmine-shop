@@ -183,7 +183,7 @@
         <div class="w-100 d-flex py-2">
             <div class="w-100">
                 <p class="mb-0 text-black-50">Kurir :</p>
-                <p class="mb-0 fw-bold"><?= strtoupper($transaksi['kurir']); ?></p>
+                <p class="mb-0 fw-bold"><?= $transaksi['kurir']; ?></p>
             </div>
             <div class="w-100">
                 <p class="mb-0 text-black-50">Metode Pembayaran</p>

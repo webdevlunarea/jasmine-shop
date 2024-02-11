@@ -1005,7 +1005,8 @@ class Pages extends BaseController
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $params = array(
             'transaction_details' => array(
-                'order_id' => sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1),
+                // 'order_id' => sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1),
+                'order_id' => rand(),
                 'gross_amount' => $total,
             ),
             'customer_details' => array(
@@ -1454,6 +1455,45 @@ class Pages extends BaseController
             'bulan' => $bulan
         ];
         return view('pages/invoice', $data);
+    }
+    public function qris($string)
+    {
+        $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+        $order_id = explode("-", $string)[0];
+        $amount = (int)explode("-", $string)[1];
+        $body = [
+            "payment_type" => "qris",
+            "transaction_details" => [
+                "order_id" => $order_id,
+                "gross_amount" => $amount,
+            ],
+        ];
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.midtrans.com/v2/charge",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HTTPHEADER => array(
+                "authorization: Basic " . $auth,
+                "content-type: application/json",
+                "Accept: application/json"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $qris = json_decode($response, true);
+        dd($qris);
     }
 
     //============ ADMIN ==============//

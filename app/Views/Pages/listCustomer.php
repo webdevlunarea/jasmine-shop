@@ -73,7 +73,7 @@
                             <p class="mb-0 fw-bold"><?= $t['id_midtrans']; ?></p>
                         </div>
                         <div style="flex: 3;">
-                            <p class="mb-0 fw-bold"><?= $t['data_mid']['transaction_time']; ?></p>
+                            <p class="mb-0 fw-bold"><?= date("d/m/Y H:i:s", strtotime($t['data_mid']['transaction_time'])); ?></p>
                         </div>
                         <div style="gap: 3px; width: 100px;">
                             <a class="btn btn-success d-flex <?php switch ($t['status']) {
@@ -87,7 +87,8 @@
                                                                         echo "disabled";
                                                                         break;
                                                                 } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
-                            <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
+                            <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
+                            <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
                         </div>
                     </div>
                     <div class="list-customer-detail baris-ke-kolom justify-content-between align-items-start mt-2 d-none">
@@ -130,23 +131,51 @@
                                 </div>
                             </div>
                             <?php if ($t['status'] == "Menunggu Pembayaran") { ?>
+                                <p class="mb-0 fw-bold">Metode Pembayaran</p>
                                 <p class="mb-0">
-                                    <b><?= ucfirst(str_replace('_', ' ', $t['data_mid']['payment_type'])); ?></b>
-                                </p>
-                                <p class="mb-0">
-                                    <?= $t['data_mid']['payment_type'] == "bank_transfer" ? strtoupper($t['data_mid']['va_numbers'][0]['bank']) . " " . $t['data_mid']['va_numbers'][0]['va_number'] : "" ?>
-                                </p>
-                                <p class="mb-0">
-                                    <?= $t['data_mid']['payment_type'] == "echannel" ? "Biller Code: " . $t['data_mid']['biller_code'] . "<br>Bill Key: " . $t['data_mid']['bill_key'] : "" ?>
-                                </p>
+                                    <?php
+                                    switch ($t['data_mid']['payment_type']) {
+                                        case 'credit_card':
+                                            echo "Credit Card<br>" . strtoupper($t['data_mid']['bank']) . " " . ucfirst($t['data_mid']['card_type']);
+                                            break;
+                                        case 'echannel':
+                                            switch ($t['data_mid']['biller_code']) {
+                                                case '70012':
+                                                    echo "Mandiri Bill<br>" . "Biller Code: " . $t['data_mid']['biller_code'] . "<br>Bill Key: " . $t['data_mid']['bill_key'];
+                                                    break;
+                                                default:
+                                                    echo "EChannel<br>" . "Biller Code: " . $t['data_mid']['biller_code'] . "<br>Bill Key: " . $t['data_mid']['bill_key'];
+                                                    break;
+                                            }
+                                            break;
+                                        case 'bank_transfer':
+                                            if (isset($t['data_mid']['va_numbers']))
+                                                echo strtoupper($t['data_mid']['va_numbers'][0]['bank']) . " " . $t['data_mid']['va_numbers'][0]['va_number'];
+                                            else if (isset($t['data_mid']['permata_va_number']))
+                                                echo "Bank Permata VA<br>" . $t['data_mid']['permata_va_number'];
+                                            else if (isset($t['data_mid']['bca_va_number']))
+                                                echo "BCA VA<br>" . $t['data_mid']['bca_va_number'];
+                                            break;
+                                        case 'gopay':
+                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            break;
+                                        case 'qris':
+                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            break;
+                                        default:
+                                            echo $t['data_mid']['payment_type'];
+                                            break;
+                                    }
+                                    ?></p>
                             <?php } ?>
-                            <p class="fw-bold mb-0 resi">Nomor resi : <?= $t['resi']; ?> (<?= strtoupper($t['kurir']); ?>)
+                            <p class="fw-bold mb-0 resi">Nomor resi : <?= $t['resi']; ?> (<?= $t['kurir']; ?>)
                             </p>
                         </div>
                         <div class="w-100 d-flex flex-column align-items-start pd-2" style="max-width: 400px;">
-                            <p class="fw-bold mb-0">Alamat dan Nomor Hp Customer</p>
+                            <p class="fw-bold mb-0">Informasi Penerima</p>
+                            <p class="mb-0"><?= $t['nama_pen']; ?></p>
                             <p class="mb-0"><?= $t['alamat_pen']['alamat']; ?></p>
-                            <p class="mb-0"><?= $t['hp_cus']; ?></p>
+                            <p class="mb-0"><?= $t['hp_pen']; ?></p>
                         </div>
                     </div>
                 </div>
@@ -161,10 +190,9 @@
     const resiInputElm = document.querySelector('input[name="resi"]')
     const arrBadgeElm = document.querySelectorAll(".badge");
     const arrResiElm = document.querySelectorAll(".resi");
-    const transaksiJson = JSON.parse('<?= $transaksiJson; ?>')
+    const transaksiJson = JSON.parse(<?= json_encode($transaksiJson); ?>)
     const listCustomerDetailElm = document.querySelectorAll(".list-customer-detail");
     console.log(transaksiJson)
-    console.log(pInfoBayar)
     var idMidSelected;
     var indexItemSelected;
 

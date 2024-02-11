@@ -277,7 +277,7 @@
                     alamat: alamat.alamat,
                     email: email,
                     nohp: nohp,
-                    paket: btoa((formCheckoutPaket.value).split("-")[0])
+                    paket: btoa((formCheckoutPaket.value).split("@")[0])
                 }
                 const dataPen = {
                     nama: inputNamaElm.value,
@@ -306,16 +306,18 @@
                     window.snap.pay(snaptoken.snapToken, {
                         onSuccess: function(result) {
                             // alert("payment success!");
-                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
+                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("@")[1]);
                         },
                         onPending: function(result) {
                             // alert("wating your payment!");
-                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("-")[1]);
+                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("@")[1]);
                         },
                         onError: function(result) {
                             alert("Pembayaran Gagal");
                         },
-                        onClose: function() {}
+                        onClose: function(result) {
+                            console.log(result)
+                        }
                     });
                 }
                 getTokenMditrans()
@@ -394,7 +396,7 @@
             namaPen: dataPen.nama,
             hpPen: dataPen.nohp,
             alamatPen: alamat,
-            resi: "Menunggu pengiriman",
+            resi: "Menunggu pengiriman " + kurir,
             idMid: dataMid.order_id,
             items: produk,
             status: status,
@@ -618,7 +620,7 @@
                     `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
                 console.log(costnya.value, subtotal)
                 // inputPaketElm.value = btoa(`${costnya.value}`);
-                inputPaketElm.value = `${costnya.value}-${kurir}`;
+                inputPaketElm.value = `${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`;
                 containerPilihKurir.style.display = "none";
                 btnCheckoutElm.classList.remove("disabled")
             })

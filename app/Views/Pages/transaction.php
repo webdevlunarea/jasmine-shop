@@ -63,12 +63,16 @@
                                                     </div>
                                                     <div class="d-flex flex-column justify-content-end">
                                                         <p class="mb-0 text-secondary" style="font-size: 12px;">
-                                                            <?= json_decode($item_transaksi['data_mid'], true)['transaction_time']; ?></p>
+                                                            <?= date("d/m/Y H:i:s", strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time'])); ?></p>
                                                         <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
                                                             <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
-                                                                                                                                    $d = strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time']);
-                                                                                                                                    $enddate = strtotime("+1 hour", $d);
-                                                                                                                                    echo date("Y-m-d H:i:s", $enddate);
+                                                                                                                                    $dataMid = json_decode($item_transaksi['data_mid'], true);
+                                                                                                                                    $d = strtotime($dataMid['transaction_time']);
+                                                                                                                                    if ($dataMid['payment_type'] == 'gopay' || $dataMid['payment_type'] == 'qris')
+                                                                                                                                        $enddate = strtotime("+15 minutes", $d);
+                                                                                                                                    else
+                                                                                                                                        $enddate = strtotime("+1 hour", $d);
+                                                                                                                                    echo date("d/m/Y H:i:s", $enddate);
                                                                                                                                     ?>
                                                             </p>
                                                         <?php } ?>
@@ -78,6 +82,10 @@
                                         </h2>
                                         <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
+                                                <p class="fw-bold mb-0">Informasi Penerima</p>
+                                                <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
+                                                <p class="mb-0"><?= json_decode($item_transaksi['alamat_pen'], true)['alamat']; ?></p>
+                                                <p><?= $item_transaksi['hp_pen']; ?></p>
                                                 <p class="mb-0"><b>Items</b></p>
                                                 <div class="w-100 mb-2">
                                                     <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
@@ -97,18 +105,42 @@
                                                 <div class="w-100 d-flex justify-content-between">
                                                     <div class="w-100">
                                                         <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                            <p class="mb-0 fw-bold">Metode Pembayaran</p>
                                                             <p class="mb-0">
-                                                                <b><?= ucfirst(str_replace('_', ' ', json_decode($item_transaksi['data_mid'], true)['payment_type'])); ?></b>
-                                                            </p>
-                                                            <p class="mb-0">
-                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "bank_transfer" ? strtoupper(json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['bank']) . " " . json_decode($item_transaksi['data_mid'], true)['va_numbers'][0]['va_number'] : "" ?>
-                                                            </p>
-                                                            <p class="mb-0">
-                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "echannel" ? "Biller Code: " . json_decode($item_transaksi['data_mid'], true)['biller_code'] . "<br>Bill Key: " . json_decode($item_transaksi['data_mid'], true)['bill_key'] : "" ?>
-                                                            </p>
-                                                            <p class="mb-0">
-                                                                <?= json_decode($item_transaksi['data_mid'], true)['payment_type'] == "cstore" ? "Kode Bayar: " . json_decode($item_transaksi['data_mid'], true)['payment_code'] : "" ?>
-                                                            </p>
+                                                                <?php
+                                                                switch ($dataMid['payment_type']) {
+                                                                    case 'credit_card':
+                                                                        echo "Credit Card<br>" . strtoupper($dataMid['bank']) . " " . ucfirst($dataMid['card_type']);
+                                                                        break;
+                                                                    case 'echannel':
+                                                                        switch ($dataMid['biller_code']) {
+                                                                            case '70012':
+                                                                                echo "Mandiri Bill<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
+                                                                                break;
+                                                                            default:
+                                                                                echo "EChannel<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
+                                                                                break;
+                                                                        }
+                                                                        break;
+                                                                    case 'bank_transfer':
+                                                                        if (isset($dataMid['va_numbers']))
+                                                                            echo strtoupper($dataMid['va_numbers'][0]['bank']) . " " . $dataMid['va_numbers'][0]['va_number'];
+                                                                        else if (isset($dataMid['permata_va_number']))
+                                                                            echo "Bank Permata VA<br>" . $dataMid['permata_va_number'];
+                                                                        else if (isset($dataMid['bca_va_number']))
+                                                                            echo "BCA VA<br>" . $dataMid['bca_va_number'];
+                                                                        break;
+                                                                    case 'gopay':
+                                                                        echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                        break;
+                                                                    case 'qris':
+                                                                        echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                        break;
+                                                                    default:
+                                                                        echo $dataMid['payment_type'];
+                                                                        break;
+                                                                }
+                                                                ?></p>
                                                         <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
 
                                                         <?php } else { ?>

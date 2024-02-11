@@ -705,6 +705,9 @@ footer > .atas > div {
     .img-produk .img-produk-prev {
         width: 100%;
     }
+    .badge {
+        font-size: small;
+    }
 }
 @media (max-width: 450px) {
     .card-group1.no-scroll .card1 {
