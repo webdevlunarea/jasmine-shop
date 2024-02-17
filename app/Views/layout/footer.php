@@ -68,15 +68,15 @@
                     </li>
                     <li><a href="/kebijakan-privasi">Kebijakan Privasi</a></li>
                     <li><a href="/syarat-dan-ketentuan">Syarat dan Ketentuan</a></li>
+                    <li><a href="/faq">FAQ</a></li>
                 </ul>
             </div>
             <div class="col-4 col-md-2 mb-3">
-                <div class="fw-700 fs-3 mb-2"><strong>Kategori</strong></div>
+                <div class="fw-700 fs-3 mb-2"><strong>Ikuti Kami</strong></div>
                 <ul class="footer__left-menu">
-                    <li><a href="/all/lemari">Lemari</a></li>
-                    <li><a href="/all/meja">Meja</a></li>
-                    <li><a href="/all/rak">Rak</a></li>
-                    <li><a href="/all/kursi">Kursi</a></li>
+                    <li><a href="https://www.instagram.com/jasminefurniture.official/?igsh=MTZyZ25mMXp5MHJlMw%3D%3D">Instagram</a></li>
+                    <li><a href="https://www.tiktok.com/@jasminefurnitureofficial?_t=8joAv1G8zwY&_r=1">Tiktok</a></li>
+                    <li><a href="https://www.youtube.com/@JasmineFurnitureOfficial">Youtube</a></li>
                 </ul>
             </div>
 
@@ -125,7 +125,7 @@
                             kami juga tersedia di
                         </p>
                         <div>
-                            <a href="#" title="Shopee" target="blank" style=""><img src="/img/logo/shopee.png" class="marketplace">
+                            <a href="#" title="Shopee" target="blank"><img src="/img/logo/shopee.png" class="marketplace">
                             </a>
                             <a href="#" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.png" class="marketplace">
                             </a>

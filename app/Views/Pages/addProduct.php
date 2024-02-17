@@ -82,6 +82,24 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Link Shopee</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="shopee" required></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Link Tokopedia</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="tokped" required></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Link Tiktok Shop</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="tiktok" required></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Deskripsi</td>
                                 <td>
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div>

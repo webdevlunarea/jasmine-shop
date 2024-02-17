@@ -105,13 +105,13 @@ class ApiCompany extends BaseController
         ];
         return $this->response->setJSON($arr, false);
     }
-    public function cari()
+    public function cari($page, $cari)
     {
-        $bodyJson = $this->request->getBody();
-        $body = json_decode($bodyJson, true);
-        $hitungPag = floor($body['page'] / 20);
-        $produk = $this->barangModel->like("nama", $body['cari'], "both")->orderBy('nama', 'asc')->findAll(20, $hitungPag);
-        $produkAll = $this->barangModel->like("nama", $body['cari'], "both")->orderBy('nama', 'asc')->findAll();
+        // $bodyJson = $this->request->getBody();
+        // $body = json_decode($bodyJson, true);
+        $hitungPag = floor($page / 20);
+        $produk = $this->barangModel->like("nama", $cari, "both")->orderBy('nama', 'asc')->findAll(20, $hitungPag);
+        $produkAll = $this->barangModel->like("nama", $cari, "both")->orderBy('nama', 'asc')->findAll();
         $formatting = array_map("self::formatting", $produk);
         $arr = [
             'pesan' => 'Ok',

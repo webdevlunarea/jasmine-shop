@@ -77,6 +77,24 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Link Shopee</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['shopee']; ?>" name="shopee" required></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Link Tokopedia</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['tokped']; ?>" name="tokped" required></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Link Tiktok Shop</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['tiktok']; ?>" name="tiktok" required></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Deskripsi</td>
                                 <td>
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required><?= $produk['deskripsi']; ?></textarea></div>

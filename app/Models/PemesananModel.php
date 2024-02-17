@@ -33,4 +33,14 @@ class PemesananModel extends Model
     {
         return $this->where(['email_cus' => $emailCus])->orderBy('id', 'desc')->findAll();
     }
+    public function getPemesananPage($page)
+    {
+        // $hitungPag = floor($page / 20);
+        $hitungPag = 20 * ($page - 1);
+        if ($page > 1) {
+            return $this->orderBy('id', 'desc')->findAll(20, $hitungPag);
+        } else {
+            return $this->orderBy('id', 'desc')->findAll(20, 0);
+        }
+    }
 }

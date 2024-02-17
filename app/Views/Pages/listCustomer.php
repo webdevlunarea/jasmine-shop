@@ -34,7 +34,7 @@
             <div style="width: 100px;">
             </div>
         </div>
-        <div class="container-list-customer">
+        <div class="container-list-customer mb-2">
             <?php foreach ($transaksiCus as $t_ind => $t) { ?>
                 <div class="list-customer" onclick="bukaList('<?= $t_ind; ?>')">
                     <div class="d-flex">
@@ -181,6 +181,32 @@
                 </div>
             <?php } ?>
         </div>
+
+        <?php if (count($semuaTransaksiCus) > count($transaksiCus)) { ?>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <?php if ((int)$page > 1) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page - 1); ?>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <?php }
+                    $hitungGrupMax = ceil(count($semuaTransaksiCus) / 20);
+                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
+                    ?>
+                        <li class="page-item"><a class="page-link text-dark" href="/listcustomer/<?= $x; ?>"><?= $x; ?></a></li>
+                    <?php } ?>
+                    <?php if ((int)$page < $hitungGrupMax) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page + 1); ?>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </nav>
+        <?php } ?>
     </div>
 </div>
 <script>

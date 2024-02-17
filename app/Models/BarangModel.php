@@ -20,7 +20,10 @@ class BarangModel extends Model
         'subkategori',
         'diskon',
         'varian',
-        'jml_varian'
+        'jml_varian',
+        'shopee',
+        'tokped',
+        'tiktok',
     ];
 
     public function getBarang($id = false)

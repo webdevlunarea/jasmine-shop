@@ -2,80 +2,256 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Kebijakan Privasi</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Kebijakan Privasi
+                </li>
             </ol>
         </nav>
-        <h3>Kebijakan Privasi</h3>
-        <p>Seluruh informasi pribadi yang Anda berikan kepada <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> hanya akan digunakan dan dilindungi
-            oleh
-            <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>. Setiap informasi yang Anda berikan terbatas untuk tujuan proses yang berkaitan dengan
-            <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> dan tanpa tujuan lainnya. Kami dapat mengubah Kebijakan Privasi ini dari waktu ke
-            waktu
-            dengan melakukan pengurangan ataupun penambahan ketentuan pada halaman ini. Perubahan terhadap kebijakan ini
-            akan diumumkan melalui situs <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> atau melalui alamat dari media lain yang Anda berikan
-            kepada
-            kami. Anda dianjurkan untuk membaca Kebijakan Privasi ini secara berkala agar mengetahui perubahan-perubahan
-            terbaru.
+        <h1>Kebijakan Privasi</h1>
+        <h5 class="mb-4" style="color: var(--hijau)">Jasmine Furniture</h5>
+        <p>
+            Jasmine Furniture selalu mengedepankan kepercayaan yang telah
+            pelanggan berikan dengan cara menjaga dan melindungi informasi
+            serta data pribadi pelanggan sebagai pengguna situs website
+            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>. Kebijakan privasi ini disusun dengan seksama sebagai wujud
+            komitmen Kami melindungi dan menjaga segala bentuk data atau
+            informasi pribadi pengguna dari situs website
+            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>
+            yang selanjutnya disebut dengan <b>situs Jasmine Furniture</b>.
         </p>
-        <p><b>Pendaftaran</b><br>Semua orang dapat mengakses dan melihat materi di situs kami, namun Anda dibutuhkan
-            untuk
-            melakukan pendaftaran untuk dapat mengakses informasi dan layanan pada situs ini secara penuh. Fitur seperti
-            pesanan barang hanya dapat dilakukan apabila Anda sudah menjadi anggota (member) <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>.
-            Untuk
-            mendaftar pada situs <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>, kami memerlukan informasi seperti berikut:</p>
+        <p>
+            Pengguna diharapkan untuk membaca dan memahami kebijakan privasi
+            dari awal hingga akhir agar tidak terjadi perbedaan dalam
+            pemahaman. Setiap informasi yang Kami peroleh ketika proses
+            pemesanan, akan digunakan secara sah sesuai dengan Undang-Undang
+            Konsumen No. 8 Tahun 1999. Situs Jasmine Furniture tidak akan
+            mengungkap atau menyampaikan informasi rahasia ini kepada pihak
+            ketiga tanpa izin dari pemilik informasi tersebut. Akan tetapi,
+            terdapat pengecualian apabila terdapat informasi tertentu yang
+            perlu dilaporkan untuk keperluan hukum yang berlaku di
+            Indonesia.
+        </p>
+        <p>
+            Dengan mengunjungi dan menggunakan situs Jasmine Furniture, Anda
+            dianggap telah setuju dengan persyaratan yang tercantum dalam
+            kebijakan privasi. Maka dari itu, dimohon kepada pelanggan untuk
+            membaca dan menelaah kebijakan privasi ini dengan seksama.
+        </p>
+        <h5 class="jdl-section mt-5">Informasi Yang Kami Butuhkan</h5>
+        <p>
+            Saat pengunjung situs Jasmine Furniture melakukan registrasi
+            akun, maka berikut ini adalah informasi yang akan Kami dapatkan:
+        </p>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <p class="mb-0">1.</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">Nama Lengkap</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">:</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="mb-0">2.</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">Email</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">:</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="mb-0">3.</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">Sandi</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">:</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="mb-0">4.</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">No Hp</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">:</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="mt-3">
+            Jasmine Furniture hanya akan mengumpulkan informasi tersebut
+            jika pengguna dalam hal ini pemilik akun tersebut bersedia
+            menyerahkan informasinya kepada Kami. Apabila memilih untuk
+            tidak memberikan informasi diatas, maka Kami tidak dapat
+            melayani atau melakukan kesepakatan apapun bersama dengan Anda.
+            Situs Jasmine Furniture tidak akan menjual atau menyebarluaskan
+            informasi pribadi pelanggan kepada pihak manapun. Informasi yang
+            Kami kumpulkan secara online hanya akan digunakan secara
+            internal dalam Perusahaan Kami untuk melayani Anda sebagai
+            konsumen dengan lebih baik.
+        </p>
+        <h5 class="jdl-section mt-5">Promosi</h5>
+        <p>
+            Setelah terjadi pembelian barang dan berlangganan newsletter
+            dari situs Jasmine Furniture, maka Anda akan terus mendapatkan
+            update produk terbaru, berita, dan penawaran spesial melalui
+            email. Anda memiliki hak untuk menerima atau menolak materi
+            promosi yang telah dikirimkan tersebut. Apabila dirasa ingin
+            berhenti untuk berlangganan newsletter, maka cukup dengan
+            melakukan klik unsubscribe pada bagian bawah setiap newsletter
+            atau email promosi yang Kami berikan secara khusus kepada Anda
+            sebagai pelanggan.
+        </p>
+        <h5 class="jdl-section mt-5">Pembaruan Kebijakan Privasi</h5>
+        <p>
+            Kebijakan privasi ini akan mengalami pembaharuan secara berkala
+            pada kurun waktu tertentu sebagai upaya pengembangan serta
+            kemajuan situs Jasmine Furniture dalam melakukan pelayanan
+            terbaik kepada Pelanggan. Diharapkan agar melakukan pemeriksaan
+            secara berkala pada halaman ini untuk mengetahui
+            perubahan-perubahan tersebut. Kebijakan privasi ini berlaku
+            untuk semua informasi tentang Anda dan akun Anda yang telah ada
+            di website Kami.
+        </p>
+        <h5 class="jdl-section mt-5">Kontak Kami</h5>
+        <p>
+            Secara terbuka dan senang hati, Kami menerima segala kritik dan
+            saran yang membangun dari para pelanggan sebagai bentuk
+            pengembangan dan evaluasi menjadi yang lebih baik lagi dari
+            sekarang. Feedback Anda adalah bentuk penghargaan kepada Kami
+            untuk terus berbenah dan mendapatkan versi terbaik dari produk,
+            pelayanan, hingga pengalaman yang Kami berikan kepada pelanggan.
+        </p>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <p class="mb-0">Email</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">
+                            : infojasmine@jasminefurniture.co.id
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="mb-0">No. WhatsApp</p>
+                    </td>
+                    <td>
+                        <p class="mb-0">: 08112938160</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h5 class="jdl-section mt-5">Produk & Layanan Kami</h5>
+        <p>
+            Jasmine Furniture menyediakan berbagai macam furniture mulai
+            dari lemari dewasa, lemari anak, meja rias, meja belajar, meja
+            TV, meja tulis, rak sepatu, rak besi hingga rak serbaguna.
+        </p>
+        <p>
+            Untuk memastikan produk sampai di alamat tujuan dengan aman dan
+            tepat sesuai waktu yang telah direncanakan, maka Kami juga akan
+            melayani:
+        </p>
         <ul>
-            <li>Nama Lengkap</li>
-            <li>Email</li>
-            <li>Alamat Pengiriman yang Lengkap</li>
-            <li>Nomor Telepon</li>
+            <li>
+                <p class="mb-0">
+                    Pengiriman dalam dan luar kota dengan armada profesional
+                    mitra Kami
+                </p>
+            </li>
+            <li>
+                <p class="mb-0">
+                    Perakitan barang di alamat tujuan dengan menghubungi
+                    customer service Kami, serta menyetujui penambahan biaya
+                    jasa perakitan yang telah disetujui bersama.
+                </p>
+            </li>
         </ul>
-        <p>Kami berasumsi bahwa informasi yang Anda berikan saat ini dan perubahan-perubahan yang Anda lakukan di masa
-            mendatang adalah akurat dan benar. Apabila informasi dan perubahan-perubahan yang diberikan tersebut
-            ternyata
-            terbukti tidak benar, maka kami tidak bertanggung jawab atas segala akibat yang dapat terjadi sehubungan
-            dengan
-            pemberian informasi dan perubahan-perubahan yang tidak benar tersebut.</p>
-        <p><b>Penggunaan Informasi yang Kami Kumpulkan</b><br>Semua informasi pribadi yang kami peroleh dari Anda secara
-            sukarela pada saat ada registrasi akan kami simpan, gunakan dan lindungi sesuai dengan undang-undang
-            perlindungan data dan kebijakan privasi ini. Informasi Anda kami kumpulkan untuk menyediakan produk dan
-            layanan
-            yang terbaik bagi Anda. Informasi Anda akan dipakai untuk:</p>
-        <ul>
-            <li>Mempercepat proses belanja Anda</li>
-            <li>Kepentingan konfirmasi pesanan</li>
-            <li>Kepentingan pengiriman pesanan</li>
-            <li>Mempermudah transaksi pembayaran</li>
-            <li>Mengumpulkan data transaksi antara Anda dengan Melody Furniture</li>
-            <li>Menghubungi Anda untuk kepentingan riset pasar atau pengembangan situs, agar Kami dapat meningkatkan
-                pelayanan, dan/atau untuk menyesuaikan situs untuk memberikan layanan dan produk yang paling diminati
-                oleh
-                Anda</li>
-            <li>Untuk mengelola sebuah kontes, promosi, survei, riset pasar, kelompok fokus atau lainnya dan Untuk
-                menyediakan Anda dengan produk atau layan yang relevan (contoh: untuk mengirimkan hadiah kepada Anda
-                apabila
-                Anda telah menang dalam kontes yang diselenggarakan oleh Melody Furniture)</li>
-            <li>Kepentingan administrasi Melody Furniture</li>
-        </ul>
-        <p><b>Promosi dan Acara Khusus</b><br>Kami seringkali mengadakan promosi dan acara khusus yang diselenggarakan
-            oleh
-            pihak ketiga atau rekanan kami. Jika informasi ini akan dibagi bersama pihak ketiga, kami akan
-            memberitahukan
-            kepada Anda pada saat pengumpulan data.</p>
-        <p><b>Berlangganan Email di <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a></b><br>Anda akan mendapatkan pilihan untuk ingin menerima
-            email
-            promosi <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> Jika Anda memilih untuk berlangganan maka <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> akan
-            mengirimkan
-            e-mail secara berkala kepada Anda yang berisikan informasi tentang produk terbaru dan program promosi apa
-            yang
-            sedang ditawarkan. Kami hanya menggunakan email Anda untuk keperluan Melody Furniture dan tidak akan
-            membagi,
-            menjual, menyewakan, menukar atau memberikan kepada pihak ketiga tanpa persetujuan Anda. Anda dapat memilih
-            untuk berhenti berlangganan kapan saja, pada setiap email yang Anda terima akan terdapat pilihan untuk
-            berhenti
-            berlangganan dengan listing email kami.</p>
+        <p>
+            Apabila Anda ingin mendapatkan informasi produk Kami, Anda dapat
+            memilih untuk berlangganan dengan katalog serta penawaran khusus
+            yang Kami kirimkan melalui email atau WhatsApp Anda.
+        </p>
+
+        <h5 class="jdl-section mt-5">Sistem Pengiriman & Pengembalian</h5>
+        <h5 class="mb-2 mt-4">Kebijakan pengiriman</h5>
+        <p>
+            Website Kami dapat melayani pengiriman pesanan ke seluruh
+            Indonesia. Pesanan bisa dikirim setelah adanya konfirmasi
+            validasi pembayaran yang telah Anda lakukan.
+        </p>
+        <p>
+            Produk yang telah dibayarkan akan segera diproses dan dikirimkan
+            sesegera mungkin dengan estimasi waktu H+1 pada hari kerja.
+            Kepuasaan pelanggan merupakan prioritas Kami, oleh karena itu
+            Kami bekerjasama dengan partner logistik yang handal dan sudah
+            cukup terkenal di Indonesia untuk mengantarkan produk yang Anda
+            beli menuju ke tempat tujuan dengan aman dan tepat waktu.
+            Ketentuan tarif biaya pengiriman mengikuti kebijakan masing -
+            masing pihak logistik selaku mitra Kami.
+        </p>
+        <h5 class="mb-2 mt-4">Waktu Pengiriman</h5>
+        <p>
+            Pengaturan waktu pengiriman produk pesanan Anda akan disesuaikan
+            dengan lokasi tujuan Anda. Jika lokasi tujuan berada di wilayah
+            Semarang, maka pengiriman akan segera diproses dalam kurun waktu
+            H+1 pada hari kerja. Agar tidak terjadi kesalahan lokasi tujuan,
+            Kami akan melakukan konfirmasi kepada nomer WhatsApp atau email
+            yang tertera pada data yang pelanggan berikan pada Kami. Jika
+            pelanggan tidak berada di rumah, mohon informasikan kepada tim
+            customer service Kami, sehingga Kami dapat mengatur ulang jadwal
+            pengiriman produk. Jika Anda berkenan, Anda juga bisa
+            menginformasikan kepada Kami nama pihak yang Anda percaya untuk
+            menerima pesanan Anda tersebut. Hal ini sebenarnya tidak Kami
+            rekomendasikan mengingat bahwa Anda diharuskan melakukan
+            pengecekan pada saat penerimaan produk.
+        </p>
+        <p>
+            Setelah petugas logistik menurunkan produk yang Anda pesan,
+            petugas logistik akan meminta Anda untuk mengisi sebuah formulir
+            guna memastikan kondisi produk yang diterima dalam keadaan
+            sempurna. Jika ada kerusakkan atau produk tidak sesuai dengan
+            pesanan pelanggan, Kami mohon agar Anda menolak produk tersebut.
+        </p>
+        <h5 class="mb-2 mt-4">Status Pengiriman</h5>
+        <p>
+            Kami akan memberitahukan status dan nomor resi pengiriman
+            pesanan sehingga Anda dapat mengetahui informasi terkini dari
+            produk yang Anda pesan menggunakan tracking system dari mitra
+            logistik Kami. Apabila Anda tidak menerima email dari Kami
+            setelah melakukan pelunasan pembayaran, maka Anda bisa
+            menghubungi customer service Kami.
+        </p>
+        <h5 class="mb-2 mt-4">Pengembalian</h5>
+        <p>
+            Apabila terdapat kerusakan pada bagian komponen/aksesoris harap
+            untuk melakukan pengiriman barang kembali agar Kami dapat segera
+            mengganti dengan barang yang baru dengan batas maksimal komplain
+            kerusakan komponen yang telah dijabarkan pada FAQ poin nomor 2
+            dan 3 bagian “Penerimaan Barang & Prosedur Komplain”. Biaya
+            pengiriman kembali barang baru tersebut tidak dibebankan kepada
+            pelanggan yang bersangkutan, sementara untuk pengiriman kembali
+            komponen/aksesoris yang rusak, biaya kirim akan dibebankan
+            kepada Anda selaku pelanggan.
+        </p>
     </div>
 </div>
 <?= $this->endSection(); ?>

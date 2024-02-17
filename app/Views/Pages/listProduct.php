@@ -14,7 +14,7 @@
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
-                    <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php if ($p['diskon']) { ?>
@@ -38,6 +38,32 @@
                 </div>
             <?php } ?>
         </div>
+
+        <?php if (count($semuaProduk) > count($produk)) { ?>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <?php if ((int)$page > 1) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="/listproduct/<?= ((int)$page - 1); ?>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <?php }
+                    $hitungGrupMax = ceil(count($semuaProduk) / 20);
+                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
+                    ?>
+                        <li class="page-item"><a class="page-link text-dark" href="/listproduct/<?= $x; ?>"><?= $x; ?></a></li>
+                    <?php } ?>
+                    <?php if ((int)$page < $hitungGrupMax) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="/listproduct/<?= ((int)$page + 1); ?>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </nav>
+        <?php } ?>
     </div>
 </div>
 <?= $this->endSection(); ?>

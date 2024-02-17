@@ -13,7 +13,7 @@
         </h1>
         <h5 class="mb-5">Jasmine Furniture</h5>
         <div class="baris-ke-kolom-reverse align-items-center justify-content-between">
-            <div class="limapuluh-ke-seratus" style="height: fit-content;">
+            <div style="height: fit-content; flex: 2;">
                 <p>
                     Jasmine furniture hadir sejak tahun 1989 sebagai produsen sekaligus distributor aneka perabotan rumah yang berpengalaman. Selama lebih dari tiga puluhan tahun yang lalu hingga sekarang, Jasmine Furniture dengan konsisten memproduksi perabotan mulai dari meja, kursi, lemari dan rak dengan kualitas terbaik yang terbuat dari material terbaik yang dikerjakan secara professional oleh tim terbaik kami.
                 </p>
@@ -30,40 +30,41 @@
                     Jasmine Furniture, Always your choice, always your furniture
                 </p>
             </div>
-            <div class="show-flex-ke-hide limapuluh-ke-seratus align-items-center justify-content-center" style="height: 400px; min-width: 300px;">
+            <div class="show-ke-hide align-items-center justify-content-end" style="height: 350px; flex: 1;">
                 <div style="
-                        display: grid;
                         height: 100%;
+                        width: 100%;
+                        display: grid;
                         gap: 1em;
                         grid-template-areas: 'gmbr1 gmbr3' 'gmbr2 gmbr3' 'gmbr2 gmbr4';
                     ">
-                    <div class="bg-danger" style="
+                    <div style="
                             grid-area: gmbr1;
                             border-radius: 1em;
                             overflow: hidden;
                         ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="https://plus.unsplash.com/premium_photo-1678559033839-aaf50cb4c843?q=80&w=1856&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp3.webp" />
                     </div>
-                    <div class="bg-danger" style="
+                    <div style="
                             grid-area: gmbr2;
                             border-radius: 1em;
                             overflow: hidden;
                         ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp1.webp" />
                     </div>
-                    <div class="bg-danger" style="
+                    <div style="
                             grid-area: gmbr3;
                             border-radius: 1em;
                             overflow: hidden;
                         ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=1854&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp2.webp" />
                     </div>
-                    <div class="bg-danger" style="
+                    <div style="
                             grid-area: gmbr4;
                             border-radius: 1em;
                             overflow: hidden;
                         ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1916&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp4.webp" />
                     </div>
                 </div>
             </div>

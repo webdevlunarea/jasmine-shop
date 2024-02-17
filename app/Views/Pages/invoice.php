@@ -40,7 +40,7 @@
                 <p class="mb-0"><?php
                                 $d = strtotime($transaksi['data_mid']['transaction_time']);
                                 echo date("dmY", $d)
-                                ?>/CBM/<?= $transaksi['id_midtrans']; ?>/FAKTUR</p>
+                                ?>/CBM/<?= $transaksi['id_midtrans']; ?></p>
             </div>
         </div>
         <div class="d-flex justify-content-between mb-2">
@@ -187,7 +187,41 @@
             </div>
             <div class="w-100">
                 <p class="mb-0 text-black-50">Metode Pembayaran</p>
-                <p class="mb-0 fw-bold"><?= ucfirst(str_replace('_', ' ', $transaksi['data_mid']['payment_type'])); ?> <?= $transaksi['data_mid']['payment_type'] == "bank_transfer" ? strtoupper($transaksi['data_mid']['va_numbers'][0]['bank']) : "" ?></p>
+                <p class="mb-0">
+                    <?php
+                    switch ($transaksi['data_mid']['payment_type']) {
+                        case 'credit_card':
+                            echo "Credit Card<br>" . strtoupper($transaksi['data_mid']['bank']) . " " . ucfirst($transaksi['data_mid']['card_type']);
+                            break;
+                        case 'echannel':
+                            switch ($transaksi['data_mid']['biller_code']) {
+                                case '70012':
+                                    echo "Mandiri Bill";
+                                    break;
+                                default:
+                                    echo "EChannel";
+                                    break;
+                            }
+                            break;
+                        case 'bank_transfer':
+                            if (isset($transaksi['data_mid']['va_numbers']))
+                                echo strtoupper($transaksi['data_mid']['va_numbers'][0]['bank']) . " VA";
+                            else if (isset($transaksi['data_mid']['permata_va_number']))
+                                echo "Bank Permata VA";
+                            else if (isset($transaksi['data_mid']['bca_va_number']))
+                                echo "BCA VA";
+                            break;
+                        case 'gopay':
+                            echo 'Qris';
+                            break;
+                        case 'qris':
+                            echo 'Qris';
+                            break;
+                        default:
+                            echo $transaksi['data_mid']['payment_type'];
+                            break;
+                    }
+                    ?></p>
             </div>
         </div>
         <div class="w-100 d-flex py-2 justify-content-between align-items-end">

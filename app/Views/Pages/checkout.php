@@ -120,7 +120,7 @@
                     <div class="form-alamat <?= $user['alamat'] ? '' : 'd-none'; ?>">
                         <fieldset disabled>
                             <div class="form-floating mb-1">
-                                <input type="text" class="form-control" placeholder="Email" name="alamat" required value="<?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?>">
+                                <textarea type="text" class="form-control" placeholder="Email" name="alamat" required style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
                                 <label for="floatingInput">Alamat Lengkap</label>
                             </div>
                         </fieldset>
@@ -219,7 +219,7 @@
     const inputNamaElm = document.querySelector('input[name="nama"]');
     const inputNohpElm = document.querySelector('input[name="nohp"]');
     const inputAlamatAddElm = document.querySelector('input[name="alamat_add"]');
-    const inputAlamatElm = document.querySelector('input[name="alamat"]');
+    const inputAlamatElm = document.querySelector('textarea[name="alamat"]');
     const provElm = document.querySelector('select[name="provinsi"]');
     const kotaElm = document.querySelector('select[name="kota"]');
     const kecElm = document.querySelector('select[name="kecamatan"]');
@@ -277,7 +277,9 @@
                     alamat: alamat.alamat,
                     email: email,
                     nohp: nohp,
-                    paket: btoa((formCheckoutPaket.value).split("@")[0])
+                    paket: formCheckoutPaket.value,
+                    namaPen: inputNamaElm.value,
+                    nohpPen: inputNohpElm.value
                 }
                 const dataPen = {
                     nama: inputNamaElm.value,
@@ -306,11 +308,11 @@
                     window.snap.pay(snaptoken.snapToken, {
                         onSuccess: function(result) {
                             // alert("payment success!");
-                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("@")[1]);
+                            //addTransaction(result, data, dataPen, (atob(formCheckoutPaket.value)).split("@")[1]);
                         },
                         onPending: function(result) {
                             // alert("wating your payment!");
-                            addTransaction(result, data, dataPen, (formCheckoutPaket.value).split("@")[1]);
+                            //addTransaction(result, data, dataPen, (atob(formCheckoutPaket.value)).split("@")[1]);
                         },
                         onError: function(result) {
                             alert("Pembayaran Gagal");
@@ -403,6 +405,7 @@
             kurir: kurir,
             dataMid: dataMid,
         }
+
         const response = await fetch("addtransaction", {
             method: "POST",
             headers: {
@@ -435,6 +438,7 @@
         const hasil = kecamatan.rajaongkir.results;
         // console.log(hasil)
         kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
+        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
             optElm.value = element.subdistrict_id + "-" + element.subdistrict_name
@@ -480,7 +484,8 @@
     provElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 5);
         kotaElm.innerHTML = '<option value="-1">Loading..</option>'
-        // areaElm.innerHTML = '<option value="-1">-- Pilih area --</option>';
+        kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
+        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
         costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
@@ -495,6 +500,7 @@
     kotaElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 4);
         kecElm.innerHTML = '<option value="-1">Loading..</option>'
+        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
         costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
@@ -620,7 +626,7 @@
                     `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
                 console.log(costnya.value, subtotal)
                 // inputPaketElm.value = btoa(`${costnya.value}`);
-                inputPaketElm.value = `${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`;
+                inputPaketElm.value = btoa(`${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`);
                 containerPilihKurir.style.display = "none";
                 btnCheckoutElm.classList.remove("disabled")
             })

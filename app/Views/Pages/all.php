@@ -22,53 +22,51 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="/img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
                     <p>Lemari Dewasa</p>
                 </a>
                 <a class="kategori" href="/all/lemari-anak">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Lemari_Anak.webp" alt="" width="50px">
                     <p>Lemari Anak</p>
                 </a>
                 <a class="kategori" href="/all/meja-rias">
-                    <img src="/img/logokategori/Meja_Rias.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Meja_Rias.png" alt="" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar">
-                    <img src="/img/logokategori/Meja_Belajar.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Meja_Belajar.png" alt="" width="50px">
                     <p>Meja Belajar</p>
                 </a>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="/img/logokategori/Meja_Tulis.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Meja_Tulis.png" alt="" width="50px">
                     <p>Meja Tulis</p>
                 </a>
-                <a class="kategori" href="/all/meja-komputer">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                <!-- <a class="kategori" href="/all/meja-komputer">
+                    <img src="/public/img/logokategori/Meja_TV.png" alt="" width="50px">
                     <p>Meja Komputer</p>
-                </a>
+                </a> -->
                 <a class="kategori" href="/all/rak-sepatu">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Rak_Sepatu.webp" alt="" width="50px">
                     <p>Rak Sepatu</p>
                 </a>
                 <a class="kategori" href="/all/rak-besi">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/public/img/logokategori/Rak_Besi.webp" alt="" width="50px">
                     <p>Rak Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-serbaguna">
-                    <span class="material-symbols-outlined">
-                        two_pager
-                    </span>
+                    <img src="/public/img/logokategori/Rak_Serbaguna.webp" alt="" width="50px">
                     <p>Rak Serbaguna</p>
                 </a>
-                <a class="kategori" href="/all/kursi">
+                <!-- <a class="kategori" href="/all/kursi">
                     <span class="material-symbols-outlined">
                         chair_alt
                     </span>
                     <p>Kursi</p>
-                </a>
+                </a> -->
             </div>
         </div>
     </div>
@@ -92,7 +90,7 @@
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
-                    <img src="data:image/jpeg;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>

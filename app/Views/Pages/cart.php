@@ -9,7 +9,7 @@
                 <?php foreach ($produk as $index => $p) { ?>
                     <div class="card-cart baris-ke-kolom justify-content-between">
                         <a href="/product/<?= $p['id']; ?>" class="d-flex gap-4 text-dark" style="height: 100%;">
-                            <img src="data:image/jpeg;base64,<?= base64_encode($gambar[$index]); ?>" alt="">
+                            <img src="data:image/webp;base64,<?= base64_encode($gambar[$index]); ?>" alt="">
                             <div>
                                 <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>"><?= $p['nama']; ?></p>
                                 <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>">Varian : <?= $keranjang[$index]['varian'] ?></p>
@@ -22,7 +22,7 @@
                                         <p class="mb-0 harga" style="display: inline;">Rp
                                             <?php
                                             $persen = (100 - $p['diskon']) / 100;
-                                            $hasil = $persen * $p['harga'];
+                                            $hasil = round($persen * $p['harga']);
                                             echo number_format($hasil, 0, ",", ".");
                                             ?></p>
                                     <?php } else {

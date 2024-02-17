@@ -13,9 +13,11 @@ $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
 $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
+$routes->get('/faq', 'Pages::faq');
 
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
 $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
+$routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
@@ -45,6 +47,7 @@ $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
 $routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
+$routes->get('/cobapayment/(:any)', 'Pages::cobaGetPayment/$1');
 $routes->post('/updatetransaction', 'Pages::updateTransaction');
 $routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
 $routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
@@ -61,9 +64,11 @@ $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
 
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
+$routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editresi', 'Pages::editResi');
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
+$routes->get('/listproduct/(:any)', 'Pages::listProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);
 $routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin']);
 $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harusAdmin']);
@@ -76,7 +81,7 @@ $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['fi
 $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/kategori/(:any)/(:any)', 'ApiCompany::kategori/$1/$2', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/subkategori/(:any)/(:any)', 'ApiCompany::subkategori/$1/$2', ['filter' => 'corsFilter']);
-$routes->post('/apicomp/cari', 'ApiCompany::cari', ['filter' => 'corsFilter']);
+$routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);

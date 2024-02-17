@@ -10,7 +10,7 @@
         </nav>
         <div class="d-flex gap-5 align-items-center">
             <div class="show-ke-hide" style="flex: 1;">
-                <img style="width: 100%; border-radius: 10px; aspect-ratio: 1/1; object-fit: cover;" src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1916&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg" alt="nopic.jpg">
+                <img style="width: 100%; border-radius: 10px; aspect-ratio: 1/1; object-fit: cover;" src="/img/Login.webp" alt="nopic.jpg">
             </div>
             <div style="flex: 1;">
                 <?php if ($val['msg']) { ?>

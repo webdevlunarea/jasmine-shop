@@ -19,154 +19,155 @@
                 <div class="p-2">
                     <h3>Transaksi Pembayaran</h3>
                     <div class="accordion" id="accordionExample">
-                        <?php
-                        if ($cekEror) { ?>
-                            <p>Terdapat kesalahan, mohon halaman dimuat ulang</p>
-                            <?php } else {
-                            if (count($transaksi) > 0) {
-                                foreach ($transaksi as $index_transaksi => $item_transaksi) { ?>
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index_transaksi; ?>" aria-expanded="false" aria-controls="collapse<?= $index_transaksi; ?>">
-                                                <div class="d-flex justify-content-between" style="width: 100%;">
-                                                    <div>
-                                                        <h5 class="mb-0">Rp
-                                                            <?= number_format((int)json_decode($item_transaksi['data_mid'], true)['gross_amount'], 0, ",", "."); ?>
-                                                        </h5>
-                                                        <p class="mb-1" style="font-size: 12px;">ID Pesanan:
-                                                            <?= $item_transaksi['id_midtrans']; ?></p>
-                                                        <span class="badge rounded-pill <?php
-                                                                                        switch ($item_transaksi['status']) {
-                                                                                            case 'Menunggu Pembayaran':
-                                                                                                echo "text-bg-primary";
-                                                                                                break;
-                                                                                            case 'Proses':
-                                                                                                echo "text-bg-warning";
-                                                                                                break;
-                                                                                            case 'Dikirim':
-                                                                                                echo "text-bg-info";
-                                                                                                break;
-                                                                                            case 'Selesai':
-                                                                                                echo "text-bg-success";
-                                                                                                break;
-                                                                                            case 'Dibatalkan':
-                                                                                                echo "text-bg-danger";
-                                                                                                break;
-                                                                                            case 'Gagal':
-                                                                                                echo "text-bg-danger";
-                                                                                                break;
-                                                                                            default:
-                                                                                                echo "text-bg-dark";
-                                                                                                break;
-                                                                                        }
-                                                                                        ?>"><?= ucfirst($item_transaksi['status']); ?></span>
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-end">
-                                                        <p class="mb-0 text-secondary" style="font-size: 12px;">
-                                                            <?= date("d/m/Y H:i:s", strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time'])); ?></p>
-                                                        <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
-                                                            <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
-                                                                                                                                    $dataMid = json_decode($item_transaksi['data_mid'], true);
-                                                                                                                                    $d = strtotime($dataMid['transaction_time']);
-                                                                                                                                    if ($dataMid['payment_type'] == 'gopay' || $dataMid['payment_type'] == 'qris')
-                                                                                                                                        $enddate = strtotime("+15 minutes", $d);
-                                                                                                                                    else
-                                                                                                                                        $enddate = strtotime("+1 hour", $d);
-                                                                                                                                    echo date("d/m/Y H:i:s", $enddate);
-                                                                                                                                    ?>
-                                                            </p>
-                                                        <?php } ?>
-                                                    </div>
+                        <?php if (count($transaksi) > 0) {
+                            foreach ($transaksi as $index_transaksi => $item_transaksi) { ?>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index_transaksi; ?>" aria-expanded="false" aria-controls="collapse<?= $index_transaksi; ?>">
+                                            <div class="d-flex justify-content-between" style="width: 100%;">
+                                                <div>
+                                                    <h5 class="mb-0">Rp
+                                                        <?= number_format((int)json_decode($item_transaksi['data_mid'], true)['gross_amount'], 0, ",", "."); ?>
+                                                    </h5>
+                                                    <p class="mb-1" style="font-size: 12px;">ID Pesanan:
+                                                        <?= $item_transaksi['id_midtrans']; ?></p>
+                                                    <span class="badge rounded-pill <?php
+                                                                                    switch ($item_transaksi['status']) {
+                                                                                        case 'Menunggu Pembayaran':
+                                                                                            echo "text-bg-primary";
+                                                                                            break;
+                                                                                        case 'Proses':
+                                                                                            echo "text-bg-warning";
+                                                                                            break;
+                                                                                        case 'Dikirim':
+                                                                                            echo "text-bg-info";
+                                                                                            break;
+                                                                                        case 'Selesai':
+                                                                                            echo "text-bg-success";
+                                                                                            break;
+                                                                                        case 'Dibatalkan':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
+                                                                                        case 'Gagal':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
+                                                                                        default:
+                                                                                            echo "text-bg-dark";
+                                                                                            break;
+                                                                                    }
+                                                                                    ?>"><?= ucfirst($item_transaksi['status']); ?></span>
                                                 </div>
-                                            </button>
-                                        </h2>
-                                        <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                            <div class="accordion-body">
-                                                <p class="fw-bold mb-0">Informasi Penerima</p>
-                                                <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
-                                                <p class="mb-0"><?= json_decode($item_transaksi['alamat_pen'], true)['alamat']; ?></p>
-                                                <p><?= $item_transaksi['hp_pen']; ?></p>
-                                                <p class="mb-0"><b>Items</b></p>
-                                                <div class="w-100 mb-2">
-                                                    <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
-                                                        <div class="w-100 d-flex">
-                                                            <div style="flex: 2;">
-                                                                <p class="mb-0"><?= $item['name']; ?></p>
-                                                            </div>
-                                                            <div style="flex: 1;" class="text-center">
-                                                                <p class="mb-0"><?= $item['quantity']; ?></p>
-                                                            </div>
-                                                            <div style="flex: 1;" class="text-end">
-                                                                <p class="mb-0">Rp <?= number_format($item['value'], 0, ",", "."); ?></p>
-                                                            </div>
-                                                        </div>
+                                                <div class="d-flex flex-column justify-content-end">
+                                                    <p class="mb-0 text-secondary" style="font-size: 12px;">
+                                                        <?= date("d/m/Y H:i:s", strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time'])); ?></p>
+                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                        <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
+                                                                                                                                $dataMid = json_decode($item_transaksi['data_mid'], true);
+                                                                                                                                $d = strtotime($dataMid['transaction_time']);
+                                                                                                                                if ($dataMid['payment_type'] == 'gopay' || $dataMid['payment_type'] == 'qris')
+                                                                                                                                    $enddate = strtotime("+15 minutes", $d);
+                                                                                                                                else
+                                                                                                                                    $enddate = strtotime("+1 hour", $d);
+                                                                                                                                echo date("d/m/Y H:i:s", $enddate);
+                                                                                                                                ?>
+                                                        </p>
                                                     <?php } ?>
                                                 </div>
-                                                <div class="w-100 d-flex justify-content-between">
-                                                    <div class="w-100">
-                                                        <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
-                                                            <p class="mb-0 fw-bold">Metode Pembayaran</p>
-                                                            <p class="mb-0">
-                                                                <?php
-                                                                switch ($dataMid['payment_type']) {
-                                                                    case 'credit_card':
-                                                                        echo "Credit Card<br>" . strtoupper($dataMid['bank']) . " " . ucfirst($dataMid['card_type']);
-                                                                        break;
-                                                                    case 'echannel':
-                                                                        switch ($dataMid['biller_code']) {
-                                                                            case '70012':
-                                                                                echo "Mandiri Bill<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
-                                                                                break;
-                                                                            default:
-                                                                                echo "EChannel<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
-                                                                                break;
-                                                                        }
-                                                                        break;
-                                                                    case 'bank_transfer':
-                                                                        if (isset($dataMid['va_numbers']))
-                                                                            echo strtoupper($dataMid['va_numbers'][0]['bank']) . " " . $dataMid['va_numbers'][0]['va_number'];
-                                                                        else if (isset($dataMid['permata_va_number']))
-                                                                            echo "Bank Permata VA<br>" . $dataMid['permata_va_number'];
-                                                                        else if (isset($dataMid['bca_va_number']))
-                                                                            echo "BCA VA<br>" . $dataMid['bca_va_number'];
-                                                                        break;
-                                                                    case 'gopay':
-                                                                        echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
-                                                                        break;
-                                                                    case 'qris':
-                                                                        echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
-                                                                        break;
-                                                                    default:
-                                                                        echo $dataMid['payment_type'];
-                                                                        break;
-                                                                }
-                                                                ?></p>
-                                                        <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse<?= $index_transaksi; ?>" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <p class="fw-bold mb-0">Informasi Penerima</p>
+                                            <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
+                                            <p class="mb-0"><?= json_decode($item_transaksi['alamat_pen'], true)['alamat']; ?></p>
+                                            <p><?= $item_transaksi['hp_pen']; ?></p>
+                                            <p class="mb-0"><b>Items</b></p>
+                                            <div class="w-100 mb-2">
+                                                <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
+                                                    <div class="w-100 d-flex">
+                                                        <div style="flex: 2;">
+                                                            <p class="mb-0"><?= $item['name']; ?></p>
+                                                        </div>
+                                                        <div style="flex: 1;" class="text-center">
+                                                            <p class="mb-0"><?= $item['quantity']; ?></p>
+                                                        </div>
+                                                        <div style="flex: 1;" class="text-end">
+                                                            <p class="mb-0">Rp <?= number_format($item['value'], 0, ",", "."); ?></p>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="w-100 d-flex justify-content-between">
+                                                <div class="w-100">
+                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                        <p class="mb-0 fw-bold">Metode Pembayaran</p>
+                                                        <p class="mb-0">
+                                                            <?php
+                                                            switch ($dataMid['payment_type']) {
+                                                                case 'credit_card':
+                                                                    echo "Credit Card<br>" . strtoupper($dataMid['bank']) . " " . ucfirst($dataMid['card_type']);
+                                                                    break;
+                                                                case 'echannel':
+                                                                    switch ($dataMid['biller_code']) {
+                                                                        case '70012':
+                                                                            echo "Mandiri Bill<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
+                                                                            break;
+                                                                        default:
+                                                                            echo "EChannel<br>" . "Biller Code: " . $dataMid['biller_code'] . "<br>Bill Key: " . $dataMid['bill_key'];
+                                                                            break;
+                                                                    }
+                                                                    break;
+                                                                case 'bank_transfer':
+                                                                    if (isset($dataMid['va_numbers']))
+                                                                        echo strtoupper($dataMid['va_numbers'][0]['bank']) . " VA<br>" . $dataMid['va_numbers'][0]['va_number'];
+                                                                    else if (isset($dataMid['permata_va_number']))
+                                                                        echo "Bank Permata VA<br>" . $dataMid['permata_va_number'];
+                                                                    else if (isset($dataMid['bca_va_number']))
+                                                                        echo "BCA VA<br>" . $dataMid['bca_va_number'];
+                                                                    break;
+                                                                case 'gopay':
+                                                                    echo 'Qris<br>*QRcode hanya muncul sekali, sehingga harap checkout kembali dan lakukan pembayaran langsung';
+                                                                    break;
+                                                                case 'qris':
+                                                                    echo 'Qris<br>*QRcode hanya muncul sekali, sehingga harap checkout kembali dan lakukan pembayaran langsung';
+                                                                    break;
+                                                                    // case 'gopay':
+                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                    //     break;
+                                                                    // case 'qris':
+                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                    //     break;
+                                                                default:
+                                                                    echo $dataMid['payment_type'];
+                                                                    break;
+                                                            }
+                                                            ?></p>
+                                                    <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
 
-                                                        <?php } else { ?>
-                                                            <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
-                                                                <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                                    <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
-                                                                <?php } ?>
-                                                            </p>
+                                                    <?php } else { ?>
+                                                        <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
                                                             <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                                <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
-                                                                    Nomor Resi</a>
+                                                                <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
                                                             <?php } ?>
+                                                        </p>
+                                                        <?php if ($item_transaksi['status'] != "Proses") { ?>
+                                                            <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
+                                                                Nomor Resi</a>
                                                         <?php } ?>
-                                                    </div>
-                                                    <div class="w-100 d-flex flex-column align-items-end">
-                                                        <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
-                                                    </div>
+                                                    <?php } ?>
+                                                </div>
+                                                <div class="w-100 d-flex flex-column align-items-end">
+                                                    <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php }
-                            } else { ?>
-                                <p>Opss, belum ada transaksi
+                                </div>
                             <?php }
-                        } ?>
+                        } else { ?>
+                            <p>Opss, belum ada transaksi
+                            <?php } ?>
                     </div>
                 </div>
             </div>
