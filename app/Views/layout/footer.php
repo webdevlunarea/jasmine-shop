@@ -67,7 +67,7 @@
                     <li><a href="<?= session()->get('isLogin') ? "/account" : "/login" ?>"><?= session()->get('isLogin') ? "Akun" : "Masuk" ?></a>
                     </li>
                     <li><a href="/kebijakan-privasi">Kebijakan Privasi</a></li>
-                    <li><a href="/syarat-dan-ketentuan">Syarat dan Ketentuan</a></li>
+                    <li><a href="/syarat-dan-ketentuan">Syarat & Ketentuan</a></li>
                     <li><a href="/faq">FAQ</a></li>
                 </ul>
             </div>

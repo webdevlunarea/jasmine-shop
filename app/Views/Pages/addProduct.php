@@ -44,7 +44,7 @@
                             <tr>
                                 <td>Berat (kg)</td>
                                 <td>
-                                    <div class="baris"><input type="number" class="form-control" name="berat" required>
+                                    <div class="baris"><input type="number" class="form-control" name="berat" step="any" required>
                                     </div>
                                 </td>
                             </tr>
@@ -141,14 +141,14 @@
         console.log(varianArray);
         varian = varianArray.length;
         console.log(varian);
-        hasilVarian = varian * jmlVarian;
+        hasilVarian = jmlVarian + varian - 1;
         console.log(hasilVarian);
         inputElement(hasilVarian);
     });
 
     elmJmlvarian.addEventListener("change", (e) => {
         jmlVarian = Number(e.target.value);
-        hasilVarian = varian * jmlVarian;
+        hasilVarian = jmlVarian + varian - 1;
         console.log(hasilVarian);
         inputElement(hasilVarian);
     });

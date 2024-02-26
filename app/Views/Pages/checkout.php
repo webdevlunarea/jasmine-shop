@@ -56,8 +56,23 @@
             <div id="form-checkout" class="w-100">
                 <div class="pb-3 border-bottom">
                     <h5 class="mb-0">Informasi Pemesan</h5>
-                    <p class="mb-0"><?= $user['nama']; ?> </p>
-                    <p class="mb-0"><?= $user['nohp']; ?></p>
+                    <?php if ($user['email'] != 'tamu') { ?>
+                        <p class="mb-0"><?= $user['nama']; ?> </p>
+                        <p class="mb-0"><?= $user['nohp']; ?></p>
+                    <?php } else { ?>
+                        <div class="form-floating mb-1">
+                            <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= $user['emailPem']; ?>">
+                            <label for="floatingInput">Email</label>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= $user['namaPem']; ?>">
+                            <label for="floatingInput">Nama Lengkap</label>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= $user['nohpPem']; ?>">
+                            <label for="floatingInput">No. HP</label>
+                        </div>
+                    <?php } ?>
                 </div>
                 <div class="py-3">
                     <h5 class="mb-2">Informasi Penerima</h5>
@@ -216,6 +231,9 @@
 </div>
 <script>
     const formAlamatElm = document.querySelectorAll(".form-alamat")
+    const inputNamaPemElm = document.querySelector('input[name="namaPem"]');
+    const inputNohpPemElm = document.querySelector('input[name="nohpPem"]');
+    const inputEmailPemElm = document.querySelector('input[name="emailPem"]');
     const inputNamaElm = document.querySelector('input[name="nama"]');
     const inputNohpElm = document.querySelector('input[name="nohp"]');
     const inputAlamatAddElm = document.querySelector('input[name="alamat_add"]');
@@ -242,10 +260,9 @@
     let hasilApiKurirRO = JSON.parse(<?= json_encode($paketJson); ?>);
     let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] . "-" . $user['alamat']['kodepos'] : ''; ?>"];
     const produk = JSON.parse(<?= json_encode($produkJson); ?>);
+    const keranjang = JSON.parse(<?= json_encode($keranjangJson); ?>);
     let isiAlamat = ["<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kodepos'] : ''; ?>"]
     let isEditAlamat = <?= $user['alamat'] ? 'false' : 'true'; ?>;
-    console.log(produk)
-    console.log(dimensiSemua)
 
     function titleCase(str) {
         var splitStr = str.toLowerCase().split(' ');
@@ -268,18 +285,24 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if (btnCheckoutElm) {
         btnCheckoutElm.addEventListener("click", () => {
+            if (email == 'tamu') {
+                nama = inputNamaPemElm.value;
+                nohp = inputNohpPemElm.value;
+            }
             if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
                 btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
 
                 btnCheckoutElm.innerHTML = "Loading"
                 const data = {
                     nama: nama,
-                    alamat: alamat.alamat,
-                    email: email,
+                    alamat: JSON.stringify(alamat),
+                    email: email == 'tamu' ? inputEmailPemElm.value : email,
                     nohp: nohp,
                     paket: formCheckoutPaket.value,
                     namaPen: inputNamaElm.value,
-                    nohpPen: inputNohpElm.value
+                    nohpPen: inputNohpElm.value,
+                    produk: JSON.stringify(produk),
+                    keranjang: JSON.stringify(keranjang)
                 }
                 const dataPen = {
                     nama: inputNamaElm.value,
@@ -305,10 +328,10 @@
                     const snaptoken = await response.json();
                     console.log(snaptoken);
                     btnCheckoutElm.innerHTML = "Pesan"
-                    window.snap.pay(snaptoken.snapToken, {
+                    /*window.snap.pay(snaptoken.snapToken, {
                         onSuccess: function(result) {
                             // alert("payment success!");
-                            //addTransaction(result, data, dataPen, (atob(formCheckoutPaket.value)).split("@")[1]);
+                            addTransaction(result, data, dataPen, (atob(formCheckoutPaket.value)).split("@")[1]);
                         },
                         onPending: function(result) {
                             // alert("wating your payment!");
@@ -320,7 +343,8 @@
                         onClose: function(result) {
                             console.log(result)
                         }
-                    });
+                    });*/
+                    window.snap.pay(snaptoken.snapToken);
                 }
                 getTokenMditrans()
             } else {
@@ -595,8 +619,13 @@
             parentImgElm.classList.add("parent-img");
             const keteranganElm = document.createElement("p");
             keteranganElm.classList.add("mb-0");
-            keteranganElm.innerHTML =
-                `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+            if (costnya.etd) {
+                keteranganElm.innerHTML =
+                    `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+            } else {
+                keteranganElm.innerHTML =
+                    `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+            }
             const imgElm = document.createElement("img");
             imgElm.src = `img/kurir/${kurir}.png`;
             parentImgElm.appendChild(imgElm)
@@ -612,8 +641,13 @@
                 imgElmPK.src = `img/kurir/${kurir}.png`;
                 const keteranganElmPK = document.createElement("p");
                 keteranganElmPK.classList.add("mb-0");
-                keteranganElmPK.innerHTML =
-                    `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                if (costnya.etd) {
+                    keteranganElmPK.innerHTML =
+                        `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                } else {
+                    keteranganElmPK.innerHTML =
+                        `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+                }
                 const iconElmPK = document.createElement("span");
                 iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
                 divElmPK.appendChild(imgElmPK)

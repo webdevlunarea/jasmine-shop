@@ -148,23 +148,36 @@
     if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
             element.addEventListener("click", () => {
+                console.log(index, jmlVarian);
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
                 element.classList.add("selected");
                 imgProdukPrev.style = "background-image: url('" + element.childNodes[0].src + "')";
                 imgProdukPrevImg.src = element.childNodes[0].src;
-                const hitungBagi4 = Math.floor(index / Number(jmlVarian));
+                // const hitungBagi4 = Math.floor(index / Number(jmlVarian));
                 elmVarianSelect.forEach(e => e.checked = false);
-                elmVarianSelect[hitungBagi4].checked = true
+                if (index >= Number(jmlVarian)) {
+                    elmVarianSelect[index - Number(jmlVarian) + 1].checked = true
+                    console.log(`index elmVarianSelect: ${index - Number(jmlVarian) - 1}`)
+                } else {
+                    elmVarianSelect[0].checked = true
+                    console.log(`index elmVarianSelect: 0`)
+                }
                 setUrlElmBeli()
             })
         });
     }
     elmVarian.addEventListener("change", (e) => {
         imgProdukSelect.forEach(e => e.classList.remove("selected"));
-        imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
-        imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) * Number(
-            jmlVarian)].childNodes[0].src + "')"
-        imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].childNodes[0].src
+        if (e.target.value == '0') {
+            imgProdukSelect[0].classList.add("selected")
+            imgProdukPrev.style = "background-image: url('" + imgProdukSelect[0].childNodes[0].src + "')"
+            imgProdukPrevImg.src = imgProdukSelect[0].childNodes[0].src
+        } else {
+            imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].classList.add("selected")
+            imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src + "')"
+            imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src
+        }
+        // imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
         setUrlElmBeli()
     });
 
@@ -198,6 +211,8 @@
                             ?>";
         const varianArray = varians.split(",")
         const indexGambar = Number(elmSelected) * Number(jmlVarian)
+        console.log(varians, varianArray, indexGambar)
+        console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
         elmBtnBeli.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
     }
     setUrlElmBeli()

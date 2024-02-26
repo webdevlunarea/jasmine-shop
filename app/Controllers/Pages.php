@@ -348,6 +348,23 @@ class Pages extends BaseController
             return redirect()->to('/');
         }
     }
+    public function actionLoginTamu()
+    {
+        $ses_data = [
+            'active' => '1',
+            'email' => 'tamu',
+            'role' => 0,
+            'nama' => 'tamu',
+            'alamat' => [],
+            'nohp' => 'tamu',
+            'wishlist' => [],
+            'keranjang' => [],
+            'transaksi' => [],
+            'isLogin' => true
+        ];
+        session()->set($ses_data);
+        return redirect()->to(site_url('/'));
+    }
     public function actionLogout()
     {
         $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp'];
@@ -365,7 +382,7 @@ class Pages extends BaseController
             }
         }
         $data = [
-            'title' => 'Masuk',
+            'title' => 'Wishlist',
             'produk' => $produk,
             'wishlist' => $wishlist
         ];
@@ -378,7 +395,8 @@ class Pages extends BaseController
         array_push($wishlist, $id);
         session()->set(['wishlist' => $wishlist]);
 
-        $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
         return redirect()->to('/wishlist');
     }
     public function delWishlist($id)
@@ -390,7 +408,8 @@ class Pages extends BaseController
         }
         session()->set(['wishlist' => $wishlist]);
 
-        $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
         return redirect()->to('/wishlist');
     }
 
@@ -420,7 +439,9 @@ class Pages extends BaseController
             }
         }
         session()->set(['keranjang' => $keranjang]);
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
     public function cart()
@@ -480,7 +501,8 @@ class Pages extends BaseController
             }
             $keranjangBaru = array_values($keranjang);
             session()->set(['keranjang' => $keranjangBaru]);
-            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+            if ($email != 'tamu')
+                $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
             return redirect()->to('/cart');
         }
 
@@ -528,7 +550,8 @@ class Pages extends BaseController
             array_push($keranjang, $keranjangBaru);
         }
         session()->set(['keranjang' => $keranjang]);
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
     public function redCart($index_cart)
@@ -540,12 +563,14 @@ class Pages extends BaseController
             unset($keranjang[$index_cart]);
             $keranjangBaru = array_values($keranjang);
             session()->set(['keranjang' => $keranjangBaru]);
-            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+            if ($email != 'tamu')
+                $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
             return redirect()->to('/cart');
         }
         session()->set(['keranjang' => $keranjang]);
 
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         return redirect()->to('/cart');
     }
     public function delCart($index_cart)
@@ -555,12 +580,14 @@ class Pages extends BaseController
         unset($keranjang[$index_cart]);
         $keranjangBaru = array_values($keranjang);
         session()->set(['keranjang' => $keranjangBaru]);
-        $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
         return redirect()->to('/cart');
     }
     public function successPay()
     {
-        // if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
+        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Sukses',
             'data_transaksi' => array(
@@ -572,7 +599,7 @@ class Pages extends BaseController
     }
     public function progressPay()
     {
-        if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
+        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Pending',
             'data_transaksi' => array(
@@ -584,7 +611,7 @@ class Pages extends BaseController
     }
     public function errorPay()
     {
-        if (session()->getFlashdata('status_transaksi') == null) return redirect()->to('/');
+        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Gagal',
             'data_transaksi' => array(
@@ -625,7 +652,7 @@ class Pages extends BaseController
 
                 array_push($produkJson, array(
                     'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
-                    'description' => $produknya['deskripsi'],
+                    // 'description' => $produknya['deskripsi'],
                     'value' => $hasil,
                     'length' => (float)$dimensi[0],
                     'width' => (float)$dimensi[1],
@@ -819,6 +846,7 @@ class Pages extends BaseController
             'subtotal' => $subtotal,
             'provinsi' => $provinsi["rajaongkir"]["results"],
             'keranjang' => $keranjang,
+            'keranjangJson' => json_encode($keranjang),
             'paket' => $paket,
             'paketJson' => json_encode($paket),
         ];
@@ -841,9 +869,10 @@ class Pages extends BaseController
             "alamat" => $a[5],
         ];
         // dd($arr);
-        $this->pembeliModel->where('email_user', $email)->set([
-            'alamat' => json_encode($arr),
-        ])->update();
+        if ($email != 'tamu')
+            $this->pembeliModel->where('email_user', $email)->set([
+                'alamat' => json_encode($arr),
+            ])->update();
 
         session()->set(['alamat' => $arr]);
         return redirect()->to('/checkout');
@@ -964,10 +993,14 @@ class Pages extends BaseController
         $nohp = $this->request->getVar('nohp');
         $email = $this->request->getVar('email');
         $paketData = $this->request->getVar('paket');
+        $items = $this->request->getVar('produk');
+        $keranjangJson = $this->request->getVar('keranjang');
         $paket = (int)explode("@", base64_decode($paketData))[0];
+        $kurir = explode("@", base64_decode($paketData))[1];
 
-        $getPembeli = $this->pembeliModel->getPembeli($email);
-        $keranjang = json_decode($getPembeli['keranjang'], true);
+        // $getPembeli = $this->pembeliModel->getPembeli($email);
+        // $keranjang = json_decode($getPembeli['keranjang'], true);
+        $keranjang = json_decode($keranjangJson, true);
         $produk = [];
         $jumlah = [];
         $subtotal = 0;
@@ -1009,11 +1042,16 @@ class Pages extends BaseController
         \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
         \Midtrans\Config::$isProduction = true;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
+        $randomId = rand();
+        $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $randomId . "&" . str_replace("&", "@", $kurir) . "&" . $items;
         $params = array(
             'transaction_details' => array(
-                'order_id' => "JSM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1)),
-                //'order_id' => rand(),
+                // 'order_id' => "JSM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1)),
+                'order_id' => $randomId,
                 'gross_amount' => $total,
+            ),
+            'callbacks' => array(
+                'finish' => "https://jasminefurniture.store/finish_url/JSM-zWYWObdPEKlHA0PWP6BN/" . $stringData,
             ),
             'customer_details' => array(
                 'email' => $email,
@@ -1023,13 +1061,13 @@ class Pages extends BaseController
                     'email' => $email,
                     'first_name' => $nama,
                     'phone' => $nohp,
-                    'address' => $alamat,
+                    'address' => json_decode($alamat, true)['alamat'],
                 ),
                 'shipping_address' => array(
                     'email' => $email,
                     'first_name' => $namaPen,
                     'phone' => $nohpPen,
-                    'address' => $alamat,
+                    'address' => json_decode($alamat, true)['alamat'],
                 )
             ),
             'item_details' => $itemDetails
@@ -1160,83 +1198,15 @@ class Pages extends BaseController
     public function transaction()
     {
         $email = session()->get("email");
-        $transaksi = session()->get("transaksi");
-        // $auth = base64_encode("Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd" . ":");
-
-        // $cekAdaEror = false;
-        // foreach ($transaksi as $t_ind => $t) {
-        // $curl = curl_init();
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $t . "/status",
-        //     CURLOPT_SSL_VERIFYHOST => 0,
-        //     CURLOPT_SSL_VERIFYPEER => 0,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => "",
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 30,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => "GET",
-        //     CURLOPT_HTTPHEADER => array(
-        //         "authorization: Basic " . $auth,
-        //         "content-type: application/json",
-        //         "Accept: application/json"
-        //     ),
-        // ));
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-        // curl_close($curl);
-        // if ($err) {
-        //     return "cURL Error #:" . $err;
-        // }
-        // $item_status = json_decode($response, true);
-
-        //     if (!isset($item_status['transaction_status'])) {
-        //         $cekAdaEror = true;
-        //         break;
-        //     }
-        //     $oldTransaction = $this->pemesananModel->getPemesanan($t);
-        //     // dd($oldTransaction);
-        //     if ($item_status['transaction_status'] != json_decode($oldTransaction['data_mid'], true)['transaction_status']) {
-        //         switch ($item_status['transaction_status']) {
-        //             case 'settlement':
-        //                 $status = "Proses";
-        //                 break;
-        //             case 'capture':
-        //                 $status = "Proses";
-        //                 break;
-        //             case 'pending':
-        //                 $status = "Menunggu Pembayaran";
-        //                 break;
-        //             case 'expire':
-        //                 $status = "Kadaluarsa";
-        //                 break;
-        //             case 'deny':
-        //                 $status = "Ditolak";
-        //                 break;
-        //             case 'failure':
-        //                 $status = "Gagal";
-        //                 break;
-        //             case 'refund':
-        //                 $status = "Refund";
-        //                 break;
-        //             case 'partial_refund':
-        //                 $status = "Partial Refund";
-        //                 break;
-        //             case 'cancel':
-        //                 $status = "Dibatalkan";
-        //                 break;
-        //             default:
-        //                 $status = "No Status";
-        //                 break;
-        //         }
-        //         $this->pemesananModel->where('id_midtrans', $t)->set([
-        //             'status' => $status,
-        //             'data_mid' => json_encode($item_status),
-        //         ])->update();
-        //     }
-        // }
-
-        $detailTransaksi = $this->pemesananModel->getPemesananCus($email);
+        $detailTransaksi = [];
+        if ($email != 'tamu')
+            $detailTransaksi = $this->pemesananModel->getPemesananCus($email);
+        else {
+            $transaksi = session()->get("transaksi");
+            foreach ($transaksi as $idMid) {
+                array_push($detailTransaksi, $this->pemesananModel->getPemesanan($idMid));
+            }
+        }
         $data = [
             'title' => 'Transaksi Pembayaran',
             'transaksi' => $detailTransaksi,
@@ -1296,49 +1266,87 @@ class Pages extends BaseController
         session()->set(['transaksi' => $hasilnya]);
         return redirect()->to('/transaction');
     }
-    public function cobaGetPayment($order_id)
+    public function finishUrlMid($code, $status)
     {
-        \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
-        \Midtrans\Config::$isProduction = true;
-        try {
-            // $transaksi = \Midtrans\Transaction::status($order_id);
-            // $transaksi = \Midtrans\Transaction::statusB2b($order_id);
-            $params = array(
-                'transaction_details' => array(
-                    'order_id' => $order_id,
-                    'gross_amount' => 10000,
-                )
-            );
-            $transaksi = \Midtrans\CoreApi::capture($order_id);
-            dd($transaksi);
-        } catch (\Throwable $th) {
-            echo $th;
+        dd([
+            'code' => $code,
+            'status' => $status
+        ]);
+        if ($code != "JSM-zWYWObdPEKlHA0PWP6BN") {
+            return redirect()->to("/");
         }
-        // $auth = base64_encode("Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd" . ":");
-        // $curl = curl_init();
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => "https://api.midtrans.com/v1/payment-links/" . $order_id,
-        //     CURLOPT_SSL_VERIFYHOST => 0,
-        //     CURLOPT_SSL_VERIFYPEER => 0,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => "",
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 30,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => "GET",
-        //     CURLOPT_HTTPHEADER => array(
-        //         "authorization: Basic " . $auth,
-        //         "content-type: application/json",
-        //         "Accept: application/json"
-        //     ),
-        // ));
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-        // curl_close($curl);
-        // if ($err) {
-        //     return "cURL Error #:" . $err;
-        // }
-        // $paymentDetails = json_decode($response, true);
+        session()->setFlashdata('id_pesanan', 'JSM0000000');
+        switch ($status) {
+            case 'success':
+                return redirect()->to("/successpay");
+                break;
+            case 'pending':
+                return redirect()->to("/progresspay");
+                break;
+            case 'error':
+                return redirect()->to("/errorpay");
+                break;
+            default:
+                return redirect()->to("/errorpay");
+                break;
+        }
+    }
+    public function finishUrl($code, $data = false)
+    {
+        if ($code != "JSM-zWYWObdPEKlHA0PWP6BN") {
+            return redirect()->to("/");
+        }
+        if ($data) {
+            $dataArr = explode("&", $data);
+            $email = $dataArr[0];
+            $nama = $dataArr[1];
+            $nohp = $dataArr[2];
+            $namaPen = $dataArr[3];
+            $nohpPen = $dataArr[4];
+            $alamat = $dataArr[5];
+            $orderId = $dataArr[6];
+            $kurir = str_replace("@", "&", $dataArr[7]);
+            $items = $dataArr[8];
+            $this->pemesananModel->where('id_midtrans', $orderId)->set([
+                'nama_cus' => $nama,
+                'email_cus' => $email,
+                'hp_cus' => $nohp,
+                'nama_pen' => $namaPen,
+                'hp_pen' => $nohpPen,
+                'alamat_pen' => $alamat,
+                'resi' => "Menunggu pengiriman " . $kurir,
+                'items' => $items,
+                'kurir' => $kurir,
+            ])->update();
+            $pemesananSelected = $this->pemesananModel->getPemesanan($orderId);
+            session()->setFlashdata('id_pesanan', $orderId);
+            switch ($pemesananSelected['status']) {
+                case 'Proses':
+                    return redirect()->to("/successpay");
+                    break;
+                case 'Menunggu Pembayaran':
+                    return redirect()->to("/progresspay");
+                    break;
+                case 'Kadaluarsa':
+                    return redirect()->to("/expirepay");
+                    break;
+                case 'Ditolak':
+                    return redirect()->to("/denypay");
+                    break;
+                case 'Gagal':
+                    return redirect()->to("/failurepay");
+                    break;
+                case 'Dibatalkan':
+                    return redirect()->to("/cancelpay");
+                    break;
+                default:
+                    return redirect()->to("/errorpay");
+                    break;
+            }
+        } else {
+            session()->setFlashdata('id_pesanan', 'JSM0010101010101');
+            return redirect()->to("/errorpay");
+        }
     }
     public function updateTransaction()
     {
@@ -1346,8 +1354,6 @@ class Pages extends BaseController
         $body = json_decode($bodyJson, true);
         $order_id = $body['order_id'];
         $fraud = $body['fraud_status'];
-        $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
-
         if ($fraud == "accept") {
             switch ($body['transaction_status']) {
                 case 'settlement':
@@ -1385,6 +1391,7 @@ class Pages extends BaseController
             $status = 'Forbidden';
         }
 
+        $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
         if (isset($dataTransaksi_curr)) {
             $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
             $dataMid_curr['transaction_status'] = $body['transaction_status'];
@@ -1393,61 +1400,28 @@ class Pages extends BaseController
                 'data_mid' => json_encode($dataMid_curr),
             ])->update();
         } else {
-            $auth = base64_encode("Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd" . ":");
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.midtrans.com/v1/payment-links/" . $order_id,
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => array(
-                    "authorization: Basic " . $auth,
-                    "content-type: application/json",
-                    "Accept: application/json"
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $paymentDetails = json_decode($response, true);
-
-            $getPembeli = $this->pembeliModel->getPembeli($body['emailCus']);
-            $transaksi = json_decode($getPembeli['transaksi'], true);
-            array_push($transaksi, $body['idMid']);
-
-            $d = strtotime("+7 Hours");
-            $tanggal = date("d/m/Y", $d);
-
-            $this->pembeliModel->where('email_user', $body['emailCus'])->set(['transaksi' => json_encode($transaksi)])->update();
             $this->pemesananModel->insert([
-                'nama_cus' => $body['namaCus'],
-                'email_cus' => $body['emailCus'],
-                'hp_cus' => $body['hpCus'],
-                'nama_pen' => $body['namaPen'],
-                'hp_pen' => $body['hpPen'],
-                'alamat_pen' => json_encode($body['alamatPen']),
-                'resi' => $body['resi'],
-                'id_midtrans' => $body['idMid'],
-                'items' => json_encode($body['items']),
-                'status' => $body['status'],
-                'kurir' => $body['kurir'],
-                'data_mid' => json_encode($body['dataMid']),
+                'nama_cus' => '',
+                'email_cus' => '',
+                'hp_cus' => '',
+                'nama_pen' => '',
+                'hp_pen' => '',
+                'alamat_pen' => json_encode([]),
+                'resi' => '',
+                'items' => json_encode([]),
+                'kurir' => '',
+                'id_midtrans' => $order_id,
+                'status' => $status,
+                'data_mid' => json_encode($body),
             ]);
         }
-        $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
+        // $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
         $arr = [
             'success' => true,
         ];
         return $this->response->setJSON($arr, false);
     }
+
     public function updateTransactionBackup()
     {
         // $bodyJson = $this->request->getBody();
@@ -1588,17 +1562,25 @@ class Pages extends BaseController
         return view('pages/product', $data);
     }
 
-    public function productFilter($nama)
+    public function productFilter($namaDash, $page = 1)
     {
-        $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll(20, 0);
+        $nama = str_replace("-", " ", $namaDash);
+        $pagination = (int)$page;
+        if ($pagination > 1) {
+            $hitungOffset = 20 * ($pagination - 1);
+            $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll(20, $hitungOffset);
+        } else {
+            $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll(20, 0);
+        }
         $semuaproduk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll();
+
         $data = [
             'title' => 'Produk',
             'produk' => $produk,
             'nama' => $nama,
             'kategori' => false,
             'semuaProduk' => $semuaproduk,
-            'page' => 1,
+            'page' => $page,
         ];
         return view('pages/all', $data);
     }
@@ -1788,7 +1770,7 @@ class Pages extends BaseController
         $d = strtotime("+7 Hours");
         $tanggal = "B" . date("YmdHis", $d);
         $varian = explode(",", $this->request->getVar('varian'));
-        $hasilVarian = count(explode(",", $this->request->getVar('varian'))) * (int)$this->request->getVar('jml_varian');
+        $hasilVarian = count(explode(",", $this->request->getVar('varian'))) + (int)$this->request->getVar('jml_varian') - 1;
         $gambarnya = [];
         $insertGambarBarang = [
             'id' => $tanggal
@@ -1797,6 +1779,12 @@ class Pages extends BaseController
             array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
             $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
         }
+        // dd([
+        //     'varian' => $varian,
+        //     'hasilVarian' => $hasilVarian,
+        //     'gambar1' => file_get_contents($this->request->getFile("gambar1")),
+        //     'gambarnya' => $gambarnya
+        // ]);
         $this->barangModel->insert([
             'id'            => $tanggal,
             'nama'          => $this->request->getVar('nama'),
@@ -1836,8 +1824,9 @@ class Pages extends BaseController
     public function actionEditProduct($id)
     {
         $varian = explode(",", $this->request->getVar('varian'));
+        dd(file_get_contents($this->request->getFile("gambar1")));
         if (!empty($_FILES['gambar1']['tmp_name'])) {
-            $hasilVarian = count(explode(",", $this->request->getVar('varian'))) * (int)$this->request->getVar('jml_varian');
+            $hasilVarian = count(explode(",", $this->request->getVar('varian'))) + (int)$this->request->getVar('jml_varian') - 1;
             $gambarnya = [];
             $insertGambarBarang = [
                 'id' => $id

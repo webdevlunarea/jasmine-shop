@@ -20,6 +20,7 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
+$routes->get('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
 $routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
@@ -47,11 +48,14 @@ $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
 $routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
-$routes->get('/cobapayment/(:any)', 'Pages::cobaGetPayment/$1');
 $routes->post('/updatetransaction', 'Pages::updateTransaction');
-$routes->get('/successpay', 'Pages::successPay', ['filter' => 'harusUser']);
-$routes->get('/progresspay', 'Pages::progressPay', ['filter' => 'harusUser']);
-$routes->get('/errorpay', 'Pages::errorPay', ['filter' => 'harusUser']);
+
+$routes->get('/finish_urlMid/(:any)/(:any)', 'Pages::finishUrlMid/$1/$2');
+$routes->get('/finish_url/(:any)', 'Pages::finishUrl/$1');
+$routes->get('/finish_url/(:any)/(:any)', 'Pages::finishUrl/$1/$2'); //code rahasia = JSM-zWYWObdPEKlHA0PWP6BN
+$routes->get('/successpay', 'Pages::successPay');
+$routes->get('/progresspay', 'Pages::progressPay');
+$routes->get('/errorpay', 'Pages::errorPay');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
 $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
@@ -61,7 +65,8 @@ $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
-$routes->get('/productNama/(:any)', 'Pages::productFilter/$1');
+$routes->get('/find/(:any)', 'Pages::productFilter/$1');
+$routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);

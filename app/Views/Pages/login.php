@@ -19,7 +19,7 @@
                     </div>
                 <?php } ?>
                 <h3>Masuk</h3>
-                <p>Masukan informasimu dibawah</p>
+                <p>Masukan data pribadi Anda dibawah ini</p>
                 <form action="/masuk" method="post">
                     <?= csrf_field(); ?>
                     <div class="form-floating mb-1">
@@ -40,6 +40,8 @@
                 </form>
                 <p class="mt-3">Belum punya akun? <a href="/signup" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Daftar
                         disini</a></p>
+                <span class="garis mb-3"></span>
+                <a class="btn btn-primary1" href="/logintamu">Masuk sebagai tamu</a>
             </div>
         </div>
     </div>

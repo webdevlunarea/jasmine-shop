@@ -10,7 +10,7 @@ class LoginFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (!session("isLogin")) {
+        if (!session("isLogin") || session('email') == 'tamu') {
             return redirect()->to(site_url('login'));
         }
     }

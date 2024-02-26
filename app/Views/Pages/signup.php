@@ -19,7 +19,7 @@
                     </div>
                 <?php } ?>
                 <h1>Buat Akun</h1>
-                <p>Masukan informasimu dibawah</p>
+                <p>Masukan data pribadi Anda dibawah ini</p>
                 <form action="/daftar" method="post">
                     <?= csrf_field(); ?>
                     <div class="form-floating mb-1">
@@ -50,7 +50,11 @@
                             <?= $val['val_nohp']; ?>
                         </div>
                     </div>
-                    <input class="btn btn-primary1" type="submit" value="Buat">
+                    <div class="form-floating mb-3">
+                        <input type="checkbox" id="syarat" style="display:inline" required>
+                        <label for="syarat" style="display:inline">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                    </div>
+                    <input class="btn btn-primary1 disabled" type="submit" value="Buat Sekarang">
                 </form>
                 <p class="mt-3">Sudah punya akun? <a href="/login" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Masuk</a></p>
             </div>

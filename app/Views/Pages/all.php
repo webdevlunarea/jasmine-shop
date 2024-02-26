@@ -114,27 +114,51 @@
 
         <?php if (count($semuaProduk) > count($produk)) { ?>
             <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                    <?php if ((int)$page > 1) { ?>
-                        <li class="page-item">
-                            <a class="page-link text-dark" href="/page/<?= $kategori ? ((int)$page - 1) . "/" . $kategori : ((int)$page - 1); ?>" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    <?php }
-                    $hitungGrupMax = ceil(count($semuaProduk) / 20);
-                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
-                    ?>
-                        <li class="page-item"><a class="page-link text-dark" href="/page/<?= $kategori ? $x . "/" . $kategori : $x; ?>"><?= $x; ?></a></li>
-                    <?php } ?>
-                    <?php if ((int)$page < $hitungGrupMax) { ?>
-                        <li class="page-item">
-                            <a class="page-link text-dark" href="/page/<?= $kategori ? ((int)$page + 1) . "/" . $kategori : ((int)$page + 1); ?>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    <?php } ?>
-                </ul>
+                <?php if ($nama) { ?>
+                    <ul class="pagination justify-content-center">
+                        <?php if ((int)$page > 1) { ?>
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="/find/<?= str_replace(" ", "-", $nama); ?>/<?= (int)$page - 1; ?>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        <?php }
+                        $hitungGrupMax = ceil(count($semuaProduk) / 20);
+                        for ($x = 1; $x <= $hitungGrupMax; $x++) {
+                        ?>
+                            <li class="page-item"><a class="page-link text-dark" href="/find/<?= str_replace(" ", "-", $nama); ?>/<?= $x; ?>"><?= $x; ?></a></li>
+                        <?php } ?>
+                        <?php if ((int)$page < $hitungGrupMax) { ?>
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="/find/<?= str_replace(" ", "-", $nama); ?>/<?= (int)$page + 1; ?>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                <?php } else { ?>
+                    <ul class="pagination justify-content-center">
+                        <?php if ((int)$page > 1) { ?>
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="/page/<?= $kategori ? ((int)$page - 1) . "/" . $kategori : ((int)$page - 1); ?>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        <?php }
+                        $hitungGrupMax = ceil(count($semuaProduk) / 20);
+                        for ($x = 1; $x <= $hitungGrupMax; $x++) {
+                        ?>
+                            <li class="page-item"><a class="page-link text-dark" href="/page/<?= $kategori ? $x . "/" . $kategori : $x; ?>"><?= $x; ?></a></li>
+                        <?php } ?>
+                        <?php if ((int)$page < $hitungGrupMax) { ?>
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="/page/<?= $kategori ? ((int)$page + 1) . "/" . $kategori : ((int)$page + 1); ?>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                <?php } ?>
             </nav>
         <?php } ?>
     </div>

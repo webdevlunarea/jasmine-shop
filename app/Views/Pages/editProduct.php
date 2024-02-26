@@ -42,7 +42,7 @@
                             <tr>
                                 <td>Berat (kg)</td>
                                 <td>
-                                    <div class="baris"><input value="<?= $produk['berat']; ?>" type="number" class="form-control" name="berat" required>
+                                    <div class="baris"><input value="<?= $produk['berat']; ?>" type="number" class="form-control" name="berat" step="any" required>
                                     </div>
                                 </td>
                             </tr>
@@ -135,7 +135,7 @@
     const ambilJmlvarian = "<?= $produk['jml_varian'] ?>"
     let varian = Number(ambilVarian);
     let jmlVarian = Number(ambilJmlvarian);
-    let hasilVarian = varian * jmlVarian
+    let hasilVarian = jmlVarian + varian - 1
     console.log(varian, jmlVarian, hasilVarian, ambilVarian, ambilJmlvarian)
     inputElement(hasilVarian);
 
@@ -144,14 +144,14 @@
         console.log(varianArray);
         varian = varianArray.length;
         console.log(varian);
-        hasilVarian = varian * jmlVarian;
+        hasilVarian = jmlVarian + varian - 1;
         console.log(hasilVarian);
         inputElement(hasilVarian);
     });
 
     elmJmlvarian.addEventListener("change", (e) => {
         jmlVarian = Number(e.target.value);
-        hasilVarian = varian * jmlVarian;
+        hasilVarian = jmlVarian + varian - 1;
         console.log(hasilVarian);
         inputElement(hasilVarian);
     });

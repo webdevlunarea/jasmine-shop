@@ -69,8 +69,8 @@
         searchBox.forEach((elm, ind) => {
             elm.addEventListener('submit', (e) => {
                 e.preventDefault()
-                const isinya = searchBoxInput[ind].value
-                window.location.href = "/productNama/" + isinya
+                const isinya = searchBoxInput[ind].value.replace(/\s+/g, '-')
+                window.location.href = "/find/" + isinya
             })
         })
     </script>

@@ -81,7 +81,7 @@ class ApiCompany extends BaseController
     }
     public function kategori($kategori, $page = 1)
     {
-        $hitungPag = floor($page / 20);
+        $hitungPag = 20 * ($page - 1);
         $produk = $this->barangModel->where('kategori', $kategori)->orderBy('nama', 'asc')->findAll(20, $hitungPag);
         $produkAll = $this->barangModel->where('kategori', $kategori)->orderBy('nama', 'asc')->findAll();
         $formatting = array_map("self::formatting", $produk);
@@ -94,7 +94,7 @@ class ApiCompany extends BaseController
     }
     public function subkategori($subkategori, $page = 1)
     {
-        $hitungPag = floor($page / 20);
+        $hitungPag = 20 * ($page - 1);
         $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll(20, $hitungPag);
         $produkAll = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll();
         $formatting = array_map("self::formatting", $produk);
@@ -109,7 +109,7 @@ class ApiCompany extends BaseController
     {
         // $bodyJson = $this->request->getBody();
         // $body = json_decode($bodyJson, true);
-        $hitungPag = floor($page / 20);
+        $hitungPag = 20 * ($page - 1);
         $produk = $this->barangModel->like("nama", $cari, "both")->orderBy('nama', 'asc')->findAll(20, $hitungPag);
         $produkAll = $this->barangModel->like("nama", $cari, "both")->orderBy('nama', 'asc')->findAll();
         $formatting = array_map("self::formatting", $produk);
