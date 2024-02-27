@@ -51,8 +51,10 @@
                         </div>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="checkbox" id="syarat" style="display:inline" required>
-                        <label for="syarat" style="display:inline">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                        <p>
+                            <input type="checkbox" id="syarat" style="display: inline;" required>
+                            <label for="syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                        </p>
                     </div>
                     <input class="btn btn-primary1 disabled" type="submit" value="Buat Sekarang">
                 </form>
@@ -61,4 +63,15 @@
         </div>
     </div>
 </div>
+<script>
+    const buttonSubmit = document.querySelector('input[type="submit"]');
+    const checkboxElm = document.querySelector('input[type="checkbox"]');
+    checkboxElm.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            buttonSubmit.classList.remove('disabled')
+        } else {
+            buttonSubmit.classList.add('disabled')
+        }
+    })
+</script>
 <?= $this->endSection(); ?>

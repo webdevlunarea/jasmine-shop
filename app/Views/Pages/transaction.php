@@ -6,9 +6,13 @@
             <div style="width: 30%;" class="show-ke-hide">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><b>Transaksi</b></li>
-                    <li class="list-group-item"><a class="list" href="/account">Profilku</a></li>
-                    <li class="list-group-item"><a class="list" href="/cart">Keranjang</a></li>
-                    <li class="list-group-item"><a class="list" href="/wishlist">Wishlist</a></li>
+                    <?php if (session()->get('email') != 'tamu') { ?>
+                        <li class="list-group-item"><a class="list" href="/account">Profilku</a></li>
+                    <?php } ?>
+                    <?php if (session()->get('role') == '0') { ?>
+                        <li class="list-group-item"><a class="list" href="/cart">Keranjang</a></li>
+                        <li class="list-group-item"><a class="list" href="/wishlist">Wishlist</a></li>
+                    <?php } ?>
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>

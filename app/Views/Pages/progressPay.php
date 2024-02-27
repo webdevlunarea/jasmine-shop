@@ -4,9 +4,8 @@
     <div class="container">
         <div class="justify-content-center">
             <div class="text-center">
-                <h1 class="display-5">Pembayaran Sedang Diproses</h1>
-                <p class="lead">Pembayaran Anda sedang dalam proses verifikasi. Harap tunggu konfirmasi lebih lanjut.
-                </p>
+                <h3>Kami menunggu pembayaran Anda</h3>
+                <!-- <p>Pembayaran Anda sedang dalam proses verifikasi. Harap tunggu konfirmasi lebih lanjut.</p> -->
                 <i class="bi bi-hourglass-split text-warning display-1 mt-4 mb-4"></i>
                 <div class="mb-3">
                     <a href="<?= base_url(); ?>" class="btn btn-primary1 btn-lg me-3 mb-2">Kembali ke Halaman Utama</a>

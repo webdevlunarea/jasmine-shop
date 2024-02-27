@@ -19,11 +19,11 @@
                     </div>
                 <?php } ?>
                 <h3>Masuk</h3>
-                <p>Masukan data pribadi Anda dibawah ini</p>
+                <p>Masukan data Anda dibawah ini</p>
                 <form action="/masuk" method="post">
                     <?= csrf_field(); ?>
                     <div class="form-floating mb-1">
-                        <input type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= old('email'); ?>">
+                        <input type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= $val['isiEmail']; ?>">
                         <label for="floatingInput">Email</label>
                         <div class="invalid-feedback">
                             <?= $val['val_email']; ?>

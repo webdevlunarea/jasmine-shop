@@ -61,15 +61,15 @@
                         <p class="mb-0"><?= $user['nohp']; ?></p>
                     <?php } else { ?>
                         <div class="form-floating mb-1">
-                            <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= $user['emailPem']; ?>">
+                            <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
                             <label for="floatingInput">Email</label>
                         </div>
                         <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= $user['namaPem']; ?>">
+                            <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= session()->getFlashdata('namaPem') ? session()->getFlashdata('namaPem') : ''; ?>">
                             <label for="floatingInput">Nama Lengkap</label>
                         </div>
                         <div class="form-floating mb-1">
-                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= $user['nohpPem']; ?>">
+                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= session()->getFlashdata('nohpPem') ? session()->getFlashdata('nohpPem') : ''; ?>">
                             <label for="floatingInput">No. HP</label>
                         </div>
                     <?php } ?>
@@ -217,19 +217,26 @@
                             <?= number_format($total, 0, ",", "."); ?></b>
                     </p>
                 </div>
-                <div class="d-flex justify-content-between" style="gap: 10em;">
+                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
                     <p class="my-2"><b><?= $beratAkhir; ?> kg</b>
                     </p>
                 </div>
+                <div class="mt-2">
+                    <p>
+                        <input type="checkbox" id="syarat" style="display: inline;" required>
+                        <label for="syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                    </p>
+                </div>
                 <?php if ($user['alamat']) { ?>
-                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button">Pesan</button>
+                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button">Bayar</button>
                 <?php } ?>
             </div>
         </div>
     </div>
 </div>
 <script>
+    const checkboxElm = document.querySelector('input[type="checkbox"]');
     const formAlamatElm = document.querySelectorAll(".form-alamat")
     const inputNamaPemElm = document.querySelector('input[name="namaPem"]');
     const inputNohpPemElm = document.querySelector('input[name="nohpPem"]');
@@ -250,9 +257,9 @@
     const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
     const inputPaketElm = document.getElementById("set-paket");
     const subtotal = "<?= $subtotal; ?>";
-    const email = "<?= session()->get('email') ?>";
-    const nama = "<?= session()->get('nama') ?>";
-    const nohp = "<?= session()->get('nohp') ?>";
+    let email = "<?= session()->get('email') ?>";
+    let nama = "<?= session()->get('nama') ?>";
+    let nohp = "<?= session()->get('nohp') ?>";
     const alamat = JSON.parse(<?= json_encode($alamatJson); ?>);
     const beratTotal = Number("<?= $beratAkhir; ?>");
     const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
@@ -285,13 +292,22 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if (btnCheckoutElm) {
         btnCheckoutElm.addEventListener("click", () => {
+            inputEmailPemElm.classList.remove("is-invalid")
+            inputNamaPemElm.classList.remove("is-invalid")
+            inputNohpPemElm.classList.remove("is-invalid")
+            inputNamaElm.classList.remove("is-invalid")
+            inputNohpElm.classList.remove("is-invalid")
             if (email == 'tamu') {
+                if (inputEmailPemElm.value == '') return inputEmailPemElm.classList.add("is-invalid")
+                if (inputNamaPemElm.value == '') return inputNamaPemElm.classList.add("is-invalid")
+                if (inputNohpPemElm.value == '') return inputNohpPemElm.classList.add("is-invalid")
                 nama = inputNamaPemElm.value;
                 nohp = inputNohpPemElm.value;
             }
+            if (inputNamaElm.value == '') return inputNamaElm.classList.add("is-invalid")
+            if (inputNohpElm.value == '') return inputNohpElm.classList.add("is-invalid")
             if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
                 btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
-
                 btnCheckoutElm.innerHTML = "Loading"
                 const data = {
                     nama: nama,
@@ -304,10 +320,10 @@
                     produk: JSON.stringify(produk),
                     keranjang: JSON.stringify(keranjang)
                 }
-                const dataPen = {
-                    nama: inputNamaElm.value,
-                    nohp: inputNohpElm.value,
-                }
+                // const dataPen = {
+                //     nama: inputNamaElm.value,
+                //     nohp: inputNohpElm.value,
+                // }
                 console.log(data, dataPen)
                 async function getTokenMditrans() {
                     var formBody = [];
@@ -355,22 +371,23 @@
 
     function handleEditAlamat() {
         if (isEditAlamat) {
-            inputNamaElm.classList.remove("is-invalid")
-            inputNohpElm.classList.remove("is-invalid")
+            const stringDataLain = `${inputEmailPemElm.value}&${inputNamaPemElm.value}&${inputNohpPemElm.value}&${inputNamaElm.value}&${inputNohpElm.value}`
+            // inputNamaElm.classList.remove("is-invalid")
+            // inputNohpElm.classList.remove("is-invalid")
             inputAlamatAddElm.classList.remove("is-invalid")
             provElm.classList.remove("is-invalid")
             kotaElm.classList.remove("is-invalid")
             kecElm.classList.remove("is-invalid")
             kodeElm.classList.remove("is-invalid")
-            if (inputNamaElm.value == '') return inputNamaElm.classList.add("is-invalid")
-            if (inputNohpElm.value == '') return inputNohpElm.classList.add("is-invalid")
+            // if (inputNamaElm.value == '') return inputNamaElm.classList.add("is-invalid")
+            // if (inputNohpElm.value == '') return inputNohpElm.classList.add("is-invalid")
             if (Number(provElm.value) < 0) return provElm.classList.add("is-invalid")
             if (Number(kotaElm.value) < 0) return kotaElm.classList.add("is-invalid")
             if (Number(kecElm.value) < 0) return kecElm.classList.add("is-invalid")
             if (Number(kodeElm.value) < 0) return kodeElm.classList.add("is-invalid")
             if (inputAlamatAddElm.value == '') return inputAlamatAddElm.classList.add("is-invalid");
             if (inputAlamatAddElm.value.includes("/")) return inputAlamatAddElm.classList.add("is-invalid");
-            window.location.href = `updatealamat/${provElm.value}&${kotaElm.value}&${kecElm.value}&${kodeElm.value}&${inputAlamatAddElm.value}&${inputAlamatElm.value}&${email}`
+            window.location.href = `updatealamat/${provElm.value}&${kotaElm.value}&${kecElm.value}&${kodeElm.value}&${inputAlamatAddElm.value}&${inputAlamatElm.value}&${email}/${stringDataLain}`
         } else {
             formAlamatElm.forEach((form, ind) => {
                 if (ind < formAlamatElm.length - 1)
@@ -662,9 +679,16 @@
                 // inputPaketElm.value = btoa(`${costnya.value}`);
                 inputPaketElm.value = btoa(`${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`);
                 containerPilihKurir.style.display = "none";
-                btnCheckoutElm.classList.remove("disabled")
+                if (checkboxElm.checked) btnCheckoutElm.classList.remove("disabled")
             })
         })
     }
+
+    checkboxElm.addEventListener("change", (e) => {
+        if (inputPaketElm.value != '0') {
+            if (e.target.checked) btnCheckoutElm.classList.remove('disabled')
+            else btnCheckoutElm.classList.add('disabled')
+        }
+    })
 </script>
 <?= $this->endSection(); ?>

@@ -268,6 +268,7 @@ class Pages extends BaseController
                 'msg' => session()->getFlashdata('msg'),
                 'val_email' => session()->getFlashdata('val-email'),
                 'val_sandi' => session()->getFlashdata('val-sandi'),
+                'isiEmail' => session()->getFlashdata('isiEmail'),
             ]
         ];
         return view('pages/login', $data);
@@ -309,6 +310,7 @@ class Pages extends BaseController
         $authSandi = password_verify($sandi, $getUser['sandi']);
         if (!$authSandi) {
             session()->setFlashdata('msg', 'Sandi salah');
+            session()->setFlashdata('isiEmail', $email);
             return redirect()->to('/login');
         }
         if ($getUser['active'] == '0') {
@@ -828,9 +830,9 @@ class Pages extends BaseController
         }
 
         $user = [
-            'nama' => $nama,
+            'nama' => $email == 'tamu' ? (session()->getFlashdata('namaPen') ? session()->getFlashdata('namaPen') : '') : $nama,
             'alamat' => $alamat,
-            'nohp' => $nohp,
+            'nohp' => $email == 'tamu' ? (session()->getFlashdata('nohpPen') ? session()->getFlashdata('nohpPen') : '') : $nohp,
             'email' => $email,
         ];
         $data = [
@@ -852,7 +854,7 @@ class Pages extends BaseController
         ];
         return view('pages/checkout', $data);
     }
-    public function updateAlamat($dataString)
+    public function updateAlamat($dataString, $dataLain)
     {
         $email = session()->get("email");
         $a = explode("&", $dataString);
@@ -868,6 +870,7 @@ class Pages extends BaseController
             "add" => $a[4],
             "alamat" => $a[5],
         ];
+        $stringDataLain = explode("&", $dataLain);
         // dd($arr);
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set([
@@ -875,6 +878,11 @@ class Pages extends BaseController
             ])->update();
 
         session()->set(['alamat' => $arr]);
+        session()->setFlashdata('emailPem', $stringDataLain[0]);
+        session()->setFlashdata('namaPem', $stringDataLain[1]);
+        session()->setFlashdata('nohpPem', $stringDataLain[2]);
+        session()->setFlashdata('namaPen', $stringDataLain[3]);
+        session()->setFlashdata('nohpPen', $stringDataLain[4]);
         return redirect()->to('/checkout');
     }
     public function getKota($id_prov)
@@ -1042,12 +1050,13 @@ class Pages extends BaseController
         \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
         \Midtrans\Config::$isProduction = true;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
+        $idFix = "JSM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = rand();
-        $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $randomId . "&" . str_replace("&", "@", $kurir) . "&" . $items;
+        $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $idFix . "&" . str_replace("&", "@", $kurir) . "&" . $items;
         $params = array(
             'transaction_details' => array(
-                // 'order_id' => "JSM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1)),
-                'order_id' => $randomId,
+                'order_id' => $idFix,
+                //'order_id' => $randomId,
                 'gross_amount' => $total,
             ),
             'callbacks' => array(
@@ -1824,7 +1833,7 @@ class Pages extends BaseController
     public function actionEditProduct($id)
     {
         $varian = explode(",", $this->request->getVar('varian'));
-        dd(file_get_contents($this->request->getFile("gambar1")));
+        // dd(file_get_contents($this->request->getFile("gambar1")));
         if (!empty($_FILES['gambar1']['tmp_name'])) {
             $hasilVarian = count(explode(",", $this->request->getVar('varian'))) + (int)$this->request->getVar('jml_varian') - 1;
             $gambarnya = [];

@@ -13,7 +13,11 @@
             <?php if (session()->get('role') == 0) { ?>
                 <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
                 <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
-                <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                <?php if (session()->get('email') == 'tamu') { ?>
+                    <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
+                <?php } else { ?>
+                    <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                <?php } ?>
             <?php } else { ?>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
@@ -53,7 +57,7 @@
                     <a class="nav-link <?= $title == 'Kontak' ? "active " : ""; ?>" href="/contact">Kontak</a>
                 </li> -->
                 <li class="nav-item">
-                    <a class="nav-link <?= $title == 'Tentang' ? "active " : ""; ?>" href="/about">Tentang</a>
+                    <a class="nav-link <?= $title == 'Tentang' ? "active " : ""; ?>" href="<?= base_url('about'); ?>">Tentang</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
@@ -62,6 +66,10 @@
                     <li class="nav-item">
                         <a class="nav-link <?= $title == 'Daftar' ? "active " : ""; ?>" href="/login">Masuk</a>
                     </li>
+                <?php } else { ?>
+                    <?php if (session()->get('email') == 'tamu') { ?>
+                        <a class="nav-link <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
+                    <?php } ?>
                 <?php } ?>
             </ul>
             <form class="d-flex search-box" role="search">
@@ -74,7 +82,11 @@
                 <?php if (session()->get('role') == 0) { ?>
                     <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
                     <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
-                    <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
+                    <?php if (session()->get('email') == 'tamu') { ?>
+                        <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
+                    <?php } else { ?>
+                        <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                    <?php } ?>
                 <?php } else { ?>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
