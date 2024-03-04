@@ -43,7 +43,7 @@
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
         <a class="navbar-brand" href="/" style="font-weight: bold;">
-            <img src="../img/Logo Jasmine.png" height="30em">
+            <img src="../img/Logo Jasmine.webp" height="30em">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -75,7 +75,7 @@
             <form class="d-flex search-box" role="search">
                 <div class="input-group">
                     <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                    <button class="btn btn-dark" type="submit"><i class="material-icons">search</i></button>
+                    <button class="btn btn-light" type="submit"><i class="material-icons">search</i></button>
                 </div>
             </form>
             <?php if (session()->get('isLogin')) { ?>

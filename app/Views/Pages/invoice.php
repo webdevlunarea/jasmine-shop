@@ -14,7 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
     <!-- icon google -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-lDi-03j_XL3PVN0_"></script>
+    <!-- <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-lDi-03j_XL3PVN0_"></script> -->
 
     <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
@@ -34,7 +34,7 @@
             </div>
         <?php } ?>
         <div class="d-flex justify-content-between mb-2">
-            <img src="/img/Logo Jasmine.png" width="150mm" />
+            <img src="/img/Logo Jasmine.webp" width="150mm" />
             <div class="d-flex flex-column align-items-end">
                 <p class="mb-0">INVOICE</p>
                 <p class="mb-0"><?php

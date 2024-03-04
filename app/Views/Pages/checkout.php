@@ -292,9 +292,11 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if (btnCheckoutElm) {
         btnCheckoutElm.addEventListener("click", () => {
-            inputEmailPemElm.classList.remove("is-invalid")
-            inputNamaPemElm.classList.remove("is-invalid")
-            inputNohpPemElm.classList.remove("is-invalid")
+            if (email == 'tamu') {
+                inputEmailPemElm.classList.remove("is-invalid")
+                inputNamaPemElm.classList.remove("is-invalid")
+                inputNohpPemElm.classList.remove("is-invalid")
+            }
             inputNamaElm.classList.remove("is-invalid")
             inputNohpElm.classList.remove("is-invalid")
             if (email == 'tamu') {
@@ -324,7 +326,7 @@
                 //     nama: inputNamaElm.value,
                 //     nohp: inputNohpElm.value,
                 // }
-                console.log(data, dataPen)
+                // console.log(data, dataPen)
                 async function getTokenMditrans() {
                     var formBody = [];
                     for (var property in data) {
@@ -401,64 +403,64 @@
         }
     }
 
-    async function addTransaction(dataMid, dataCus, dataPen, kurir) {
-        let status;
-        switch (dataMid.transaction_status) {
-            case 'settlement':
-                status = "Proses";
-                break;
-            case 'capture':
-                status = "Proses";
-                break;
-            case 'pending':
-                status = "Menunggu Pembayaran";
-                break;
-            case 'expire':
-                status = "Kadaluarsa";
-                break;
-            case 'deny':
-                status = "Ditolak";
-                break;
-            case 'failure':
-                status = "Gagal";
-                break;
-            case 'refund':
-                status = "Refund";
-                break;
-            case 'partial_refund':
-                status = "Partial Refund";
-                break;
-            default:
-                status = "No Status";
-                break;
-        }
-        const dataYgdikirim = {
-            namaCus: dataCus.nama,
-            hpCus: dataCus.nohp,
-            emailCus: dataCus.email,
-            namaPen: dataPen.nama,
-            hpPen: dataPen.nohp,
-            alamatPen: alamat,
-            resi: "Menunggu pengiriman " + kurir,
-            idMid: dataMid.order_id,
-            items: produk,
-            status: status,
-            kurir: kurir,
-            dataMid: dataMid,
-        }
+    // async function addTransaction(dataMid, dataCus, dataPen, kurir) {
+    //     let status;
+    //     switch (dataMid.transaction_status) {
+    //         case 'settlement':
+    //             status = "Proses";
+    //             break;
+    //         case 'capture':
+    //             status = "Proses";
+    //             break;
+    //         case 'pending':
+    //             status = "Menunggu Pembayaran";
+    //             break;
+    //         case 'expire':
+    //             status = "Kadaluarsa";
+    //             break;
+    //         case 'deny':
+    //             status = "Ditolak";
+    //             break;
+    //         case 'failure':
+    //             status = "Gagal";
+    //             break;
+    //         case 'refund':
+    //             status = "Refund";
+    //             break;
+    //         case 'partial_refund':
+    //             status = "Partial Refund";
+    //             break;
+    //         default:
+    //             status = "No Status";
+    //             break;
+    //     }
+    //     const dataYgdikirim = {
+    //         namaCus: dataCus.nama,
+    //         hpCus: dataCus.nohp,
+    //         emailCus: dataCus.email,
+    //         namaPen: dataPen.nama,
+    //         hpPen: dataPen.nohp,
+    //         alamatPen: alamat,
+    //         resi: "Menunggu pengiriman " + kurir,
+    //         idMid: dataMid.order_id,
+    //         items: produk,
+    //         status: status,
+    //         kurir: kurir,
+    //         dataMid: dataMid,
+    //     }
 
-        const response = await fetch("addtransaction", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataYgdikirim),
-        });
-        const result = await response.json();
-        const transaksi = result.transaksi;
-        if (result.success) return window.location.href = "/afteraddtransaction/" + transaksi;
-        else console.log(result);
-    }
+    //     const response = await fetch("addtransaction", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(dataYgdikirim),
+    //     });
+    //     const result = await response.json();
+    //     const transaksi = result.transaksi;
+    //     if (result.success) return window.location.href = "/afteraddtransaction/" + transaksi;
+    //     else console.log(result);
+    // }
 
     async function getKota(idprov) {
         const response = await fetch("getkota/" + idprov);
@@ -644,7 +646,7 @@
                     `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
             }
             const imgElm = document.createElement("img");
-            imgElm.src = `img/kurir/${kurir}.png`;
+            imgElm.src = `img/kurir/${kurir}.webp`;
             parentImgElm.appendChild(imgElm)
             tmbPilihElmChild.appendChild(parentImgElm)
             tmbPilihElmChild.appendChild(keteranganElm)
@@ -655,7 +657,7 @@
                 const divElmPK = document.createElement("div");
                 divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
                 const imgElmPK = document.createElement("img")
-                imgElmPK.src = `img/kurir/${kurir}.png`;
+                imgElmPK.src = `img/kurir/${kurir}.webp`;
                 const keteranganElmPK = document.createElement("p");
                 keteranganElmPK.classList.add("mb-0");
                 if (costnya.etd) {

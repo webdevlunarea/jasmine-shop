@@ -638,6 +638,7 @@ class Pages extends BaseController
         $beratHitung = 0;
         $dimensiSemua = [];
         $paket = [];
+        $paketFilter = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -827,6 +828,11 @@ class Pages extends BaseController
                     'costs' => $costs_dakota
                 ]
             ];
+            for ($i = 0; $i < 4; $i++) {
+                if ($paket[$i]['costs'][0]['cost'][0]['value'] != 0) {
+                    array_push($paketFilter, $paket[$i]);
+                }
+            }
         }
 
         $user = [
@@ -849,8 +855,8 @@ class Pages extends BaseController
             'provinsi' => $provinsi["rajaongkir"]["results"],
             'keranjang' => $keranjang,
             'keranjangJson' => json_encode($keranjang),
-            'paket' => $paket,
-            'paketJson' => json_encode($paket),
+            'paket' => $paketFilter,
+            'paketJson' => json_encode($paketFilter),
         ];
         return view('pages/checkout', $data);
     }
@@ -1277,10 +1283,10 @@ class Pages extends BaseController
     }
     public function finishUrlMid($code, $status)
     {
-        dd([
-            'code' => $code,
-            'status' => $status
-        ]);
+        // dd([
+        //     'code' => $code,
+        //     'status' => $status
+        // ]);
         if ($code != "JSM-zWYWObdPEKlHA0PWP6BN") {
             return redirect()->to("/");
         }
@@ -1329,6 +1335,11 @@ class Pages extends BaseController
             ])->update();
             $pemesananSelected = $this->pemesananModel->getPemesanan($orderId);
             session()->setFlashdata('id_pesanan', $orderId);
+
+            $transaksi = session()->get('transaksi');
+            array_push($transaksi, $orderId);
+            session()->set(['transaksi' => $transaksi]);
+
             switch ($pemesananSelected['status']) {
                 case 'Proses':
                     return redirect()->to("/successpay");

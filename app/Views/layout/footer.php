@@ -6,55 +6,55 @@
                 <div class="fw-700 fs-3 mb-2"><strong>Metode Pembayaran</strong></div>
                 <div class="footer__partner__payment">
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/bca.png" />
+                        <img src="/img/pembayaran/bca.webp" width="" />
                     </div>
                     <div class="footer__partner__img">
                         <img src="/img/pembayaran/bni.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/bri.png" />
+                        <img src="/img/pembayaran/bri.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/mandiri.png" />
+                        <img src="/img/pembayaran/mandiri.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/permatabank.png" />
+                        <img src="/img/pembayaran/permatabank.webp" />
                     </div>
                     <!-- <div class="footer__partner__img">
-                        <img src="/img/pembayaran/dob.png" />
+                        <img src="/img/pembayaran/dob.webp" />
                     </div> -->
                     <!-- <div class="footer__partner__img">
-                        <img src="/img/pembayaran/klikbca.png" />
+                        <img src="/img/pembayaran/klikbca.webp" />
                     </div> -->
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/klikpay.png" />
+                        <img src="/img/pembayaran/klikpay.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/mastercard.png" />
+                        <img src="/img/pembayaran/mastercard.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/visa.png" />
+                        <img src="/img/pembayaran/visa.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/jcb.png" />
+                        <img src="/img/pembayaran/jcb.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/amex.png" />
+                        <img src="/img/pembayaran/amex.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/qris.png" />
+                        <img src="/img/pembayaran/qris.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/shopeepay.png" />
+                        <img src="/img/pembayaran/shopeepay.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/gopay.png" />
+                        <img src="/img/pembayaran/gopay.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/alfamart.png" />
+                        <img src="/img/pembayaran/alfamart.webp" />
                     </div>
                     <div class="footer__partner__img">
-                        <img src="/img/pembayaran/indomaret.png" />
+                        <img src="/img/pembayaran/indomaret.webp" />
                     </div>
                 </div>
             </div>
@@ -74,8 +74,8 @@
             <div class="col-4 col-md-2 mb-3">
                 <div class="fw-700 fs-3 mb-2"><strong>Ikuti Kami</strong></div>
                 <ul class="footer__left-menu">
-                    <li><a href="https://www.instagram.com/jasminefurniture.official/?igsh=MTZyZ25mMXp5MHJlMw%3D%3D">Instagram</a></li>
-                    <li><a href="https://www.tiktok.com/@jasminefurnitureofficial?_t=8joAv1G8zwY&_r=1">Tiktok</a></li>
+                    <li><a href="https://www.instagram.com/jasminefurniture.official">Instagram</a></li>
+                    <li><a href="https://www.tiktok.com/@jasminefurnitureofficial">Tiktok</a></li>
                     <li><a href="https://www.youtube.com/@JasmineFurnitureOfficial">Youtube</a></li>
                 </ul>
             </div>
@@ -129,9 +129,9 @@
                             kami juga tersedia di
                         </p>
                         <div>
-                            <a href="#" title="Shopee" target="blank"><img src="/img/logo/shopee.png" class="marketplace">
+                            <a href="#" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace">
                             </a>
-                            <a href="#" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.png" class="marketplace">
+                            <a href="#" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace">
                             </a>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
             <div class="d-block text-center">
                 <div class="mt-4 mb-3 p-2 pe-0 ps-0">
                     <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
-                    <a href="https://midtrans.com" target="_blank"><img src="https://melodyfurniture.co.id/assets/v2/img/payments/midtrans_logo3.png" style="width: 140px" /></a>
+                    <a href="https://midtrans.com" target="_blank"><img src="https://melodyfurniture.co.id/assets/v2/img/payments/midtrans_logo3.webp" style="width: 140px" /></a>
                 </div>
             </div>
         </div>

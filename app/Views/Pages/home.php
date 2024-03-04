@@ -10,13 +10,13 @@
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
-                    <img src="img/banner1.webp" class="d-block w-100" alt="...">
+                    <img src="img/banner1.webp?v=123" class="d-block" style="max-width: 100%; height: auto;" alt="banner1">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/banner2.webp" class="d-block w-100" alt="...">
+                    <img src="img/banner2.webp?v=123" class="d-block" style="max-width: 100%; height: auto;" alt="banner2">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/banner3.webp" class="d-block w-100" alt="...">
+                    <img src="img/banner3.webp?v=123" class="d-block" style="max-width: 100%; height: auto;" alt="banner3">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -35,7 +35,7 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="/img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Dewasa.webp" alt="" width="50px">
                     <p>Lemari Dewasa</p>
                 </a>
                 <a class="kategori" href="/all/lemari-anak">
@@ -43,25 +43,25 @@
                     <p>Lemari Anak</p>
                 </a>
                 <a class="kategori" href="/all/meja-rias">
-                    <img src="/img/logokategori/Meja_Rias.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Rias.webp" alt="" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar">
-                    <img src="/img/logokategori/Meja_Belajar.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Belajar.webp" alt="" width="50px">
                     <p>Meja Belajar</p>
                 </a>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.webp" alt="" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="/img/logokategori/Meja_Tulis.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Tulis.webp" alt="" width="50px">
                     <p>Meja Tulis</p>
                 </a>
-                <!-- <a class="kategori" href="/all/meja-komputer">
-                    <img src="/img/logokategori/Meja_TV.png" alt="" width="50px">
+                <a class="kategori" href="/all/meja-komputer">
+                    <img src="/img/logokategori/Meja_Komputer.webp" alt="" width="50px">
                     <p>Meja Komputer</p>
-                </a> -->
+                </a>
                 <a class="kategori" href="/all/rak-sepatu">
                     <img src="/img/logokategori/Rak_Sepatu.webp" alt="" width="50px">
                     <p>Rak Sepatu</p>
@@ -74,12 +74,6 @@
                     <img src="/img/logokategori/Rak_Serbaguna.webp" alt="" width="50px">
                     <p>Rak Serbaguna</p>
                 </a>
-                <!-- <a class="kategori" href="/all/kursi">
-                    <span class="material-symbols-outlined">
-                        chair_alt
-                    </span>
-                    <p>Kursi</p>
-                </a> -->
             </div>
         </div>
     </div>
@@ -97,14 +91,14 @@
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <p class="mb-0"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
                         <?php if ($p['diskon']) { ?>
-                            <p class="mb-0 harga d-inline">Rp
+                            <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp
+                                <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                            <p class="mb-0 harga">Rp
                                 <?php
                                 $persen = (100 - $p['diskon']) / 100;
                                 $hasil = $persen * $p['harga'];
                                 echo number_format($hasil, 0, ",", ".");
                                 ?></p>
-                            <p class="mb-0 d-inline" style="text-decoration: line-through; font-size: small; color: grey;">Rp
-                                <?= number_format($p['harga'], 0, ",", "."); ?></p>
                         <?php } else { ?>
                             <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                         <?php } ?>

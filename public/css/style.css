@@ -156,6 +156,12 @@ a {
     transition: 0.5s;
     width: 80%;
 }
+.card1 h5 {
+    max-width: 50px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: aqua;
+}
 .card1:hover div:has(.harga) {
     transform: translateX(10px);
     transition: 0.5s;

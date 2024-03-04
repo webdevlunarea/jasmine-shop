@@ -22,51 +22,49 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="/public/img/logokategori/Lemari_Dewasa.png" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Dewasa.webp" alt="" width="50px">
                     <p>Lemari Dewasa</p>
                 </a>
                 <a class="kategori" href="/all/lemari-anak">
-                    <img src="/public/img/logokategori/Lemari_Anak.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Anak.webp" alt="" width="50px">
                     <p>Lemari Anak</p>
                 </a>
                 <a class="kategori" href="/all/meja-rias">
-                    <img src="/public/img/logokategori/Meja_Rias.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Rias.webp" alt="" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar">
-                    <img src="/public/img/logokategori/Meja_Belajar.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Belajar.webp" alt="meja-belajar" width="50px">
                     <p>Meja Belajar</p>
                 </a>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="/public/img/logokategori/Meja_TV.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.webp" alt="meja-tv" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="/public/img/logokategori/Meja_Tulis.png" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Tulis.webp" alt="meja-tulis" width="50px">
                     <p>Meja Tulis</p>
                 </a>
-                <!-- <a class="kategori" href="/all/meja-komputer">
-                    <img src="/public/img/logokategori/Meja_TV.png" alt="" width="50px">
+                <a class="kategori" href="/all/meja-komputer">
+                    <img src="/img/logokategori/Meja_Komputer.webp" alt="meja-komputer" width="50px">
                     <p>Meja Komputer</p>
-                </a> -->
+                </a>
                 <a class="kategori" href="/all/rak-sepatu">
-                    <img src="/public/img/logokategori/Rak_Sepatu.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Sepatu.webp" alt="rak-sepatu" width="50px">
                     <p>Rak Sepatu</p>
                 </a>
                 <a class="kategori" href="/all/rak-besi">
-                    <img src="/public/img/logokategori/Rak_Besi.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Besi.webp" alt="rak-besi" width="50px">
                     <p>Rak Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-serbaguna">
-                    <img src="/public/img/logokategori/Rak_Serbaguna.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Serbaguna.webp" alt="rak-serbaguna" width="50px">
                     <p>Rak Serbaguna</p>
                 </a>
-                <!-- <a class="kategori" href="/all/kursi">
-                    <span class="material-symbols-outlined">
-                        chair_alt
-                    </span>
+                <a class="kategori" href="/all/kursi">
+                    <img src="/img/logokategori/Kursi.webp" alt="kursi" width="50px">
                     <p>Kursi</p>
-                </a> -->
+                </a>
             </div>
         </div>
     </div>
