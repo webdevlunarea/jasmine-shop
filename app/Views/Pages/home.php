@@ -100,17 +100,24 @@
                 <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
                 <div>
                     <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                    <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p>
+                    <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                    <p class="mb-0 varian"><?= $v ?></p>
+                    <?php } ?>
+                    <!-- <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p> -->
                     <?php if ($p['diskon']) { ?>
-                    <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey;">
-                        Rp
-                        <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                    <span class="d-flex gap-1 align-items-center">
+                        <p class="mb-0 diskon-coret"
+                            style="text-decoration: line-through; color: grey; width:fit-content;">
+                            Rp
+                            <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                        <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
+                    </span>
                     <p class="mb-0 harga">Rp
                         <?php
-                                    $persen = (100 - $p['diskon']) / 100;
-                                    $hasil = $persen * $p['harga'];
-                                    echo number_format($hasil, 0, ",", ".");
-                                    ?></p>
+                                        $persen = (100 - $p['diskon']) / 100;
+                                        $hasil = $persen * $p['harga'];
+                                        echo number_format($hasil, 0, ",", ".");
+                                        ?></p>
                     <?php } else { ?>
                     <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                     <?php } ?>
@@ -120,7 +127,7 @@
             <?php } ?>
         </div>
         <div class="mx-auto mt-2" style="width: fit-content;">
-            <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">View All Products</a>
+            <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">Lihat Semua Produk</a>
         </div>
     </div>
     <!-- <div class="container my-3">
