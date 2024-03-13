@@ -6,7 +6,7 @@
         <form method="post" action="/addproduct" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="baris-ke-kolom">
-                <div style="width:50%;">
+                <div class="limapuluh-ke-seratus">
                     <table class="table-input w-100">
                         <tbody>
                             <tr>
@@ -105,11 +105,18 @@
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>Pencarian</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="pencarian" required>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <button class="btn btn-primary1 show-ke-hide" type="submit">Simpan</button>
                 </div>
-                <div style="width:50%;">
+                <div class="limapuluh-ke-seratus">
                     <h5 class="jdl-section">Gambar Produk</h5>
                     <div class="add-gambar mb-1">
                         <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">

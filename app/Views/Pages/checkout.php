@@ -147,7 +147,7 @@
                     <label for="floatingProvinsi">Area</label>
                 </div> -->
                     <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
-                    <a onclick="handleEditAlamat()" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
+                    <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
                 </div>
                 <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
@@ -371,9 +371,10 @@
         })
     }
 
-    function handleEditAlamat() {
+    function handleEditAlamat(e) {
+        e.target.innerHTML = 'Loading';
         if (isEditAlamat) {
-            const stringDataLain = `${inputEmailPemElm.value}&${inputNamaPemElm.value}&${inputNohpPemElm.value}&${inputNamaElm.value}&${inputNohpElm.value}`
+            const stringDataLain = inputEmailPemElm ? `${inputEmailPemElm.value}&${inputNamaPemElm.value}&${inputNohpPemElm.value}&${inputNamaElm.value}&${inputNohpElm.value}` : '0'
             // inputNamaElm.classList.remove("is-invalid")
             // inputNohpElm.classList.remove("is-invalid")
             inputAlamatAddElm.classList.remove("is-invalid")

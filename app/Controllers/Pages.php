@@ -876,19 +876,20 @@ class Pages extends BaseController
             "add" => $a[4],
             "alamat" => $a[5],
         ];
-        $stringDataLain = explode("&", $dataLain);
-        // dd($arr);
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set([
                 'alamat' => json_encode($arr),
             ])->update();
 
+        if ($dataLain != '0') {
+            $stringDataLain = explode("&", $dataLain);
+            session()->setFlashdata('emailPem', $stringDataLain[0]);
+            session()->setFlashdata('namaPem', $stringDataLain[1]);
+            session()->setFlashdata('nohpPem', $stringDataLain[2]);
+            session()->setFlashdata('namaPen', $stringDataLain[3]);
+            session()->setFlashdata('nohpPen', $stringDataLain[4]);
+        }
         session()->set(['alamat' => $arr]);
-        session()->setFlashdata('emailPem', $stringDataLain[0]);
-        session()->setFlashdata('namaPem', $stringDataLain[1]);
-        session()->setFlashdata('nohpPem', $stringDataLain[2]);
-        session()->setFlashdata('namaPen', $stringDataLain[3]);
-        session()->setFlashdata('nohpPen', $stringDataLain[4]);
         return redirect()->to('/checkout');
     }
     public function getKota($id_prov)
@@ -1056,7 +1057,7 @@ class Pages extends BaseController
         \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
         \Midtrans\Config::$isProduction = true;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "JSM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+        $idFix = "J" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = rand();
         $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $idFix . "&" . str_replace("&", "@", $kurir) . "&" . $items;
         $params = array(
@@ -1588,11 +1589,11 @@ class Pages extends BaseController
         $pagination = (int)$page;
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll(20, $hitungOffset);
+            $produk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll(20, 0);
+            $produk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->like("nama", $nama, "both")->orderBy('nama', 'asc')->findAll();
+        $semuaproduk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll();
 
         $data = [
             'title' => 'Produk',
@@ -1808,6 +1809,7 @@ class Pages extends BaseController
         $this->barangModel->insert([
             'id'            => $tanggal,
             'nama'          => $this->request->getVar('nama'),
+            'pencarian'     => $this->request->getVar('pencarian'),
             'gambar'        => $gambarnya[0],
             'harga'         => $this->request->getVar('harga'),
             'berat'         => $this->request->getVar('berat'),
@@ -1833,6 +1835,18 @@ class Pages extends BaseController
         $produk = $this->barangModel->getBarang($id);
         $gambar = $this->gambarBarangModel->getGambar($id);
         $varian = json_decode($produk['varian'], true);
+        if ($produk['pencarian'] == null || $produk['pencarian'] == '') {
+            $diskon = '';
+            $varianJadi = '';
+            foreach ($varian as $va) {
+                $varianJadi = $varianJadi . $produk['kategori'] . " " . $va . " " . str_replace("-", " ", $produk['subkategori']) . " " . $va . " ";
+            }
+            if ((int)$produk['diskon'] > 0) {
+                $diskon = $produk['kategori'] . " promo " . str_replace("-", " ", $produk['subkategori']) . " promo " . $produk['kategori'] . " diskon " . str_replace("-", " ", $produk['subkategori']) . " diskon ";
+            }
+
+            $produk['pencarian'] = $produk['nama'] . " " . $produk['kategori'] . " elegan " . $produk['kategori'] . " simpel " . $produk['kategori'] . " minimalis " . $produk['kategori'] . " estetik " . $produk['kategori'] . " modern " . str_replace("-", " ", $produk['subkategori']) . " elegan " . str_replace("-", " ", $produk['subkategori']) . " simpel " . str_replace("-", " ", $produk['subkategori']) . " minimalis " . str_replace("-", " ", $produk['subkategori']) . " estetik " . str_replace("-", " ", $produk['subkategori']) . " modern " . $varianJadi . $diskon;
+        }
         $data = [
             'title'     => 'Edit Produk',
             'produk'    => $produk,
@@ -1858,6 +1872,7 @@ class Pages extends BaseController
             $this->barangModel->save([
                 'id'            => $id,
                 'nama'          => $this->request->getVar('nama'),
+                'pencarian'     => $this->request->getVar('pencarian'),
                 'gambar'        => $gambarnya[0],
                 'harga'         => $this->request->getVar('harga'),
                 'berat'         => $this->request->getVar('berat'),
@@ -1878,6 +1893,7 @@ class Pages extends BaseController
             $this->barangModel->save([
                 'id' => $id,
                 'nama'          => $this->request->getVar('nama'),
+                'pencarian'     => $this->request->getVar('pencarian'),
                 'harga'         => $this->request->getVar('harga'),
                 'berat'         => $this->request->getVar('berat'),
                 'stok'          => $this->request->getVar('stok'),

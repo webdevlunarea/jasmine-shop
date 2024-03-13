@@ -6,13 +6,13 @@
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="baris-ke-kolom">
-                <div style="width:50%;">
+                <div class="limapuluh-ke-seratus">
                     <table class="table-input w-100">
                         <tbody>
                             <tr>
                                 <td>Nama</td>
                                 <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['nama']; ?>" name="nama" required></div>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['nama']; ?>" name="nama" required onchange="isiPencarian(event)"></div>
                                 </td>
                             </tr>
                             <tr>
@@ -26,7 +26,7 @@
                                 <td>
                                     <div class="baris">
                                         <div class="input-group mb-3">
-                                            <input type="number" class="form-control" value="<?= $produk['diskon']; ?>" name="diskon" step="any" required>
+                                            <input type="number" class="form-control" value="<?= $produk['diskon']; ?>" name="diskon" step="any" required onchange="isiPencarian(event)">
                                             <span class="input-group-text">%</span>
                                         </div>
                                     </div>
@@ -55,19 +55,19 @@
                             <tr>
                                 <td>Kategori</td>
                                 <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['kategori']; ?>" name="kategori" required></div>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['kategori']; ?>" name="kategori" required onchange="isiPencarian(event)"></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Sub Kategori</td>
                                 <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['subkategori']; ?>" name="subkategori" required></div>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['subkategori']; ?>" name="subkategori" required onchange="isiPencarian(event)"></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Varian</td>
                                 <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $varian; ?>" name="varian" required></div>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $varian; ?>" name="varian" required onchange="isiPencarian(event)"></div>
                                 </td>
                             </tr>
                             <tr>
@@ -100,6 +100,13 @@
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required><?= $produk['deskripsi']; ?></textarea></div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>Pencarian</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['pencarian']; ?>" name="pencarian" required>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <div class="show-ke-hide mt-2">
@@ -107,7 +114,7 @@
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
                     </div>
                 </div>
-                <div style="width:50%;">
+                <div class="limapuluh-ke-seratus">
                     <h5 class="jdl-section">Gambar Produk</h5>
                     <div class="add-gambar mb-1">
                         <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">
@@ -129,6 +136,9 @@
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     const elmFotoVarian = document.getElementById('foto-varian');
+    const elmKategori = document.querySelector('input[name="kategori"]');
+    const elmSubkategori = document.querySelector('input[name="subkategori"]');
+    const elmPencarian = document.querySelector('input[name="pencarian"]');
     const elmVarian = document.querySelector('input[name="varian"]');
     const elmJmlvarian = document.querySelector('input[name="jml_varian"]');
     const ambilVarian = "<?= count(json_decode($produk['varian'], true)); ?>"
@@ -138,6 +148,29 @@
     let hasilVarian = jmlVarian + varian - 1
     console.log(varian, jmlVarian, hasilVarian, ambilVarian, ambilJmlvarian)
     inputElement(hasilVarian);
+
+    function isiPencarian(e) {
+        console.log(e);
+        if (e.srcElement.value != '') {
+            if (e.srcElement.name == 'nama') {
+                elmPencarian.value += `${e.srcElement.value} `
+            } else if (e.srcElement.name == 'kategori') {
+                elmPencarian.value += `${e.srcElement.value} elegan ${e.srcElement.value} simpel ${e.srcElement.value} minimalis ${e.srcElement.value} estetik ${e.srcElement.value} modern `
+            } else if (e.srcElement.name == 'subkategori') {
+                const subkategorinya = e.srcElement.value.replace(/-/g, ' ')
+                elmPencarian.value += `${subkategorinya} elegan ${subkategorinya} simpel ${subkategorinya} minimalis ${subkategorinya} estetik ${subkategorinya} modern `
+            } else if (e.srcElement.name == 'varian') {
+                const arrVar = e.srcElement.value.split(",");
+                const subkategorinya = elmSubkategori.value.replace(/-/g, ' ')
+                arrVar.forEach((va) => {
+                    elmPencarian.value += `${elmKategori.value} ${va} ${subkategorinya} ${va} `
+                })
+            } else if (e.srcElement.name == 'diskon') {
+                const subkategorinya = elmSubkategori.value.replace(/-/g, ' ')
+                if (Number(e.srcElement.value) > 0) elmPencarian.value += `${elmKategori.value} promo ${elmKategori.value} diskon ${subkategorinya} promo ${subkategorinya} diskon `
+            }
+        }
+    }
 
     elmVarian.addEventListener("change", (e) => {
         const varianArray = e.target.value.split(",");

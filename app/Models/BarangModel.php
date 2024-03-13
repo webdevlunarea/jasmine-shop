@@ -10,6 +10,7 @@ class BarangModel extends Model
     protected $allowedFields = [
         'id',
         'nama',
+        'pencarian',
         'gambar',
         'harga',
         'berat',
