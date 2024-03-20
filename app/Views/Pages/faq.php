@@ -282,9 +282,7 @@
                         </ul>
                         <p class="mb-0 mt-1 fw-bold">Apa ada tutorial untuk perakitan barang Jasmine Furniture?</p>
                         <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube Jasmine Furniture Official</p>
-                        <a href="https://www.youtube.com/channel/UCc2vGsX2R8CNoZXv7lxJ2qw">
-                            <p class="mb-0">https://www.youtube.com/channel/UCc2vGsX2R8CNoZXv7lxJ2qw</p>
-                        </a>
+                        <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.youtube.com/channel/UCc2vGsX2R8CNoZXv7lxJ2qw">Menuju video</a>
                     </div>
                 </div>
             </div>

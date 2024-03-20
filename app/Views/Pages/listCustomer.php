@@ -18,7 +18,7 @@
 <div class="konten">
     <div class="container">
         <h3 class="my-3">List Customer</h3>
-        <div class="d-flex mb-2" style="padding-inline: 2em;">
+        <div class="mb-2 show-flex-ke-hide" style="padding-inline: 2em;">
             <div style="flex: 4;">
                 <p class="mb-0 fw-bold text-black-50">Basic Info</p>
             </div>
@@ -41,54 +41,95 @@
                         <div style="flex: 4;">
                             <p class="mb-0 fw-bold nama"><?= $t['nama_cus']; ?></p>
                             <p class="mb-0"><?= $t['email_cus']; ?></p>
+                            <p class="mb-0 text-secondary hide-ke-show-block" style="font-size: 12px;">ID Pesanan : <?= $t['id_midtrans']; ?></p>
+                            <p class="mb-0 fw-bold badge rounded-pill hide-ke-show-block <?php
+                                                                                            switch ($t['status']) {
+                                                                                                case 'Menunggu Pembayaran':
+                                                                                                    echo "text-bg-primary";
+                                                                                                    break;
+                                                                                                case 'Proses':
+                                                                                                    echo "text-bg-warning";
+                                                                                                    break;
+                                                                                                case 'Dikirim':
+                                                                                                    echo "text-bg-info";
+                                                                                                    break;
+                                                                                                case 'Selesai':
+                                                                                                    echo "text-bg-success";
+                                                                                                    break;
+                                                                                                case 'Dibatalkan':
+                                                                                                    echo "text-bg-danger";
+                                                                                                    break;
+                                                                                                case 'Gagal':
+                                                                                                    echo "text-bg-danger";
+                                                                                                    break;
+                                                                                                default:
+                                                                                                    echo "text-bg-dark";
+                                                                                                    break;
+                                                                                            }
+                                                                                            ?>"><?= $t['status']; ?></p>
+                            <div class="hide-ke-show-flex gap-1 mt-1" style="width: fit-content;">
+                                <a class="btn btn-success hide-ke-show-flex btn-sm <?php switch ($t['status']) {
+                                                                                        case 'Proses':
+                                                                                            echo "";
+                                                                                            break;
+                                                                                        case 'Dikirim':
+                                                                                            echo "";
+                                                                                            break;
+                                                                                        default:
+                                                                                            echo "disabled";
+                                                                                            break;
+                                                                                    } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
+                                <a class="btn btn-success hide-ke-show-flex btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
+                                <a class="btn btn-success hide-ke-show-flex btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
+                            </div>
                         </div>
                         <div style="flex: 3;">
-                            <p class="mb-0 fw-bold badge rounded-pill <?php
-                                                                        switch ($t['status']) {
-                                                                            case 'Menunggu Pembayaran':
-                                                                                echo "text-bg-primary";
-                                                                                break;
-                                                                            case 'Proses':
-                                                                                echo "text-bg-warning";
-                                                                                break;
-                                                                            case 'Dikirim':
-                                                                                echo "text-bg-info";
-                                                                                break;
-                                                                            case 'Selesai':
-                                                                                echo "text-bg-success";
-                                                                                break;
-                                                                            case 'Dibatalkan':
-                                                                                echo "text-bg-danger";
-                                                                                break;
-                                                                            case 'Gagal':
-                                                                                echo "text-bg-danger";
-                                                                                break;
-                                                                            default:
-                                                                                echo "text-bg-dark";
-                                                                                break;
-                                                                        }
-                                                                        ?>"><?= $t['status']; ?></p>
+                            <p class="mb-0 fw-bold badge rounded-pill show-ke-hide <?php
+                                                                                    switch ($t['status']) {
+                                                                                        case 'Menunggu Pembayaran':
+                                                                                            echo "text-bg-primary";
+                                                                                            break;
+                                                                                        case 'Proses':
+                                                                                            echo "text-bg-warning";
+                                                                                            break;
+                                                                                        case 'Dikirim':
+                                                                                            echo "text-bg-info";
+                                                                                            break;
+                                                                                        case 'Selesai':
+                                                                                            echo "text-bg-success";
+                                                                                            break;
+                                                                                        case 'Dibatalkan':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
+                                                                                        case 'Gagal':
+                                                                                            echo "text-bg-danger";
+                                                                                            break;
+                                                                                        default:
+                                                                                            echo "text-bg-dark";
+                                                                                            break;
+                                                                                    }
+                                                                                    ?>"><?= $t['status']; ?></p>
                         </div>
                         <div style="flex: 3;">
-                            <p class="mb-0 fw-bold"><?= $t['id_midtrans']; ?></p>
+                            <p class="mb-0 fw-bold show-ke-hide"><?= $t['id_midtrans']; ?></p>
                         </div>
                         <div style="flex: 3;">
                             <p class="mb-0 fw-bold"><?= date("d/m/Y H:i:s", strtotime($t['data_mid']['transaction_time'])); ?></p>
                         </div>
-                        <div style="gap: 3px; width: 100px;">
-                            <a class="btn btn-success d-flex <?php switch ($t['status']) {
-                                                                    case 'Proses':
-                                                                        echo "";
-                                                                        break;
-                                                                    case 'Dikirim':
-                                                                        echo "";
-                                                                        break;
-                                                                    default:
-                                                                        echo "disabled";
-                                                                        break;
-                                                                } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
-                            <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
-                            <a class="btn btn-success d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
+                        <div style="gap: 3px; width: fit-content;">
+                            <a class="btn btn-success show-flex-ke-hide <?php switch ($t['status']) {
+                                                                            case 'Proses':
+                                                                                echo "";
+                                                                                break;
+                                                                            case 'Dikirim':
+                                                                                echo "";
+                                                                                break;
+                                                                            default:
+                                                                                echo "disabled";
+                                                                                break;
+                                                                        } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
+                            <a class="btn btn-success show-flex-ke-hide" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
+                            <a class="btn btn-success show-flex-ke-hide" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
                         </div>
                     </div>
                     <div class="list-customer-detail baris-ke-kolom justify-content-between align-items-start mt-2 d-none">

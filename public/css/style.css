@@ -428,6 +428,9 @@ a {
     gap: 2em;
 }
 
+.show-flex-ke-hide {
+    display: flex;
+}
 .hide-ke-show-flex {
     display: none;
 }
@@ -734,6 +737,9 @@ footer > .atas > div {
         display: block;
     }
     .show-ke-hide {
+        display: none;
+    }
+    .show-flex-ke-hide {
         display: none;
     }
     .konten {

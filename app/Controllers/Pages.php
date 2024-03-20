@@ -273,12 +273,12 @@ class Pages extends BaseController
         ];
         return view('pages/login', $data);
     }
-    public function actionLogin()
+    public function actionLoginSalah()
     {
         session()->setFlashdata('msg', "Maaf, masih dalam masa perbaikan. Akan aktif kembali ketika pukul 07:30 WIB");
         return redirect()->to('/login');
     }
-    public function actionLoginBener()
+    public function actionLogin()
     {
         if (!$this->validate([
             'email' => [
