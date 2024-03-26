@@ -1057,7 +1057,7 @@ class Pages extends BaseController
         \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
         \Midtrans\Config::$isProduction = true;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "J" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+        $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = rand();
         $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $idFix . "&" . str_replace("&", "@", $kurir) . "&" . $items;
         $params = array(
@@ -1323,6 +1323,16 @@ class Pages extends BaseController
             $orderId = $dataArr[6];
             $kurir = str_replace("@", "&", $dataArr[7]);
             $items = $dataArr[8];
+
+            //pengurangan stok produk
+            $itemsArr = json_decode($items, true);
+            foreach ($itemsArr as $i) {
+                $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $i['name'])[0]))->first();
+                $this->barangModel->where('nama', rtrim(explode("(", $i['name'])[0]))->set([
+                    'stok' => $barangCurr['stok'] - $i['quantity']
+                ])->update();
+            }
+
             $this->pemesananModel->where('id_midtrans', $orderId)->set([
                 'nama_cus' => $nama,
                 'email_cus' => $email,
@@ -1375,6 +1385,7 @@ class Pages extends BaseController
         $body = json_decode($bodyJson, true);
         $order_id = $body['order_id'];
         $fraud = $body['fraud_status'];
+
         if ($fraud == "accept") {
             switch ($body['transaction_status']) {
                 case 'settlement':
@@ -1420,6 +1431,18 @@ class Pages extends BaseController
                 'status' => $status,
                 'data_mid' => json_encode($dataMid_curr),
             ])->update();
+
+            //reset jumlah produk
+            if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
+                $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+                $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
+                foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                    $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
+                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                        'stok' => $barangCurr['stok'] + $item['quantity']
+                    ])->update();
+                }
+            }
         } else {
             $this->pemesananModel->insert([
                 'nama_cus' => '',
@@ -1572,7 +1595,7 @@ class Pages extends BaseController
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
         $data = [
-            'title' => 'Produk',
+            'title' => $produk['nama'],
             'produk' => $produk,
             'gambar' => $gambarnya,
             'varian' => $varian,
