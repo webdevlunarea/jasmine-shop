@@ -168,6 +168,7 @@
                     <label for="floatingProvinsi">Paket</label>
                     <input id="set-paket" name="paket" type="text" value="0" />
                 </div>
+                <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p>
             </div>
             <div style="width: 100%; max-width: 400px;">
                 <div>
@@ -401,6 +402,7 @@
             btnCheckoutElm.classList.add("disabled")
             btnPilihKurirElm.classList.add("d-none")
             isEditAlamat = true;
+            e.target.innerHTML = 'Simpan Alamat';
         }
     }
 
@@ -471,7 +473,7 @@
         kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = element.city_id + "-" + element.city_name
+            optElm.value = element.city_id + "-" + element.city_name.split("/")[0]
             optElm.innerHTML = element.type == 'Kota' ? `${element.city_name} Kota` : element.city_name
             kotaElm.appendChild(optElm);
         });
@@ -485,7 +487,7 @@
         kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = element.subdistrict_id + "-" + element.subdistrict_name
+            optElm.value = element.subdistrict_id + "-" + element.subdistrict_name.split("/")[0]
             optElm.innerHTML = element.subdistrict_name
             kecElm.appendChild(optElm);
         });
@@ -498,7 +500,7 @@
         kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
-            optElm.value = titleCase(element.DesaKelurahan) + "-" + element.KodePos
+            optElm.value = titleCase(element.DesaKelurahan).split("/")[0] + "-" + element.KodePos
             optElm.innerHTML = titleCase(element.DesaKelurahan)
             kodeElm.appendChild(optElm);
         });

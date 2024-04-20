@@ -1054,8 +1054,9 @@ class Pages extends BaseController
             $total = $subtotal + $paket + 5000;
         }
 
-        \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
-        \Midtrans\Config::$isProduction = true;
+        // \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
+        \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
+        \Midtrans\Config::$isProduction = false;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = rand();
