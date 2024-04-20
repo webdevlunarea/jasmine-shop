@@ -1054,8 +1054,7 @@ class Pages extends BaseController
             $total = $subtotal + $paket + 5000;
         }
 
-        // \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
-        \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
+        \Midtrans\Config::$serverKey = "";
         \Midtrans\Config::$isProduction = false;
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
@@ -1471,7 +1470,7 @@ class Pages extends BaseController
     {
         // $bodyJson = $this->request->getBody();
         // $body = json_decode($bodyJson, true);
-        \Midtrans\Config::$serverKey = "Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd";
+        \Midtrans\Config::$serverKey = "";
         \Midtrans\Config::$isProduction = true;
 
         $notif = new \Midtrans\Notification();
@@ -1659,7 +1658,7 @@ class Pages extends BaseController
     }
     public function qris($string)
     {
-        $auth = base64_encode("Mid-server-uZVVVOFO2sD-nmeN1mfrcgpd" . ":");
+        $auth = base64_encode("" . ":"); //yg kiri midtrans server key
         $order_id = explode("-", $string)[0];
         $amount = (int)explode("-", $string)[1];
         $body = [
