@@ -1423,41 +1423,64 @@ class Pages extends BaseController
             $status = 'Forbidden';
         }
 
-        $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
-        if (isset($dataTransaksi_curr)) {
-            $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
-            $dataMid_curr['transaction_status'] = $body['transaction_status'];
-            $this->pemesananModel->where('id_midtrans', $order_id)->set([
-                'status' => $status,
-                'data_mid' => json_encode($dataMid_curr),
-            ])->update();
+        $order_id_first_char = substr($order_id, 0, 1);
+        if ($order_id_first_char == 'J') {
+            $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
+            if (isset($dataTransaksi_curr)) {
+                $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
+                $dataMid_curr['transaction_status'] = $body['transaction_status'];
+                $this->pemesananModel->where('id_midtrans', $order_id)->set([
+                    'status' => $status,
+                    'data_mid' => json_encode($dataMid_curr),
+                ])->update();
 
-            //reset jumlah produk
-            if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
-                $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
-                $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-                foreach ($dataTransaksiFulDariDatabase_items as $item) {
-                    $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                        'stok' => $barangCurr['stok'] + $item['quantity']
-                    ])->update();
+                //reset jumlah produk
+                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
+                    $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+                    $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
+                    foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                        $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
+                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                            'stok' => $barangCurr['stok'] + $item['quantity']
+                        ])->update();
+                    }
                 }
+            } else {
+                $this->pemesananModel->insert([
+                    'nama_cus' => '',
+                    'email_cus' => '',
+                    'hp_cus' => '',
+                    'nama_pen' => '',
+                    'hp_pen' => '',
+                    'alamat_pen' => json_encode([]),
+                    'resi' => '',
+                    'items' => json_encode([]),
+                    'kurir' => '',
+                    'id_midtrans' => $order_id,
+                    'status' => $status,
+                    'data_mid' => json_encode($body),
+                ]);
             }
-        } else {
-            $this->pemesananModel->insert([
-                'nama_cus' => '',
-                'email_cus' => '',
-                'hp_cus' => '',
-                'nama_pen' => '',
-                'hp_pen' => '',
-                'alamat_pen' => json_encode([]),
-                'resi' => '',
-                'items' => json_encode([]),
-                'kurir' => '',
-                'id_midtrans' => $order_id,
-                'status' => $status,
-                'data_mid' => json_encode($body),
-            ]);
+        } else if ($order_id_first_char == 'I') {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://ilenafurniture.com/updatetransaction",
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $body
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
         }
         // $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
         $arr = [
