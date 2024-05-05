@@ -651,7 +651,7 @@ class Pages extends BaseController
                 $dimensi = explode("X", $produknya['dimensi']);
                 array_push($dimensiSemua, $produknya['dimensi']);
                 $berat += $produknya['berat'] * $element['jumlah'];
-                $beratHitung += ceil((float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 6000) * $element['jumlah']; //kg
+                $beratHitung += ceil((float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 3500) * $element['jumlah']; //kg
 
                 array_push($produkJson, array(
                     'name' => $produknya['nama'] . " (" . $element['varian'] . ")",

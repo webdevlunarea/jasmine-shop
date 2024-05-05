@@ -218,11 +218,11 @@
                             <?= number_format($total, 0, ",", "."); ?></b>
                     </p>
                 </div>
-                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
                     <p class="my-2"><b><?= $beratAkhir; ?> kg</b>
                     </p>
-                </div>
+                </div> -->
                 <div class="mt-2">
                     <p>
                         <input type="checkbox" id="syarat" style="display: inline;" required>
