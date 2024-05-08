@@ -83,24 +83,21 @@
                     <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
                 <?php } ?>
 
-                <?php if ($produk['tokped'] || $produk['shopee'] || $produk['tiktok']) { ?>
-                    <div class="mt-2">
-                        <p class="mb-1">
+
+                <div class="mt-2">
+                    <p class="mb-1">
+                        <?php if ($produk['tokped'] || $produk['shopee'] || $produk['tiktok']) { ?>
                             Produk ini juga tersedia di
-                        </p>
-                        <div>
-                            <?php if ($produk['tokped']) { ?>
-                                <a href="<?= $produk['tokped']; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace"></a>
-                            <?php } ?>
-                            <?php if ($produk['shopee']) { ?>
-                                <a href="<?= $produk['shopee']; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace"></a>
-                            <?php } ?>
-                            <?php if ($produk['tiktok']) { ?>
-                                <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a>
-                            <?php } ?>
-                        </div>
+                        <?php } else { ?>
+                            Lihat produk kami lainnya di
+                        <?php } ?>
+                    </p>
+                    <div>
+                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace"></a>
+                        <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace"></a>
+                        <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
-                <?php } ?>
+                </div>
             </div>
         </div>
     </div>

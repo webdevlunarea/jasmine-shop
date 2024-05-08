@@ -697,143 +697,143 @@ class Pages extends BaseController
         }
         $provinsi = json_decode($response, true);
 
-        if (count($alamat) > 0) {
-            $curl_jne = curl_init();
-            curl_setopt_array($curl_jne, array(
-                CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=jne",
-                CURLOPT_HTTPHEADER => array(
-                    "content-type: application/x-www-form-urlencoded",
-                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-                ),
-            ));
-            $response = curl_exec($curl_jne);
-            $err = curl_error($curl_jne);
-            curl_close($curl_jne);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $jne = json_decode($response, true);
+        // if (count($alamat) > 0) {
+        //     $curl_jne = curl_init();
+        //     curl_setopt_array($curl_jne, array(
+        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "POST",
+        //         CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=jne",
+        //         CURLOPT_HTTPHEADER => array(
+        //             "content-type: application/x-www-form-urlencoded",
+        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl_jne);
+        //     $err = curl_error($curl_jne);
+        //     curl_close($curl_jne);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $jne = json_decode($response, true);
 
-            $curl_jnt = curl_init();
-            curl_setopt_array($curl_jnt, array(
-                CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=jnt",
-                CURLOPT_HTTPHEADER => array(
-                    "content-type: application/x-www-form-urlencoded",
-                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-                ),
-            ));
-            $response = curl_exec($curl_jnt);
-            $err = curl_error($curl_jnt);
-            curl_close($curl_jnt);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $jnt = json_decode($response, true);
+        //     $curl_jnt = curl_init();
+        //     curl_setopt_array($curl_jnt, array(
+        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "POST",
+        //         CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=jnt",
+        //         CURLOPT_HTTPHEADER => array(
+        //             "content-type: application/x-www-form-urlencoded",
+        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl_jnt);
+        //     $err = curl_error($curl_jnt);
+        //     curl_close($curl_jnt);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $jnt = json_decode($response, true);
 
-            $curl_wahana = curl_init();
-            curl_setopt_array($curl_wahana, array(
-                CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=wahana",
-                CURLOPT_HTTPHEADER => array(
-                    "content-type: application/x-www-form-urlencoded",
-                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-                ),
-            ));
-            $response = curl_exec($curl_wahana);
-            $err = curl_error($curl_wahana);
-            curl_close($curl_wahana);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $wahana = json_decode($response, true);
+        //     $curl_wahana = curl_init();
+        //     curl_setopt_array($curl_wahana, array(
+        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "POST",
+        //         CURLOPT_POSTFIELDS => "origin=5504&originType=subdistrict&destination=" . $alamat['kec_id'] . "&destinationType=subdistrict&weight=" . $beratAkhir * 1000 . "&courier=wahana",
+        //         CURLOPT_HTTPHEADER => array(
+        //             "content-type: application/x-www-form-urlencoded",
+        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl_wahana);
+        //     $err = curl_error($curl_wahana);
+        //     curl_close($curl_wahana);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $wahana = json_decode($response, true);
 
-            $curl_dakota = curl_init();
-            $data_dakota = [
-                'prov' => $alamat['prov'],
-                'kab' => $alamat['kab'],
-                'kec' => $alamat['kec'],
-            ];
-            curl_setopt_array($curl_dakota, array(
-                CURLOPT_URL => "https://api.jasminefurniture.co.id/dakota",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($data_dakota),
-                CURLOPT_HTTPHEADER => array(
-                    "content-type: application/json"
-                ),
-            ));
-            $response = curl_exec($curl_dakota);
-            $err = curl_error($curl_dakota);
-            curl_close($curl_dakota);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $dakota = json_decode($response, true);
+        //     $curl_dakota = curl_init();
+        //     $data_dakota = [
+        //         'prov' => $alamat['prov'],
+        //         'kab' => $alamat['kab'],
+        //         'kec' => $alamat['kec'],
+        //     ];
+        //     curl_setopt_array($curl_dakota, array(
+        //         CURLOPT_URL => "https://api.jasminefurniture.co.id/dakota",
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "POST",
+        //         CURLOPT_POSTFIELDS => json_encode($data_dakota),
+        //         CURLOPT_HTTPHEADER => array(
+        //             "content-type: application/json"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl_dakota);
+        //     $err = curl_error($curl_dakota);
+        //     curl_close($curl_dakota);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $dakota = json_decode($response, true);
 
-            $costs_dakota = [];
-            foreach ($dakota['data'] as $deskripsi => $value_dakota) {
-                if ($deskripsi != 'UNIT') {
-                    array_push($costs_dakota, [
-                        'service' => $deskripsi,
-                        'description' => ucwords($deskripsi),
-                        'cost' => [
-                            [
-                                'value' => $beratHitung > (int)$value_dakota[0]['minkg'] ? (int)$value_dakota[0]['kgnext'] * $beratHitung : (int)$value_dakota[0]['pokok'],
-                                'etd' => $value_dakota[0]['LT']
-                            ]
-                        ]
-                    ]);
-                }
-            }
+        //     $costs_dakota = [];
+        //     foreach ($dakota['data'] as $deskripsi => $value_dakota) {
+        //         if ($deskripsi != 'UNIT') {
+        //             array_push($costs_dakota, [
+        //                 'service' => $deskripsi,
+        //                 'description' => ucwords($deskripsi),
+        //                 'cost' => [
+        //                     [
+        //                         'value' => $beratHitung > (int)$value_dakota[0]['minkg'] ? (int)$value_dakota[0]['kgnext'] * $beratHitung : (int)$value_dakota[0]['pokok'],
+        //                         'etd' => $value_dakota[0]['LT']
+        //                     ]
+        //                 ]
+        //             ]);
+        //         }
+        //     }
 
-            $paket = [
-                $jne['rajaongkir']['results'][0],
-                $jnt['rajaongkir']['results'][0],
-                $wahana['rajaongkir']['results'][0],
-                [
-                    'code' => 'dakota',
-                    'name' => 'Dakota Cargo',
-                    'costs' => $costs_dakota
-                ]
-            ];
-            for ($i = 0; $i < 4; $i++) {
-                if ($paket[$i]['costs'][0]['cost'][0]['value'] != 0) {
-                    array_push($paketFilter, $paket[$i]);
-                }
-            }
-        }
+        //     $paket = [
+        //         $jne['rajaongkir']['results'][0],
+        //         $jnt['rajaongkir']['results'][0],
+        //         $wahana['rajaongkir']['results'][0],
+        //         [
+        //             'code' => 'dakota',
+        //             'name' => 'Dakota Cargo',
+        //             'costs' => $costs_dakota
+        //         ]
+        //     ];
+        //     for ($i = 0; $i < 4; $i++) {
+        //         if ($paket[$i]['costs'][0]['cost'][0]['value'] != 0) {
+        //             array_push($paketFilter, $paket[$i]);
+        //         }
+        //     }
+        // }
 
         $user = [
             'nama' => $email == 'tamu' ? (session()->getFlashdata('namaPen') ? session()->getFlashdata('namaPen') : '') : $nama,
@@ -855,8 +855,8 @@ class Pages extends BaseController
             'provinsi' => $provinsi["rajaongkir"]["results"],
             'keranjang' => $keranjang,
             'keranjangJson' => json_encode($keranjang),
-            'paket' => $paketFilter,
-            'paketJson' => json_encode($paketFilter),
+            // 'paket' => $paketFilter,
+            // 'paketJson' => json_encode($paketFilter),
         ];
         return view('pages/checkout', $data);
     }
@@ -1037,19 +1037,19 @@ class Pages extends BaseController
                 );
                 array_push($itemDetails, $item);
             }
-            $item = array(
-                'id' => 'Biaya Tambahan',
-                'price' => $paket,
-                'quantity' => 1,
-                'name' => 'Biaya Ongkir',
-            );
+            // $item = array(
+            //     'id' => 'Biaya Tambahan',
+            //     'price' => $paket,
+            //     'quantity' => 1,
+            //     'name' => 'Biaya Ongkir',
+            // );
             $biayaadmin = array(
                 'id' => 'Biaya Admin',
                 'price' => 5000,
                 'quantity' => 1,
                 'name' => 'Biaya Admin',
             );
-            array_push($itemDetails, $item);
+            // array_push($itemDetails, $item);
             array_push($itemDetails, $biayaadmin);
             $total = $subtotal + $paket + 5000;
         }

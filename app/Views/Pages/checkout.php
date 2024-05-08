@@ -1,10 +1,10 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div id="container-pilih-kurir">
+<!-- <div id="container-pilih-kurir">
     <div class="container-pilih-kurir">
         <h5>Pilih Kurir</h5>
         <ul class="nav nav-tabs mb-2" id="tabs">
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link active">Active</a>
             </li>
             <li class="nav-item">
@@ -12,10 +12,10 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Link</a>
-            </li> -->
+            </li>
         </ul>
         <div id="pilih-kurir" class="d-flex flex-column gap-2">
-            <!-- <div class="tombol-pilih-kurir">
+            <div class="tombol-pilih-kurir">
                 <div class="d-flex align-items-center gap-4">
                     <div class="parent-img">
                         <img src="img/kurir/jnt.png" />
@@ -46,10 +46,10 @@
                     </div>
                     <p class="mb-0">Dakota Same Day<br>Estimasi Pengiriman 1-4 Hari<br>Rp 120.000</p>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
-</div>
+</div> -->
 <div class="konten">
     <div class="container">
         <div class="baris-ke-kolom gap-5 mt-3">
@@ -149,10 +149,10 @@
                     <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
                     <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
                 </div>
-                <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
+                <!-- <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
                     <span><i class="material-icons">chevron_right</i></span>
-                </div>
+                </div> -->
                 <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="ekspedisi">
                         <option value="pos">Pos Indonesia</option>
@@ -161,14 +161,14 @@
                     </select>
                     <label for="floatingProvinsi">Ekspedisi</label>
                 </div> -->
-                <div class="form-floating mb-1 d-none">
+                <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="paket1">
                         <option value="-1">-- Pilih paket --</option>
                     </select>
                     <label for="floatingProvinsi">Paket</label>
                     <input id="set-paket" name="paket" type="text" value="0" />
-                </div>
-                <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p>
+                </div> -->
+                <!-- <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p> -->
             </div>
             <div style="width: 100%; max-width: 400px;">
                 <div>
@@ -208,10 +208,10 @@
                     <p class="my-2">Biaya Admin:</p>
                     <p class="my-2"><b>Rp 5.000</b></p>
                 </div>
-                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Pengiriman:</p>
                     <p class="my-2"><b id="total-pengiriman">-</b></p>
-                </div>
+                </div> -->
                 <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Total:</p>
                     <p class="my-2"><b id="total-semua">Rp
@@ -250,13 +250,13 @@
     const kotaElm = document.querySelector('select[name="kota"]');
     const kecElm = document.querySelector('select[name="kecamatan"]');
     const kodeElm = document.querySelector('select[name="kodepos"]');
-    const costElm = document.getElementById("total-pengiriman");
+    // const costElm = document.getElementById("total-pengiriman");
     const totalElm = document.getElementById("total-semua");
-    const containerPilihKurir = document.getElementById("container-pilih-kurir");
-    const pilihKurirElm = document.getElementById("pilih-kurir");
-    const tabsElm = document.getElementById("tabs");
-    const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
-    const inputPaketElm = document.getElementById("set-paket");
+    // const containerPilihKurir = document.getElementById("container-pilih-kurir");
+    // const pilihKurirElm = document.getElementById("pilih-kurir");
+    // const tabsElm = document.getElementById("tabs");
+    // const btnPilihKurirElm = document.getElementById("btn-pilih-kurir");
+    // const inputPaketElm = document.getElementById("set-paket");
     const subtotal = "<?= $subtotal; ?>";
     let email = "<?= session()->get('email') ?>";
     let nama = "<?= session()->get('nama') ?>";
@@ -264,8 +264,8 @@
     const alamat = JSON.parse(<?= json_encode($alamatJson); ?>);
     const beratTotal = Number("<?= $beratAkhir; ?>");
     const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
-    let hasilApiKurir = [];
-    let hasilApiKurirRO = JSON.parse(<?= json_encode($paketJson); ?>);
+    // let hasilApiKurir = [];
+    // let hasilApiKurirRO = JSON.parse();
     let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] . "-" . $user['alamat']['kodepos'] : ''; ?>"];
     const produk = JSON.parse(<?= json_encode($produkJson); ?>);
     const keranjang = JSON.parse(<?= json_encode($keranjangJson); ?>);
@@ -286,7 +286,7 @@
     const formCheckoutAlamat = document.querySelector('#form-checkout input[name="alamat"]')
     const formCheckoutEmail = document.querySelector('#form-checkout input[name="email"]')
     const formCheckoutNoHp = document.querySelector('#form-checkout input[name="nohp"]')
-    const formCheckoutPaket = document.querySelector('#form-checkout input[name="paket"]')
+    // const formCheckoutPaket = document.querySelector('#form-checkout input[name="paket"]')
     const formCheckout = document.querySelectorAll('#form-checkout .form-control')
 
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
@@ -309,15 +309,16 @@
             }
             if (inputNamaElm.value == '') return inputNamaElm.classList.add("is-invalid")
             if (inputNohpElm.value == '') return inputNohpElm.classList.add("is-invalid")
-            if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
-                btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
+            // if (formCheckoutPaket.value.length > 0 && !isEditAlamat) {
+            if (!isEditAlamat) {
+                // btnPilihKurirElm.style.border = "1px solid rgb(214, 214, 214)";
                 btnCheckoutElm.innerHTML = "Loading"
                 const data = {
                     nama: nama,
                     alamat: JSON.stringify(alamat),
                     email: email == 'tamu' ? inputEmailPemElm.value : email,
                     nohp: nohp,
-                    paket: formCheckoutPaket.value,
+                    paket: "<?= base64_encode($total . "@kosong"); ?>",
                     namaPen: inputNamaElm.value,
                     nohpPen: inputNohpElm.value,
                     produk: JSON.stringify(produk),
@@ -367,7 +368,7 @@
                 }
                 getTokenMditrans()
             } else {
-                if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
+                // if (Number(formCheckoutPaket.value) <= 0) btnPilihKurirElm.style.border = "1px solid var(--merah)";
             }
         })
     }
@@ -532,7 +533,7 @@
         kotaElm.innerHTML = '<option value="-1">Loading..</option>'
         kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
         kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
-        costElm.innerHTML = '-'
+        // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -547,7 +548,7 @@
         generateAlamat(e.target.value.split("-")[1], 4);
         kecElm.innerHTML = '<option value="-1">Loading..</option>'
         kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
-        costElm.innerHTML = '-'
+        // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -561,7 +562,7 @@
     kecElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 3);
         kodeElm.innerHTML = '<option value="-1">Loading..</option>'
-        costElm.innerHTML = '-'
+        // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -576,7 +577,7 @@
         generateAlamat(e.target.value.split("-")[0], 2);
         generateAlamat(e.target.value.split("-")[1], 6);
         // kodeElm.innerHTML = '<option value="-1">Loading..</option>'
-        costElm.innerHTML = '-'
+        // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
         resetUIBtnPilihKurir();
@@ -596,104 +597,104 @@
         generateAlamat(e.target.value, 1);
     })
 
-    function pilihKurirRO() {
-        if (hasilApiKurirRO.length > 0) {
-            const hasilApi = hasilApiKurirRO
-            tabsElm.innerHTML = "";
-            hasilApi.forEach((element, ind) => {
-                const liElm = document.createElement("li");
-                liElm.classList.add("nav-item");
-                const aElm = document.createElement("a")
-                aElm.classList.add("nav-link");
-                aElm.classList.add("text-dark");
-                if (ind == 0) {
-                    aElm.classList.add("active");
-                    tampilkanPilihanKurirRO(element.code, element.costs, ind);
-                }
-                aElm.innerHTML = element.code.toUpperCase();
-                liElm.appendChild(aElm);
-                liElm.addEventListener("click", (e) => {
-                    removeActiveTabs();
-                    e.target.classList.add("active")
-                    tampilkanPilihanKurirRO(element.code, element.costs, ind)
-                })
-                tabsElm.appendChild(liElm);
-            })
-            containerPilihKurir.style.display = "flex";
-        }
-    }
+    // function pilihKurirRO() {
+    //     if (hasilApiKurirRO.length > 0) {
+    //         const hasilApi = hasilApiKurirRO
+    //         tabsElm.innerHTML = "";
+    //         hasilApi.forEach((element, ind) => {
+    //             const liElm = document.createElement("li");
+    //             liElm.classList.add("nav-item");
+    //             const aElm = document.createElement("a")
+    //             aElm.classList.add("nav-link");
+    //             aElm.classList.add("text-dark");
+    //             if (ind == 0) {
+    //                 aElm.classList.add("active");
+    //                 tampilkanPilihanKurirRO(element.code, element.costs, ind);
+    //             }
+    //             aElm.innerHTML = element.code.toUpperCase();
+    //             liElm.appendChild(aElm);
+    //             liElm.addEventListener("click", (e) => {
+    //                 removeActiveTabs();
+    //                 e.target.classList.add("active")
+    //                 tampilkanPilihanKurirRO(element.code, element.costs, ind)
+    //             })
+    //             tabsElm.appendChild(liElm);
+    //         })
+    //         containerPilihKurir.style.display = "flex";
+    //     }
+    // }
 
-    function removeActiveTabs() {
-        const seluruhTabsElm = document.querySelectorAll('a.nav-link');
-        console.log(seluruhTabsElm);
-        seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
-    }
+    // function removeActiveTabs() {
+    //     const seluruhTabsElm = document.querySelectorAll('a.nav-link');
+    //     console.log(seluruhTabsElm);
+    //     seluruhTabsElm.forEach((elmT) => elmT.classList.remove("active"));
+    // }
 
-    function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
-        pilihKurirElm.innerHTML = ""
-        costs.forEach((elm, ind_service) => {
-            const costnya = elm.cost[0] ? elm.cost[0] : elm.cost;
-            const tmbPilihElm = document.createElement("div");
-            tmbPilihElm.classList.add("tombol-pilih-kurir");
-            const tmbPilihElmChild = document.createElement("div")
-            tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
-            const parentImgElm = document.createElement("div");
-            parentImgElm.classList.add("parent-img");
-            const keteranganElm = document.createElement("p");
-            keteranganElm.classList.add("mb-0");
-            if (costnya.etd) {
-                keteranganElm.innerHTML =
-                    `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            } else {
-                keteranganElm.innerHTML =
-                    `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-            }
-            const imgElm = document.createElement("img");
-            imgElm.src = `img/kurir/${kurir}.webp`;
-            parentImgElm.appendChild(imgElm)
-            tmbPilihElmChild.appendChild(parentImgElm)
-            tmbPilihElmChild.appendChild(keteranganElm)
-            tmbPilihElm.appendChild(tmbPilihElmChild);
-            pilihKurirElm.appendChild(tmbPilihElm);
-            tmbPilihElm.addEventListener("click", () => {
-                btnPilihKurirElm.innerHTML = "";
-                const divElmPK = document.createElement("div");
-                divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
-                const imgElmPK = document.createElement("img")
-                imgElmPK.src = `img/kurir/${kurir}.webp`;
-                const keteranganElmPK = document.createElement("p");
-                keteranganElmPK.classList.add("mb-0");
-                if (costnya.etd) {
-                    keteranganElmPK.innerHTML =
-                        `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                } else {
-                    keteranganElmPK.innerHTML =
-                        `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                }
-                const iconElmPK = document.createElement("span");
-                iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
-                divElmPK.appendChild(imgElmPK)
-                divElmPK.appendChild(keteranganElmPK)
-                btnPilihKurirElm.appendChild(divElmPK)
-                btnPilihKurirElm.appendChild(iconElmPK);
+    // function tampilkanPilihanKurirRO(kurir, costs, ind_kurir) {
+    //     pilihKurirElm.innerHTML = ""
+    //     costs.forEach((elm, ind_service) => {
+    //         const costnya = elm.cost[0] ? elm.cost[0] : elm.cost;
+    //         const tmbPilihElm = document.createElement("div");
+    //         tmbPilihElm.classList.add("tombol-pilih-kurir");
+    //         const tmbPilihElmChild = document.createElement("div")
+    //         tmbPilihElmChild.setAttribute("class", "d-flex align-items-center gap-4");
+    //         const parentImgElm = document.createElement("div");
+    //         parentImgElm.classList.add("parent-img");
+    //         const keteranganElm = document.createElement("p");
+    //         keteranganElm.classList.add("mb-0");
+    //         if (costnya.etd) {
+    //             keteranganElm.innerHTML =
+    //                 `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //         } else {
+    //             keteranganElm.innerHTML =
+    //                 `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //         }
+    //         const imgElm = document.createElement("img");
+    //         imgElm.src = `img/kurir/${kurir}.webp`;
+    //         parentImgElm.appendChild(imgElm)
+    //         tmbPilihElmChild.appendChild(parentImgElm)
+    //         tmbPilihElmChild.appendChild(keteranganElm)
+    //         tmbPilihElm.appendChild(tmbPilihElmChild);
+    //         pilihKurirElm.appendChild(tmbPilihElm);
+    //         tmbPilihElm.addEventListener("click", () => {
+    //             btnPilihKurirElm.innerHTML = "";
+    //             const divElmPK = document.createElement("div");
+    //             divElmPK.setAttribute("class", "d-flex align-items-center gap-3");
+    //             const imgElmPK = document.createElement("img")
+    //             imgElmPK.src = `img/kurir/${kurir}.webp`;
+    //             const keteranganElmPK = document.createElement("p");
+    //             keteranganElmPK.classList.add("mb-0");
+    //             if (costnya.etd) {
+    //                 keteranganElmPK.innerHTML =
+    //                     `${kurir.toUpperCase()} ${elm.description}<br>Estimasi Pengiriman ${costnya.etd} Hari<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //             } else {
+    //                 keteranganElmPK.innerHTML =
+    //                     `${kurir.toUpperCase()} ${elm.description}<br>Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //             }
+    //             const iconElmPK = document.createElement("span");
+    //             iconElmPK.innerHTML = '<i class="material-icons">chevron_right</i>';
+    //             divElmPK.appendChild(imgElmPK)
+    //             divElmPK.appendChild(keteranganElmPK)
+    //             btnPilihKurirElm.appendChild(divElmPK)
+    //             btnPilihKurirElm.appendChild(iconElmPK);
 
-                costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-                totalElm.innerHTML =
-                    `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-                console.log(costnya.value, subtotal)
-                // inputPaketElm.value = btoa(`${costnya.value}`);
-                inputPaketElm.value = btoa(`${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`);
-                containerPilihKurir.style.display = "none";
-                if (checkboxElm.checked) btnCheckoutElm.classList.remove("disabled")
-            })
-        })
-    }
+    //             costElm.innerHTML = `Rp ${costnya.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    //             totalElm.innerHTML =
+    //                 `Rp ${(5000 + Number(costnya.value) + Number(subtotal)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+    //             console.log(costnya.value, subtotal)
+    //             // inputPaketElm.value = btoa(`${costnya.value}`);
+    //             inputPaketElm.value = btoa(`${costnya.value}@${kurir.toUpperCase()} - ${elm.description}`);
+    //             containerPilihKurir.style.display = "none";
+    //             if (checkboxElm.checked) btnCheckoutElm.classList.remove("disabled")
+    //         })
+    //     })
+    // }
 
     checkboxElm.addEventListener("change", (e) => {
-        if (inputPaketElm.value != '0') {
-            if (e.target.checked) btnCheckoutElm.classList.remove('disabled')
-            else btnCheckoutElm.classList.add('disabled')
-        }
+        // if (inputPaketElm.value != '0') {
+        if (e.target.checked) btnCheckoutElm.classList.remove('disabled')
+        else btnCheckoutElm.classList.add('disabled')
+        // }
     })
 </script>
 <?= $this->endSection(); ?>
