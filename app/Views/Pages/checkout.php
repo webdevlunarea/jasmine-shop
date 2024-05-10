@@ -147,6 +147,9 @@
                     <label for="floatingProvinsi">Area</label>
                 </div> -->
                     <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
+                    <?php if($user['alamat']) { ?>
+                        <p class="my-2 text-secondary">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
+                    <?php } ?>
                     <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
                 </div>
                 <!-- <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
