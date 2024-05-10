@@ -207,7 +207,8 @@
                             }
                             ?>";
         const varianArray = varians.split(",")
-        const indexGambar = Number(elmSelected) * Number(jmlVarian)
+        // const indexGambar = Number(elmSelected) * Number(jmlVarian)
+        const indexGambar = Number(jmlVarian) + Number(elmSelected) - 1;
         console.log(varians, varianArray, indexGambar)
         console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
         elmBtnBeli.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
