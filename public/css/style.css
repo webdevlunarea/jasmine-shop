@@ -211,6 +211,7 @@ a {
   position: fixed;
   bottom: 30px;
   right: 30px;
+  z-index: 10;
 }
 .btn-circle {
   border-radius: 100px;
@@ -227,14 +228,20 @@ a {
   align-items: center;
   cursor: pointer;
 }
-.btn-circle.hijau:hover {
+.btn-circle.hijau {
   background-color: var(--hijau);
+}
+.btn-circle path {
+  fill: white;
+}
+.btn-circle.hijau:hover {
+  background-color: #6d7f74;
+}
+.btn-circle.hijau:hover path {
+  fill: white;
 }
 .btn-circle:hover i {
   color: white;
-}
-.btn-circle:hover path {
-  fill: white;
 }
 .btn-circle:hover {
   background-color: black;
