@@ -7,6 +7,7 @@ use App\Models\GambarBarangModel;
 use App\Models\PembeliModel;
 use App\Models\PemesananModel;
 use App\Models\UserModel;
+use App\Models\FormModel;
 
 class Pages extends BaseController
 {
@@ -15,6 +16,7 @@ class Pages extends BaseController
     protected $userModel;
     protected $pembeliModel;
     protected $pemesananModel;
+    protected $formModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -22,6 +24,7 @@ class Pages extends BaseController
         $this->userModel = new UserModel();
         $this->pembeliModel = new PembeliModel();
         $this->pemesananModel = new PemesananModel();
+        $this->formModel = new FormModel();
     }
     public function index()
     {
@@ -54,6 +57,44 @@ class Pages extends BaseController
             'title' => 'FAQ',
         ];
         return view('pages/faq', $data);
+    }
+    public function form()
+    {
+        $data = [
+            'title' => 'Kontak Kami',
+            'val' => [
+                'msg' => session()->getFlashdata('val-msg')
+            ]
+        ];
+        return view('pages/form', $data);
+    }
+    public function actionForm()
+    {
+        $nama = $this->request->getVar('nama');
+        $nohp = $this->request->getVar('nohp');
+        $alamat = $this->request->getVar('alamat');
+        $pesan = $this->request->getVar('pesan');
+
+        $email = \Config\Services::email();
+        $email->setFrom('no-reply@jasminefurniture.com', 'Jasmine Furniture');
+        $email->setTo('infojasmine@jasminefurniture.co.id');
+        $email->setSubject('Jasmine Store - Formulir');
+        $isiEmail = "<div>
+            <h1>Pengisian Formulir</h1
+            <p>Pesan :</p>
+            <p>".$pesan."</p>
+        </div>";
+        $email->setMessage($isiEmail);
+        $email->send();
+
+        $this->formModel->insert([
+            'nama' => $nama,
+            'nohp' => $nohp,
+            'alamat' => $alamat,
+            'pesan' => $pesan,
+        ]);
+        session()->setFlashdata('val-msg', 'Pesan Anda telah kami terima');
+        return redirect()->to('/form');
     }
     public function all($subkategori = false)
     {
@@ -1964,5 +2005,9 @@ class Pages extends BaseController
         $produk = $this->barangModel->where('id', $id)->delete();
         $gambar = $this->gambarBarangModel->where('id', $id)->delete();
         return redirect()->to('/listproduct');
+    }
+
+    public function notFound() {
+        return redirect()->to('/');
     }
 }

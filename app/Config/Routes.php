@@ -14,6 +14,8 @@ $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 $routes->get('/faq', 'Pages::faq');
+$routes->get('/form', 'Pages::form');
+$routes->post('/actionform', 'Pages::actionForm');
 
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
 $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
@@ -90,3 +92,5 @@ $routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' 
 $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
+
+$routes->get('(:any)', 'Pages::notFound');
