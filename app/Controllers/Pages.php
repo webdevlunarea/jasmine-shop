@@ -8,6 +8,8 @@ use App\Models\PembeliModel;
 use App\Models\PemesananModel;
 use App\Models\UserModel;
 use App\Models\FormModel;
+use App\Models\ArtikelModel;
+use App\Models\GambarArtikelModel;
 
 class Pages extends BaseController
 {
@@ -17,6 +19,8 @@ class Pages extends BaseController
     protected $pembeliModel;
     protected $pemesananModel;
     protected $formModel;
+    protected $artikelModel;
+    protected $gambarArtikelModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -25,6 +29,8 @@ class Pages extends BaseController
         $this->pembeliModel = new PembeliModel();
         $this->pemesananModel = new PemesananModel();
         $this->formModel = new FormModel();
+        $this->artikelModel = new ArtikelModel();
+        $this->gambarArtikelModel = new GambarArtikelModel();
     }
     public function index()
     {
@@ -58,6 +64,108 @@ class Pages extends BaseController
         ];
         return view('pages/faq', $data);
     }
+    public function article($judul_article = false)
+    {
+        $artikel = $this->artikelModel->getArtikelJudul(str_replace("-", " ", $judul_article));
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        if (!$artikel) return redirect()->to('article');
+        if ($judul_article) {
+            $artikel['header'] = '/imgart/' . $artikel['id'];
+            $artikel['isi'] = json_decode($artikel['isi'], true);
+            $artikel['kategori'] = explode(",", $artikel['kategori']);
+            $artikel['waktu'] = date("d", strtotime($artikel['waktu'])) . " " . $bulan[date("m", strtotime($artikel['waktu'])) - 1] . " " . date("Y", strtotime($artikel['waktu']));
+            $data = [
+                'title' => 'Artikel ' . $artikel['judul'],
+                'artikel' => $artikel
+            ];
+            return view('pages/artikel', $data);
+        } else {
+            foreach ($artikel as $ind_a => $a) {
+                $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
+                $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+                $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
+                $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+            }
+            $data = [
+                'title' => 'Artikel',
+                'artikel' => $artikel
+            ];
+            return view('pages/artikelAll', $data);
+        }
+    }
+    public function articleCategory($kategori)
+    {
+        $artikel = $this->artikelModel->getArtikelKategori(str_replace("-", " ", $kategori));
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        if (!$artikel) return redirect()->to('article');
+        foreach ($artikel as $ind_a => $a) {
+            $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
+            $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+            $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
+            $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+        }
+        $data = [
+            'title' => 'Artikel',
+            'artikel' => $artikel
+        ];
+        return view('pages/artikelAll', $data);
+    }
+    public function addArticle()
+    {
+        $data = [
+            'title' => 'Tambah Artikel',
+        ];
+        return view('pages/addArtikel', $data);
+    }
+    public function actionAddArticle()
+    {
+        $judul = $this->request->getVar('judul');
+        $penulis = $this->request->getVar('penulis');
+        $kategori = $this->request->getVar('kategori');
+        $waktu = $this->request->getVar('waktu');
+        $header = file_get_contents($this->request->getFile('header'));
+        $counter = explode(",", $this->request->getVar('arrCounter'));
+
+        $d = strtotime("+7 Hours");
+        $id = "A" . date("YmdHis", $d);
+        $insertGambarArtikel = ['id' => $id];
+
+        $isi = [];
+        $counterGambar = 0;
+        foreach ($counter as $c) {
+            $itemIsi = [];
+            $tag = $this->request->getVar('tag' . $c);
+            $itemIsi['tag'] = $tag;
+            if ($tag == 'h2' || $tag == 'h3' || $tag == 'p') {
+                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            } else if ($tag == 'a') {
+                $itemIsi['link'] = $this->request->getVar('link' . $c);
+                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            } else if ($tag == 'img') {
+                $counterGambar++;
+                $insertGambarArtikel["gambar" . $counterGambar] = file_get_contents($this->request->getFile('file' . $c));
+                $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            }
+            array_push($isi, $itemIsi);
+        }
+
+        $this->artikelModel->insert([
+            'id' => $id,
+            'judul' => $judul,
+            'penulis' => $penulis,
+            'kategori' => $kategori,
+            'waktu' => $waktu,
+            'isi' => json_encode($isi),
+            'header' => $header,
+        ]);
+        $this->gambarArtikelModel->insert($insertGambarArtikel);
+
+        session()->setFlashdata('msg', 'Artikel berhasil ditambahkan');
+        return redirect()->to('/article/' . $id);
+    }
     public function form()
     {
         $data = [
@@ -82,7 +190,7 @@ class Pages extends BaseController
         $isiEmail = "<div>
             <h1>Pengisian Formulir</h1
             <p>Pesan :</p>
-            <p>".$pesan."</p>
+            <p>" . $pesan . "</p>
         </div>";
         $email->setMessage($isiEmail);
         $email->send();
@@ -93,8 +201,16 @@ class Pages extends BaseController
             'alamat' => $alamat,
             'pesan' => $pesan,
         ]);
-        session()->setFlashdata('val-msg', 'Pesan Anda telah kami terima');
-        return redirect()->to('/form');
+        session()->setFlashdata('form-thanks', true);
+        return redirect()->to('/formthanks');
+    }
+    public function formThanks()
+    {
+        if (!session()->getFlashdata('form-thanks')) return redirect()->to('/form');
+        $data = [
+            'title' => 'Terima kasih atas pengisian Formulir',
+        ];
+        return view('pages/formThanks', $data);
     }
     public function all($subkategori = false)
     {
@@ -2007,7 +2123,8 @@ class Pages extends BaseController
         return redirect()->to('/listproduct');
     }
 
-    public function notFound() {
+    public function notFound()
+    {
         return redirect()->to('/');
     }
 }

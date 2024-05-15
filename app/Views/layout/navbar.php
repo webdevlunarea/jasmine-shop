@@ -1,8 +1,5 @@
 <nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
     <div class="container d-flex">
-        <!-- <a class="navbar-brand" href="/" style="font-weight: bold;">
-            <img src="../img/Logo Jasmine.png" height="30em">
-        </a> -->
         <form class="d-flex flex-grow-1 search-box" role="search">
             <div class="input-group">
                 <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
@@ -19,6 +16,7 @@
                     <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
             <?php } else { ?>
+                <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                 <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
@@ -53,14 +51,11 @@
                 <li class="nav-item">
                     <a class="nav-link <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">Beranda</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link <?= $title == 'Kontak' ? "active " : ""; ?>" href="/contact">Kontak</a>
-                </li> -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $title == 'Tentang' ? "active " : ""; ?>" href="<?= base_url('about'); ?>">Tentang</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
                 </li>
                 <?php if (!session()->get('isLogin')) { ?>
                     <li class="nav-item">
@@ -88,6 +83,7 @@
                         <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                     <?php } ?>
                 <?php } else { ?>
+                    <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>

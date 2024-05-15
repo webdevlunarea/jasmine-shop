@@ -15,6 +15,7 @@ $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 $routes->get('/faq', 'Pages::faq');
 $routes->get('/form', 'Pages::form');
+$routes->get('/formthanks', 'Pages::formThanks');
 $routes->post('/actionform', 'Pages::actionForm');
 
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
@@ -92,5 +93,16 @@ $routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' 
 $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
+
+// GambarController
+$routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
+$routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
+
+//Artikel
+$routes->get('/article', 'Pages::article');
+$routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
+$routes->get('/article/(:any)', 'Pages::article/$1');
+$routes->get('/addarticle', 'Pages::addArticle', ['filter' => 'harusAdmin']);
+$routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
 
 $routes->get('(:any)', 'Pages::notFound');
