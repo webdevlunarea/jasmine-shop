@@ -37,11 +37,24 @@
                         <textarea class="form-control" placeholder="Tuliskan pesan Anda" name="pesan">Hai CS Jasmine, saya ingin menanyakan mengenai ...</textarea>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-primary1">Kirim</button>
+                        <button type="submit" disabled class="btn btn-primary1" id="btn-kirim">Kirim</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    const namaInputElm = document.querySelector('input[name="nama"]')
+    const nohpInputElm = document.querySelector('input[name="nohp"]')
+    const btnKirimElm = document.getElementById("btn-kirim");
+    namaInputElm.addEventListener("input", (e) => {
+        if (e.target.value != '' && nohpInputElm.value != '') btnKirimElm.disabled = false;
+        else btnKirimElm.disabled = true;
+    })
+    nohpInputElm.addEventListener("input", (e) => {
+        if (e.target.value != '' && namaInputElm.value != '') btnKirimElm.disabled = false;
+        else btnKirimElm.disabled = true;
+    })
+</script>
 <?= $this->endSection(); ?>

@@ -1877,6 +1877,13 @@ class Pages extends BaseController
     }
 
     //============ ADMIN ==============//
+    public function listForm()
+    {
+        $data = [
+            'title' => 'List Formulir',
+        ];
+        return view('pages/listForm', $data);
+    }
     public function listCustomer($page = 1)
     {
         $transaksiCus = $this->pemesananModel->getPemesananPage($page);
