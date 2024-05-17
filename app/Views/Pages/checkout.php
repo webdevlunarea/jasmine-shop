@@ -57,7 +57,7 @@
                 <div class="pb-3 border-bottom">
                     <h5 class="mb-0">Informasi Pemesan</h5>
                     <?php if ($user['email'] != 'tamu') { ?>
-                        <p class="mb-0"><?= $user['nama']; ?> </p>
+                        <p class="mb-0"><?= $user['nama']; ?></p>
                         <p class="mb-0"><?= $user['nohp']; ?></p>
                     <?php } else { ?>
                         <div class="form-floating mb-1">
@@ -147,7 +147,7 @@
                     <label for="floatingProvinsi">Area</label>
                 </div> -->
                     <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
-                    <?php if($user['alamat']) { ?>
+                    <?php if ($user['alamat']) { ?>
                         <p class="my-2 text-secondary">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
                     <?php } ?>
                     <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
@@ -350,7 +350,7 @@
                     });
                     const snaptoken = await response.json();
                     console.log(snaptoken);
-                    btnCheckoutElm.innerHTML = "Pesan"
+                    btnCheckoutElm.innerHTML = "Bayar"
                     /*window.snap.pay(snaptoken.snapToken, {
                         onSuccess: function(result) {
                             // alert("payment success!");
@@ -693,11 +693,30 @@
     //     })
     // }
 
+
     checkboxElm.addEventListener("change", (e) => {
-        // if (inputPaketElm.value != '0') {
-        if (e.target.checked) btnCheckoutElm.classList.remove('disabled')
-        else btnCheckoutElm.classList.add('disabled')
-        // }
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
+    })
+    inputNamaPemElm.addEventListener("input", (e) => {
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
+    })
+    inputNohpPemElm.addEventListener("input", (e) => {
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
+    })
+    inputEmailPemElm.addEventListener("input", (e) => {
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
+    })
+    inputNamaElm.addEventListener("input", (e) => {
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
+    })
+    inputNohpElm.addEventListener("input", (e) => {
+        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+        else btnCheckoutElm.classList.add('disabled');
     })
 </script>
 <?= $this->endSection(); ?>
