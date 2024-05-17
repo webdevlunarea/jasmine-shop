@@ -34,6 +34,13 @@ class BarangModel extends Model
         }
         return $this->where(['id' => $id])->first();
     }
+    public function getBarangNama($nama = false)
+    {
+        if ($nama == false) {
+            return $this->orderBy('nama', 'asc')->findAll();
+        }
+        return $this->where(['nama' => $nama])->first();
+    }
     public function getBarangLimit()
     {
         return $this->orderBy('nama', 'asc')->findAll(10, 0);

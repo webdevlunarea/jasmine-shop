@@ -91,7 +91,7 @@
         <?php } else { ?>
             <div class="card-group1 no-scroll mb-3">
                 <?php foreach ($produk as $p) { ?>
-                    <a class="card1" href="/product/<?= $p['id']; ?>">
+                    <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
                         <?php if ($p['diskon']) { ?>
                             <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                         <?php } ?>

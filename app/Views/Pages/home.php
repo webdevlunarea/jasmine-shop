@@ -89,7 +89,7 @@
         <h1 class="mb-1">Produk Baru</h1>
         <div class="card-group1 no-scroll">
             <?php foreach ($produkBaru as $p) { ?>
-                <a class="card1" href="/product/<?= $p['id']; ?>">
+                <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>

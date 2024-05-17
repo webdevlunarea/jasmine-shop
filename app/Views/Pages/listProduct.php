@@ -31,7 +31,7 @@
                         <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
                     </div>
                     <div class="d-flex gap-2 justify-content-center">
-                        <a class="btn btn-light d-flex" href="/product/<?= $p['id']; ?>"><i class="material-icons">visibility</i></a>
+                        <a class="btn btn-light d-flex" href="/product/<?= urlencode($p['nama']); ?>"><i class="material-icons">visibility</i></a>
                         <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
                         <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
                     </div>

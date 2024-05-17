@@ -8,7 +8,7 @@
             if (!empty($keranjang)) { ?>
                 <?php foreach ($produk as $index => $p) { ?>
                     <div class="card-cart baris-ke-kolom justify-content-between">
-                        <a href="/product/<?= $p['id']; ?>" class="d-flex gap-4 text-dark" style="height: 100%;">
+                        <a href="/product/<?= urlencode($p['nama']); ?>" class="d-flex gap-4 text-dark" style="height: 100%;">
                             <img src="data:image/webp;base64,<?= base64_encode($gambar[$index]); ?>" alt="">
                             <div>
                                 <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>"><?= $p['nama']; ?></p>

@@ -129,7 +129,7 @@
                             kami juga tersedia di
                         </p>
                         <div>
-                            <a href="#" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace">
+                            <a href="https://shopee.co.id/jasminefurniture123" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace">
                             </a>
                             <a href="#" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace">
                             </a>

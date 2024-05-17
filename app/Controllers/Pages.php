@@ -693,7 +693,7 @@ class Pages extends BaseController
                 $produknya = $this->barangModel->getBarang($element['id']);
                 if ((int)$produknya['stok'] - (int)$keranjang[$index]['jumlah'] - 1 < 0) {
                     session()->setFlashdata('msg', 'Stok kurang');
-                    return redirect()->to("/product/" . $produknya['id']);
+                    return redirect()->to("/product/" . $produknya['nama']);
                 }
                 $keranjang[$index]['jumlah'] += 1;
                 $ketemu = true;
@@ -1767,11 +1767,11 @@ class Pages extends BaseController
         ];
         return view('pages/about', $data);
     }
-    public function product($id = false)
+    public function product($nama = false)
     {
-        $produk = $this->barangModel->getBarang($id);
+        $produk = $this->barangModel->getBarangNama(urldecode($nama));
         $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->findAll(10, 0);
-        $gambarnya = $this->gambarBarangModel->getGambar($id);
+        $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
         $data = [
