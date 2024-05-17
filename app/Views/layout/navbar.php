@@ -16,6 +16,7 @@
                     <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
             <?php } else { ?>
+                <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                 <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
@@ -28,7 +29,7 @@
     <div class="container pt-1">
         <div class="d-flex mt-1" style="gap: 1px; background-color: rgba(255, 255, 255, 0.5)">
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">Beranda</a>
-            <a style="font-size: smaller; background-color: var(--hijau) " class="nav-link flex-grow-1 text-center <?= $title == 'Tentang' ? "active " : ""; ?>" href="/about">Tentang</a>
+            <a style="font-size: smaller; background-color: var(--hijau) " class="nav-link flex-grow-1 text-center <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
             <?php if (session()->get('isLogin')) { ?>
                 <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
@@ -83,6 +84,7 @@
                         <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                     <?php } ?>
                 <?php } else { ?>
+                    <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                     <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>

@@ -71,7 +71,7 @@ $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');
 $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
-$routes->get('/listform', 'Pages::listForm');
+$routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);

@@ -17,7 +17,7 @@ class FormModel extends Model
     public function getForm($id = false)
     {
         if ($id == false) {
-            return $this->findAll();
+            return $this->orderBy('id', 'asc')->findAll();
         }
         return $this->where(['id' => $id])->first();
     }

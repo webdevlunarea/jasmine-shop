@@ -1879,8 +1879,10 @@ class Pages extends BaseController
     //============ ADMIN ==============//
     public function listForm()
     {
+        $form = $this->formModel->getForm();
         $data = [
             'title' => 'List Formulir',
+            'form' => $form
         ];
         return view('pages/listForm', $data);
     }

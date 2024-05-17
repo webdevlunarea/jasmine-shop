@@ -480,6 +480,12 @@ a {
 .limapuluh-ke-seratus {
     width: 50%;
 }
+.empatpuluh-ke-seratus {
+    width: 40%;
+}
+.limapuluhsvh-ke-tigapuluh {
+    height: 50svh;
+}
 .garis {
     display: block;
     height: 2px;
@@ -580,6 +586,7 @@ a {
 .artikel.konten .container-nav-kategori-artikel {
     overflow-x: auto;
     padding-bottom: 0.5em;
+    margin-bottom: 0.6em;
 }
 .artikel.konten .container-nav-kategori-artikel::after {
     content: "";
@@ -603,6 +610,7 @@ a {
 }
 .artikel.konten .container-card-artikel {
     height: 350px;
+    gap: 1em;
     /* background-color: aqua; */
 }
 .artikel.konten .container-card-artikel > div {
@@ -666,6 +674,21 @@ a {
 }
 .artikel.konten .card-artikel-kecil:hover {
     cursor: pointer;
+}
+@media (max-width: 600px) {
+    .artikel.konten .header {
+        height: 30svh;
+    }
+    .artikel.konten .judul {
+        font-size: 2em;
+        line-height: 49px;
+    }
+    .artikel.konten .container-nav-kategori-artikel {
+        margin-bottom: 0;
+    }
+    .artikel.konten .container-nav-kategori-artikel::after {
+        display: none;
+    }
 }
 
 /* Footer */
@@ -796,7 +819,8 @@ footer > .atas > div {
     p,
     h1,
     input,
-    option {
+    option,
+    a {
         font-size: smaller;
     }
     .card1 h5 {
@@ -913,6 +937,12 @@ footer > .atas > div {
     }
     .limapuluh-ke-seratus {
         width: 100%;
+    }
+    .empatpuluh-ke-seratus {
+        width: 100%;
+    }
+    .limapuluhsvh-ke-tigapuluh {
+        height: 30svh;
     }
     .logo-pembayaran {
         height: 44px;
