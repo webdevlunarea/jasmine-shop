@@ -692,31 +692,48 @@
     //         })
     //     })
     // }
-
-
-    checkboxElm.addEventListener("change", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
-    inputNamaPemElm.addEventListener("input", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
-    inputNohpPemElm.addEventListener("input", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
-    inputEmailPemElm.addEventListener("input", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
-    inputNamaElm.addEventListener("input", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
-    inputNohpElm.addEventListener("input", (e) => {
-        if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
-        else btnCheckoutElm.classList.add('disabled');
-    })
 </script>
+<?php if (session()->get('email') == 'tamu') { ?>
+    <script>
+        checkboxElm.addEventListener("change", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNamaPemElm.addEventListener("input", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNohpPemElm.addEventListener("input", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputEmailPemElm.addEventListener("input", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNamaElm.addEventListener("input", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNohpElm.addEventListener("input", (e) => {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+    </script>
+<?php } else { ?>
+    <script>
+        checkboxElm.addEventListener("change", (e) => {
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNamaElm.addEventListener("input", (e) => {
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+        inputNohpElm.addEventListener("input", (e) => {
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        })
+    </script>
+<?php } ?>
 <?= $this->endSection(); ?>

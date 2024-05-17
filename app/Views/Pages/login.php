@@ -36,7 +36,7 @@
                             <?= $val['val_sandi']; ?>
                         </div>
                     </div>
-                    <input class="btn btn-primary1" type="submit" value="Masuk">
+                    <input class="btn btn-primary1" disabled type="submit" value="Masuk">
                 </form>
                 <p class="mt-3">Belum punya akun? <a href="/signup" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Daftar
                         disini</a></p>
@@ -46,4 +46,18 @@
         </div>
     </div>
 </div>
+<script>
+    const emailInputElm = document.querySelector('input[name="email"]')
+    const passInputElm = document.querySelector('input[name="sandi"]')
+    const btnMasukElm = document.querySelector('input[type="submit"]');
+    console.log(btnMasukElm)
+    emailInputElm.addEventListener("input", (e) => {
+        if (e.target.value != '' && passInputElm.value != '') btnMasukElm.disabled = false;
+        else btnMasukElm.disabled = true;
+    })
+    passInputElm.addEventListener("input", (e) => {
+        if (e.target.value != '' && emailInputElm.value != '') btnMasukElm.disabled = false;
+        else btnMasukElm.disabled = true;
+    })
+</script>
 <?= $this->endSection(); ?>
