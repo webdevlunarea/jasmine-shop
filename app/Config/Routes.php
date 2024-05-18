@@ -103,7 +103,7 @@ $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/
 $routes->get('/article', 'Pages::article');
 $routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
 $routes->get('/article/(:any)', 'Pages::article/$1');
-$routes->get('/addarticle', 'Pages::addArticle', ['filter' => 'harusAdmin']);
+$routes->get('/addarticle', 'Pages::addArticle');
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
 
 $routes->get('(:any)', 'Pages::notFound');

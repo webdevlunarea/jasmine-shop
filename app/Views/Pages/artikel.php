@@ -22,6 +22,8 @@
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '" href="' . $isi['link'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
                 } else if ($isi['tag'] == 'img') {
                     echo '<' . $isi['tag'] . ' class="w-100 ' . $isi['style'] . '" src="' . $isi['src'] . '">';
+                } else if ($isi['tag'] == 'space') {
+                    echo '<div class="w-100" style="height: 1em"></div>';
                 }
             ?>
             <?php } ?>
@@ -45,6 +47,8 @@
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '" href="' . $isi['link'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
                 } else if ($isi['tag'] == 'img') {
                     echo '<' . $isi['tag'] . ' class="w-100 ' . $isi['style'] . '" src="' . $isi['src'] . '">';
+                } else if ($isi['tag'] == 'space') {
+                    echo '<div class="w-100" style="height: 1em"></div>';
                 }
             ?>
             <?php } ?>

@@ -49,7 +49,7 @@
             <div class="mt-3">
                 <h5>Isi Artikel</h5>
                 <div id="container-isi" class="d-flex flex-column gap-2">
-                    <!-- <div class="py-2">
+                    <div class="py-2">
                         <input type="text" name="tag1" value="p">
                         <textarea class="w-100 mt-1" placeholder="teks" name="teks1">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint odit animi, nam placeat hic voluptatem dolores, autem blanditiis aperiam, minus exercitationem magnam similique. Blanditiis, culpa! Nobis, exercitationem corporis. Esse exercitationem perspiciatis eligendi? Molestiae debitis nulla beatae dolores minima quaerat? Est rerum sunt labore possimus doloribus repellat doloremque quos fugit minus!</textarea>
                         <input type="text" name="style1" placeholder="style" value="d-flex flex-column">
@@ -67,7 +67,11 @@
                         <input type="file" name="file3">
                         <input type="text" name="style3" placeholder="style" value="d-flex flex-column">
                         <button type="button" onclick="hapusIsi('3')">hapus</button>
-                    </div> -->
+                    </div>
+                    <div class="py-2">
+                        <input type="text" name="tag4" value="space">
+                        <button type="button" onclick="hapusIsi('3')">hapus</button>
+                    </div>
                 </div>
                 <div class="d-flex gap-2 border-top py-3">
                     <select id="select-tag">
@@ -76,7 +80,8 @@
                         <option value="h3">h3</option>
                         <option value="p">p</option>
                         <option value="img">img</option>
-                        <option value="a">a</option>\
+                        <option value="a">a</option>
+                        <option value="space">space</option>
                     </select>
                     <button type="button" onclick="tambahIsi()">Tambahkan</button>
                 </div>
@@ -105,6 +110,8 @@
                 initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="text" name="link' + counterIsi + '" placeholder="link"><input type="text" name="teks' + counterIsi + '" placeholder="teks"><input type="text" name="style' + counterIsi + '" placeholder="style"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
             } else if (tagSelectElm.value == 'img') {
                 initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '"><input type="text" name="style' + counterIsi + '" placeholder="style"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
+            } else if (tagSelectElm.value == 'space') {
+                initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="space"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
             }
             containerIsiElm.innerHTML += initItemIsi;
             arrCounterIsi.push(counterIsi);

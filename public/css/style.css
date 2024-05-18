@@ -66,6 +66,9 @@ a {
 .link-primary {
     color: var(--hijau);
 }
+.link-offset-2 {
+    color: var(--hijau);
+}
 .carousel.slide .carousel-indicators button {
     background-color: var(--hijau);
 }
@@ -611,6 +614,7 @@ a {
 .artikel.konten .container-card-artikel {
     height: 350px;
     gap: 1em;
+    display: flex;
     /* background-color: aqua; */
 }
 .artikel.konten .container-card-artikel > div {

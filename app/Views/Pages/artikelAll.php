@@ -21,14 +21,14 @@
         <div class="mb-4">
             <div class="p-5 header show-flex-ke-hide" style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
                 <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Jasmine's Article</h1>
-                <p class="text-light mb-3">Informasi yang selalu kami perbarui untuk mengajak Anda mengenal lebih dekat terkait furniture</p>
+                <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
                 <div class="d-flex gap-2">
                     <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
                 </div>
             </div>
             <div class="p-4 header hide-ke-show-flex" style="position: relative; margin-bottom: -30svh; flex-direction: column; justify-content: end; width: 80%;">
                 <h2 class="text-light mb-1">Jasmine's Article</h2>
-                <p class="text-light mb-3">Informasi yang selalu kami perbarui untuk mengajak Anda mengenal lebih dekat terkait furniture</p>
+                <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
                 <div class="d-flex gap-2">
                     <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
                 </div>
@@ -122,7 +122,7 @@
                 </div>
             <?php } ?>
         </div>
-        <div class="show-ke-hide">
+        <div class="show-flex-ke-hide flex-column gap-2">
             <?php foreach ($artikel as $ind_a => $a) {
                 if (fmod($ind_a, 3) == 0) { ?>
                     <div class="gap-4 container-card-artikel">
@@ -145,7 +145,7 @@
             <?php }
             } ?>
         </div>
-        <div class="hide-ke-show-block">
+        <div class="hide-ke-show-flex flex-column gap-2">
             <?php foreach ($artikel as $ind_a => $a) { ?>
                 <div class="gap-4 container-card-artikel" style="height: 100px;">
                     <div class="d-flex flex-grow-1 flex-column gap-4">
