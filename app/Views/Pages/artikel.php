@@ -16,7 +16,7 @@
             </div>
             <span class="garis my-3"></span>
             <?php foreach ($artikel['isi'] as $isi) {
-                if ($isi['tag'] == 'h1' || $isi['tag'] == 'h2' || $isi['tag'] == 'p') {
+                if ($isi['tag'] == 'h2' || $isi['tag'] == 'h4' || $isi['tag'] == 'p') {
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
                 } else if ($isi['tag'] == 'a') {
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '" href="' . $isi['link'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
@@ -41,7 +41,7 @@
             </div>
             <span class="garis my-3"></span>
             <?php foreach ($artikel['isi'] as $isi) {
-                if ($isi['tag'] == 'h1' || $isi['tag'] == 'h2' || $isi['tag'] == 'p') {
+                if ($isi['tag'] == 'h2' || $isi['tag'] == 'h4' || $isi['tag'] == 'p') {
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
                 } else if ($isi['tag'] == 'a') {
                     echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '" href="' . $isi['link'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';

@@ -66,7 +66,7 @@ class Pages extends BaseController
     }
     public function article($judul_article = false)
     {
-        $artikel = $this->artikelModel->getArtikelJudul(str_replace("-", " ", $judul_article));
+        $artikel = $this->artikelModel->getArtikelJudul(urldecode($judul_article));
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         if (!$artikel) return redirect()->to('article');
         if ($judul_article) {
@@ -136,7 +136,7 @@ class Pages extends BaseController
             $itemIsi = [];
             $tag = $this->request->getVar('tag' . $c);
             $itemIsi['tag'] = $tag;
-            if ($tag == 'h2' || $tag == 'h3' || $tag == 'p') {
+            if ($tag == 'h2' || $tag == 'h4' || $tag == 'p') {
                 $itemIsi['teks'] = $this->request->getVar('teks' . $c);
                 $itemIsi['style'] = $this->request->getVar('style' . $c);
             } else if ($tag == 'a') {

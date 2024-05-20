@@ -586,6 +586,10 @@ a {
     font-size: 3em;
     letter-spacing: -1px;
 }
+.artikel.konten h3,
+.artikel.konten h4 {
+    color: var(--hijau);
+}
 .artikel.konten .container-nav-kategori-artikel {
     overflow-x: auto;
     padding-bottom: 0.5em;
@@ -614,7 +618,6 @@ a {
 .artikel.konten .container-card-artikel {
     height: 350px;
     gap: 1em;
-    display: flex;
     /* background-color: aqua; */
 }
 .artikel.konten .container-card-artikel > div {

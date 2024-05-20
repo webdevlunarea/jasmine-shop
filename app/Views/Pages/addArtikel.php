@@ -77,7 +77,7 @@
                     <select id="select-tag">
                         <option value="" selected>-- pilih tag --</option>
                         <option value="h2">h2</option>
-                        <option value="h3">h3</option>
+                        <option value="h4">h3</option>
                         <option value="p">p</option>
                         <option value="img">img</option>
                         <option value="a">a</option>
@@ -104,10 +104,10 @@
         if (tagSelectElm.value != '') {
             counterIsi++;
             let initItemIsi = '';
-            if (tagSelectElm.value == 'h2' || tagSelectElm.value == 'h3' || tagSelectElm.value == 'p') {
+            if (tagSelectElm.value == 'h2' || tagSelectElm.value == 'h4' || tagSelectElm.value == 'p') {
                 initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><textarea class="w-100 mt-1" placeholder="teks" name="teks' + counterIsi + '"></textarea><input type="text" name="style' + counterIsi + '" placeholder="style"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
             } else if (tagSelectElm.value == 'a') {
-                initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="text" name="link' + counterIsi + '" placeholder="link"><input type="text" name="teks' + counterIsi + '" placeholder="teks"><input type="text" name="style' + counterIsi + '" placeholder="style"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
+                initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="text" name="link' + counterIsi + '" placeholder="link"><input type="text" name="teks' + counterIsi + '" placeholder="teks"><input type="text" name="style' + counterIsi + '" placeholder="style" value="d-inline link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
             } else if (tagSelectElm.value == 'img') {
                 initItemIsi = '<div class="py-2"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '"><input type="text" name="style' + counterIsi + '" placeholder="style"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button></div>'
             } else if (tagSelectElm.value == 'space') {

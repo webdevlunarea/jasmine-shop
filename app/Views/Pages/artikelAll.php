@@ -37,119 +37,119 @@
         </div>
         <div class="mb-4">
             <h5 class="jdl-section mb-3">Artikel Baru</h5>
-            <?php if (count($artikel) > 6) { ?>
-                <div class="gap-4 container-card-artikel">
-                    <div class="flex-grow-1">
-                        <div class="card-artikel-besar">
-                            <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-                            <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
+            <div class="gap-4 show-flex-ke-hide container-card-artikel">
+                <div class="flex-grow-1">
+                    <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= urlencode($artikel[0]['judul']); ?>`)">
+                        <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="">
+                        <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
+                        <div class="flex-grow-1">
+                            <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p>
+                        </div>
+                        <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[0]['penulis']; ?></p>
+                        <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[0]['waktu']; ?></p>
+                    </div>
+                </div>
+                <div class="d-flex flex-grow-1 flex-column gap-4">
+                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[1]['judul']); ?>`)">
+                        <div class="img">
+                            <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="">
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
                             <div class="flex-grow-1">
-                                <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
+                                <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p>
                             </div>
-                            <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                            <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
+                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[1]['penulis']; ?></p>
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[1]['waktu']; ?></p>
                         </div>
                     </div>
-                    <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil">
-                            <div class="img">
-                                <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                                <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
-                            </div>
+                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[2]['judul']); ?>`)">
+                        <div class="img">
+                            <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="">
                         </div>
-                        <div class="card-artikel-kecil">
-                            <div class="img">
-                                <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p>
                             </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                                <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil">
-                            <div class="img">
-                                <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                                <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
-                            </div>
-                        </div>
-                        <div class="card-artikel-kecil">
-                            <div class="img">
-                                <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                                <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
-                            </div>
-                        </div>
-                        <div class="card-artikel-kecil">
-                            <div class="img">
-                                <img class="rounded" src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul">Mau Kamarmu Jadi Terlihat Aesthetic? Baca Artikel Ini Agar Tahu Caranya!</p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae assumenda voluptatibus sed maiores! Architecto, tempore!</p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;">Novita Meilina</p>
-                                <p class="m-0" style="font-size: smaller; color: #888;">24 Mar 2024</p>
-                            </div>
+                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[2]['penulis']; ?></p>
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[2]['waktu']; ?></p>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
+                <div class="d-flex flex-grow-1 flex-column gap-4">
+                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[3]['judul']); ?>`)">
+                        <div class="img">
+                            <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="">
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p>
+                            </div>
+                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[3]['penulis']; ?></p>
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[3]['waktu']; ?></p>
+                        </div>
+                    </div>
+                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[4]['judul']); ?>`)">
+                        <div class="img">
+                            <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="">
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p>
+                            </div>
+                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[4]['penulis']; ?></p>
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[4]['waktu']; ?></p>
+                        </div>
+                    </div>
+                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[5]['judul']); ?>`)">
+                        <div class="img">
+                            <img class="rounded" src="<?= $artikel[5]['header']; ?>" alt="">
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <p class="m-0 judul"><?= $artikel[5]['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <p class="m-0 isi"><?= $artikel[5]['isi'][0]['teks']; ?></p>
+                            </div>
+                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[5]['penulis']; ?></p>
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[5]['waktu']; ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="show-flex-ke-hide flex-column gap-2">
             <?php foreach ($artikel as $ind_a => $a) {
-                if (fmod($ind_a, 3) == 0) { ?>
-                    <div class="gap-4 container-card-artikel">
-                        <?php for ($i = $ind_a; $i < $ind_a + 3; $i++) {
-                            if (isset($artikel[$i])) { ?>
-                                <div class="flex-grow-1">
-                                    <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= str_replace(' ', '-', $artikel[$i]['judul']); ?>`)">
-                                        <img class="rounded" src="<?= $artikel[$i]['header']; ?>" alt="">
-                                        <p class="m-0 judul"><?= $artikel[$i]['judul']; ?></p>
-                                        <div class="flex-grow-1">
-                                            <p class="m-0 isi"><?= $artikel[$i]['isi'][0]['teks']; ?></p>
+                if ($ind_a > 5) {
+                    if (fmod($ind_a, 3) == 0) { ?>
+                        <div class="gap-4 d-flex container-card-artikel">
+                            <?php for ($i = $ind_a; $i < $ind_a + 3; $i++) {
+                                if (isset($artikel[$i])) { ?>
+                                    <div class="flex-grow-1" onclick="pergiKeArtikel(`<?= urlencode($artikel[$i]['judul']); ?>`)">
+                                        <div class="card-artikel-besar" .>
+                                            <img class="rounded" src="<?= $artikel[$i]['header']; ?>" alt="">
+                                            <p class="m-0 judul"><?= $artikel[$i]['judul']; ?></p>
+                                            <div class="flex-grow-1">
+                                                <p class="m-0 isi"><?= $artikel[$i]['isi'][0]['teks']; ?></p>
+                                            </div>
+                                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[$i]['penulis']; ?></p>
+                                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[$i]['waktu']; ?></p>
                                         </div>
-                                        <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[$i]['penulis']; ?></p>
-                                        <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[$i]['waktu']; ?></p>
                                     </div>
-                                </div>
-                        <?php }
-                        } ?>
-                    </div>
+                            <?php }
+                            } ?>
+                        </div>
             <?php }
+                }
             } ?>
         </div>
         <div class="hide-ke-show-flex flex-column gap-2">
             <?php foreach ($artikel as $ind_a => $a) { ?>
-                <div class="gap-4 container-card-artikel" style="height: 100px;">
+                <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
                     <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= str_replace(' ', '-', $a['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($a['judul']); ?>`)">
                             <div class="img">
                                 <img class="rounded" src="<?= $a['header']; ?>" alt="">
                             </div>
