@@ -25,6 +25,7 @@ class BarangModel extends Model
         'shopee',
         'tokped',
         'tiktok',
+        'youtube',
     ];
 
     public function getBarang($id = false)

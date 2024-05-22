@@ -98,6 +98,13 @@
                         <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>
+
+                <?php if ($produk['youtube']) { ?>
+                    <span class="garis my-3"></span>
+                    <a href="<?= $produk['youtube']; ?>" class="btn btn-light d-flex gap-2" style="width: fit-content;">
+                        <p class="mb-0">Lihat Video Perakitan</p><i class="material-icons">chevron_right</i>
+                    </a>
+                <?php } ?>
             </div>
         </div>
     </div>
