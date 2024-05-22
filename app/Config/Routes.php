@@ -106,4 +106,7 @@ $routes->get('/article/(:any)', 'Pages::article/$1');
 $routes->get('/addarticle', 'Pages::addArticle');
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
 
+// TrackingController
+$routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);
+
 $routes->get('(:any)', 'Pages::notFound');

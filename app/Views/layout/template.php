@@ -72,6 +72,20 @@
     <?= $this->renderSection('content'); ?>
     <?= $this->include('layout/footer'); ?>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const startTime = Date.now();
+
+            window.addEventListener('beforeunload', function() {
+                const endTime = Date.now();
+                const duration = (endTime - startTime) / 1000; // duration in seconds
+
+                navigator.sendBeacon('/addtracking', JSON.stringify({
+                    durasi: duration,
+                    path: window.location.pathname
+                }));
+            });
+        });
+
         const toastElm = document.querySelector(".toast")
         const toastTeksElm = document.querySelector(".toast p")
         const toastOkElm = document.querySelector(".toast a")
