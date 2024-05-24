@@ -1781,7 +1781,8 @@ class Pages extends BaseController
             'varian' => $varian,
             'dimensi' => $dimensi,
             'produksekategori' => $produksekategori,
-            'msg' => session()->getFlashdata('msg')
+            'msg' => session()->getFlashdata('msg'),
+            'geser_container_melayang' => true
         ];
         return view('pages/product', $data);
     }

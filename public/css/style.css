@@ -963,6 +963,13 @@ footer > .atas > div {
     .badge {
         font-size: small;
     }
+    .container-melayang {
+        bottom: 20px;
+        right: 20px;
+    }
+    .container-melayang.geser {
+        bottom: 60px;
+    }
 }
 @media (max-width: 450px) {
     .card-group1.no-scroll .card1 {

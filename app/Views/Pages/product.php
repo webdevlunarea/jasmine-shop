@@ -12,18 +12,20 @@
             </ol>
         </nav>
         <div class="baris-ke-kolom">
-            <div class="img-produk limapuluh-ke-seratus">
-                <figure onmousemove="zoom(event)" onmouseleave="mouseoff(event)" class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')">
-                </figure>
-                <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
-                <div>
-                    <?php foreach ($gambar as $key => $value) {
-                        if ($value && $key != 'id') { ?>
-                            <div class="img-produk-select <?= $key == 'gambar1' ? "selected" : "" ?>"><img src="data:image/webp;base64,<?= base64_encode($value); ?>" alt=""></div>
-                    <?php }
-                    } ?>
+            <?php if (isset($gambar)) { ?>
+                <div class="img-produk limapuluh-ke-seratus">
+                    <figure onmousemove="zoom(event)" onmouseleave="mouseoff(event)" class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')">
+                    </figure>
+                    <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
+                    <div>
+                        <?php foreach ($gambar as $key => $value) {
+                            if ($value && $key != 'id') { ?>
+                                <div class="img-produk-select <?= $key == 'gambar1' ? "selected" : "" ?>"><img src="data:image/webp;base64,<?= base64_encode($value); ?>" alt=""></div>
+                        <?php }
+                        } ?>
+                    </div>
                 </div>
-            </div>
+            <?php } ?>
             <div class="limapuluh-ke-seratus">
                 <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">
@@ -64,24 +66,46 @@
                 <p><?= $produk['berat'] ?> kg</p>
                 <h5>Deskripsi</h5>
                 <p><?= $produk['deskripsi']; ?></p>
-                <?php if (session()->get('isLogin')) { ?>
-                    <?php if (session()->get('role') == 0) { ?>
-                        <?php if (session()->get('active') == '1') { ?>
-                            <a class="btn btn-primary1" href="/addcart/<?= $produk['id']; ?>" id="btn-beli-product" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
-                            <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                                <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                <div class="show-ke-hide">
+                    <?php if (session()->get('isLogin')) { ?>
+                        <?php if (session()->get('role') == 0) { ?>
+                            <?php if (session()->get('active') == '1') { ?>
+                                <a class="btn btn-primary1 btn-beli-product" href="/addcart/<?= $produk['id']; ?>" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
+                                <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
+                                    <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                                <?php } else { ?>
+                                    <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                                <?php } ?>
                             <?php } else { ?>
-                                <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                                <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
                             <?php } ?>
                         <?php } else { ?>
-                            <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
+                            <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                        <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
                     <?php } ?>
-                <?php } else { ?>
-                    <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
-                <?php } ?>
+                </div>
+                <div class="hide-ke-show-flex justify-content-center align-items-center p-2 gap-1" style="background-color: white; position:fixed; bottom: 0; left: 0; width: 100vw; z-index: 9; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                    <?php if (session()->get('isLogin')) { ?>
+                        <?php if (session()->get('role') == 0) { ?>
+                            <?php if (session()->get('active') == '1') { ?>
+                                <a class="btn btn-primary1 flex-grow-1 btn-beli-product" href="/addcart/<?= $produk['id']; ?>" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
+                                <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
+                                    <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                                <?php } else { ?>
+                                    <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <a class="btn btn-primary1 flex-grow-1" href="/verify">Verifikasi Email</a>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <a class="btn btn-primary1 flex-grow-1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <a class="btn btn-primary1 flex-grow-1" href="/login">Masuk untuk membeli</a>
+                    <?php } ?>
+                </div>
 
 
                 <div class="mt-2">
@@ -113,7 +137,7 @@
         <h5 class="jdl-section">Produk serupa</h5>
         <div class="card-group1 no-scroll">
             <?php foreach ($produksekategori as $p) { ?>
-                <a class="card1" href="/product/<?= $p['id']; ?>">
+                <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
@@ -145,7 +169,7 @@
     const imgProdukPrev = document.querySelector(".img-produk-prev")
     const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
-    const elmBtnBeli = document.getElementById('btn-beli-product')
+    const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
 
@@ -218,7 +242,9 @@
         const indexGambar = Number(jmlVarian) + Number(elmSelected) - 1;
         console.log(varians, varianArray, indexGambar)
         console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
-        elmBtnBeli.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+        elmBtnBeli.forEach(element => {
+            element.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+        });
     }
     setUrlElmBeli()
 </script>
