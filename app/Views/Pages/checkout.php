@@ -52,111 +52,120 @@
 </div> -->
 <div class="konten">
     <div class="container">
-        <div class="baris-ke-kolom gap-5 mt-3">
-            <div id="form-checkout" class="w-100">
-                <div class="pb-3 border-bottom">
-                    <h5 class="mb-0">Informasi Pemesan</h5>
-                    <?php if ($user['email'] != 'tamu') { ?>
-                        <p class="mb-0"><?= $user['nama']; ?></p>
-                        <p class="mb-0"><?= $user['nohp']; ?></p>
-                    <?php } else { ?>
+        <form action="/actionpay" method="post" class="w-100">
+            <div class="baris-ke-kolom gap-5 mt-3">
+                <div id="form-checkout" class="w-100">
+                    <div class="pb-3 border-bottom">
+                        <h5 class="mb-0">Informasi Pemesan</h5>
+                        <?php if ($user['email'] != 'tamu') { ?>
+                            <p class="mb-0"><?= $user['nama']; ?></p>
+                            <p class="mb-0"><?= $user['nohp']; ?></p>
+                        <?php } else { ?>
+                            <div class="form-floating mb-1">
+                                <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
+                                <label for="floatingInput">Email</label>
+                            </div>
+                            <div class="form-floating mb-1">
+                                <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= session()->getFlashdata('namaPem') ? session()->getFlashdata('namaPem') : ''; ?>">
+                                <label for="floatingInput">Nama Lengkap</label>
+                            </div>
+                            <div class="form-floating mb-1">
+                                <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= session()->getFlashdata('nohpPem') ? session()->getFlashdata('nohpPem') : ''; ?>">
+                                <label for="floatingInput">No. HP</label>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="py-3">
+                        <h5 class="mb-2">Informasi Penerima</h5>
                         <div class="form-floating mb-1">
-                            <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
-                            <label for="floatingInput">Email</label>
-                        </div>
-                        <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= session()->getFlashdata('namaPem') ? session()->getFlashdata('namaPem') : ''; ?>">
+                            <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
                             <label for="floatingInput">Nama Lengkap</label>
                         </div>
-                        <div class="form-floating mb-1">
-                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= session()->getFlashdata('nohpPem') ? session()->getFlashdata('nohpPem') : ''; ?>">
-                            <label for="floatingInput">No. HP</label>
-                        </div>
-                    <?php } ?>
-                </div>
-                <div class="py-3">
-                    <h5 class="mb-2">Informasi Penerima</h5>
-                    <div class="form-floating mb-1">
-                        <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
-                        <label for="floatingInput">Nama Lengkap</label>
-                    </div>
-                    <!-- <div class="form-floating mb-1">
+                        <!-- <div class="form-floating mb-1">
                     <input type="email" class="form-control" placeholder="Email" name="email" required value="<?= $user['email']; ?>">
                     <label for="floatingInput">Email</label>
                 </div> -->
-                    <div class="form-floating mb-1">
-                        <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required value="<?= $user['nohp']; ?>">
-                        <label for="floatingInput">No. HP</label>
-                    </div>
-                    <!-- <div class="form-floating mb-1">
+                        <div class="form-floating mb-1">
+                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required value="<?= $user['nohp']; ?>">
+                            <label for="floatingInput">No. HP</label>
+                        </div>
+                        <!-- <div class="form-floating mb-1">
                     <input type="text" class="form-control" placeholder="Alamat Lengkap" name="alamat" required value="">
                     <label for="floatingPassword">Alamat Lengkap</label>
                 </div> -->
-                    <div class="form-alamat d-flex mb-1 gap-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
-                        <div class="form-floating w-50">
-                            <select class="form-select" aria-label="Default select example" name="provinsi">
-                                <option value="-1">-- Pilih provinsi --</option>
-                                <?php foreach ($provinsi as $p) { ?>
-                                    <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>" <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>><?= $p['province']; ?>
-                                    </option>
-                                <?php } ?>
-                            </select>
-                            <label for="floatingProvinsi">Provinsi</label>
-                        </div>
-                        <div class="form-floating w-50">
-                            <select class="form-select" aria-label="Default select example" name="kota">
-                                <option value="-1">-- Pilih kota --</option>
-                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['kab_id'] . '-' . $user['alamat']['kab'] . '" selected>' . $user['alamat']['kab'] . '</option>' : ''; ?>
-                            </select>
-                            <label for="floatingProvinsi">Kabupaten/Kota</label>
-                        </div>
-                    </div>
-                    <div class="form-alamat d-flex mb-1 gap-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
-                        <div class="form-floating w-50">
-                            <select class="form-select" aria-label="Default select example" name="kecamatan">
-                                <option selected value="-1">-- Pilih kecamatan --</option>
-                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['kec_id'] . '-' . $user['alamat']['kec'] . '" selected>' . $user['alamat']['kec'] . '</option>' : ''; ?>
-                            </select>
-                            <label for="floatingProvinsi">Kecamatan</label>
-                        </div>
-                        <div class="form-floating w-50">
-                            <select class="form-select" aria-label="Default select example" name="kodepos">
-                                <option value="-1">-- Pilih Desa --</option>
-                                <?= $user['alamat'] ? '<option value="' . $user['alamat']['desa'] . '-' . $user['alamat']['kodepos'] . '" selected>' . $user['alamat']['desa'] . '</option>' : ''; ?>
-                            </select>
-                            <label for="floatingProvinsi">Desa/Kelurahan</label>
-                        </div>
-                    </div>
-                    <div class="form-alamat form-floating mb-1 <?= $user['alamat'] ? 'd-none' : ''; ?>">
-                        <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
-                        <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
-                        <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
-                    </div>
-                    <div class="form-alamat <?= $user['alamat'] ? '' : 'd-none'; ?>">
-                        <fieldset disabled>
-                            <div class="form-floating mb-1">
-                                <textarea type="text" class="form-control" placeholder="Email" name="alamat" required style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
-                                <label for="floatingInput">Alamat Lengkap</label>
+                        <div class="form-alamat d-flex mb-1 gap-1">
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="provinsi">
+                                    <option value="">-- Pilih provinsi --</option>
+                                    <?php foreach ($provinsi as $p) { ?>
+                                        <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>" <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>><?= $p['province']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Provinsi</label>
                             </div>
-                        </fieldset>
-                    </div>
-                    <!-- <div class="form-floating mb-1 d-none">
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kota">
+                                    <option value="">-- Pilih kota --</option>
+                                    <?php foreach ($kabupaten as $p) { ?>
+                                        <option value="<?= $p['city_id']; ?>-<?= explode("/", $p['city_name'])[0]; ?>" <?= $user['alamat'] ? ($p['city_id'] == $user['alamat']['kab_id'] ? 'selected' : '') : ''; ?>><?= $p['city_name']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Kabupaten/Kota</label>
+                            </div>
+                        </div>
+                        <div class="form-alamat d-flex mb-1 gap-1">
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kecamatan">
+                                    <option selected value="">-- Pilih kecamatan --</option>
+                                    <?php foreach ($kecamatan as $p) { ?>
+                                        <option value="<?= $p['subdistrict_id']; ?>-<?= explode("/", $p['subdistrict_name'])[0]; ?>" <?= $user['alamat'] ? ($p['subdistrict_id'] == $user['alamat']['kec_id'] ? 'selected' : '') : ''; ?>><?= $p['subdistrict_name']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Kecamatan</label>
+                            </div>
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kodepos">
+                                    <option value="">-- Pilih Desa --</option>
+                                    <?php foreach ($desa as $p) { ?>
+                                        <option value="<?= explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0]; ?>-<?= $p['KodePos']; ?>" <?= $user['alamat'] ? (explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0] == $user['alamat']['desa'] ? 'selected' : '') : ''; ?>><?= ucwords(strtolower($p['DesaKelurahan'])); ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Desa/Kelurahan</label>
+                            </div>
+                        </div>
+                        <div class="form-alamat form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
+                            <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
+                            <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
+                        </div>
+                        <div class="form-alamat <?= $user['alamat'] ? '' : 'd-none'; ?>">
+                            <fieldset disabled>
+                                <div class="form-floating mb-1">
+                                    <textarea type="text" class="form-control" placeholder="Email" name="alamat" required style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
+                                    <label for="floatingInput">Alamat Lengkap</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="area">
                         <option value="-1">-- Pilih area --</option>
                     </select>
                     <label for="floatingProvinsi">Area</label>
                 </div> -->
-                    <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
-                    <?php if ($user['alamat']) { ?>
-                        <p class="my-2 text-secondary">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
-                    <?php } ?>
-                    <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a>
-                </div>
-                <!-- <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
+                        <!-- <button class="btn btn-primary1" onclick="handleEditAlamat()">Simpan</button> -->
+                        <p id="peringatan-lokasi" class="my-2 text-secondary" style="display: none;">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
+                        <!-- 
+                    <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a> -->
+                    </div>
+                    <!-- <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
                     <span><i class="material-icons">chevron_right</i></span>
                 </div> -->
-                <!-- <div class="form-floating mb-1 d-none">
+                    <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="ekspedisi">
                         <option value="pos">Pos Indonesia</option>
                         <option value="tiki">TIKI</option>
@@ -164,79 +173,79 @@
                     </select>
                     <label for="floatingProvinsi">Ekspedisi</label>
                 </div> -->
-                <!-- <div class="form-floating mb-1 d-none">
+                    <!-- <div class="form-floating mb-1 d-none">
                     <select class="form-select" aria-label="Default select example" name="paket1">
                         <option value="-1">-- Pilih paket --</option>
                     </select>
                     <label for="floatingProvinsi">Paket</label>
                     <input id="set-paket" name="paket" type="text" value="0" />
                 </div> -->
-                <!-- <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p> -->
-            </div>
-            <div style="width: 100%; max-width: 400px;">
-                <div>
-                    <table class="table table-borderless">
-                        <tbody>
-                            <?php foreach ($produk as $index => $p) { ?>
-                                <tr>
-                                    <td>
-                                        <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
-                                    </td>
-                                    <td>
-                                        <p class="mb-0"><?= $jumlah[$index]; ?></p>
-                                    </td>
-                                    <td class="text-end">
-                                        <p class="mb-0">Rp
-                                            <?php
-                                            if ($p['diskon']) {
-                                                $persen = (100 - $p['diskon']) / 100;
-                                                $hasil = $persen * $p['harga'];
-                                                echo number_format($hasil, 0, ",", ".");
-                                            } else {
-                                                $hasil = $p['harga'];
-                                                echo number_format($p['harga'], 0, ",", ".");
-                                            }
-                                            ?></p>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                    <!-- <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p> -->
                 </div>
-                <div class="d-flex justify-content-between border-bottom border-top mt-3" style="gap: 10em;">
-                    <p class="my-2">Subtotal:</p>
-                    <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
-                </div>
-                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
-                    <p class="my-2">Biaya Admin:</p>
-                    <p class="my-2"><b>Rp 5.000</b></p>
-                </div>
-                <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+
+                <div style="width: 100%; max-width: 400px;">
+                    <div>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <?php foreach ($produk as $index => $p) { ?>
+                                    <tr>
+                                        <td>
+                                            <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0"><?= $jumlah[$index]; ?></p>
+                                        </td>
+                                        <td class="text-end">
+                                            <p class="mb-0">Rp
+                                                <?php
+                                                if ($p['diskon']) {
+                                                    $persen = (100 - $p['diskon']) / 100;
+                                                    $hasil = $persen * $p['harga'];
+                                                    echo number_format($hasil, 0, ",", ".");
+                                                } else {
+                                                    $hasil = $p['harga'];
+                                                    echo number_format($p['harga'], 0, ",", ".");
+                                                }
+                                                ?></p>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom border-top mt-3" style="gap: 10em;">
+                        <p class="my-2">Subtotal:</p>
+                        <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                        <p class="my-2">Biaya Admin:</p>
+                        <p class="my-2"><b>Rp 5.000</b></p>
+                    </div>
+                    <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Pengiriman:</p>
                     <p class="my-2"><b id="total-pengiriman">-</b></p>
                 </div> -->
-                <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
-                    <p class="my-2">Total:</p>
-                    <p class="my-2"><b id="total-semua">Rp
-                            <?= number_format($total, 0, ",", "."); ?></b>
-                    </p>
-                </div>
-                <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                        <p class="my-2">Total:</p>
+                        <p class="my-2"><b id="total-semua">Rp
+                                <?= number_format($total, 0, ",", "."); ?></b>
+                        </p>
+                    </div>
+                    <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                     <p class="my-2">Berat:</p>
                     <p class="my-2"><b><?= $beratAkhir; ?> kg</b>
                     </p>
                 </div> -->
-                <div class="mt-2">
-                    <p>
-                        <input type="checkbox" id="syarat" style="display: inline;" required>
-                        <label for="syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
-                    </p>
+                    <div class="mt-2">
+                        <p>
+                            <input type="checkbox" id="syarat" style="display: inline;" required>
+                            <label for="syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                        </p>
+                    </div>
+                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="submit">Bayar</button>
                 </div>
-                <?php if ($user['alamat']) { ?>
-                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button">Bayar</button>
-                <?php } ?>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 <script>
@@ -474,7 +483,7 @@
         const kota = await response.json();
         const hasil = kota.rajaongkir.results;
         // console.log(hasil)
-        kotaElm.innerHTML = '<option value="-1">-- Pilih kota --</option>';
+        kotaElm.innerHTML = '<option value="">-- Pilih kota --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
             optElm.value = element.city_id + "-" + element.city_name.split("/")[0]
@@ -487,8 +496,8 @@
         const kecamatan = await response.json();
         const hasil = kecamatan.rajaongkir.results;
         // console.log(hasil)
-        kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
-        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
+        kecElm.innerHTML = '<option value="">-- Pilih kecamatan --</option>';
+        kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
             optElm.value = element.subdistrict_id + "-" + element.subdistrict_name.split("/")[0]
@@ -497,11 +506,11 @@
         });
     }
     async function getKode(kec) {
-        const response = await fetch("https://api.jasminefurniture.co.id/getkode/" + kec);
+        const response = await fetch("getkode/" + kec);
         const kode = await response.json();
-        const hasil = kode.data;
+        const hasil = kode;
         // console.log(hasil)
-        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
+        kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
         hasil.forEach(element => {
             const optElm = document.createElement("option");
             optElm.value = titleCase(element.DesaKelurahan).split("/")[0] + "-" + element.KodePos
@@ -546,6 +555,14 @@
             prov_kab_kec_desa[0] = e.target.value
             getKota(idprov)
         }
+
+        const provJawaMaduraBali = ["Banten", "Jawa Barat", "DKI Jakarta", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
+        if (!provJawaMaduraBali.includes(valuenya[1]))
+            document.getElementById("peringatan-lokasi").style.display = "block";
+        else
+            document.getElementById("peringatan-lokasi").style.display = "none";
+
+        btnCheckoutElm.classList.add('disabled');
     })
     kotaElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 4);
@@ -561,6 +578,8 @@
             prov_kab_kec_desa[1] = e.target.value;
             getKec(idkota)
         }
+
+        btnCheckoutElm.classList.add('disabled');
     })
     kecElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 3);
@@ -575,6 +594,8 @@
             prov_kab_kec_desa[2] = e.target.value;
             getKode(value[1])
         }
+
+        btnCheckoutElm.classList.add('disabled');
     })
     kodeElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[0], 2);
@@ -594,10 +615,26 @@
             // btnPilihKurirElm.innerHTML = ""
             // btnPilihKurirElm.appendChild(pElm)
         }
+
+        if (email == 'tamu') {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        } else {
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        }
     })
 
-    inputAlamatAddElm.addEventListener('change', (e) => {
+    inputAlamatAddElm.addEventListener('input', (e) => {
         generateAlamat(e.target.value, 1);
+
+        if (email == 'tamu') {
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        } else {
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            else btnCheckoutElm.classList.add('disabled');
+        }
     })
 
     // function pilihKurirRO() {
@@ -696,42 +733,42 @@
 <?php if (session()->get('email') == 'tamu') { ?>
     <script>
         checkboxElm.addEventListener("change", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNamaPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNohpPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputEmailPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNamaElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNohpElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
     </script>
 <?php } else { ?>
     <script>
         checkboxElm.addEventListener("change", (e) => {
-            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNamaElm.addEventListener("input", (e) => {
-            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNohpElm.addEventListener("input", (e) => {
-            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked) btnCheckoutElm.classList.remove('disabled');
+            if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
     </script>

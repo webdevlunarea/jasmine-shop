@@ -43,10 +43,12 @@ $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'h
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
+$routes->get('/getkode/(:any)', 'Pages::getKode/$1');
 $routes->get('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2');
 $routes->get('/getdakota', 'Pages::getDakota');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
+$routes->post('/actionpay', 'Pages::actionPay');
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
@@ -105,5 +107,8 @@ $routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
 $routes->get('/article/(:any)', 'Pages::article/$1');
 $routes->get('/addarticle', 'Pages::addArticle');
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
+
+// CopyGambarController
+$routes->get('/copygambar', 'CopyGambarController::copyGambar');
 
 $routes->get('(:any)', 'Pages::notFound');
