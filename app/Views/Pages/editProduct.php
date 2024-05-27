@@ -95,6 +95,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Link Youtube</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['youtube']; ?>" name="youtube"></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Deskripsi</td>
                                 <td>
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required><?= $produk['deskripsi']; ?></textarea></div>

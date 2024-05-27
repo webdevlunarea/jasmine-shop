@@ -100,6 +100,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Link Youtube</td>
+                                <td>
+                                    <div class="baris"><input type="text" class="form-control" name="youtube"></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Deskripsi</td>
                                 <td>
                                     <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div>

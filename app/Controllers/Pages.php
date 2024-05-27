@@ -1883,7 +1883,8 @@ class Pages extends BaseController
             'varian' => $varian,
             'dimensi' => $dimensi,
             'produksekategori' => $produksekategori,
-            'msg' => session()->getFlashdata('msg')
+            'msg' => session()->getFlashdata('msg'),
+            'geser_container_melayang' => true
         ];
         return view('pages/product', $data);
     }
@@ -2138,6 +2139,7 @@ class Pages extends BaseController
             'shopee'        => $this->request->getVar('shopee'),
             'tokped'        => $this->request->getVar('tokped'),
             'tiktok'        => $this->request->getVar('tiktok'),
+            'youtube'       => $this->request->getVar('youtube'),
         ]);
         $this->gambarBarangModel->insert($insertGambarBarang);
 
@@ -2201,6 +2203,7 @@ class Pages extends BaseController
                 'shopee'        => $this->request->getVar('shopee'),
                 'tokped'        => $this->request->getVar('tokped'),
                 'tiktok'        => $this->request->getVar('tiktok'),
+                'youtube'       => $this->request->getVar('youtube'),
             ]);
             $this->gambarBarangModel->save($insertGambarBarang);
         } else {
@@ -2221,6 +2224,7 @@ class Pages extends BaseController
                 'shopee'        => $this->request->getVar('shopee'),
                 'tokped'        => $this->request->getVar('tokped'),
                 'tiktok'        => $this->request->getVar('tiktok'),
+                'youtube'       => $this->request->getVar('youtube'),
             ]);
         }
 
