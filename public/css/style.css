@@ -698,6 +698,24 @@ a {
     }
 }
 
+.container-pembayaran img {
+    height: 20px;
+}
+.container-pembayaran input {
+    display: none;
+}
+.container-pembayaran .item-logo-pembayaran {
+    background-color: whitesmoke;
+    padding: 0.5em 1em;
+    border-radius: 0.3em;
+}
+.container-pembayaran .item-logo-pembayaran:hover {
+    background-color: rgb(201, 201, 201);
+}
+.container-pembayaran input:checked + .item-logo-pembayaran {
+    border: 2px solid black;
+}
+
 /* Footer */
 footer > .atas > div {
     width: 100%;

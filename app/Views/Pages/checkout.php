@@ -75,7 +75,7 @@
                             </div>
                         <?php } ?>
                     </div>
-                    <div class="py-3">
+                    <div class="py-3 border-bottom">
                         <h5 class="mb-2">Informasi Penerima</h5>
                         <div class="form-floating mb-1">
                             <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
@@ -161,6 +161,7 @@
                         <!-- 
                     <a onclick="handleEditAlamat(event)" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold"><?= $user['alamat'] ? 'Edit' : 'Simpan'; ?> Alamat</a> -->
                     </div>
+
                     <!-- <div class="tombol-pilih-kurir <?= $user['alamat'] ? '' : 'd-none'; ?>" id="btn-pilih-kurir" onclick="pilihKurirRO()">
                     <p class="mb-0">Pilih Kurir</p>
                     <span><i class="material-icons">chevron_right</i></span>
@@ -181,6 +182,19 @@
                     <input id="set-paket" name="paket" type="text" value="0" />
                 </div> -->
                     <!-- <p class="text-secondary mt-2"><i>*Pemesanan dari tanggal 6 - 18 April 2024 akan mulai diproses pada tanggal 19 April 2024</i></p> -->
+                    <div class="pt-3">
+                        <h5 class="mb-2">Metode Pembayaran</h5>
+                        <div class="container-pembayaran mb-1">
+                            <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
+                            <label for="pembayaran1" class="item-logo-pembayaran"><img src="/img/pembayaran/bca.png" alt=""></label>
+                            <input type="radio" name="pembayaran" id="pembayaran2" value="bni">
+                            <label for="pembayaran2" class="item-logo-pembayaran"><img src="/img/pembayaran/bni.webp" alt=""></label>
+                            <input type="radio" name="pembayaran" id="pembayaran3" value="bri">
+                            <label for="pembayaran3" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.png" alt=""></label>
+                            <input type="radio" name="pembayaran" id="pembayaran4" value="mandiri">
+                            <label for="pembayaran4" class="item-logo-pembayaran"><img src="/img/pembayaran/mandiri.png" alt=""></label>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="width: 100%; max-width: 400px;">
@@ -542,9 +556,9 @@
 
     provElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 5);
-        kotaElm.innerHTML = '<option value="-1">Loading..</option>'
-        kecElm.innerHTML = '<option value="-1">-- Pilih kecamatan --</option>';
-        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
+        kotaElm.innerHTML = '<option value="">Loading..</option>'
+        kecElm.innerHTML = '<option value="">-- Pilih kecamatan --</option>';
+        kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
         // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
@@ -566,8 +580,8 @@
     })
     kotaElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 4);
-        kecElm.innerHTML = '<option value="-1">Loading..</option>'
-        kodeElm.innerHTML = '<option value="-1">-- Pilih Desa --</option>';
+        kecElm.innerHTML = '<option value="">Loading..</option>'
+        kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
         // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
@@ -583,7 +597,7 @@
     })
     kecElm.addEventListener("change", (e) => {
         generateAlamat(e.target.value.split("-")[1], 3);
-        kodeElm.innerHTML = '<option value="-1">Loading..</option>'
+        kodeElm.innerHTML = '<option value="">Loading..</option>'
         // costElm.innerHTML = '-'
         hasilApiKurir = [];
         hasilApiKurirRO = [];
@@ -773,4 +787,15 @@
         })
     </script>
 <?php } ?>
+<script>
+    const radioPembayaranElm = document.querySelectorAll('input[name="pembayaran"]');
+    const btnBayarElm = document.getElementById('btn-bayar');
+
+    radioPembayaranElm.forEach(element => {
+        element.addEventListener('change', (e) => {
+            btnBayarElm.href = "/actionpay/" + e.target.value;
+            btnBayarElm.classList.remove('disabled');
+        })
+    });
+</script>
 <?= $this->endSection(); ?>
