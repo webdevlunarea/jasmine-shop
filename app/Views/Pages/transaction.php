@@ -84,7 +84,7 @@
                                         <div class="accordion-body">
                                             <p class="fw-bold mb-0">Informasi Penerima</p>
                                             <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
-                                            <p class="mb-0"><?= json_decode($item_transaksi['alamat_pen'], true)['alamat']; ?></p>
+                                            <p class="mb-0"><?= $item_transaksi['alamat_pen']; ?></p>
                                             <p><?= $item_transaksi['hp_pen']; ?></p>
                                             <p class="mb-0"><b>Items</b></p>
                                             <div class="w-100 mb-2">
@@ -169,9 +169,13 @@
                                     </div>
                                 </div>
                             <?php }
-                        } else { ?>
-                            <p>Opss, belum ada transaksi
-                            <?php } ?>
+                        } else {
+                            if (session()->get('email') != 'tamu') { ?>
+                                <p>Opss, belum ada transaksi</p>
+                            <?php } else { ?>
+                                <p>Riwayat transaksi dapat berfungsi ketika Anda login sebagai member</p>
+                        <?php }
+                        } ?>
                     </div>
                 </div>
             </div>

@@ -39,7 +39,7 @@
                 <div class="list-customer" onclick="bukaList('<?= $t_ind; ?>')">
                     <div class="d-flex">
                         <div style="flex: 4;">
-                            <p class="mb-0 fw-bold nama"><?= $t['nama_cus']; ?></p>
+                            <p class="mb-0 fw-bold nama"><?= $t['nama_pen']; ?></p>
                             <p class="mb-0"><?= $t['email_cus']; ?></p>
                             <p class="mb-0 text-secondary hide-ke-show-block" style="font-size: 12px;">ID Pesanan : <?= $t['id_midtrans']; ?></p>
                             <p class="mb-0 fw-bold badge rounded-pill hide-ke-show-block <?php
@@ -215,7 +215,7 @@
                         <div class="w-100 d-flex flex-column align-items-start pd-2" style="max-width: 400px;">
                             <p class="fw-bold mb-0">Informasi Penerima</p>
                             <p class="mb-0"><?= $t['nama_pen']; ?></p>
-                            <p class="mb-0"><?= $t['alamat_pen']['alamat']; ?></p>
+                            <p class="mb-0"><?= $t['alamat_pen']; ?></p>
                             <p class="mb-0"><?= $t['hp_pen']; ?></p>
                         </div>
                     </div>

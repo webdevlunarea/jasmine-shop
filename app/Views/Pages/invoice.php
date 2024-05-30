@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
-    <title><?= $title; ?> | Jasmine Furniture</title>
+    <title><?= $title; ?> | Lunarea Furniture</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
@@ -14,7 +14,6 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
     <!-- icon google -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <!-- <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-lDi-03j_XL3PVN0_"></script> -->
 
     <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
@@ -34,19 +33,19 @@
             </div>
         <?php } ?>
         <div class="d-flex justify-content-between mb-2">
-            <img src="/img/Logo Jasmine.webp" width="150mm" />
+            <img src="<?= base_url('img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" style="width: 150em; height:fit-content;" />
             <div class="d-flex flex-column align-items-end">
                 <p class="mb-0">INVOICE</p>
                 <p class="mb-0"><?php
                                 $d = strtotime($transaksi['data_mid']['transaction_time']);
                                 echo date("dmY", $d)
-                                ?>/CBM/<?= $transaksi['id_midtrans']; ?></p>
+                                ?>/CBM/<?= explode("-", $transaksi['id_midtrans'])[0]; ?></p>
             </div>
         </div>
         <div class="d-flex justify-content-between mb-2">
             <div class="w-100">
                 <p class="fw-bold mb-0">DITERBITKAN ATAS NAMA</p>
-                <p class="mb-0">Penjual : <b>Jasmine Furniture</b></p>
+                <p class="mb-0">Penjual : <b>Lunarea Furniture</b></p>
             </div>
             <div class="w-100">
                 <p class="fw-bold mb-0">PENERIMA</p>
@@ -85,7 +84,7 @@
                         </div>
                         <div style="flex: 5">
                             <p class="mb-0">
-                                <?= $transaksi['alamat_pen']['alamat']; ?>
+                                <?= $transaksi['alamat_pen']; ?>
                             </p>
                         </div>
                     </div>
@@ -229,7 +228,7 @@
                 <p class="mb-0">
                     Invoice ini sah dan diproses oleh sistem<br />
                     Silakan hubungi
-                    <a style="color: var(--merahLogo)" class="link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover">Jasmine Furniture CS</a>
+                    <a style="color: var(--merahLogo)" class="link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover">Lunarea Furniture CS</a>
                     apabila kamu membutuhkan bantuan.
                 </p>
             </div>

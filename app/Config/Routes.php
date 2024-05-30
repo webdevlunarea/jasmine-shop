@@ -61,6 +61,8 @@ $routes->get('/finish_url/(:any)/(:any)', 'Pages::finishUrl/$1/$2'); //code raha
 $routes->get('/successpay', 'Pages::successPay');
 $routes->get('/progresspay', 'Pages::progressPay');
 $routes->get('/errorpay', 'Pages::errorPay');
+$routes->get('/order/(:any)', 'Pages::order/$1');
+$routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
 $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);

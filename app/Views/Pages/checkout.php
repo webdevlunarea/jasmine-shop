@@ -58,21 +58,22 @@
                     <div class="pb-3 border-bottom">
                         <h5 class="mb-0">Informasi Pemesan</h5>
                         <?php if ($user['email'] != 'tamu') { ?>
-                            <p class="mb-0"><?= $user['nama']; ?></p>
-                            <p class="mb-0"><?= $user['nohp']; ?></p>
+                            <!-- <p class="mb-0"><?= $user['nama']; ?></p>
+                            <p class="mb-0"><?= $user['nohp']; ?></p> -->
+                            <p class="mb-0">Email : <?= $user['email']; ?></p>
                         <?php } else { ?>
                             <div class="form-floating mb-1">
                                 <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
                                 <label for="floatingInput">Email</label>
                             </div>
-                            <div class="form-floating mb-1">
+                            <!-- <div class="form-floating mb-1">
                                 <input type="text" class="form-control" placeholder="Nama" name="namaPem" required value="<?= session()->getFlashdata('namaPem') ? session()->getFlashdata('namaPem') : ''; ?>">
                                 <label for="floatingInput">Nama Lengkap</label>
                             </div>
                             <div class="form-floating mb-1">
                                 <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohpPem" required value="<?= session()->getFlashdata('nohpPem') ? session()->getFlashdata('nohpPem') : ''; ?>">
                                 <label for="floatingInput">No. HP</label>
-                            </div>
+                            </div> -->
                         <?php } ?>
                     </div>
                     <div class="py-3 border-bottom">
@@ -631,7 +632,7 @@
         }
 
         if (email == 'tamu') {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         } else {
             if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
@@ -643,7 +644,7 @@
         generateAlamat(e.target.value, 1);
 
         if (email == 'tamu') {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         } else {
             if (inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
@@ -747,27 +748,27 @@
 <?php if (session()->get('email') == 'tamu') { ?>
     <script>
         checkboxElm.addEventListener("change", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNamaPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNohpPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputEmailPemElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNamaElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
         inputNohpElm.addEventListener("input", (e) => {
-            if (inputNamaPemElm.value != '' && inputNohpPemElm.value != '' && inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
     </script>

@@ -746,37 +746,43 @@ class Pages extends BaseController
     }
     public function successPay()
     {
-        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
+        $id_pesanan = session()->getFlashdata('id_pesanan');
+        if ($id_pesanan == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Sukses',
-            'data_transaksi' => array(
-                'status' => session()->getFlashdata('status_transaksi'),
-                'id' => session()->getFlashdata('id_pesanan'),
-            ),
+            // 'data_transaksi' => array(
+            //     'status' => session()->getFlashdata('status_transaksi'),
+            //     'id' => session()->getFlashdata('id_pesanan'),
+            // ),
+            'id_pesanan' => $id_pesanan
         ];
         return view('pages/successPay', $data);
     }
     public function progressPay()
     {
-        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
+        $id_pesanan = session()->getFlashdata('id_pesanan');
+        if ($id_pesanan == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Pending',
-            'data_transaksi' => array(
-                'status' => session()->getFlashdata('status_transaksi'),
-                'id' => session()->getFlashdata('id_pesanan'),
-            ),
+            // 'data_transaksi' => array(
+            //     'status' => session()->getFlashdata('status_transaksi'),
+            //     'id' => session()->getFlashdata('id_pesanan'),
+            // ),
+            'id_pesanan' => $id_pesanan
         ];
         return view('pages/progressPay', $data);
     }
     public function errorPay()
     {
-        if (session()->getFlashdata('id_pesanan') == null) return redirect()->to('/');
+        $id_pesanan = session()->getFlashdata('id_pesanan');
+        if ($id_pesanan == null) return redirect()->to('/');
         $data = [
             'title' => 'Pembayaran Gagal',
-            'data_transaksi' => array(
-                'status' => session()->getFlashdata('status_transaksi'),
-                'id' => session()->getFlashdata('id_pesanan'),
-            ),
+            // 'data_transaksi' => array(
+            //     'status' => session()->getFlashdata('status_transaksi'),
+            //     'id' => session()->getFlashdata('id_pesanan'),
+            // ),
+            'id_pesanan' => $id_pesanan
         ];
         return view('pages/errorPay', $data);
     }
@@ -1332,66 +1338,89 @@ class Pages extends BaseController
         $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = rand();
+        $randomId = "JM" . rand();
+        $customField = json_encode([
+            'e' => $emailPem,
+            'n' => $nama,
+            'h' => $nohp,
+            'a' => $alamatLengkap,
+            'i' => $produk
+        ]);
         $arrPostField = [
             "transaction_details" => [
                 "order_id" => $idFix,
-                "gross_amount" => $total
+                "gross_amount" => $total,
+                "payment_link_id" => "payment-link-lunarea-" . $idFix
             ],
+            // 'customer_details' => array(
+            //     'email' => $emailPem,
+            //     'first_name' => $namaPem,
+            //     'phone' => $nohpPem,
+            //     'billing_address' => array(
+            //         'email' => $emailPem,
+            //         'first_name' => $namaPem,
+            //         'phone' => $nohpPem,
+            //         'address' => $alamatLengkap,
+            //     ),
+            //     'shipping_address' => array(
+            //         'email' => $emailPem,
+            //         'first_name' => $nama,
+            //         'phone' => $nohp,
+            //         'address' => $alamatLengkap,
+            //     )
+            // ),
             'customer_details' => array(
                 'email' => $emailPem,
-                'first_name' => $namaPem,
-                'phone' => $nohpPem,
-                'billing_address' => array(
-                    'email' => $emailPem,
-                    'first_name' => $namaPem,
-                    'phone' => $nohpPem,
-                    'address' => $alamatLengkap,
-                ),
-                'shipping_address' => array(
-                    'email' => $emailPem,
-                    'first_name' => $nama,
-                    'phone' => $nohp,
-                    'address' => $alamatLengkap,
-                )
+                'phone' => $nohp,
+                'first_name' => $nama,
             ),
-            'item_details' => $itemDetails
+            'item_details' => $itemDetails,
+            "usage_limit" =>  1,
+            "enabled_payments" => ["gopay", "cimb_clicks", "bca_klikbca", "bca_klikpay", 'bri_epay', 'echannel', 'permata_va', 'bca_va', 'bni_va', 'bri_va', 'shopeepay'],
+            "expiry" => [
+                "duration" => 24,
+                "unit" => "hours"
+            ],
+            "custom_field1" => substr($customField, 0, 255),
+            "custom_field2" => substr($customField, 255, 255),
+            "custom_field3" => substr($customField, 510, 255),
         ];
-        switch ($pembayaran) {
-            case 'bca':
-                $arrPostField["payment_type"] = "bank_transfer";
-                $arrPostField["bank_transfer"] = ["bank" => "bca"];
-                break;
-            case 'bri':
-                $arrPostField["payment_type"] = "bank_transfer";
-                $arrPostField["bank_transfer"] = ["bank" => "bri"];
-                break;
-            case 'bni':
-                $arrPostField["payment_type"] = "bank_transfer";
-                $arrPostField["bank_transfer"] = ["bank" => "bni"];
-                break;
-            case 'cimb':
-                $arrPostField["payment_type"] = "bank_transfer";
-                $arrPostField["bank_transfer"] = ["bank" => "cimb"];
-                break;
-            case 'permata':
-                $arrPostField["payment_type"] = "permata";
-                break;
-            case 'mandiri':
-                $arrPostField["payment_type"] = "echannel";
-                $arrPostField["echannel"] = [
-                    "bill_info1" => "Payment:",
-                    "bill_info2" => "Online purchase"
-                ];
-                break;
-            default:
-                return redirect()->to('/cart');
-                break;
-        }
-        // dd($arrPostField);
+
+        // switch ($pembayaran) {
+        //     case 'bca':
+        //         $arrPostField["payment_type"] = "bank_transfer";
+        //         $arrPostField["bank_transfer"] = ["bank" => "bca"];
+        //         break;
+        //     case 'bri':
+        //         $arrPostField["payment_type"] = "bank_transfer";
+        //         $arrPostField["bank_transfer"] = ["bank" => "bri"];
+        //         break;
+        //     case 'bni':
+        //         $arrPostField["payment_type"] = "bank_transfer";
+        //         $arrPostField["bank_transfer"] = ["bank" => "bni"];
+        //         break;
+        //     case 'cimb':
+        //         $arrPostField["payment_type"] = "bank_transfer";
+        //         $arrPostField["bank_transfer"] = ["bank" => "cimb"];
+        //         break;
+        //     case 'permata':
+        //         $arrPostField["payment_type"] = "permata";
+        //         break;
+        //     case 'mandiri':
+        //         $arrPostField["payment_type"] = "echannel";
+        //         $arrPostField["echannel"] = [
+        //             "bill_info1" => "Payment:",
+        //             "bill_info2" => "Online purchase"
+        //         ];
+        //         break;
+        //     default:
+        //         return redirect()->to('/cart');
+        //         break;
+        // }
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.midtrans.com/v2/charge",
+            CURLOPT_URL => "https://api.midtrans.com/v1/payment-links",
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
@@ -1414,56 +1443,58 @@ class Pages extends BaseController
             return "cURL Error #:" . $err;
         }
         $hasilMidtrans = json_decode($response, true);
+        // dd($hasilMidtrans);
 
-        if ($hasilMidtrans['fraud_status'] == "accept") {
-            switch ($hasilMidtrans['transaction_status']) {
-                case 'settlement':
-                    $status = "Proses";
-                    break;
-                case 'capture':
-                    $status = "Proses";
-                    break;
-                case 'pending':
-                    $status = "Menunggu Pembayaran";
-                    break;
-                case 'expire':
-                    $status = "Kadaluarsa";
-                    break;
-                case 'deny':
-                    $status = "Ditolak";
-                    break;
-                case 'failure':
-                    $status = "Gagal";
-                    break;
-                case 'refund':
-                    $status = "Refund";
-                    break;
-                case 'partial_refund':
-                    $status = "Partial Refund";
-                    break;
-                case 'cancel':
-                    $status = "Dibatalkan";
-                    break;
-                default:
-                    $status = "No Status";
-                    break;
-            }
-        } else {
-            $status = 'Forbidden';
-        }
-        $this->pemesananModel->set([
-            'nama_cus' => $namaPem,
-            'email_cus' => $emailPem,
-            'hp_cus' => $nohpPem,
-            'nama_pen' => $nama,
-            'hp_pen' => $nohp,
-            'alamat_pen' => json_encode($alamat),
-            'resi' => "Menunggu pengiriman",
-            'items' => json_encode($produk),
-            'status' => $status,
-            'kurir' => 'kosong'
-        ])->update();
-        return redirect()->to('/order/' . $hasilMidtrans['order_id']);
+        // if ($hasilMidtrans['fraud_status'] == "accept") {
+        //     switch ($hasilMidtrans['transaction_status']) {
+        //         case 'settlement':
+        //             $status = "Proses";
+        //             break;
+        //         case 'capture':
+        //             $status = "Proses";
+        //             break;
+        //         case 'pending':
+        //             $status = "Menunggu Pembayaran";
+        //             break;
+        //         case 'expire':
+        //             $status = "Kadaluarsa";
+        //             break;
+        //         case 'deny':
+        //             $status = "Ditolak";
+        //             break;
+        //         case 'failure':
+        //             $status = "Gagal";
+        //             break;
+        //         case 'refund':
+        //             $status = "Refund";
+        //             break;
+        //         case 'partial_refund':
+        //             $status = "Partial Refund";
+        //             break;
+        //         case 'cancel':
+        //             $status = "Dibatalkan";
+        //             break;
+        //         default:
+        //             $status = "No Status";
+        //             break;
+        //     }
+        // } else {
+        //     $status = 'Forbidden';
+        // }
+        // $this->pemesananModel->set([
+        //     'nama_cus' => $namaPem,
+        //     'email_cus' => $emailPem,
+        //     'hp_cus' => $nohpPem,
+        //     'nama_pen' => $nama,
+        //     'hp_pen' => $nohp,
+        //     'alamat_pen' => json_encode($alamat),
+        //     'resi' => "Menunggu pengiriman",
+        //     'items' => json_encode($produk),
+        //     'status' => $status,
+        //     'kurir' => 'kosong'
+        // ])->update();
+        session()->setFlashdata('id_pesanan', $hasilMidtrans['order_id']);
+        return redirect()->to($hasilMidtrans['payment_url']);
     }
     public function actionCheckout()
     {
@@ -1597,6 +1628,9 @@ class Pages extends BaseController
                     break;
                 case 'wa':
                     $kurir = 'wahana';
+                    break;
+                case 'in':
+                    $kurir = 'indah';
                     break;
             }
             curl_setopt_array($curl, array(
@@ -1757,7 +1791,7 @@ class Pages extends BaseController
         if ($code != "JSM-zWYWObdPEKlHA0PWP6BN") {
             return redirect()->to("/");
         }
-        session()->setFlashdata('id_pesanan', 'JSM0000000');
+        // session()->setFlashdata('id_pesanan', 'JSM0000000');
         switch ($status) {
             case 'success':
                 return redirect()->to("/successpay");
@@ -1851,6 +1885,7 @@ class Pages extends BaseController
         $body = json_decode($bodyJson, true);
         $order_id = $body['order_id'];
         $fraud = $body['fraud_status'];
+        $customField = json_decode($body['custom_field1'] . (isset($body['custom_field2']) ? $body['custom_field2'] : '') . (isset($body['custom_field3']) ? $body['custom_field3'] : ''), true);
 
         if ($fraud == "accept") {
             switch ($body['transaction_status']) {
@@ -1913,15 +1948,13 @@ class Pages extends BaseController
                 }
             } else {
                 $this->pemesananModel->insert([
-                    'nama_cus' => '',
-                    'email_cus' => '',
-                    'hp_cus' => '',
-                    'nama_pen' => '',
-                    'hp_pen' => '',
-                    'alamat_pen' => json_encode([]),
-                    'resi' => '',
-                    'items' => json_encode([]),
-                    'kurir' => '',
+                    'email_cus' => $customField['e'],
+                    'nama_pen' => $customField['n'],
+                    'hp_pen' => $customField['h'],
+                    'alamat_pen' => $customField['a'],
+                    'resi' => 'Menunggu pengiriman',
+                    'items' => json_encode($customField['i']),
+                    'kurir' => 'kosong',
                     'id_midtrans' => $order_id,
                     'status' => $status,
                     'data_mid' => json_encode($body),
@@ -2017,6 +2050,144 @@ class Pages extends BaseController
             'success' => true,
         ];
         return $this->response->setJSON($arr, false);
+    }
+    public function orderLocal()
+    {
+        $data = [
+            'title' => 'Peroses Pembayaran',
+            'dataMid' => [
+                'gross_amount' => 156000
+            ],
+            'va_number' => '',
+            'biller_code' => '029941234123',
+            'bank' => 'mandiri',
+            'waktuExpire' => '24 Maret 2024'
+        ];
+        return view('pages/orderExpire', $data);
+    }
+    public function order($id_midtrans = false)
+    {
+        $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
+        if ($pemesanan) {
+            $dataMid = json_decode($pemesanan['data_mid'], true);
+            dd($pemesanan);
+            $kurir = $pemesanan['kurir'];
+            $items = json_decode($pemesanan['items'], true);
+            switch ($pemesanan['status']) {
+                case 'Menunggu Pembayaran':
+                    $biller_code = "";
+                    $bank = "";
+                    switch ($dataMid['payment_type']) {
+                        case 'bank_transfer':
+                            if (isset($dataMid['permata_va_number'])) {
+                                $va_number = $dataMid['permata_va_number'];
+                                $bank = "permata";
+                            } else {
+                                $va_number = $dataMid['va_numbers'][0]['va_number'];
+                                $bank = $dataMid['va_numbers'][0]['bank'];
+                            }
+                            break;
+                        case 'echannel':
+                            $va_number = $dataMid['bill_key'];
+                            $biller_code = $dataMid['biller_code'];
+                            $bank = "mandiri";
+                            break;
+                    }
+
+                    $waktuExpire = strtotime($dataMid['expiry_time']);
+                    $waktuCurr = strtotime("+7 Hours");
+                    $waktuSelisih = $waktuExpire - $waktuCurr;
+                    $waktu = date("H:i:s", $waktuSelisih);
+
+                    $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                    $data = [
+                        'title' => 'Peroses Pembayaran',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
+                        'bank' => $bank,
+                        'waktu' => $waktu,
+                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
+                    ];
+                    return view('pages/orderProgress', $data);
+                    break;
+                case 'Proses':
+                    $bank = "";
+                    switch ($dataMid['payment_type']) {
+                        case 'bank_transfer':
+                            if (isset($dataMid['permata_va_number'])) {
+                                $bank = "permata";
+                            } else {
+                                $bank = $dataMid['va_numbers'][0]['bank'];
+                            }
+                            break;
+                        case 'echannel':
+                            $bank = "mandiri";
+                            break;
+                    }
+                    $data = [
+                        'title' => 'Pembayaran Sukes',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'kurir' => $kurir,
+                        'items' => $items,
+                        'bank' => $bank,
+                    ];
+                    return view('pages/orderShipping', $data);
+                    break;
+                case 'Kadaluarsa':
+                    $biller_code = "";
+                    $bank = "";
+                    switch ($dataMid['payment_type']) {
+                        case 'bank_transfer':
+                            if (isset($dataMid['permata_va_number'])) {
+                                $va_number = $dataMid['permata_va_number'];
+                                $bank = "permata";
+                            } else {
+                                $va_number = $dataMid['va_numbers'][0]['va_number'];
+                                $bank = $dataMid['va_numbers'][0]['bank'];
+                            }
+                            break;
+                        case 'echannel':
+                            $va_number = $dataMid['bill_key'];
+                            $biller_code = $dataMid['biller_code'];
+                            $bank = "mandiri";
+                            break;
+                    }
+
+                    $waktuExpire = strtotime($dataMid['expiry_time']);
+                    $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                    $data = [
+                        'title' => 'Peroses Pembayaran',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
+                        'bank' => $bank,
+                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
+                    ];
+                    return view('pages/orderExpire', $data);
+                    break;
+                case 'Ditolak':
+                    $status = "Ditolak";
+                    break;
+                case 'Gagal':
+                    $status = "Gagal";
+                    break;
+                case 'Refund':
+                    $status = "Refund";
+                    break;
+                case 'Partial Refund':
+                    $status = "Partial Refund";
+                    break;
+                case 'Dibatalkan':
+                    $status = "Dibatalkan";
+                    break;
+            }
+        } else {
+            return redirect()->to('/');
+        }
     }
     public function account()
     {
@@ -2124,12 +2295,10 @@ class Pages extends BaseController
         $transaksi = $this->pemesananModel->getPemesanan($id_mid);
         $arr = [
             'id' => $transaksi['id'],
-            'nama_cus' => $transaksi['nama_cus'],
             'email_cus' => $transaksi['email_cus'],
-            'hp_cus' => $transaksi['hp_cus'],
             'nama_pen' => $transaksi['nama_pen'],
             'hp_pen' => $transaksi['hp_pen'],
-            'alamat_pen' => json_decode($transaksi['alamat_pen'], true),
+            'alamat_pen' => $transaksi['alamat_pen'],
             'resi' => $transaksi['resi'],
             'id_midtrans' => $transaksi['id_midtrans'],
             'items' => json_decode($transaksi['items'], true),
@@ -2204,9 +2373,7 @@ class Pages extends BaseController
         foreach ($transaksiCus as $transaksi) {
             $arr = [
                 'id' => $transaksi['id'],
-                'nama_cus' => $transaksi['nama_cus'],
                 'email_cus' => $transaksi['email_cus'],
-                'hp_cus' => $transaksi['hp_cus'],
                 'nama_pen' => $transaksi['nama_pen'],
                 'hp_pen' => $transaksi['hp_pen'],
                 'alamat_pen' => json_decode($transaksi['alamat_pen'], true),

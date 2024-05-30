@@ -5,7 +5,7 @@
             <div class="col-12 col-md-4 mb-3">
                 <div class="fw-700 fs-3 mb-2"><strong>Metode Pembayaran</strong></div>
                 <div class="footer__partner__payment">
-                    <div class="footer__partner__img">
+                    <!-- <div class="footer__partner__img">
                         <img src="/img/pembayaran/bca.webp" width="" />
                     </div>
                     <div class="footer__partner__img">
@@ -20,12 +20,12 @@
                     <div class="footer__partner__img">
                         <img src="/img/pembayaran/permatabank.webp" />
                     </div>
-                    <!-- <div class="footer__partner__img">
+                    <div class="footer__partner__img">
                         <img src="/img/pembayaran/dob.webp" />
-                    </div> -->
-                    <!-- <div class="footer__partner__img">
+                    </div>
+                    <div class="footer__partner__img">
                         <img src="/img/pembayaran/klikbca.webp" />
-                    </div> -->
+                    </div>
                     <div class="footer__partner__img">
                         <img src="/img/pembayaran/klikpay.webp" />
                     </div>
@@ -55,7 +55,7 @@
                     </div>
                     <div class="footer__partner__img">
                         <img src="/img/pembayaran/indomaret.webp" />
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="col-8 col-md-3 mb-3">
