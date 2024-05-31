@@ -5,7 +5,7 @@
         <div class="justify-content-center">
             <div class="text-center">
                 <h3>Pembayaran Berhasil</h3>
-                <p class="lead">Terima kasih telah melakukan pembayaran.</p>
+                <p class="my-2">Terima kasih telah melakukan pembayaran.</p>
                 <div class="mb-3">
                     <a href="/order/<?= $id_pesanan; ?>" class="btn btn-primary1 me-3 mb-2">
                         <p id="counter" class="d-inline m-0">5 |</p> Pergi ke halaman detail pesanan

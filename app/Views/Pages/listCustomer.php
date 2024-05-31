@@ -9,9 +9,13 @@
                 <a class="btn d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Batal" onclick="closeeditresi()"><i class="material-icons" style="font-size:large">close</i></a>
             </div>
         </div>
-        <div class="form-floating">
-            <input type="text" class="form-control" id="floatingInput" placeholder="Nomor resi" name="resi">
-            <label for="floatingInput">Resi</label>
+        <div class="mb-1">
+            <label class="form-label">Kurir</label>
+            <input type="text" class="form-control" id="floatingInput1" placeholder="KURIR Jenis-Layanan" name="kurir">
+        </div>
+        <div class="m-0">
+            <label class="form-label">Resi</label>
+            <input type="text" class="form-control" id="floatingInput" placeholder="XXXXXXXXXXXX" name="resi">
         </div>
     </div>
 </div>
@@ -255,6 +259,7 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     const containerEditResiElm = document.getElementById("container-edit-resi")
     const resiInputElm = document.querySelector('input[name="resi"]')
+    const kurirInputElm = document.querySelector('input[name="kurir"]')
     const arrBadgeElm = document.querySelectorAll(".badge");
     const arrResiElm = document.querySelectorAll(".resi");
     const transaksiJson = JSON.parse(<?= json_encode($transaksiJson); ?>)
@@ -276,12 +281,13 @@
         idMidSelected = id_mid
         indexItemSelected = index_item
         resiInputElm.value = ''
+        kurirInputElm.value = ''
     }
 
     function acteditresi() {
-        console.log(resiInputElm.value)
         const bodynya = {
             resi: resiInputElm.value,
+            kurir: kurirInputElm.value,
             idMid: idMidSelected,
             data: transaksiJson[indexItemSelected]
         }

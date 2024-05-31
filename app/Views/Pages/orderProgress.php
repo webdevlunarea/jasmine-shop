@@ -12,6 +12,7 @@
             <div style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
         </div>
+        <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom">
             <div class="limapuluh-ke-seratus">
                 <div class="d-flex justify-content-between mb-3">

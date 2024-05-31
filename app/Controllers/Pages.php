@@ -748,13 +748,10 @@ class Pages extends BaseController
     {
         $id_pesanan = session()->getFlashdata('id_pesanan');
         if ($id_pesanan == null) return redirect()->to('/');
+        $getPesanan = $this->pemesananModel->like("id_midtrans", $id_pesanan, "both")->first();
         $data = [
             'title' => 'Pembayaran Sukses',
-            // 'data_transaksi' => array(
-            //     'status' => session()->getFlashdata('status_transaksi'),
-            //     'id' => session()->getFlashdata('id_pesanan'),
-            // ),
-            'id_pesanan' => $id_pesanan
+            'id_pesanan' => $getPesanan['id_midtrans']
         ];
         return view('pages/successPay', $data);
     }
@@ -762,13 +759,10 @@ class Pages extends BaseController
     {
         $id_pesanan = session()->getFlashdata('id_pesanan');
         if ($id_pesanan == null) return redirect()->to('/');
+        $getPesanan = $this->pemesananModel->like("id_midtrans", $id_pesanan, "both")->first();
         $data = [
             'title' => 'Pembayaran Pending',
-            // 'data_transaksi' => array(
-            //     'status' => session()->getFlashdata('status_transaksi'),
-            //     'id' => session()->getFlashdata('id_pesanan'),
-            // ),
-            'id_pesanan' => $id_pesanan
+            'id_pesanan' => $getPesanan['id_midtrans']
         ];
         return view('pages/progressPay', $data);
     }
@@ -776,13 +770,10 @@ class Pages extends BaseController
     {
         $id_pesanan = session()->getFlashdata('id_pesanan');
         if ($id_pesanan == null) return redirect()->to('/');
+        $getPesanan = $this->pemesananModel->like("id_midtrans", $id_pesanan, "both")->first();
         $data = [
             'title' => 'Pembayaran Gagal',
-            // 'data_transaksi' => array(
-            //     'status' => session()->getFlashdata('status_transaksi'),
-            //     'id' => session()->getFlashdata('id_pesanan'),
-            // ),
-            'id_pesanan' => $id_pesanan
+            'id_pesanan' => $getPesanan['id_midtrans']
         ];
         return view('pages/errorPay', $data);
     }
@@ -1493,6 +1484,7 @@ class Pages extends BaseController
         //     'status' => $status,
         //     'kurir' => 'kosong'
         // ])->update();
+
         session()->setFlashdata('id_pesanan', $hasilMidtrans['order_id']);
         return redirect()->to($hasilMidtrans['payment_url']);
     }
@@ -2113,19 +2105,25 @@ class Pages extends BaseController
                     return view('pages/orderProgress', $data);
                     break;
                 case 'Proses':
+                    $biller_code = "";
                     $bank = "";
                     switch ($dataMid['payment_type']) {
                         case 'bank_transfer':
                             if (isset($dataMid['permata_va_number'])) {
+                                $va_number = $dataMid['permata_va_number'];
                                 $bank = "permata";
                             } else {
+                                $va_number = $dataMid['va_numbers'][0]['va_number'];
                                 $bank = $dataMid['va_numbers'][0]['bank'];
                             }
                             break;
                         case 'echannel':
+                            $va_number = $dataMid['bill_key'];
+                            $biller_code = $dataMid['biller_code'];
                             $bank = "mandiri";
                             break;
                     }
+
                     $data = [
                         'title' => 'Pembayaran Sukes',
                         'pemesanan' => $pemesanan,
@@ -2133,6 +2131,40 @@ class Pages extends BaseController
                         'kurir' => $kurir,
                         'items' => $items,
                         'bank' => $bank,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
+                    ];
+                    return view('pages/orderShipping', $data);
+                    break;
+                case 'Dikirim':
+                    $biller_code = "";
+                    $bank = "";
+                    switch ($dataMid['payment_type']) {
+                        case 'bank_transfer':
+                            if (isset($dataMid['permata_va_number'])) {
+                                $va_number = $dataMid['permata_va_number'];
+                                $bank = "permata";
+                            } else {
+                                $va_number = $dataMid['va_numbers'][0]['va_number'];
+                                $bank = $dataMid['va_numbers'][0]['bank'];
+                            }
+                            break;
+                        case 'echannel':
+                            $va_number = $dataMid['bill_key'];
+                            $biller_code = $dataMid['biller_code'];
+                            $bank = "mandiri";
+                            break;
+                    }
+
+                    $data = [
+                        'title' => 'Pembayaran Sukes',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'kurir' => $kurir,
+                        'items' => $items,
+                        'bank' => $bank,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
                     ];
                     return view('pages/orderShipping', $data);
                     break;
@@ -2427,6 +2459,7 @@ class Pages extends BaseController
         $body = json_decode($bodyJson, true);
         $this->pemesananModel->where('id_midtrans', $body['idMid'])->set([
             'resi' => $body['resi'],
+            'kurir' => $body['kurir'],
             'status' => 'Dikirim',
         ])->update();
 

@@ -102,7 +102,7 @@
                                                     </div>
                                                 <?php } ?>
                                             </div>
-                                            <div class="w-100 d-flex justify-content-between">
+                                            <div class="w-100 d-flex justify-content-between mb-2">
                                                 <div class="w-100">
                                                     <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
                                                         <p class="mb-0 fw-bold">Metode Pembayaran</p>
@@ -165,6 +165,7 @@
                                                     <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
                                                 </div>
                                             </div>
+                                            <a href="/order/<?= $item_transaksi['id_midtrans']; ?>" style="color: var(--hijau)" class="fw-bold link-underline link-underline-opacity-100">Lihat halaman pesanan</a>
                                         </div>
                                     </div>
                                 </div>
