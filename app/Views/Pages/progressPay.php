@@ -5,7 +5,7 @@
         <div class="justify-content-center">
             <div class="text-center">
                 <h3>Kami menunggu pembayaran Anda</h3>
-                <i class="bi bi-hourglass-split text-warning display-1 mt-4 mb-4"></i>
+                <p class="my-2">Terima kasih telah melakukan pembelian di toko kami</p>
                 <div class="mb-3">
                     <a href="/order/<?= $id_pesanan; ?>" class="btn btn-primary1 me-3 mb-2">
                         <p id="counter" class="d-inline m-0">5 |</p> Pergi ke halaman detail pembayaran
