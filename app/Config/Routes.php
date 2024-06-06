@@ -49,6 +49,7 @@ $routes->get('/getdakota', 'Pages::getDakota');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->post('/actionpay', 'Pages::actionPay');
+$routes->post('/actionpaysnap', 'Pages::actionPaySnap');
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
