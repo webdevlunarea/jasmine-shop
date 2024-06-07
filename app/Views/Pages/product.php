@@ -70,7 +70,7 @@
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <a class="btn btn-primary1 btn-beli-product" href="/addcart/<?= $produk['id']; ?>" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
+                                <a class="btn btn-primary1 btn-beli-product <?= (int)$produk['stok'] > 0 ? "" : "disabled"; ?>" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                     <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
                                 <?php } else { ?>
@@ -90,7 +90,7 @@
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <a class="btn btn-primary1 flex-grow-1 btn-beli-product" href="/addcart/<?= $produk['id']; ?>" <?= (int)$produk['stok'] <= 0 ? "disabled" : ""; ?>>Beli Sekarang</a>
+                                <a class="btn btn-primary1 flex-grow-1 btn-beli-product <?= (int)$produk['stok'] > 0 ? "" : "disabled"; ?>" href="/addcart/<?= $produk['id']; ?>">Beli Sekarang</a>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                     <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
                                 <?php } else { ?>

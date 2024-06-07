@@ -147,13 +147,13 @@
             </div>
         </div>
     </div>
-    <div class="container py-3 border-top border-secondary">
+    <!-- <div class="container py-3 border-top border-secondary">
         <p class="text-center mb-2">
         <div class="d-flex gap-3 align-items-center justify-content-center">
             <small class="m-0">Product by</small>
             <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.png') ?>" alt="" height="16px">
         </div>
         </p>
-    </div>
+    </div> -->
 </footer>
 <!-- end footer baru -->

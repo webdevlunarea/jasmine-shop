@@ -291,11 +291,12 @@
         }
 
         const provJawaMaduraBali = ["Banten", "Jawa Barat", "DKI Jakarta", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
-        if (!provJawaMaduraBali.includes(valuenya[1]))
+        if (!provJawaMaduraBali.includes(valuenya[1])) {
             document.getElementById("peringatan-lokasi").style.display = "block";
-        else
+            triggerToast('Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan');
+        } else {
             document.getElementById("peringatan-lokasi").style.display = "none";
-
+        }
         btnCheckoutElm.classList.add('disabled');
     })
     kotaElm.addEventListener("change", (e) => {

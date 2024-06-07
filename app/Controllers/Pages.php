@@ -2588,6 +2588,12 @@ class Pages extends BaseController
                             $biller_code = $dataMid['biller_code'];
                             $bank = "mandiri";
                             break;
+                        case 'qris':
+                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            break;
+                        default:
+                            $va_number = "";
+                            break;
                     }
 
                     $waktuExpire = strtotime($dataMid['expiry_time']);
@@ -2626,6 +2632,12 @@ class Pages extends BaseController
                             $biller_code = $dataMid['biller_code'];
                             $bank = "mandiri";
                             break;
+                        case 'qris':
+                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            break;
+                        default:
+                            $va_number = "";
+                            break;
                     }
 
                     $data = [
@@ -2658,6 +2670,12 @@ class Pages extends BaseController
                             $biller_code = $dataMid['biller_code'];
                             $bank = "mandiri";
                             break;
+                        case 'qris':
+                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            break;
+                        default:
+                            $va_number = "";
+                            break;
                     }
 
                     $data = [
@@ -2689,6 +2707,12 @@ class Pages extends BaseController
                             $va_number = $dataMid['bill_key'];
                             $biller_code = $dataMid['biller_code'];
                             $bank = "mandiri";
+                            break;
+                        case 'qris':
+                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            break;
+                        default:
+                            $va_number = "";
                             break;
                     }
 

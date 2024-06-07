@@ -131,10 +131,10 @@
                                                                         echo "BCA VA<br>" . $dataMid['bca_va_number'];
                                                                     break;
                                                                 case 'gopay':
-                                                                    echo 'Qris<br>*QRcode hanya muncul sekali, sehingga harap checkout kembali dan lakukan pembayaran langsung';
+                                                                    echo 'Qris';
                                                                     break;
                                                                 case 'qris':
-                                                                    echo 'Qris<br>*QRcode hanya muncul sekali, sehingga harap checkout kembali dan lakukan pembayaran langsung';
+                                                                    echo 'Qris';
                                                                     break;
                                                                     // case 'gopay':
                                                                     //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';

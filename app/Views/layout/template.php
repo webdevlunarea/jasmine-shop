@@ -96,11 +96,16 @@
         const toastElm = document.querySelector(".toast")
         const toastTeksElm = document.querySelector(".toast p")
         const toastOkElm = document.querySelector(".toast a")
+        const toastCloseElm = document.querySelector(".toast button")
 
         function triggerToast(text, linkAction) {
             toastElm.classList.add("show")
             toastTeksElm.innerHTML = text
             toastOkElm.href = linkAction
+            if (!linkAction) {
+                toastOkElm.classList.add('d-none');
+                toastCloseElm.innerHTML = 'Ok';
+            }
         }
 
         function hapusToast() {
