@@ -47,7 +47,7 @@
     <!-- <div style="width: 100%; height: 30px" class="d-flex justify-content-center align-items-center bg-danger">
         <p class="m-0 text-light text-sm-center">Sedang dalam pengembangan</p>
     </div> -->
-    <div class="toast z-3 start-50 translate-middle">
+    <div class="toast start-50 translate-middle">
         <div class="toast-body">
             <p>Hello, world! This is a toast message.</p>
             <div class="mt-2 pt-2 border-top">

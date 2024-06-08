@@ -94,7 +94,7 @@ a {
     background-color: var(--hijau);
     width: 100vw;
     position: fixed;
-    z-index: 9999;
+    z-index: 11;
 }
 .konten {
     min-height: calc(100vh - 234.5px - 57.74px);
@@ -446,6 +446,7 @@ a {
     position: fixed;
     top: -60px;
     transition: 1s;
+    z-index: 22;
 }
 .toast.show {
     top: 100px;
