@@ -2564,6 +2564,148 @@ class Pages extends BaseController
     public function order($id_midtrans = false)
     {
         $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
+        $carapembayaran = [
+            'mandiri' => [
+                [
+                    'nama' => 'Livin by Mandiri',
+                    'isi' => '1. Pilih bayar pada menu utama.<br>
+                                2. Pilih Ecommerce.<br>
+                                3. Pilih Midtrans di bagian penyedia jasa.<br>
+                                4. Masukkan nomor virtual account pada bagian kode bayar.<br>
+                                5. Klik lanjutkan untuk konfirmasi.<br>
+                                6. Pembayaran selesai.'
+                ],
+                [
+                    'nama' => 'ATM Mandiri',
+                    'isi' => '1. Pilih bayar/beli pada menu utama.<br>
+                                2. Pilih lainnya.<br>
+                                3. Pilih multi payment.<br>
+                                4. Masukkan kode perusahaan Midtrans 70012.<br>
+                                5. Masukkan kode pembayaran, lalu konfirmasi.<br>
+                                6. Pembayaran selesai.'
+                ],
+                [
+                    'nama' => 'Mandiri Internet Banking',
+                    'isi' => '1. Pilih bayar pada menu utama.<br>
+                                2. Pilih multi payment.<br>
+                                3. Pilih dari rekening.<br>
+                                4. Pilih Midtrans di bagian penyedia jasa.<br>
+                                5. Masukkan kode pembayaran, lalu konfirmasi.<br>
+                                6. Pembayaran selesai.'
+                ],
+            ],
+            'bni' => [
+                [
+                    'nama' => 'ATM BNI',
+                    'isi' => '1. Pilih menu lain pada menu utama.<br>
+                                2. Pilih transfer.<br>
+                                3. Pilih ke rekening BNI.<br>
+                                4. Masukkan nomor rekening pembayaran.<br>
+                                5. Masukkan jumlah yang akan dibayar, lalu konfirmasi.<br>
+                                6. Pembayaran berhasil.<br>
+                                7. Internet Banking'
+                ],
+                [
+                    'nama' => 'BNI Internet Banking',
+                    'isi' => '1. Pilih transaksi, lalu info & administrasi transfer.<br>
+                                2. Pilih atur rekening tujuan.<br>
+                                3. Masukkan informasi rekening, lalu konfirmasi.<br>
+                                4. Pilih transfer, lalu transfer ke rekening BNI.<br>
+                                5. Masukkan detail pembayaran, lalu konfirmasi.<br>
+                                6. Pembayaran berhasil.'
+                ],
+                [
+                    'nama' => 'BNI Mobile Banking',
+                    'isi' => '1. Pilih transfer.<br>
+                                2. Pilih virtual account billing.<br>
+                                3. Pilih rekening debit yang akan digunakan.<br>
+                                4. Masukkan nomor virtual account, lalu konfirmasi.<br>
+                                5. Pembayaran berhasil.'
+                ],
+            ],
+            'bri' => [
+                [
+                    'nama' => 'ATM BRI',
+                    'isi' => '1. Pilih transaksi lainnya pada menu utama.<br>
+                                2. Pilih pembayaran.<br>
+                                3. Pilih lainnya.<br>
+                                4. Pilih BRIVA.<br>
+                                5. Masukkan nomor BRIVA, lalu konfirmasi.<br>
+                                6. Pembayaran berhasil.'
+                ],
+                [
+                    'nama' => 'IB BRI',
+                    'isi' => '1. Pilih pembayaran & pembelian.<br>
+                                2. Pilih BRIVA.<br>
+                                3. Masukkan nomor BRIVA, lalu konfirmasi.<br>
+                                4. Pembayaran berhasil.'
+                ],
+                [
+                    'nama' => 'BRImo',
+                    'isi' => '1. Pilih pembayaran.<br>
+                                2. Pilih BRIVA.<br>
+                                3. Masukkan nomor BRIVA, lalu konfirmasi.<br>
+                                4. Pembayaran berhasil.'
+                ],
+            ],
+            'permata' => [
+                [
+                    'nama' => 'ATM Permata/ALTO',
+                    'isi' => '1. Pilih transaksi lainnya pada menu utama.<br>
+                                2. Pilih pembayaran.<br>
+                                3. Pilih pembayaran lainnya.<br>
+                                4. Pilih virtual account.<br>
+                                5. Masukkan nomor virtual account Permata, lalu konfirmasi.<br>
+                                6. Pembayaran berhasil.'
+                ],
+            ],
+            'cimb' => [
+                [
+                    'nama' => 'ATM CIMB Niaga',
+                    'isi' => '1. Pilih pembayaran pada menu utama.<br>
+                                2. Pilih virtual account.<br>
+                                3. Masukkan nomor virtual account, lalu konfirmasi.<br>
+                                4. Pembayaran selesai.'
+                ],
+                [
+                    'nama' => 'OCTO Clicks',
+                    'isi' => '1. Pilih pembayaran tagihan pada menu utama.<br>
+                                2. Pilih mobile rekening virtual.<br>
+                                3. Masukkan nomor virtual account, lalu klik lanjut untuk verifikasi detail.<br>
+                                4. Pilih kirim OTP untuk lanjut.<br>
+                                5. Masukkan OTP yang dikirimkan ke nomor HP Anda, lalu konfirmasi.<br>
+                                6. Pembayaran selesai.'
+                ],
+                [
+                    'nama' => 'OCTO Mobile',
+                    'isi' => '1. Pilih menu transfer.<br>
+                                2. Pilih transfer to other CIMB Niaga account.<br>
+                                3. Pilih sumber dana: CASA atau rekening ponsel.<br>
+                                4. Masukkan nomor virtual account.<br>
+                                5. Masukkan jumlah yang akan dibayar.<br>
+                                6. Ikuti instruksi untuk menyelesaikan pembayaran.<br>
+                                7. Pembayaran selesai.'
+                ],
+            ],
+            'qris' => [
+                [
+                    'nama' => 'QRIS',
+                    'isi' => '1. Buka aplikasi yang mendukung pembayaran dengan QRIS.<br>
+                                2. Download atau pindai QRIS pada layar.<br>
+                                3. Konfirmasi pembayaran pada aplikasi.<br>
+                                4. Pembayaran berhasil.'
+                ],
+            ],
+            'gopay' => [
+                [
+                    'nama' => 'GoPay',
+                    'isi' => '1. Klik Bayar sekarang.<br>
+                                2. Aplikasi Gojek atau GoPay akan terbuka.<br>
+                                3. Konfirmasi pembayaran di aplikasi Gojek atau GoPay.<br>
+                                4. Pembayaran berhasil.'
+                ],
+            ],
+        ];
         if ($pemesanan) {
             $dataMid = json_decode($pemesanan['data_mid'], true);
             dd($pemesanan);
@@ -2610,6 +2752,7 @@ class Pages extends BaseController
                         'biller_code' => $biller_code,
                         'bank' => $bank,
                         'waktu' => $waktu,
+                        'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
                     ];
                     return view('pages/orderProgress', $data);
@@ -2649,6 +2792,7 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
+                        'caraPembayaran' => $carapembayaran[$bank],
                     ];
                     return view('pages/orderShipping', $data);
                     break;
@@ -2687,6 +2831,7 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
+                        'caraPembayaran' => $carapembayaran[$bank],
                     ];
                     return view('pages/orderShipping', $data);
                     break;
@@ -2725,6 +2870,7 @@ class Pages extends BaseController
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
                         'bank' => $bank,
+                        'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
                     ];
                     return view('pages/orderExpire', $data);

@@ -44,127 +44,20 @@
             <div class="limapuluh-ke-seratus">
                 <p class="fw-bold">Cara Pembayaran</p>
                 <div class="accordion accordion-flush" id="accordionFlushExample">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse1" aria-expanded="false" aria-controls="flush-collapse1">
-                                Transfer ATM
-                            </button>
-                        </h2>
-                        <div id="flush-collapse1" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                            <div class="accordion-body">
-                                <p class="mb-0 fw-bold">Bagaimana cara mengetahui barang ready?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Ketersediaan stok bisa langsung dengan cara mengecek pada kolom kuantitas di
-                                            spesifikasi produk. Apabila telah berhasil melakukan checkout, dapat
-                                            dipastikan ketersediaan produk tersebut untuk Anda.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Bagaimana cara melihat promosi terupdate?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Promo produk yang lagi diadakan selalu tersedia dan dapat dilihat pada
-                                            website Kami. Selain itu, promosi juga selalu Kami update di akun sosial
-                                            media dan juga katalog yang Kami beri di WhatsApp serta email saat Anda
-                                            berlangganan dengan layanan email dan WhatsApp Kami.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Jasmine Furniture?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Pengiriman produk Jasmine Furniture berasal dari Kota Semarang, Jawa Tengah
-                                        </p>
-                                    </li>
-                                </ul>
+                    <?php foreach ($caraPembayaran as $ind_c => $c) { ?>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse<?= $ind_c ?>" aria-expanded="false" aria-controls="flush-collapse1">
+                                    <?= $c['nama']; ?>
+                                </button>
+                            </h2>
+                            <div id="flush-collapse<?= $ind_c ?>" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    <p class="mb-0"><?= $c['isi']; ?></p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse2" aria-expanded="false" aria-controls="flush-collapse2">
-                                Mobile Banking
-                            </button>
-                        </h2>
-                        <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                            <div class="accordion-body">
-                                <p class="mb-0 fw-bold">Bagaimana cara mengetahui barang ready?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Ketersediaan stok bisa langsung dengan cara mengecek pada kolom kuantitas di
-                                            spesifikasi produk. Apabila telah berhasil melakukan checkout, dapat
-                                            dipastikan ketersediaan produk tersebut untuk Anda.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Bagaimana cara melihat promosi terupdate?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Promo produk yang lagi diadakan selalu tersedia dan dapat dilihat pada
-                                            website Kami. Selain itu, promosi juga selalu Kami update di akun sosial
-                                            media dan juga katalog yang Kami beri di WhatsApp serta email saat Anda
-                                            berlangganan dengan layanan email dan WhatsApp Kami.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Jasmine Furniture?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Pengiriman produk Jasmine Furniture berasal dari Kota Semarang, Jawa Tengah
-                                        </p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse3" aria-expanded="false" aria-controls="flush-collapse3">
-                                Teller Bank
-                            </button>
-                        </h2>
-                        <div id="flush-collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                            <div class="accordion-body">
-                                <p class="mb-0 fw-bold">Bagaimana cara mengetahui barang ready?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Ketersediaan stok bisa langsung dengan cara mengecek pada kolom kuantitas di
-                                            spesifikasi produk. Apabila telah berhasil melakukan checkout, dapat
-                                            dipastikan ketersediaan produk tersebut untuk Anda.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Bagaimana cara melihat promosi terupdate?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Promo produk yang lagi diadakan selalu tersedia dan dapat dilihat pada
-                                            website Kami. Selain itu, promosi juga selalu Kami update di akun sosial
-                                            media dan juga katalog yang Kami beri di WhatsApp serta email saat Anda
-                                            berlangganan dengan layanan email dan WhatsApp Kami.
-                                        </p>
-                                    </li>
-                                </ul>
-                                <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Jasmine Furniture?</p>
-                                <ul>
-                                    <li>
-                                        <p class="mb-0">
-                                            Pengiriman produk Jasmine Furniture berasal dari Kota Semarang, Jawa Tengah
-                                        </p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
