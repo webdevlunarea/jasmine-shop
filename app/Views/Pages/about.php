@@ -11,11 +11,11 @@
         <h1>
             Sejarah Perusahaan
         </h1>
-        <h5 class="mb-5">Jasmine Furniture</h5>
+        <h5 class="mb-5">Lunarea Furniture</h5>
         <div class="baris-ke-kolom-reverse align-items-center justify-content-between">
             <div style="height: fit-content; flex: 2;">
                 <p>
-                    Jasmine furniture hadir sejak tahun 1989 sebagai produsen sekaligus distributor aneka perabotan rumah yang berpengalaman. Selama lebih dari tiga puluhan tahun yang lalu hingga sekarang, Jasmine Furniture dengan konsisten memproduksi perabotan mulai dari meja, kursi, lemari dan rak dengan kualitas terbaik yang terbuat dari material terbaik yang dikerjakan secara professional oleh tim terbaik kami.
+                    Lunarea furniture hadir sejak tahun 1989 sebagai produsen sekaligus distributor aneka perabotan rumah yang berpengalaman. Selama lebih dari tiga puluhan tahun yang lalu hingga sekarang, Lunarea Furniture dengan konsisten memproduksi perabotan mulai dari meja, kursi, lemari dan rak dengan kualitas terbaik yang terbuat dari material terbaik yang dikerjakan secara professional oleh tim terbaik kami.
                 </p>
                 <p>
                     Saat ini kami telah memiliki ratusan distributor dan toko ternama, yang tersebar di seluruh penjuru kota di Indonesia.
@@ -24,10 +24,10 @@
                     Untuk semakin memudahkan aktivitas belanja konsumen, kami melakukan pengembangan dan hadir di berbagai platform marketplace ternama di Indonesia.
                 </p>
                 <p>
-                    Temukan produk furniture kebutuhan Anda dengan harga terbaik dan desain stylish masa kini, di toko terdekat Anda bersama dengan Jasmine furniture.
+                    Temukan produk furniture kebutuhan Anda dengan harga terbaik dan desain stylish masa kini, di toko terdekat Anda bersama dengan Lunarea furniture.
                 </p>
                 <p class="fw-bold" style="color: var(--hijau)">
-                    Jasmine Furniture, Always your choice, always your furniture
+                    Lunarea Furniture, Always your choice, always your furniture
                 </p>
             </div>
             <div class="show-ke-hide align-items-center justify-content-end" style="height: 350px; flex: 1;">

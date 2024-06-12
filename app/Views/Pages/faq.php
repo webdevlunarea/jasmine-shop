@@ -11,7 +11,7 @@
             </ol>
         </nav>
         <h1 class="text-center">Frequently Asked Questions</h1>
-        <h5 class="mb-4 text-center" style="color: var(--hijau)">Jasmine Furniture</h5>
+        <h5 class="mb-4 text-center" style="color: var(--hijau)">Lunarea Furniture</h5>
         <div class="accordion accordion-flush" id="accordionFlushExample">
             <div class="accordion-item">
                 <h2 class="accordion-header">
@@ -37,11 +37,11 @@
                                 </p>
                             </li>
                         </ul>
-                        <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Jasmine Furniture?</p>
+                        <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Lunarea Furniture?</p>
                         <ul>
                             <li>
                                 <p class="mb-0">
-                                    Pengiriman produk Jasmine Furniture berasal dari Kota Semarang, Jawa Tengah</p>
+                                    Pengiriman produk Lunarea Furniture berasal dari Kota Semarang, Jawa Tengah</p>
                             </li>
                         </ul>
                     </div>
@@ -55,7 +55,7 @@
                 </h2>
                 <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
-                        <p class="mb-0 fw-bold">Bagaimana cara merawat produk Jasmine Furniture baik dan benar?</p>
+                        <p class="mb-0 fw-bold">Bagaimana cara merawat produk Lunarea Furniture baik dan benar?</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Merawat furniture bisa dibersihkan dengan cara di lap secara berkala</p>
@@ -64,10 +64,10 @@
                                 <p class="mb-0">Lakukan pembersihan ini secara berkala agar produk tetap digunakan secara maksimal dalam jangka waktu yang lebih lama</p>
                             </li>
                         </ul>
-                        <p class="mb-0 mt-1 fw-bold">Bagaimana mencegah produk Jasmine Furniture dari lembab & jamur?</p>
+                        <p class="mb-0 mt-1 fw-bold">Bagaimana mencegah produk Lunarea Furniture dari lembab & jamur?</p>
                         <ul>
                             <li>
-                                <p class="mb-0">Produk Jasmine furniture tidak disarankan untuk diletakkan pada lokasi yang lembab, seperti di area dekat tembok kamar mandi dan tempat terbuka yang langsung terkena hujan atau matahari.</p>
+                                <p class="mb-0">Produk Lunarea furniture tidak disarankan untuk diletakkan pada lokasi yang lembab, seperti di area dekat tembok kamar mandi dan tempat terbuka yang langsung terkena hujan atau matahari.</p>
                             </li>
                         </ul>
                     </div>
@@ -81,7 +81,7 @@
                 </h2>
                 <div id="flush-collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
-                        <p class="mb-0 fw-bold">Bagaimana cara melakukan pembelian produk Jasmine Furniture?</p>
+                        <p class="mb-0 fw-bold">Bagaimana cara melakukan pembelian produk Lunarea Furniture?</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Login menggunakan akun Anda atau jika belum memiliki akun, maka lakukan registrasi terlebih dahulu</p>
@@ -117,7 +117,7 @@
                                 <p class="mb-0">Lihat kembali status pembayaran pada menu transaksi</p>
                             </li>
                         </ul>
-                        <p class="mb-0 mt-1 fw-bold">Bagaimana cara memesan produk Jasmine Furniture?</p>
+                        <p class="mb-0 mt-1 fw-bold">Bagaimana cara memesan produk Lunarea Furniture?</p>
                         <p class="mb-0">Berikut ini adalah langkah-langkah penting pada proses belanja Anda dengan Kami:</p>
                         <ul>
                             <li>
@@ -133,7 +133,7 @@
                                 <p class="mb-0">Lakukan pembayaran sesuai metode pembayaran yang dipilih.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Kamu akan melihat status transaksi pembayaran di menu “Pesanan Saya”.</p>
+                                <p class="mb-0">Kamu akan melihat status transaksi pembayaran di menu “Pesanan Saya.</p>
                             </li>
                         </ul>
                         <p class="mb-0 mt-1 fw-bold">Apa saja yang perlu dipahami dari status pesanan?</p>
@@ -232,7 +232,7 @@
                                 <p class="mb-0">Untuk pembayaran biaya kirim, khusus pesanan via website akan langsung tercantum pada pilihan saat check out.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Untuk pesanan yang memerlukan pembayaran biaya kirim dan tidak dapat dijangkau ekspedisi, akan Kami sampaikan informasi lebih lanjut via chat oleh customer service Jasmine Furniture. Kami perlu konfirmasi dan jawaban setuju atau tidak setuju dalam kurun waktu 1x24 jam, kalau lebih dari itu maka akan langsung dilakukan proses refund.</p>
+                                <p class="mb-0">Untuk pesanan yang memerlukan pembayaran biaya kirim dan tidak dapat dijangkau ekspedisi, akan Kami sampaikan informasi lebih lanjut via chat oleh customer service Lunarea Furniture. Kami perlu konfirmasi dan jawaban setuju atau tidak setuju dalam kurun waktu 1x24 jam, kalau lebih dari itu maka akan langsung dilakukan proses refund.</p>
                             </li>
                         </ul>
                     </div>
@@ -247,7 +247,7 @@
                 <div id="flush-collapse6" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana prosedur komplain?</p>
-                        <p class="mb-0">Untuk prosedur komplain dapat menghubungi customer service Jasmine Furniture dengan syarat dan ketentuan berikut:</p>
+                        <p class="mb-0">Untuk prosedur komplain dapat menghubungi customer service Lunarea Furniture dengan syarat dan ketentuan berikut:</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Wajib menyertakan video unboxing dan menyertakan foto 6 sisi box berbeda saat produk diterima (sebelum produk dibuka)</p>
@@ -280,8 +280,8 @@
                             </li>
 
                         </ul>
-                        <p class="mb-0 mt-1 fw-bold">Apa ada tutorial untuk perakitan barang Jasmine Furniture?</p>
-                        <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube Jasmine Furniture Official</p>
+                        <p class="mb-0 mt-1 fw-bold">Apa ada tutorial untuk perakitan barang Lunarea Furniture?</p>
+                        <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube Lunarea Furniture Official</p>
                         <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.youtube.com/channel/UCc2vGsX2R8CNoZXv7lxJ2qw">Menuju video</a>
                     </div>
                 </div>

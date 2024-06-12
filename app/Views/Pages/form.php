@@ -34,7 +34,7 @@
                     </div>
                     <div class="mb-2">
                         <label for="floatingInput" class="mb-2">Pesan <p style="color: var(--hijau); display: inline;">(opsional)</p></label>
-                        <textarea class="form-control" placeholder="Tuliskan pesan Anda" name="pesan">Hai CS Jasmine, saya ingin menanyakan mengenai ...</textarea>
+                        <textarea class="form-control" placeholder="Tuliskan pesan Anda" name="pesan">Hai CS Lunarea, saya ingin menanyakan mengenai ...</textarea>
                     </div>
                     <div class="d-flex justify-content-center">
                         <button type="submit" disabled class="btn btn-primary1" id="btn-kirim">Kirim</button>

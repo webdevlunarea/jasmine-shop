@@ -11,23 +11,23 @@
             </ol>
         </nav>
         <h1>Kebijakan Privasi</h1>
-        <h5 class="mb-4" style="color: var(--hijau)">Jasmine Furniture</h5>
+        <h5 class="mb-4" style="color: var(--hijau)">Lunarea Furniture</h5>
         <p>
-            Jasmine Furniture selalu mengedepankan kepercayaan yang telah
+            Lunarea Furniture selalu mengedepankan kepercayaan yang telah
             pelanggan berikan dengan cara menjaga dan melindungi informasi
             serta data pribadi pelanggan sebagai pengguna situs website
-            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>. Kebijakan privasi ini disusun dengan seksama sebagai wujud
+            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>. Kebijakan privasi ini disusun dengan seksama sebagai wujud
             komitmen Kami melindungi dan menjaga segala bentuk data atau
             informasi pribadi pengguna dari situs website
-            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>
-            yang selanjutnya disebut dengan <b>situs Jasmine Furniture</b>.
+            <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>
+            yang selanjutnya disebut dengan <b>situs Lunarea Furniture</b>.
         </p>
         <p>
             Pengguna diharapkan untuk membaca dan memahami kebijakan privasi
             dari awal hingga akhir agar tidak terjadi perbedaan dalam
             pemahaman. Setiap informasi yang Kami peroleh ketika proses
             pemesanan, akan digunakan secara sah sesuai dengan Undang-Undang
-            Konsumen No. 8 Tahun 1999. Situs Jasmine Furniture tidak akan
+            Konsumen No. 8 Tahun 1999. Situs Lunarea Furniture tidak akan
             mengungkap atau menyampaikan informasi rahasia ini kepada pihak
             ketiga tanpa izin dari pemilik informasi tersebut. Akan tetapi,
             terdapat pengecualian apabila terdapat informasi tertentu yang
@@ -35,14 +35,14 @@
             Indonesia.
         </p>
         <p>
-            Dengan mengunjungi dan menggunakan situs Jasmine Furniture, Anda
+            Dengan mengunjungi dan menggunakan situs Lunarea Furniture, Anda
             dianggap telah setuju dengan persyaratan yang tercantum dalam
             kebijakan privasi. Maka dari itu, dimohon kepada pelanggan untuk
             membaca dan menelaah kebijakan privasi ini dengan seksama.
         </p>
         <h5 class="jdl-section mt-5">Informasi Yang Kami Butuhkan</h5>
         <p>
-            Saat pengunjung situs Jasmine Furniture melakukan registrasi
+            Saat pengunjung situs Lunarea Furniture melakukan registrasi
             akun, maka berikut ini adalah informasi yang akan Kami dapatkan:
         </p>
         <table>
@@ -94,12 +94,12 @@
             </tbody>
         </table>
         <p class="mt-3">
-            Jasmine Furniture hanya akan mengumpulkan informasi tersebut
+            Lunarea Furniture hanya akan mengumpulkan informasi tersebut
             jika pengguna dalam hal ini pemilik akun tersebut bersedia
             menyerahkan informasinya kepada Kami. Apabila memilih untuk
             tidak memberikan informasi diatas, maka Kami tidak dapat
             melayani atau melakukan kesepakatan apapun bersama dengan Anda.
-            Situs Jasmine Furniture tidak akan menjual atau menyebarluaskan
+            Situs Lunarea Furniture tidak akan menjual atau menyebarluaskan
             informasi pribadi pelanggan kepada pihak manapun. Informasi yang
             Kami kumpulkan secara online hanya akan digunakan secara
             internal dalam Perusahaan Kami untuk melayani Anda sebagai
@@ -108,7 +108,7 @@
         <h5 class="jdl-section mt-5">Promosi</h5>
         <p>
             Setelah terjadi pembelian barang dan berlangganan newsletter
-            dari situs Jasmine Furniture, maka Anda akan terus mendapatkan
+            dari situs Lunarea Furniture, maka Anda akan terus mendapatkan
             update produk terbaru, berita, dan penawaran spesial melalui
             email. Anda memiliki hak untuk menerima atau menolak materi
             promosi yang telah dikirimkan tersebut. Apabila dirasa ingin
@@ -121,7 +121,7 @@
         <p>
             Kebijakan privasi ini akan mengalami pembaharuan secara berkala
             pada kurun waktu tertentu sebagai upaya pengembangan serta
-            kemajuan situs Jasmine Furniture dalam melakukan pelayanan
+            kemajuan situs Lunarea Furniture dalam melakukan pelayanan
             terbaik kepada Pelanggan. Diharapkan agar melakukan pemeriksaan
             secara berkala pada halaman ini untuk mengetahui
             perubahan-perubahan tersebut. Kebijakan privasi ini berlaku
@@ -145,7 +145,7 @@
                     </td>
                     <td>
                         <p class="mb-0">
-                            : infojasmine@jasminefurniture.co.id
+                            : cs@lunareafurniture.com
                         </p>
                     </td>
                 </tr>
@@ -161,7 +161,7 @@
         </table>
         <h5 class="jdl-section mt-5">Produk & Layanan Kami</h5>
         <p>
-            Jasmine Furniture menyediakan berbagai macam furniture mulai
+            Lunarea Furniture menyediakan berbagai macam furniture mulai
             dari lemari dewasa, lemari anak, meja rias, meja belajar, meja
             TV, meja tulis, rak sepatu, rak besi hingga rak serbaguna.
         </p>

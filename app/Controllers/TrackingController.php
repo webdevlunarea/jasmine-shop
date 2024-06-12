@@ -3,13 +3,16 @@
 namespace App\Controllers;
 
 use App\Models\TrackingModel;
+use App\Models\BarangModel;
 
 class TrackingController extends BaseController
 {
     protected $trackingModel;
+    protected $barangModel;
     public function __construct()
     {
         $this->trackingModel = new TrackingModel();
+        $this->barangModel = new BarangModel();
     }
     public function addTracking()
     {
@@ -47,6 +50,27 @@ class TrackingController extends BaseController
             'path' => $body['path'],
             'durasi' => $body['durasi'],
         ];
+        return $this->response->setJSON($arr, false);
+    }
+    public function trackPop()
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        $produk = $this->barangModel->getBarang($body['id']);
+        if ($produk) {
+            $this->barangModel->where(['id' => $body['id']])->set([
+                'tracking_pop' => (int)$produk['tracking_pop'] + 1
+            ])->update();
+            $arr = [
+                'success' => true,
+                'pesan' => 'Barang berhasil di update'
+            ];
+        } else {
+            $arr = [
+                'success' => false,
+                'pesan' => 'Barang tidak ditemukan'
+            ];
+        }
         return $this->response->setJSON($arr, false);
     }
 }

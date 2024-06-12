@@ -11,13 +11,13 @@
         </nav>
 
         <h5>Pendahuluan</h5>
-        <p>Perjanjian penggunaan website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> selaku pengelola (disebut sebagai “kami”)
+        <p>Perjanjian penggunaan website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> selaku pengelola (disebut sebagai “kami”)
             engan pengguna dijelaskan pada halaman ini. seluruh pengguna wajib untuk mengikuti syarat dan
             ketentuan yang telah ditentukan. Kami memiliki hak untuk mengubah atau menambahkan suatu pasal
             sesuai dengan keperluan website.</p>
 
         <h5>Penggunaan Website</h5>
-        <p>Situs website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a> memuat informasi yang meliputi: produk, kebijakan privasi, FAQ,
+        <p>Situs website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> memuat informasi yang meliputi: produk, kebijakan privasi, FAQ,
             serta syarat & ketentuan.</p>
 
         <h5>Profil Perusahaan</h5>
@@ -27,7 +27,7 @@
 
         <h5>Informasi Produk dan Inspirasi</h5>
         <p>Semua informasi yang menyangkut tentang harga, gambar, deskripsi, dan spesifikasi dapat berubah dalam kurun
-            waktu tertentu. Harga yang digunakan pada website ini berlaku untuk semua wilayah jangkauan dari produk jasmine
+            waktu tertentu. Harga yang digunakan pada website ini berlaku untuk semua wilayah jangkauan dari produk Lunarea
             furniture, dengan transaksi jual-beli dilakukan pada website ini. produk yang ditampilkan di website berlaku
             selama persediaan masih ada. Silahkan hubungi customer service kami untuk informasi lebih lanjut seputar produk
             atau pertanyaan terkait.</p>
@@ -42,7 +42,7 @@
             informasi promosi terbaru yang sedang kami adakan.</p>
 
         <h5>Informasi Service</h5>
-        <p>Pengguna dapat mengakses informasi seputar layanan yang diberikan oleh Jasmine Furniture melalui <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://jasminefurniture.store">jasminefurniture.store</a>
+        <p>Pengguna dapat mengakses informasi seputar layanan yang diberikan oleh Lunarea Furniture melalui <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>
             atau WA chat (08112938160), informasi ini dapat berubah sewaktu- waktu sesuai dengan kebijakan Perusahaan yang berlaku.</p>
     </div>
 </div>

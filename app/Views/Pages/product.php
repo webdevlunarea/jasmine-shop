@@ -14,9 +14,15 @@
         <div class="baris-ke-kolom">
             <?php if (isset($gambar)) { ?>
                 <div class="img-produk limapuluh-ke-seratus">
-                    <figure onmousemove="zoom(event)" onmouseleave="mouseoff(event)" class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')">
-                    </figure>
+                    <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
+                        <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')"></figure>
+                    </section>
                     <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
+                    <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="hide-ke-show-block">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
+                    </section>
                     <div>
                         <?php foreach ($gambar as $key => $value) {
                             if ($value && $key != 'id') { ?>
@@ -26,6 +32,21 @@
                     </div>
                 </div>
             <?php } ?>
+            <div class="img-produk limapuluh-ke-seratus">
+                <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
+                    <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                    <figure class="img-produk-prev" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
+                </section>
+                <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="hide-ke-show-block">
+                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                    <img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="" class="img-produk-prev">
+                </section>
+                <div>
+                    <div class="img-produk-select selected"><img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt=""></div>
+                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Dalam.webp" alt=""></div>
+                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Depan.webp" alt=""></div>
+                </div>
+            </div>
             <div class="limapuluh-ke-seratus">
                 <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">
@@ -141,7 +162,10 @@
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
-                    <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    </div>
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php if ($p['diskon']) { ?>
@@ -172,6 +196,7 @@
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
+    const figureElm = document.querySelector("figure");
 
     if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
@@ -210,7 +235,7 @@
     });
 
     function zoom(e) {
-        e.target.style.backgroundSize = "auto"
+        figureElm.style.backgroundSize = "auto"
         const widthGambar = e.target.offsetWidth;
         const gmbrPosition = [
             (e.offsetX / widthGambar) * 100,
@@ -218,12 +243,12 @@
         ];
         // console.log("X: " + (e.offsetX / widthGambar) * 100);
         // console.log("Y: " + (e.offsetY / widthGambar) * 100);
-        e.target.style.backgroundPosition =
+        figureElm.style.backgroundPosition =
             gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
     }
 
     function mouseoff(e) {
-        e.target.style.backgroundSize = "cover"
+        figureElm.style.backgroundSize = "cover"
     }
 
     function setUrlElmBeli() {

@@ -58,14 +58,8 @@
                 <li class="nav-item">
                     <a class="nav-link <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
                 </li>
-                <?php if (!session()->get('isLogin')) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $title == 'Daftar' ? "active " : ""; ?>" href="/login">Masuk</a>
-                    </li>
-                <?php } else { ?>
-                    <?php if (session()->get('email') == 'tamu') { ?>
-                        <a class="nav-link <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
-                    <?php } ?>
+                <?php if (session()->get('isLogin') && session()->get('email') == 'tamu') { ?>
+                    <a class="nav-link <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
                 <?php } ?>
             </ul>
             <form class="d-flex search-box" role="search">
@@ -90,6 +84,8 @@
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
+            <?php } else { ?>
+                <a href="/login" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
             <?php } ?>
         </div>
     </div>

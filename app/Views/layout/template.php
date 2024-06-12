@@ -19,6 +19,9 @@
         })(window, document, 'script', 'dataLayer', 'GTM-N2XSVZ4N');
     </script>
     <meta charset="UTF-8">
+    <meta name="description" content="Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.">
+    <meta name="keywords" content="lunarea furniture,toko furniture">
+    <meta name="author" content="Lunarea Furniture">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title; ?> | Lunarea Furniture</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">

@@ -113,6 +113,7 @@ $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);
+$routes->post('/trackpop', 'TrackingController::trackPop', ['filter' => 'corsFilter']);
 
 // CopyGambarController
 $routes->get('/copygambar', 'CopyGambarController::copyGambar');

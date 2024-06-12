@@ -35,7 +35,7 @@ class Pages extends BaseController
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
-        $produkBaru = $this->barangModel->getBarangBaru();
+        $produkBaru = $this->barangModel->getBarangPopuler();
         $data = [
             'title' => 'Beranda',
             'produk' => $produk,
@@ -2957,13 +2957,18 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangNama(urldecode($nama));
         $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->findAll(10, 0);
-        $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
+        // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
+
+        $this->barangModel->where(['id' => $produk['id']])->set([
+            'tracking_pop' => (int)$produk['tracking_pop'] + 1
+        ])->update();
+
         $data = [
             'title' => $produk['nama'],
             'produk' => $produk,
-            'gambar' => $gambarnya,
+            // 'gambar' => $gambarnya,
             'varian' => $varian,
             'dimensi' => $dimensi,
             'produksekategori' => $produksekategori,

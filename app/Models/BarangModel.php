@@ -26,6 +26,7 @@ class BarangModel extends Model
         'tokped',
         'tiktok',
         'youtube',
+        'tracking_pop',
     ];
 
     public function getBarang($id = false)
@@ -49,6 +50,10 @@ class BarangModel extends Model
     public function getBarangBaru()
     {
         return $this->orderBy('id', 'desc')->findAll(10, 0);
+    }
+    public function getBarangPopuler()
+    {
+        return $this->orderBy('tracking_pop', 'desc')->findAll(10, 0);
     }
     public function getBarangPage($page)
     {

@@ -89,15 +89,18 @@
         <?php
         $window_width = "<script type='text/javascript'>document.write(window.innerWidth);</script>";
         ?>
-        <h5 class="jdl-section">Hari ini</h5>
-        <h1 class="mb-1">Produk Baru</h1>
+        <h5 class="jdl-section">Rekomendasi</h5>
+        <h1 class="mb-1">Produk Terpopuler</h1>
         <div class="card-group1 no-scroll">
             <?php foreach ($produkBaru as $p) { ?>
                 <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
-                    <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    </div>
                     <div>
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php foreach (json_decode($p['varian'], true) as $v) { ?>
