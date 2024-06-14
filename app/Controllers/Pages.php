@@ -2258,6 +2258,9 @@ class Pages extends BaseController
     }
     public function updateTransaction()
     {
+        $arr = [
+            'success' => true,
+        ];
         $bodyJson = $this->request->getBody();
         $body = json_decode($bodyJson, true);
         $order_id = $body['order_id'];
@@ -2350,7 +2353,11 @@ class Pages extends BaseController
                 CURLOPT_TIMEOUT => 30,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $body
+                CURLOPT_POSTFIELDS => json_encode($body),
+                CURLOPT_HTTPHEADER => array(
+                    "Accept: application/json",
+                    "Content-Type: application/json",
+                ),
             ));
             $response = curl_exec($curl);
             $err = curl_error($curl);
@@ -2358,11 +2365,10 @@ class Pages extends BaseController
             if ($err) {
                 return "cURL Error #:" . $err;
             }
+            $arr['hasil_curl'] = json_decode($response, true);
         }
         // $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
-        $arr = [
-            'success' => true,
-        ];
+
         return $this->response->setJSON($arr, false);
     }
     public function updateTransactionCoreAPI()
