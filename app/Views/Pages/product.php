@@ -102,6 +102,7 @@
                             <?php } ?>
                         <?php } else { ?>
                             <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
                         <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
@@ -122,6 +123,7 @@
                             <?php } ?>
                         <?php } else { ?>
                             <a class="btn btn-primary1 flex-grow-1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
                         <a class="btn btn-primary1 flex-grow-1" href="/login">Masuk untuk membeli</a>

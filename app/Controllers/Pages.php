@@ -1567,8 +1567,8 @@ class Pages extends BaseController
         // \Midtrans\Config::$isProduction = false;
         $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = "JM" . rand();
+        $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+        $randomId = "L" . rand();
         $customField = json_encode([
             'e' => $email,
             'n' => $nama,
@@ -2306,7 +2306,7 @@ class Pages extends BaseController
         }
 
         $order_id_first_char = substr($order_id, 0, 1);
-        if ($order_id_first_char == 'J') {
+        if ($order_id_first_char == 'L') {
             $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
             if (isset($dataTransaksi_curr)) {
                 $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
@@ -2340,6 +2340,18 @@ class Pages extends BaseController
                     'status' => $status,
                     'data_mid' => json_encode($body),
                 ]);
+
+                //pengurangan stok produk
+                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
+                    $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+                    $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
+                    foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                        $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
+                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                            'stok' => $barangCurr['stok'] - $item['quantity']
+                        ])->update();
+                    }
+                }
             }
         } else if ($order_id_first_char == 'I') {
             $curl = curl_init();
@@ -2738,6 +2750,7 @@ class Pages extends BaseController
                             break;
                         case 'qris':
                             $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $bank = "qris";
                             break;
                         default:
                             $va_number = "";
@@ -2757,6 +2770,7 @@ class Pages extends BaseController
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
                         'bank' => $bank,
+                        'items' => $items,
                         'waktu' => $waktu,
                         'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
@@ -2783,6 +2797,7 @@ class Pages extends BaseController
                             break;
                         case 'qris':
                             $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $bank = "qris";
                             break;
                         default:
                             $va_number = "";
@@ -2822,6 +2837,7 @@ class Pages extends BaseController
                             break;
                         case 'qris':
                             $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $bank = "qris";
                             break;
                         default:
                             $va_number = "";
@@ -2861,6 +2877,7 @@ class Pages extends BaseController
                             break;
                         case 'qris':
                             $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $bank = "qris";
                             break;
                         default:
                             $va_number = "";
@@ -2962,7 +2979,7 @@ class Pages extends BaseController
     public function product($nama = false)
     {
         $produk = $this->barangModel->getBarangNama(urldecode($nama));
-        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->findAll(10, 0);
+        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
         // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);

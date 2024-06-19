@@ -14,7 +14,11 @@
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
-                    <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    <!-- <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt=""> -->
+                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                    </div>
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php if ($p['diskon']) { ?>

@@ -42,6 +42,26 @@
                 <a class="btn btn-primary1" href="/order/<?= $dataMid['order_id']; ?>">Saya Sudah Bayar</a>
             </div>
             <div class="limapuluh-ke-seratus">
+                <p class="fw-bold">Produk yang dibeli</p>
+                <div class="mb-2">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <?php foreach ($items as $i) { ?>
+                                <tr>
+                                    <td>
+                                        <p class="mb-0"><?= $i['name']; ?></p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0"><?= $i['quantity']; ?></p>
+                                    </td>
+                                    <td class="text-end">
+                                        <p class="mb-0">Rp <?= number_format($i['value'], 0, ",", "."); ?></p>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
                 <p class="fw-bold">Cara Pembayaran</p>
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <?php foreach ($caraPembayaran as $ind_c => $c) { ?>
