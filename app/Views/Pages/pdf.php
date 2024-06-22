@@ -25,7 +25,7 @@
 
 <body>
     <div class="print">
-        <img src="../img/Logo Jasmine.png" width="150mm" />
+        <img src="../img/Logo Lunarea Bg Terang ukuran kecil.webp" width="150mm" />
         <h4 class="fw-bold text-center">FORMULIR PEMESANAN BARANG</h4>
         <div style="float: right" class="mb-3">
             <table>
@@ -121,13 +121,7 @@
                     </tr>
                     <tr>
                         <td class="pe-1">Alamat</td>
-                        <td id="print-alamat-penerima">: <?= $transaksi['alamat_pen']['alamat']; ?></td>
-                    </tr>
-                    <tr>
-                        <td>Kota</td>
-                        <td id="print-kota">
-                            : <?= $transaksi['alamat_pen']['kab']; ?> Kode Pos : <?= $transaksi['alamat_pen']['kodepos']; ?> Telp. <?= $transaksi['hp_pen']; ?>
-                        </td>
+                        <td id="print-alamat-penerima">: <?= $transaksi['alamat_pen']; ?></td>
                     </tr>
                 </tbody>
             </table>

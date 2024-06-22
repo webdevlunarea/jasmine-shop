@@ -85,6 +85,12 @@
                         </div>
                         <p id="peringatan-lokasi" class="my-2 text-secondary" style="display: none;">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
                     </div>
+                    <div class="py-3">
+                        <div class="form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Note" name="note">
+                            <label for="floatingInput">Note</label>
+                        </div>
+                    </div>
                     <!--<div class="pt-3">-->
                     <!--    <h5 class="mb-2">Metode Pembayaran</h5>-->
                     <!--    <div class="container-pembayaran mb-1">-->
@@ -166,6 +172,7 @@
     const inputNohpElm = document.querySelector('input[name="nohp"]');
     const inputAlamatAddElm = document.querySelector('input[name="alamat_add"]');
     const inputAlamatElm = document.querySelector('textarea[name="alamat"]');
+    const inputNoteElm = document.querySelector('input[name="note"]');
     const provElm = document.querySelector('select[name="provinsi"]');
     const kotaElm = document.querySelector('select[name="kota"]');
     const kecElm = document.querySelector('select[name="kecamatan"]');
@@ -207,6 +214,7 @@
             kodepos: kodeElm.value,
             alamat: inputAlamatElm.value,
             alamat_add: inputAlamatAddElm.value,
+            note: inputNoteElm.value,
             keranjang: JSON.stringify(keranjang)
         }
         async function getTokenMditrans() {

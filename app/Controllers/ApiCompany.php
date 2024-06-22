@@ -148,4 +148,17 @@ class ApiCompany extends BaseController
         $this->response->setHeader("Content-Type", "image/webp");
         echo $gambar;
     }
+
+    //-------------- olah database ------------- //
+    public function deskToLuna()
+    {
+        $semuaProduk = $this->barangModel->findAll();
+        foreach ($semuaProduk as $produk) {
+            $deksripsiBaru = str_ireplace("jasmine", "Lunarea", $produk['deskripsi']);
+            $this->barangModel->where(['id' => $produk['id']])->set(['deskripsi' => $deksripsiBaru])->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
+    }
 }

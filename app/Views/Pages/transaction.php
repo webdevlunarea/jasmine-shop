@@ -156,8 +156,9 @@
                                                             <?php } ?>
                                                         </p>
                                                         <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                            <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
-                                                                Nomor Resi</a>
+                                                            <!-- <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
+                                                                Nomor Resi</a> -->
+                                                            <a class="btn btn-primary1" href="https://indahonline.com/tracking/cek-resi" target="_blank">Tracking</a>
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </div>

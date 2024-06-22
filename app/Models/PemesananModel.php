@@ -18,6 +18,7 @@ class PemesananModel extends Model
         'status',
         'kurir',
         'data_mid',
+        'note',
     ];
 
     public function getPemesanan($id_midtrans = false)

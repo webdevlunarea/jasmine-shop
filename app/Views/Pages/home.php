@@ -35,7 +35,13 @@
     </div>
     <div class="container my-3">
         <h5 class="jdl-section">Kategori</h5>
-        <h1 class="mb-1">Kategori Produk</h1>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-1">Kategori Produk</h1>
+            <div class="gap-2 show-flex-ke-hide">
+                <div class="btn-primary1 btn-geser-kategori" id="kiri" style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i class="material-icons">chevron_left</i></div>
+                <div class="btn-primary1 btn-geser-kategori" id="kanan" style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i class="material-icons">chevron_right</i></div>
+            </div>
+        </div>
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
@@ -238,4 +244,19 @@
         </div>
     </div> -->
 </div>
+<script>
+    const containeKategoriScrollElm = document.querySelector('.container-kategori-scroll');
+    const btnGeserKategoriElm = document.querySelectorAll('.btn-geser-kategori');
+
+    btnGeserKategoriElm.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const direction = btn.id === 'kiri' ? -1 : 1;
+            const scrollAmount = containeKategoriScrollElm.clientWidth * direction;
+            containeKategoriScrollElm.scrollBy({
+                left: scrollAmount,
+                behavior: "smooth"
+            });
+        })
+    })
+</script>
 <?= $this->endSection(); ?>

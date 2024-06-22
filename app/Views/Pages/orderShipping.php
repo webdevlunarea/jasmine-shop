@@ -7,7 +7,7 @@
             <div style="color: var(--hijau)">--------</div>
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div style="background-color: var(--hijau); padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
-                <p class="m-0 text-center fw-bold" style="line-height: 20px; color: var(--hijau)">Diproses</p>
+                <p class="m-0 text-center fw-bold" style="line-height: 20px; color: var(--hijau)"><?= $kurir == 'kosong' ? 'Diproses' : 'Dikirim'; ?></p>
             </div>
             <div style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
@@ -17,7 +17,7 @@
             <div class="limapuluh-ke-seratus">
                 <div class="d-flex justify-content-between mb-3">
                     <div class="flex-grow-1">
-                        <?php if ($dataMid['payment_type'] == 'bank_transfer') { ?>
+                        <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel') { ?>
                             <p class="m-0">Nomor Virtual Account</p>
                             <h5><?= strtoupper($bank); ?> <?= $va_number; ?></h5>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
@@ -93,8 +93,8 @@
                     <?php } ?>
                 </div>
                 <div>
-                    <p class="m-0">Alamat</p>
-                    <h5><?= $pemesanan['alamat_pen']; ?></h5>
+                    <p class="m-0 fw-bold">Alamat</p>
+                    <p class="m-0"><?= $pemesanan['alamat_pen']; ?></h5>
                 </div>
             </div>
         </div>

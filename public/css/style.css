@@ -1013,6 +1013,16 @@ footer > .atas > div {
 
 /* Coba Untuk footer baru */
 
+.socialSvg {
+    width: 15px;
+    height: 17px;
+    margin-right: 0.5em;
+}
+
+.socialSvg path {
+    fill: #555555;
+}
+
 .footer__left-menu {
     margin: 0;
     list-style: none;

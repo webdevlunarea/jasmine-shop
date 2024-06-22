@@ -221,6 +221,9 @@
                             <p class="mb-0"><?= $t['nama_pen']; ?></p>
                             <p class="mb-0"><?= $t['alamat_pen']; ?></p>
                             <p class="mb-0"><?= $t['hp_pen']; ?></p>
+                            <?php if ($t['note'] != '') { ?>
+                                <p class="mb-0 fw-bold">Note : <?= $t['note']; ?></p>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>

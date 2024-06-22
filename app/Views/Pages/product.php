@@ -105,7 +105,7 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-primary1" href="/login">Masuk untuk membeli</a>
+                        <button type="button" class="btn btn-primary1 btn-beli-product-tamu" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>')">Beli sekarang</button>
                     <?php } ?>
                 </div>
                 <div class="hide-ke-show-flex justify-content-center align-items-center p-2 gap-1" style="background-color: white; position:fixed; bottom: 0; left: 0; width: 100vw; z-index: 9; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
@@ -126,7 +126,7 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <a class="btn btn-primary1 flex-grow-1" href="/login">Masuk untuk membeli</a>
+                        <button type="button" class="btn btn-primary1 btn-beli-product-tamu w-100" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>')">Beli sekarang</button>
                     <?php } ?>
                 </div>
 
@@ -196,6 +196,7 @@
     const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
+    const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
     const figureElm = document.querySelector("figure");
@@ -271,6 +272,10 @@
         console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
         elmBtnBeli.forEach(element => {
             element.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+        });
+        elmBtnBeliTamu.forEach(element => {
+            const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+            element.setAttribute('onclick', "triggerToast('Anda akan membeli dengan mode Tamu?', '" + urlnya + "')");
         });
     }
     setUrlElmBeli()

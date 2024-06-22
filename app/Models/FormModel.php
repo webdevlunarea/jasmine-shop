@@ -12,6 +12,7 @@ class FormModel extends Model
         'nohp',
         'alamat',
         'pesan',
+        'waktu',
     ];
 
     public function getForm($id = false)

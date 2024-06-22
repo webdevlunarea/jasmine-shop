@@ -13,21 +13,23 @@
                             <div>
                                 <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>"><?= $p['nama']; ?></p>
                                 <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>">Varian : <?= $keranjang[$index]['varian'] ?></p>
+                                <?php
+                                if ($p['diskon']) {
+                                    $persen = (100 - $p['diskon']) / 100;
+                                    $hasil = round($persen * $p['harga']);
+                                } else {
+                                    $hasil = $p['harga'];
+                                }
+                                ?>
                                 <?php if (in_array($index, $indStokHabis)) { ?>
                                     <p class="mb-0 text-danger"><b>Stok kurang</b></p>
                                 <?php } else { ?>
                                     <?php if ($p['diskon']) { ?>
                                         <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp
                                             <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                        <p class="mb-0 harga" style="display: inline;">Rp
-                                            <?php
-                                            $persen = (100 - $p['diskon']) / 100;
-                                            $hasil = round($persen * $p['harga']);
-                                            echo number_format($hasil, 0, ",", ".");
-                                            ?></p>
-                                    <?php } else {
-                                        $hasil = $p['harga']; ?>
-                                        <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                                        <p class="mb-0 harga" style="display: inline;">Rp <?= number_format($hasil, 0, ",", "."); ?></p>
+                                    <?php } else { ?>
+                                        <p class="mb-0 harga">Rp <?= number_format($hasil, 0, ",", "."); ?></p>
                                     <?php } ?>
                                 <?php } ?>
 

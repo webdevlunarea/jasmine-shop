@@ -24,6 +24,7 @@ $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogou
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
 $routes->get('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
+$routes->get('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
 $routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
@@ -99,6 +100,7 @@ $routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' 
 $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
+$routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
 
 // GambarController
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
