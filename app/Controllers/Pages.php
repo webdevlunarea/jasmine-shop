@@ -10,6 +10,7 @@ use App\Models\UserModel;
 use App\Models\FormModel;
 use App\Models\ArtikelModel;
 use App\Models\GambarArtikelModel;
+use App\Models\SubmitEmailModel;
 
 class Pages extends BaseController
 {
@@ -21,6 +22,7 @@ class Pages extends BaseController
     protected $formModel;
     protected $artikelModel;
     protected $gambarArtikelModel;
+    protected $submitEmailModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -31,6 +33,7 @@ class Pages extends BaseController
         $this->formModel = new FormModel();
         $this->artikelModel = new ArtikelModel();
         $this->gambarArtikelModel = new GambarArtikelModel();
+        $this->submitEmailModel = new SubmitEmailModel();
     }
     public function index()
     {
@@ -74,9 +77,20 @@ class Pages extends BaseController
             $artikel['isi'] = json_decode($artikel['isi'], true);
             $artikel['kategori'] = explode(",", $artikel['kategori']);
             $artikel['waktu'] = date("d", strtotime($artikel['waktu'])) . " " . $bulan[date("m", strtotime($artikel['waktu'])) - 1] . " " . date("Y", strtotime($artikel['waktu']));
+
+            $artikelTerkait = $this->artikelModel->like('kategori', $artikel['kategori'][0], 'both')->findAll();
+            foreach ($artikelTerkait as $ind_a => $a) {
+                $artikelTerkait[$ind_a]['header'] = '/imgart/' . $a['id'];
+                $artikelTerkait[$ind_a]['isi'] = json_decode($a['isi'], true);
+                $artikelTerkait[$ind_a]['kategori'] = explode(",", $a['kategori']);
+                $artikelTerkait[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+            }
+            $produkTerkait = $this->barangModel->where(['subkategori' => str_replace(" ", "-", $artikel['kategori'][0])])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
             $data = [
                 'title' => 'Artikel ' . $artikel['judul'],
-                'artikel' => $artikel
+                'artikel' => $artikel,
+                'artikelTerkait' => $artikelTerkait,
+                'produkTerkait' => $produkTerkait
             ];
             return view('pages/artikel', $data);
         } else {
@@ -165,6 +179,25 @@ class Pages extends BaseController
 
         session()->setFlashdata('msg', 'Artikel berhasil ditambahkan');
         return redirect()->to('/article/' . $id);
+    }
+    public function submitEmail($judul_article)
+    {
+        $email = $this->request->getVar('email');
+        $this->submitEmailModel->insert(['email' => $email]);
+        session()->set('submitEmail', true);
+        return redirect()->to('/article/' . $judul_article);
+    }
+    public function addLikeArticle($id_artikel)
+    {
+        $artikelCurr = $this->artikelModel->getArtikel($id_artikel);
+        $this->artikelModel->where(['id' => $id_artikel])->set(['suka' => $artikelCurr['suka'] + 1])->update();
+        return redirect()->to('/article/' . urlencode($artikelCurr['judul']));
+    }
+    public function addShareArticle($id_artikel)
+    {
+        $artikelCurr = $this->artikelModel->getArtikel($id_artikel);
+        $this->artikelModel->where(['id' => $id_artikel])->set(['bagikan' => $artikelCurr['bagikan'] + 1])->update();
+        return redirect()->to('/article/' . urlencode($artikelCurr['judul']));
     }
     public function form()
     {
@@ -519,6 +552,9 @@ class Pages extends BaseController
                 'isLogin' => true
             ];
             session()->set($ses_data);
+
+            $cekSubmitEmail = $this->submitEmailModel->getEmail($email);
+            if ($cekSubmitEmail) session()->set('submitEmail', true);
             return redirect()->to(site_url('/'));
         } else {
             $ses_data = [
@@ -574,7 +610,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
@@ -604,7 +640,9 @@ class Pages extends BaseController
 
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
-        return redirect()->to('/wishlist');
+
+        $produknya = $this->barangModel->getBarang($id);
+        return redirect()->to('/product/' . urlencode($produknya['nama']));
     }
     public function delWishlist($id)
     {
@@ -3207,6 +3245,11 @@ class Pages extends BaseController
             'transaksiJson' => json_encode($arr),
         ];
         return view('pages/pdf', $data);
+    }
+    public function orderDone($id_midtrans)
+    {
+        $this->pemesananModel->where(['id_midtrans' => $id_midtrans])->set(['status' => 'Selesai'])->update();
+        return redirect()->to('/listcustomer');
     }
     public function editResi()
     {

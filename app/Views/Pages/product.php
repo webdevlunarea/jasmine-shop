@@ -82,7 +82,12 @@
                     <?php } ?>
                 </div>
                 <h5>Dimensi Pengiriman</h5>
-                <p><?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
+                <?php if (isset($dimensi[3])) { ?>
+                    <p class="m-0">Box 1 : <?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
+                    <p>Box 2 : <?= $dimensi[3] . " cm x " . $dimensi[4] . " cm x " . $dimensi[5] . " cm"; ?></p>
+                <?php } else { ?>
+                    <p><?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
+                <?php } ?>
                 <h5>Berat</h5>
                 <p><?= $produk['berat'] ?> kg</p>
                 <h5>Deskripsi</h5>

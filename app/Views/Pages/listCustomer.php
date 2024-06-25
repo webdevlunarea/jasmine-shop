@@ -72,6 +72,7 @@
                                                                                             }
                                                                                             ?>"><?= $t['status']; ?></p>
                             <div class="hide-ke-show-flex gap-1 mt-1" style="width: fit-content;">
+                                <a class="btn btn-success hide-ke-show-flex btn-sm <?= $t['status'] == 'Dikirim' ? '' : 'disabled'; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pesanan Diterima" onclick="triggerToast('Pesanan dengan ID <?= $t['id_midtrans']; ?> telah diterima?', '/orderdone/<?= $t['id_midtrans']; ?>')"><i class="material-icons" style="font-size:large">check</i></a>
                                 <a class="btn btn-success hide-ke-show-flex btn-sm <?php switch ($t['status']) {
                                                                                         case 'Proses':
                                                                                             echo "";
@@ -121,6 +122,7 @@
                             <p class="mb-0 fw-bold"><?= date("d/m/Y H:i:s", strtotime($t['data_mid']['transaction_time'])); ?></p>
                         </div>
                         <div style="gap: 3px; width: fit-content;">
+                            <a class="btn btn-success show-flex-ke-hide <?= $t['status'] == 'Dikirim' ? '' : 'disabled'; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pesanan Diterima" onclick="triggerToast('Pesanan dengan ID <?= $t['id_midtrans']; ?> telah diterima?', '/orderdone/<?= $t['id_midtrans']; ?>')"><i class="material-icons" style="font-size:large">check</i></a>
                             <a class="btn btn-success show-flex-ke-hide <?php switch ($t['status']) {
                                                                             case 'Proses':
                                                                                 echo "";

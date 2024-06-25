@@ -90,6 +90,7 @@ $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harus
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
+$routes->get('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
 
 $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
@@ -110,8 +111,11 @@ $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/
 $routes->get('/article', 'Pages::article');
 $routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
 $routes->get('/article/(:any)', 'Pages::article/$1');
+$routes->get('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');
+$routes->get('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
 $routes->get('/addarticle', 'Pages::addArticle');
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
+$routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);

@@ -15,6 +15,9 @@ class ArtikelModel extends Model
         'isi',
         'kategori',
         'header',
+        'suka',
+        'komen',
+        'bagikan',
     ];
 
     public function getArtikel($id = false)

@@ -78,7 +78,7 @@
                 </div>
             </div>
             <div style="flex: 2;">
-                <div class="footer__service-customer">
+                <div class="footer__left-menu">
                     <div class="fw-700 fs-3 mb-2"><strong>Kontak kami</strong></div>
                     <p class="mb-1" style="color: #555">
                         Senin - Jumat | 08.00 - 16.00 WIB
@@ -86,17 +86,13 @@
                     <p class="mb-1" style="color: #555">
                         Sabtu | 08.00 - 14.00 WIB
                     </p>
-                    <a href="https://wa.me/+628112938160">
-                        <div class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
-                            <i class="material-icons" style="color: #555;">phone</i>
-                            <a class="m-0" style="color: #555">08112938160</a>
-                        </div>
+                    <a href="https://wa.me/+628112938160" class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
+                        <i class="material-icons" style="font-size: 14px;">phone</i>
+                        <p class="m-0">08112938160</p>
                     </a>
-                    <a href="mailto:cs@lunareafurniture.com">
-                        <div class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
-                            <i class="material-icons" style="color: #555;">email</i>
-                            <a class="m-0" style="color: #555">cs@Lunareafurniture.co.id</a>
-                        </div>
+                    <a href="mailto:cs@lunareafurniture.com" class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
+                        <i class="material-icons" style="font-size: 14px;">email</i>
+                        <p class="m-0">cs@lunareafurniture.com</p>
                     </a>
 
                     <div class="mt-2">

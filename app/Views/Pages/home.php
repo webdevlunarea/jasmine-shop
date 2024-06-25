@@ -52,10 +52,10 @@
                     <img src="/img/logokategori/Lemari_Anak.webp" alt="" width="50px">
                     <p>Lemari Anak</p>
                 </a>
-                <a class="kategori" href="/all/lemari-hias">
+                <!-- <a class="kategori" href="/all/lemari-serbaguna">
                     <img src="/img/logokategori/Lemari_Hias.webp" alt="" width="50px">
-                    <p>Lemari Hias</p>
-                </a>
+                    <p>Lemari Serbaguna</p>
+                </a> -->
                 <a class="kategori" href="/all/meja-rias">
                     <img src="/img/logokategori/Meja_Rias.webp" alt="" width="50px">
                     <p>Meja Rias</p>
