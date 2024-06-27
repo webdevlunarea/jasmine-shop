@@ -2,17 +2,17 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
-        <h3 class="mb-1">Syarat Dan Ketentuan</h3>
+        <h3 class="mb-1">Syarat & Ketentuan</h3>
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Syarat dan Ketentuan</li>
+                <li class="breadcrumb-item active" aria-current="page">Syarat & Ketentuan</li>
             </ol>
         </nav>
 
         <h5>Pendahuluan</h5>
-        <p>Perjanjian penggunaan website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> selaku pengelola (disebut sebagai “kami”)
-            engan pengguna dijelaskan pada halaman ini. seluruh pengguna wajib untuk mengikuti syarat dan
+        <p>Perjanjian penggunaan website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> selaku pengelola (disebut sebagai “Kami”)
+            dengan pengguna dijelaskan pada halaman ini. Seluruh pengguna wajib untuk mengikuti syarat &
             ketentuan yang telah ditentukan. Kami memiliki hak untuk mengubah atau menambahkan suatu pasal
             sesuai dengan keperluan website.</p>
 

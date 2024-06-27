@@ -154,7 +154,13 @@ class ApiCompany extends BaseController
     {
         $semuaProduk = $this->barangModel->findAll();
         foreach ($semuaProduk as $produk) {
-            $deksripsiBaru = str_ireplace("jasmine", "Lunarea", $produk['deskripsi']);
+            $deksripsiBaru = str_ireplace("<p>Catatan: <br>
+Estimasi pengiriman H+1 terhitung dari waktu pemesanan dan akan langsung dikirim oleh mitra Lunarea furniture.<br>
+Pengiriman ke dalam dan luar Pulau Jawa, harap untuk chat admin terlebih dahulu agar mendapatkan rekomendasi jasa dan harga pengiriman terbaik hingga ke alamat tujuan Anda.<br>
+</p>", "<p>Catatan: <br>
+Estimasi pengiriman H+1 terhitung dari waktu pemesanan dan akan langsung dikirim oleh mitra Lunarea furniture.<br>
+Pengiriman di wilayah Pulau Jawa, Madura, dan Bali mendapatkan <b>FULL GRATIS ONGKIR</b>. Sedangkan untuk di Pulau lainnya, akan mendapatkan harga khusus <b>DISKON ONGKIR</b> dari Kami.
+</p>", $produk['deskripsi']);
             $this->barangModel->where(['id' => $produk['id']])->set(['deskripsi' => $deksripsiBaru])->update();
         }
         return $this->response->setJSON([

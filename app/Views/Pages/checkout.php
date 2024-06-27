@@ -107,6 +107,42 @@
                 </div>
 
                 <div style="width: 100%; max-width: 400px;">
+                    <?php if (count($voucher) > 0) { ?>
+                        <div class="tombol-pilih-kurir mb-2" onclick="pilihVoucher()">
+                            <?php if ($diskonVoucher > 0) { ?>
+                                <div>
+                                    <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
+                                    <p class="m-0">Potongan sebesar <?= $voucherSelected['nominal'] ?> <?= $voucherSelected['satuan'] ?></p>
+                                </div>
+                                <i class="material-icons">chevron_right</i>
+                            <?php } else { ?>
+                                <p class="m-0 fw-bold">Pakai Voucher</p>
+                                <i class="material-icons">chevron_right</i>
+                            <?php } ?>
+                        </div>
+                        <div class="container-pilih-voucher">
+                            <?php foreach ($voucher as $v) { ?>
+                                <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>" href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
+                                    <h5 class="m-0"><?= $v['nama']; ?></h5>
+                                    <p class="m-0">Potongan sebesar <?= $v['nominal'] ?> <?= $v['satuan'] ?></p>
+                                </a>
+                            <?php } ?>
+                        </div>
+                        <script>
+                            const containerPilihVoucherElm = document.querySelector('.container-pilih-voucher');
+                            let bukaContainerPilihVoucher = false;
+
+                            function pilihVoucher() {
+                                if (bukaContainerPilihVoucher) {
+                                    containerPilihVoucherElm.classList.remove('buka');
+                                    bukaContainerPilihVoucher = false
+                                } else {
+                                    containerPilihVoucherElm.classList.add('buka');
+                                    bukaContainerPilihVoucher = true
+                                }
+                            }
+                        </script>
+                    <?php } ?>
                     <div>
                         <table class="table table-borderless">
                             <tbody>
@@ -144,10 +180,16 @@
                         <p class="my-2">Biaya Admin:</p>
                         <p class="my-2"><b>Rp 5.000</b></p>
                     </div>
+                    <?php if ($diskonVoucher > 0) { ?>
+                        <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                            <p class="my-2">Diskon Voucher:</p>
+                            <p class="my-2"><b>- Rp <?= number_format($diskonVoucher, 0, ",", "."); ?></b></p>
+                        </div>
+                    <?php } ?>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
                         <p class="my-2"><b id="total-semua">Rp
-                                <?= number_format($total, 0, ",", "."); ?></b>
+                                <?= number_format($total - $diskonVoucher, 0, ",", "."); ?></b>
                         </p>
                     </div>
                     <div class="mt-2">
@@ -187,7 +229,8 @@
     const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
     let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] . "-" . $user['alamat']['kodepos'] : ''; ?>"];
     const produk = JSON.parse(<?= json_encode($produkJson); ?>);
-    const keranjang = JSON.parse(<?= json_encode($keranjangJson); ?>);
+    // const keranjang = JSON.parse(<?= json_encode($keranjangJson); ?>);
+    const dataJson = '<?= $data; ?>'
     let isiAlamat = ["<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['desa'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kec'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kab'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['prov'] : ''; ?>", "<?= $user['alamat'] ? $user['alamat']['kodepos'] : ''; ?>"]
     let isEditAlamat = <?= $user['alamat'] ? 'false' : 'true'; ?>;
 
@@ -215,7 +258,8 @@
             alamat: inputAlamatElm.value,
             alamat_add: inputAlamatAddElm.value,
             note: inputNoteElm.value,
-            keranjang: JSON.stringify(keranjang)
+            // keranjang: JSON.stringify(keranjang),
+            data: dataJson,
         }
         async function getTokenMditrans() {
             const response = await fetch("actionpaysnap", {

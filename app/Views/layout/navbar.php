@@ -16,8 +16,9 @@
                     <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
-                <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
+                <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
+                <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
+                <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                 <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
@@ -78,8 +79,9 @@
                         <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
                     <?php } ?>
                 <?php } else { ?>
-                    <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
-                    <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a>
+                    <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
+                    <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
+                    <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>

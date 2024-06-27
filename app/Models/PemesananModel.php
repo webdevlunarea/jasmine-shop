@@ -19,6 +19,7 @@ class PemesananModel extends Model
         'kurir',
         'data_mid',
         'note',
+        'diskonVoucher',
     ];
 
     public function getPemesanan($id_midtrans = false)

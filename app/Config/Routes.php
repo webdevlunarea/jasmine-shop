@@ -51,6 +51,8 @@ $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->post('/actionpay', 'Pages::actionPay');
 $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
+$routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
+$routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->post('/addtransaction', 'Pages::addTransaction');
@@ -116,6 +118,9 @@ $routes->get('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
 $routes->get('/addarticle', 'Pages::addArticle');
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
 $routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
+$routes->post('/addkomen/(:any)', 'Pages::addKomen/$1');
+$routes->get('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2');
+$routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2');
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);

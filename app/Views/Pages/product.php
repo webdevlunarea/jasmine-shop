@@ -141,12 +141,12 @@
                         <?php if ($produk['tokped'] || $produk['shopee'] || $produk['tiktok']) { ?>
                             Produk ini juga tersedia di
                         <?php } else { ?>
-                            Lihat produk kami lainnya di
+                            Lihat produk lainnya di:
                         <?php } ?>
                     </p>
                     <div>
-                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace"></a>
-                        <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace"></a>
+                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace"></a>
+                        <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee_logo.webp" class="marketplace"></a>
                         <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>

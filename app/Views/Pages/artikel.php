@@ -7,13 +7,18 @@
                 <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
             </div>
             <h4 class="text-center">Jangan pergi dulu!</h4>
-            <p class="text-secondary text-center mb-3">Kasih tahu email Anda. Akan kami kirimkan<br>informasi terbaru tentang furniture</p>
+            <p class="text-secondary text-center mb-3">
+                Dapatkan informasi terbaru dengan memasukkan email Anda
             <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
                 <div class="form-floating mb-3">
                     <input type="email" class="form-control" placeholder="name@example.com" name="email" required>
                     <label for="floatingInput">Email</label>
                 </div>
-                <button type="submit" class="btn btn-primary1 w-100">Submit</button>
+                <div class="mb-3">
+                    <input type="checkbox" required id="syaratsubmitemail">
+                    <label for="syaratsubmitemail">Anda menyetujui seluruh <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/kebijakan-privasi">kebijakan privasi</a> Kami.</label>
+                </div>
+                <button type="submit" class="btn btn-primary1 w-100">OK</button>
             </form>
         </div>
     </div>
@@ -41,28 +46,57 @@
         }
     </script>
 <?php } ?>
+<?php if (session()->get('role') == 1) { ?>
+    <div id="edit-komen" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
+        <div class="p-4 bg-light">
+            <form action="/editkomen" method="post" id="form-edit">
+                <h5>Edit Komen</h5>
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control" placeholder="name@example.com" name="nama_edit" required>
+                    <label for="floatingInput">Nama</label>
+                </div>
+                <div class="form-floating mb-2">
+                    <input type="text" class="form-control" placeholder="name@example.com" name="isi_edit" required>
+                    <label for="floatingInput">Isi</label>
+                </div>
+                <div class="d-flex gap-1">
+                    <button type="submit" class="btn btn-primary1">Ubah</button>
+                    <button type="button" class="btn btn-light" onclick="closeEditKomen()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php } ?>
 <div class="konten artikel">
     <div class="container mb-5">
         <img src="<?= $artikel['header']; ?>" alt="" class="header">
         <div class="p-5 mx-5 show-ke-hide" style="background-color: white; box-shadow: 5px 5px 20px rgba(0,0,0,0.1); position: relative; margin-top: -10svh">
-            <div class="d-flex justify-content-between">
-                <div class="d-flex gap-1 mb-3">
+            <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex gap-1">
                     <?php foreach ($artikel['kategori'] as $k) { ?>
                         <h5 class="badge rounded-pill text-bg-secondary"><?= ucfirst($k); ?></h5>
                     <?php } ?>
                 </div>
-                <div class="d-flex gap-2">
-                    <div class="d-flex gap-1 align-items-center">
-                        <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
-                        <?php if ($artikel['suka'] > 0) { ?>
-                            <p class="m-0"><?= $artikel['suka']; ?></p>
-                        <?php } ?>
+                <div>
+                    <div class="d-flex gap-2">
+                        <div class="d-flex gap-1 align-items-center">
+                            <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
+                            <?php if ($artikel['suka'] > 0) { ?>
+                                <p class="m-0"><?= $artikel['suka']; ?></p>
+                            <?php } ?>
+                        </div>
+                        <div class="d-flex gap-1 align-items-center">
+                            <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">share</i></a>
+                            <?php if ($artikel['bagikan'] > 0) { ?>
+                                <p class="m-0"><?= $artikel['bagikan']; ?></p>
+                            <?php } ?>
+                        </div>
                     </div>
-                    <div class="d-flex gap-1 align-items-center">
-                        <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">share</i></a>
-                        <?php if ($artikel['bagikan'] > 0) { ?>
-                            <p class="m-0"><?= $artikel['bagikan']; ?></p>
-                        <?php } ?>
+                    <div class="p-4">
+                        <p class="text-center fw-bold">Bagikan Artikel</p>
+                        <div class="d-flex gap-2">
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -124,6 +158,40 @@
                     echo '<div class="w-100" style="height: 1em"></div>';
                 }
             ?>
+            <?php } ?>
+        </div>
+    </div>
+    <div class="container mb-5">
+        <h5 class="jdl-section mb-3">Komentar</h5>
+        <form action="/addkomen/<?= urlencode($artikel['judul']); ?>" method="post">
+            <div class="mb-2">
+                <label for="">Nama</label>
+                <input type="text" class="form-control" name="nama" value="Anonim" placeholder="Nama" required>
+            </div>
+            <div class="mb-2">
+                <label for="">Komentar</label>
+                <textarea class="form-control" name="isi" id="" placeholder="Tulis komentar ..." required></textarea>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary1">Kirim</button>
+            </div>
+        </form>
+        <hr>
+        <div class="container-komen">
+            <?php foreach ($komen as $ind_k => $k) { ?>
+                <div class="d-flex align-items-start">
+                    <div style="flex: 1">
+                        <p class="fw-bold mb-1"><?= $k['nama']; ?></p>
+                        <p><?= $k['isi']; ?></p>
+                    </div>
+                    <?php if (session()->get('role') == 1) { ?>
+                        <div style="width: fit-content;" class="d-flex gap-1">
+                            <button class="btn btn-light" onclick="openEditKomen('<?= $ind_k; ?>','<?= urlencode($artikel['judul']); ?>')"><i class="material-icons">edit</i></button>
+                            <button class="btn btn-light" onclick="triggerToast('Komentar akan dihapus?', '/delkomen/<?= $ind_k; ?>/<?= urlencode($artikel['judul']); ?>')"><i class="material-icons">delete_forever</i></button>
+                        </div>
+                    <?php } ?>
+                </div>
+                <hr>
             <?php } ?>
         </div>
     </div>
@@ -196,4 +264,25 @@
         </div>
     </div>
 </div>
+<?php if (session()->get('role') == 1) { ?>
+    <script>
+        const editKomenElm = document.getElementById('edit-komen')
+        const komen = JSON.parse(<?= json_encode($komenJson); ?>);
+        const formEditElm = document.getElementById('form-edit');
+        console.log(komen)
+
+        function openEditKomen(indKomen, judulArtikel) {
+            editKomenElm.classList.remove('d-none')
+            editKomenElm.classList.add('d-flex')
+            document.querySelector('#form-edit input[name="nama_edit"]').value = komen[indKomen].nama;
+            document.querySelector('#form-edit input[name="isi_edit"]').value = komen[indKomen].isi;
+            formEditElm.action = '/editkomen/' + indKomen + "/" + judulArtikel
+        }
+
+        function closeEditKomen() {
+            editKomenElm.classList.add('d-none')
+            editKomenElm.classList.remove('d-flex')
+        }
+    </script>
+<?php } ?>
 <?= $this->endSection(); ?>

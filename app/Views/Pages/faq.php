@@ -22,28 +22,16 @@
                 <div id="flush-collapse1" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana cara mengetahui barang ready?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">
-                                    Ketersediaan stok bisa langsung dengan cara mengecek pada kolom kuantitas di spesifikasi produk. Apabila telah berhasil melakukan checkout, dapat dipastikan ketersediaan produk tersebut untuk Anda.
-                                </p>
-                            </li>
-                        </ul>
+                        <p class="mb-3">
+                            Ketersediaan stok bisa langsung dengan cara mengecek pada kolom kuantitas di spesifikasi produk. Apabila telah berhasil melakukan checkout, dapat dipastikan ketersediaan produk tersebut untuk Anda.
+                        </p>
                         <p class="mb-0 mt-1 fw-bold">Bagaimana cara melihat promosi terupdate?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">
-                                    Promo produk yang lagi diadakan selalu tersedia dan dapat dilihat pada website Kami. Selain itu, promosi juga selalu Kami update di akun sosial media dan juga katalog yang Kami beri di WhatsApp serta email saat Anda berlangganan dengan layanan email dan WhatsApp Kami.
-                                </p>
-                            </li>
-                        </ul>
+                        <p class="mb-3">
+                            Promo produk yang lagi diadakan selalu tersedia dan dapat dilihat pada website Kami. Selain itu, promosi juga selalu Kami update di akun sosial media dan juga katalog yang Kami beri di WhatsApp serta email saat Anda berlangganan dengan layanan email dan WhatsApp Kami.
+                        </p>
                         <p class="mb-0 mt-1 fw-bold">Darimana pengiriman produk Lunarea Furniture?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">
-                                    Pengiriman produk Lunarea Furniture berasal dari Kota Semarang, Jawa Tengah</p>
-                            </li>
-                        </ul>
+                        <p class="mb-0">
+                            Pengiriman produk Lunarea Furniture berasal dari Kota Semarang, Jawa Tengah</p>
                     </div>
                 </div>
             </div>
@@ -65,11 +53,7 @@
                             </li>
                         </ul>
                         <p class="mb-0 mt-1 fw-bold">Bagaimana mencegah produk Lunarea Furniture dari lembab & jamur?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Produk Lunarea furniture tidak disarankan untuk diletakkan pada lokasi yang lembab, seperti di area dekat tembok kamar mandi dan tempat terbuka yang langsung terkena hujan atau matahari.</p>
-                            </li>
-                        </ul>
+                        <p class="mb-0">Produk Lunarea furniture tidak disarankan untuk diletakkan pada lokasi yang lembab, seperti di area dekat tembok kamar mandi dan tempat terbuka yang langsung terkena hujan atau matahari.</p>
                     </div>
                 </div>
             </div>
@@ -151,12 +135,8 @@
                                 <p class="mb-0">Selesai, artinya produk telah sampai di alamat tujuan.</p>
                             </li>
                         </ul>
-                        <p class="mb-0 mt-1 fw-bold">Apakah saya bisa memesan dalam jumlah besar?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Tentu bisa</p>
-                            </li>
-                        </ul>
+                        <p class="mb-0 mt-1 fw-bold">Apakah Saya bisa memesan dalam jumlah besar?</p>
+                        <p class="mb-0">Tentu bisa</p>
                     </div>
                 </div>
             </div>
@@ -169,24 +149,11 @@
                 <div id="flush-collapse4" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana cara melakukan pembayaran pesanan?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Pembayaran pesanan bisa dilakukan dengan kartu kredit/debit VISA, Virtual account Bank (BCA, Mandiri, BNI, BRI, Permata Bank, dan CIMB Niaga), GoPay / GoPay Later, QRIS, OVO, DANA, dan LINK aja.</p>
-                            </li>
-
-                        </ul>
-                        <p class="mb-0 mt-1 fw-bold">Bagaimana jika saya belum bisa membayar pada waktu yang ditentukan?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Pesanan kamu akan otomatis dibatalkan oleh system dan akan muncul pada riwayat pembelian yang gagal.</p>
-                            </li>
-                        </ul>
-                        <p class="mb-0 mt-1 fw-bold">Apakah saya bisa membatalkan pesanan saya?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Untuk pembatalan pesanan masih bisa dilakukan selama pesanan belum dibayarkan.</p>
-                            </li>
-                        </ul>
+                        <p class="mb-3">Pembayaran pesanan bisa dilakukan dengan kartu kredit/debit VISA, Virtual account Bank (Mandiri, BNI, BRI, Permata Bank, dan CIMB Niaga), GoPay / GoPay Later, QRIS, OVO, DANA, dan LINK aja.</p>
+                        <p class="mb-0 mt-1 fw-bold">Bagaimana jika Saya belum bisa membayar pada waktu yang ditentukan?</p>
+                        <p class="mb-3">Pesanan kamu akan otomatis dibatalkan oleh system dan akan muncul pada riwayat pembelian yang gagal.</p>
+                        <p class="mb-0 mt-1 fw-bold">Apakah Saya bisa membatalkan pesanan Saya?</p>
+                        <p class="mb-0">Untuk pembatalan pesanan masih bisa dilakukan selama pesanan belum dibayarkan.</p>
                     </div>
                 </div>
             </div>
@@ -199,33 +166,20 @@
                 <div id="flush-collapse5" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Kapan pengiriman diproses?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Pengiriman diproses dalam H+1 hari selama hari kerja setelah pembeli melakukan payment (hari Minggu atau hari libur Nasional,, tim gudang dan ekspedisi libur)</p>
-                            </li>
-
-                        </ul>
+                        <p class="mb-3">Pengiriman diproses sehari setelah pembayaran berhasil dilakukan kecuali jika bertepatan pada hari minggu atau hari libur nasional serta libur lebaran, maka pengiriman akan diproses di hari pertama kerja setelah agenda libur yang tertulis.</p>
                         <p class="mb-0 mt-1 fw-bold">Bagaimana cara mendapatkan nomor resi valid?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Untuk nomor resi pengiriman akan Kami informasikan 1 hari setelah pesanan Kami terima dan proses. Khusus pembelian di hari Jumat, Sabtu, dan Minggu akan Kami informasikan pada hari senin.</p>
-                            </li>
-                        </ul>
-                        <p class="mb-0 mt-1 fw-bold">Bagaimana saya bisa mendapatkan informasi posisi pesanan?</p>
+                        <p class="mb-3">Untuk nomor resi pengiriman akan Kami informasikan 1 hari setelah pesanan Kami terima dan proses. Khusus pembelian di hari Jumat, Sabtu, dan Minggu akan Kami informasikan pada hari senin.</p>
+                        <p class="mb-0 mt-1 fw-bold">Bagaimana Saya bisa mendapatkan informasi posisi pesanan?</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Informasi resi akan selalu mendapatkan update pada website, pembeli bisa mendapatkan informasi posisi pesanan dengan mengecek di dashboard website bagian akun > transaksi > detail transaksi > klik tracking nomor resi.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Pengecekan posisi pesanan melalui tracking system Kami hanya bisa dilakukan oleh pelanggan yang menggunakan mitra ekspedisi (J&T, Wahana, dan Dakota).</p>
+                                <p class="mb-0">Pengecekan posisi pesanan melalui tracking system hanya bisa dilakukan oleh pelanggan.</p>
                             </li>
                         </ul>
                         <p class="mb-0 mt-1 fw-bold">Berapa lama proses pengiriman pesanan?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Pengiriman produk untuk wilayah Pulau Jawa memakan waktu sekitar 5-7 hari kerja. Untuk area yang berada di luar Pulau Jawa disesuaikan dengan tujuan pesanan dengan estimasi waktu 7-14 hari kerja.</p>
-                            </li>
-                        </ul>
+                        <p class="mb-3">Pengiriman produk sampai ke alamat tujuan diestimasikan selama 7 hari kerja. Apabila lebih dari itu, dapat segera menghubungi customer service Kami, agar dapat membantu tracking produk yang telah dipesan.</p>
                         <p class="mb-0 mt-1 fw-bold">Apakah perlu konfirmasi untuk biaya kirim dan ambil di ekspedisi?</p>
                         <ul>
                             <li>
@@ -250,16 +204,18 @@
                         <p class="mb-0">Untuk prosedur komplain dapat menghubungi customer service Lunarea Furniture dengan syarat dan ketentuan berikut:</p>
                         <ul>
                             <li>
-                                <p class="mb-0">Wajib menyertakan video unboxing dan menyertakan foto 6 sisi box berbeda saat produk diterima (sebelum produk dibuka)</p>
+                                <p class="mb-0">Wajib menyertakan video unboxing dan menyertakan foto pada bagian nomor produksi (misal: MBMR 168, A042).
+                                </p>
                             </li>
                             <li>
-                                <p class="mb-0">Apabila terdapat kerusakan komponen akibat pengiriman, silahkan kirimkan kembali komponen yang rusak. Agar kami dapat segera menggantinya dengan komponen yang baru. Proses pengiriman ulang komponen tersebut memerlukan waktu kurang lebih 7 hari kerja.</p>
+                                <p class="mb-0">Apabila terdapat kerusakan komponen akibat pengiriman, segera hubungi customer service Kami agar dapat segera diproses penggantian komponen tersebut. Estimasi pengiriman komponen pengganti ini memerlukan waktu kurang lebih 14 hari kerja.
+                                </p>
                             </li>
                             <li>
-                                <p class="mb-0">Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak. Agar kami dapat segera menggantinya dengan aksesoris yang baru. Sebagai informasi untuk proses pengiriman ulang komponen memerlukan waktu kurang lebih 14 hari kerja.</p>
+                                <p class="mb-0">Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak, agar kami dapat segera menggantinya dengan aksesoris yang baru. Sebagai informasi, untuk proses pengiriman ulang komponen memerlukan waktu selambat-lambatnya 7 hari kerja.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Batas waktu komplain maksimal 7 hari kerja setelah produk diterima dan maksimal pengajuan komplain sebanyak 2 kali.</p>
+                                <p class="mb-0">Batas waktu komplain maksimal 7 hari kerja setelah produk diterima.</p>
                             </li>
                         </ul>
                     </div>
@@ -274,15 +230,9 @@
                 <div id="flush-collapse7" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana kondisi barang yang dikirimkan?</p>
-                        <ul>
-                            <li>
-                                <p class="mb-0">Produk dikirim dalam kondisi <b>BELUM DIRAKIT</b>. Perakitan dilakukan sendiri oleh pelanggan dengan petunjuk perakitan yang mudah untuk diikuti. Apabila membutuhkan jasa dari tim profesional Kami, harap untuk menghubungi customer service Kami terlebih dahulu untuk melakukan koordinasi dengan tim Kami yang berada di wilayah terdekat lokasi Anda dan akan dikenakan biaya jasa perakitan yang telah disetujui bersama.</p>
-                            </li>
-
-                        </ul>
+                        <p class="mb-3">Produk dikirim dalam kondisi <b>BELUM DIRAKIT</b>. Perakitan dilakukan sendiri oleh pelanggan dengan petunjuk perakitan yang mudah untuk diikuti. Apabila membutuhkan jasa dari tim profesional Kami, harap untuk menghubungi customer service Kami terlebih dahulu untuk melakukan koordinasi dengan tim Kami yang berada di wilayah terdekat lokasi Anda dan akan dikenakan biaya jasa perakitan yang telah disetujui bersama.</p>
                         <p class="mb-0 mt-1 fw-bold">Apa ada tutorial untuk perakitan barang Lunarea Furniture?</p>
-                        <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube Lunarea Furniture Official</p>
-                        <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.youtube.com/channel/UCc2vGsX2R8CNoZXv7lxJ2qw">Menuju video</a>
+                        <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.youtube.com/@LunareaFurnitureOfficial" target="_blank">Lunarea Furniture Official</a></p>
                     </div>
                 </div>
             </div>

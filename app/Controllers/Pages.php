@@ -11,6 +11,7 @@ use App\Models\FormModel;
 use App\Models\ArtikelModel;
 use App\Models\GambarArtikelModel;
 use App\Models\SubmitEmailModel;
+use App\Models\VoucherModel;
 
 class Pages extends BaseController
 {
@@ -23,6 +24,7 @@ class Pages extends BaseController
     protected $artikelModel;
     protected $gambarArtikelModel;
     protected $submitEmailModel;
+    protected $voucherModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -34,6 +36,7 @@ class Pages extends BaseController
         $this->artikelModel = new ArtikelModel();
         $this->gambarArtikelModel = new GambarArtikelModel();
         $this->submitEmailModel = new SubmitEmailModel();
+        $this->voucherModel = new VoucherModel();
     }
     public function index()
     {
@@ -90,7 +93,9 @@ class Pages extends BaseController
                 'title' => 'Artikel ' . $artikel['judul'],
                 'artikel' => $artikel,
                 'artikelTerkait' => $artikelTerkait,
-                'produkTerkait' => $produkTerkait
+                'produkTerkait' => $produkTerkait,
+                'komen' => json_decode($artikel['komen'], true),
+                'komenJson' => $artikel['komen']
             ];
             return view('pages/artikel', $data);
         } else {
@@ -174,11 +179,45 @@ class Pages extends BaseController
             'waktu' => $waktu,
             'isi' => json_encode($isi),
             'header' => $header,
+            'suka' => 0,
+            'bagikan' => 0,
+            'komen' => json_encode([]),
         ]);
         $this->gambarArtikelModel->insert($insertGambarArtikel);
 
         session()->setFlashdata('msg', 'Artikel berhasil ditambahkan');
         return redirect()->to('/article/' . $id);
+    }
+    public function addKomen($judul_article)
+    {
+        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_article)])->first();
+        $komenCurr = json_decode($artikel['komen'], true);
+        array_push($komenCurr, [
+            'nama' => $this->request->getVar('nama'),
+            'isi' => $this->request->getVar('isi'),
+        ]);
+        $this->artikelModel->where(['judul' => urldecode($judul_article)])->set(['komen' => json_encode($komenCurr)])->update();
+        return redirect()->to('/article/' . $judul_article);
+    }
+    public function delKomen($ind_komen, $judul_artikel)
+    {
+        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_artikel)])->first();
+        $komenCurr = json_decode($artikel['komen'], true);
+        unset($komenCurr[$ind_komen]);
+        $komenBaru = array_values($komenCurr);
+        $this->artikelModel->where(['judul' => urldecode($judul_artikel)])->set(['komen' => json_encode($komenBaru)])->update();
+        return redirect()->to('/article/' . $judul_artikel);
+    }
+    public function editKomen($ind_komen, $judul_article)
+    {
+        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_article)])->first();
+        $komenCurr = json_decode($artikel['komen'], true);
+        $komenCurr[$ind_komen] = [
+            'nama' => $this->request->getVar('nama_edit'),
+            'isi' => $this->request->getVar('isi_edit'),
+        ];
+        $this->artikelModel->where(['judul' => urldecode($judul_article)])->set(['komen' => json_encode($komenCurr)])->update();
+        return redirect()->to('/article/' . $judul_article);
     }
     public function submitEmail($judul_article)
     {
@@ -610,7 +649,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
@@ -1148,6 +1187,27 @@ class Pages extends BaseController
             'nohp' => $email == 'tamu' ? (session()->getFlashdata('nohpPen') ? session()->getFlashdata('nohpPen') : '') : $nohp,
             'email' => $email,
         ];
+
+        //voucher
+        $voucher = [];
+        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com'];
+        if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
+            //voucher member baru
+            $voucherMemberBaru = $this->voucherModel->where(['id' => 1])->first();
+            if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
+                array_push($voucher, $voucherMemberBaru);
+            }
+        }
+        $diskonVoucher = 0;
+        $voucherSelected = false;
+        if (session()->get('voucher')) {
+            $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
+            if ($voucherDetail['satuan'] == 'persen') {
+                $diskonVoucher = round($voucherDetail['nominal'] / 100 * $total);
+            }
+            $voucherSelected = $voucherDetail;
+        }
+
         $data = [
             'title' => 'Check Out',
             'produk' => $produk,
@@ -1165,10 +1225,29 @@ class Pages extends BaseController
             'desa' => isset($desa) ? $desa : [],
             'keranjang' => $keranjang,
             'keranjangJson' => json_encode($keranjang),
+            'voucher' => $voucher,
+            'activeVoucher' => session()->get('voucher'), //session()->get('voucher'), //isinya id voucher,
+            'diskonVoucher' => $diskonVoucher,
+            'data' => base64_encode(json_encode([
+                'keranjang' => $keranjang,
+                'diskonVoucher' => $diskonVoucher,
+                'voucherSelected' => $voucherSelected
+            ])),
+            'voucherSelected' => $voucherSelected
             // 'paket' => $paketFilter,
             // 'paketJson' => json_encode($paketFilter),
         ];
         return view('pages/checkout', $data);
+    }
+    public function useVoucher($id_voucher)
+    {
+        session()->set('voucher', $id_voucher);
+        return redirect()->to('/checkout');
+    }
+    public function cancelVoucher($id_voucher)
+    {
+        session()->remove('voucher');
+        return redirect()->to('/checkout');
     }
     public function updateAlamat($dataString, $dataLain)
     {
@@ -1591,7 +1670,9 @@ class Pages extends BaseController
         $alamatAdd = $body['alamat_add'];
         $alamatLengkap = $body['alamat'];
         $note = $body['note'];
-        $keranjang = json_decode($body['keranjang'], true);
+        $data = json_decode(base64_decode($body['data']), true);
+        $keranjang = $data['keranjang'];
+        $voucher = $data['voucherSelected'];
 
         $alamat = [
             "prov_id" => explode("-", $prov)[0],
@@ -1650,6 +1731,16 @@ class Pages extends BaseController
         );
         array_push($itemDetails, $biayaadmin);
 
+        if ($data['diskonVoucher'] > 0) {
+            $diskonVoucher = array(
+                'id' => 'Diskon Voucher',
+                'price' => -$data['diskonVoucher'],
+                'quantity' => 1,
+                'name' => 'Diskon Voucher',
+            );
+            array_push($itemDetails, $diskonVoucher);
+        }
+
         // \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
         // \Midtrans\Config::$isProduction = false;
         $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
@@ -1662,12 +1753,17 @@ class Pages extends BaseController
             'h' => $nohp,
             'a' => $alamatLengkap,
             'i' => $produk,
-            'nt' => $note
+            'nt' => $note,
+            'v' => [
+                'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
+                'id' => $voucher ? $voucher['id'] : false,
+            ]
         ]);
+        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         $arrPostField = [
             "transaction_details" => [
-                "order_id" => $idFix,
-                "gross_amount" => $total,
+                "order_id" => in_array($email, $emailUjiCoba) ? $randomId : $idFix,
+                "gross_amount" => $total - $data['diskonVoucher'],
             ],
             'customer_details' => array(
                 'email' => $email,
@@ -1687,7 +1783,7 @@ class Pages extends BaseController
                 )
             ),
             'callbacks' => array(
-                'finish' => "https://lunareafurniture.com/order/" . $idFix,
+                'finish' => "https://lunareafurniture.com/order/" . (in_array($email, $emailUjiCoba) ? $randomId : $idFix),
             ),
             'item_details' => $itemDetails,
             "custom_field1" => substr($customField, 0, 255),
@@ -2427,8 +2523,16 @@ class Pages extends BaseController
                     'id_midtrans' => $order_id,
                     'status' => $status,
                     'data_mid' => json_encode($body),
-                    'note' => $customField['nt']
+                    'note' => $customField['nt'],
+                    'diskonVoucher' => $customField['v']['d']
                 ]);
+
+                if ($customField['v']['d'] > 0) {
+                    $voucherSelected = $this->voucherModel->where(['id' => $customField['v']['id']])->first();
+                    $voucherSelected_email = json_decode($voucherSelected['list_email'], true);
+                    array_push($voucherSelected_email, $customField['e']);
+                    $this->voucherModel->where(['id' => $customField['v']['id']])->set(['list_email' => json_encode($voucherSelected_email)])->update();
+                }
 
                 //pengurangan stok produk
                 $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();

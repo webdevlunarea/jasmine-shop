@@ -590,6 +590,37 @@ a {
     overflow-y: auto;
 }
 
+.container-pilih-voucher {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    max-height: 0px;
+    transition: 0.5s;
+}
+.container-pilih-voucher.buka {
+    max-height: 200px;
+    transition: 0.5s;
+}
+.container-pilih-voucher .item-voucher {
+    display: block;
+    padding: 1em 1.5em;
+    text-decoration: none;
+    color: black;
+    border-radius: 1em;
+}
+.container-pilih-voucher .item-voucher:hover {
+    background-color: whitesmoke;
+}
+.container-pilih-voucher .item-voucher.active {
+    background-color: var(--hijau);
+    color: white;
+}
+.container-pilih-voucher .item-voucher.active:hover {
+    background-color: var(--hijaumuda1);
+    color: var(--hijau);
+}
+
 .artikel.konten .header {
     width: 100%;
     height: 50svh;

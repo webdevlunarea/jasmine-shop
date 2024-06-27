@@ -14,7 +14,7 @@ class PembeliModel extends Model
         'alamat',
         'wishlist',
         'keranjang',
-        'transaksi'
+        'transaksi',
     ];
 
     public function getPembeli($email = false)
