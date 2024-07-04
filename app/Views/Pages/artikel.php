@@ -166,7 +166,7 @@
         <form action="/addkomen/<?= urlencode($artikel['judul']); ?>" method="post">
             <div class="mb-2">
                 <label for="">Nama</label>
-                <input type="text" class="form-control" name="nama" value="Anonim" placeholder="Nama" required>
+                <input type="text" class="form-control" name="nama" placeholder="Nama" required>
             </div>
             <div class="mb-2">
                 <label for="">Komentar</label>

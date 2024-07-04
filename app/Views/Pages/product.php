@@ -75,13 +75,13 @@
                 <?php } ?>
                 <span class="garis mb-2"></span>
                 <h5>Varian</h5>
-                <div class="btn-group mb-3" id="varian-group" role="group" aria-label="Basic radio toggle button group">
+                <div class="btn-group" id="varian-group" role="group" aria-label="Basic radio toggle button group">
                     <?php foreach ($varian as $key => $value) { ?>
                         <input type="radio" value="<?= $key ?>" class="btn-check" name="btnradio" autocomplete="off" id="btnradio<?= $key ?>" <?= $key == 0 ? "checked" : "" ?>>
                         <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= $value ?></label>
                     <?php } ?>
                 </div>
-                <h5>Dimensi Pengiriman</h5>
+                <!-- <h5>Dimensi Pengiriman</h5>
                 <?php if (isset($dimensi[3])) { ?>
                     <p class="m-0">Box 1 : <?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
                     <p>Box 2 : <?= $dimensi[3] . " cm x " . $dimensi[4] . " cm x " . $dimensi[5] . " cm"; ?></p>
@@ -89,8 +89,9 @@
                     <p><?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
                 <?php } ?>
                 <h5>Berat</h5>
-                <p><?= $produk['berat'] ?> kg</p>
-                <h5>Deskripsi</h5>
+                <p><?= $produk['berat'] ?> kg</p> -->
+                <!-- <h5>Deskripsi</h5> -->
+                <!-- <hr> -->
                 <p><?= $produk['deskripsi']; ?></p>
                 <div class="show-ke-hide">
                     <?php if (session()->get('isLogin')) { ?>
@@ -145,8 +146,8 @@
                         <?php } ?>
                     </p>
                     <div>
-                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace"></a>
                         <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee_logo.webp" class="marketplace"></a>
+                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace"></a>
                         <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>

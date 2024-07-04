@@ -1199,14 +1199,36 @@ class Pages extends BaseController
             }
         }
         $diskonVoucher = 0;
-        $voucherSelected = false;
-        if (session()->get('voucher')) {
-            $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
-            if ($voucherDetail['satuan'] == 'persen') {
-                $diskonVoucher = round($voucherDetail['nominal'] / 100 * $total);
-            }
-            $voucherSelected = $voucherDetail;
-        }
+        // $voucherSelected = false;
+        // if (session()->get('voucher')) {
+        //     $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
+        //     if ($voucherDetail['satuan'] == 'persen') {
+        //         $diskonVoucher = round($voucherDetail['nominal'] / 100 * $total);
+        //     }
+        //     $voucherSelected = $voucherDetail;
+        // }
+
+        $voucherSelected = [
+            'id' => 1,
+            'nama' => 'Member Baru',
+            'satuan' => 'persen',
+            'nominal' => 5,
+            'berakhir' => '0000-00-00',
+            'list_email' => [],
+            'jenis' => 'member'
+        ];
+
+        $voucher = [
+            [
+                'id' => 1,
+                'nama' => 'Member Baru',
+                'satuan' => 'persen',
+                'nominal' => 5,
+                'berakhir' => '0000-00-00',
+                'list_email' => [],
+                'jenis' => 'member'
+            ]
+        ];
 
         $data = [
             'title' => 'Check Out',
@@ -3453,7 +3475,8 @@ class Pages extends BaseController
         $this->gambarBarangModel->insert($insertGambarBarang);
 
         session()->setFlashdata('msg', 'Produk berhasil ditambahkan');
-        return redirect()->to('/listproduct');
+        // return redirect()->to('/listproduct');
+        return redirect()->to('/product/' . urlencode($this->request->getVar('nama')));
     }
     public function editProduct($id)
     {
@@ -3515,6 +3538,22 @@ class Pages extends BaseController
                 'youtube'       => $this->request->getVar('youtube'),
             ]);
             $this->gambarBarangModel->save($insertGambarBarang);
+
+            $getGambarCur = $this->gambarBarangModel->where(['id' => $id])->first();
+            $jumlahGambarCur = 0;
+            foreach ($getGambarCur as $g) {
+                if ($g->isValid()) {
+                    $jumlahGambarCur++;
+                }
+            }
+            if ($jumlahGambarCur > $hasilVarian) {
+                $offset = $jumlahGambarCur - $hasilVarian;
+                $setGambarJadiNull = [];
+                for ($i = 0; $i < $offset; $i++) {
+                    $setGambarJadiNull['gambar' . ($hasilVarian + 1 + $i)] = null;
+                }
+                $this->gambarBarangModel->where(['id' => $id])->set($setGambarJadiNull)->update();
+            }
         } else {
             $this->barangModel->save([
                 'id' => $id,
@@ -3537,8 +3576,8 @@ class Pages extends BaseController
             ]);
         }
 
-        session()->setFlashdata('msg', 'Produk telah ditambahkan');
-        return redirect()->to('/listproduct');
+        session()->setFlashdata('msg', 'Produk telah diupdate');
+        return redirect()->to('/product/' . urlencode($this->request->getVar('nama')));
     }
     public function delProduct($id)
     {

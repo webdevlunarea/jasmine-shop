@@ -84,6 +84,10 @@ a {
     border: 10px solid var(--hijaumuda2);
     color: black;
 }
+.text-justify {
+    text-align: justify;
+    text-justify: inter-word;
+}
 .navbar {
     background-color: white;
 }
@@ -553,6 +557,9 @@ a {
     cursor: pointer;
     transition: 0.1s;
 }
+.tombol-pilih-kurir.active {
+    border: 1px solid var(--hijau);
+}
 .tombol-pilih-kurir:hover {
     transition: 0.1s;
     border: 1px solid var(--hijau);
@@ -603,21 +610,34 @@ a {
     transition: 0.5s;
 }
 .container-pilih-voucher .item-voucher {
-    display: block;
+    display: flex;
     padding: 1em 1.5em;
     text-decoration: none;
     color: black;
     border-radius: 1em;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #d7d7d7;
 }
 .container-pilih-voucher .item-voucher:hover {
     background-color: whitesmoke;
 }
+.container-pilih-voucher .item-voucher h5 {
+    color: var(--hijau);
+}
 .container-pilih-voucher .item-voucher.active {
     background-color: var(--hijau);
     color: white;
+    border: none;
 }
 .container-pilih-voucher .item-voucher.active:hover {
     background-color: var(--hijaumuda1);
+    color: var(--hijau);
+}
+.container-pilih-voucher .item-voucher.active h5 {
+    color: white;
+}
+.container-pilih-voucher .item-voucher.active:hover h5 {
     color: var(--hijau);
 }
 
@@ -889,6 +909,7 @@ footer > .atas > div {
     h1,
     input,
     option,
+    li,
     a {
         font-size: smaller;
     }
