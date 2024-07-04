@@ -46,6 +46,8 @@ class Pages extends BaseController
             'title' => 'Beranda',
             'produk' => $produk,
             'produkBaru' => $produkBaru,
+            'metaDeskripsi' => 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.',
+            'metaKeyword' => 'lunarea furniture,toko furniture'
         ];
         return view('pages/home', $data);
     }
@@ -296,7 +298,9 @@ class Pages extends BaseController
             'kategori' => $subkategori,
             'page' => 1,
             'nama' => false,
-            'semuaProduk' => $semuaproduk
+            'semuaProduk' => $semuaproduk,
+            'metaDeskripsi' => 'Deskripsi ' . str_replace("-", " ", $subkategori),
+            'metaKeyword' => 'toko ' . str_replace("-", " ", $subkategori) . "," . "jual " . str_replace("-", " ", $subkategori)
         ];
         return view('pages/all', $data);
     }
