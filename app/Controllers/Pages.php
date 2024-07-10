@@ -292,6 +292,43 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll(20, 0);
         $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll();
+        $meta = [
+            'lemari-dewasa' => [
+                'deskripsi' => 'Deskripsi Lemari dewasa',
+                'keywords' => ["lemari pakaian", "lemari pakaian minimalis", "lemari baju minimalis", "harga lemari pakaian", "lemari pakaian 3 pintu", "lemari pakaian 2 pintu", "lemari pakaian kayu", "lemari pakaian minimalis modern terbaru", "lemari pakaian gantung"],
+            ], 'meja-rias' => [
+                'deskripsi' => 'Deskripsi meja rias',
+                'keywords' => ["meja rias", "meja rias minimalis", "harga meja rias", "meja rias minimalis modern", "harga meja rias minimalis", "meja rias kayu", "beli meja rias", "furniture meja rias", "furniture meja rias minimalis", "jual meja rias", "jual meja rias minimalis"],
+            ], 'meja-belajar' => [
+                'deskripsi' => 'Deskripsi meja belajar',
+                'keywords' => ["meja belajar", "meja belajar minimalis", "harga meja belajar", "meja belajar kayu", "meja belajar minimalis modern", "harga meja belajar minimalis", "meja belajar murah", "beli meja belajar", "furniture meja belajar"],
+            ], 'meja-tv' => [
+                'deskripsi' => 'Deskripsi meja tv',
+                'keywords' => ["meja tv", "meja tv minimalis", "meja tv minimalis modern", "meja tv minimalis kayu", "meja tv kayu", "harga meja tv", "harga meja tv minimalis", "meja tv minimalis modern murah", "meja tv murah", "meja tv minimalis terbaru", "rak tv minimalis", "rak tv minimalis modern", "harga rak tv minimalis modern", "rak tv minimalis kayu", "rak tv kayu"],
+            ], 'meja-tulis' => [
+                'deskripsi' => 'Deskripsi meja tulis',
+                'keywords' => ["meja kantor", "meja kerja kantor", "meja kantor minimalis", "harga meja kantor", "meja rapat kantor", "jual meja kantor", "meja meeting kantor", "harga meja kerja kantor", "meja kantor kayu", "jual meja kantor terdekat"],
+            ], 'meja-komputer' => [
+                'deskripsi' => 'Deskripsi meja komputer',
+                'keywords' => ["meja komputer", "meja komputer minimalis", "harga meja komputer", "meja komputer murah", "meja komputer gaming", "meja komputer kayu", "beli meja komputer", "furniture meja komputer", "harga meja komputer kayu", "jual meja komputer"],
+            ], 'rak-sepatu' => [
+                'deskripsi' => 'Deskripsi rak sepatu',
+                'keywords' => ["rak sepatu", "rak sepatu minimalis", "rak sepatu kayu", "rak sepatu tertutup", "rak sepatu minimalis tertutup", "lemari rak sepatu", "rak sepatu dari kayu", "beli rak sepatu", "beli rak sepatu tertutup"],
+            ], 'rak-besi' => [
+                'deskripsi' => 'Deskripsi rak besi',
+                'keywords' => ["rak besi", "rak besi susun", "rak besi bertingkat", "rak sepatu besi", "rak susun besi", "harga rak besi", "rak besi serbaguna", "harga rak besi 5 susun", "harga rak besi 4 susun"],
+            ], 'rak-serbaguna' => [
+                'deskripsi' => 'Deskripsi rak serbaguna',
+                'keywords' => ["rak serbaguna", "rak susun serbaguna", "harga rak besi serbaguna", "harga rak buku serbaguna", "harga rak serba guna", "harga rak serbaguna besi", "jual rak serbaguna", "harga rak serbaguna kayu", "harga rak susun serbaguna"],
+            ], 'kursi' => [
+                'deskripsi' => 'Deskripsi kursi',
+                'keywords' => ["kursi stainless", "bangku stainless", "bangku stainless steel", "harga bangku stainless", "harga bangku stenlis", "harga kursi bulat stainless", "harga kursi kantor stainless", "harga kursi stainles", "harga kursi stainless bulat", "harga kursi stainless steel", "harga kursi stenlis", "kursi stainless minimalis"]
+            ], 'lemari-anak' => [
+                'deskripsi' => 'Deskripsi lemari nak',
+                'keywords' => ["toko lemari anak", "jual lemari anak"]
+            ]
+        ];
+
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
@@ -299,9 +336,11 @@ class Pages extends BaseController
             'page' => 1,
             'nama' => false,
             'semuaProduk' => $semuaproduk,
-            'metaDeskripsi' => 'Deskripsi ' . str_replace("-", " ", $subkategori),
-            'metaKeyword' => 'toko ' . str_replace("-", " ", $subkategori) . "," . "jual " . str_replace("-", " ", $subkategori)
         ];
+        if ($subkategori) {
+            $data['metaDeskripsi'] = $meta[$subkategori]['deskripsi'];
+            $data['metaKeyword'] = implode(",", $meta[$subkategori]['keywords']);
+        }
         return view('pages/all', $data);
     }
     public function allPage($page, $subkategori = false)
@@ -3199,7 +3238,7 @@ class Pages extends BaseController
     public function product($nama = false)
     {
         $produk = $this->barangModel->getBarangNama(urldecode($nama));
-        $produksekategori = $this->barangModel->where('kategori', $produk['kategori'])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
+        $produksekategori = $this->barangModel->where('subkategori', $produk['subkategori'])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
         // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
@@ -3482,6 +3521,10 @@ class Pages extends BaseController
         // return redirect()->to('/listproduct');
         return redirect()->to('/product/' . urlencode($this->request->getVar('nama')));
     }
+    // public function gantiUkuranDisplay() {
+    //     $image = \Config\Services::image();
+    //     $image->resize()
+    // }
     public function editProduct($id)
     {
         $produk = $this->barangModel->getBarang($id);

@@ -20,7 +20,7 @@
             komitmen Kami melindungi dan menjaga segala bentuk data atau
             informasi pribadi pengguna dari situs website
             <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>
-            yang selanjutnya disebut dengan <b>situs Lunarea Furniture</b>.
+            yang selanjutnya disebut dengan <b>Lunarea Furniture</b>.
         </p>
         <p>
             Pengguna diharapkan untuk membaca dan memahami kebijakan privasi
