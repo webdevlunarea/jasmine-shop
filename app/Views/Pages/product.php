@@ -67,11 +67,11 @@
                     <p class="mb-0 harga">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
                 <?php } ?>
                 <p class="mb-0">★★★☆☆ (<?= $produk['rate']; ?>)</p>
-                <?php if ((int)$produk['stok'] > 0) { ?>
-                    <p class="<?= (int)$produk['stok'] < 5 ? "text-danger " : "text-dark"; ?>"><b>Stok :
-                            <?= $produk['stok']; ?></b></p>
+                <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
+                    <p id="stok" class="fw-bold <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
+                        <?= explode(",", $produk['stok'])[0]; ?></p>
                 <?php } else { ?>
-                    <p class="text-danger"><b>Stok habis</b></p>
+                    <p id="stok" class="fw-bold text-danger">Stok habis</p>
                 <?php } ?>
                 <span class="garis mb-2"></span>
                 <h5>Varian</h5>
@@ -206,6 +206,8 @@
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
     const figureElm = document.querySelector("figure");
+    const stokElm = document.getElementById('stok');
+    const stokValue = '<?= $stok; ?>'.split(",");
 
     if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
@@ -220,9 +222,13 @@
                 if (index >= Number(jmlVarian)) {
                     elmVarianSelect[index - Number(jmlVarian) + 1].checked = true
                     console.log(`index elmVarianSelect: ${index - Number(jmlVarian) - 1}`)
+
+                    stokElm.innerHTML = 'Stok : ' + stokValue[index - Number(jmlVarian) + 1];
                 } else {
                     elmVarianSelect[0].checked = true
                     console.log(`index elmVarianSelect: 0`)
+
+                    stokElm.innerHTML = 'Stok : ' + stokValue[0];
                 }
                 setUrlElmBeli()
             })
@@ -234,12 +240,13 @@
             imgProdukSelect[0].classList.add("selected")
             imgProdukPrev.style = "background-image: url('" + imgProdukSelect[0].childNodes[0].src + "')"
             imgProdukPrevImg.src = imgProdukSelect[0].childNodes[0].src
+
         } else {
             imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].classList.add("selected")
             imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src + "')"
             imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src
         }
-        // imgProdukSelect[Number(e.target.value) * Number(jmlVarian)].classList.add("selected");
+        stokElm.innerHTML = 'Stok : ' + stokValue[Number(e.target.value)]
         setUrlElmBeli()
     });
 

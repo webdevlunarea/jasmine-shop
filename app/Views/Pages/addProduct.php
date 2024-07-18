@@ -51,7 +51,7 @@
                             <tr>
                                 <td>Stok</td>
                                 <td>
-                                    <div class="baris"><input type="number" class="form-control" name="stok" required>
+                                    <div class="baris"><input type="text" class="form-control" name="stok" required>
                                     </div>
                                 </td>
                             </tr>

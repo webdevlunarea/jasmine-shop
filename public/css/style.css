@@ -176,14 +176,19 @@ a {
 .card1 .diskon-coret {
     font-size: small;
 }
+.card1 .container-varian {
+    display: flex;
+    /* overflow-x: auto; */
+}
 .card1 .varian {
     background-color: var(--bck);
     border-radius: 1em;
-    display: inline-block;
-    width: fit-content;
+    display: block;
+    min-width: min-content;
     padding: 2px 10px;
     font-weight: bold;
     font-size: small;
+    /* flex: 1 1 auto; */
 }
 .card1:hover div:has(.harga) {
     transform: translateX(10px);

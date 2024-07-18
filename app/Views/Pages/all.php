@@ -109,9 +109,11 @@
                         </div>
                         <div>
                             <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                            <?php foreach (json_decode($p['varian'], true) as $v) { ?>
-                                <p class="mb-0 varian"><?= $v ?></p>
-                            <?php } ?>
+                            <div class="container-varian">
+                                <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                                    <p class="mb-0 varian"><?= $v ?></p>
+                                <?php } ?>
+                            </div>
                             <?php if ($p['diskon']) { ?>
                                 <span class="d-flex gap-1 align-items-center">
                                     <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey; width:fit-content;">

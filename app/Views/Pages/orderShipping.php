@@ -12,6 +12,12 @@
             <div style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
         </div>
+    </div>
+    <div class="py-1 text-light w-100 text-center mb-5" style="background-color: var(--hijau);">ID
+        Pesanan :
+        <b><?= $pemesanan['id_midtrans']; ?></b>
+    </div>
+    <div class="container">
         <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom">
             <div class="limapuluh-ke-seratus">

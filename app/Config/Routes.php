@@ -66,6 +66,7 @@ $routes->get('/successpay', 'Pages::successPay');
 $routes->get('/progresspay', 'Pages::progressPay');
 $routes->get('/errorpay', 'Pages::errorPay');
 $routes->get('/order/(:any)', 'Pages::order/$1');
+$routes->get('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
 $routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
@@ -93,6 +94,9 @@ $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' =>
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
+$routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' => 'harusAdmin']);
+$routes->get('/findproductadmin/(:any)', 'Pages::findProductAdmin/$1', ['filter' => 'harusAdmin']);
+$routes->get('/findproductadmin/(:any)/(:any)', 'Pages::findProductAdmin/$1/$2', ['filter' => 'harusAdmin']);
 
 $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);

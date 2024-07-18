@@ -12,6 +12,12 @@
             <div style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
         </div>
+    </div>
+    <div class="py-1 text-light w-100 text-center mb-5" style="background-color: var(--hijau);">ID
+        Pesanan :
+        <b><?= $pemesanan['id_midtrans']; ?></b>
+    </div>
+    <div class="container">
         <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom mb-3">
             <div class="limapuluh-ke-seratus">
@@ -89,8 +95,13 @@
                 <?php } ?>
             </div>
         </div>
-        <div class="d-flex justify-content-center">
-            <a class="btn btn-primary1" href="/order/<?= $dataMid['order_id']; ?>">Saya Sudah Bayar</a>
+        <div class="d-flex justify-content-center gap-1">
+            <a class="btn btn-primary1" href="/order/<?= $dataMid['order_id']; ?>">
+                <p class="m-0">Saya Sudah Bayar</p>
+            </a>
+            <button class="btn btn-danger" onclick="triggerToast('Anda yakin akan membatalkan pesanan <?= $dataMid['order_id']; ?>?','/cancelorder/<?= $dataMid['order_id']; ?>')">
+                <p class="m-0">Batalkan Pesanan</p>
+            </button>
         </div>
     </div>
 </div>

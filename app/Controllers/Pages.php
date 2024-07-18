@@ -805,7 +805,12 @@ class Pages extends BaseController
                     $berat += $produknya['berat'] * $element['jumlah'];
 
                     //cek stok habis
-                    if ((int)$produknya['stok'] - (int)$element['jumlah'] < 0)
+                    if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
+                        $stokSelected = $produknya['stok'];
+                    else
+                        $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
+
+                    if ((int)$stokSelected - (int)$element['jumlah'] < 0)
                         array_push($indElementStokHabis, $ind);
                 } else {
                     array_push($indElementNotFound, $ind);
@@ -859,7 +864,13 @@ class Pages extends BaseController
         foreach ($keranjang as $index => $element) {
             if ($element['id'] == $id_barang && $element['varian'] == $varian) {
                 $produknya = $this->barangModel->getBarang($element['id']);
-                if ((int)$produknya['stok'] - (int)$keranjang[$index]['jumlah'] - 1 < 0) {
+
+                if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
+                    $stokSelected = $produknya['stok'];
+                else
+                    $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
+
+                if ((int)$stokSelected - (int)$keranjang[$index]['jumlah'] - 1 < 0) {
                     session()->setFlashdata('msg', 'Stok kurang');
                     return redirect()->to("/product/" . $produknya['nama']);
                 }
@@ -987,7 +998,11 @@ class Pages extends BaseController
                 ));
 
                 //cek stok habis
-                if ((int)$produknya['stok'] - (int)$element['jumlah'] < 0)
+                if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
+                    $stokSelected = $produknya['stok'];
+                else
+                    $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
+                if ((int)$stokSelected - (int)$element['jumlah'] < 0)
                     return redirect()->to('cart');
             }
             $total = $subtotal + 5000;
@@ -2455,7 +2470,7 @@ class Pages extends BaseController
             foreach ($itemsArr as $i) {
                 $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $i['name'])[0]))->first();
                 $this->barangModel->where('nama', rtrim(explode("(", $i['name'])[0]))->set([
-                    'stok' => $barangCurr['stok'] - $i['quantity']
+                    'stok' => (int)$barangCurr['stok'] - $i['quantity']
                 ])->update();
             }
 
@@ -2566,14 +2581,32 @@ class Pages extends BaseController
                 ])->update();
 
                 //reset jumlah produk
-                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
+                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
                     $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
                     $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
                     foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                        //bentuk item
+                        //     {
+                        //         "id":"B20240214223820",
+                        //         "name":"Rak Serbaguna - RSD 80 (Putih)",
+                        //         "value":517000,
+                        //         "quantity":1
+                        //     }
+
                         $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                            'stok' => $barangCurr['stok'] + $item['quantity']
-                        ])->update();
+                        $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
+                        if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
+                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                                'stok' => (int)$barangCurr['stok'] + $item['quantity']
+                            ])->update();
+                        } else {
+                            $stokTerbaru = explode(",", $barangCurr['stok']);
+                            $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+                            $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
+                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                                'stok' => implode(",", $stokTerbaru)
+                            ])->update();
+                        }
                     }
                 }
             } else {
@@ -2604,12 +2637,30 @@ class Pages extends BaseController
                 $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
                 foreach ($dataTransaksiFulDariDatabase_items as $item) {
                     $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                        'stok' => $barangCurr['stok'] - $item['quantity']
-                    ])->update();
+                    $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
+                    // if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok'])))
+                    //     $stokSelected = $barangCurr['stok'];
+                    // else
+                    //     $stokSelected = explode(",", $barangCurr['stok'])[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+
+                    // $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                    //     'stok' => (int)$stokSelected - $item['quantity']
+                    // ])->update();
+
+                    //===========================
+                    if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
+                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                            'stok' => (int)$barangCurr['stok'] - $item['quantity']
+                        ])->update();
+                    } else {
+                        $stokTerbaru = explode(",", $barangCurr['stok']);
+                        $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+                        $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected - $item['quantity'];
+                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                            'stok' => implode(",", $stokTerbaru)
+                        ])->update();
+                    }
                 }
-                // if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
-                // }
             }
         } else if ($order_id_first_char == 'I') {
             $curl = curl_init();
@@ -2699,14 +2750,25 @@ class Pages extends BaseController
                 ])->update();
 
                 //reset jumlah produk
-                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal') {
+                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
                     $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
                     $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
                     foreach ($dataTransaksiFulDariDatabase_items as $item) {
                         $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                        $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                            'stok' => $barangCurr['stok'] + $item['quantity']
-                        ])->update();
+
+                        $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
+                        if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
+                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                                'stok' => (int)$barangCurr['stok'] + $item['quantity']
+                            ])->update();
+                        } else {
+                            $stokTerbaru = explode(",", $barangCurr['stok']);
+                            $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+                            $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
+                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                                'stok' => implode(",", $stokTerbaru)
+                            ])->update();
+                        }
                     }
                 }
             } else {
@@ -3185,6 +3247,7 @@ class Pages extends BaseController
             'title' => 'Akun Saya',
             'nama' => $nama,
             'nohp' => $nohp,
+            'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
         return view('pages/account', $data);
     }
@@ -3214,12 +3277,14 @@ class Pages extends BaseController
             ]);
         }
 
-        $data = [
-            'title' => 'Akun Saya',
-            'nama' => $nama,
-            'nohp' => $nohp
-        ];
-        return view('pages/account', $data);
+        session()->set('msg', 'Akun Anda telah diperbarui');
+        return redirect()->to('/account');
+        // $data = [
+        //     'title' => 'Akun Saya',
+        //     'nama' => $nama,
+        //     'nohp' => $nohp
+        // ];
+        // return view('pages/account', $data);
     }
     public function contact()
     {
@@ -3255,7 +3320,8 @@ class Pages extends BaseController
             'dimensi' => $dimensi,
             'produksekategori' => $produksekategori,
             'msg' => session()->getFlashdata('msg'),
-            'geser_container_melayang' => true
+            'geser_container_melayang' => true,
+            'stok' => $produk['stok']
         ];
         return view('pages/product', $data);
     }
@@ -3464,8 +3530,35 @@ class Pages extends BaseController
             'title' => 'List Produk',
             'produk' => $produk,
             'page' => $page,
-            'semuaProduk' => $semuaproduk
+            'semuaProduk' => $semuaproduk,
+            'cari' => false
         ];
+        return view('pages/listProduct', $data);
+    }
+    public function actionFindProductAdmin()
+    {
+        $cari = $this->request->getVar('cari');
+        return redirect()->to('/findproductadmin/' . str_replace(" ", "-", $cari));
+    }
+    public function findProductAdmin($cari, $pag = 1)
+    {
+        // if ($cari = '') return redirect()->to('/listproduct');
+        // dd($cari);
+        $hitungPag = 20 * ($pag - 1);
+        if ($pag > 1) {
+            $produk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll(20, $hitungPag);
+        } else {
+            $produk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll(20, 0);
+        }
+        $semuaproduk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll();
+        $data = [
+            'title' => 'List Produk',
+            'produk' => $produk,
+            'page' => $pag,
+            'semuaProduk' => $semuaproduk,
+            'cari' => $cari
+        ];
+        // dd($data);
         return view('pages/listProduct', $data);
     }
     public function addProduct()

@@ -49,7 +49,7 @@
                             <tr>
                                 <td>Stok</td>
                                 <td>
-                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['stok']; ?>" name="stok" required></div>
+                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['stok']; ?>" name="stok" required></div>
                                 </td>
                             </tr>
                             <tr>

@@ -21,6 +21,11 @@
                 <div class="p-2">
                     <h3>Edit Profilemu</h3>
                     <p>Email : <?= session()->get('email') ?> </p>
+                    <?php if ($msg) { ?>
+                        <div class="alert alert-success" role="alert">
+                            <?= $msg; ?>
+                        </div>
+                    <?php } ?>
                     <form class="row g-3" action="/account" method="post">
                         <div class="col-12">
                             <label for="inputPassword4" class="form-label">Sandi</label>
