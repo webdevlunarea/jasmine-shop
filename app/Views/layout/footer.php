@@ -113,7 +113,7 @@
             <div class="d-block text-center">
                 <div class="mt-4 p-2 pe-0 ps-0">
                     <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
-                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans.webp" style="width: 140px" /></a>
+                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 140px" /></a>
                 </div>
             </div>
         </div>

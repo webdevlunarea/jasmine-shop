@@ -167,6 +167,8 @@
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Kapan pengiriman diproses?</p>
                         <p class="mb-3">Pengiriman diproses sehari setelah pembayaran berhasil dilakukan kecuali jika bertepatan pada hari minggu atau hari libur nasional serta libur lebaran, maka pengiriman akan diproses di hari pertama kerja setelah agenda libur yang tertulis.</p>
+                        <p class="mb-0 fw-bold">Apakah ada biaya pengiriman?</p>
+                        <p class="mb-3">Kami menyediakan gratis ongkos kirim (ongkir) untuk wilayah pulau Jawa, Madura, dan Bali. Sedangkan untuk wilayah diluar pulau tersebut, biaya pengiriman akan mengikuti ketentuan tarif dari mitra logistik yang telah bekerja sama dengan Kami.</p>
                         <p class="mb-0 mt-1 fw-bold">Bagaimana cara mendapatkan nomor resi valid?</p>
                         <p class="mb-3">Untuk nomor resi pengiriman akan Kami informasikan 1 hari setelah pesanan Kami terima dan proses. Khusus pembelian di hari Jumat, Sabtu, dan Minggu akan Kami informasikan pada hari senin.</p>
                         <p class="mb-0 mt-1 fw-bold">Bagaimana Saya bisa mendapatkan informasi posisi pesanan?</p>
