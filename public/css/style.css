@@ -785,7 +785,41 @@ a {
     border: 2px solid black;
 }
 
+.container-meta {
+    max-height: 200px;
+    overflow-y: hidden;
+    transition: 0.3s;
+    position: relative;
+    font-size: small;
+}
+.container-meta.show {
+    max-height: 200svh;
+    overflow-y: hidden;
+    transition: 0.3s;
+}
+.container-meta .overlay-meta {
+    height: 100%;
+    width: 100%;
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    background-image: linear-gradient(to top, white, transparent);
+    position: absolute;
+    display: block;
+}
+.container-meta.show .overlay-meta {
+    display: none;
+}
+.container-meta .sub-1 {
+    margin-left: 20px;
+}
+.container-meta .sub-2 {
+    margin-left: 40px;
+}
+
 /* Footer */
+footer {
+    background-color: #eff8f2;
+}
+
 footer > .atas > div {
     width: 100%;
 }

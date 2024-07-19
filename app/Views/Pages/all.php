@@ -187,6 +187,51 @@
             </nav>
         <?php } ?>
     </div>
+    <?php switch ($kategori) {
+        case 'rak-sepatu': ?>
+            <hr class="my-5">
+            <div class="container">
+                <div class="my-3 container-meta">
+                    <div class="overlay-meta"></div>
+                    <h4 class="m--0">Apa itu Rak Sepatu?</h4>
+                    <p class="text-justify">Rak sepatu menjadi salah satu perabotan rumah tangga yang harus ada di rumah. Terlebih jika memiliki banyak koleksi sneaker yang cukup banyak dan berharga. Pada umumnya, lemari rak sepatu dibuat dari bahan kayu, besi atau logam, plastik, hingga bahan lainnya. Ukuran dan desainnya pun beragam, bergantung pada kebutuhan dan penempatannya. Semisal saja, untuk penempatan di area yang rentan dengan debu akan lebih baik jika memilih rak sepatu tertutup. </p>
+                    <p class="text-justify">Sedangkan untuk menyiasati space ruang terbatas, maka rak sepatu minimalis terbuka atau rak sepatu minimalis tertutup jadi opsi yang pas. Furniture minimalis pada dasarnya memegang prinsip kegunaan yang praktis dan menjawab kebutuhan. Terlebih bertambahnya koleksi sepatu yang dibarengi dengan kebutuhan, merupakan hal yang tidak bisa dihindari. Tak ada salahnya jika memutuskan untuk beli rak sepatu tertutup baru untuk mengganti atau menambah space penyimpanan sneakers jadi lebih tertata rapi dan awet di dalamnya.</p>
+                    <h4 class="m--0">Tips Merawat dengan Mudah</h4>
+                    <p class="text-justify">Melakukan perawatan terhadap furniture lemari rak sepatu sangat mudah. Namun perlu diperhatikan juga material bahan yang digunakan, apakah itu dari kayu, logam, atau plastik. Untuk lebih jelasnya, berikut ini beberapa perawatan mudah yang bisa dilakukan secara mandiri berdasarkan pada material bahannya:</p>
+                    <h6 class="sub-1">Rak sepatu dari kayu</h6>
+                    <p class="sub-1 text-justify mb-0">Bahan dari kayu sepertinya masih jadi pilihan populer diantara yang lain. Selain dari harganya yang terbilang terjangkau, kayu rak sepatu kayu memiliki warna yang menarik dan perawatan yang terbilang mudah. Cukup dengan melakukan langkah-langkah di bawah ini untuk memastikan rak sepatu dari kayu lebih awet dan tahan lama:</p>
+                    <ol class="sub-2">
+                        <li>Hindari dari tempat lembab</li>
+                        <li>Bersihkan secara rutin dan berkala</li>
+                        <li>Susun berdasarkan pada jenisnya</li>
+                        <li>Bersihkan terlebih dahulu alas kaki yang telah digunakan sebelum disimpan</li>
+                        <li>Jika terlihat ada jamur, bersihkan dengan segera dan tempatkan sementara di tempat yang terkena sinar matahari</li>
+                    </ol>
+                    <h6 class="sub-1">Rak sepatu dari logam</h6>
+                    <p class="sub-1 text-justify mb-0">Merawat rak sepatu dari logam atau besi perlu memperhatikan beberapa hal khusus yang bertujuan mempertahankan keawetan dan ketahanan dari rak itu sendiri. Lebih jelasnya berikut ini adalah langkah-langkah perawatan yang bisa dilakukan:</p>
+                    <ol class="sub-2">
+                        <li>Melakukan pembersihan secara rutin</li>
+                        <li>Menggunakan pelindung anti karat</li>
+                        <li>Meminimalisir kontak dengan air</li>
+                        <li>Memperhatikan beban yang ditopang rak sepatu dari logam ini</li>
+                    </ol>
+                    <h6 class="sub-1">Rak sepatu dari plastik</h6>
+                    <p class="sub-1 text-justify mb-0">Sebenarnya perawatan untuk rak sepatu dari plastik memiliki beberapa kesamaan dari kedua bahan diatas. Namun, karena bahan plastik inilah yang membedakan dan harus jadi perhatian dalam melakukan perawatan.</p>
+                    <ol class="sub-2">
+                        <li>Hindari dari paparan sinar matahari langsung</li>
+                        <li>Hindari bahan kimia yang bersifat keras</li>
+                        <li>Jaga beban agar tidak terlalu berat</li>
+                        <li>Jauhkan dari suhu yang ekstrim</li>
+                    </ol>
+                    <h4 class="m--0">Rekomendasi Tempat Beli Rak Sepatu Terpercaya</h4>
+                    <p class="text-justify">Setelah mengetahui berbagai material dan cara perawatannya, apakah Kamu mulai tertarik untuk membeli lemari sepatu dengan berbagai macam desain dan harga terjangkau? Tenang saja, Kamu berada di tempat yang tepat! Sekarang semua cukup mudah, Kamu bisa mendapatkannya dengan aman dan nyaman dalam genggaman tangan saja hanya di Website Lunarea Furniture. Jangan lupa juga untuk perhatikan pembelian Kamu dan pastikan Kamu mendapatkan harga terbaik dan diskon menarik serta gratis ongkir untuk Pulau Jawa, Madura dan Bali!</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mb-5">
+                <button class="btn btn-outline-dark" onclick="openMeta(event)">Lihat selengkapnya</button>
+            </div>
+    <?php break;
+    } ?>
 </div>
 <script>
     const containeKategoriScrollElm = document.querySelector('.container-kategori-scroll');
@@ -202,5 +247,20 @@
             });
         })
     })
+
+    let bukaMeta = false;
+
+    function openMeta(e) {
+        const containerMeta = document.querySelector('.container-meta');
+        if (bukaMeta) {
+            containerMeta.classList.remove('show')
+            bukaMeta = false;
+            e.target.innerHTML = 'Lihat selengkapnya'
+        } else {
+            containerMeta.classList.add('show')
+            bukaMeta = true;
+            e.target.innerHTML = 'Lebih sedikit'
+        }
+    }
 </script>
 <?= $this->endSection(); ?>

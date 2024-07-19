@@ -109,9 +109,9 @@
                 </div>
             </div>
         </div>
-        <div class="text-muted">
+        <div class="text-muted pb-3">
             <div class="d-block text-center">
-                <div class="mt-4 mb-3 p-2 pe-0 ps-0">
+                <div class="mt-4 p-2 pe-0 ps-0">
                     <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
                     <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans.webp" style="width: 140px" /></a>
                 </div>
