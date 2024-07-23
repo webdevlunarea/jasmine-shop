@@ -241,4 +241,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var a = url.searchParams.get("a");
+    const accordionItemElm = document.querySelectorAll('.accordion-item');
+    if (a) {
+        const accordionItemSelected = accordionItemElm[Number(a) - 1];
+        console.log(accordionItemSelected.children[0].children)
+        accordionItemSelected.children[0].children[0].setAttribute('aria-expanded', 'true');
+        accordionItemSelected.children[0].children[0].classList.remove('collapsed');
+        accordionItemSelected.children[1].classList.remove('collapse');
+    }
+</script>
 <?= $this->endSection(); ?>

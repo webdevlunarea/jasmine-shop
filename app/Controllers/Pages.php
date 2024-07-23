@@ -294,26 +294,26 @@ class Pages extends BaseController
         $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll();
         $meta = [
             'lemari-dewasa' => [
-                'deskripsi' => 'Deskripsi Lemari dewasa',
-                'keywords' => ["lemari pakaian", "lemari pakaian minimalis", "lemari baju minimalis", "harga lemari pakaian", "lemari pakaian 3 pintu", "lemari pakaian 2 pintu", "lemari pakaian kayu", "lemari pakaian minimalis modern terbaru", "lemari pakaian gantung"],
+                'deskripsi' => 'Kenapa Harus Punya Lemari Pakaian? Sebagai salah satu furniture penting yang ada di rumah, lemari memegang peran penting untuk memastikan barang di dalamnya tertata rapi. Lemari bisa ditempatkan pada bagian rumah di mana saja tergantung dari jenis penyimpanannya. Sesuai dengan namanya, lemari pakaian biasanya di tempat tidur sebagai tempat penyimpanan pakaian. Tapi tidak menutup kemungkinan juga lemari digunakan untuk menyimpan keperluan lain dan bisa ditempatkan secara fleksibel di ruangan lainnya.',
+                'keywords' => ['lemari pakaian minimalis', 'lemari baju minimalis', 'Lemari pakaian minimalis modern minimalis terbaru', 'lemari pakaian 2 pintu', 'lemari pakaian 3 pintu', 'Harga Lemari Pakaian Minimalis Modern', 'Harga lemari baju', 'jual lemari pakaian', 'harga lemari pakaian minimalis modern'],
             ], 'meja-rias' => [
-                'deskripsi' => 'Deskripsi meja rias',
-                'keywords' => ["meja rias", "meja rias minimalis", "harga meja rias", "meja rias minimalis modern", "harga meja rias minimalis", "meja rias kayu", "beli meja rias", "furniture meja rias", "furniture meja rias minimalis", "jual meja rias", "jual meja rias minimalis"],
+                'deskripsi' => 'Alasan Kenapa Meja Rias Harus Ada Di Kamar Salah satu perabotan rumah tangga yang penting walaupun bukan termasuk yang utama adalah meja rias. Sama seperti namanya,  furniture satu ini punya fungsi yang vital terlebih buat perempuan. Dengan meja rias atau tolet inilah yang membuatmu tidak perlu worry lagi bakalan nggak stunning setiap harinya. Karena diperuntukkan secara spesial buat perempuan, tentunya kamu juga bisa dengan mudah menemukan berbagai jenis desain yang cantik dan menarik.',
+                'keywords' => ['meja rias', 'meja rias minimalis modern', 'meja rias minimalis', 'meja rias minimalis kecil', 'meja rias simple', 'harga meja rias', 'meja rias multifungsi'],
             ], 'meja-belajar' => [
-                'deskripsi' => 'Deskripsi meja belajar',
-                'keywords' => ["meja belajar", "meja belajar minimalis", "harga meja belajar", "meja belajar kayu", "meja belajar minimalis modern", "harga meja belajar minimalis", "meja belajar murah", "beli meja belajar", "furniture meja belajar"],
+                'deskripsi' => 'Apa Itu Meja Belajar? Meja belajar merupakan salah satu furniture penting yang diupayakan dapat menciptakan lingkungan belajar yang nyaman dan produktif di rumah. Ada beberapa hal yang perlu jadi pertimbangan saat memilih meja belajar mana yang akan dibeli, sebut saja meja belajar minimalis, meja belajar aesthetic, meja belajar multifungsi, meja belajar simple, dan masih banyak lagi ragamnya. Nah, pada dasarnya yang perlu dipilih adalah sesuai dengan kebutuhan dan mengesampingkan keinginan. Tapi kalau bisa keduanya, kenapa tidak? meja belajar minimalis unik mungkin bisa jadi pilihan yang pas untukmu yang tidak suka sesuatu monoton.',
+                'keywords' => ['meja belajar', 'meja belajar minimalis', 'meja belajar aesthetic', 'meja belajar simple', 'meja belajar minimalis modern', 'meja belajar minimalis unik'],
             ], 'meja-tv' => [
-                'deskripsi' => 'Deskripsi meja tv',
-                'keywords' => ["meja tv", "meja tv minimalis", "meja tv minimalis modern", "meja tv minimalis kayu", "meja tv kayu", "harga meja tv", "harga meja tv minimalis", "meja tv minimalis modern murah", "meja tv murah", "meja tv minimalis terbaru", "rak tv minimalis", "rak tv minimalis modern", "harga rak tv minimalis modern", "rak tv minimalis kayu", "rak tv kayu"],
+                'deskripsi' => 'Ini Alasannya Perlu Meja TV di Rumah! Televisi sudah jadi barang elektronik yang dirasa wajib ada di setiap rumah. Kegunaannya sebagai media mencari hiburan baik itu saat sendiri atau bersama orang-orang tersayang menjadikan barang elektronik selalu eksis hingga sekarang. Maka dari itu, untuk melengkapi momen menonton TV jadi lebih asyik, diperlukan space khusus berupa Meja TV tentunya. Tak hanya itu saja, furniture meja yang satu ini juga punya fungsi lain sebagai tempat penyimpanan peralatan pendukung nonton TV seperti DVD player, PS player, WiFi, dan masih banyak lagi. Karena saking multifungsinya, furniture meja tempat TV ini punya sebutan lain di masyarakat seperti rak TV, buffet TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.',
+                'keywords' => ['meja tv', 'meja tv minimalis', 'rak tv minimalis', 'harga rak tv minimalis modern', 'meja tv minimalis modern termurah', 'meja tv minimalis modern'],
             ], 'meja-tulis' => [
                 'deskripsi' => 'Deskripsi meja tulis',
                 'keywords' => ["meja kantor", "meja kerja kantor", "meja kantor minimalis", "harga meja kantor", "meja rapat kantor", "jual meja kantor", "meja meeting kantor", "harga meja kerja kantor", "meja kantor kayu", "jual meja kantor terdekat"],
             ], 'meja-komputer' => [
-                'deskripsi' => 'Deskripsi meja komputer',
-                'keywords' => ["meja komputer", "meja komputer minimalis", "harga meja komputer", "meja komputer murah", "meja komputer gaming", "meja komputer kayu", "beli meja komputer", "furniture meja komputer", "harga meja komputer kayu", "jual meja komputer"],
+                'deskripsi' => 'Kenapa Harus Beli Meja Kerja? Meja tulis merupakan salah satu furniture wajib yang ada di rumah atau kantor. Sama seperti namanya, meja jenis ini dibuat secara khusus untuk meningkatkan produktivitas dan kenyamanan. Faktor inilah yang diharapkan dapat membuat seseorang bisa menyelesaikan pekerjaannya lebih efektif dan efisien. Desain meja kerja kantor ini juga ditentukan oleh kebutuhan. Ada meja tulis dengan top table lurus tanpa ada ambalan tambahan, ada jenis meja kantor yang terkadang diberikan fitur tambahan seperti laci dan space kabinet tertutup di sisi kiri dan atau kanan bawah. Keberagaman desain ini merupakan jawaban atas beragamnya kebutuhan setiap orang masing-masing.',
+                'keywords' => ['beli meja kerja', 'meja tulis', 'meja kerja kantor', 'meja kantor', 'meja kerja kayu', 'meja kerja minimalis'],
             ], 'rak-sepatu' => [
-                'deskripsi' => 'Deskripsi rak sepatu',
-                'keywords' => ["rak sepatu", "rak sepatu minimalis", "rak sepatu kayu", "rak sepatu tertutup", "rak sepatu minimalis tertutup", "lemari rak sepatu", "rak sepatu dari kayu", "beli rak sepatu", "beli rak sepatu tertutup"],
+                'deskripsi' => 'Apa itu Rak Sepatu? Furniture yang satu ini menjadi perabotan rumah tangga yang penting dan harus ada di rumah. Terlebih jika memiliki banyak koleksi sneaker yang cukup banyak dan berharga. Pada umumnya, lemari rak sepatu dibuat dari bahan kayu, besi atau logam, plastik, hingga bahan lainnya. Ukuran dan desainnya pun beragam, bergantung pada kebutuhan dan penempatannya. Semisal saja, untuk penempatan di area yang rentan dengan debu akan lebih baik jika memilih rak sepatu tertutup.',
+                'keywords' => ['Rak Sepatu', 'lemari rak sepatu', 'rak sepatu tertutup', 'rak sepatu minimalis', 'rak sepatu minimalis tertutup', 'beli rak sepatu tertutup', 'Rak sepatu dari kayu', 'Beli Rak Sepatu'],
             ], 'rak-besi' => [
                 'deskripsi' => 'Deskripsi rak besi',
                 'keywords' => ["rak besi", "rak besi susun", "rak besi bertingkat", "rak sepatu besi", "rak susun besi", "harga rak besi", "rak besi serbaguna", "harga rak besi 5 susun", "harga rak besi 4 susun"],
@@ -1261,7 +1261,7 @@ class Pages extends BaseController
         // if (session()->get('voucher')) {
         //     $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
         //     if ($voucherDetail['satuan'] == 'persen') {
-        //         $diskonVoucher = round($voucherDetail['nominal'] / 100 * $total);
+        //         $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
         //     }
         //     $voucherSelected = $voucherDetail;
         // }
@@ -1319,6 +1319,7 @@ class Pages extends BaseController
         ];
         return view('pages/checkout', $data);
     }
+
     public function useVoucher($id_voucher)
     {
         session()->set('voucher', $id_voucher);
@@ -3288,8 +3289,17 @@ class Pages extends BaseController
     }
     public function contact()
     {
+        $artikel = $this->artikelModel->orderBy('rand()')->limit(3)->findAll();
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        foreach ($artikel as $ind_a => $a) {
+            $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
+            $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+            $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
+            $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+        }
         $data = [
-            'title' => 'Kontak'
+            'title' => 'Kontak',
+            'artikel' => $artikel
         ];
         return view('pages/contact', $data);
     }
