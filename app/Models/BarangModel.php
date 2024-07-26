@@ -10,6 +10,7 @@ class BarangModel extends Model
     protected $allowedFields = [
         'id',
         'nama',
+        'path',
         'pencarian',
         'gambar',
         'harga',
@@ -41,7 +42,7 @@ class BarangModel extends Model
         if ($nama == false) {
             return $this->orderBy('nama', 'asc')->findAll();
         }
-        return $this->where(['nama' => $nama])->first();
+        return $this->where(['path' => $nama])->first();
     }
     public function getBarangLimit()
     {

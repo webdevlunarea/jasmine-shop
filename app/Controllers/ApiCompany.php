@@ -4,15 +4,18 @@ namespace App\Controllers;
 
 use App\Models\BarangModel;
 use App\Models\GambarBarangModel;
+use App\Models\ArtikelModel;
 
 class ApiCompany extends BaseController
 {
     protected $barangModel;
     protected $gambarBarangModel;
+    protected $artikelModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
         $this->gambarBarangModel = new GambarBarangModel();
+        $this->artikelModel = new ArtikelModel();
     }
     public function index()
     {
@@ -164,6 +167,41 @@ class ApiCompany extends BaseController
             $deksripsiBaru = str_ireplace('', '', $produk['deskripsi']);
             $deksripsiBaru = str_ireplace('', '', $produk['deskripsi']);
             $this->barangModel->where(['id' => $produk['id']])->set(['deskripsi' => $deksripsiBaru])->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
+    }
+
+    public function isiPath()
+    {
+        //produk
+        $produk = $this->barangModel->findAll();
+        foreach ($produk as $p) {
+            $path = str_replace("- ", "", $p['nama']);
+            $path = str_replace(".", "", $path);
+            $path = str_replace(" ", "-", $path);
+            $path = strtolower($path);
+            $this->barangModel->where(['id' => $p['id']])->set([
+                'path' => $path
+            ])->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
+
+        //artikel
+        $artikel = $this->artikelModel->findAll();
+        foreach ($artikel as $a) {
+            $path = str_replace(",", "", $a['judul']);
+            $path = str_replace(".", "", $path);
+            $path = str_replace("& ", "", $path);
+            $path = str_replace("?", "", $path);
+            $path = str_replace(" ", "-", $path);
+            $path = strtolower($path);
+            $this->artikelModel->where(['id' => $a['id']])->set([
+                'path' => $path
+            ])->update();
         }
         return $this->response->setJSON([
             'success' => true

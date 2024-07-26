@@ -7,8 +7,7 @@
                 <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
             </div>
             <h4 class="text-center">Jangan pergi dulu!</h4>
-            <p class="text-secondary text-center mb-3">
-                Dapatkan informasi terbaru dengan memasukkan email Anda
+            <p class="text-secondary text-center mb-3">Dapatkan informasi terbaru dengan memasukkan email Anda</p>
             <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
                 <div class="form-floating mb-3">
                     <input type="email" class="form-control" placeholder="name@example.com" name="email" required>
@@ -69,34 +68,26 @@
 <?php } ?>
 <div class="konten artikel">
     <div class="container mb-5">
-        <img src="<?= $artikel['header']; ?>" alt="" class="header">
+        <img src="<?= $artikel['header']; ?>" alt="<?= $artikel['judul'] ?>" class="header">
         <div class="p-5 mx-5 show-ke-hide" style="background-color: white; box-shadow: 5px 5px 20px rgba(0,0,0,0.1); position: relative; margin-top: -10svh">
-            <div class="d-flex justify-content-between mb-3">
-                <div class="d-flex gap-1">
+            <div class="d-flex justify-content-between">
+                <div class="d-flex gap-1 mb-3">
                     <?php foreach ($artikel['kategori'] as $k) { ?>
                         <h5 class="badge rounded-pill text-bg-secondary"><?= ucfirst($k); ?></h5>
                     <?php } ?>
                 </div>
-                <div>
-                    <div class="d-flex gap-2">
-                        <div class="d-flex gap-1 align-items-center">
-                            <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
-                            <?php if ($artikel['suka'] > 0) { ?>
-                                <p class="m-0"><?= $artikel['suka']; ?></p>
-                            <?php } ?>
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">share</i></a>
-                            <?php if ($artikel['bagikan'] > 0) { ?>
-                                <p class="m-0"><?= $artikel['bagikan']; ?></p>
-                            <?php } ?>
-                        </div>
+                <div class="d-flex gap-2">
+                    <div class="d-flex gap-1 align-items-center">
+                        <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
+                        <?php if ($artikel['suka'] > 0) { ?>
+                            <p class="m-0"><?= $artikel['suka']; ?></p>
+                        <?php } ?>
                     </div>
-                    <div class="p-4">
-                        <p class="text-center fw-bold">Bagikan Artikel</p>
-                        <div class="d-flex gap-2">
-
-                        </div>
+                    <div class="d-flex gap-1 align-items-center">
+                        <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">share</i></a>
+                        <?php if ($artikel['bagikan'] > 0) { ?>
+                            <p class="m-0"><?= $artikel['bagikan']; ?></p>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -186,8 +177,8 @@
                     </div>
                     <?php if (session()->get('role') == 1) { ?>
                         <div style="width: fit-content;" class="d-flex gap-1">
-                            <button class="btn btn-light" onclick="openEditKomen('<?= $ind_k; ?>','<?= urlencode($artikel['judul']); ?>')"><i class="material-icons">edit</i></button>
-                            <button class="btn btn-light" onclick="triggerToast('Komentar akan dihapus?', '/delkomen/<?= $ind_k; ?>/<?= urlencode($artikel['judul']); ?>')"><i class="material-icons">delete_forever</i></button>
+                            <button class="btn btn-light" onclick="openEditKomen('<?= $ind_k; ?>','<?= $artikel['path']; ?>')"><i class="material-icons">edit</i></button>
+                            <button class="btn btn-light" onclick="triggerToast('Komentar akan dihapus?', '/delkomen/<?= $ind_k; ?>/<?= $artikel['path']; ?>')"><i class="material-icons">delete_forever</i></button>
                         </div>
                     <?php } ?>
                 </div>
@@ -201,9 +192,9 @@
             <?php foreach ($artikelTerkait as $ind_a => $a) { ?>
                 <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
                     <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($a['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $a['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul" style="line-height: 16px;"><?= $a['judul']; ?></p>
@@ -224,13 +215,13 @@
         <!-- <h1 class="mb-1">Mencari produk terkait artikel diatas</h1> -->
         <div class="card-group1 no-scroll">
             <?php foreach ($produkTerkait as $p) { ?>
-                <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
+                <a class="card1" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
                     <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                     </div>
                     <div>
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -254,7 +245,7 @@
                         <?php } else { ?>
                             <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                         <?php } ?>
-                        <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
+                        <!-- <p>★☆☆ (<?= $p['rate']; ?>)</p> -->
                     </div>
                 </a>
             <?php } ?>

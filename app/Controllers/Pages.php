@@ -74,7 +74,7 @@ class Pages extends BaseController
     }
     public function article($judul_article = false)
     {
-        $artikel = $this->artikelModel->getArtikelJudul(urldecode($judul_article));
+        $artikel = $this->artikelModel->getArtikelJudul($judul_article);
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         if (!$artikel) return redirect()->to('article');
         if ($judul_article) {
@@ -97,7 +97,9 @@ class Pages extends BaseController
                 'artikelTerkait' => $artikelTerkait,
                 'produkTerkait' => $produkTerkait,
                 'komen' => json_decode($artikel['komen'], true),
-                'komenJson' => $artikel['komen']
+                'komenJson' => $artikel['komen'],
+                'metaDeskripsi' => $artikel['judul'],
+                'metaKeyword' => $artikel['keywords']
             ];
             return view('pages/artikel', $data);
         } else {
@@ -173,9 +175,16 @@ class Pages extends BaseController
             array_push($isi, $itemIsi);
         }
 
+        $path = str_replace(",", "", $judul);
+        $path = str_replace(".", "", $path);
+        $path = str_replace("& ", "", $path);
+        $path = str_replace("?", "", $path);
+        $path = str_replace(" ", "-", $path);
+        $path = strtolower($path);
         $this->artikelModel->insert([
             'id' => $id,
             'judul' => $judul,
+            'path' => $path,
             'penulis' => $penulis,
             'kategori' => $kategori,
             'waktu' => $waktu,
@@ -192,33 +201,33 @@ class Pages extends BaseController
     }
     public function addKomen($judul_article)
     {
-        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_article)])->first();
+        $artikel = $this->artikelModel->where(['path' => $judul_article])->first();
         $komenCurr = json_decode($artikel['komen'], true);
         array_push($komenCurr, [
             'nama' => $this->request->getVar('nama'),
             'isi' => $this->request->getVar('isi'),
         ]);
-        $this->artikelModel->where(['judul' => urldecode($judul_article)])->set(['komen' => json_encode($komenCurr)])->update();
+        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode($komenCurr)])->update();
         return redirect()->to('/article/' . $judul_article);
     }
     public function delKomen($ind_komen, $judul_artikel)
     {
-        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_artikel)])->first();
+        $artikel = $this->artikelModel->where(['path' => $judul_artikel])->first();
         $komenCurr = json_decode($artikel['komen'], true);
         unset($komenCurr[$ind_komen]);
         $komenBaru = array_values($komenCurr);
-        $this->artikelModel->where(['judul' => urldecode($judul_artikel)])->set(['komen' => json_encode($komenBaru)])->update();
+        $this->artikelModel->where(['path' => $judul_artikel])->set(['komen' => json_encode($komenBaru)])->update();
         return redirect()->to('/article/' . $judul_artikel);
     }
     public function editKomen($ind_komen, $judul_article)
     {
-        $artikel = $this->artikelModel->where(['judul' => urldecode($judul_article)])->first();
+        $artikel = $this->artikelModel->where(['path' => $judul_article])->first();
         $komenCurr = json_decode($artikel['komen'], true);
         $komenCurr[$ind_komen] = [
             'nama' => $this->request->getVar('nama_edit'),
             'isi' => $this->request->getVar('isi_edit'),
         ];
-        $this->artikelModel->where(['judul' => urldecode($judul_article)])->set(['komen' => json_encode($komenCurr)])->update();
+        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode($komenCurr)])->update();
         return redirect()->to('/article/' . $judul_article);
     }
     public function submitEmail($judul_article)
@@ -315,17 +324,17 @@ class Pages extends BaseController
                 'deskripsi' => 'Apa itu Rak Sepatu? Furniture yang satu ini menjadi perabotan rumah tangga yang penting dan harus ada di rumah. Terlebih jika memiliki banyak koleksi sneaker yang cukup banyak dan berharga. Pada umumnya, lemari rak sepatu dibuat dari bahan kayu, besi atau logam, plastik, hingga bahan lainnya. Ukuran dan desainnya pun beragam, bergantung pada kebutuhan dan penempatannya. Semisal saja, untuk penempatan di area yang rentan dengan debu akan lebih baik jika memilih rak sepatu tertutup.',
                 'keywords' => ['Rak Sepatu', 'lemari rak sepatu', 'rak sepatu tertutup', 'rak sepatu minimalis', 'rak sepatu minimalis tertutup', 'beli rak sepatu tertutup', 'Rak sepatu dari kayu', 'Beli Rak Sepatu'],
             ], 'rak-besi' => [
-                'deskripsi' => 'Deskripsi rak besi',
-                'keywords' => ["rak besi", "rak besi susun", "rak besi bertingkat", "rak sepatu besi", "rak susun besi", "harga rak besi", "rak besi serbaguna", "harga rak besi 5 susun", "harga rak besi 4 susun"],
+                'deskripsi' => 'Rak besi serbaguna merupakan salah satu solusi penyimpanan dengan kegunaan yang beragam. Material besi yang digunakan membuat jenis furniture ini mampu menahan beban berat lebih baik jika dibandingkan dengan material jenis lainnya. Selain itu, rak besi juga lebih mudah dipasang dan disesuaikan sesuai dengan kebutuhan. Material besi yang kokoh ini membuat umur penggunaan rak besi lebih lama sehingga cocok digunakan sebagai investasi jangka panjang. Rak besi hadir dengan berbagai model dengan ukuran dan desain berbeda yang memungkinkan bagi Kamu untuk memilih rak besi susun sesuai dengan kebutuhan dan preferensi masing-masing.',
+                'keywords' => ['rak besi serbaguna', 'rak besi', 'rak besi susun', 'rak susun besi', 'rak besi susun', 'rak besi bertingkat', 'rak besi minimalis', 'harga rak besi', 'harga rak besi 4 susun'],
             ], 'rak-serbaguna' => [
-                'deskripsi' => 'Deskripsi rak serbaguna',
-                'keywords' => ["rak serbaguna", "rak susun serbaguna", "harga rak besi serbaguna", "harga rak buku serbaguna", "harga rak serba guna", "harga rak serbaguna besi", "jual rak serbaguna", "harga rak serbaguna kayu", "harga rak susun serbaguna"],
+                'deskripsi' => 'Apa Itu Rak Serbaguna? Dari sekian banyaknya peralatan rumah tangga, rak susun serbaguna jadi furniture yang harus ada untuk membuat barang-barang tersimpan dengan lebih terorganisir. Nah, karena fungsi utama inilah, Kamu akan menemukan berbagai model rak modern dan minimalis dengan spesifikasi yang berbeda pula tergantung dari kebutuhan masing-masing.',
+                'keywords' => ['rak serbaguna', 'rak susun serbaguna', 'rak penyimpanan serbaguna', 'rak portable serbaguna', 'harga rak serbaguna', 'rak kayu serbaguna minimalis', 'rak bertingkat baru'],
             ], 'kursi' => [
-                'deskripsi' => 'Deskripsi kursi',
-                'keywords' => ["kursi stainless", "bangku stainless", "bangku stainless steel", "harga bangku stainless", "harga bangku stenlis", "harga kursi bulat stainless", "harga kursi kantor stainless", "harga kursi stainles", "harga kursi stainless bulat", "harga kursi stainless steel", "harga kursi stenlis", "kursi stainless minimalis"]
+                'deskripsi' => 'Apa Itu Kursi Stainless? Kursi susun stainless merupakan salah satu pilihan favorit bagi banyak orang. Tidak hanya digunakan di kafe dan restoran, tetapi juga semakin bisa pula untuk di rumah-rumah pribadi. Desain yang sederhana membuat kursi ini cocok dalam berbagai kebutuhan yang membutuhkan banyak kursi di sebuah pertemuan besar. Maka dari itu, tak jarang pulang kursi kondangan ini bisa ditemui di acara pernikahan, rapat, pesta, dan lain sebagainya.',
+                'keywords' => ['kursi stainless', 'kursi susun', 'kursi kondangan', 'kursi besi', 'kursi tumpuk', 'kursi pesta', 'kursi kantor', 'kursi kerja', 'kursi hajatan']
             ], 'lemari-anak' => [
-                'deskripsi' => 'Deskripsi lemari nak',
-                'keywords' => ["toko lemari anak", "jual lemari anak"]
+                'deskripsi' => 'Kenapa Harus Punya Lemari Kecil Buat Si Buah Hati? Moms, udah punya lemari buat buah hati belum? Nah kalau belum, yuk simak dulu alasannya kenapa Moms harus punya lemari kecil yang dikhususkan buat menyimpan baju-baju si buah hati. Seperti lemari pakaian pada umumnya, lemari pakaian kecil ini juga memiliki fungsi yang sama, hanya saja ukurannya yang lebih kecil menyesuaikan kebutuhan si kecil. Memisahkan pakaian anak di lemari pakaian kecil juga membuat Moms lebih mudah saat mencari dan menata baju-baju si buah hati loh! Apalagi kalau si kesayangan lagi aktif-aktifnya. Pasti akan repot kalau baju-baju si kecil bercampur dengan baju-baju yang bukan miliknya bukan? Dengan lemari pakaian kecil ini juga secara tidak langsung membuat anak bertanggung jawab dengan pakaiannya sendiri. Inilah saat yang tepat untuk membuat anak merasa memiliki dan merawat barang-barang miliknya dengan baik yang disimpan dengan baik pula di lemari baju kecil miliknya.',
+                'keywords' => ['lemari kecil', 'lemari pakaian kecil', 'lemari baju kecil', 'lemari minimalis kecil', 'lemari baju minimalis kecil', 'lemari kayu kecil', 'lemari anak', 'lemari kecil kayu', 'harga lemari kayu 2 pintu kecil']
             ]
         ];
 
@@ -3312,7 +3321,8 @@ class Pages extends BaseController
     }
     public function product($nama = false)
     {
-        $produk = $this->barangModel->getBarangNama(urldecode($nama));
+        $produk = $this->barangModel->getBarangNama($nama);
+        if (!$produk) return redirect()->to('/all');
         $produksekategori = $this->barangModel->where('subkategori', $produk['subkategori'])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
         // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
@@ -3598,9 +3608,14 @@ class Pages extends BaseController
         //     'gambar1' => file_get_contents($this->request->getFile("gambar1")),
         //     'gambarnya' => $gambarnya
         // ]);
+        $path = str_replace("- ", "", $this->request->getVar('nama'));
+        $path = str_replace(".", "", $path);
+        $path = str_replace(" ", "-", $path);
+        $path = strtolower($path);
         $this->barangModel->insert([
             'id'            => $tanggal,
             'nama'          => $this->request->getVar('nama'),
+            'path'          => $path,
             'pencarian'     => $this->request->getVar('pencarian'),
             'gambar'        => $gambarnya[0],
             'harga'         => $this->request->getVar('harga'),
@@ -3657,6 +3672,11 @@ class Pages extends BaseController
     {
         $varian = explode(",", $this->request->getVar('varian'));
         // dd(file_get_contents($this->request->getFile("gambar1")));
+        $path = str_replace("- ", "", $this->request->getVar('nama'));
+        $path = str_replace(".", "", $path);
+        $path = str_replace(" ", "-", $path);
+        $path = strtolower($path);
+
         if (!empty($_FILES['gambar1']['tmp_name'])) {
             $hasilVarian = count(explode(",", $this->request->getVar('varian'))) + (int)$this->request->getVar('jml_varian') - 1;
             $gambarnya = [];
@@ -3667,9 +3687,11 @@ class Pages extends BaseController
                 array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
                 $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
             }
+
             $this->barangModel->save([
                 'id'            => $id,
                 'nama'          => $this->request->getVar('nama'),
+                'path'          => $path,
                 'pencarian'     => $this->request->getVar('pencarian'),
                 'gambar'        => $gambarnya[0],
                 'harga'         => $this->request->getVar('harga'),
@@ -3706,8 +3728,9 @@ class Pages extends BaseController
             }
         } else {
             $this->barangModel->save([
-                'id' => $id,
+                'id'            => $id,
                 'nama'          => $this->request->getVar('nama'),
+                'path'          => $path,
                 'pencarian'     => $this->request->getVar('pencarian'),
                 'harga'         => $this->request->getVar('harga'),
                 'berat'         => $this->request->getVar('berat'),

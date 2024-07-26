@@ -99,13 +99,13 @@
         <?php } else { ?>
             <div class="card-group1 no-scroll mb-3">
                 <?php foreach ($produk as $p) { ?>
-                    <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
+                    <a class="card1" href="/product/<?= $p['path']; ?>">
                         <?php if ($p['diskon']) { ?>
                             <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                         <?php } ?>
                         <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                            <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                            <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                            <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
+                            <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                         </div>
                         <div>
                             <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -234,7 +234,7 @@
                 <div class="my-3 container-meta">
                     <div class="overlay-meta"></div>
                     <h5>Kenapa Harus Punya Lemari Pakaian?</h5>
-                    <p class="text-justify">Sebagai salah satu furniture penting yang ada di rumah, lemari memegang peran penting untuk memastikan barang di dalamnya tertata rapi. Lemari bisa ditempatkan pada bagian rumah di mana saja tergantung dari jenis penyimpanannya. Sesuai dengan namanya, lemari pakaian biasanya di tempat tidur sebagai tempat penyimpanan pakaian. Tapi tidak menutup kemungkinan juga lemari digunakan untuk menyimpan keperluan lain dan bisa ditempatkan secara fleksibel di ruangan lainnya.</p>
+                    <p class="text-justify">Sebagai salah satu furniture penting yang ada di rumah, lemari memegang peran penting untuk memastikan barang di dalamnya tertata rapi. Lemari bisa ditempatkan pada bagian rumah di mana saja tergantung dari jenis penyimpanannya. Sesuai dengan namanya, lemari pakaian biasanya di kamar tidur sebagai tempat penyimpanan pakaian. Tapi tidak menutup kemungkinan juga lemari digunakan untuk menyimpan keperluan lain dan bisa ditempatkan secara fleksibel di ruangan lainnya.</p>
                     <p class="text-justify">Kalau ruangan kamu tergolong terbatas dan menginginkan kesan luas, lemari pakaian minimalis jadi opsi terbaik untuk dipilih. Modelnya yang simpel dan tidak banyak aksen menjadikan lemari baju minimalis menyamarkan kesan sesak dalam ruangan. Desain yang seperti inilah yang sedang banyak jadi furniture populer yang dengan mudah ditemukan di berbagai toko <i>offline</i> dan <i>online</i>. Lemari pakaian minimalis modern minimalis terbaru hadir dengan berbagai jenis mulai dari lemari dengan 2 pintu, 3 pintu, hingga 4 pintu.</p>
 
                     <h5>Jenis Lemari Pakaian</h5>
@@ -332,7 +332,7 @@
                     <p class="text-justify">Televisi sudah jadi barang elektronik yang dirasa wajib ada di setiap rumah. Kegunaannya sebagai media mencari hiburan baik itu saat sendiri atau bersama orang-orang tersayang menjadikan barang elektronik selalu eksis hingga sekarang. Maka dari itu, untuk melengkapi momen menonton TV jadi lebih asyik, diperlukan <i>space</i> khusus berupa Meja TV tentunya. Tak hanya itu saja, furniture meja yang satu ini juga punya fungsi lain sebagai tempat penyimpanan peralatan pendukung nonton TV seperti DVD <i>player</i>, PS <i>player</i>, WiFi, dan masih banyak lagi. Karena saking multifungsinya, furniture meja tempat TV ini punya sebutan lain di masyarakat seperti rak TV, <i>buffet</i> TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.</p>
 
                     <h5>Desain Meja TV Minimalis</h5>
-                    <p class="text-justify">Ngomong desain, ada berbagai jenis model yang bisa Kamu pilih lho! Terlebih jika pilihanmu tertuju dengan model rak TV minimalis yang cantik dan kalem dengan warna-warna netralnya. meja TV minimalis yang <i>eye catching</i> ini biasanya terbuat dari material plywood yang mudah dibentuk. Terlebih jika dibalut dengan <i>paper</i> sebagai finishing akhirnya, yang memanjakan mata dengan warna-warna cantik dari rak TV minimalis. Serba serbi minimalis memang jadi primadona bagi banyak orang, yang mungkin kamu salah satunya. Selain desain yang cantik, kebutuhan furniture yang pas dengan <i>space</i> terbatas jadi alasan mengapa meja TV minimalis jadi pilihan terbaik saat ini buat orang-orang.</p>
+                    <p class="text-justify">Ngomong desain, ada berbagai jenis model yang bisa Kamu pilih lho! Terlebih jika pilihanmu tertuju dengan model rak TV minimalis yang cantik dan kalem dengan warna-warna netralnya. meja TV minimalis yang <i>eye catching</i> ini biasanya terbuat dari material plywood yang mudah dibentuk. Terlebih jika menggunakan <i>paper</i> sebagai finishing akhirnya, yang memanjakan mata dengan warna-warna cantik dari rak TV minimalis. Serba serbi minimalis memang jadi primadona bagi banyak orang, yang mungkin kamu salah satunya. Selain desain yang cantik, kebutuhan furniture yang pas dengan <i>space</i> terbatas jadi alasan mengapa meja TV minimalis jadi pilihan terbaik saat ini buat orang-orang.</p>
 
                     <h5>Tips Jitu Anti Gagal Beli Rak TV</h5>
                     <p class="text-justify mb-1">Semakin kesini, Kamu mungkin akan makin bimbang dengan berbagai model variatif meja TV minimalis modern ini bisa saja buat kamu mudah goyah menentukan harus beli meja TV mana yah? Nah sekarang saatnya keluarkan jurus jitu membeli rak TV yang anti gagal!</p>
@@ -430,6 +430,142 @@
                         <li style="list-style-type: none;">Mungkin yang satu ini akan mirip dengan versi <i>aesthetic</i>, iya! Meja belajar minimalis unik adalah jawaban tepat kalau kamu menyukai segala sesuatu yang berkaitan dengan seni. Disini kamu bisa memadukan aksesoris lain untuk melengkapi tampilan jadi lebih <i>eye catching</i> lagi dengan sentuhan seni yang kamu miliki!</li>
                     </ul>
                     <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin gratis ongkir yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mb-5">
+                <button class="btn btn-outline-dark" onclick="openMeta(event)">Lihat selengkapnya</button>
+            </div>
+        <?php break;
+        case 'rak-besi': ?>
+            <hr class="my-5">
+            <div class="container">
+                <div class="my-3 container-meta">
+                    <div class="overlay-meta"></div>
+                    <h5>Keuntungan Punya Rak Besi Serbaguna</h5>
+                    <p class="text-justify">Rak besi serbaguna merupakan salah satu solusi penyimpanan dengan kegunaan yang beragam. Material besi yang digunakan membuat jenis furniture ini mampu menahan beban berat lebih baik jika dibandingkan dengan material jenis lainnya. Selain itu, rak besi juga lebih mudah dipasang dan disesuaikan sesuai dengan kebutuhan. Material besi yang kokoh ini membuat umur penggunaan rak besi lebih lama sehingga cocok digunakan sebagai investasi jangka panjang. Rak besi hadir dengan berbagai model dengan ukuran dan desain berbeda yang memungkinkan bagi Kamu untuk memilih rak besi susun sesuai dengan kebutuhan dan preferensi masing-masing.</p>
+
+                    <h5>Fungsi Rak Besi Serbaguna</h5>
+                    <p class="text-justify">Rak susun besi merupakan solusi optimal untuk memenuhi kebutuhan area penyimpanan di berbagai tempat seperti kantor, rumah, gudang, dan tempat lainnya. Material besi memang sudah dikenal sebagai salah satu material kokoh dan kuat yang mampu menahan beban berat dengan stabilitas tinggi. Selain itu, perawatan material dari besi juga tergolong lebih mudah. Pada dasarnya rak ini sangat mudah dibersihkan dan tahan terhadap korosi jika dibarengi dengan finishing yang pas. Sedangkan fungsi utama dari rak besi susun adalah sebagai tempat penyimpanan barang-barang lebih terorganisir, lebih efisien, dan memaksimalkan ruang yang ada. Tak hanya itu saja, rak susun besi juga hadir dengan desain modern dan minimalis yang <i>longlasting</i> dan tidak ketinggalan jaman dikemudian hari.</p>
+
+                    <h5>Tips Memilih Rak Besi Susun</h5>
+                    <p class="text-justify mb-1">Untuk menghindari hal-hal yang bisa membuatmu bete, inilah beberapa tips efektif yang bisa dilakukan sebelum membeli rak yang diinginkan:</p>
+                    <ul>
+                        <li>Pertimbangkan ketahan besi terhadap korosi dan karat</li>
+                        <li style="list-style-type: none;">Beberapa jenis rak besi memiliki kemungkinan untuk lebih tahan dari korosi dan karat. Maka dari itu, pastikan rak yang Kamu pilih terbuat dari bahan berkualitas agar tidak mudah terkena korosi dan karat</li>
+                        <li>Perkirakan kapasitas beban rak</li>
+                        <li style="list-style-type: none;">Rencanakan apa saja yang bakal Kamu simpan di rak ini, sebelum pada akhirnya memutuskan untuk membeli rak. Dengan merencanakan dengan matang, Kamu bisa selektif untuk memilih rak besi bertingkat yang sesuai dengan keperluan.</li>
+                        <li>Perhatikan ukuran dan desain</li>
+                        <li style="list-style-type: none;">Sesuaikan kebutuhan dengan desain yang Kamu beli. Jika tidak memiliki banyak space, maka rak besi minimalis bisa jadi opsi terbaik yang membuat ruangan tidak terlihat lebih sesak tanpa mengurangi kebutuhan penyimpanan dari rak itu sendiri. Selain itu, pertimbangankan juga sistem pemasangan. Pilih rak yang mudah dirakit dan dilengkapi dengan instruksi yang jelas.</li>
+                        <li>Periksa <i>review</i> pelanggan</li>
+                        <li style="list-style-type: none;">Setelah ketiga hal ini dilakukan, maka hal terakhir yang harus dipertimbangkan adalah memeriksa ulasan pelanggan yang membeli produk rak tersebut. Jangan mudah terpengaruh dengan rak besi murah saja, tetapi telusuri lebih detail lagi bagaimana kepuasan pelanggan yang telah membeli. Jika <i>review</i> yang diberikan bagus, maka kemungkinan pilihanmu tepat dan tak perlu ragu lagi dengan produk yang sudah dibeli.</li>
+                    </ul>
+                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin gratis ongkir yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
+
+                    <h5>Segini Harga Rak Besi Berkualitas</h5>
+                    <p class="text-justify">Nah, Kalau Kamu masih ragu berapa harga yang perlu disiapkan maka Kamu berada di tempat yang tepat! Karena di Lunarea Furniture, kami menjual berbagai furniture rumah tangga yang ramah di kantong. Bahkan jika kebutuhan rak yang Kamu perlukan tergolong banyak, harga rak besi 4 susun hanya mematok harga ratusan ribu saja lho!</p>
+                    <p class="text-justify">Dan temukan harga rak besi murah lainnya di sini!</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mb-5">
+                <button class="btn btn-outline-dark" onclick="openMeta(event)">Lihat selengkapnya</button>
+            </div>
+        <?php break;
+        case 'rak-serbaguna': ?>
+            <hr class="my-5">
+            <div class="container">
+                <div class="my-3 container-meta">
+                    <div class="overlay-meta"></div>
+                    <h5>Apa Itu Rak Serbaguna?</h5>
+                    <p class="text-justify">Dari sekian banyaknya peralatan rumah tangga, rak susun serbaguna jadi furniture yang harus ada untuk membuat barang-barang tersimpan dengan lebih terorganisir. Nah, karena fungsi utama inilah, Kamu akan menemukan berbagai model rak modern dan minimalis dengan spesifikasi yang berbeda pula tergantung dari kebutuhan masing-masing.</p>
+
+                    <h5>Material Pembuatan Rak Serbaguna</h5>
+                    <p class="text-justify">Seperti yang sedikit ulasan di atas, rak susun serbaguna memiliki berbagai kegunaan. Hal inilah yang menjadi dasar dari jenis material apa yang akan digunakan untuk membuat sebuah rak penyimpanan serbaguna. Umumnya, rak serbaguna bisa terbuat dari material kayu, kayu olahan, dan besi. Tak menutup kemungkinan juga, rak terbuat dari paduan material seperti kayu olahan dan besi yang tidak hanya menambahan keindahan produk tetapi juga mempengaruhi ketahanan rak dalam menahan beban.
+                        Salah satu kayu olahan yang sering digunakan adalah <i>particle board</i>. Dengan keunggulannya yaitu mudah dibentuk, material yang melimpah serta harga yang tergolong terjangkau, menjadikan <i>particle board</i> material unggulan dalam pembuatan furniture salah satunya rak serbaguna.
+                    </p>
+
+                    <h5>Tips Merawat Rak Penyimpanan Serbaguna</h5>
+                    <p class="text-justify mb-1">Pada dasarnya rak <i>portable</i> serbaguna adalah salah satu perabot rumah tangga yang difungsikan untuk menyimpan dan menata barang-barang jadi lebih rapi. Akan tetapi, agar rak tetap awet dan tahan hingga waktu yang lama, diperlukan perawatan yang tepat. Berikut ini adalah kiat-kiat merawat rak kayu serbaguna yang benar:</p>
+                    <ol class="mb-2">
+                        <li>Lakukan pembersihan rutin</li>
+                        <li>Hindari terkena paparan sinar matahari secara langsung</li>
+                        <li>Simpan barang dengan beban paling berat di urutan terbawah dan makin ringan ke susunan tingkat atas</li>
+                        <li>Hindari meletakkan rak di tempat yang lembab</li>
+                        <li>Berikan tambahan alas pelindung</li>
+                    </ol>
+
+                    <h5>Rekomendasi Beli Rak Susun Serbaguna Murah</h5>
+                    <p class="text-justify">Sekarang saatnya memberikan rekomendasi tempat beli rak murah yang pastinya aman dan terpercaya. <i>Range</i> harga rak serbaguna tergantung dari jenis material dan desainnya masing-masing. Karena inilah, penting sekali untuk menentukan berapa <i>budget</i> yang Kamu siapkan dan untuk penyimpanan apa rak ini akan digunakan. Misal, Kamu menginginkan serba-serbi produk minimalis, maka rak kayu serbaguna minimalis jadi pilihan yang cocok. Jika sudah, Kamu bisa memilih rak mana yang akan Kamu beli.
+                        Kalau ingin lebih mudah, Kamu bisa mengunjungi Lunarea Furniture dan dapatkan berbagai kemudahan yang pastinya nggak bikin kantong jebol!
+                    </p>
+                    <p class="text-justify">Walaupun terjangkau, tapi urusan kualitas boleh diadu! Mumpung lagi <b>banyak promo</b> plus <b>100% gratis ongkir</b> untuk wilayah Jawa, Madura dan Bali.</p>
+                    <p class="text-justify">Tunggu apalagi, buruan cek produk dan <i>check out</i> sekarang juga untuk dapatkan rak bertingkat baru incaran mu!</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mb-5">
+                <button class="btn btn-outline-dark" onclick="openMeta(event)">Lihat selengkapnya</button>
+            </div>
+        <?php break;
+        case 'kursi': ?>
+            <hr class="my-5">
+            <div class="container">
+                <div class="my-3 container-meta">
+                    <div class="overlay-meta"></div>
+                    <h5>Apa Itu Kursi <i>Stainless</i>?</h5>
+                    <p class="text-justify">Kursi susun <i>stainless</i> merupakan salah satu pilihan favorit bagi banyak orang. Tidak hanya digunakan di kafe dan restoran, tetapi juga semakin bisa pula untuk di rumah-rumah pribadi. Desain yang sederhana membuat kursi ini cocok dalam berbagai kebutuhan yang membutuhkan banyak kursi di sebuah pertemuan besar. Maka dari itu, tak jarang pulang kursi kondangan ini bisa ditemui di acara pernikahan, rapat, pesta, dan lain sebagainya.</p>
+
+                    <h5>Bahan Pembuatan Kursi Susun <i>Stainless</i></h5>
+                    <h6>Kain</h6>
+                    <p class="text-justify">Untuk memberikan kenyamanan pada pengguna, dudukan dan sandaran kursi besi <i>stainless</i> dilapisi dengan busa yang kemudian dilapisi kain. Kain yang digunakan biasanya adalah kain poliester, yang dikenal karena kekuatan, elastisitas, dan kemampuannya untuk mempertahankan warna serta bentuk dalam jangka waktu lama. Poliester juga mudah dibersihkan dan dirawat, menjadikannya pilihan praktis untuk furniture yang sering digunakan. Kain ini tersedia dalam berbagai tekstur dan warna, memungkinkan desainer untuk menciptakan kursi yang tidak hanya nyaman tetapi juga estetis dan sesuai dengan berbagai tema dekorasi.</p>
+                    <h6>Busa</h6>
+                    <p class="text-justify">Busa poliuretan (PU <i>Foam</i>) adalah pilihan umum untuk bantalan dudukan dan sandaran kursi khususnya untuk kursi besi. Busa ini dipilih karena elastisitasnya yang baik, kemampuan untuk kembali ke bentuk semula setelah digunakan, serta daya tahannya yang tinggi. Busa poliuretan memberikan dukungan yang nyaman dan dapat menahan tekanan dalam jangka waktu lama, membuat kursi tumpuk <i>stainless</i> cocok untuk penggunaan jangka panjang. Penggunaan busa juga membantu mendistribusikan berat tubuh secara merata, mengurangi titik-titik tekanan, dan meningkatkan kenyamanan saat duduk.</p>
+                    <p class="text-justify">Gabungan antara kerangka <i>stainless steel</i> yang kokoh dan pelapis kain yang nyaman serta estetis menjadikan kursi susun <i>stainless</i> pilihan yang ideal untuk berbagai kebutuhan. <i>Stainless steel</i> memberikan struktur yang kuat dan tahan lama, sementara kain poliester dan busa poliuretan memastikan kenyamanan dan estetika. Kombinasi ini tidak hanya menghasilkan kursi yang fungsional tetapi juga menambah nilai estetika pada ruangan. Dengan pemilihan bahan yang tepat, kursi <i>stainless</i> dapat digunakan di berbagai lingkungan, baik itu di rumah, kantor, restoran, atau kafe, dan tetap menawarkan kenyamanan serta keindahan yang tak tertandingi.</p>
+
+                    <h5>Fungsi Kursi <i>Stainless</i></h5>
+                    <p class="text-justify mb-1">Kursi besi merupakan salah satu kursi legendaris yang mudah dijumpai untuk banyak kesempatan. Berikut ini adalah fungsi dari kursi ini:</p>
+                    <ul class="mb-2">
+                        <li>Sebagai kursi pesta</li>
+                        <li>Sebagai kursi kantor</li>
+                        <li>Sebagai kusi kerja</li>
+                        <li>Sebagai kursi kondangan</li>
+                        <li>Sebagai kursi hajatan</li>
+                    </ul>
+
+                    <h5>Rekomendasi Tempat Beli Kursi Stainless</h5>
+                    <p class="text-justify">Karena banyaknya pilihan penjual kursi ini, mungkin saja bisa membuatmu dilema manakah toko terbaik dan terpercaya diantara banyaknya pilihan tersebut. Nah, Kamu sekarang berada di tempat yang tepat! Lunarea Furniture saat ini menjual jenis kursi tumpuk ini. Tersedia dalam 5 warna yaitu hitam, hijau, biru, merah, dan abu-abu. Sesuaikan warna dengan kebutuhan Kamu ya! Kalau Kamu membutuhkan untuk kursi hajatan atau kursi pesta maka warna yang cocok adalah warna hitam atau merah bisa Kamu pilih. Atau untuk kursi rumah makan, Kamu bisa pilih warna hijau, biru atau merah. Sedangkan untuk kursi kantor atau kursi kerja, Kamu bisa pilih warna hitam atau abu-abu yang tidak mencolok.</p>
+                    <p class="text-justify">Pilih produk kebutuhanmu dan check out segera untuk dapatkan <b>full gratis ongkir</b> untuk pengiriman di pulau Jawa, Madura, dan Bali!</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mb-5">
+                <button class="btn btn-outline-dark" onclick="openMeta(event)">Lihat selengkapnya</button>
+            </div>
+        <?php break;
+        case 'lemari-anak': ?>
+            <hr class="my-5">
+            <div class="container">
+                <div class="my-3 container-meta">
+                    <div class="overlay-meta"></div>
+                    <h5>Kenapa Harus Punya Lemari Kecil Buat Si Buah Hati?</h5>
+                    <p class="text-justify"><i>Moms</i>, udah punya lemari buat buah hati belum? Nah kalau belum, yuk simak dulu alasannya kenapa <i>Moms</i> harus punya lemari kecil yang dikhususkan buat menyimpan baju-baju si buah hati. Seperti lemari pakaian pada umumnya, lemari pakaian kecil ini juga memiliki fungsi yang sama, hanya saja ukurannya yang lebih kecil menyesuaikan kebutuhan si kecil. Memisahkan pakaian anak di lemari pakaian kecil juga membuat <i>Moms</i> lebih mudah saat mencari dan menata baju-baju si buah hati loh! Apalagi kalau si kesayangan lagi aktif-aktifnya. Pasti akan repot kalau baju-baju si kecil bercampur dengan baju-baju yang bukan miliknya bukan? Dengan lemari pakaian kecil ini juga secara tidak langsung membuat anak bertanggung jawab dengan pakaiannya sendiri. Inilah saat yang tepat untuk membuat anak merasa memiliki dan merawat barang-barang miliknya dengan baik yang disimpan dengan baik pula di lemari baju kecil miliknya.</p>
+
+                    <h5>Tips Memilih Lemari Baju Untuk Si Kecil</h5>
+                    <p class="text-justify">Memilih lemari baju kecil untuk menyimpan pakaian anak terkadang cukup <i>tricky</i>. Terlebih jika mencari desain dan tipe lemari yang bisa mendukung perkembangan si buah hati. Lemari minimalis kecil bisa jadi solusi yang tepat untuk penyimpanan pakaian anak. Dilengkapi dengan banyak rak susun dan rak gantung dengan tinggi dan ukuran yang mudah dijangkau anak sehingga anak tak perlu repot minta bantuan orang dewasa untuk mengambil pakaiannya.</p>
+                    <p class="text-justify">Nah, bagi <i>Moms</i> yang lagi cari-cari lemari minimalis anak, berikut ini tips lengkap memilihnya:</p>
+                    <ul>
+                        <li>Pilih lemari yang dilengkapi dengan laci</li>
+                        <li style="list-style-type: none;">Pemilihan lemari minimalis kecil ini membuat anak belajar melatih keterampilan mengatur barang sejak dini loh <i>Moms</i>! Dengan adanya laci, akan mendorong anak untuk terlibat mengatur pakaian sesuka hati dan kebutuhannya.</li>
+                        <li>Pastikan ada <i>space</i> gantungan dan rak</li>
+                        <li style="list-style-type: none;">Selain laci, hal yang perlu diperhatikan lagi adalah <i>space</i> untuk gantungan baju dan ambalan rak susun untuk pakaian lipat. Sama seperti laci, dengan 2 item ini diharapkan mampu melatih anak untuk mandiri dan bertanggung jawab atas pakaiannya sendiri.</li>
+                        <li>Perhatikan lapisan finishing lemari</li>
+                        <li style="list-style-type: none;">Ada banyak sekali pilihan lapisan finishing lemari baju minimalis kecil yang digunakan oleh para pengrajin furniture. Misal saja untuk lemari kayu kecil, pilihan lapisan finishing yang umum digunakan adalah cat kayu atau plitur. Atau jika pilihan lemari jatuh pada material <i>particle board</i>, maka finishing <i>paper</i> bisa jadi pilihan populer dengan berbagai pilihan warna menariknya yang mampu memikat anak-anak.</li>
+                        <li>Pertimbangkan ulasan pelanggan</li>
+                        <li style="list-style-type: none;">Hal lain yang perlu menjadi perhatian adalah bagaimana kepuasan pelanggan yang telah membeli produk lemari anak tersebut. Jika dirasa memuaskan, maka <i>Moms</i> bisa segera memutuskan untuk membelinya. Tapi jika <i>Moms</i> ragu setelah membaca ulasan, sebaiknya <i>Moms move on</i> dari produk lemari di toko tersebut dan beralih ke toko yang lebih <i>trusted</i>.</li>
+                    </ul>
+
+
+                    <h5>Rekomendasi Lemari Minimalis Kecil</h5>
+                    <p class="text-justify">Nah setelah mengetahui tips memilih lemari kecil kayu olahan, sekarang <i>Moms</i> sudah bisa memutuskan kira-kira lemari mana yah yang pas buat si buah hati. Misal saja, jika si kecil membutuhkan banyak <i>space</i> penyimpanan, maka <i>Moms</i> bisa membeli lemari kecil 2 pintu yang punya penyimpanan lebih <i>completed</i>. Walaupun mungkin akan memakan biaya yang lebih besar, tapi harga lemari kayu 2 pintu kecil ini akan membuat <i>Moms</i> lebih hemat lagi jika dihitung dengan lamanya kegunaan lemari ini.</p>
+                    <p class="text-justify">Tapi saat ini <i>Moms</i> ada di tempat yang tepat! Karena Lunarea Furniture nggak setengah-setengah memberikan keuntungan buat pelanggannya. Harga lemari baju minimalis kecil bisa kamu dapatkan cuma-cuma dengan produk yang sempurna buat si buah hati. Yang pastinya <i>Moms</i> nggak bakal kecewa deh!</p>
+                    <p class="text-justify"><i>Check out</i> produknya sekarang juga dan dapatkan <b>100% gratis ongkir</b> untuk pengiriman di wilayah Jawa, Madura dan Bali!</p>
                 </div>
             </div>
             <div class="d-flex justify-content-center mb-5">

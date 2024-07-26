@@ -108,6 +108,8 @@ $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'co
 $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
 $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
+$routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
+
 
 // GambarController
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');

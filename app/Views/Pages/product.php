@@ -15,18 +15,18 @@
             <?php if (isset($gambar)) { ?>
                 <div class="img-produk limapuluh-ke-seratus">
                     <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
-                        <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')"></figure>
                     </section>
-                    <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
+                    <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="<?= $produk['nama']; ?>" class="img-produk-prev hide-ke-show-block">
                     <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="hide-ke-show-block">
-                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="" class="img-produk-prev hide-ke-show-block">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <img src="data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>" alt="<?= $produk['nama']; ?>" class="img-produk-prev hide-ke-show-block">
                     </section>
                     <div>
                         <?php foreach ($gambar as $key => $value) {
                             if ($value && $key != 'id') { ?>
-                                <div class="img-produk-select <?= $key == 'gambar1' ? "selected" : "" ?>"><img src="data:image/webp;base64,<?= base64_encode($value); ?>" alt=""></div>
+                                <div class="img-produk-select <?= $key == 'gambar1' ? "selected" : "" ?>"><img src="data:image/webp;base64,<?= base64_encode($value); ?>" alt="<?= $produk['nama']; ?>"></div>
                         <?php }
                         } ?>
                     </div>
@@ -34,17 +34,17 @@
             <?php } ?>
             <div class="img-produk limapuluh-ke-seratus">
                 <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
-                    <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                    <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                     <figure class="img-produk-prev" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
                 </section>
                 <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="hide-ke-show-block">
-                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                    <img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="" class="img-produk-prev">
+                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                    <img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="<?= $produk['nama']; ?>" class="img-produk-prev">
                 </section>
                 <div>
-                    <div class="img-produk-select selected"><img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt=""></div>
-                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Dalam.webp" alt=""></div>
-                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Depan.webp" alt=""></div>
+                    <div class="img-produk-select selected"><img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="<?= $produk['nama']; ?>"></div>
+                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Dalam.webp" alt="<?= $produk['nama']; ?>"></div>
+                    <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Depan.webp" alt="<?= $produk['nama']; ?>"></div>
                 </div>
             </div>
             <div class="limapuluh-ke-seratus">
@@ -166,13 +166,13 @@
         <h5 class="jdl-section">Produk serupa</h5>
         <div class="card-group1 no-scroll">
             <?php foreach ($produksekategori as $p) { ?>
-                <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
+                <a class="card1" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
                     <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                     </div>
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>

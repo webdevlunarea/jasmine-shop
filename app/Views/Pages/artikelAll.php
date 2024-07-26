@@ -42,8 +42,8 @@
                 <h5 class="jdl-section mb-3">Artikel Baru</h5>
                 <div class="gap-4 show-flex-ke-hide container-card-artikel">
                     <div class="flex-grow-1">
-                        <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= urlencode($artikel[0]['judul']); ?>`)">
-                            <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="">
+                        <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
+                            <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="<?= $artikel[0]['judul']; ?>">
                             <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
                             <div class="flex-grow-1">
                                 <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p>
@@ -53,9 +53,9 @@
                         </div>
                     </div>
                     <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[1]['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[1]['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="<?= $artikel[1]['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
@@ -66,9 +66,9 @@
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[1]['waktu']; ?></p>
                             </div>
                         </div>
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[2]['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[2]['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="<?= $artikel[2]['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
@@ -81,9 +81,9 @@
                         </div>
                     </div>
                     <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[3]['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[3]['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="<?= $artikel[3]['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
@@ -94,9 +94,9 @@
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[3]['waktu']; ?></p>
                             </div>
                         </div>
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[4]['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[4]['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="<?= $artikel[4]['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
@@ -107,9 +107,9 @@
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[4]['waktu']; ?></p>
                             </div>
                         </div>
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($artikel[5]['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[5]['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $artikel[5]['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $artikel[5]['header']; ?>" alt="<?= $artikel[5]['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[5]['judul']; ?></p>
@@ -134,9 +134,9 @@
                         <div class="gap-4 d-flex container-card-artikel">
                             <?php for ($i = $ind_a; $i < $ind_a + 3; $i++) {
                                 if (isset($artikel[$i])) { ?>
-                                    <div class="flex-grow-1" onclick="pergiKeArtikel(`<?= urlencode($artikel[$i]['judul']); ?>`)">
+                                    <div class="flex-grow-1" onclick="pergiKeArtikel(`<?= $artikel[$i]['path']; ?>`)">
                                         <div class="card-artikel-besar" .>
-                                            <img class="rounded" src="<?= $artikel[$i]['header']; ?>" alt="">
+                                            <img class="rounded" src="<?= $artikel[$i]['header']; ?>" alt="<?= $artikel[$i]['judul']; ?>">
                                             <p class="m-0 judul"><?= $artikel[$i]['judul']; ?></p>
                                             <div class="flex-grow-1">
                                                 <p class="m-0 isi"><?= $artikel[$i]['isi'][0]['teks']; ?></p>
@@ -156,9 +156,9 @@
             <?php foreach ($artikel as $ind_a => $a) { ?>
                 <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
                     <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= urlencode($a['judul']); ?>`)">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
                             <div class="img">
-                                <img class="rounded" src="<?= $a['header']; ?>" alt="">
+                                <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul" style="line-height: 16px;"><?= $a['judul']; ?></p>

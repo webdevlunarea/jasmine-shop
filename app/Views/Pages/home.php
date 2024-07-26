@@ -99,13 +99,13 @@
         <h1 class="mb-1">Produk Terpopuler</h1>
         <div class="card-group1 no-scroll">
             <?php foreach ($produkBaru as $p) { ?>
-                <a class="card1" href="/product/<?= urlencode($p['nama']); ?>">
+                <a class="card1" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
                     <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
+                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
+                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                     </div>
                     <div>
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>

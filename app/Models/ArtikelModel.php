@@ -10,6 +10,7 @@ class ArtikelModel extends Model
     protected $allowedFields = [
         'id',
         'judul',
+        'path',
         'penulis',
         'waktu',
         'isi',
@@ -18,6 +19,7 @@ class ArtikelModel extends Model
         'suka',
         'komen',
         'bagikan',
+        'keywords',
     ];
 
     public function getArtikel($id = false)
@@ -32,7 +34,7 @@ class ArtikelModel extends Model
         if ($judul == false) {
             return $this->orderBy('id', 'asc')->findAll();
         }
-        return $this->where(['judul' => $judul])->first();
+        return $this->where(['path' => $judul])->first();
     }
     public function getArtikelKategori($kategori = false)
     {
