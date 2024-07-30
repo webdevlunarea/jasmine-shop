@@ -51,6 +51,7 @@ $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/
 $routes->post('/actioncheckout', 'Pages::actionCheckout');
 $routes->post('/actionpay', 'Pages::actionPay');
 $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
+$routes->post('/actionpaycore', 'Pages::actionPayCore');
 $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 

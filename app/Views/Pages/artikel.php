@@ -2,7 +2,7 @@
 <?= $this->section('content'); ?>
 <?php if (!session()->get('submitEmail')) { ?>
     <div id="submit-email" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
-        <div class="bg-light ps-4 pe-4 pb-4 pt-2 rounded">
+        <div class="ps-4 pe-4 pb-4 pt-2 rounded" style="background-color: #eff8f2;">
             <div class="d-flex justify-content-end">
                 <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
             </div>
@@ -255,6 +255,12 @@
         </div>
     </div>
 </div>
+<script>
+    function pergiKeArtikel(judulArtikel) {
+        console.log(judulArtikel)
+        window.location.href = '/article/' + judulArtikel
+    }
+</script>
 <?php if (session()->get('role') == 1) { ?>
     <script>
         const editKomenElm = document.getElementById('edit-komen')

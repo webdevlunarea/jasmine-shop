@@ -29,6 +29,15 @@
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
                             <p class="m-0">QR Code</p>
                             <img src="<?= $va_number; ?>" alt="" width="150px" height="150px">
+                        <?php } else if ($dataMid['payment_type'] == 'gopay') { ?>
+                            <div class="d-flex gap-1">
+                                <a class="btn btn-primary1" href="<?= $va_number[0]['url']; ?>">QR Code</a>
+                                <a class="btn btn-primary1" href="<?= $va_number[1]['url']; ?>">Buka Aplikasi</a>
+                            </div>
+                        <?php } else if ($dataMid['payment_type'] == 'shopeepay') { ?>
+                            <div class="d-flex gap-1">
+                                <a class="btn btn-primary1" href="<?= $va_number[0]['url']; ?>">Buka Aplikasi</a>
+                            </div>
                         <?php } ?>
                     </div>
                     <div class="flex-grow-1">
@@ -122,6 +131,9 @@
         const seconds = String(Math.floor(dselisih / 1000)).padStart(2, '0');
 
         expiryTimeElm.innerHTML = `${hours}: ${minutes}: ${seconds}`;
+        if (Number(hours) < 0 && Number(minutes) < 0 && Number(seconds) < 0) {
+            window.location.reload();
+        }
     }, 1000);
 
     function copytext(teks) {

@@ -767,6 +767,11 @@ a {
     }
 }
 
+.container-pembayaran {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
 .container-pembayaran img {
     height: 20px;
 }
@@ -817,7 +822,7 @@ a {
 
 /* Footer */
 footer {
-    background-color: #eff8f2;
+    background-color: #f8fdf9;
 }
 
 footer > .atas > div {

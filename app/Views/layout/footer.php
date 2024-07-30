@@ -87,7 +87,7 @@
                     <p class="mb-1" style="color: #555">
                         Sabtu | 08.00 - 14.00 WIB
                     </p>
-                    <a href="https://wa.me/+628112938160" class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
+                    <a href="https://api.whatsapp.com/send?phone=628112938160&text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
                         <i class="material-icons" style="font-size: 14px;">phone</i>
                         <p class="m-0">08112938160</p>
                     </a>

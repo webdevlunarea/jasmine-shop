@@ -11,7 +11,7 @@
             </ol>
         </nav>
         <h1 class="text-center">Kontak Kami</h1>
-        <h5 class="mb-4 text-center" style="color: var(--hijau)">Tuliskan pesan Anda di formulir berikut</h5>
+        <h5 class="mb-4 text-center" style="color: var(--hijau)">Tulis pesan Anda di formulir berikut:</h5>
         <div class="d-flex flex-column align-items-center justify-content-center">
             <?php if ($val['msg']) { ?>
                 <div class="alert alert-success" style="width: fit-content;" role="alert">

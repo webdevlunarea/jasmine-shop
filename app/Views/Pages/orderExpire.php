@@ -23,12 +23,15 @@
             <div class="limapuluh-ke-seratus">
                 <div class="d-flex justify-content-between mb-3">
                     <div class="flex-grow-1">
+                        <p class="m-0 d-block">Metode Pembayaran</p>
                         <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel') { ?>
-                            <p class="m-0">Nomor Virtual Account</p>
-                            <h5><?= strtoupper($bank); ?> <?= $va_number; ?></h5>
+                            <h5><?= strtoupper($bank); ?></h5>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
-                            <p class="m-0">QR Code</p>
-                            <img src="<?= $va_number; ?>" alt="" width="150px" height="150px">
+                            <h5>Qris</h5>
+                        <?php } else if ($dataMid['payment_type'] == 'gopay') { ?>
+                            <h5>Gopay</h5>
+                        <?php } else if ($dataMid['payment_type'] == 'shopeepay') { ?>
+                            <h5>ShopeePay</h5>
                         <?php } ?>
                     </div>
                     <div class="flex-grow-1">

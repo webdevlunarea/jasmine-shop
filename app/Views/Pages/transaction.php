@@ -131,7 +131,10 @@
                                                                         echo "BCA VA<br>" . $dataMid['bca_va_number'];
                                                                     break;
                                                                 case 'gopay':
-                                                                    echo 'Qris';
+                                                                    echo 'Gopay';
+                                                                    break;
+                                                                case 'shopeepay':
+                                                                    echo 'Shopeepay';
                                                                     break;
                                                                 case 'qris':
                                                                     echo 'Qris';
