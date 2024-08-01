@@ -396,7 +396,7 @@
                     <h5>Berapa Estimasi Harga Meja Rias?</h5>
                     <p class="text-justify">Barangkali sudah bukan rahasia umum yah kalau harga meja rias dengan material <i>particle board</i> bisa dikatakan lebih miring dibanding material lain seperti kayu, <i>stainless</i>, dan lain sebagainya. Inilah yang membuatnya banyak diburu apalagi buat kaum mendang mending. Dengan kualitas yang mumpuni, <i>look</i> yang <i>eye catching</i> dan harga yang menawan, siapa sih yang nggak kelimpungan buat dapetin meja rias multifungsi kayak gini? Nah, tapi jangan asal pilih juga ya! Pastikan Kamu beli meja rias di tempat yang terpercaya agar tak menyesal kemudian. Salah satunya yang bakalan nggak bikin kecewa bisa Kamu dapetin lewat websitenya Lunarea Furniture.</p>
                     <p class="text-justify">Pastiin kamu sudah cek dulu baru <i>check out</i> produk idaman Kamu ya!
-                        Jangan kelamaan <i>checking</i> sebelum kehabisan stok, mumpung ada gratis ongkir pengiriman di Pulau Jawa, Madura, dan Bali.</p>
+                        Jangan kelamaan <i>checking</i> sebelum kehabisan stok, mumpung ada <b>gratis ongkir</b> pengiriman di Pulau Jawa, Madura, dan Bali.</p>
                     <p class="text-justify">Atau jika masih bimbang mau meja rias minimalis, meja rias multifungsi, meja rias <i>simple</i>, meja rias minimalis modern, atau meja-meja lainnya, Kamu bisa hubungi <i>Customer Service</i> Lunarea yang bakal menjawab semua pertanyaanmu dengan sepenuh hati!</p>
                 </div>
             </div>
@@ -413,7 +413,7 @@
                     <p class="text-justify">Meja belajar merupakan salah satu furniture penting yang diupayakan dapat menciptakan lingkungan belajar yang nyaman dan produktif di rumah. Ada beberapa hal yang perlu jadi pertimbangan saat memilih meja belajar mana yang akan dibeli, sebut saja meja belajar minimalis, meja belajar <i>aesthetic</i>, meja belajar multifungsi, meja belajar <i>simple</i>, dan masih banyak lagi ragamnya. Nah, pada dasarnya yang perlu dipilih adalah sesuai dengan kebutuhan dan mengesampingkan keinginan. Tapi kalau bisa keduanya, kenapa tidak? meja belajar minimalis unik mungkin bisa jadi pilihan yang pas untukmu yang tidak suka sesuatu monoton.</p>
 
                     <h5>Material Bahan Pembuatannya</h5>
-                    <p class="text-justify">Furniture meja belajar biasanya terbuat dari material kayu atau kayu olahan seperti <i>particle board</i> atau <i>particle board</i>. Tipe bahan yang mudah dibentuk, mudah ditemukan, dan harga yang lebih terjangkau menjadi alasan utama mengapa <i>particle board</i> sering jadi bahan pembuatan furniture. Hal inilah yang menjadi dasar penetapan harga meja belajar dari bahan ini lebih terjangkau di pasaran dibanding dengan material lainnya.</p>
+                    <p class="text-justify">Furniture meja belajar biasanya terbuat dari material kayu atau kayu olahan seperti <i>particle board</i>. Tipe bahan yang mudah dibentuk, mudah ditemukan, dan harga yang lebih terjangkau menjadi alasan utama mengapa <i>particle board</i> sering jadi bahan pembuatan furniture. Selain itu, beberapa model meja juga dibuat dengan kombinasi besi pada rangka yang menjadikannya jadi lebih kuat dan kokoh Lho! Hal inilah yang menjadi dasar penetapan harga meja belajar dari bahan ini lebih terjangkau di pasaran dibanding dengan material lainnya.</p>
 
                     <h5>Desain & Jenisnya</h5>
                     <p class="text-justify mb-1">Sudah diulas sebelumnya, jika keberagaman desain ini tak luput dari beragam kebutuhan. Selain itu, dengan banyaknya pilihan desain ini akan memungkinkan buat Kamu lebih leluasa memilih sebelum membeli. Berikut ini referensinya:</p>
@@ -427,7 +427,7 @@
                         <li>Meja belajar minimalis unik</li>
                         <li style="list-style-type: none;">Mungkin yang satu ini akan mirip dengan versi <i>aesthetic</i>, iya! Meja belajar minimalis unik adalah jawaban tepat kalau kamu menyukai segala sesuatu yang berkaitan dengan seni. Disini kamu bisa memadukan aksesoris lain untuk melengkapi tampilan jadi lebih <i>eye catching</i> lagi dengan sentuhan seni yang kamu miliki!</li>
                     </ul>
-                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin gratis ongkir yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
+                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin <b>gratis ongkir</b> yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
                 </div>
             </div>
             <div class="d-flex justify-content-center mb-5">
@@ -453,9 +453,8 @@
                         <li>Perkirakan kapasitas beban rak</li>
                         <li style="list-style-type: none;">Rencanakan apa saja yang bakal Kamu simpan di rak ini, sebelum pada akhirnya memutuskan untuk membeli rak. Dengan merencanakan dengan matang, Kamu bisa selektif untuk memilih rak besi bertingkat yang sesuai dengan keperluan.</li>
                         <li>Perhatikan ukuran dan desain</li>
-                        <li style="list-style-type: none;">Sesuaikan kebutuhan dengan desain yang Kamu beli. Jika tidak memiliki banyak space, maka rak besi minimalis bisa jadi opsi terbaik yang membuat ruangan tidak terlihat lebih sesak tanpa mengurangi kebutuhan penyimpanan dari rak itu sendiri. Selain itu, pertimbangankan juga sistem pemasangan. Pilih rak yang mudah dirakit dan dilengkapi dengan instruksi yang jelas.</li>
+                        <li style="list-style-type: none;">Sesuaikan kebutuhan dengan desain yang Kamu beli. Jika tidak memiliki banyak <i>space</i>, maka rak besi minimalis bisa jadi opsi terbaik yang membuat ruangan tidak terlihat lebih sesak tanpa mengurangi kebutuhan penyimpanan dari rak itu sendiri. Selain itu, pertimbangankan juga sistem pemasangan. Pilih rak yang mudah dirakit dan dilengkapi dengan instruksi yang jelas.</li>
                     </ul>
-                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin gratis ongkir yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
 
                     <h5>Segini Harga Rak Besi Berkualitas</h5>
                     <p class="text-justify">Nah, Kalau Kamu masih ragu berapa harga yang perlu disiapkan maka Kamu berada di tempat yang tepat! Karena di Lunarea Furniture, kami menjual berbagai furniture rumah tangga yang ramah di kantong. Bahkan jika kebutuhan rak yang Kamu perlukan tergolong banyak, harga rak besi 4 susun hanya mematok harga ratusan ribu saja lho!</p>

@@ -3,7 +3,7 @@
         <form class="d-flex flex-grow-1 search-box" role="search">
             <div class="input-group">
                 <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                <button class="btn btn-dark" type="submit"><i class="material-icons">search</i></button>
+                <button class="btn btn-dark" type="submit"><i id="btn-search" class="material-icons">search</i></button>
             </div>
         </form>
         <?php if (session()->get('isLogin')) { ?>
@@ -66,7 +66,7 @@
             <form class="d-flex search-box" role="search">
                 <div class="input-group">
                     <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                    <button class="btn btn-light" type="submit"><i class="material-icons">search</i></button>
+                    <button class="btn btn-light" type="submit"><i id="btn-search" class="material-icons">search</i></button>
                 </div>
             </form>
             <?php if (session()->get('isLogin')) { ?>

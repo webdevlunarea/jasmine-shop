@@ -1884,13 +1884,6 @@ class Pages extends BaseController
                 ])->update();
             }
         }
-
-
-
-        // return $this->response->setJSON([
-        //     'hasilMid' => $hasilMidtrans,
-        //     'path' => 'order/' . $arrPostField['transaction_details']['order_id']
-        // ], false);
         return redirect()->to('/order/' . $arrPostField['transaction_details']['order_id']);
     }
     public function actionPaySnap()

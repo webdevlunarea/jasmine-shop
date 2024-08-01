@@ -19,7 +19,7 @@
                     </div>
                     <div class="mt-3">
                         <p class="fw-bold mb-1">Layanan Pelanggan Lunarea</p>
-                        <a href="https://wa.me/+628112938160" style="text-decoration: none; color: black">
+                        <a href="https://api.whatsapp.com/send?phone=628112938160&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="text-decoration: none; color: black">
                             <p class="m-0">Telephone : 08112938160</p>
                         </a>
                         <a href="mailto:cs@lunareafurniture.com" style="text-decoration: none; color: black">
@@ -41,7 +41,7 @@
                         <div style="background-image: linear-gradient(to top, white, transparent); width: 100%; height: 100%; position: absolute;"></div>
                         <p class="m-0"><?= $a['isi'][0]['teks']; ?></p>
                     </div>
-                    <a href="/article/<?= urlencode($a['judul']); ?>" style="text-decoration: none; color: var(--hijau)">baca selengkapnya...</a>
+                    <a href="/article/<?= $a['path']; ?>" style="text-decoration: none; color: var(--hijau)">baca selengkapnya...</a>
                 </div>
             <?php } ?>
         </div>

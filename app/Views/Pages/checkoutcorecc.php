@@ -102,7 +102,7 @@
                         <div class="container-pembayaran mb-1">
                             <!-- <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
                             <label for="pembayaran1" class="item-logo-pembayaran"><img src="/img/pembayaran/bca.webp" alt=""></label> -->
-                            <input type="radio" name="pembayaran" id="pembayaran2" value="bni">
+                            <input type="radio" name="pembayaran" checked id="pembayaran2" value="bni">
                             <label for="pembayaran2" class="item-logo-pembayaran"><img src="/img/pembayaran/bni.webp" alt=""></label>
                             <input type="radio" name="pembayaran" id="pembayaran3" value="bri">
                             <label for="pembayaran3" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp" alt=""></label>
@@ -452,7 +452,7 @@
         const provJawaMaduraBali = ["Banten", "Jawa Barat", "DKI Jakarta", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
         if (!provJawaMaduraBali.includes(valuenya[1])) {
             document.getElementById("peringatan-lokasi").style.display = "block";
-            triggerToast('Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan');
+            triggerToast('Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://api.whatsapp.com/send?phone=628112938160&text=Hai%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan');
         } else {
             document.getElementById("peringatan-lokasi").style.display = "none";
         }

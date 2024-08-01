@@ -34,7 +34,7 @@
                         <input type="checkbox" id="checkbox_active<?= $ind_p; ?>">
                     </div>
                     <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
-                        <a class="btn btn-light d-flex" href="/product/<?= urlencode($p['nama']); ?>"><i class="material-icons">visibility</i></a>
+                        <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
                         <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
                         <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
                     </div>
@@ -66,7 +66,7 @@
                             <input type="checkbox" id="checkbox_active<?= $ind_p; ?>">
                         </div>
                         <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
-                            <a class="btn btn-light d-flex" href="/product/<?= urlencode($p['nama']); ?>"><i class="material-icons">visibility</i></a>
+                            <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
                             <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
                             <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
                         </div>
