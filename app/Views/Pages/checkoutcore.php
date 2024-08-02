@@ -94,8 +94,8 @@
                     <div class="pt-3">
                         <h5 class="mb-2">Metode Pembayaran</h5>
                         <div class="container-pembayaran mb-1">
-                            <!-- <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
-                            <label for="pembayaran1" class="item-logo-pembayaran"><img src="/img/pembayaran/bca.webp" alt=""></label> -->
+                            <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
+                            <label for="pembayaran1" class="item-logo-pembayaran"><img src="/img/pembayaran/bca.webp" alt=""></label>
                             <input type="radio" name="pembayaran" id="pembayaran2" value="bni">
                             <label for="pembayaran2" class="item-logo-pembayaran"><img src="/img/pembayaran/bni.webp" alt=""></label>
                             <input type="radio" name="pembayaran" id="pembayaran3" value="bri">
@@ -110,8 +110,8 @@
                             <label for="pembayaran7" class="item-logo-pembayaran"><img src="/img/pembayaran/qris.webp" alt=""></label>
                             <input type="radio" name="pembayaran" id="pembayaran8" value="gopay">
                             <label for="pembayaran8" class="item-logo-pembayaran"><img src="/img/pembayaran/gopay.webp" alt=""></label>
-                            <input type="radio" name="pembayaran" id="pembayaran9" value="shopeepay">
-                            <label for="pembayaran9" class="item-logo-pembayaran"><img src="/img/pembayaran/shopeepay.webp" alt=""></label>
+                            <!-- <input type="radio" name="pembayaran" id="pembayaran9" value="shopeepay">
+                            <label for="pembayaran9" class="item-logo-pembayaran"><img src="/img/pembayaran/shopeepay.webp" alt=""></label> -->
                         </div>
                     </div>
                 </div>

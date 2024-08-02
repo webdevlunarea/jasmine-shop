@@ -32,6 +32,8 @@
                             <h5>Gopay</h5>
                         <?php } else if ($dataMid['payment_type'] == 'shopeepay') { ?>
                             <h5>ShopeePay</h5>
+                        <?php } else if ($dataMid['payment_type'] == 'credit_card') { ?>
+                            <h5>Kartu Kredit</h5>
                         <?php } ?>
                     </div>
                     <div class="flex-grow-1">

@@ -798,6 +798,7 @@ class Pages extends BaseController
         $indElementStokHabis = [];
         $subtotal = 0;
         $berat = 0;
+        // dd($keranjang);
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -1329,7 +1330,8 @@ class Pages extends BaseController
                 'voucherSelected' => $voucherSelected
             ])),
             'voucherSelected' => $voucherSelected,
-            'msg' => session()->getFlashdata('msg')
+            'msg' => session()->getFlashdata('msg'),
+            'emailUji' => $emailUjiCoba
             // 'paket' => $paketFilter,
             // 'paketJson' => json_encode($paketFilter),
         ];
@@ -1569,7 +1571,11 @@ class Pages extends BaseController
         $alamatLengkap = $this->request->getVar('alamat');
         $note = $this->request->getVar('note');
         $keranjang = session()->get('keranjang');
-        $tokencc = session()->get('tokencc');
+        $tokencc = $this->request->getVar('tokencc');
+
+        // if ($email == 'galih8.4.2001@gmail.com') {
+        //     return $this->response->setJSON($this->request->getVar(), false);
+        // }
 
         $alamat = [
             "prov_id" => explode("-", $prov)[0],
@@ -1663,7 +1669,10 @@ class Pages extends BaseController
             array_push($itemDetails, $diskonVoucher);
         }
 
-        $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+        if (in_array($email, $emailUjiCoba))
+            $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+        else
+            $auth = base64_encode("" . ":");
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = "L" . rand();
@@ -1780,13 +1789,20 @@ class Pages extends BaseController
                 ];
                 break;
             default:
-                return redirect()->to('/cart');
+                session()->setFlashdata('msg', 'Tipe pembayaran tidak ditemukan');
+                return redirect()->to('/checkout');
                 break;
         }
 
+        // if ($email == 'galih8.4.2001@gmail.com') {
+        //     return $this->response->setJSON([
+        //         'arrpost' => $arrPostField,
+        //     ], false);
+        // }
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.midtrans.com/v2/charge",
+            CURLOPT_URL => in_array($email, $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
@@ -1809,6 +1825,14 @@ class Pages extends BaseController
             return "cURL Error #:" . $err;
         }
         $hasilMidtrans = json_decode($response, true);
+
+        // if ($email == 'galih8.4.2001@gmail.com') {
+        //     return $this->response->setJSON($hasilMidtrans, false);
+        // }
+        if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
+            session()->setFlashdata('msg', $hasilMidtrans['status_message']);
+            return redirect()->to('/checkout');
+        }
 
         //dari update transaction =============================
         switch ($hasilMidtrans['transaction_status']) {
@@ -3043,6 +3067,47 @@ class Pages extends BaseController
     {
         $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
         $carapembayaran = [
+            'bca' => [
+                [
+                    'nama' => 'myBCA',
+                    'isi' => '1. Login ke myBCA<br>
+                                2. Pilih Transfer dan pilih Virtual Account<br>
+                                3. Pilih Transfer ke tujuan baru<br>
+                                4. Masukkan nomor Virtual Account dari e-commerce dan klik Lanjut<br>
+                                5. Pilih rekening sumber dana (jika memiliki lebih dari satu), masukkan nominal dan klik Lanjut<br>
+                                6. Cek detail transaksi, klik Lanjut<br>
+                                7. Masukkan PIN dan transaksi berhasil'
+                ],
+                [
+                    'nama' => 'BCA Mobile',
+                    'isi' => '1. Login ke BCA mobile<br>
+                                2. Pilih m-Transfer dan pilih BCA Virtual Account<br>
+                                3. Masukkan nomor BCA Virtual Account dari e-commerce dan klik Send<br>
+                                4. Masukkan nominal<br>
+                                5. Cek detail transaksi, klik OK<br>
+                                6. Masukkan PIN dan transaksi berhasil'
+                ],
+                [
+                    'nama' => 'KlikBCA',
+                    'isi' => '1. Login ke KlikBCA<br>
+                                2. Pilih Transfer Dana dan pilih Transfer ke BCA Virtual Account<br>
+                                3. Masukkan nomor BCA Virtual Account dari e-commerce dan klik Lanjutkan<br>
+                                4. Masukkan nominal dan klik Lanjutkan<br>
+                                5. Masukkan Respon KeyBCA Appli 1 dan klik Kirim<br>
+                                6. Transaksi berhasil dilakukan'
+                ],
+                [
+                    'nama' => 'ATM BCA',
+                    'isi' => '1. Masukkan Kartu ATM dan PIN di ATM BCA<br>
+                                2. Pilih Penarikan Tunai/Transaksi Lainnya<br>
+                                3. Pilih Transaksi Lainnya<br>
+                                4. Pilih Transfer<br>
+                                5. Pilih menu Ke Rek BCA Virtual Account<br>
+                                6. Masukkan nomor BCA Virtual Account dan klik Benar<br>
+                                7. Cek detail transaksi dan pilih Ya<br>
+                                8. Transaksi berhasil'
+                ]
+            ],
             'mandiri' => [
                 [
                     'nama' => 'Livin by Mandiri',
@@ -3192,6 +3257,7 @@ class Pages extends BaseController
                                 4. Pembayaran berhasil.'
                 ],
             ],
+            'card' => 'Always Success'
         ];
         if ($pemesanan) {
             $dataMid = json_decode($pemesanan['data_mid'], true);
@@ -3228,6 +3294,10 @@ class Pages extends BaseController
                         case 'shopeepay':
                             $va_number = $dataMid['actions'];
                             $bank = "shopeepay";
+                            break;
+                        case 'credit_card':
+                            $va_number = '';
+                            $bank = "card";
                             break;
                         default:
                             $va_number = "";
@@ -3284,6 +3354,10 @@ class Pages extends BaseController
                             $va_number = $dataMid['actions'];
                             $bank = "shopeepay";
                             break;
+                        case 'credit_card':
+                            $va_number = '';
+                            $bank = "card";
+                            break;
                         default:
                             $va_number = "";
                             break;
@@ -3332,6 +3406,10 @@ class Pages extends BaseController
                             $va_number = $dataMid['actions'];
                             $bank = "shopeepay";
                             break;
+                        case 'credit_card':
+                            $va_number = '';
+                            $bank = "card";
+                            break;
                         default:
                             $va_number = "";
                             break;
@@ -3379,6 +3457,10 @@ class Pages extends BaseController
                         case 'shopeepay':
                             $va_number = $dataMid['actions'];
                             $bank = "shopeepay";
+                            break;
+                        case 'credit_card':
+                            $va_number = '';
+                            $bank = "card";
                             break;
                         default:
                             $va_number = "";

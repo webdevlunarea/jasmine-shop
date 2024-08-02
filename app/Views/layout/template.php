@@ -36,7 +36,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <?php if ($title == 'Check Out') { ?>
         <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd"></script>
-        <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="production" data-client-key="" type="text/javascript"></script>
+        <?php if (in_array($user['email'], $emailUji)) { ?>
+            <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="sandbox" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd" type="text/javascript"></script>
+        <?php } else { ?>
+            <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="production" data-client-key="" type="text/javascript"></script>
+        <?php } ?>
     <?php } ?>
 
     <script defer src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
