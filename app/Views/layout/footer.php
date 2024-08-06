@@ -36,9 +36,9 @@
                         <img src="/img/pembayaran/gopay.webp" width="43" height="9" />
                     </div>
                 </div>
-                <div>
-                    <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
-                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 140px" /></a>
+                <div class="d-flex gap-1 align-items-center">
+                    <p class="m-0">Pembayaran dilindungi</p>
+                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 100px" /></a>
                 </div>
             </div>
             <div class="d-flex gap-2" style="flex: 2;">
@@ -117,7 +117,7 @@
         <div class="text-muted pb-3">
             <div class="d-block text-center">
                 <div class="mt-4 py-2">
-                    <p>©<?= date("Y"); ?> | L U N A R E A. All rights reserved.</p>
+                    <p class="m-0" style="font-size: 10px; letter-spacing: 2px">©<?= date("Y"); ?> | L U N A R E A. All rights reserved.</p>
                 </div>
             </div>
         </div>

@@ -9,18 +9,22 @@
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>
             </div>
-            <div class="carousel-inner bg-primary" style="border-radius: 0.5em;">
+            <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
-                    <img src="img/banner1.webp?v=123" class="d-block" style="width: 100%; height: auto;" alt="Lunarea Furniture">
+                    <img src="img/banner1.webp?v=123" class="show-ke-hide" style="width: 100%; height: auto;" alt="Lunarea Furniture">
+                    <img src="img/banner1 hp.webp?v=123" class="hide-ke-show-block" style="width: 100%; height: auto;" alt="Lunarea Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/banner2.webp?v=123" class="d-block" style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
+                    <img src="img/banner2.webp?v=123" class="show-ke-hide" style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
+                    <img src="img/banner2 hp.webp?v=123" class="hide-ke-show-block" style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/banner3.webp?v=1.0" class="d-block" style="width: 100%; height: auto;" alt="Lunarea Furniture Minimalis">
+                    <img src="img/banner3.webp?v=1.0" class="show-ke-hide" style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
+                    <img src="img/banner3 hp.webp?v=1.0" class="hide-ke-show-block" style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
                 </div>
                 <div class="carousel-item">
-                    <img src="img/banner4.webp?v=123" class="d-block" style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <img src="img/banner4.webp?v=123" class="show-ke-hide" style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <img src="img/banner4 hp.webp?v=123" class="hide-ke-show-block" style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">

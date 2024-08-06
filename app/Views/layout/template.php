@@ -63,32 +63,32 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-    <div class="running-text">
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 1) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
+    <!-- <div class="running-text">
+        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 1) * -1);">
+            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
         </div>
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 2) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
+        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 2) * -1);">
+            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
         </div>
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 3) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
+        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 3) * -1);">
+            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
         </div>
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 4) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
+        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 4) * -1);">
+            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
         </div>
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 5) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
-        </div>
-        <div class="item-rt" style="animation-delay: calc(40s / 6 * (6 - 6) * -1);">
-            <p class="m-0">NIKMATI DISKON 5% DAN GRATIS ONGKIR*</p>
-        </div>
+    </div> -->
+    <div class="teks-atas show-flex-ke-hide">
+        <p class="m-0">Spesial diskon 5% untuk pembelian pertama | Gratis ongkir hingga 100%</p>
+    </div>
+    <div class="teks-atas hide-ke-show-flex">
+        <p class="m-0">Diskon 5% | Gratis ongkir</p>
     </div>
     <?= $this->include('layout/navbar'); ?>
 
     <!-- tombol form dan wa -->
     <?php if (!str_contains($title, "Artikel")) { ?>
         <div class="container-melayang d-flex gap-2 align-items-end <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
-            <div id="container-greeting-card">
+            <div id="container-greeting-card" class="d-none">
                 <div style="background-color: white; border-radius: 1em; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" class="p-4">
                     <div class="d-flex align-items-start justify-content-between">
                         <p class="m-0">Hai!👋</p>
@@ -174,8 +174,8 @@
         })
 
         const greetingCardElm = document.getElementById('container-greeting-card');
-        if (window.sessionStorage.getItem('greeting-close')) {
-            greetingCardElm.classList.add('d-none')
+        if (!window.sessionStorage.getItem('greeting-close')) {
+            greetingCardElm.classList.remove('d-none')
         }
 
         function closeGreetingCard() {

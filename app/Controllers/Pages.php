@@ -1027,96 +1027,100 @@ class Pages extends BaseController
         $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
 
         //Dapatkan data provinsi
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $provinsi = json_decode($response, true);
+        // $curl = curl_init();
+        // curl_setopt_array($curl, array(
+        //     CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
+        //     CURLOPT_SSL_VERIFYHOST => 0,
+        //     CURLOPT_SSL_VERIFYPEER => 0,
+        //     CURLOPT_RETURNTRANSFER => true,
+        //     CURLOPT_ENCODING => "",
+        //     CURLOPT_MAXREDIRS => 10,
+        //     CURLOPT_TIMEOUT => 30,
+        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //     CURLOPT_CUSTOMREQUEST => "GET",
+        //     CURLOPT_HTTPHEADER => array(
+        //         "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //     ),
+        // ));
+        // $response = curl_exec($curl);
+        // $err = curl_error($curl);
+        // curl_close($curl);
+        // if ($err) {
+        //     return "cURL Error #:" . $err;
+        // }
+        // $provinsi = json_decode($response, true);
 
-        if (count($alamat) > 0) {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $alamat['prov_id'],
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => array(
-                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $kota = json_decode($response, true);
+        // if (count($alamat) > 0) {
+        //     $curl = curl_init();
+        //     curl_setopt_array($curl, array(
+        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $alamat['prov_id'],
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "GET",
+        //         CURLOPT_HTTPHEADER => array(
+        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl);
+        //     $err = curl_error($curl);
+        //     curl_close($curl);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $kota = json_decode($response, true);
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $alamat['kab_id'],
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => array(
-                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $kec = json_decode($response, true);
+        //     $curl = curl_init();
+        //     curl_setopt_array($curl, array(
+        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $alamat['kab_id'],
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "GET",
+        //         CURLOPT_HTTPHEADER => array(
+        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+        //         ),
+        //     ));
+        //     $response = curl_exec($curl);
+        //     $err = curl_error($curl);
+        //     curl_close($curl);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $kec = json_decode($response, true);
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($alamat['kec']),
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $desa = json_decode($response, true);
-        }
+        //     $curl = curl_init();
+        //     curl_setopt_array($curl, array(
+        //         CURLOPT_URL => "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($alamat['kec']),
+        //         CURLOPT_SSL_VERIFYHOST => 0,
+        //         CURLOPT_SSL_VERIFYPEER => 0,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => "",
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => "GET",
+        //     ));
+        //     $response = curl_exec($curl);
+        //     $err = curl_error($curl);
+        //     curl_close($curl);
+        //     if ($err) {
+        //         return "cURL Error #:" . $err;
+        //     }
+        //     $desa = json_decode($response, true);
+        // }
+
+
+
+
         // if (count($alamat) > 0) {
         //     $curl_jne = curl_init();
         //     curl_setopt_array($curl_jne, array(
@@ -1315,10 +1319,10 @@ class Pages extends BaseController
             'user' => $user,
             'total' => $total,
             'subtotal' => $subtotal,
-            'provinsi' => $provinsi["rajaongkir"]["results"],
-            'kabupaten' => isset($kota) ? $kota["rajaongkir"]["results"] : [],
-            'kecamatan' => isset($kec) ? $kec["rajaongkir"]["results"] : [],
-            'desa' => isset($desa) ? $desa : [],
+            // 'provinsi' => $provinsi["rajaongkir"]["results"],
+            // 'kabupaten' => isset($kota) ? $kota["rajaongkir"]["results"] : [],
+            // 'kecamatan' => isset($kec) ? $kec["rajaongkir"]["results"] : [],
+            // 'desa' => isset($desa) ? $desa : [],
             'keranjang' => $keranjang,
             'keranjangJson' => json_encode($keranjang),
             'voucher' => $voucher,
@@ -1336,7 +1340,112 @@ class Pages extends BaseController
             // 'paketJson' => json_encode($paketFilter),
         ];
         // return view('pages/' . (in_array($email, $emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
-        return view('pages/checkoutcore', $data);
+        return view('pages/checkoutcorecc', $data);
+    }
+    public function getAllSelectAlamat()
+    {
+        $bodyJson = $this->request->getBody();
+        $alamat = json_decode($bodyJson, true);
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $provinsi = json_decode($response, true);
+
+        if (count($alamat) > 0) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $alamat['prov_id'],
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $kota = json_decode($response, true);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $alamat['kab_id'],
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $kec = json_decode($response, true);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($alamat['kec']),
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $desa = json_decode($response, true);
+        }
+
+        $data = [
+            'provinsi' => $provinsi["rajaongkir"]["results"],
+            'kabupaten' => isset($kota) ? $kota["rajaongkir"]["results"] : [],
+            'kecamatan' => isset($kec) ? $kec["rajaongkir"]["results"] : [],
+            'desa' => isset($desa) ? $desa : [],
+            'user' => ['alamat' => $alamat]
+        ];
+        return view('pages/checkoutAlamat', $data);
     }
 
     public function useVoucher($id_voucher)

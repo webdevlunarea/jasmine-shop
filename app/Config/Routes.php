@@ -42,6 +42,7 @@ $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
+$routes->post('/getalamat', 'Pages::getAllSelectAlamat');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
 $routes->get('/getkode/(:any)', 'Pages::getKode/$1');

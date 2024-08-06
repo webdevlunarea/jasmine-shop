@@ -86,7 +86,7 @@
         <?php } else { ?>
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="jdl-section">
-                    <?= $kategori ? str_replace('-', ' ', ucfirst($kategori)) : "Semua Kategori"; ?>
+                    <?= $kategori ? ($kategori == 'meja-tv' ? 'Meja TV' : ucwords(str_replace('-', ' ', $kategori))) : "Semua Kategori"; ?>
                 </h5>
                 <?php if ($kategori) { ?>
                     <a class="btn btn-primary1" href="/all">Semua Kategori</a>
@@ -203,13 +203,13 @@
                         <li>Rak sepatu terbuka</li>
                         <li>Rak sepatu tertutup kaca</li>
                         <li>Rak sepatu dengan kabinet</li>
-                        <li>Rak sepatu dari kayu olahan</li>
+                        <li>Rak sepatu kayu olahan</li>
                         <li>Rak sepatu minimalis</li>
                         <li>Rak sepatu minimalis tertutup</li>
                     </ol>
 
                     <h5>Tips Merawat dengan Mudah</h5>
-                    <p class="text-justify mb-1">Melakukan perawatan terhadap furniture lemari rak sepatu sangat mudah. Kalau dilihat dari jenis di atas, maka material kayu olahan seperti <i>particle board</i> jadi bahan yang paling sering dan populer digunakan. Selain dari harganya yang terbilang terjangkau, kayu rak sepatu pada dasarnya memiliki warna yang menarik dan perawatan yang terbilang mudah. Cukup dengan melakukan langkah-langkah di bawah ini untuk memastikannya lebih awet dan tahan lama:</p>
+                    <p class="text-justify mb-1">Melakukan perawatan terhadap furniture lemari rak sepatu sangat mudah. Kalau dilihat dari jenis di atas, maka material kayu olahan seperti <i>particle board</i> jadi bahan yang paling sering dan populer digunakan. Selain dari harganya yang terbilang terjangkau, lemari sepatu kayu pada dasarnya memiliki warna yang menarik dan perawatan yang terbilang mudah. Cukup dengan melakukan langkah-langkah di bawah ini untuk memastikannya lebih awet dan tahan lama:</p>
                     <ol>
                         <li>Hindari dari tempat lembab</li>
                         <li>Bersihkan secara rutin dan berkala</li>
@@ -250,7 +250,7 @@
                     <p class="text-justify">Sedangkan jika dilihat dari modelnya, kamu mungkin sudah tidak asing lagi dengan lemari pintu <i>swing</i> atau engsel dan lemari geser atau <i>sliding</i>. Lemari pakaian pintu <i>swing</i> mempunyai lebih mudah diakses karena pintunya bisa dibuka lebar, cocok untuk ruangan yang lega. Namun, pintu lemari jenis ini membutuhkan ruang tambahan di depan lemari untuk membuka pintu, yang akan jadi masalah jika ditempatkan pada ruang sempit. Selain itu, engselnya juga bisa lebih cepat aus. Berbanding terbalik dengan lemari pintu <i>sliding</i> sangat efisien dalam penggunaan ruang, ideal untuk ruang terbatas dengan desain modern. Pintu lemari <i>sliding</i> memberikan tampilan minimalis dan aman dari benturan, tetapi akses ke isi lemari lebih terbatas. Mekanisme <i>sliding</i> memerlukan perawatan rutin, dan pemasangannya lebih kompleks serta umumnya lebih mahal dibandingkan dengan pintu <i>swing</i>.</p>
 
                     <h5>Segini Lemari Kayu Minimalis Modern</h5>
-                    <p class="text-justify">Walaupun diincar banyak orang, tapi tidak perlu khawatir karena lemari baju minimalis yang jadi idaman Kamu ini dijual dengan harga yang kompetitif lho! Maka dari itu, cukup dengan sesuaikan kebutuhan dan budget yang kamu miliki untuk mendapatkannya. Harga lemari baju juga bisa naik atau turun bergantung pada material bahan yang digunakan. Ada banyak sekali toko baik itu berbentuk offline atau online yang jual lemari pakaian dan menawarkan berbagai desain, keunggulan, dan harga yang beragam. Maka dari itu, sebelum memutuskan membeli lemari baju, baiknya lakukan riset sederhana seperti bertanya pada orang-orang terpercaya, atau ngepoin marketplace sampai website toko furniture online. Kalau kamu bingung, website Lunarea Furniture bisa dengan mudah Kamu akses dengan mudah untuk tahu desain, material, dan lemari kayu minimalis modern yang cocok buat Kamu.</p>
+                    <p class="text-justify">Walaupun diincar banyak orang, tapi tidak perlu khawatir karena lemari baju minimalis yang jadi idaman Kamu ini dijual dengan harga yang kompetitif lho! Maka dari itu, cukup dengan sesuaikan kebutuhan dan budget yang kamu miliki untuk mendapatkannya. Harga lemari baju juga bisa naik atau turun bergantung pada material bahan yang digunakan. Ada banyak sekali toko baik itu berbentuk offline atau online yang jual lemari pakaian dan menawarkan berbagai desain, keunggulan, dan harga yang beragam. Maka dari itu, sebelum memutuskan membeli lemari baju, baiknya lakukan riset sederhana seperti bertanya pada orang-orang terpercaya, atau ngepoin marketplace sampai website toko furniture online. Kalau kamu bingung, website Lunarea Furniture bisa dengan mudah Kamu akses dengan mudah untuk tahu desain, material, dan harga lemari pakaian minimalis modern yang cocok buat Kamu.</p>
                     <p class="text-justify">Kabar gembiranya, Lunarea Furniture lagi ngadain <b>gratis ongkir</b> untuk pengiriman di pulau Jawa, Madura dan Bali nih! Kapan lagi?
                         Yuk sekarang aja, sebelum kehabisan <b>promo!</b>
                     </p>
@@ -278,14 +278,14 @@
                     <ul>
                         <li>Meja komputer minimalis</li>
                         <li>Meja PC</li>
-                        <li>Meja komputer & <i>printer</i></li>
+                        <li>Meja komputer dan <i>printer</i></li>
                     </ul>
 
                     <h5>Rekomendasi Material Berkualitas</h5>
                     <p class="text-justify">Rekomendasi kali ini diperuntukan untuk kaum mendang-mending yang butuh komputer meja berkualitas dengan harga bersahabat. Pilihan tepat jatuh ke material kayu olahan atau <i>particle board</i> yang sangat bisa diandalkan untuk membuat furniture yang mudah dibentuk dan punya banyak pilihan finishing. dengan banyaknya pilihan finishing inilah yang membuat banyak dijumpai meja komputer minimalis dengan warna hitam, putih, abu-abu atau meja komputer kayu yang sebenarnya hanya finishingnya saja.</p>
 
                     <h5>Harga Meja Komputer</h5>
-                    <p class="text-justify">Nah, saatnya membahas hal <i>budgeting</i> agar tidak banyak memakan anggaran tak terduga. Maka dari itu, agar tidak kejadian seperti ini, Kamu bisa buat perencanaan biaya dikeluarkan untuk membeli meja PC idamanmu. Tenang saja, kalau sedang mencari harga yang cukup terjangkau, maka kamu berada di tempat yang tepat! Lunarea Furniture menjual berbagai furniture seperti meja komputer minimalis, meja komputer & <i>printer</i>, meja kerja komputer, dan meja lainnya yang Anda butuhkan.</p>
+                    <p class="text-justify">Nah, saatnya membahas hal <i>budgeting</i> agar tidak banyak memakan anggaran tak terduga. Maka dari itu, agar tidak kejadian seperti ini, Kamu bisa buat perencanaan biaya dikeluarkan untuk membeli meja PC idamanmu. Tenang saja, kalau sedang mencari meja kayu komputer harga yang cukup terjangkau, maka Kamu berada di tempat yang tepat! Lunarea Furniture menjual berbagai furniture seperti meja komputer minimalis, meja komputer & <i>printer</i>, meja kerja komputer, dan meja lainnya yang Anda butuhkan.</p>
                     <p class="text-justify">Tak perlu khawatir soal harga, karena Lunarea menjual furniture dengan harga bersahabat namun dengan kualitas produk yang berkualitas.</p>
                     <p class="text-justify">Dapatkan <b>gratis ongkir sebesar 100%</b> untuk pengiriman di pulau Jawa, Madura, dan Bali! Untuk Kamu yang berada diluar ketiga pulau tersebut jangan bersedih hati, karena ada potongan ongkir yang menguntungkan buat Kamu!</p>
                     <p class="text-justify">Buruan dapatkan produknya sekarang dan lengkapi furniture rumah Kamu bersama Lunarea Furniture.</p>
@@ -310,14 +310,14 @@
                     <p class="text-justify mb-1">Setelah tahu material pembuatannya, sekarang ini kita bakal ngulik desain meja kerja yang bisa jadi pilihan Kamu.</p>
                     <ul>
                         <li>Meja kerja minimalis</li>
-                        <li style="list-style-type: none;">Jenis meja minimalis yang difungsikan untuk menyelesaikan pekerjaan ini biasanya didesain simple dengan sedikit aksen dan finishing warna netral seperti abu-abu, putih, hitam, hingga coklat.</li>
+                        <li style="list-style-type: none;">Jenis meja minimalis yang difungsikan untuk menyelesaikan pekerjaan ini biasanya didesain <i>simple</i> dengan sedikit aksen dan finishing warna netral seperti abu-abu, putih, hitam, hingga coklat. Meja kantor minimalis dengan desain sederhana yang fungsional, merupakan pilihan yang cocok untuk berbagai keperluan di lingkungan kerja.</li>
                         <li>Meja tulis</li>
                         <li style="list-style-type: none;">Meja yang dirancang khusus untuk digunakan karyawan saat melakukan aktivitas kerja ini biasanya dilengkapi dengan laci, atau lubang kecil sebagai tempat menata kabel.</li>
                     </ul>
 
                     <h5>Rekomendasi Meja Kerja Terjangkau</h5>
                     <p class="text-justify">Nah jika desain dan jenisnya sudah kita ketahui, sekarang saatnya Kamu memutuskan harus beli meja kerja bukan? Jika masih ragu dan belum menentukan meja mana yang akan dibeli, mimin ada rekomendasi nih! Coba kunjungi Lunarea Furniture dan dapatkan produk meja kerja minimalis idamanmu di sini! Menariknya, harga meja kantor di website Lunarea Furniture hanya ratusan ribu aja lho! Nggak sampai disitu saja, tapi ada <b>gratis pengiriman ke pulau Jawa, Madura dan Bali!</b> Buat yang diluar ketiga pulau tadi, jangan khawatir, Lunarea bakal kasih kamu <b>subsidi ongkir</b> yang nggak tanggung-tanggung nih!</p>
-                    <p class="text-justify">Tunggu apa lagi, <i>check out</i> sekarang juga dan dapatkan keuntungannya segera!</p>
+                    <p class="text-justify">Tunggu apa lagi, <i>check out</i> meja kantor minimalis sekarang juga dan dapatkan keuntungannya segera!</p>
                 </div>
             </div>
             <div class="d-flex justify-content-center mb-5">
@@ -333,7 +333,7 @@
                     <p class="text-justify">Televisi sudah jadi barang elektronik yang dirasa wajib ada di setiap rumah. Kegunaannya sebagai media mencari hiburan baik itu saat sendiri atau bersama orang-orang tersayang menjadikan barang elektronik selalu eksis hingga sekarang. Maka dari itu, untuk melengkapi momen menonton TV jadi lebih asyik, diperlukan <i>space</i> khusus berupa Meja TV tentunya. Tak hanya itu saja, furniture meja yang satu ini juga punya fungsi lain sebagai tempat penyimpanan peralatan pendukung nonton TV seperti DVD <i>player</i>, PS <i>player</i>, WiFi, dan masih banyak lagi. Karena saking multifungsinya, furniture meja tempat TV ini punya sebutan lain di masyarakat seperti rak TV, <i>buffet</i> TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.</p>
 
                     <h5>Desain Meja TV Minimalis</h5>
-                    <p class="text-justify">Ngomong desain, ada berbagai jenis model yang bisa Kamu pilih lho! Terlebih jika pilihanmu tertuju dengan model rak TV minimalis yang cantik dan kalem dengan warna-warna netralnya. meja TV minimalis yang <i>eye catching</i> ini biasanya terbuat dari material <i>particle board</i> yang mudah dibentuk. Terlebih jika menggunakan <i>paper</i> sebagai finishing akhirnya, yang memanjakan mata dengan warna-warna cantik dari rak TV minimalis. Serba serbi minimalis memang jadi primadona bagi banyak orang, yang mungkin kamu salah satunya. Selain desain yang cantik, kebutuhan furniture yang pas dengan <i>space</i> terbatas jadi alasan mengapa meja TV minimalis jadi pilihan terbaik saat ini buat orang-orang.</p>
+                    <p class="text-justify">Ngomong desain, ada berbagai jenis model yang bisa Kamu pilih lho! Terlebih jika pilihanmu tertuju dengan model meja tv minimalis terbaru yang cantik dan kalem dengan warna-warna netralnya. Meja TV minimalis kayu olahan dari <i>particle board</i> yang <i>eye catching</i> ini lebih mudah dibentuk. Terlebih jika menggunakan <i>paper</i> sebagai finishing akhirnya, yang memanjakan mata dengan warna-warna cantik dari rak TV minimalis. Serba serbi minimalis memang jadi primadona bagi banyak orang, yang mungkin kamu salah satunya. Selain desain yang cantik, kebutuhan furniture yang pas dengan <i>space</i> terbatas jadi alasan mengapa meja TV minimalis jadi pilihan terbaik saat ini buat orang-orang.</p>
 
                     <h5>Tips Jitu Anti Gagal Beli Rak TV</h5>
                     <p class="text-justify mb-1">Semakin kesini, Kamu mungkin akan makin bimbang dengan berbagai model variatif meja TV minimalis modern ini bisa saja buat kamu mudah goyah menentukan harus beli meja TV mana yah? Nah sekarang saatnya keluarkan jurus jitu membeli rak TV yang anti gagal!</p>
@@ -393,11 +393,11 @@
 
                     <h5>Dari Material Bahan Apa Meja Rias Dibuat?</h5>
                     <p class="text-justify">Furniture ini kebanyakan terbuat dari bahan <i>particle board</i>. Material yang melimpah dan mudah dibentuk serta harga yang lebih kompetitif dari kayu solid atau bahan lain menjadi alasan utama mengapa bahan ini sangat populer belakangan ini. Selain itu, dengan menggunakan <i>particle board</i>, juga membuat para pengrajin lebih inovatif dan kreatif mewarnai dengan berbagai jenis dan warna finishing untuk memproduksi meja rias minimalis modern yang jadi tren terkini. Katakanlah meja rias minimalis yang didominasi warna-warna netral seperti coklat, putih, sonoma, dan lain sebagainya.</p>
-                    <p class="text-justify">Dengan keberagaman ini, Kamu sebagai konsumen tentu akan merasa termanjakan bukan? Masih belum puas dengan itu saja, jika minimalis masih tidak cukup di <i>space</i> ruang yang kamu miliki, maka opsi selanjutnya dengan menambahkan pilihan pada meja rias minimalis kecil, atau meja rias <i>simple</i> yang kemungkinan besar sesuai dengan kebutuhan Kamu.</p>
+                    <p class="text-justify">Dengan keberagaman ini, Kamu sebagai konsumen tentu akan merasa termanjakan bukan? Masih belum puas dengan itu saja, jika meja rias kayu olahan minimalis masih tidak cukup di <i>space</i> ruang yang Kamu miliki, maka opsi selanjutnya dengan menambahkan pilihan pada meja rias minimalis kecil, atau meja rias <i>simple</i> yang kemungkinan besar sesuai dengan kebutuhan Kamu.</p>
                     <p class="text-justify">Material <i>particle board</i> menjawab kebutuhan pengrajin sebagai produsen dan Kamu sebagai Konsumen. Maka dari itu, jangan heran ya kenapa setelah <i>search</i> sana sini <i>particle board</i> selalu nampang jadi salah satu opsinya.</p>
 
                     <h5>Berapa Estimasi Harga Meja Rias?</h5>
-                    <p class="text-justify">Barangkali sudah bukan rahasia umum yah kalau harga meja rias dengan material <i>particle board</i> bisa dikatakan lebih miring dibanding material lain seperti kayu, <i>stainless</i>, dan lain sebagainya. Inilah yang membuatnya banyak diburu apalagi buat kaum mendang mending. Dengan kualitas yang mumpuni, <i>look</i> yang <i>eye catching</i> dan harga yang menawan, siapa sih yang nggak kelimpungan buat dapetin meja rias multifungsi kayak gini? Nah, tapi jangan asal pilih juga ya! Pastikan Kamu beli meja rias di tempat yang terpercaya agar tak menyesal kemudian. Salah satunya yang bakalan nggak bikin kecewa bisa Kamu dapetin lewat websitenya Lunarea Furniture.</p>
+                    <p class="text-justify">Barangkali sudah bukan rahasia umum yah kalau harga meja rias kayu modern dengan material <i>particle board</i> bisa dikatakan lebih miring dibanding material lain seperti kayu, <i>stainless</i>, dan lain sebagainya. Inilah yang membuatnya banyak diburu apalagi buat kaum mendang mending. Dengan kualitas yang mumpuni, <i>look</i> yang <i>eye catching</i> dan harga yang menawan, siapa sih yang nggak kelimpungan buat dapetin meja rias multifungsi kayak gini? Nah, tapi jangan asal pilih juga ya! Pastikan Kamu beli meja rias di tempat yang terpercaya agar tak menyesal kemudian. Salah satunya yang bakalan nggak bikin kecewa bisa Kamu dapetin lewat websitenya Lunarea Furniture.</p>
                     <p class="text-justify">Pastiin kamu sudah cek dulu baru <i>check out</i> produk idaman Kamu ya!
                         Jangan kelamaan <i>checking</i> sebelum kehabisan stok, mumpung ada <b>gratis ongkir</b> pengiriman di Pulau Jawa, Madura, dan Bali.</p>
                     <p class="text-justify">Atau jika masih bimbang mau meja rias minimalis, meja rias multifungsi, meja rias <i>simple</i>, meja rias minimalis modern, atau meja-meja lainnya, Kamu bisa hubungi <i>Customer Service</i> Lunarea yang bakal menjawab semua pertanyaanmu dengan sepenuh hati!</p>
@@ -413,10 +413,10 @@
                 <div class="my-3 container-meta">
                     <div class="overlay-meta"></div>
                     <h5>Apa Itu Meja Belajar?</h5>
-                    <p class="text-justify">Meja belajar merupakan salah satu furniture penting yang diupayakan dapat menciptakan lingkungan belajar yang nyaman dan produktif di rumah. Ada beberapa hal yang perlu jadi pertimbangan saat memilih meja belajar mana yang akan dibeli, sebut saja meja belajar minimalis, meja belajar <i>aesthetic</i>, meja belajar multifungsi, meja belajar <i>simple</i>, dan masih banyak lagi ragamnya. Nah, pada dasarnya yang perlu dipilih adalah sesuai dengan kebutuhan dan mengesampingkan keinginan. Tapi kalau bisa keduanya, kenapa tidak? meja belajar minimalis unik mungkin bisa jadi pilihan yang pas untukmu yang tidak suka sesuatu monoton.</p>
+                    <p class="text-justify">Meja belajar merupakan salah satu furniture penting yang diupayakan dapat menciptakan lingkungan belajar yang nyaman dan produktif di rumah. Ada beberapa hal yang perlu jadi pertimbangan saat memilih meja belajar mana yang akan dibeli, sebut saja meja belajar minimalis, meja belajar <i>aesthetic</i>, meja belajar multifungsi, meja belajar simpel, dan masih banyak lagi ragamnya. Nah, pada dasarnya yang perlu dipilih adalah sesuai dengan kebutuhan dan mengesampingkan keinginan. Tapi kalau bisa keduanya, kenapa tidak? meja belajar minimalis unik mungkin bisa jadi pilihan yang pas untukmu yang tidak suka sesuatu monoton.</p>
 
                     <h5>Material Bahan Pembuatannya</h5>
-                    <p class="text-justify">Furniture meja belajar biasanya terbuat dari material kayu atau kayu olahan seperti <i>particle board</i>. Tipe bahan yang mudah dibentuk, mudah ditemukan, dan harga yang lebih terjangkau menjadi alasan utama mengapa <i>particle board</i> sering jadi bahan pembuatan furniture. Selain itu, beberapa model meja juga dibuat dengan kombinasi besi pada rangka yang menjadikannya jadi lebih kuat dan kokoh Lho! Hal inilah yang menjadi dasar penetapan harga meja belajar dari bahan ini lebih terjangkau di pasaran dibanding dengan material lainnya.</p>
+                    <p class="text-justify">Furniture meja belajar biasanya terbuat dari material kayu atau kayu olahan seperti <i>particle board</i>. Tipe bahan yang mudah dibentuk, mudah ditemukan, dan harga yang lebih terjangkau menjadi alasan utama mengapa <i>particle board</i> sering jadi bahan pembuatan furniture. Selain itu, beberapa model meja juga dibuat dengan kombinasi besi pada rangka yang menjadikannya jadi lebih kuat dan kokoh Lho! Hal inilah yang menjadi dasar penetapan harga meja belajar kayu olahan dari bahan ini lebih terjangkau di pasaran dibanding dengan material lainnya.</p>
 
                     <h5>Desain & Jenisnya</h5>
                     <p class="text-justify mb-1">Sudah diulas sebelumnya, jika keberagaman desain ini tak luput dari beragam kebutuhan. Selain itu, dengan banyaknya pilihan desain ini akan memungkinkan buat Kamu lebih leluasa memilih sebelum membeli. Berikut ini referensinya:</p>
@@ -425,12 +425,12 @@
                         <li style="list-style-type: none;">Segala produk yang mengklaim sebagai minimalis biasanya hadir dengan warna-warna netral seperti hitam, putih, coklat, atau abu-abu dan minim aksen. Desain meja belajar minimalis modern seperti ini cocok buat Kamu yang memiliki <i>space</i> terbatas dengan banyak kebutuhan.</li>
                         <li>Meja belajar <i>aesthetic</i></li>
                         <li style="list-style-type: none;">Kalau Kamu tipe orang yang suka dengan hal-hal yang berbau dengan unsur seni, maka tak ada salahnya untuk mengaplikasikannya di ruangan belajar. Salah satunya dengan menghadirkan meja belajar <i>aesthetic</i> yang mampu menjadi <i>moodbooster</i> saat sedang belajar.</li>
-                        <li>Meja belajar <i>simple</i></li>
-                        <li style="list-style-type: none;">Agak berbeda dengan poin diatas, meja yang satu ini biasanya diperuntukan buat orang yang males ribet dan lebih suka yang praktis serta minim aksesoris. Kalau kamu salah satu orangnya, maka meja belajar <i>simple</i> solusi tepatnya!</li>
+                        <li>Meja belajar simpel</li>
+                        <li style="list-style-type: none;">Agak berbeda dengan poin diatas, meja yang satu ini biasanya diperuntukan buat orang yang males ribet dan lebih suka yang praktis serta minim aksesoris. Kalau kamu salah satu orangnya, maka meja belajar simpel solusi tepatnya!</li>
                         <li>Meja belajar minimalis unik</li>
                         <li style="list-style-type: none;">Mungkin yang satu ini akan mirip dengan versi <i>aesthetic</i>, iya! Meja belajar minimalis unik adalah jawaban tepat kalau kamu menyukai segala sesuatu yang berkaitan dengan seni. Disini kamu bisa memadukan aksesoris lain untuk melengkapi tampilan jadi lebih <i>eye catching</i> lagi dengan sentuhan seni yang kamu miliki!</li>
                     </ul>
-                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin <b>gratis ongkir</b> yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
+                    <p class="text-justify">Nah kalau sudah dijabarkan begini, saatnya Kamu memutuskan meja belajar mana yang akan dibeli! Jika masih ragu dan bingung, kamu dapat cek produknya di website Lunarea Furniture dan temukan kebutuhan kamu di sini! Mau cari harga meja belajar kayu dari yang termurah pun ada. Plusnya lagi kamu bisa dapetin <b>gratis ongkir</b> yang beneran gratis sampai ke alamat tujuan yang berada di wilayah pulau Jawa, Madura, dan Bali!</p>
                 </div>
             </div>
             <div class="d-flex justify-content-center mb-5">
@@ -481,6 +481,15 @@
                         Salah satu kayu olahan yang sering digunakan adalah <i>particle board</i>. Dengan keunggulannya yaitu mudah dibentuk, material yang melimpah serta harga yang tergolong terjangkau, menjadikan <i>particle board</i> material unggulan dalam pembuatan furniture salah satunya rak serbaguna.
                     </p>
 
+                    <h5>Barang yang Bisa disimpan dalam Rak Serbaguna Kayu Olahan</h5>
+                    <p class="text-justify mb-1">Tak jarang banyaknya barang-barang membuat rumah jadi terlihat berantakan dan tidak rapi. Maka dari itu, Kamu perlu tempat penyimpanan berupa kabinet khusus seperti rak bertingkat serbaguna yang akan membantu merapikan barang lebih baik. Lalu apa saja barang yang bisa Kamu simpan di tempat ini? Berikut barang-barangnya:</p>
+                    <ol class="mb-1">
+                        <li>Pakaian lipat</li>
+                        <li>Aksesoris rumah tangga</li>
+                        <li>Aksesoris atau mainan anak, dll</li>
+                    </ol>
+                    <p class="text-justify mb-2">Pada dasarnya semua barang yang tidak ingin Kamu pajang bisa disimpan dalam rak kayu serba guna ini. Tak terbatas itu saja, di atas rak serbaguna kayu olahan ini Kamu juga bisa meletakkan beberapa aksesoris lain untuk memberikan kesan lebih cantik dalam interior ruang itu sendiri.</p>
+
                     <h5>Tips Merawat Rak Penyimpanan Serbaguna</h5>
                     <p class="text-justify mb-1">Pada dasarnya rak <i>portable</i> serbaguna adalah salah satu perabot rumah tangga yang difungsikan untuk menyimpan dan menata barang-barang jadi lebih rapi. Akan tetapi, agar rak tetap awet dan tahan hingga waktu yang lama, diperlukan perawatan yang tepat. Berikut ini adalah kiat-kiat merawat rak kayu serbaguna yang benar:</p>
                     <ol class="mb-2">
@@ -492,7 +501,7 @@
                     </ol>
 
                     <h5>Rekomendasi Beli Rak Susun Serbaguna Murah</h5>
-                    <p class="text-justify">Sekarang saatnya memberikan rekomendasi tempat beli rak murah yang pastinya aman dan terpercaya. <i>Range</i> harga rak serbaguna tergantung dari jenis material dan desainnya masing-masing. Karena inilah, penting sekali untuk menentukan berapa <i>budget</i> yang Kamu siapkan dan untuk penyimpanan apa rak ini akan digunakan. Misal, Kamu menginginkan serba-serbi produk minimalis, maka rak kayu serbaguna minimalis jadi pilihan yang cocok. Jika sudah, Kamu bisa memilih rak mana yang akan Kamu beli.
+                    <p class="text-justify">Sekarang saatnya memberikan rekomendasi tempat beli rak murah yang pastinya aman dan terpercaya. <i>Range</i> harga rak serba guna tergantung dari jenis material dan desainnya masing-masing. Karena inilah, penting sekali untuk menentukan berapa <i>budget</i> yang Kamu siapkan dan untuk penyimpanan apa rak ini akan digunakan. Misal, Kamu menginginkan serba-serbi produk minimalis, maka rak kayu serbaguna minimalis jadi pilihan yang cocok. Jika sudah, Kamu bisa memilih rak mana yang akan Kamu beli.
                         Kalau ingin lebih mudah, Kamu bisa mengunjungi Lunarea Furniture dan dapatkan berbagai kemudahan yang pastinya nggak bikin kantong jebol!
                     </p>
                     <p class="text-justify">Walaupun terjangkau, tapi urusan kualitas boleh diadu! Mumpung lagi <b>banyak promo</b> plus <b>100% gratis ongkir</b> untuk wilayah Jawa, Madura dan Bali.</p>
@@ -516,21 +525,21 @@
                     <p class="text-justify">Untuk memberikan kenyamanan pada pengguna, dudukan dan sandaran kursi besi <i>stainless</i> dilapisi dengan busa yang kemudian dilapisi kain. Kain yang digunakan biasanya adalah kain poliester, yang dikenal karena kekuatan, elastisitas, dan kemampuannya untuk mempertahankan warna serta bentuk dalam jangka waktu lama. Poliester juga mudah dibersihkan dan dirawat, menjadikannya pilihan praktis untuk furniture yang sering digunakan. Kain ini tersedia dalam berbagai tekstur dan warna, memungkinkan desainer untuk menciptakan kursi yang tidak hanya nyaman tetapi juga estetis dan sesuai dengan berbagai tema dekorasi.</p>
                     <h6>Busa</h6>
                     <p class="text-justify">Busa poliuretan (PU <i>Foam</i>) adalah pilihan umum untuk bantalan dudukan dan sandaran kursi khususnya untuk kursi besi. Busa ini dipilih karena elastisitasnya yang baik, kemampuan untuk kembali ke bentuk semula setelah digunakan, serta daya tahannya yang tinggi. Busa poliuretan memberikan dukungan yang nyaman dan dapat menahan tekanan dalam jangka waktu lama, membuat kursi tumpuk <i>stainless</i> cocok untuk penggunaan jangka panjang. Penggunaan busa juga membantu mendistribusikan berat tubuh secara merata, mengurangi titik-titik tekanan, dan meningkatkan kenyamanan saat duduk.</p>
-                    <p class="text-justify">Gabungan antara kerangka <i>stainless steel</i> yang kokoh dan pelapis kain yang nyaman serta estetis menjadikan kursi susun <i>stainless</i> pilihan yang ideal untuk berbagai kebutuhan. <i>Stainless steel</i> memberikan struktur yang kuat dan tahan lama, sementara kain poliester dan busa poliuretan memastikan kenyamanan dan estetika. Kombinasi ini tidak hanya menghasilkan kursi yang fungsional tetapi juga menambah nilai estetika pada ruangan. Dengan pemilihan bahan yang tepat, kursi <i>stainless</i> dapat digunakan di berbagai lingkungan, baik itu di rumah, kantor, restoran, atau kafe, dan tetap menawarkan kenyamanan serta keindahan yang tak tertandingi.</p>
+                    <p class="text-justify">Gabungan antara kerangka <i>stainless steel</i> yang kokoh dan pelapis kain yang nyaman serta estetis menjadikan kursi susun <i>stainless</i> pilihan yang ideal untuk berbagai kebutuhan. <i>Stainless steel</i> memberikan struktur yang kuat dan tahan lama, sementara kain poliester dan busa poliuretan memastikan kenyamanan dan estetika. Kombinasi ini tidak hanya menghasilkan kursi yang fungsional tetapi juga menambah nilai estetika pada ruangan. Dengan pemilihan bahan yang tepat, kursi tumpuk <i>stainless</i> dapat digunakan di berbagai lingkungan, baik itu di rumah, kantor, restoran, atau kafe, dan tetap menawarkan kenyamanan serta keindahan yang tak tertandingi.</p>
 
                     <h5>Fungsi Kursi <i>Stainless</i></h5>
                     <p class="text-justify mb-1">Kursi besi merupakan salah satu kursi legendaris yang mudah dijumpai untuk banyak kesempatan. Berikut ini adalah fungsi dari kursi ini:</p>
                     <ul class="mb-2">
                         <li>Sebagai kursi pesta</li>
                         <li>Sebagai kursi kantor</li>
-                        <li>Sebagai kusi kerja</li>
+                        <li>Sebagai kursi kerja</li>
                         <li>Sebagai kursi kondangan</li>
                         <li>Sebagai kursi hajatan</li>
                     </ul>
 
                     <h5>Rekomendasi Tempat Beli Kursi Stainless</h5>
                     <p class="text-justify">Karena banyaknya pilihan penjual kursi ini, mungkin saja bisa membuatmu dilema manakah toko terbaik dan terpercaya diantara banyaknya pilihan tersebut. Nah, Kamu sekarang berada di tempat yang tepat! Lunarea Furniture saat ini menjual jenis kursi tumpuk ini. Tersedia dalam 5 warna yaitu hitam, hijau, biru, merah, dan abu-abu. Sesuaikan warna dengan kebutuhan Kamu ya! Kalau Kamu membutuhkan untuk kursi hajatan atau kursi pesta maka warna yang cocok adalah warna hitam atau merah bisa Kamu pilih. Atau untuk kursi rumah makan, Kamu bisa pilih warna hijau, biru atau merah. Sedangkan untuk kursi kantor atau kursi kerja, Kamu bisa pilih warna hitam atau abu-abu yang tidak mencolok.</p>
-                    <p class="text-justify">Pilih produk kebutuhanmu dan check out segera untuk dapatkan <b>full gratis ongkir</b> untuk pengiriman di pulau Jawa, Madura, dan Bali!</p>
+                    <p class="text-justify">Pilih produk kebutuhanmu dan <i>check out</i> segera untuk dapatkan <b>full gratis ongkir</b> untuk pengiriman di pulau Jawa, Madura, dan Bali!</p>
                 </div>
             </div>
             <div class="d-flex justify-content-center mb-5">
@@ -543,7 +552,7 @@
                 <div class="my-3 container-meta">
                     <div class="overlay-meta"></div>
                     <h5>Kenapa Harus Punya Lemari Kecil Buat Si Buah Hati?</h5>
-                    <p class="text-justify"><i>Moms</i>, udah punya lemari buat buah hati belum? Nah kalau belum, yuk simak dulu alasannya kenapa <i>Moms</i> harus punya lemari kecil yang dikhususkan buat menyimpan baju-baju si buah hati. Seperti lemari pakaian pada umumnya, lemari pakaian kecil ini juga memiliki fungsi yang sama, hanya saja ukurannya yang lebih kecil menyesuaikan kebutuhan si kecil. Memisahkan pakaian anak di lemari pakaian kecil juga membuat <i>Moms</i> lebih mudah saat mencari dan menata baju-baju si buah hati loh! Apalagi kalau si kesayangan lagi aktif-aktifnya. Pasti akan repot kalau baju-baju si kecil bercampur dengan baju-baju yang bukan miliknya bukan? Dengan lemari pakaian kecil ini juga secara tidak langsung membuat anak bertanggung jawab dengan pakaiannya sendiri. Inilah saat yang tepat untuk membuat anak merasa memiliki dan merawat barang-barang miliknya dengan baik yang disimpan dengan baik pula di lemari baju kecil miliknya.</p>
+                    <p class="text-justify"><i>Moms</i>, udah punya lemari buat buah hati belum? Nah kalau belum, yuk simak dulu alasannya kenapa <i>Moms</i> harus punya lemari kecil yang dikhususkan buat menyimpan baju-baju si buah hati. Seperti lemari pakaian pada umumnya, lemari pakaian kecil ini juga memiliki fungsi yang sama, hanya saja ukurannya yang lebih kecil menyesuaikan kebutuhan si kecil. Memisahkan pakaian anak di lemari pakaian kecil juga membuat <i>Moms</i> lebih mudah saat mencari dan menata baju-baju si buah hati loh! Apalagi kalau si kesayangan lagi aktif-aktifnya. Pasti akan repot kalau baju-baju si kecil bercampur dengan baju-baju yang bukan miliknya bukan? Dengan lemari kecil baju anak ini juga secara tidak langsung membuat anak bertanggung jawab dengan pakaiannya sendiri. Inilah saat yang tepat untuk membuat anak merasa memiliki dan merawat barang-barang miliknya dengan baik yang disimpan dengan baik pula di lemari baju kecil miliknya.</p>
 
                     <h5>Tips Memilih Lemari Baju Untuk Si Kecil</h5>
                     <p class="text-justify">Memilih lemari baju kecil untuk menyimpan pakaian anak terkadang cukup <i>tricky</i>. Terlebih jika mencari desain dan tipe lemari yang bisa mendukung perkembangan si buah hati. Lemari minimalis kecil bisa jadi solusi yang tepat untuk penyimpanan pakaian anak. Dilengkapi dengan banyak rak susun dan rak gantung dengan tinggi dan ukuran yang mudah dijangkau anak sehingga anak tak perlu repot minta bantuan orang dewasa untuk mengambil pakaiannya.</p>
@@ -556,9 +565,8 @@
                         <li>Perhatikan lapisan finishing lemari</li>
                         <li style="list-style-type: none;">Ada banyak sekali pilihan lapisan finishing lemari baju minimalis kecil yang digunakan oleh para pengrajin furniture. Misal saja untuk lemari kayu kecil, pilihan lapisan finishing yang umum digunakan adalah cat kayu atau plitur. Atau jika pilihan lemari jatuh pada material <i>particle board</i>, maka finishing <i>paper</i> bisa jadi pilihan populer dengan berbagai pilihan warna menariknya yang mampu memikat anak-anak.</li>
                         <li>Pertimbangkan ulasan pelanggan</li>
-                        <li style="list-style-type: none;">Hal lain yang perlu menjadi perhatian adalah bagaimana kepuasan pelanggan yang telah membeli produk lemari anak tersebut. Jika dirasa memuaskan, maka <i>Moms</i> bisa segera memutuskan untuk membelinya. Tapi jika <i>Moms</i> ragu setelah membaca ulasan, sebaiknya <i>Moms move on</i> dari produk lemari di toko tersebut dan beralih ke toko yang lebih <i>trusted</i>.</li>
+                        <li style="list-style-type: none;">Hal lain yang perlu menjadi perhatian adalah bagaimana kepuasan pelanggan yang telah membeli produk lemarianak tersebut. Jika dirasa memuaskan, maka <i>Moms</i> bisa segera memutuskan untuk membelinya. Tapi jika <i>Moms</i> ragu setelah membaca ulasan, sebaiknya <i>Moms move on</i> dari produk lemari di toko tersebut dan beralih ke toko yang lebih <i>trusted</i>.</li>
                     </ul>
-
 
                     <h5>Rekomendasi Lemari Minimalis Kecil</h5>
                     <p class="text-justify">Nah setelah mengetahui tips memilih lemari kecil kayu olahan, sekarang <i>Moms</i> sudah bisa memutuskan kira-kira lemari mana yah yang pas buat si buah hati. Misal saja, jika si kecil membutuhkan banyak <i>space</i> penyimpanan, maka <i>Moms</i> bisa membeli lemari kecil 2 pintu yang punya penyimpanan lebih <i>completed</i>. Walaupun mungkin akan memakan biaya yang lebih besar, tapi lemari kayu 2 pintu kecil ini akan membuat <i>Moms</i> lebih hemat lagi jika dihitung dengan lamanya kegunaan lemari ini.</p>
