@@ -90,6 +90,10 @@ a {
 }
 .navbar {
     background-color: white;
+    position: fixed;
+    z-index: 11;
+    width: 100vw;
+    top: 30px;
 }
 .nav-item {
     cursor: pointer;
@@ -99,6 +103,7 @@ a {
     width: 100vw;
     position: fixed;
     z-index: 11;
+    top: 30px;
 }
 .konten {
     min-height: calc(100vh - 234.5px - 57.74px);
@@ -818,6 +823,51 @@ a {
 }
 .container-meta .sub-2 {
     margin-left: 40px;
+}
+
+.running-text {
+    position: fixed;
+    height: 30px;
+    background-color: #c6f1c9;
+    color: #2d7e33;
+    overflow: hidden;
+    width: 100vw;
+    z-index: 12;
+}
+.running-text .item-rt {
+    width: 400px;
+    height: 30px;
+    position: absolute;
+    left: calc(390px * 6);
+    animation-name: scrollkiri;
+    animation-duration: 40s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+@keyframes scrollkiri {
+    to {
+        left: -400px;
+    }
+}
+@media (max-width: 600px) {
+    .running-text {
+        height: 20px;
+    }
+    .running-text .item-rt {
+        width: 280px;
+        height: 20px;
+        left: calc(280px * 6);
+    }
+    .navbar {
+        top: 20px;
+    }
+    .navbar-hp {
+        top: 20px;
+    }
 }
 
 /* Footer */

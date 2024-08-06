@@ -38,7 +38,7 @@
         </div>
     </div>
 </nav>
-<div style="height: 77px" class="hide-ke-show-block "></div>
+<div style="height: 107px" class="hide-ke-show-block"></div>
 
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
@@ -92,3 +92,4 @@
         </div>
     </div>
 </nav>
+<div style="height: 107px" class="show-ke-hide"></div>

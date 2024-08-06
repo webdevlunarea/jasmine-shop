@@ -84,6 +84,7 @@ $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
+$routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editresi', 'Pages::editResi');
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
@@ -131,6 +132,7 @@ $routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2');
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);
+$routes->post('/closegreeting', 'TrackingController::closeGreeting', ['filter' => 'corsFilter']);
 $routes->post('/trackpop', 'TrackingController::trackPop', ['filter' => 'corsFilter']);
 
 // CopyGambarController

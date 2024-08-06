@@ -36,6 +36,10 @@
                         <img src="/img/pembayaran/gopay.webp" width="43" height="9" />
                     </div>
                 </div>
+                <div>
+                    <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
+                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 140px" /></a>
+                </div>
             </div>
             <div class="d-flex gap-2" style="flex: 2;">
                 <div style="flex: 1;">
@@ -112,12 +116,12 @@
         </div>
         <div class="text-muted pb-3">
             <div class="d-block text-center">
-                <div class="mt-4 p-2 pe-0 ps-0">
-                    <span class="fw-700 mr-2">Pembayaran dilindungi</span>:
-                    <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 140px" /></a>
+                <div class="mt-4 py-2">
+                    <p>©<?= date("Y"); ?> | L U N A R E A. All rights reserved.</p>
                 </div>
             </div>
         </div>
+
     </div>
 </footer>
 <!-- end footer baru -->

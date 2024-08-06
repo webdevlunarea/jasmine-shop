@@ -3697,11 +3697,31 @@ class Pages extends BaseController
         ];
         return view('pages/listForm', $data);
     }
-    public function listCustomer($page = 1)
+    public function listCustomer($page = 1, $status = 'all')
     {
         $transaksiCus = $this->pemesananModel->getPemesananPage($page);
         $semuaTransaksiCus = $this->pemesananModel->getPemesanan();
         $transaksiCusNoJSON = [];
+        $semuaTransaksiCusFilter = [];
+        foreach ($semuaTransaksiCus as $t) {
+            if ($status == 'Proses') {
+                if ($t['status'] == 'Proses') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Menunggu-Pembayaran') {
+                if ($t['status'] == 'Menunggu Pembayaran') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Kadaluarsa') {
+                if ($t['status'] == 'Kadaluarsa') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Ditolak') {
+                if ($t['status'] == 'Ditolak') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Dibatalkan') {
+                if ($t['status'] == 'Dibatalkan') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Dikirim') {
+                if ($t['status'] == 'Dikirim') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Selesai') {
+                if ($t['status'] == 'Selesai') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'all') {
+                array_push($semuaTransaksiCusFilter, $t);
+            }
+        }
         foreach ($transaksiCus as $transaksi) {
             $arr = [
                 'id' => $transaksi['id'],
@@ -3717,15 +3737,32 @@ class Pages extends BaseController
                 'data_mid' => json_decode($transaksi['data_mid'], true),
                 'note' => $transaksi['note'],
             ];
-            array_push($transaksiCusNoJSON, $arr);
+            if ($status == 'Proses') {
+                if ($transaksi['status'] == 'Proses') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Menunggu-Pembayaran') {
+                if ($transaksi['status'] == 'Menunggu Pembayaran') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Kadaluarsa') {
+                if ($transaksi['status'] == 'Kadaluarsa') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Ditolak') {
+                if ($transaksi['status'] == 'Ditolak') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Dibatalkan') {
+                if ($transaksi['status'] == 'Dibatalkan') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Dikirim') {
+                if ($transaksi['status'] == 'Dikirim') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Selesai') {
+                if ($transaksi['status'] == 'Selesai') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'all') {
+                array_push($transaksiCusNoJSON, $arr);
+            }
         }
         $transaksiJson = json_encode($transaksiCusNoJSON);
         $data = [
             'title' => 'List Customer',
             'transaksiCus' => $transaksiCusNoJSON,
-            'semuaTransaksiCus' => $semuaTransaksiCus,
+            'semuaTransaksiCus' => $semuaTransaksiCusFilter,
             'transaksiJson' => $transaksiJson,
-            'page' => $page
+            'page' => $page,
+            'status' => $status
         ];
         return view('pages/listCustomer', $data);
     }

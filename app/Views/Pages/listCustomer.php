@@ -21,7 +21,22 @@
 </div>
 <div class="konten">
     <div class="container">
-        <h3 class="my-3">List Customer</h3>
+        <div class="d-flex mb-2 justify-content-between">
+            <h3 class="">List Customer</h3>
+            <div class="form-floating">
+                <select class="form-select" aria-label="Default select example" onchange="pilihStatus(event)">
+                    <option <?= $status == 'all' ? 'selected' : ''; ?> value="all">Semua</option>
+                    <option <?= $status == 'Menunggu-Pembayaran' ? 'selected' : ''; ?> value="Menunggu-Pembayaran">Menunggu Pembayaran</option>
+                    <option <?= $status == 'Kadaluarsa' ? 'selected' : ''; ?> value="Kadaluarsa">Kadaluarsa</option>
+                    <option <?= $status == 'Proses' ? 'selected' : ''; ?> value="Proses">Proses</option>
+                    <option <?= $status == 'Dikirim' ? 'selected' : ''; ?> value="Dikirim">Dikirim</option>
+                    <option <?= $status == 'Dibatalkan' ? 'selected' : ''; ?> value="Dibatalkan">Dibatalkan</option>
+                    <option <?= $status == 'Ditolak' ? 'selected' : ''; ?> value="Ditolak">Ditolak</option>
+                    <option <?= $status == 'Selesai' ? 'selected' : ''; ?> value="Selesai">Selesai</option>
+                </select>
+                <label for="floatingInput">Status</label>
+            </div>
+        </div>
         <div class="mb-2 show-flex-ke-hide" style="padding-inline: 2em;">
             <div style="flex: 4;">
                 <p class="mb-0 fw-bold text-black-50">Basic Info</p>
@@ -237,7 +252,7 @@
                 <ul class="pagination justify-content-center">
                     <?php if ((int)$page > 1) { ?>
                         <li class="page-item">
-                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page - 1); ?>" aria-label="Previous">
+                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page - 1); ?>/<?= $status; ?>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -245,11 +260,11 @@
                     $hitungGrupMax = ceil(count($semuaTransaksiCus) / 20);
                     for ($x = 1; $x <= $hitungGrupMax; $x++) {
                     ?>
-                        <li class="page-item"><a class="page-link text-dark" href="/listcustomer/<?= $x; ?>"><?= $x; ?></a></li>
+                        <li class="page-item"><a class="page-link text-dark" href="/listcustomer/<?= $x; ?>/<?= $status; ?>"><?= $x; ?></a></li>
                     <?php } ?>
                     <?php if ((int)$page < $hitungGrupMax) { ?>
                         <li class="page-item">
-                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page + 1); ?>" aria-label="Next">
+                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page + 1); ?>/<?= $status; ?>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -318,6 +333,11 @@
 
     function closeeditresi() {
         containerEditResiElm.style.display = 'none'
+    }
+
+    function pilihStatus(e) {
+        console.log(e.target.value)
+        window.location.href = '/listcustomer/' + '<?= $page; ?>' + '/' + e.target.value
     }
 </script>
 <?= $this->endSection(); ?>
