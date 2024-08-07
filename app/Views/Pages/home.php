@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten pb-0">
     <div class="container">
         <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
@@ -142,111 +142,31 @@
             <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">Lihat Semua Produk</a>
         </div>
     </div>
-    <!-- <div class="container my-3">
-        <h5 class="jdl-section">Bulan Ini</h5>
-        <div class="d-flex justify-content-between mb-3">
-            <h1 class="mb-0">Produk Terbaik</h1>
-            <button class="btn btn-primary1">Lihat Semua</button>
+    <div style="background-color: #c6f1c9; color: #2d7e33;" class="py-5 mt-5">
+        <div class="container baris-ke-kolom gap-5">
+            <div style="flex: 1" class="d-flex justify-content-start gap-4">
+                <img src="../img/logo ongkir.webp" alt="" style="width: 70px; height: 40px">
+                <div>
+                    <p class="fw-bold mb-1">Gratis Ongkir 100%</p>
+                    <p>Pengiriman di pulau Jawa, Madura, dan Bali tanpa minimum pembelian</p>
+                </div>
+            </div>
+            <div style="flex: 1" class="d-flex justify-content-start gap-4">
+                <img src="../img/logo diskon.webp" alt="" style="width: 70px; height: 70px">
+                <div>
+                    <p class="fw-bold mb-1">Spesial offer sale 5%</p>
+                    <p>Untuk setiap pembelian pertama yang telah terdaftar sebagai member di akun Lunarea Furniture</p>
+                </div>
+            </div>
+            <div style="flex: 1" class="d-flex justify-content-start gap-4">
+                <img src="../img/logo location.webp" alt="" style="width: 70px; height: 60px">
+                <div>
+                    <p class="fw-bold mb-1">Pengiriman ke seluruh Indonesia</p>
+                    <p>Menggunakan jasa ekspedisi terpercaya untuk mengantarkan produk sampai ke alamat tujuan</p>
+                </div>
+            </div>
         </div>
-        <div class="card-group1 no-scroll">
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-            <a class="card1"><img src="img/nopic.jpg" alt="">
-                <div class="mt-3">
-                    <h5 class="mb-0">JOYSTICK H-92 New!</h5>
-                    <p class="mb-0 harga">Rp 50.000</p>
-                </div>
-            </a>
-        </div>
-    </div> -->
+    </div>
 </div>
 <script>
     const containeKategoriScrollElm = document.querySelector('.container-kategori-scroll');
