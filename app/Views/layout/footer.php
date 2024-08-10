@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                    <p class="m-0">Pembayaran dilindungi</p>
+                    <p class="m-0">Pembayaran dilindungi oleh</p>
                     <a href="https://midtrans.com" target="_blank"><img src="/img/logo/midtrans 2.webp" style="width: 100px" /></a>
                 </div>
             </div>
@@ -108,6 +108,8 @@
                             <a href="https://shopee.co.id/lunareafurniture_" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace">
                             </a>
                             <a href="https://www.tokopedia.com/Lunareafurnitureofc" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace">
+                            </a>
+                            <a href="https://www.tiktok.com/@lunareafurnitureofficial" title="Tokopedia" target="blank"><img src="/img/logo/tiktok.webp" class="marketplace">
                             </a>
                         </div>
                     </div>

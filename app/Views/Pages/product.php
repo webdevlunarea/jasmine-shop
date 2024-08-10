@@ -148,6 +148,7 @@
                     <div>
                         <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee_logo.webp" class="marketplace"></a>
                         <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace"></a>
+                        <a href="<?= $produk['tiktok'] ? $produk['tiktok'] : 'https://www.tiktok.com/@lunareafurnitureofficial'; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktok_logo.webp" class="marketplace"></a>
                         <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>

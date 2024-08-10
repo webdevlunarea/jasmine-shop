@@ -78,10 +78,10 @@
         </div>
     </div> -->
     <div class="teks-atas show-flex-ke-hide">
-        <p class="m-0">Spesial diskon 5% untuk pembelian pertama | Gratis ongkir hingga 100%</p>
+        <p class="m-0">Spesial diskon 5% untuk pembelian pertama member Lunarea | Gratis ongkir hingga 100%</p>
     </div>
     <div class="teks-atas hide-ke-show-flex">
-        <p class="m-0">Diskon 5% | Gratis ongkir</p>
+        <p class="m-0">Diskon 5% untuk pembelian pertama member Lunarea</p>
     </div>
     <?= $this->include('layout/navbar'); ?>
 

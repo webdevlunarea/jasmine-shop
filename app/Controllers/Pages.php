@@ -1286,15 +1286,15 @@ class Pages extends BaseController
             $voucherSelected = $voucherDetail;
         }
 
-        $voucherSelected = [
-            'id' => 1,
-            'nama' => 'Member Baru',
-            'satuan' => 'persen',
-            'nominal' => 5,
-            'berakhir' => '0000-00-00',
-            'list_email' => [],
-            'jenis' => 'member'
-        ];
+        // $voucherSelected = [
+        //     'id' => 1,
+        //     'nama' => 'Member Baru',
+        //     'satuan' => 'persen',
+        //     'nominal' => 5,
+        //     'berakhir' => '0000-00-00',
+        //     'list_email' => [],
+        //     'jenis' => 'member'
+        // ];
 
         $voucher = [
             [
