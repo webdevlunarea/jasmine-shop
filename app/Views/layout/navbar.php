@@ -18,6 +18,7 @@
             <?php } else { ?>
                 <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                 <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
+                <a href="/invoiceadmin" class="btn"><i class="material-icons">description</i></a>
                 <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
@@ -81,6 +82,7 @@
                 <?php } else { ?>
                     <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                     <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
+                    <a href="/invoiceadmin" class="btn"><i class="material-icons">description</i></a>
                     <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>

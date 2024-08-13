@@ -91,7 +91,7 @@
             <div id="container-greeting-card" class="d-none">
                 <div style="background-color: white; border-radius: 1em; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" class="p-4">
                     <div class="d-flex align-items-start justify-content-between">
-                        <p class="m-0">Hai!👋</p>
+                        <p class="m-0">Hi, Teman Luna!👋</p>
                         <p class="m-0" style="cursor: pointer;" onclick="closeGreetingCard()">x</p>
                     </div>
                     <p class="m-0">Kalau kamu butuh bantuan,<br>hubungi kami via WhatsApp ya!</p>

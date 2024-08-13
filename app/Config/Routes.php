@@ -101,6 +101,11 @@ $routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' =>
 $routes->get('/findproductadmin/(:any)', 'Pages::findProductAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/findproductadmin/(:any)/(:any)', 'Pages::findProductAdmin/$1/$2', ['filter' => 'harusAdmin']);
 
+$routes->get('/invoiceadmin', 'Pages::invoiceAdmin', ['filter' => 'harusAdmin']);
+$routes->get('/invoiceadmin/(:any)', 'Pages::invoiceAdmin/$1', ['filter' => 'harusAdmin']);
+$routes->get('/addinvoiceadmin', 'Pages::addInvoiceAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter' => 'harusAdmin']);
+
 $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
 $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
