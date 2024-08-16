@@ -39,40 +39,40 @@ $routes->get('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filte
 $routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
-$routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
+// $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->post('/getalamat', 'Pages::getAllSelectAlamat');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
-$routes->get('/getkode/(:any)', 'Pages::getKode/$1');
+$routes->get('/getkode/(:any)', 'Pages::getKode/$1', ['filter' => 'corsFilter']);
 $routes->get('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2');
 $routes->get('/getdakota', 'Pages::getDakota');
 $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
-$routes->post('/actioncheckout', 'Pages::actionCheckout');
-$routes->post('/actionpay', 'Pages::actionPay');
-$routes->post('/actionpaysnap', 'Pages::actionPaySnap');
+// $routes->post('/actioncheckout', 'Pages::actionCheckout');
+// $routes->post('/actionpay', 'Pages::actionPay');
+// $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
 $routes->post('/actionpaycore', 'Pages::actionPayCore');
 $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
-$routes->post('/addtransaction', 'Pages::addTransaction');
-$routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
+// $routes->post('/addtransaction', 'Pages::addTransaction');
+// $routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
 $routes->post('/updatetransaction', 'Pages::updateTransaction');
 
-$routes->get('/finish_urlMid/(:any)/(:any)', 'Pages::finishUrlMid/$1/$2');
-$routes->get('/finish_url/(:any)', 'Pages::finishUrl/$1');
-$routes->get('/finish_url/(:any)/(:any)', 'Pages::finishUrl/$1/$2'); //code rahasia = JSM-zWYWObdPEKlHA0PWP6BN
-$routes->get('/successpay', 'Pages::successPay');
-$routes->get('/progresspay', 'Pages::progressPay');
-$routes->get('/errorpay', 'Pages::errorPay');
+// $routes->get('/finish_urlMid/(:any)/(:any)', 'Pages::finishUrlMid/$1/$2');
+// $routes->get('/finish_url/(:any)', 'Pages::finishUrl/$1');
+// $routes->get('/finish_url/(:any)/(:any)', 'Pages::finishUrl/$1/$2'); //code rahasia = JSM-zWYWObdPEKlHA0PWP6BN
+// $routes->get('/successpay', 'Pages::successPay');
+// $routes->get('/progresspay', 'Pages::progressPay');
+// $routes->get('/errorpay', 'Pages::errorPay');
 $routes->get('/order/(:any)', 'Pages::order/$1');
-$routes->get('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
-$routes->get('/orderlocal', 'Pages::orderLocal');
+// $routes->get('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
+// $routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
-$routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
+// $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
 $routes->get('/contact', 'Pages::contact');
@@ -95,7 +95,7 @@ $routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin
 $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
-$routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
+// $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
 $routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/findproductadmin/(:any)', 'Pages::findProductAdmin/$1', ['filter' => 'harusAdmin']);
@@ -106,15 +106,15 @@ $routes->get('/invoiceadmin/(:any)', 'Pages::invoiceAdmin/$1', ['filter' => 'har
 $routes->get('/addinvoiceadmin', 'Pages::addInvoiceAdmin', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter' => 'harusAdmin']);
 
-$routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/kategori/(:any)/(:any)', 'ApiCompany::kategori/$1/$2', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/subkategori/(:any)/(:any)', 'ApiCompany::subkategori/$1/$2', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
-$routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/kategori/(:any)/(:any)', 'ApiCompany::kategori/$1/$2', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/subkategori/(:any)/(:any)', 'ApiCompany::subkategori/$1/$2', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/cari/(:any)/(:any)', 'ApiCompany::cari/$1/$2', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
+// $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
 $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
@@ -138,8 +138,8 @@ $routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2');
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);
-$routes->post('/closegreeting', 'TrackingController::closeGreeting', ['filter' => 'corsFilter']);
-$routes->post('/trackpop', 'TrackingController::trackPop', ['filter' => 'corsFilter']);
+// $routes->post('/closegreeting', 'TrackingController::closeGreeting', ['filter' => 'corsFilter']);
+// $routes->post('/trackpop', 'TrackingController::trackPop', ['filter' => 'corsFilter']);
 
 // CopyGambarController
 $routes->get('/copygambar', 'CopyGambarController::copyGambar');

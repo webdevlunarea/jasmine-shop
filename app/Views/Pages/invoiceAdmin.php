@@ -80,14 +80,14 @@
         <div class="w-100 border-bottom pb-2">
             <div class="w-100 d-flex border-bottom border-top border-dark py-2">
                 <div style="flex: 2.9">
-                    <p class="mb-0 fw-bold">INFO PRODUK</p>
+                    <p class="mb-0 fw-bold">INFO</p>
                 </div>
                 <div style="flex: 1">
                     <p class="text-center mb-0 fw-bold">KUANTITAS</p>
                 </div>
-                <div style="flex: 1">
+                <!-- <div style="flex: 1">
                     <p class="text-center mb-0 fw-bold">HARGA SATUAN</p>
-                </div>
+                </div> -->
                 <div style="flex: 1">
                     <p class="text-center mb-0 fw-bold">JUMLAH</p>
                 </div>
@@ -104,9 +104,9 @@
                     <div style="flex: 1">
                         <p class="text-center mb-0"><?= $item['kuantitas']; ?></p>
                     </div>
-                    <div style="flex: 1">
+                    <!-- <div style="flex: 1">
                         <p class="text-center mb-0">Rp <?= number_format($item['harga'], 0, ",", "."); ?></p>
-                    </div>
+                    </div> -->
                     <div style="flex: 1">
                         <p class="text-end mb-0">Rp <?= number_format($item['harga'] * $item['kuantitas'], 0, ",", "."); ?></p>
                     </div>
