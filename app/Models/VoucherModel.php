@@ -15,13 +15,14 @@ class VoucherModel extends Model
         'berakhir',
         'list_email',
         'jenis',
+        'active'
     ];
 
     public function getVoucher($id = false)
     {
         if ($id == false) {
-            return $this->findAll();
+            return $this->where(['active' => '1'])->findAll();
         }
-        return $this->where(['id' => $id])->first();
+        return $this->where(['active' => '1', 'id' => $id])->first();
     }
 }

@@ -1284,15 +1284,21 @@ class Pages extends BaseController
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
             //voucher member baru
-            $voucherMemberBaru = $this->voucherModel->where(['id' => 1])->first();
-            if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
-                array_push($voucher, $voucherMemberBaru);
+            $voucherMemberBaru = $this->voucherModel->getVoucher(1);
+            if ($voucherMemberBaru) {
+                if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
+                    array_push($voucher, $voucherMemberBaru);
+                }
             }
         }
         $diskonVoucher = 0;
         $voucherSelected = false;
         if (session()->get('voucher')) {
-            $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
+            $voucherDetail = $this->voucherModel->getVoucher(session()->get('voucher'));
+            if (!$voucherDetail) {
+                session()->remove('voucher');
+                return redirect()->to('/checkout');
+            }
             if ($voucherDetail['satuan'] == 'persen') {
                 $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
             }
@@ -1760,7 +1766,7 @@ class Pages extends BaseController
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
             //voucher member baru
-            $voucherMemberBaru = $this->voucherModel->where(['id' => 1])->first();
+            $voucherMemberBaru = $this->voucherModel->getVoucher(1);
             if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
                 array_push($voucher, $voucherMemberBaru);
             }
@@ -1768,7 +1774,7 @@ class Pages extends BaseController
         $diskonVoucher = 0;
         $voucherSelected = false;
         if (session()->get('voucher')) {
-            $voucherDetail = $this->voucherModel->where(['id' => session()->get('voucher')])->first();
+            $voucherDetail = $this->voucherModel->getVoucher(session()->get('voucher'));
             if ($voucherDetail['satuan'] == 'persen') {
                 $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
             }
@@ -2005,10 +2011,10 @@ class Pages extends BaseController
         ]);
 
         if ($data['diskonVoucher'] > 0) {
-            $voucherSelected = $this->voucherModel->where(['id' => $voucher['id']])->first();
+            $voucherSelected = $this->voucherModel->getVoucher($voucher['id']);
             $voucherSelected_email = json_decode($voucherSelected['list_email'], true);
             array_push($voucherSelected_email, $email);
-            $this->voucherModel->where(['id' => $voucher['id']])->set(['list_email' => json_encode($voucherSelected_email)])->update();
+            $this->voucherModel->where(['id' => $voucher['id'], 'active' => '1'])->set(['list_email' => json_encode($voucherSelected_email)])->update();
         }
 
         //pengurangan stok produk
@@ -4243,6 +4249,57 @@ class Pages extends BaseController
         $this->invoiceModel->insert($field);
         session()->setFlashdata('msg', 'Invoice ' . $id . ' telah dibuat');
         return redirect()->to('/invoiceadmin');
+    }
+    public function listVoucher()
+    {
+        $voucher = $this->voucherModel->findAll();
+        $data = [
+            'title' => 'List Voucher',
+            'voucher' => $voucher
+        ];
+        return view('pages/listVoucher', $data);
+    }
+    public function activeVoucher($id)
+    {
+        $curActive = $this->voucherModel->where(['id' => $id])->first()['active'];
+        $this->voucherModel->where(['id' => $id])->set(['active' => !$curActive])->update();
+        return redirect()->to('/listvoucher');
+    }
+    public function addVoucher()
+    {
+        $data = [
+            'title' => 'Add Voucher',
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/addVoucher', $data);
+    }
+    public function actionAddVoucher()
+    {
+        if (!$this->validate([
+            'nama' => ['rules' => 'required'],
+            'nominal' => ['rules' => 'required'],
+            'jenis' => ['rules' => 'required'],
+        ])) {
+            session()->setFlashdata('msg', 'Ada data yang belum diisi');
+            return redirect()->to('/addvoucher')->withInput();
+        }
+
+        $nama = $this->request->getVar('nama');
+        $nominal = $this->request->getVar('nominal');
+        $satuan = $this->request->getVar('satuan');
+        $berakhir = $this->request->getVar('berakhir') ? $this->request->getVar('berakhir') : '0000-00-00';
+        $jenis = $this->request->getVar('jenis');
+
+        $this->voucherModel->insert([
+            'nama' => $nama,
+            'nominal' => $nominal,
+            'satuan' => $satuan,
+            'berakhir' => $berakhir,
+            'jenis' => $jenis,
+            'active' => true,
+            'list_email' => json_encode([])
+        ]);
+        return redirect()->to('/listvoucher');
     }
 
     public function notFound()
