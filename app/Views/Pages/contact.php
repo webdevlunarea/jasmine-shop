@@ -12,19 +12,27 @@
                     <div>
                         <h3>Customer Service Lunarea</h3>
                         <p>Ajukan pertanyaan Anda dengan menghubungi layanan pelanggan Lunarea Furniture atau dapatkan jawabannya di bawah ini.</p>
-                        <h3>Temukan jawabannya sekarang:</h3>
+                        <h3>Temukan Solusi Cepat</h3>
                         <a href="/faq?a=5#flush-collapse5" class="text-dark d-block" style="text-decoration: underline;">Apakah saya bisa mendapatkan diskon gratis ongkir?</a>
                         <a href="/faq?a=6#flush-collapse6" class="text-dark d-block" style="text-decoration: underline;">Apakah saya bisa mengembalikan produk yang tidak sesuai dengan pesanan?</a>
                         <a href="/faq" style="color: var(--hijau);" class="d-block link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Lihat semua FAQ</a>
                     </div>
                     <div class="mt-3">
                         <p class="fw-bold mb-1">Layanan Pelanggan Lunarea</p>
-                        <a href="https://api.whatsapp.com/send?phone=628112938160&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="text-decoration: none; color: black">
-                            <p class="m-0">Telephone : 08112938160</p>
-                        </a>
-                        <a href="mailto:cs@lunareafurniture.com" style="text-decoration: none; color: black">
-                            <p class=" m-0">Email : cs@lunareafurniture.com</p>
-                        </a>
+                        <div class="d-flex gap-2">
+                            <div>
+                                <p class="m-0">Telephone</p>
+                                <p class="m-0">Email</p>
+                            </div>
+                            <div>
+                                <a href="https://api.whatsapp.com/send?phone=628112938160&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="text-decoration: none; color: black">
+                                    <p class="m-0">: 08112938160</p>
+                                </a>
+                                <a href="mailto:cs@lunareafurniture.com" style="text-decoration: none; color: black">
+                                    <p class=" m-0">: cs@lunareafurniture.com</p>
+                                </a>
+                            </div>
+                        </div>
                         <a class="m-0" style="text-decoration: none; color: black">
                             <p class=" m-0">Senin sampai Sabtu di jam kerja</p>
                         </a>

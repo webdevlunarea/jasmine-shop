@@ -45,9 +45,9 @@
                 <div style="flex: 1;">
                     <div class="fw-700 fs-3 mb-2"><strong>Lunarea</strong></div>
                     <ul class="footer__left-menu">
-                        <li><a href="/">Beranda</a></li>
+                        <!-- <li><a href="/">Beranda</a></li> -->
                         <li><a href="/about">Tentang</a></li>
-                        <li><a href="/all">Produk</a></li>
+                        <!-- <li><a href="/all">Produk</a></li> -->
                         <li><a href="<?= session()->get('isLogin') ? "/account" : "/login" ?>"><?= session()->get('isLogin') ? "Akun" : "Masuk" ?></a>
                         </li>
                         <li><a href="/kebijakan-privasi">Kebijakan Privasi</a></li>

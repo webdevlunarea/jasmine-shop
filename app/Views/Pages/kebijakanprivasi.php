@@ -192,7 +192,7 @@
         </p>
 
         <h5 class="jdl-section mt-5">Sistem Pengiriman & Pengembalian</h5>
-        <h5 class="mb-2 mt-4">Kebijakan pengiriman</h5>
+        <h5 class="mb-2 mt-4">Kebijakan Pengiriman</h5>
         <p>
             Website Kami dapat melayani pengiriman pesanan ke seluruh
             Indonesia. Pesanan bisa dikirim setelah adanya konfirmasi
@@ -246,7 +246,7 @@
             untuk melakukan pengiriman barang kembali agar Kami dapat segera
             mengganti dengan barang yang baru dengan batas maksimal komplain
             kerusakan komponen yang telah dijabarkan pada FAQ poin nomor 2
-            dan 3 bagian “Penerimaan Barang & Prosedur Komplain”. Biaya
+            dan 3 bagian <a style="color: var(--hijau)" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/faq?a=6#flush-collapse6">Penerimaan Barang & Prosedur Komplain</a>. Biaya
             pengiriman kembali barang baru tersebut tidak dibebankan kepada
             pelanggan yang bersangkutan, sementara untuk pengiriman kembali
             komponen/aksesoris yang rusak, biaya kirim akan dibebankan
