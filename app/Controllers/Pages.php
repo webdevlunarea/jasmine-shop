@@ -302,8 +302,8 @@ class Pages extends BaseController
     }
     public function all($subkategori = false)
     {
-        $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll(20, 0);
-        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll();
+        $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, 0);
+        $semuaproduk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll();
         if (count($produk) <= 0) return redirect()->to('/all');
         $meta = [
             'lemari-dewasa' => [
@@ -371,11 +371,11 @@ class Pages extends BaseController
         $pagination = (int)$page;
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll(20, $hitungOffset);
+            $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll(20, 0);
+            $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->where('subkategori', $subkategori)->orderBy('nama', 'asc')->findAll();
+        $semuaproduk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll();
         $data = [
             'title' => 'Semua Produk',
             'produk' => $produk,
@@ -730,8 +730,23 @@ class Pages extends BaseController
         $wishlist = session()->get('wishlist');
         $produk = [];
         if (count($wishlist) > 0) {
+            $ketemuProdukTdkAda = [];
             foreach ($wishlist as $w) {
-                array_push($produk, $this->barangModel->getBarang($w));
+                $produknya = $this->barangModel->getBarang($w);
+                if ($produknya) array_push($produk, $produknya);
+                else array_push($ketemuProdukTdkAda, $w);
+            }
+
+            if (count($ketemuProdukTdkAda) > 0) {
+                foreach ($ketemuProdukTdkAda as $ketemu) {
+                    if (($key = array_search($ketemu, $wishlist)) !== false) {
+                        unset($wishlist[$key]);
+                    }
+                }
+
+                session()->set(['wishlist' => $wishlist]);
+                $email = session()->get('email');
+                if ($email != 'tamu') $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
             }
         }
         $data = [
@@ -1001,40 +1016,56 @@ class Pages extends BaseController
         $dimensiSemua = [];
         $paket = [];
         $paketFilter = [];
+        $indElementNotFound = [];
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
-                array_push($produk, $produknya);
-                array_push($jumlah, $element['jumlah']);
+                if ($produknya) {
+                    array_push($produk, $produknya);
+                    array_push($jumlah, $element['jumlah']);
 
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = round($persen * $produknya['harga']);
-                $subtotal += $hasil * $element['jumlah'];
-                $dimensi = explode("X", $produknya['dimensi']);
-                array_push($dimensiSemua, $produknya['dimensi']);
-                $berat += $produknya['berat'] * $element['jumlah'];
-                $beratHitung += ceil((float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 3500) * $element['jumlah']; //kg
+                    $persen = (100 - $produknya['diskon']) / 100;
+                    $hasil = round($persen * $produknya['harga']);
+                    $subtotal += $hasil * $element['jumlah'];
+                    $dimensi = explode("X", $produknya['dimensi']);
+                    array_push($dimensiSemua, $produknya['dimensi']);
+                    $berat += $produknya['berat'] * $element['jumlah'];
+                    $beratHitung += ceil((float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 3500) * $element['jumlah']; //kg
 
-                array_push($produkJson, array(
-                    'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
-                    // 'description' => $produknya['deskripsi'],
-                    'value' => $hasil,
-                    'length' => (float)$dimensi[0],
-                    'width' => (float)$dimensi[1],
-                    'height' => (float)$dimensi[2],
-                    'weight' => (float)$produknya['berat'],
-                    'quantity' => (int)$element['jumlah'],
-                ));
+                    array_push($produkJson, array(
+                        'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
+                        // 'description' => $produknya['deskripsi'],
+                        'value' => $hasil,
+                        'length' => (float)$dimensi[0],
+                        'width' => (float)$dimensi[1],
+                        'height' => (float)$dimensi[2],
+                        'weight' => (float)$produknya['berat'],
+                        'quantity' => (int)$element['jumlah'],
+                    ));
 
-                //cek stok habis
-                if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
-                    $stokSelected = $produknya['stok'];
-                else
-                    $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
-                if ((int)$stokSelected - (int)$element['jumlah'] < 0)
-                    return redirect()->to('cart');
+                    //cek stok habis
+                    if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
+                        $stokSelected = $produknya['stok'];
+                    else
+                        $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
+                    if ((int)$stokSelected - (int)$element['jumlah'] < 0)
+                        return redirect()->to('cart');
+                } else {
+                    array_push($indElementNotFound, $ind);
+                }
             }
             $total = $subtotal + 5000;
+        }
+
+        if (count($indElementNotFound) > 0) {
+            foreach ($indElementNotFound as $ind) {
+                unset($keranjang[$ind]);
+            }
+            $keranjangBaru = array_values($keranjang);
+            session()->set(['keranjang' => $keranjangBaru]);
+            if ($email != 'tamu')
+                $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
+            return redirect()->to('/checkout');
         }
 
         $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
@@ -3704,7 +3735,7 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangNama($nama);
         if (!$produk) return redirect()->to('/all');
-        $produksekategori = $this->barangModel->where('subkategori', $produk['subkategori'])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
+        $produksekategori = $this->barangModel->where(['active' => '1', 'subkategori' => $produk['subkategori']])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
         // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
@@ -3733,11 +3764,11 @@ class Pages extends BaseController
         $pagination = (int)$page;
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, $hitungOffset);
+            $produk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, 0);
+            $produk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll();
+        $semuaproduk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll();
 
         $data = [
             'title' => 'Produk',
@@ -3962,8 +3993,8 @@ class Pages extends BaseController
     }
     public function listProduct($page = 1)
     {
-        $produk = $this->barangModel->getBarangPage($page);
-        $semuaproduk = $this->barangModel->getBarang();
+        $produk = $this->barangModel->getBarangPageAdmin($page);
+        $semuaproduk = $this->barangModel->getBarangAdmin();
         $data = [
             'title' => 'List Produk',
             'produk' => $produk,
@@ -3976,7 +4007,10 @@ class Pages extends BaseController
     public function actionFindProductAdmin()
     {
         $cari = $this->request->getVar('cari');
-        return redirect()->to('/findproductadmin/' . str_replace(" ", "-", $cari));
+        if ($cari)
+            return redirect()->to('/findproductadmin/' . str_replace(" ", "-", $cari));
+        else
+            return redirect()->to('/listproduct');
     }
     public function findProductAdmin($cari, $pag = 1)
     {
@@ -4050,6 +4084,7 @@ class Pages extends BaseController
             'tokped'        => $this->request->getVar('tokped'),
             'tiktok'        => $this->request->getVar('tiktok'),
             'youtube'       => $this->request->getVar('youtube'),
+            'active'        => '1'
         ]);
         $this->gambarBarangModel->insert($insertGambarBarang);
 
@@ -4063,7 +4098,7 @@ class Pages extends BaseController
     // }
     public function editProduct($id)
     {
-        $produk = $this->barangModel->getBarang($id);
+        $produk = $this->barangModel->getBarangAdmin($id);
         $gambar = $this->gambarBarangModel->getGambar($id);
         $varian = json_decode($produk['varian'], true);
         if ($produk['pencarian'] == null || $produk['pencarian'] == '') {
@@ -4174,6 +4209,12 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->where('id', $id)->delete();
         $gambar = $this->gambarBarangModel->where('id', $id)->delete();
+        return redirect()->to('/listproduct');
+    }
+    public function activeProduct($id)
+    {
+        $curActive = $this->barangModel->where(['id' => $id])->first()['active'];
+        $this->barangModel->where(['id' => $id])->set(['active' => !$curActive])->update();
         return redirect()->to('/listproduct');
     }
     public function invoiceAdmin($id = false)

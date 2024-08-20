@@ -28,9 +28,17 @@ class BarangModel extends Model
         'tiktok',
         'youtube',
         'tracking_pop',
+        'active'
     ];
 
     public function getBarang($id = false)
+    {
+        if ($id == false) {
+            return $this->where(['active' => '1'])->orderBy('nama', 'asc')->findAll();
+        }
+        return $this->where(['id' => $id, 'active' => '1'])->first();
+    }
+    public function getBarangAdmin($id = false)
     {
         if ($id == false) {
             return $this->orderBy('nama', 'asc')->findAll();
@@ -46,17 +54,27 @@ class BarangModel extends Model
     }
     public function getBarangLimit()
     {
-        return $this->orderBy('nama', 'asc')->findAll(10, 0);
+        return $this->where(['active' => '1'])->orderBy('nama', 'asc')->findAll(10, 0);
     }
     public function getBarangBaru()
     {
-        return $this->orderBy('id', 'desc')->findAll(10, 0);
+        return $this->where(['active' => '1'])->orderBy('id', 'desc')->findAll(10, 0);
     }
     public function getBarangPopuler()
     {
-        return $this->orderBy('tracking_pop', 'desc')->findAll(10, 0);
+        return $this->where(['active' => '1'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
     }
     public function getBarangPage($page)
+    {
+        // $hitungPag = floor($page / 20);
+        $hitungPag = 20 * ($page - 1);
+        if ($page > 1) {
+            return $this->where(['active' => '1'])->orderBy('nama', 'asc')->findAll(20, $hitungPag);
+        } else {
+            return $this->where(['active' => '1'])->orderBy('nama', 'asc')->findAll(20, 0);
+        }
+    }
+    public function getBarangPageAdmin($page)
     {
         // $hitungPag = floor($page / 20);
         $hitungPag = 20 * ($page - 1);

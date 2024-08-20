@@ -11,10 +11,17 @@
         <form action="/findproductadmin" method="post">
             <div class="mb-2 d-flex gap-3 align-items-center">
                 <p class="m-0" style="width: 150px">Cari barang</p>
-                <input type="text" class="form-control" name="cari">
+                <input type="text" class="form-control" name="cari" value="<?= $cari ? str_replace('-', ' ', $cari) : ''; ?>">
             </div>
         </form>
         <div class="show-flex-ke-hide flex-column">
+            <div class="w-100 gap-2 d-flex py-2 border-bottom mb-3 fw-bold">
+                <div style="flex: 1" class="d-flex align-items-center">Gambar</div>
+                <div style="flex: 4" class="d-flex flex-column justify-content-center">Nama dan ID</div>
+                <div style="flex: 2" class="d-flex flex-column justify-content-center">Stok</div>
+                <div style="flex: 1;" class="d-flex justify-content-center align-items-center">Active</div>
+                <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">Action</div>
+            </div>
             <?php foreach ($produk as $ind_p => $p) { ?>
                 <div class="w-100 gap-2 d-flex">
                     <div style="flex: 1" class="d-flex align-items-center">
@@ -29,9 +36,10 @@
                             <p class="m-0"><?= $v; ?> : <?= isset(explode(',', $p['stok'])[$ind_v]) ? explode(',', $p['stok'])[$ind_v] : $p['stok']; ?></p>
                         <?php } ?>
                     </div>
-                    <div style="flex: 1" class="d-flex justify-content-center align-items-center gap-1">
-                        <label for="checkbox_active<?= $ind_p; ?>">Active </label>
-                        <input type="checkbox" id="checkbox_active<?= $ind_p; ?>">
+                    <div style="flex: 1;" class="d-flex justify-content-center align-items-center">
+                        <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Produk <?= $p['nama']; ?> akan di<?= $p['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activeproduct/<?= $p['id']; ?>')">
+                            <div class="bg-<?= $p['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+                        </div>
                     </div>
                     <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
                         <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
@@ -59,11 +67,10 @@
                         </div>
                     <?php } ?>
                     <div class="d-flex mt-2">
-                        <div style="flex: 1" class="d-flex align-items-center gap-2">
-                            <label for="checkbox_active<?= $ind_p; ?>">
-                                <p class="m-0">Active </p>
-                            </label>
-                            <input type="checkbox" id="checkbox_active<?= $ind_p; ?>">
+                        <div style="flex: 1;" class="d-flex justify-content-center align-items-center">
+                            <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Produk <?= $p['nama']; ?> akan di<?= $p['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activeproduct/<?= $p['id']; ?>')">
+                                <div class="bg-<?= $p['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+                            </div>
                         </div>
                         <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
                             <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
@@ -73,40 +80,6 @@
                     </div>
                 </div>
                 <hr>
-            <?php } ?>
-        </div>
-        <div class="card-group1 no-scroll">
-            <?php foreach ($produk as $p) { ?>
-                <div class="card1">
-                    <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
-                    <?php } ?>
-                    <!-- <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt=""> -->
-                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                        <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="">
-                    </div>
-                    <div class="mt-3">
-                        <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                        <?php if ($p['diskon']) { ?>
-                            <p class="mb-0 harga d-inline">Rp
-                                <?php
-                                $persen = (100 - $p['diskon']) / 100;
-                                $hasil = $persen * $p['harga'];
-                                echo number_format($hasil, 0, ",", ".");
-                                ?></p>
-                            <p class="mb-0 d-inline" style="text-decoration: line-through; font-size: small; color: grey;">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                        <?php } else { ?>
-                            <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                        <?php } ?>
-                        <p>★★★☆☆ (<?= $p['rate']; ?>)</p>
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <a class="btn btn-light d-flex" href="/product/<?= urlencode($p['nama']); ?>"><i class="material-icons">visibility</i></a>
-                        <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
-                        <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
-                    </div>
-                </div>
             <?php } ?>
         </div>
 
@@ -123,7 +96,7 @@
                     $hitungGrupMax = ceil(count($semuaProduk) / 20);
                     for ($x = 1; $x <= $hitungGrupMax; $x++) {
                     ?>
-                        <li class="page-item"><a class="page-link text-dark" href="<?= $cari ? '/findproductadmin/' . $cari . '/' . $x : '/listproduct/' . $x; ?>"><?= $x; ?></a></li>
+                        <li class="page-item"><a class="page-link <?= $x == $page ? "aktif" : "" ?>" href="<?= $cari ? '/findproductadmin/' . $cari . '/' . $x : '/listproduct/' . $x; ?>"><?= $x; ?></a></li>
                     <?php } ?>
                     <?php if ((int)$page < $hitungGrupMax) { ?>
                         <li class="page-item">
