@@ -18,6 +18,9 @@
                         <img src="/img/pembayaran/mandiri.webp" width="43" height="13" />
                     </div>
                     <div class="footer__partner__img">
+                        <img src="/img/pembayaran/cimb.webp" width="43" height="13" />
+                    </div>
+                    <div class="footer__partner__img">
                         <img src="/img/pembayaran/permatabank.webp" width="43" height="11" />
                     </div>
                     <!--<div class="footer__partner__img">-->
