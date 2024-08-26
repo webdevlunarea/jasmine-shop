@@ -20,7 +20,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="description" content="<?= isset($metaDeskripsi) ? $metaDeskripsi : 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.'; ?>">
-    <meta name="keywords" content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture'; ?>">
+    <meta name="keywords" content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea'; ?>">
     <meta name="author" content="Lunarea Furniture">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title; ?> | Lunarea Furniture</title>

@@ -63,6 +63,13 @@ a {
     background-color: var(--hijaumuda);
     color: var(--hijau);
 }
+.btn-teks-aja {
+    display: block;
+    color: var(--hijau);
+    border: none;
+    outline: none;
+    background: none;
+}
 .link-primary {
     color: var(--hijau);
 }

@@ -49,8 +49,9 @@ class Pages extends BaseController
             'title' => 'Beranda',
             'produk' => $produk,
             'produkBaru' => $produkBaru,
-            'metaDeskripsi' => 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.',
-            'metaKeyword' => 'lunarea furniture,toko furniture'
+            'metaKeyword' => 'lunarea furniture,toko furniture,
+            lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
+            'msg_active' => session()->getFlashdata('msg_active') ? session()->getFlashdata('msg_active') : false,
         ];
         return view('pages/home', $data);
     }
@@ -308,47 +309,47 @@ class Pages extends BaseController
         $meta = [
             'lemari-dewasa' => [
                 'deskripsi' => 'Kenapa Harus Punya Lemari Pakaian? Sebagai salah satu furniture penting yang ada di rumah, lemari memegang peran penting untuk memastikan barang di dalamnya tertata rapi. Lemari bisa ditempatkan pada bagian rumah di mana saja tergantung dari jenis penyimpanannya. Sesuai dengan namanya, lemari pakaian biasanya di tempat tidur sebagai tempat penyimpanan pakaian. Tapi tidak menutup kemungkinan juga lemari digunakan untuk menyimpan keperluan lain dan bisa ditempatkan secara fleksibel di ruangan lainnya.',
-                'keywords' => ['lemari pakaian minimalis', 'lemari baju minimalis', 'Lemari pakaian minimalis modern minimalis terbaru', 'lemari pakaian 2 pintu', 'lemari pakaian 3 pintu', 'Harga Lemari Pakaian Minimalis Modern', 'Harga lemari baju', 'jual lemari pakaian', 'harga lemari pakaian minimalis modern'],
+                'keywords' => ['lemari pakaian minimalis', 'lemari baju minimalis', 'Lemari pakaian minimalis modern minimalis terbaru', 'lemari pakaian 2 pintu', 'lemari pakaian 3 pintu', 'Harga Lemari Pakaian Minimalis Modern', 'Harga lemari baju', 'jual lemari pakaian', 'harga lemari pakaian minimalis modern', 'lemari dewasa lunarea'],
             ],
             'meja-rias' => [
                 'deskripsi' => 'Alasan Kenapa Meja Rias Harus Ada Di Kamar Salah satu perabotan rumah tangga yang penting walaupun bukan termasuk yang utama adalah meja rias. Sama seperti namanya,  furniture satu ini punya fungsi yang vital terlebih buat perempuan. Dengan meja rias atau tolet inilah yang membuatmu tidak perlu worry lagi bakalan nggak stunning setiap harinya. Karena diperuntukkan secara spesial buat perempuan, tentunya kamu juga bisa dengan mudah menemukan berbagai jenis desain yang cantik dan menarik.',
-                'keywords' => ['meja rias', 'meja rias minimalis modern', 'meja rias minimalis', 'meja rias minimalis kecil', 'meja rias simple', 'harga meja rias', 'meja rias multifungsi'],
+                'keywords' => ['meja rias', 'meja rias minimalis modern', 'meja rias minimalis', 'meja rias minimalis kecil', 'meja rias simple', 'harga meja rias', 'meja rias multifungsi', 'meja rias lunarea'],
             ],
             'meja-belajar' => [
                 'deskripsi' => 'Apa Itu Meja Belajar? Meja belajar merupakan salah satu furniture penting yang diupayakan dapat menciptakan lingkungan belajar yang nyaman dan produktif di rumah. Ada beberapa hal yang perlu jadi pertimbangan saat memilih meja belajar mana yang akan dibeli, sebut saja meja belajar minimalis, meja belajar aesthetic, meja belajar multifungsi, meja belajar simple, dan masih banyak lagi ragamnya. Nah, pada dasarnya yang perlu dipilih adalah sesuai dengan kebutuhan dan mengesampingkan keinginan. Tapi kalau bisa keduanya, kenapa tidak? meja belajar minimalis unik mungkin bisa jadi pilihan yang pas untukmu yang tidak suka sesuatu monoton.',
-                'keywords' => ['meja belajar', 'meja belajar minimalis', 'meja belajar aesthetic', 'meja belajar simple', 'meja belajar minimalis modern', 'meja belajar minimalis unik'],
+                'keywords' => ['meja belajar', 'meja belajar minimalis', 'meja belajar aesthetic', 'meja belajar simple', 'meja belajar minimalis modern', 'meja belajar minimalis unik', 'meja belajar lunarea'],
             ],
             'meja-tv' => [
                 'deskripsi' => 'Ini Alasannya Perlu Meja TV di Rumah! Televisi sudah jadi barang elektronik yang dirasa wajib ada di setiap rumah. Kegunaannya sebagai media mencari hiburan baik itu saat sendiri atau bersama orang-orang tersayang menjadikan barang elektronik selalu eksis hingga sekarang. Maka dari itu, untuk melengkapi momen menonton TV jadi lebih asyik, diperlukan space khusus berupa Meja TV tentunya. Tak hanya itu saja, furniture meja yang satu ini juga punya fungsi lain sebagai tempat penyimpanan peralatan pendukung nonton TV seperti DVD player, PS player, WiFi, dan masih banyak lagi. Karena saking multifungsinya, furniture meja tempat TV ini punya sebutan lain di masyarakat seperti rak TV, buffet TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.',
-                'keywords' => ['meja tv', 'meja tv minimalis', 'rak tv minimalis', 'harga rak tv minimalis modern', 'meja tv minimalis modern termurah', 'meja tv minimalis modern'],
+                'keywords' => ['meja tv', 'meja tv minimalis', 'rak tv minimalis', 'harga rak tv minimalis modern', 'meja tv minimalis modern termurah', 'meja tv minimalis modern', 'meja tv lunarea'],
             ],
             'meja-tulis' => [
-                'deskripsi' => 'Deskripsi meja tulis',
-                'keywords' => ["meja kantor", "meja kerja kantor", "meja kantor minimalis", "harga meja kantor", "meja rapat kantor", "jual meja kantor", "meja meeting kantor", "harga meja kerja kantor", "meja kantor kayu", "jual meja kantor terdekat"],
+                'deskripsi' => 'Meja tulis merupakan salah satu furniture wajib yang ada di rumah atau kantor. Sama seperti namanya, meja jenis ini dibuat secara khusus untuk meningkatkan produktivitas dan kenyamanan. Faktor inilah yang diharapkan dapat membuat seseorang bisa menyelesaikan pekerjaannya lebih efektif dan efisien. Desain meja kerja kantor ini juga ditentukan oleh kebutuhan. Keberagaman desain ini merupakan jawaban atas beragamnya kebutuhan setiap orang masing-masing.',
+                'keywords' => ["meja kantor", "meja kerja kantor", "meja kantor minimalis", "harga meja kantor", "meja rapat kantor", "jual meja kantor", "meja meeting kantor", "harga meja kerja kantor", "meja kantor kayu", "jual meja kantor terdekat", 'meja tulis lunarea'],
             ],
             'meja-komputer' => [
                 'deskripsi' => 'Kenapa Harus Beli Meja Kerja? Meja tulis merupakan salah satu furniture wajib yang ada di rumah atau kantor. Sama seperti namanya, meja jenis ini dibuat secara khusus untuk meningkatkan produktivitas dan kenyamanan. Faktor inilah yang diharapkan dapat membuat seseorang bisa menyelesaikan pekerjaannya lebih efektif dan efisien. Desain meja kerja kantor ini juga ditentukan oleh kebutuhan. Ada meja tulis dengan top table lurus tanpa ada ambalan tambahan, ada jenis meja kantor yang terkadang diberikan fitur tambahan seperti laci dan space kabinet tertutup di sisi kiri dan atau kanan bawah. Keberagaman desain ini merupakan jawaban atas beragamnya kebutuhan setiap orang masing-masing.',
-                'keywords' => ['beli meja kerja', 'meja tulis', 'meja kerja kantor', 'meja kantor', 'meja kerja kayu', 'meja kerja minimalis'],
+                'keywords' => ['beli meja kerja', 'meja tulis', 'meja kerja kantor', 'meja kantor', 'meja kerja kayu', 'meja kerja minimalis', 'meja komputer lunarea'],
             ],
             'rak-sepatu' => [
                 'deskripsi' => 'Apa itu Rak Sepatu? Furniture yang satu ini menjadi perabotan rumah tangga yang penting dan harus ada di rumah. Terlebih jika memiliki banyak koleksi sneaker yang cukup banyak dan berharga. Pada umumnya, lemari rak sepatu dibuat dari bahan kayu, besi atau logam, plastik, hingga bahan lainnya. Ukuran dan desainnya pun beragam, bergantung pada kebutuhan dan penempatannya. Semisal saja, untuk penempatan di area yang rentan dengan debu akan lebih baik jika memilih rak sepatu tertutup.',
-                'keywords' => ['Rak Sepatu', 'lemari rak sepatu', 'rak sepatu tertutup', 'rak sepatu minimalis', 'rak sepatu minimalis tertutup', 'beli rak sepatu tertutup', 'Rak sepatu dari kayu', 'Beli Rak Sepatu'],
+                'keywords' => ['Rak Sepatu', 'lemari rak sepatu', 'rak sepatu tertutup', 'rak sepatu minimalis', 'rak sepatu minimalis tertutup', 'beli rak sepatu tertutup', 'Rak sepatu dari kayu', 'Beli Rak Sepatu', 'rak sepatu lunarea'],
             ],
             'rak-besi' => [
                 'deskripsi' => 'Rak besi serbaguna merupakan salah satu solusi penyimpanan dengan kegunaan yang beragam. Material besi yang digunakan membuat jenis furniture ini mampu menahan beban berat lebih baik jika dibandingkan dengan material jenis lainnya. Selain itu, rak besi juga lebih mudah dipasang dan disesuaikan sesuai dengan kebutuhan. Material besi yang kokoh ini membuat umur penggunaan rak besi lebih lama sehingga cocok digunakan sebagai investasi jangka panjang. Rak besi hadir dengan berbagai model dengan ukuran dan desain berbeda yang memungkinkan bagi Kamu untuk memilih rak besi susun sesuai dengan kebutuhan dan preferensi masing-masing.',
-                'keywords' => ['rak besi serbaguna', 'rak besi', 'rak besi susun', 'rak susun besi', 'rak besi susun', 'rak besi bertingkat', 'rak besi minimalis', 'harga rak besi', 'harga rak besi 4 susun'],
+                'keywords' => ['rak besi serbaguna', 'rak besi', 'rak besi susun', 'rak susun besi', 'rak besi susun', 'rak besi bertingkat', 'rak besi minimalis', 'harga rak besi', 'harga rak besi 4 susun', 'rak besi lunarea'],
             ],
             'rak-serbaguna' => [
                 'deskripsi' => 'Apa Itu Rak Serbaguna? Dari sekian banyaknya peralatan rumah tangga, rak susun serbaguna jadi furniture yang harus ada untuk membuat barang-barang tersimpan dengan lebih terorganisir. Nah, karena fungsi utama inilah, Kamu akan menemukan berbagai model rak modern dan minimalis dengan spesifikasi yang berbeda pula tergantung dari kebutuhan masing-masing.',
-                'keywords' => ['rak serbaguna', 'rak susun serbaguna', 'rak penyimpanan serbaguna', 'rak portable serbaguna', 'harga rak serbaguna', 'rak kayu serbaguna minimalis', 'rak bertingkat baru'],
+                'keywords' => ['rak serbaguna', 'rak susun serbaguna', 'rak penyimpanan serbaguna', 'rak portable serbaguna', 'harga rak serbaguna', 'rak kayu serbaguna minimalis', 'rak bertingkat baru', 'rak serbaguna lunarea'],
             ],
             'kursi' => [
                 'deskripsi' => 'Apa Itu Kursi Stainless? Kursi susun stainless merupakan salah satu pilihan favorit bagi banyak orang. Tidak hanya digunakan di kafe dan restoran, tetapi juga semakin bisa pula untuk di rumah-rumah pribadi. Desain yang sederhana membuat kursi ini cocok dalam berbagai kebutuhan yang membutuhkan banyak kursi di sebuah pertemuan besar. Maka dari itu, tak jarang pulang kursi kondangan ini bisa ditemui di acara pernikahan, rapat, pesta, dan lain sebagainya.',
-                'keywords' => ['kursi stainless', 'kursi susun', 'kursi kondangan', 'kursi besi', 'kursi tumpuk', 'kursi pesta', 'kursi kantor', 'kursi kerja', 'kursi hajatan']
+                'keywords' => ['kursi stainless', 'kursi susun', 'kursi kondangan', 'kursi besi', 'kursi tumpuk', 'kursi pesta', 'kursi kantor', 'kursi kerja', 'kursi hajatan', 'kursi lunarea']
             ],
             'lemari-anak' => [
                 'deskripsi' => 'Kenapa Harus Punya Lemari Kecil Buat Si Buah Hati? Moms, udah punya lemari buat buah hati belum? Nah kalau belum, yuk simak dulu alasannya kenapa Moms harus punya lemari kecil yang dikhususkan buat menyimpan baju-baju si buah hati. Seperti lemari pakaian pada umumnya, lemari pakaian kecil ini juga memiliki fungsi yang sama, hanya saja ukurannya yang lebih kecil menyesuaikan kebutuhan si kecil. Memisahkan pakaian anak di lemari pakaian kecil juga membuat Moms lebih mudah saat mencari dan menata baju-baju si buah hati loh! Apalagi kalau si kesayangan lagi aktif-aktifnya. Pasti akan repot kalau baju-baju si kecil bercampur dengan baju-baju yang bukan miliknya bukan? Dengan lemari pakaian kecil ini juga secara tidak langsung membuat anak bertanggung jawab dengan pakaiannya sendiri. Inilah saat yang tepat untuk membuat anak merasa memiliki dan merawat barang-barang miliknya dengan baik yang disimpan dengan baik pula di lemari baju kecil miliknya.',
-                'keywords' => ['lemari kecil', 'lemari pakaian kecil', 'lemari baju kecil', 'lemari minimalis kecil', 'lemari baju minimalis kecil', 'lemari kayu kecil', 'lemari anak', 'lemari kecil kayu', 'harga lemari kayu 2 pintu kecil']
+                'keywords' => ['lemari kecil', 'lemari pakaian kecil', 'lemari baju kecil', 'lemari minimalis kecil', 'lemari baju minimalis kecil', 'lemari kayu kecil', 'lemari anak', 'lemari kecil kayu', 'harga lemari kayu 2 pintu kecil', 'lemari anak lunarea']
             ]
         ];
 
@@ -555,6 +556,7 @@ class Pages extends BaseController
             'waktu_otp' => '0'
         ])->update();
         session()->set($ses_data);
+        session()->setFlashdata('msg_active', true);
         return redirect()->to(site_url('/'));
     }
     public function login()
@@ -2038,7 +2040,8 @@ class Pages extends BaseController
             'status' => $status,
             'data_mid' => json_encode($hasilMidtrans),
             'note' => $note,
-            'diskonVoucher' => $data['diskonVoucher']
+            'diskonVoucher' => $data['diskonVoucher'],
+            'idVoucher' => $voucher ? $voucher['id'] : 0
         ]);
 
         if ($data['diskonVoucher'] > 0) {
@@ -2046,6 +2049,7 @@ class Pages extends BaseController
             $voucherSelected_email = json_decode($voucherSelected['list_email'], true);
             array_push($voucherSelected_email, $email);
             $this->voucherModel->where(['id' => $voucher['id'], 'active' => '1'])->set(['list_email' => json_encode($voucherSelected_email)])->update();
+            session()->remove('voucher');
         }
 
         //pengurangan stok produk
@@ -2941,6 +2945,15 @@ class Pages extends BaseController
                             ])->update();
                         }
                     }
+
+                    //cek kalo dia pake voucher maka dihapus emailnya dri list email yg di table vouhcer
+                    if ($dataTransaksiFulDariDatabase['diskonVoucher'] > 0) {
+                        $listEmailBaru = json_decode($this->voucherModel->where(['id' => $dataTransaksiFulDariDatabase['idVoucher']])->first()['list_email'], true);
+                        if (($key = array_search($dataTransaksiFulDariDatabase['email_cus'], $listEmailBaru)) !== false) {
+                            unset($listEmailBaru[$key]);
+                        }
+                        $this->voucherModel->where(['id' => $dataTransaksiFulDariDatabase['idVoucher']])->set(['list_email' => json_encode($listEmailBaru)])->update();
+                    }
                 }
             } else {
                 // $this->pemesananModel->insert([
@@ -3744,6 +3757,12 @@ class Pages extends BaseController
             'tracking_pop' => (int)$produk['tracking_pop'] + 1
         ])->update();
 
+        $metakeywords = [str_replace('-', ' ', $produk['subkategori']), str_replace('-', ' ', $produk['subkategori']) . ' lunarea', str_replace('-', ' ', $produk['subkategori']) . ' semarang'];
+        foreach ($varian as $v) {
+            array_push($metakeywords, str_replace('-', ' ', $produk['subkategori']) . ' ' . $v);
+            array_push($metakeywords, str_replace('-', ' ', $produk['subkategori']) . ' ' . $v . ' lunarea');
+            array_push($metakeywords, str_replace('-', ' ', $produk['subkategori']) . ' ' . $v . ' semarang');
+        }
         $data = [
             'title' => $produk['nama'],
             'produk' => $produk,
@@ -3753,7 +3772,8 @@ class Pages extends BaseController
             'produksekategori' => $produksekategori,
             'msg' => session()->getFlashdata('msg'),
             'geser_container_melayang' => true,
-            'stok' => $produk['stok']
+            'stok' => $produk['stok'],
+            'metaKeyword' => implode(',', $metakeywords)
         ];
         return view('pages/product', $data);
     }

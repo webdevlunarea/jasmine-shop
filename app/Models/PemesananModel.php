@@ -20,6 +20,7 @@ class PemesananModel extends Model
         'data_mid',
         'note',
         'diskonVoucher',
+        'idVoucher',
     ];
 
     public function getPemesanan($id_midtrans = false)
