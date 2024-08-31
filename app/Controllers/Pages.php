@@ -823,7 +823,7 @@ class Pages extends BaseController
         $produk = [];
         $gambar = [];
         $jumlah = [];
-        $itemDetails = [];
+        // $itemDetails = [];
         $indElementNotFound = [];
         $indElementStokHabis = [];
         $subtotal = 0;
@@ -837,13 +837,13 @@ class Pages extends BaseController
                     array_push($produk, $produknya);
                     array_push($gambar, $gambarnya["gambar" . ($element['index_gambar'] + 1)]);
                     array_push($jumlah, $element['jumlah']);
-                    $item = array(
-                        'id' => $produknya["id"],
-                        'price' => $produknya["harga"],
-                        'quantity' => $element['jumlah'],
-                        'name' => $produknya["nama"],
-                    );
-                    array_push($itemDetails, $item);
+                    // $item = array(
+                    //     'id' => $produknya["id"],
+                    //     'price' => $produknya["harga"],
+                    //     'quantity' => $element['jumlah'],
+                    //     'name' => $produknya["nama"],
+                    // );
+                    // array_push($itemDetails, $item);
 
                     $persen = (100 - $produknya['diskon']) / 100;
                     $hasil = floor($persen * $produknya['harga']);
@@ -862,14 +862,14 @@ class Pages extends BaseController
                     array_push($indElementNotFound, $ind);
                 }
             }
-            $item = array(
-                'id' => 'Biaya Tambahan',
-                'price' => 10000,
-                'quantity' => 1,
-                'name' => 'Biaya Ongkir',
-            );
-            array_push($itemDetails, $item);
-            $total = $subtotal + 10000;
+            // $item = array(
+            //     'id' => 'Biaya Tambahan',
+            //     'price' => 10000,
+            //     'quantity' => 1,
+            //     'name' => 'Biaya Ongkir',
+            // );
+            // array_push($itemDetails, $item);
+            // $total = $subtotal + 10000;
         }
 
         if (count($indElementNotFound) > 0) {
@@ -896,9 +896,9 @@ class Pages extends BaseController
             'indStokHabis' => $indElementStokHabis
         ];
 
-        if (!isset($total)) {
-            return view('pages/cart', $data);
-        }
+        // if (!isset($total)) {
+        //     return view('pages/cart', $data);
+        // }
 
         return view('pages/cart', $data);
     }
@@ -1795,15 +1795,15 @@ class Pages extends BaseController
         array_push($itemDetails, $biayaadmin);
 
         //voucher
-        $voucher = [];
+        // $voucher = [];
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-        if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
-            //voucher member baru
-            $voucherMemberBaru = $this->voucherModel->getVoucher(1);
-            if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
-                array_push($voucher, $voucherMemberBaru);
-            }
-        }
+        // if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
+        //     //voucher member baru
+        //     $voucherMemberBaru = $this->voucherModel->getVoucher(1);
+        //     if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
+        //         array_push($voucher, $voucherMemberBaru);
+        //     }
+        // }
         $diskonVoucher = 0;
         $voucherSelected = false;
         if (session()->get('voucher')) {

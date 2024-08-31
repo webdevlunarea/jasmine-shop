@@ -112,6 +112,29 @@
     <?php if (isset($geser_container_melayang)) { ?>
         <div class="hide-ke-show-block" style="height: 53px; width: 100vw"></div>
     <?php } ?>
+    <?php if (session()->get('role') != '1') { ?>
+        <script>
+            document.onkeydown = function(e) {
+                if (e.key == "F12") {
+                    // alert('Akses diblokir');
+                    e.preventDefault();
+                }
+                // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+                if (e.ctrlKey && e.shiftKey && (e.key == "I" || e.key == "J")) {
+                    // alert('Akses diblokir');
+                    e.preventDefault();
+                }
+                if (e.ctrlKey && e.key == "u") {
+                    // alert('Akses diblokir');
+                    e.preventDefault();
+                }
+            };
+            document.addEventListener('contextmenu', function(event) {
+                // alert('Akses diblokir');
+                event.preventDefault();
+            });
+        </script>
+    <?php } ?>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const startTime = Date.now();
