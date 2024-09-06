@@ -18,6 +18,7 @@ class BarangModel extends Model
         'stok',
         'dimensi',
         'deskripsi',
+        'deskripsi_nonhtml',
         'kategori',
         'subkategori',
         'diskon',

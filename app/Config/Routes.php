@@ -99,6 +99,7 @@ $routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin
 $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
+$routes->get('/listproducttable', 'Pages::listProductTable', ['filter' => 'harusAdmin']);
 $routes->get('/activeproduct/(:any)', 'Pages::activeProduct/$1', ['filter' => 'harusAdmin']);
 // $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
@@ -125,6 +126,7 @@ $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
 
 // GambarController
+$routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
 

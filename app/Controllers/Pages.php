@@ -4024,6 +4024,15 @@ class Pages extends BaseController
         ];
         return view('pages/listProduct', $data);
     }
+    public function listProductTable()
+    {
+        $produk = $this->barangModel->getBarangAdmin();
+        $data = [
+            'title' => 'List Produk Tabel',
+            'produk' => $produk
+        ];
+        return view('pages/listProductTable', $data);
+    }
     public function actionFindProductAdmin()
     {
         $cari = $this->request->getVar('cari');
@@ -4172,6 +4181,7 @@ class Pages extends BaseController
                 'stok'          => $this->request->getVar('stok'),
                 'dimensi'       => $this->request->getVar('dimensi'),
                 'deskripsi'     => $this->request->getVar('deskripsi'),
+                'deskripsi_nonhtml'     => $this->request->getVar('deskripsi_nonhtml'),
                 'kategori'      => $this->request->getVar('kategori'),
                 'subkategori'   => $this->request->getVar('subkategori'),
                 'diskon'        => $this->request->getVar('diskon'),
@@ -4210,6 +4220,7 @@ class Pages extends BaseController
                 'stok'          => $this->request->getVar('stok'),
                 'dimensi'       => $this->request->getVar('dimensi'),
                 'deskripsi'     => $this->request->getVar('deskripsi'),
+                'deskripsi_nonhtml'     => $this->request->getVar('deskripsi_nonhtml'),
                 'kategori'      => $this->request->getVar('kategori'),
                 'subkategori'   => $this->request->getVar('subkategori'),
                 'diskon'        => $this->request->getVar('diskon'),

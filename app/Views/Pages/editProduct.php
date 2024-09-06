@@ -107,6 +107,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Deskripsi Nonhtml</td>
+                                <td>
+                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi_nonhtml" required><?= $produk['deskripsi_nonhtml']; ?></textarea></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Pencarian</td>
                                 <td>
                                     <div class="baris"><input type="text" class="form-control" value="<?= $produk['pencarian']; ?>" name="pencarian" required>

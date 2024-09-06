@@ -4,9 +4,14 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="jdl-section">List Produk</h5>
-            <a href="/addproduct" class="btn btn-primary1 d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
-                <p class="mb-0">Tambah Produk</p>
-            </a>
+            <div class="d-flex gap-1">
+                <a href="/listproducttable" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
+                    <p class="mb-0">Eksport</p>
+                </a>
+                <a href="/addproduct" class="btn btn-primary1 d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
+                    <p class="mb-0">Tambah Produk</p>
+                </a>
+            </div>
         </div>
         <form action="/findproductadmin" method="post">
             <div class="mb-2 d-flex gap-3 align-items-center">
