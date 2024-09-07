@@ -18,11 +18,48 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', 'GTM-N2XSVZ4N');
     </script>
+    <?php if (isset($produk)) {
+        if (isset($produk['nama'])) { ?>
+            <script type="application/ld+json">
+                {
+                    "@context": "https://lunareafurniture.com/",
+                    "@type": "produk",
+                    "name": "<?= $produk['nama'] ?>",
+                    "image": "https://lunareafurniture.com/imgpic/<?= $produk['id'] ?>",
+                    "description": "<?= $produk['deskripsi_nonhtml'] ?>",
+                    "sku": "<?= $produk['id']; ?>",
+                    "offers": {
+                        "@type": "Offer",
+                        "priceCurrency": "IDR",
+                        "price": "<?= $produk['harga'] ?>",
+                        "itemCondition": "New",
+                        "availability": "in_stok"
+                    }
+                }
+            </script>
+    <?php }
+    } ?>
     <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Lunarea Furniture">
     <meta name="description" content="<?= isset($metaDeskripsi) ? $metaDeskripsi : 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.'; ?>">
     <meta name="keywords" content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea'; ?>">
     <meta name="author" content="Lunarea Furniture">
+    <meta name="title" content="<?= $title; ?> | Lunarea Furniture">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta data-rh="true" name="title" content="<?= $title; ?> | Lunarea Furniture">
+    <meta data-rh="true" property="og:title" content="Lunarea Furniture">
+    <meta data-rh="true" property="og:site_name" content="Lunarea Furniture">
+    <meta data-rh="true" property="og:url" content="https://lunareafurniture.com/">
+    <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/logo icon.png">
+    <meta data-rh="true" property="product:price:currency" content="Rp">
+    <meta data-rh="true" property="product:price:amount" content="0">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://lunareafurniture.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= $title; ?> | Lunarea Furniture">
+    <meta name="twitter:description" content="<?= isset($metaDeskripsi) ? $metaDeskripsi : 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.'; ?>">
+    <meta name="twitter:image" content="https://lunareafurniture.com/logo icon.png">
     <title><?= $title; ?> | Lunarea Furniture</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
