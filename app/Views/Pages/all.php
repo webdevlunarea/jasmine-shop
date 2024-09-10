@@ -18,7 +18,22 @@
             </ol>
         </nav>
     </div>
-    <div class="container my-3">
+    <style>
+        .container-kategori-sticky {
+            position: sticky;
+            top: 82px;
+            background-color: white;
+            z-index: 5;
+        }
+
+        @media (max-width: 600px) {
+            .container-kategori-sticky {
+                top: 100px;
+
+            }
+        }
+    </style>
+    <div class="container py-3 container-kategori-sticky">
         <h5 class="jdl-section">Kategori</h5>
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="mb-1">Kategori Produk</h1>
