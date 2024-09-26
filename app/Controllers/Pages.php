@@ -201,7 +201,102 @@ class Pages extends BaseController
         $this->gambarArtikelModel->insert($insertGambarArtikel);
 
         session()->setFlashdata('msg', 'Artikel berhasil ditambahkan');
-        return redirect()->to('/article/' . $id);
+        return redirect()->to('/article/' . $path);
+    }
+    public function editArticle($id)
+    {
+        $artikel = $this->artikelModel->where(['id' => $id])->first();
+        $artikel['isi'] = json_decode($artikel['isi'], true);
+        $counterIsi = count($artikel['isi']);
+        $arrCounterIsi = [];
+        for ($i = 1; $i <= $counterIsi; $i++) {
+            array_push($arrCounterIsi, $i);
+        }
+        $d = strtotime("+7 Hours");
+        $waktu = date("Y-m-d H:i:", $d) . "00";
+        $data = [
+            'title' => 'Tambah Artikel',
+            'artikel' => $artikel,
+            'isi' => $artikel['isi'],
+            'counterIsi' => $counterIsi,
+            'arrCounterIsi' => json_encode($arrCounterIsi),
+            'arrCounter' => implode(",", $arrCounterIsi),
+            'waktu' => $waktu
+        ];
+        return view('pages/editArtikel', $data);
+    }
+    public function actionEditArticle($id)
+    {
+        $judul = $this->request->getVar('judul');
+        $penulis = $this->request->getVar('penulis');
+        $kategori = $this->request->getVar('kategori');
+        $waktu = $this->request->getVar('waktu');
+        $header = $this->request->getFile('header');
+        $counter = explode(",", $this->request->getVar('arrCounter'));
+
+        $insertGambarArtikel = [];
+
+        $isi = [];
+        $counterGambar = 0;
+        foreach ($counter as $c) {
+            $itemIsi = [];
+            $tag = $this->request->getVar('tag' . $c);
+            $itemIsi['tag'] = $tag;
+            if ($tag == 'h2' || $tag == 'h4' || $tag == 'p') {
+                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            } else if ($tag == 'a') {
+                $itemIsi['link'] = $this->request->getVar('link' . $c);
+                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            } else if ($tag == 'img') {
+                $counterGambar++;
+                $insertGambarArtikel["gambar" . $counterGambar] = file_get_contents($this->request->getFile('file' . $c));
+                $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
+                $itemIsi['style'] = $this->request->getVar('style' . $c);
+            }
+            array_push($isi, $itemIsi);
+        }
+
+        $path = str_replace(",", "", $judul);
+        $path = str_replace(".", "", $path);
+        $path = str_replace("& ", "", $path);
+        $path = str_replace("?", "", $path);
+        $path = str_replace(" ", "-", $path);
+        $path = strtolower($path);
+        // dd([
+        //     'judul' => $judul,
+        //     'path' => $path,
+        //     'penulis' => $penulis,
+        //     'kategori' => $kategori,
+        //     'waktu' => $waktu,
+        //     'isi' => json_encode($isi),
+        //     'artikelnya' => $this->artikelModel->where(['id' => $id])->first()
+        // ]);
+        if (!empty($_FILES['header']['tmp_name'])) {
+            $this->artikelModel->where(['id' => $id])->set([
+                'judul' => $judul,
+                'path' => $path,
+                'penulis' => $penulis,
+                'kategori' => $kategori,
+                'waktu' => $waktu,
+                'isi' => json_encode($isi),
+                'header' => file_get_contents($header),
+            ])->update();
+        } else {
+            $this->artikelModel->where(['id' => $id])->set([
+                'judul' => $judul,
+                'path' => $path,
+                'penulis' => $penulis,
+                'kategori' => $kategori,
+                'waktu' => $waktu,
+                'isi' => json_encode($isi)
+            ])->update();
+        }
+        // $this->gambarArtikelModel->insert($insertGambarArtikel);
+
+        session()->setFlashdata('msg', 'Artikel berhasil diubah');
+        return redirect()->to('/article/' . $path);
     }
     public function addKomen($judul_article)
     {

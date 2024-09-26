@@ -76,7 +76,7 @@
                         <h5 class="badge rounded-pill text-bg-secondary"><?= ucfirst($k); ?></h5>
                     <?php } ?>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                     <div class="d-flex gap-1 align-items-center">
                         <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
                         <?php if ($artikel['suka'] > 0) { ?>
@@ -89,6 +89,9 @@
                             <p class="m-0"><?= $artikel['bagikan']; ?></p>
                         <?php } ?>
                     </div>
+                    <?php if (session()->get('role') == 1) { ?>
+                        <a href="/editarticle/<?= $artikel['id'] ?>" class="btn btn-primary1">Edit</a>
+                    <?php } ?>
                 </div>
             </div>
             <h1 class="judul"><?= $artikel['judul'] ?></h1>
@@ -117,7 +120,7 @@
                         <h5 class="badge rounded-pill text-bg-secondary"><?= ucfirst($k); ?></h5>
                     <?php } ?>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                     <div class="d-flex gap-1 align-items-center">
                         <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn-sm"><i class="material-icons text-secondary" style="font-size: 13px;">thumb_up</i></a>
                         <?php if ($artikel['suka'] > 0) { ?>
@@ -130,6 +133,9 @@
                             <p class="m-0" style="font-size: 13px;"><?= $artikel['bagikan']; ?></p>
                         <?php } ?>
                     </div>
+                    <?php if (session()->get('role') == 1) { ?>
+                        <a href="/editarticle/<?= $artikel['id'] ?>" class="btn btn-primary1">Edit</a>
+                    <?php } ?>
                 </div>
             </div>
             <h1 class="judul"><?= $artikel['judul'] ?></h1>

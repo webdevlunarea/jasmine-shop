@@ -172,7 +172,7 @@
             <div style="flex: 1" class="d-flex justify-content-start gap-4">
                 <img src="../img/logo diskon.webp" alt="" style="width: 70px; height: 70px">
                 <div>
-                    <p class="fw-bold mb-1">Spesial offer sale 5%</p>
+                    <p class="fw-bold mb-1">Spesial offer discount 5%</p>
                     <!-- <p>Untuk setiap pembelian pertama yang telah terdaftar sebagai member di akun Lunarea Furniture</p> -->
                     <p>Hanya untuk member Lunarea di setiap pembelian pertama</p>
                 </div>
