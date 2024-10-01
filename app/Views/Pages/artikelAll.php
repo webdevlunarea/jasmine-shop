@@ -39,7 +39,10 @@
         $indexAwal = -1;
         if (count($artikel) > 6) { ?>
             <div class="mb-4">
-                <h5 class="jdl-section mb-3">Artikel Baru</h5>
+                <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <h5 class="jdl-section">Artikel Baru</h5>
+                    <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
+                </div>
                 <div class="gap-4 show-flex-ke-hide container-card-artikel">
                     <div class="flex-grow-1">
                         <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">

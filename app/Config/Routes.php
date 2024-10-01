@@ -125,6 +125,7 @@ $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter'
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
 
+
 // GambarController
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
@@ -152,5 +153,8 @@ $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'c
 
 // CopyGambarController
 $routes->get('/copygambar', 'CopyGambarController::copyGambar');
+
+//benerin format data
+$routes->get('/fixkurir', 'Pages::fixKurir');
 
 $routes->get('(:any)', 'Pages::notFound');

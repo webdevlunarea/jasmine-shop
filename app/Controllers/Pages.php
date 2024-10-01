@@ -142,7 +142,7 @@ class Pages extends BaseController
         $data = [
             'title' => 'Tambah Artikel',
         ];
-        return view('pages/addArtikel', $data);
+        return view('pages/addArtikel1', $data);
     }
     public function actionAddArticle()
     {
@@ -215,7 +215,7 @@ class Pages extends BaseController
         $d = strtotime("+7 Hours");
         $waktu = date("Y-m-d H:i:", $d) . "00";
         $data = [
-            'title' => 'Tambah Artikel',
+            'title' => 'Edit Artikel',
             'artikel' => $artikel,
             'isi' => $artikel['isi'],
             'counterIsi' => $counterIsi,
@@ -3920,6 +3920,16 @@ class Pages extends BaseController
             'bulan' => $bulan
         ];
         return view('pages/invoice', $data);
+    }
+    public function fixKurir()
+    {
+        $transaksi = $this->pemesananModel->findAll();
+        foreach ($transaksi as $t) {
+            if ($t['kurir'] != 'kosong') {
+                $this->pemesananModel->where(['id' => $t['id']])->set(['kurir' => 'Lunarea - Darat'])->update();
+            }
+        }
+        return $this->response->setJSON(['success' => true], false);
     }
     public function qris($string)
     {

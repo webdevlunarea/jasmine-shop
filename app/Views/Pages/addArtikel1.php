@@ -6,7 +6,7 @@
     }
 </style>
 <div class="konten">
-    <form method="post" action="/editarticle/<?= $artikel['id']; ?>" enctype="multipart/form-data">
+    <form method="post" action="/addarticle" enctype="multipart/form-data">
         <div class="container">
             <h1 class="mb-3">Tambah Artikel</h1>
             <?= csrf_field(); ?>
@@ -16,34 +16,34 @@
                         <tr>
                             <td>Judul</td>
                             <td>
-                                <div class="baris"><input type="text" class="form-control" name="judul" required value="<?= $artikel['judul']; ?>">
+                                <div class="baris"><input type="text" class="form-control" name="judul" required>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <td>Penulis</td>
                             <td>
-                                <div class="baris"><input type="text" class="form-control" name="penulis" required value="<?= $artikel['penulis']; ?>">
+                                <div class="baris"><input type="text" class="form-control" name="penulis" required>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <td>Kategori</td>
                             <td>
-                                <div class="baris"><input type="text" class="form-control" name="kategori" placeholder="pisahkan dengan koma" required value="<?= $artikel['kategori']; ?>">
+                                <div class="baris"><input type="text" class="form-control" name="kategori" placeholder="pisahkan dengan koma" required>
                                 </div>
                             </td>
                         <tr>
                             <td>Tanggal Ubah</td>
                             <td>
-                                <div class="baris"><input type="datetime-local" class="form-control" name="waktu" required value="<?= $waktu; ?>">
+                                <div class="baris"><input type="datetime-local" class="form-control" name="waktu" required>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <td>Gambar Header</td>
                             <td>
-                                <div class="baris"><input type="file" class="form-control" name="header">
+                                <div class="baris"><input type="file" class="form-control" name="header" required>
                                 </div>
                             </td>
                         </tr>
@@ -56,76 +56,29 @@
             <h5>Isi Artikel</h5>
         </div>
         <div id="container-isi" class="d-flex flex-column gap-2">
-            <?php foreach ($isi as $ind_i => $i) { ?>
-                <div class="py-3">
-                    <div class="container">
-                        <?php switch ($i['tag']) {
-                            case 'p': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="p">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>" class="mb-1">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'h2': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="h2">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'h4': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="h2">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'a': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="a">
-                                <input type="text" name="link<?= $ind_i + 1 ?>" placeholder="link" value="<?= $i['link']; ?>">
-                                <input type="text" name="teks<?= $ind_i + 1 ?>" placeholder="teks" value="<?= $i['teks']; ?>">
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'img': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="img">
-                                <input type="file" name="file<?= $ind_i + 1 ?>">
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'space': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="space">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                        <?php break;
-                            default:
-                                # code...
-                                break;
-                        } ?>
-                    </div>
-                </div>
-            <?php } ?>
+            <!-- <div class="py-2">
+                <input type="text" name="tag1" value="p">
+                <textarea class="w-100 mt-1" placeholder="teks" name="teks1">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint odit animi, nam placeat hic voluptatem dolores, autem blanditiis aperiam, minus exercitationem magnam similique. Blanditiis, culpa! Nobis, exercitationem corporis. Esse exercitationem perspiciatis eligendi? Molestiae debitis nulla beatae dolores minima quaerat? Est rerum sunt labore possimus doloribus repellat doloremque quos fugit minus!</textarea>
+                <input type="text" name="style1" placeholder="style" value="d-flex flex-column">
+                <button type="button" onclick="hapusIsi('1')">hapus</button>
+            </div>
+            <div class="py-2">
+                <input type="text" name="tag2" value="a">
+                <input type="text" name="link2" placeholder="link" value="https://jasminefurniture.store">
+                <input type="text" name="teks2" placeholder="teks" value="Jasmine Furniture">
+                <input type="text" name="style2" placeholder="style" value="d-flex flex-column">
+                <button type="button" onclick="hapusIsi('2')">hapus</button>
+            </div>
+            <div class="py-2">
+                <input type="text" name="tag3" value="img">
+                <input type="file" name="file3">
+                <input type="text" name="style3" placeholder="style" value="d-flex flex-column">
+                <button type="button" onclick="hapusIsi('3')">hapus</button>
+            </div>
+            <div class="py-2">
+                <input type="text" name="tag4" value="space">
+                <button type="button" onclick="hapusIsi('3')">hapus</button>
+            </div> -->
         </div>
         <hr>
         <div class="container">
@@ -135,7 +88,7 @@
                     <option value="h2">h2</option>
                     <option value="h4">h3</option>
                     <option value="p">p</option>
-                    <!-- <option value="img">img</option> -->
+                    <option value="img">img</option>
                     <option value="a">a</option>
                     <option value="space">space</option>
                 </select>
@@ -144,7 +97,7 @@
             <div class="d-flex justify-content-center mt-3">
                 <button class="btn btn-primary1" type="submit">Simpan</button>
             </div>
-            <input type="text" class="d-none" name="arrCounter" value="<?= $arrCounter; ?>">
+            <input type="text" class="d-none" name="arrCounter">
         </div>
     </form>
 </div>
@@ -152,8 +105,8 @@
     const tagSelectElm = document.getElementById("select-tag");
     const arrCounterElm = document.querySelector('input[name="arrCounter"]');
     const containerIsiElm = document.getElementById("container-isi");
-    let counterIsi = <?= $counterIsi; ?>;
-    let arrCounterIsi = JSON.parse('<?= $arrCounterIsi; ?>');
+    let counterIsi = 0;
+    let arrCounterIsi = [];
 
     function tambahIsi() {
         if (tagSelectElm.value != '') {
@@ -168,6 +121,8 @@
             } else if (tagSelectElm.value == 'space') {
                 initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="space"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             }
+            // const initItemIsiElm = new DOMParser().parseFromString(initItemIsi, "text/xml");
+            // containerIsiElm.innerHTML += initItemIsi;
             const initItemIsiElm = document.createRange().createContextualFragment(initItemIsi)
             containerIsiElm.appendChild(initItemIsiElm)
             arrCounterIsi.push(counterIsi);
@@ -176,10 +131,10 @@
     }
 
     function hapusIsi(urutan) {
-        console.log(arrCounterIsi, urutan)
+        // console.log(arrCounterIsi, urutan)
         const indexnya = arrCounterIsi.indexOf(Number(urutan))
-        console.log(containerIsiElm.children);
-        console.log(indexnya)
+        // console.log(containerIsiElm.children);
+        // console.log(indexnya)
         containerIsiElm.removeChild(containerIsiElm.children[indexnya]);
         arrCounterIsi.splice(indexnya, 1);
         arrCounterElm.value = arrCounterIsi.join(",");

@@ -11,7 +11,7 @@
         </div>
         <div class="mb-1">
             <label class="form-label">Kurir</label>
-            <input type="text" class="form-control" id="floatingInput1" placeholder="KURIR Jenis-Layanan" name="kurir">
+            <input type="text" class="form-control" id="floatingInput1" placeholder="KURIR Jenis-Layanan" name="kurir" value="Lunarea - Darat">
         </div>
         <div class="m-0">
             <label class="form-label">Resi</label>
