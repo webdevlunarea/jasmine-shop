@@ -156,5 +156,6 @@ $routes->get('/copygambar', 'CopyGambarController::copyGambar');
 
 //benerin format data
 $routes->get('/fixkurir', 'Pages::fixKurir');
+$routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
 
 $routes->get('(:any)', 'Pages::notFound');

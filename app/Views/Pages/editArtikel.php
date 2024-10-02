@@ -135,7 +135,7 @@
                     <option value="h2">h2</option>
                     <option value="h4">h3</option>
                     <option value="p">p</option>
-                    <!-- <option value="img">img</option> -->
+                    <option value="img">img</option>
                     <option value="a">a</option>
                     <option value="space">space</option>
                 </select>
@@ -145,6 +145,7 @@
                 <button class="btn btn-primary1" type="submit">Simpan</button>
             </div>
             <input type="text" class="d-none" name="arrCounter" value="<?= $arrCounter; ?>">
+            <!-- <input type="text" class="d-none" name="checkerImg"> -->
         </div>
     </form>
 </div>
@@ -154,6 +155,8 @@
     const containerIsiElm = document.getElementById("container-isi");
     let counterIsi = <?= $counterIsi; ?>;
     let arrCounterIsi = JSON.parse('<?= $arrCounterIsi; ?>');
+    // const checkerImgElm = document.querySelector('input[name="checkerImg"]');
+    // let arrCheckerImg = []
 
     function tambahIsi() {
         if (tagSelectElm.value != '') {
@@ -164,7 +167,7 @@
             } else if (tagSelectElm.value == 'a') {
                 initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="text" name="link' + counterIsi + '" placeholder="link"><input type="text" name="teks' + counterIsi + '" placeholder="teks"><input type="text" name="style' + counterIsi + '" placeholder="style" value="d-inline link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             } else if (tagSelectElm.value == 'img') {
-                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '"><input type="text" name="style' + counterIsi + '" placeholder="style"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
+                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '" required><input type="text" name="style' + counterIsi + '" placeholder="style"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             } else if (tagSelectElm.value == 'space') {
                 initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="space"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             }
@@ -176,10 +179,15 @@
     }
 
     function hapusIsi(urutan) {
-        console.log(arrCounterIsi, urutan)
+        // console.log(arrCounterIsi, urutan)
         const indexnya = arrCounterIsi.indexOf(Number(urutan))
-        console.log(containerIsiElm.children);
-        console.log(indexnya)
+        // if (urutan <= <?= $counterIsi; ?> && containerIsiElm.children[indexnya].children[0].children[0].value == 'img') {
+        //     arrCheckerImg.push(urutan);
+        //     checkerImgElm.value = arrCheckerImg.join(",");
+        // }
+
+        // console.log(containerIsiElm.children);
+        // console.log(indexnya)
         containerIsiElm.removeChild(containerIsiElm.children[indexnya]);
         arrCounterIsi.splice(indexnya, 1);
         arrCounterElm.value = arrCounterIsi.join(",");

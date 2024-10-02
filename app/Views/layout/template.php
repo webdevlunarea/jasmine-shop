@@ -186,13 +186,13 @@
                     path: window.location.pathname
                 }));
 
-                const greetingCardElm = document.getElementById('container-greeting-card');
-                const greetingCardInputElm = document.getElementById('input-greeting-card');
-                if (greetingCardElm) {
-                    if (greetingCardInputElm.value == 'true') {
+                // const greetingCardElm = document.getElementById('container-greeting-card');
+                // const greetingCardInputElm = document.getElementById('input-greeting-card');
+                // if (greetingCardElm) {
+                //     if (greetingCardInputElm.value == 'true') {
 
-                    }
-                }
+                //     }
+                // }
             });
         });
 
@@ -236,11 +236,15 @@
 
         const greetingCardElm = document.getElementById('container-greeting-card');
         if (!window.sessionStorage.getItem('greeting-close')) {
-            greetingCardElm.classList.remove('d-none')
+            if (greetingCardElm) {
+                greetingCardElm.classList.remove('d-none')
+            }
         }
 
         function closeGreetingCard() {
-            greetingCardElm.classList.add('d-none')
+            if (greetingCardElm) {
+                greetingCardElm.classList.add('d-none')
+            }
             window.sessionStorage.setItem('greeting-close', true);
         }
     </script>

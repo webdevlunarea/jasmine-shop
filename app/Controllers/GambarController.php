@@ -36,7 +36,7 @@ class GambarController extends BaseController
     public function tampilGambarArtikel($idArtikel, $urutan = false)
     {
         if ($urutan) {
-            $gambar = $this->gambarArtikelModel->getGambar($idArtikel);
+            $gambar = $this->gambarArtikelModel->where(['id' => $idArtikel])->first();
             $gambarSelected = $gambar['gambar' . $urutan];
         } else {
             $artikel = $this->artikelModel->getArtikel($idArtikel);

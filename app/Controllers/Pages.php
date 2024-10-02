@@ -234,7 +234,17 @@ class Pages extends BaseController
         $header = $this->request->getFile('header');
         $counter = explode(",", $this->request->getVar('arrCounter'));
 
+        $getFiles = $this->request->getFiles();
+        unset($getFiles['header']);
+
+        $isiCur = json_decode($this->artikelModel->where(['id' => $id])->first()['isi'], true);
         $insertGambarArtikel = [];
+        $arrUrutanImg = [];
+        foreach ($isiCur as $ind_i => $i) {
+            if ($i['tag'] == 'img') {
+                array_push($arrUrutanImg, ($ind_i + 1));
+            }
+        }
 
         $isi = [];
         $counterGambar = 0;
@@ -251,7 +261,7 @@ class Pages extends BaseController
                 $itemIsi['style'] = $this->request->getVar('style' . $c);
             } else if ($tag == 'img') {
                 $counterGambar++;
-                $insertGambarArtikel["gambar" . $counterGambar] = file_get_contents($this->request->getFile('file' . $c));
+                $insertGambarArtikel["gambar" . $counterGambar] = $this->request->getFile('file' . $c)->isValid() ? file_get_contents($this->request->getFile('file' . $c)) : $this->gambarArtikelModel->where(['id' => $id])->first()['gambar' . (array_search($c, $arrUrutanImg) + 1)];
                 $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
                 $itemIsi['style'] = $this->request->getVar('style' . $c);
             }
@@ -264,15 +274,7 @@ class Pages extends BaseController
         $path = str_replace("?", "", $path);
         $path = str_replace(" ", "-", $path);
         $path = strtolower($path);
-        // dd([
-        //     'judul' => $judul,
-        //     'path' => $path,
-        //     'penulis' => $penulis,
-        //     'kategori' => $kategori,
-        //     'waktu' => $waktu,
-        //     'isi' => json_encode($isi),
-        //     'artikelnya' => $this->artikelModel->where(['id' => $id])->first()
-        // ]);
+
         if (!empty($_FILES['header']['tmp_name'])) {
             $this->artikelModel->where(['id' => $id])->set([
                 'judul' => $judul,
@@ -293,10 +295,29 @@ class Pages extends BaseController
                 'isi' => json_encode($isi)
             ])->update();
         }
-        // $this->gambarArtikelModel->insert($insertGambarArtikel);
+
+        //pengosongan gambar artikel
+        $kosongkanGambar = [];
+        for ($i = 1; $i <= count($arrUrutanImg); $i++) {
+            $kosongkanGambar['gambar' . $i] = null;
+        }
+        if (count($kosongkanGambar) > 0) {
+            $this->gambarArtikelModel->where(['id' => $id])->set($kosongkanGambar)->update();
+        }
+        if (count($insertGambarArtikel) > 0) {
+            $this->gambarArtikelModel->where(['id' => $id])->set($insertGambarArtikel)->update();
+        }
 
         session()->setFlashdata('msg', 'Artikel berhasil diubah');
         return redirect()->to('/article/' . $path);
+    }
+    public function isiGambarArtikel()
+    {
+        $artikel = $this->artikelModel->findAll();
+        foreach ($artikel as $a) {
+            $this->gambarArtikelModel->insert(['id' => $a['id']]);
+        }
+        return $this->response->setJSON(['success' => true], false);
     }
     public function addKomen($judul_article)
     {
