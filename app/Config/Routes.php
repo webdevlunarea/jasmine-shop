@@ -133,6 +133,8 @@ $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/
 
 //Artikel
 $routes->get('/article', 'Pages::article');
+$routes->post('/actionsearcharticle', 'Pages::actionSearchArticle');
+$routes->get('/article/find/(:any)', 'Pages::findArticle/$1');
 $routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
 $routes->get('/article/(:any)', 'Pages::article/$1');
 $routes->get('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');

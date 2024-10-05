@@ -2,22 +2,51 @@
 <?= $this->section('content'); ?>
 <div class="konten artikel">
     <div class="container">
-        <div class="container-nav-kategori-artikel mb-2">
-            <div class="d-flex gap-5">
-                <a class="nav-kategori-artikel" href="/article">SEMUA</a>
-                <a class="nav-kategori-artikel" href="/article/category/lemari-dewasa">LEMARI DEWASA</a>
-                <a class="nav-kategori-artikel" href="/article/category/lemari-anak">LEMARI ANAK</a>
-                <a class="nav-kategori-artikel" href="/article/category/meja-rias">MEJA RIAS</a>
-                <a class="nav-kategori-artikel" href="/article/category/meja-belajar">MEJA BELAJAR</a>
-                <a class="nav-kategori-artikel" href="/article/category/meja-tv">MEJA TV</a>
-                <a class="nav-kategori-artikel" href="/article/category/meja-tulis">MEJA TULIS</a>
-                <a class="nav-kategori-artikel" href="/article/category/meja-komputer">MEJA KOMPUTER</a>
-                <a class="nav-kategori-artikel" href="/article/category/rak-sepatu">RAK SEPATU</a>
-                <a class="nav-kategori-artikel" href="/article/category/rak-besi">RAK BESI</a>
-                <a class="nav-kategori-artikel" href="/article/category/rak-serbaguna">RAK SERBAGUNA</a>
-                <a class="nav-kategori-artikel" href="/article/category/kursi">KURSI</a>
+        <form action="/actionsearcharticle" method="post">
+            <div class="d-flex mb-2 align-items-center">
+                <div class="container-search-artikel">
+                    <input type="text" class="form-control" name="cari" value="<?= isset($find) ? $find : ''; ?>">
+                    <button type="submit" class="btn btn-light"><i class="material-icons">search</i></button>
+                    <button type="button" class="btn btn-light" id="btn-open-search-artikel"><i class="material-icons">search</i></button>
+                </div>
+                <script>
+                    const containerSearchArtikelElm = document.querySelector('.container-search-artikel')
+                    let openSearchArtikel = false
+                    const btnOpenSearchArtikelElm = document.getElementById('btn-open-search-artikel')
+
+                    btnOpenSearchArtikelElm.addEventListener('click', () => {
+                        if (openSearchArtikel) {
+                            btnOpenSearchArtikelElm.classList.add('btn-light')
+                            btnOpenSearchArtikelElm.classList.remove('btn-primary1')
+                            btnOpenSearchArtikelElm.innerHTML = '<i class="material-icons">search</i>'
+                            containerSearchArtikelElm.classList.remove('show');
+                        } else {
+                            btnOpenSearchArtikelElm.classList.remove('btn-light')
+                            btnOpenSearchArtikelElm.classList.add('btn-primary1')
+                            btnOpenSearchArtikelElm.innerHTML = '<i class="material-icons">chevron_left</i>'
+                            containerSearchArtikelElm.classList.add('show');
+                        }
+                        openSearchArtikel = !openSearchArtikel
+                    })
+                </script>
+                <div class="container-nav-kategori-artikel">
+                    <div class="d-flex gap-5">
+                        <a class="nav-kategori-artikel" href="/article">SEMUA</a>
+                        <a class="nav-kategori-artikel" href="/article/category/lemari-dewasa">LEMARI DEWASA</a>
+                        <a class="nav-kategori-artikel" href="/article/category/lemari-anak">LEMARI ANAK</a>
+                        <a class="nav-kategori-artikel" href="/article/category/meja-rias">MEJA RIAS</a>
+                        <a class="nav-kategori-artikel" href="/article/category/meja-belajar">MEJA BELAJAR</a>
+                        <a class="nav-kategori-artikel" href="/article/category/meja-tv">MEJA TV</a>
+                        <a class="nav-kategori-artikel" href="/article/category/meja-tulis">MEJA TULIS</a>
+                        <a class="nav-kategori-artikel" href="/article/category/meja-komputer">MEJA KOMPUTER</a>
+                        <a class="nav-kategori-artikel" href="/article/category/rak-sepatu">RAK SEPATU</a>
+                        <a class="nav-kategori-artikel" href="/article/category/rak-besi">RAK BESI</a>
+                        <a class="nav-kategori-artikel" href="/article/category/rak-serbaguna">RAK SERBAGUNA</a>
+                        <a class="nav-kategori-artikel" href="/article/category/kursi">KURSI</a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
         <div class="mb-4">
             <div class="p-5 header show-flex-ke-hide" style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
                 <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Lunarea's Article</h1>
@@ -41,7 +70,9 @@
             <div class="mb-4">
                 <div class="d-flex justify-content-between mb-3 align-items-center">
                     <h5 class="jdl-section">Artikel Baru</h5>
-                    <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
+                    <?php if (session()->get('role') == 1) { ?>
+                        <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
+                    <?php } ?>
                 </div>
                 <div class="gap-4 show-flex-ke-hide container-card-artikel">
                     <div class="flex-grow-1">

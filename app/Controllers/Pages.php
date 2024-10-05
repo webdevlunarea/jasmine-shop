@@ -120,6 +120,28 @@ class Pages extends BaseController
             return view('pages/artikelAll', $data);
         }
     }
+    public function actionSearchArticle()
+    {
+        $cari = $this->request->getVar('cari');
+        return redirect()->to('/article/find/' . str_replace(' ', '-', $cari));
+    }
+    public function findArticle($cari)
+    {
+        $artikel = $this->artikelModel->like('path', $cari, 'both')->orderBy('id', 'desc')->findAll();
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        foreach ($artikel as $ind_a => $a) {
+            $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
+            $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+            $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
+            $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+        }
+        $data = [
+            'title' => 'Artikel',
+            'artikel' => $artikel,
+            'find' => str_replace('-', ' ', $cari)
+        ];
+        return view('pages/artikelAll', $data);
+    }
     public function articleCategory($kategori)
     {
         $artikel = $this->artikelModel->getArtikelKategori(str_replace("-", " ", $kategori));

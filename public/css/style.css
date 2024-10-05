@@ -673,8 +673,11 @@ a {
 }
 .artikel.konten .container-nav-kategori-artikel {
     overflow-x: auto;
-    padding-bottom: 0.5em;
-    margin-bottom: 0.6em;
+    padding-block: 5px;
+    /* margin-bottom: 0.6em; */
+    height: fit-content;
+    max-width: 100vw;
+    transition: 0.3s;
 }
 .artikel.konten .container-nav-kategori-artikel::after {
     content: "";
@@ -762,6 +765,51 @@ a {
 }
 .artikel.konten .card-artikel-kecil:hover {
     cursor: pointer;
+}
+
+.artikel.konten .container-search-artikel {
+    display: flex;
+    gap: 0;
+    width: 50px;
+    transition: 0.3s;
+    margin-right: 1em;
+}
+.artikel.konten .container-search-artikel.show {
+    gap: 5px;
+    width: 100%;
+    transition: 0.3s;
+    margin-right: 0;
+}
+.artikel.konten .container-search-artikel input {
+    padding-inline: 0;
+    border: 1px solid rgba(0, 0, 0, 0);
+    flex: 0;
+    transition: 0.3s;
+}
+.artikel.konten .container-search-artikel.show input {
+    padding-inline: 0.7em;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    flex: 1;
+    transition: 0.3s;
+}
+.artikel.konten .container-search-artikel button[type="submit"] {
+    width: 0;
+    padding-inline: 0;
+    transition: 0.3s;
+}
+.artikel.konten .container-search-artikel.show button[type="submit"] {
+    width: 50px;
+    padding-inline: auto;
+    transition: 0.3s;
+}
+
+.artikel.konten
+    .container-search-artikel.show
+    ~ .container-nav-kategori-artikel {
+    max-width: 0;
+    overflow-x: hidden;
+    padding-block: 0;
+    transition: 0.3s;
 }
 @media (max-width: 600px) {
     .artikel.konten .header {

@@ -93,7 +93,7 @@
         </div>
 
         <!-- Container List Barang -->
-        <div class="w-100 border-bottom pb-2">
+        <div class="w-100 border-bottom border-dark pb-2">
             <div class="w-100 d-flex border-bottom border-top border-dark py-2">
                 <div style="flex: 2.9">
                     <p class="mb-0 fw-bold">INFO PRODUK</p>
@@ -145,23 +145,25 @@
                             </p>
                         </div>
                     </div>
+                    <?php if (((int)$transaksi['data_mid']['gross_amount'] - 5000 - $totalHarga) < 0) { ?>
+                        <div class="w-100 d-flex">
+                            <div style="flex: 2">
+                                <p class="mb-0">Diskon</p>
+                            </div>
+                            <div style="flex: 1">
+                                <p class="text-end mb-0">Rp <?php
+                                                            $ongkir = (int)$transaksi['data_mid']['gross_amount'] - 5000 - $totalHarga;
+                                                            echo number_format($ongkir, 0, ",", ".");
+                                                            ?></p>
+                            </div>
+                        </div>
+                    <?php } ?>
                     <div class="w-100 d-flex">
                         <div style="flex: 2">
                             <p class="mb-0">Biaya Admin</p>
                         </div>
                         <div style="flex: 1">
                             <p class="text-end mb-0">Rp 5.000</p>
-                        </div>
-                    </div>
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2">
-                            <p class="mb-0">Ongkos Kirim</p>
-                        </div>
-                        <div style="flex: 1">
-                            <p class="text-end mb-0">Rp <?php
-                                                        $ongkir = (int)$transaksi['data_mid']['gross_amount'] - 5000 - $totalHarga;
-                                                        echo number_format($ongkir, 0, ",", ".");
-                                                        ?></p>
                         </div>
                     </div>
                     <div class="w-100 d-flex">
