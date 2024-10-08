@@ -194,7 +194,7 @@
     </div>
     <div class="container mb-5">
         <h5 class="jdl-section mb-3">Artikel Serupa</h5>
-        <div>
+        <div class="d-flex flex-column gap-2">
             <?php foreach ($artikelTerkait as $ind_a => $a) { ?>
                 <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
                     <div class="d-flex flex-grow-1 flex-column gap-4">

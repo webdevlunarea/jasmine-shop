@@ -5,7 +5,7 @@
         <form action="/actionsearcharticle" method="post">
             <div class="d-flex mb-2 align-items-center">
                 <div class="container-search-artikel">
-                    <input type="text" class="form-control" name="cari" value="<?= isset($find) ? $find : ''; ?>">
+                    <input type="text" placeholder="Cari artikel" class="form-control" name="cari" value="<?= isset($find) ? $find : ''; ?>">
                     <button type="submit" class="btn btn-light"><i class="material-icons">search</i></button>
                     <button type="button" class="btn btn-light" id="btn-open-search-artikel"><i class="material-icons">search</i></button>
                 </div>
@@ -47,24 +47,26 @@
                 </div>
             </div>
         </form>
-        <div class="mb-4">
-            <div class="p-5 header show-flex-ke-hide" style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
-                <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Lunarea's Article</h1>
-                <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
-                <div class="d-flex gap-2">
-                    <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
+        <?php if (!isset($find)) { ?>
+            <div class="mb-4">
+                <div class="p-5 header show-flex-ke-hide" style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
+                    <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Lunarea's Article</h1>
+                    <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
+                    <div class="d-flex gap-2">
+                        <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4 header hide-ke-show-flex" style="position: relative; margin-bottom: -30svh; flex-direction: column; justify-content: end; width: 80%;">
-                <h2 class="text-light mb-1">Lunarea's Article</h2>
-                <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
-                <div class="d-flex gap-2">
-                    <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
+                <div class="p-4 header hide-ke-show-flex" style="position: relative; margin-bottom: -30svh; flex-direction: column; justify-content: end; width: 80%;">
+                    <h2 class="text-light mb-1">Lunarea's Article</h2>
+                    <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala masyarakat urban</p>
+                    <div class="d-flex gap-2">
+                        <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
+                    </div>
                 </div>
+                <img class="d-block rounded header" src="https://images.unsplash.com/photo-1613575831056-0acd5da8f085?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
             </div>
-            <img class="d-block rounded header" src="https://images.unsplash.com/photo-1613575831056-0acd5da8f085?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-        </div>
         <?php
+        }
         $indexAwal = -1;
         if (count($artikel) > 6) { ?>
             <div class="mb-4">
@@ -76,13 +78,13 @@
                 </div>
                 <div class="gap-4 show-flex-ke-hide container-card-artikel">
                     <div class="flex-grow-1">
-                        <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
+                        <div class="card-artikel-besar h-100" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
                             <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="<?= $artikel[0]['judul']; ?>">
                             <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
                             <div class="flex-grow-1">
-                                <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p>
+                                <!-- <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p> -->
                             </div>
-                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[0]['penulis']; ?></p>
+                            <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[0]['penulis']; ?></p> -->
                             <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[0]['waktu']; ?></p>
                         </div>
                     </div>
@@ -94,9 +96,9 @@
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[1]['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[1]['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[1]['waktu']; ?></p>
                             </div>
                         </div>
@@ -107,9 +109,9 @@
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[2]['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[2]['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[2]['waktu']; ?></p>
                             </div>
                         </div>
@@ -122,9 +124,9 @@
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[3]['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[3]['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[3]['waktu']; ?></p>
                             </div>
                         </div>
@@ -135,9 +137,9 @@
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[4]['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[4]['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[4]['waktu']; ?></p>
                             </div>
                         </div>
@@ -148,9 +150,9 @@
                             <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[5]['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $artikel[5]['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $artikel[5]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[5]['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[5]['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[5]['waktu']; ?></p>
                             </div>
                         </div>
@@ -161,30 +163,22 @@
             $indexAwal = 5;
         }
         ?>
-        <div class="show-flex-ke-hide flex-column gap-2">
-            <?php foreach ($artikel as $ind_a => $a) {
-                if ($ind_a > $indexAwal) {
-                    if (fmod($ind_a, 3) == 0) { ?>
-                        <div class="gap-4 d-flex container-card-artikel">
-                            <?php for ($i = $ind_a; $i < $ind_a + 3; $i++) {
-                                if (isset($artikel[$i])) { ?>
-                                    <div class="flex-grow-1" onclick="pergiKeArtikel(`<?= $artikel[$i]['path']; ?>`)">
-                                        <div class="card-artikel-besar" .>
-                                            <img class="rounded" src="<?= $artikel[$i]['header']; ?>" alt="<?= $artikel[$i]['judul']; ?>">
-                                            <p class="m-0 judul"><?= $artikel[$i]['judul']; ?></p>
-                                            <div class="flex-grow-1">
-                                                <p class="m-0 isi"><?= $artikel[$i]['isi'][0]['teks']; ?></p>
-                                            </div>
-                                            <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[$i]['penulis']; ?></p>
-                                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[$i]['waktu']; ?></p>
-                                        </div>
-                                    </div>
-                            <?php }
-                            } ?>
+        <div class="show-flex-ke-hide">
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr);" class="gap-4">
+                <?php foreach ($artikel as $ind_a => $a) {
+                    if ($ind_a > $indexAwal) { ?>
+                        <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
+                            <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
+                            <p class="m-0 judul"><?= $a['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <!-- <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p> -->
+                            </div>
+                            <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p>
                         </div>
-            <?php }
-                }
-            } ?>
+                <?php }
+                } ?>
+            </div>
         </div>
         <div class="hide-ke-show-flex flex-column gap-2">
             <?php foreach ($artikel as $ind_a => $a) { ?>
@@ -195,11 +189,11 @@
                                 <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul" style="line-height: 16px;"><?= $a['judul']; ?></p>
+                                <p class="m-0 judul"><?= $a['judul']; ?></p>
                                 <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
+                                    <!-- <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
                                 <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p>
                             </div>
                         </div>

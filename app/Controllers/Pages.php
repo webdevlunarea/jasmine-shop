@@ -127,7 +127,7 @@ class Pages extends BaseController
     }
     public function findArticle($cari)
     {
-        $artikel = $this->artikelModel->like('path', $cari, 'both')->orderBy('id', 'desc')->findAll();
+        $artikel = $this->artikelModel->like('judul', str_replace("-", " ", $cari), 'both')->orderBy('id', 'desc')->findAll();
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         foreach ($artikel as $ind_a => $a) {
             $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
@@ -4298,6 +4298,7 @@ class Pages extends BaseController
         ];
         return view('pages/editProduct', $data);
     }
+
     public function actionEditProduct($id)
     {
         $varian = explode(",", $this->request->getVar('varian'));
@@ -4520,6 +4521,94 @@ class Pages extends BaseController
             'list_email' => json_encode([])
         ]);
         return redirect()->to('/listvoucher');
+    }
+
+    public function gantiUkuran($kategori)
+    {
+        $barangLama = $this->barangModel->where(['subkategori' => $kategori])->findAll();
+        if (count($barangLama) <= 0) {
+            return $this->response->setJSON(['message' => 'barang nggk nemu'], false);
+        }
+        function file_get_contents_curl($url)
+        {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            $data = curl_exec($ch);
+            curl_close($ch);
+            return $data;
+        }
+
+        foreach ($barangLama as $b) {
+            $insertGambarBarang = [];
+            $insertGambar300 = false;
+            $jumlahGambar = count(json_decode($b['varian'], true)) - 1 + $b['jml_varian'];
+            $dataGambar = $this->gambarBarangModel->where(['id' => $b['id']])->first();
+            for ($i = 1; $i <= $jumlahGambar; $i++) {
+                $gambarSelected = $dataGambar['gambar' . $i];
+                $fp = 'imgdum/' . $b['id'] . '-' . $i . '.webp';
+                file_put_contents($fp, $gambarSelected);
+                \Config\Services::image()
+                    ->withFile($fp)
+                    ->resize(1000, 1000, true, 'height')->save('imgdum/1' . $b['id'] . '-' . $i . '.webp');
+                $insertGambarBarang['gambar' . $i] = file_get_contents('imgdum/1' . $b['id'] . '-' . $i . '.webp');
+                unlink('imgdum/1' . $b['id'] . '-' . $i . '.webp');
+                if ($i == 1) {
+                    \Config\Services::image()
+                        ->withFile($fp)
+                        ->resize(300, 300, true, 'height')->save('imgdum/1' . $b['id'] . '-' . $i . '300.webp');
+                    $insertGambar300 = file_get_contents('imgdum/1' . $b['id'] . '-' . $i . '300.webp');
+                    unlink('imgdum/1' . $b['id'] . '-' . $i . '300.webp');
+                }
+                unlink($fp);
+            }
+            $this->barangModel->where(['id' => $b['id']])->set(['gambar' => $insertGambar300])->update();
+            $this->gambarBarangModel->where(['id' => $b['id']])->set($insertGambarBarang)->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
+    }
+
+    public function gantiUkuranArtikel()
+    {
+        $artikel = $this->artikelModel->findAll();
+        if (count($artikel) <= 0) {
+            return $this->response->setJSON(['message' => 'barang nggk nemu'], false);
+        }
+        foreach ($artikel as $a) {
+            $insertGambarBarang = [];
+            $dataGambar = $this->gambarArtikelModel->where(['id' => $a['id']])->first();
+            unset($dataGambar['id']);
+            foreach ($dataGambar as $ind_g => $g) {
+                if ($g) {
+                    $gambarSelected = $dataGambar[$ind_g];
+                    $fp = 'imgdum/' . $a['id'] . '-' . $ind_g . '.webp';
+                    file_put_contents($fp, $gambarSelected);
+                    \Config\Services::image()
+                        ->withFile($fp)
+                        ->resize(1000, 1000, true, 'height')->save('imgdum/1' . $a['id'] . '-' . $ind_g . '.webp');
+                    $insertGambarBarang[$ind_g] = file_get_contents('imgdum/1' . $a['id'] . '-' . $ind_g . '.webp');
+                    unlink('imgdum/1' . $a['id'] . '-' . $ind_g . '.webp');
+                } else {
+                    break;
+                }
+            }
+            $gambarHeader = $a['header'];
+            $fp = 'imgdum/' . $a['id'] . '.webp';
+            file_put_contents($fp, $gambarHeader);
+            \Config\Services::image()
+                ->withFile($fp)
+                ->resize(1000, 1000, true, 'height')->save('imgdum/1' . $a['id'] . '.webp');
+            $insertGambarHeader = file_get_contents('imgdum/1' . $a['id'] . '.webp');
+            unlink('imgdum/1' . $a['id'] . '.webp');
+            $this->artikelModel->where(['id' => $a['id']])->set(['header' => $insertGambarHeader])->update();
+            if ($insertGambarBarang) $this->gambarArtikelModel->where(['id' => $a['id']])->set($insertGambarBarang)->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
     }
 
     public function notFound()

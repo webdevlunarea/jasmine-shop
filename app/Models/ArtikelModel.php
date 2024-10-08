@@ -32,7 +32,7 @@ class ArtikelModel extends Model
     public function getArtikelJudul($judul = false)
     {
         if ($judul == false) {
-            return $this->orderBy('id', 'asc')->findAll();
+            return $this->orderBy('id', 'desc')->findAll();
         }
         return $this->where(['path' => $judul])->first();
     }
