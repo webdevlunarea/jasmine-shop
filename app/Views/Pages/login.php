@@ -41,7 +41,9 @@
                 <p class="mt-3">Belum punya akun? <a href="/signup" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Daftar
                         disini</a></p>
                 <span class="garis mb-3"></span>
-                <a class="btn btn-primary1" href="/logintamu">Masuk sebagai tamu</a>
+                <form action="/logintamu" method="post">
+                    <button type="submit" class="btn btn-primary1">Masuk sebagai tamu</button>
+                </form>
             </div>
         </div>
     </div>

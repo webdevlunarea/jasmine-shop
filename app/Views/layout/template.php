@@ -93,8 +93,11 @@
     <div class="toast start-50 translate-middle">
         <div class="toast-body">
             <p>Hello, world! This is a toast message.</p>
-            <div class="mt-2 pt-2 border-top">
-                <a type="button" class="btn btn-danger btn-sm">Ok</a>
+            <div class="mt-2 pt-2 border-top d-flex gap-1">
+                <!-- <a type="button">Ok</a> -->
+                <form action="" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm">Ok</button>
+                </form>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="hapusToast()">Batal</button>
             </div>
         </div>
@@ -123,7 +126,7 @@
     <?= $this->include('layout/navbar'); ?>
 
     <!-- tombol form dan wa -->
-    <?php if (!str_contains($title, "Artikel")) { ?>
+    <?php if (!session()->get('role') == '1') { ?>
         <div class="container-melayang d-flex gap-2 align-items-end <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
             <div id="container-greeting-card" class="d-none">
                 <div style="background-color: white; border-radius: 1em; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" class="p-4">
@@ -198,15 +201,16 @@
 
         const toastElm = document.querySelector(".toast")
         const toastTeksElm = document.querySelector(".toast p")
-        const toastOkElm = document.querySelector(".toast a")
+        const toastOkElm = document.querySelector(".toast form")
         const toastCloseElm = document.querySelector(".toast button")
 
         function triggerToast(text, linkAction) {
             toastElm.classList.add("show")
             toastTeksElm.innerHTML = text
-            toastOkElm.href = linkAction
+            toastOkElm.action = linkAction
             if (!linkAction) {
                 toastOkElm.classList.add('d-none');
+                toastOkElm.setAttribute('disabled', '');
                 toastCloseElm.innerHTML = 'Ok';
             }
         }

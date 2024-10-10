@@ -1,49 +1,49 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<?php if (!session()->get('submitEmail')) { ?>
-    <div id="submit-email" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
-        <div class="ps-4 pe-4 pb-4 pt-2 rounded" style="background-color: #eff8f2;">
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
-            </div>
-            <h4 class="text-center">Jangan pergi dulu!</h4>
-            <p class="text-secondary text-center mb-3">Dapatkan informasi terbaru dengan memasukkan email Anda</p>
-            <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
-                <div class="form-floating mb-3">
-                    <input type="email" class="form-control" placeholder="name@example.com" name="email" required>
-                    <label for="floatingInput">Email</label>
-                </div>
-                <div class="mb-3">
-                    <input type="checkbox" required id="syaratsubmitemail">
-                    <label for="syaratsubmitemail">Anda menyetujui seluruh <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/kebijakan-privasi">kebijakan privasi</a> Kami.</label>
-                </div>
-                <button type="submit" class="btn btn-primary1 w-100">OK</button>
-            </form>
+<?php if (!session()->get('submitEmail') && session()->get('role') != 1) { ?>/
+<div id="submit-email" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
+    <div class="ps-4 pe-4 pb-4 pt-2 rounded" style="background-color: #eff8f2;">
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
         </div>
+        <h4 class="text-center">Jangan pergi dulu!</h4>
+        <p class="text-secondary text-center mb-3">Dapatkan informasi terbaru dengan memasukkan email Anda</p>
+        <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" placeholder="name@example.com" name="email" required>
+                <label for="floatingInput">Email</label>
+            </div>
+            <div class="mb-3">
+                <input type="checkbox" required id="syaratsubmitemail">
+                <label for="syaratsubmitemail">Anda menyetujui seluruh <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/kebijakan-privasi">kebijakan privasi</a> Kami.</label>
+            </div>
+            <button type="submit" class="btn btn-primary1 w-100">OK</button>
+        </form>
     </div>
-    <script>
-        const submitEmailElm = document.getElementById('submit-email');
-        let opened = false;
-        document.body.onscroll = (e) => {
-            const scrollingElm = e.target.scrollingElement;
-            const hasil = Math.round(
-                (scrollingElm.scrollTop /
-                    (scrollingElm.scrollHeight -
-                        scrollingElm.clientHeight)) *
-                100
-            );
-            if (hasil > 60 && !opened) {
-                submitEmailElm.classList.remove('d-none')
-                submitEmailElm.classList.add('d-flex')
-                opened = true
-            }
-        };
-
-        function closeSubmitEmail() {
-            submitEmailElm.classList.add('d-none')
-            submitEmailElm.classList.remove('d-flex')
+</div>
+<script>
+    const submitEmailElm = document.getElementById('submit-email');
+    let opened = false;
+    document.body.onscroll = (e) => {
+        const scrollingElm = e.target.scrollingElement;
+        const hasil = Math.round(
+            (scrollingElm.scrollTop /
+                (scrollingElm.scrollHeight -
+                    scrollingElm.clientHeight)) *
+            100
+        );
+        if (hasil > 60 && !opened) {
+            submitEmailElm.classList.remove('d-none')
+            submitEmailElm.classList.add('d-flex')
+            opened = true
         }
-    </script>
+    };
+
+    function closeSubmitEmail() {
+        submitEmailElm.classList.add('d-none')
+        submitEmailElm.classList.remove('d-flex')
+    }
+</script>
 <?php } ?>
 <?php if (session()->get('role') == 1) { ?>
     <div id="edit-komen" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
@@ -78,13 +78,17 @@
                 </div>
                 <div class="d-flex gap-2 align-items-center">
                     <div class="d-flex gap-1 align-items-center">
-                        <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">thumb_up</i></a>
+                        <form action="/addlikearticle/<?= $artikel['id'] ?>" method="post">
+                            <button type="submit" class="btn-sm" style="background: none; border: none;"><i class="material-icons text-secondary">thumb_up</i></button>
+                        </form>
                         <?php if ($artikel['suka'] > 0) { ?>
                             <p class="m-0"><?= $artikel['suka']; ?></p>
                         <?php } ?>
                     </div>
                     <div class="d-flex gap-1 align-items-center">
-                        <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn"><i class="material-icons text-secondary">share</i></a>
+                        <form action="/addsharearticle/<?= $artikel['id'] ?>" method="post">
+                            <button type="submit" class="btn-sm" style="background: none; border: none;"><i class="material-icons text-secondary">share</i></button>
+                        </form>
                         <?php if ($artikel['bagikan'] > 0) { ?>
                             <p class="m-0"><?= $artikel['bagikan']; ?></p>
                         <?php } ?>
@@ -122,13 +126,17 @@
                 </div>
                 <div class="d-flex gap-2 align-items-center">
                     <div class="d-flex gap-1 align-items-center">
-                        <a href="/addlikearticle/<?= $artikel['id'] ?>" class="btn-sm"><i class="material-icons text-secondary" style="font-size: 13px;">thumb_up</i></a>
+                        <form action="/addlikearticle/<?= $artikel['id'] ?>" method="post">
+                            <button type="submit" class="btn-sm" style="background: none; border: none;"><i class="material-icons text-secondary" style="font-size: 13px;">thumb_up</i></button>
+                        </form>
                         <?php if ($artikel['suka'] > 0) { ?>
                             <p class="m-0" style="font-size: 13px;"><?= $artikel['suka']; ?></p>
                         <?php } ?>
                     </div>
                     <div class="d-flex gap-1 align-items-center">
-                        <a href="/addsharearticle/<?= $artikel['id'] ?>" class="btn-sm"><i class="material-icons text-secondary" style="font-size: 13px;">share</i></a>
+                        <form action="/addsharearticle/<?= $artikel['id'] ?>" method="post">
+                            <button type="submit" class="btn-sm" style="background: none; border: none;"><i class="material-icons text-secondary" style="font-size: 13px;">share</i></button>
+                        </form>
                         <?php if ($artikel['bagikan'] > 0) { ?>
                             <p class="m-0" style="font-size: 13px;"><?= $artikel['bagikan']; ?></p>
                         <?php } ?>
@@ -160,7 +168,7 @@
     </div>
     <div class="container mb-5">
         <h5 class="jdl-section mb-3">Komentar</h5>
-        <form action="/addkomen/<?= urlencode($artikel['judul']); ?>" method="post">
+        <form action="/addkomen/<?= $artikel['path']; ?>" method="post">
             <div class="mb-2">
                 <label for="">Nama</label>
                 <input type="text" class="form-control" name="nama" placeholder="Nama" required>

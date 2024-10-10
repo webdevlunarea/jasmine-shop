@@ -4,7 +4,9 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <p class="mb-0">Wishlist (<?= count($wishlist); ?>)</p>
-            <a class="btn btn-outline-dark" href="/wishlisttocart">Beli Semua</a>
+            <form action="/wishlisttocart" method="post">
+                <button type="submit" class="btn btn-outline-dark">Beli Semua</button>
+            </form>
         </div>
         <?php if (count($wishlist) > 0) { ?>
             <div class="card-group1 no-scroll">

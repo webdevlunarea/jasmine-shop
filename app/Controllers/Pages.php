@@ -383,13 +383,13 @@ class Pages extends BaseController
     {
         $artikelCurr = $this->artikelModel->getArtikel($id_artikel);
         $this->artikelModel->where(['id' => $id_artikel])->set(['suka' => $artikelCurr['suka'] + 1])->update();
-        return redirect()->to('/article/' . urlencode($artikelCurr['judul']));
+        return redirect()->to('/article/' . $artikelCurr['path']);
     }
     public function addShareArticle($id_artikel)
     {
         $artikelCurr = $this->artikelModel->getArtikel($id_artikel);
         $this->artikelModel->where(['id' => $id_artikel])->set(['bagikan' => $artikelCurr['bagikan'] + 1])->update();
-        return redirect()->to('/article/' . urlencode($artikelCurr['judul']));
+        return redirect()->to('/article/' . $artikelCurr['path']);
     }
     public function form()
     {
@@ -4387,8 +4387,8 @@ class Pages extends BaseController
     }
     public function delProduct($id)
     {
-        $produk = $this->barangModel->where('id', $id)->delete();
-        $gambar = $this->gambarBarangModel->where('id', $id)->delete();
+        $this->barangModel->where('id', $id)->delete();
+        $this->gambarBarangModel->where('id', $id)->delete();
         return redirect()->to('/listproduct');
     }
     public function activeProduct($id)
@@ -4609,6 +4609,18 @@ class Pages extends BaseController
         return $this->response->setJSON([
             'success' => true
         ], false);
+    }
+
+    public function cekDouble()
+    {
+        $cekSession = session()->get('cekdouble');
+        if (!$cekSession) {
+            $cekSession = 1;
+        } else {
+            $cekSession++;
+        }
+        session()->set('cekdouble', $cekSession);
+        return redirect()->to('/about');
     }
 
     public function notFound()

@@ -45,11 +45,17 @@
                                 ?>
                             </p>
                             <div class="d-flex gap-3 justify-content-end">
-                                <a href="/delcart/<?= $index; ?>" class="btn btn-light"><i class="material-icons">delete</i></a>
+                                <form action="/delcart/<?= $index; ?>" method="post">
+                                    <button type="submit" class="btn btn-light"><i class="material-icons">delete</i></button>
+                                </form>
                                 <div class="input-group jumlah">
-                                    <a class="input-group-text" href="/redcart/<?= $index; ?>">-</a>
+                                    <form action="/redcart/<?= $index; ?>" method="post">
+                                        <button type="submit" class="input-group-text">-</button>
+                                    </form>
                                     <input disabled type="number" class="form-control text-center <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>" value="<?= $jumlah[$index]; ?>">
-                                    <a class="input-group-text" href="/addcart/<?= $p['id']; ?>/<?= $keranjang[$index]['varian'] ?>/<?= $keranjang[$index]['index_gambar'] ?>">+</a>
+                                    <form action="/addcart/<?= $p['id']; ?>/<?= $keranjang[$index]['varian'] ?>/<?= $keranjang[$index]['index_gambar'] ?>" method="post">
+                                        <button type="submit" class="input-group-text">+</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

@@ -319,16 +319,16 @@
                         <p class="my-2">Subtotal:</p>
                         <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
                     </div>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
-                        <p class="my-2">Biaya Admin:</p>
-                        <p class="my-2"><b>Rp 5.000</b></p>
-                    </div>
                     <?php if ($diskonVoucher > 0) { ?>
                         <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                             <p class="my-2">Diskon Voucher:</p>
                             <p class="my-2"><b>- Rp <?= number_format($diskonVoucher, 0, ",", "."); ?></b></p>
                         </div>
                     <?php } ?>
+                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                        <p class="my-2">Biaya Admin:</p>
+                        <p class="my-2"><b>Rp 5.000</b></p>
+                    </div>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
                         <p class="my-2"><b id="total-semua">Rp
@@ -532,14 +532,14 @@
             if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');
         })
-        inputNamaPemElm.addEventListener("input", (e) => {
-            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
-            else btnCheckoutElm.classList.add('disabled');
-        })
-        inputNohpPemElm.addEventListener("input", (e) => {
-            if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
-            else btnCheckoutElm.classList.add('disabled');
-        })
+        // inputNamaPemElm.addEventListener("input", (e) => {
+        //     if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+        //     else btnCheckoutElm.classList.add('disabled');
+        // })
+        // inputNohpPemElm.addEventListener("input", (e) => {
+        //     if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
+        //     else btnCheckoutElm.classList.add('disabled');
+        // })
         inputEmailPemElm.addEventListener("input", (e) => {
             if (inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '') btnCheckoutElm.classList.remove('disabled');
             else btnCheckoutElm.classList.add('disabled');

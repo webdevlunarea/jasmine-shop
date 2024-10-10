@@ -27,7 +27,7 @@
                     Temukan produk furniture kebutuhan Anda dengan harga terbaik dan desain stylish masa kini, di toko terdekat Anda bersama dengan Lunarea furniture.
                 </p>
                 <p class="fw-bold" style="color: var(--hijau)">
-                    Lunarea Furniture, Always your choice, always your furniture
+                    <i>Lunarea furniture, always your choice, always your furniture</i>
                 </p>
             </div>
             <div class="show-ke-hide align-items-center justify-content-end" style="height: 350px; flex: 1;">
@@ -117,4 +117,6 @@
         </div>
     </div> -->
 </div>
+<a href="/cekdouble">cek double</a>
+<p>Cek apa <?= session()->get('cekdouble') ? session()->get('cekdouble') : 'Belum'; ?></p>
 <?= $this->endSection(); ?>

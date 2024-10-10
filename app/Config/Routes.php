@@ -6,7 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Pages::index');
-$routes->get('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
+$routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
@@ -23,21 +23,21 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
-$routes->get('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
-$routes->get('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
+$routes->post('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
+$routes->post('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
 $routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
 
 $routes->get('/wishlist', 'Pages::wishlist', ['filter' => 'harusUser']);
-$routes->get('/addwishlist/(:any)', 'Pages::addWishlist/$1', ['filter' => 'harusUser']);
-$routes->get('/delwishlist/(:any)', 'Pages::delWishlist/$1', ['filter' => 'harusUser']);
-$routes->get('/wishlisttocart', 'Pages::wishlistToCart', ['filter' => 'harusUser']);
+$routes->post('/addwishlist/(:any)', 'Pages::addWishlist/$1', ['filter' => 'harusUser']);
+$routes->post('/delwishlist/(:any)', 'Pages::delWishlist/$1', ['filter' => 'harusUser']);
+$routes->post('/wishlisttocart', 'Pages::wishlistToCart', ['filter' => 'harusUser']);
 
 $routes->get('/cart', 'Pages::cart', ['filter' => 'harusUser']);
-$routes->get('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filter' => 'harusUser']);
-$routes->get('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
-$routes->get('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
+$routes->post('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filter' => 'harusUser']);
+$routes->post('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
+$routes->post('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
 // $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
 
@@ -83,7 +83,7 @@ $routes->get('/find/(:any)', 'Pages::productFilter/$1');
 $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
-$routes->get('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
+$routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddvoucher', 'Pages::actionAddVoucher', ['filter' => 'harusAdmin']);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
@@ -98,9 +98,9 @@ $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);
 $routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin']);
 $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
-$routes->get('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
+$routes->post('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listproducttable', 'Pages::listProductTable', ['filter' => 'harusAdmin']);
-$routes->get('/activeproduct/(:any)', 'Pages::activeProduct/$1', ['filter' => 'harusAdmin']);
+$routes->post('/activeproduct/(:any)', 'Pages::activeProduct/$1', ['filter' => 'harusAdmin']);
 // $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
 $routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' => 'harusAdmin']);
@@ -137,15 +137,15 @@ $routes->post('/actionsearcharticle', 'Pages::actionSearchArticle');
 $routes->get('/article/find/(:any)', 'Pages::findArticle/$1');
 $routes->get('/article/category/(:any)', 'Pages::articleCategory/$1');
 $routes->get('/article/(:any)', 'Pages::article/$1');
-$routes->get('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');
-$routes->get('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
+$routes->post('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');
+$routes->post('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
 $routes->get('/addarticle', 'Pages::addArticle', ['filter' => 'harusAdmin']);
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
 $routes->get('/editarticle/(:any)', 'Pages::editArticle/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editarticle/(:any)', 'Pages::actionEditArticle/$1', ['filter' => 'harusAdmin']);
 $routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
 $routes->post('/addkomen/(:any)', 'Pages::addKomen/$1');
-$routes->get('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2');
+$routes->post('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2');
 $routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2');
 
 // TrackingController
@@ -161,5 +161,10 @@ $routes->get('/fixkurir', 'Pages::fixKurir');
 $routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
 $routes->get('/gantiukuran/(:any)', 'Pages::gantiUkuran/$1');
 $routes->get('/gantiukuranartikel', 'Pages::gantiUkuranArtikel');
+
+//API SHEET
+$routes->post('/sheet/updatestok', 'ApiSheet::updateStok', ['filter' => 'corsFilter']);
+
+$routes->get('/cekdouble', 'Pages::cekDouble');
 
 $routes->get('(:any)', 'Pages::notFound');

@@ -93,15 +93,21 @@
                 <!-- <h5>Deskripsi</h5> -->
                 <!-- <hr> -->
                 <p><?= $produk['deskripsi']; ?></p>
-                <div class="show-ke-hide">
+                <div class="show-flex-ke-hide gap-1">
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <a class="btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" href="/addcart/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>">Beli Sekarang</a>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                    <button type="submit" class="btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>Beli Sekarang</button>
+                                </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                                    <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post">
+                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite</i></button>
+                                    </form>
                                 <?php } else { ?>
-                                    <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post">
+                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite_border</i></button>
+                                    </form>
                                 <?php } ?>
                             <?php } else { ?>
                                 <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
@@ -118,11 +124,17 @@
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <a style="flex: 1;" class="btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" href="/addcart/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>">Beli Sekarang</a>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                    <button type="submit" class="btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>Beli Sekarang</button>
+                                </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                                    <a class="btn btn-outline-dark" href="/delwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite</i></a>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post">
+                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite</i></button>
+                                    </form>
                                 <?php } else { ?>
-                                    <a class="btn btn-outline-dark" href="/addwishlist/<?= $produk['id']; ?>"><i class="material-icons">favorite_border</i></a>
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post">
+                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite_border</i></button>
+                                    </form>
                                 <?php } ?>
                             <?php } else { ?>
                                 <a class="btn btn-primary1 flex-grow-1" href="/verify">Verifikasi Email</a>
@@ -287,11 +299,13 @@
         console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
         elmBtnBeli.forEach(element => {
             if (stok > 0) {
-                element.href = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
                 element.classList.remove('disabled')
+                element.removeAttribute('disabled')
             } else {
-                element.href = ''
+                element.parentNode.action = ''
                 element.classList.add('disabled')
+                element.setAttribute('disabled', '')
             }
         });
         elmBtnBeliTamu.forEach(element => {
