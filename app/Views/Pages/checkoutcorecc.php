@@ -329,10 +329,18 @@
                         <p class="my-2">Biaya Admin:</p>
                         <p class="my-2"><b>Rp 5.000</b></p>
                     </div>
+                    <?php if ($potonganPreorder > 0) { ?>
+                        <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                            <p class="my-2">Potongan Preorder:</p>
+                            <p class="my-2"><b id="total-semua">- Rp
+                                    <?= number_format($potonganPreorder, 0, ",", "."); ?></b>
+                            </p>
+                        </div>
+                    <?php } ?>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
                         <p class="my-2"><b id="total-semua">Rp
-                                <?= number_format($total - $diskonVoucher, 0, ",", "."); ?></b>
+                                <?= number_format($total - $diskonVoucher - $potonganPreorder, 0, ",", "."); ?></b>
                         </p>
                     </div>
                     <div class="mt-2">

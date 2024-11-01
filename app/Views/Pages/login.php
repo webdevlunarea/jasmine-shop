@@ -42,7 +42,7 @@
                         disini</a></p>
                 <span class="garis mb-3"></span>
                 <form action="/logintamu" method="post">
-                    <button type="submit" class="btn btn-primary1">Masuk sebagai tamu</button>
+                    <button type="submit" id="btn-masuk-tamu" class="btn btn-primary1">Masuk sebagai tamu</button>
                 </form>
             </div>
         </div>

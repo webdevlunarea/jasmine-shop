@@ -91,6 +91,7 @@
                     <option value="img">img</option>
                     <option value="a">a</option>
                     <option value="space">space</option>
+                    <option value="div">div</option>
                 </select>
                 <button type="button" onclick="tambahIsi()">Tambahkan</button>
             </div>
@@ -119,6 +120,8 @@
             } else if (tagSelectElm.value == 'img') {
                 initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '"><input type="text" name="style' + counterIsi + '" placeholder="style"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             } else if (tagSelectElm.value == 'space') {
+                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="space"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
+            } else if (tagSelectElm.value == 'div') {
                 initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="space"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
             }
             // const initItemIsiElm = new DOMParser().parseFromString(initItemIsi, "text/xml");

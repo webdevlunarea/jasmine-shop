@@ -13,6 +13,7 @@ use App\Models\GambarArtikelModel;
 use App\Models\SubmitEmailModel;
 use App\Models\VoucherModel;
 use App\Models\InvoiceModel;
+use App\Models\PreorderBarangModel;
 
 class Pages extends BaseController
 {
@@ -27,6 +28,7 @@ class Pages extends BaseController
     protected $submitEmailModel;
     protected $voucherModel;
     protected $invoiceModel;
+    protected $preorderBarangModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -40,6 +42,7 @@ class Pages extends BaseController
         $this->submitEmailModel = new SubmitEmailModel();
         $this->voucherModel = new VoucherModel();
         $this->invoiceModel = new InvoiceModel();
+        $this->preorderBarangModel = new PreorderBarangModel();
     }
     public function index()
     {
@@ -240,6 +243,7 @@ class Pages extends BaseController
             'title' => 'Edit Artikel',
             'artikel' => $artikel,
             'isi' => $artikel['isi'],
+            'isiJson' => json_encode($artikel['isi']),
             'counterIsi' => $counterIsi,
             'arrCounterIsi' => json_encode($arrCounterIsi),
             'arrCounter' => implode(",", $arrCounterIsi),
@@ -1157,6 +1161,10 @@ class Pages extends BaseController
         $paket = [];
         $paketFilter = [];
         $indElementNotFound = [];
+
+        $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
+        $potonganPreorder = 0;
+
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -1192,6 +1200,13 @@ class Pages extends BaseController
                         return redirect()->to('cart');
                 } else {
                     array_push($indElementNotFound, $ind);
+                }
+
+                //masukin ke arrIdBarang untuk di cek masuk preorder atau tidak
+                foreach ($preorder as $p) {
+                    if ($p['id_barang'] == $element['id']) {
+                        $potonganPreorder += ((int)$produknya['harga'] - (int)$p['harga']) * (int)$element['jumlah'];
+                    }
                 }
             }
             $total = $subtotal + 5000;
@@ -1486,17 +1501,17 @@ class Pages extends BaseController
         //     'jenis' => 'member'
         // ];
 
-        $voucher = [
-            [
-                'id' => 1,
-                'nama' => 'Member Baru',
-                'satuan' => 'persen',
-                'nominal' => 5,
-                'berakhir' => '0000-00-00',
-                'list_email' => [],
-                'jenis' => 'member'
-            ]
-        ];
+        // $voucher = [
+        //     [
+        //         'id' => 1,
+        //         'nama' => 'Member Baru',
+        //         'satuan' => 'persen',
+        //         'nominal' => 5,
+        //         'berakhir' => '0000-00-00',
+        //         'list_email' => [],
+        //         'jenis' => 'member'
+        //     ]
+        // ];
 
         $data = [
             'title' => 'Check Out',
@@ -1525,9 +1540,10 @@ class Pages extends BaseController
             ])),
             'voucherSelected' => $voucherSelected,
             'msg' => session()->getFlashdata('msg'),
-            'emailUji' => $emailUjiCoba
+            'emailUji' => $emailUjiCoba,
             // 'paket' => $paketFilter,
             // 'paketJson' => json_encode($paketFilter),
+            'potonganPreorder' => $potonganPreorder
         ];
         // return view('pages/' . (in_array($email, $emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
         return view('pages/checkoutcorecc', $data);
@@ -1899,6 +1915,9 @@ class Pages extends BaseController
         $produk = [];
         $subtotal = 0;
         $itemDetails = [];
+        $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
+        $potonganPreorder = 0;
+
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
@@ -1921,6 +1940,13 @@ class Pages extends BaseController
                     'packed' => false
                 );
                 array_push($itemDetails, $item);
+
+                //masukin ke arrIdBarang untuk di cek masuk preorder atau tidak
+                foreach ($preorder as $p) {
+                    if ($p['id_barang'] == $element['id']) {
+                        $potonganPreorder += ((int)$produknya['harga'] - (int)$p['harga']) * (int)$element['jumlah'];
+                    }
+                }
             }
         }
         $total = $subtotal + 5000;
@@ -1968,6 +1994,15 @@ class Pages extends BaseController
             array_push($itemDetails, $diskonVoucher);
         }
 
+        if ($potonganPreorder > 0) {
+            array_push($itemDetails, [
+                'id' => 'Potongan Preorder',
+                'price' => -$potonganPreorder,
+                'quantity' => 1,
+                'name' => 'Potongan Preorder',
+            ]);
+        }
+
         if (in_array($email, $emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         else
@@ -1990,7 +2025,7 @@ class Pages extends BaseController
         $arrPostField = [
             "transaction_details" => [
                 "order_id" => in_array($email, $emailUjiCoba) ? $randomId : $idFix,
-                "gross_amount" => $total - $data['diskonVoucher'],
+                "gross_amount" => $total - $data['diskonVoucher'] - $potonganPreorder,
             ],
             'customer_details' => array(
                 'email' => $email,

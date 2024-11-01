@@ -55,171 +55,710 @@
         <div class="container mt-3">
             <h5>Isi Artikel</h5>
         </div>
-        <div id="container-isi" class="d-flex flex-column gap-2">
-            <?php foreach ($isi as $ind_i => $i) { ?>
-                <div class="py-3">
-                    <div class="container">
-                        <?php switch ($i['tag']) {
-                            case 'p': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="p">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>" class="mb-1">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'h2': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="h2">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'h4': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="h2">
-                                <textarea class="w-100 mt-1" placeholder="teks" name="teks<?= $ind_i + 1 ?>"><?= $i['teks']; ?></textarea>
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'a': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="a">
-                                <input type="text" name="link<?= $ind_i + 1 ?>" placeholder="link" value="<?= $i['link']; ?>">
-                                <input type="text" name="teks<?= $ind_i + 1 ?>" placeholder="teks" value="<?= $i['teks']; ?>">
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'img': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="img">
-                                <input type="file" name="file<?= $ind_i + 1 ?>">
-                                <input type="text" name="style<?= $ind_i + 1 ?>" placeholder="style" value="<?= $i['style']; ?>">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                            <?php break;
-                            case 'space': ?>
-                                <input type="text" name="tag<?= $ind_i + 1 ?>" value="space">
-                                <div class="d-flex gap-1">
-                                    <button type="button" onclick="hapusIsi('<?= $ind_i + 1 ?>')">hapus</button>
-                                    <button type="button" onclick="geserAtas('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_less</i></button>
-                                    <button type="button" onclick="geserBawah('<?= $ind_i + 1 ?>')"><i class="material-icons m-0">expand_more</i></button>
-                                </div>
-                        <?php break;
-                            default:
-                                # code...
-                                break;
-                        } ?>
-                    </div>
-                </div>
-            <?php } ?>
-        </div>
-        <hr>
-        <div class="container">
-            <div class="d-flex gap-2 border-top py-3">
-                <select id="select-tag">
-                    <option value="" selected>-- pilih tag --</option>
-                    <option value="h2">h2</option>
-                    <option value="h4">h3</option>
-                    <option value="p">p</option>
-                    <option value="img">img</option>
-                    <option value="a">a</option>
-                    <option value="space">space</option>
-                </select>
-                <button type="button" onclick="tambahIsi()">Tambahkan</button>
-            </div>
-            <div class="d-flex justify-content-center mt-3">
-                <button class="btn btn-primary1" type="submit">Simpan</button>
-            </div>
-            <input type="text" class="d-none" name="arrCounter" value="<?= $arrCounter; ?>">
-            <!-- <input type="text" class="d-none" name="checkerImg"> -->
-        </div>
+        <div id="container-react" class="d-flex flex-column gap-2"></div>
     </form>
 </div>
-<script>
-    const tagSelectElm = document.getElementById("select-tag");
-    const arrCounterElm = document.querySelector('input[name="arrCounter"]');
-    const containerIsiElm = document.getElementById("container-isi");
-    let counterIsi = <?= $counterIsi; ?>;
-    let arrCounterIsi = JSON.parse('<?= $arrCounterIsi; ?>');
-    // const checkerImgElm = document.querySelector('input[name="checkerImg"]');
-    // let arrCheckerImg = []
 
-    function tambahIsi() {
-        if (tagSelectElm.value != '') {
-            counterIsi++;
-            let initItemIsi = '';
-            if (tagSelectElm.value == 'h2' || tagSelectElm.value == 'h4' || tagSelectElm.value == 'p') {
-                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><textarea class="w-100 mt-1" placeholder="teks" name="teks' + counterIsi + '"></textarea><input type="text" name="style' + counterIsi + '" placeholder="style"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
-            } else if (tagSelectElm.value == 'a') {
-                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="text" name="link' + counterIsi + '" placeholder="link"><input type="text" name="teks' + counterIsi + '" placeholder="teks"><input type="text" name="style' + counterIsi + '" placeholder="style" value="d-inline link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
-            } else if (tagSelectElm.value == 'img') {
-                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="' + tagSelectElm.value + '"><input type="file" name="file' + counterIsi + '" required><input type="text" name="style' + counterIsi + '" placeholder="style"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
-            } else if (tagSelectElm.value == 'space') {
-                initItemIsi = '<div class="py-2"><div class="container"><input type="text" name="tag' + counterIsi + '" value="space"><div class="d-flex gap-1"><button type="button" onclick="hapusIsi(' + counterIsi + ')">hapus</button><button type="button" onclick="geserAtas(' + counterIsi + ')"><i class="material-icons m-0">expand_less</i></button><button type="button" onclick="geserBawah(' + counterIsi + ')"><i class="material-icons m-0">expand_more</i></button></div></div></div>'
+<script
+    src="https://unpkg.com/react@17/umd/react.development.js"
+    crossorigin></script>
+<script
+    src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+    crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Skrip JavaScript untuk React dengan Babel -->
+<script type="text/babel">
+    const { useState, useEffect } = React;
+    const App = () => {
+        const [arr, setArr] = useState(JSON.parse('<?= $isiJson; ?>'));
+        const [arrCounterElm, setArrCounterElm] = useState("<?= $arrCounter; ?>");
+        const [selectTag, setSelectTag] = useState('')
+
+        const geserAtas = (index) => {
+            if (index === 0) return;
+            const newArr = [...arr];
+            [newArr[index - 1], newArr[index]] = [
+                newArr[index],
+                newArr[index - 1],
+            ];
+            setArr(newArr);
+        };
+        const geserBawah = (index) => {
+            if (index === arr.length - 1) return;
+            const newArr = [...arr];
+            [newArr[index], newArr[index + 1]] = [
+                newArr[index + 1],
+                newArr[index],
+            ];
+            setArr(newArr);
+        };
+        const hapusIsi = (index) => {
+            const newArr = [...arr];
+            newArr.splice(index, 1);
+            setArr(newArr);
+        };
+        const tambahIsi = (ind = -1) => {
+            let tagBaru = {}
+            if(selectTag) {
+                if(selectTag == 'h2' || selectTag == 'h4' || selectTag == 'p') {
+                    tagBaru = {
+                        tag: selectTag,
+                        teks: '',
+                        style: ''
+                    }
+                } else if (selectTag == 'a') {
+                    tagBaru = {
+                        tag: selectTag,
+                        link: '',
+                        teks: '',
+                        style: 'd-inline link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover'
+                    }
+                } else if (selectTag == 'space') {
+                    tagBaru = {
+                        tag: selectTag,
+                    }
+                } else if (selectTag == 'img') {
+                    tagBaru = {
+                        tag: selectTag,
+                        style: ''
+                    }
+                } else if (selectTag == 'div') {
+                    tagBaru = {
+                        tag: selectTag,
+                        style: '',
+                        children: []
+                    }
+                }
+
+                //cek apakahan tambahisi dari utama atau div
+                if(ind >= 0) {
+                    const newArr = [...arr];
+                    newArr[ind].children.push(tagBaru)
+                    setArr(newArr);
+                } else {
+                    setArr([...arr, tagBaru]);
+                }
             }
-            const initItemIsiElm = document.createRange().createContextualFragment(initItemIsi)
-            containerIsiElm.appendChild(initItemIsiElm)
-            arrCounterIsi.push(counterIsi);
-            arrCounterElm.value = arrCounterIsi.join(",");
         }
-    }
-
-    function hapusIsi(urutan) {
-        // console.log(arrCounterIsi, urutan)
-        const indexnya = arrCounterIsi.indexOf(Number(urutan))
-        // if (urutan <= <?= $counterIsi; ?> && containerIsiElm.children[indexnya].children[0].children[0].value == 'img') {
-        //     arrCheckerImg.push(urutan);
-        //     checkerImgElm.value = arrCheckerImg.join(",");
-        // }
-
-        // console.log(containerIsiElm.children);
-        // console.log(indexnya)
-        containerIsiElm.removeChild(containerIsiElm.children[indexnya]);
-        arrCounterIsi.splice(indexnya, 1);
-        arrCounterElm.value = arrCounterIsi.join(",");
-    }
-
-    function geserAtas(urutan) {
-        const indexnya = arrCounterIsi.indexOf(Number(urutan))
-        if (indexnya > 0) {
-            const elmTujuan = containerIsiElm.children[indexnya - 1]
-            containerIsiElm.removeChild(containerIsiElm.children[indexnya - 1])
-            const arrCounterIsiTujuan = arrCounterIsi[indexnya - 1]
-            arrCounterIsi.splice(indexnya - 1, 1);
-            // console.log(elmTujuan)
-            // console.log(arrCounterIsiTujuan)
-            containerIsiElm.insertBefore(elmTujuan, containerIsiElm.children[indexnya]);
-            arrCounterIsi.splice(indexnya, 0, arrCounterIsiTujuan);
-            arrCounterElm.value = arrCounterIsi.join(",");
-            // console.log(arrCounterIsi)
+        const handleChangeInputIsi = (isi, key, ind) => {
+            const newArr = [...arr];
+            newArr[ind][key] = isi;
+            setArr(newArr)
         }
-    }
 
-    function geserBawah(urutan) {
-        const indexnya = arrCounterIsi.indexOf(Number(urutan))
-        if (indexnya < arrCounterIsi.length - 1) {
-            const elmTujuan = containerIsiElm.children[indexnya + 1]
-            containerIsiElm.removeChild(containerIsiElm.children[indexnya + 1])
-            const arrCounterIsiTujuan = arrCounterIsi[indexnya + 1]
-            arrCounterIsi.splice(indexnya + 1, 1);
-            containerIsiElm.insertBefore(elmTujuan, containerIsiElm.children[indexnya]);
-            arrCounterIsi.splice(indexnya, 0, arrCounterIsiTujuan);
-            arrCounterElm.value = arrCounterIsi.join(",");
-        }
-    }
+        useEffect(() => {
+            let arrCounter = [];
+            for (let i = 1; i <= arr.length; i++) {
+                arrCounter.push(i);
+            }
+            setArrCounterElm(arrCounter.join(","));
+        }, [arr]);
+
+        return (
+            <>
+            <div id="container-isi" className="d-flex flex-column gap-2">
+                {arr.map((obj, ind_obj) => {
+                    if (
+                        obj.tag == "p" ||
+                        obj.tag == "h2" ||
+                        obj.tag == "h4"
+                    ) {
+                        return (
+                        <div className="py-3" key={ind_obj}>    
+                            <div className="container">
+                                <input
+                                    type="text"
+                                    name={"tag" + (ind_obj + 1)}
+                                    value={obj.tag}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                    }}
+                                />
+                                <textarea
+                                    className="w-100 mt-1"
+                                    placeholder="teks"
+                                    name={"teks" + (ind_obj + 1)}
+                                    value={obj.teks}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'teks', ind_obj)
+                                    }}
+                                ></textarea>
+                                <input
+                                    type="text"
+                                    name={"style" + (ind_obj + 1)}
+                                    placeholder="style"
+                                    value={obj.style}
+                                    className="mb-1"
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                    }}
+                                />
+                                <div className="d-flex gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            hapusIsi(ind_obj);
+                                        }}
+                                    >
+                                        hapus
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            geserAtas(ind_obj);
+                                        }}
+                                    >
+                                        <i className="material-icons m-0">
+                                            expand_less
+                                        </i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            geserBawah(ind_obj);
+                                        }}
+                                    >
+                                        <i className="material-icons m-0">
+                                            expand_more
+                                        </i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        );
+                    } else if (obj.tag == "a") {
+                        return (
+                            <div className="py-3" key={ind_obj}>
+                            <div
+                                className="container"
+                            >
+                                <input
+                                    type="text"
+                                    name={"tag" + (ind_obj + 1)}
+                                    value={obj.tag}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                    }}
+                                />
+                                <input
+                                    type="text"
+                                    name={"link" + (ind_obj + 1)}
+                                    placeholder="link"
+                                    value={obj.link}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'link', ind_obj)
+                                    }}
+                                />
+                                <input
+                                    type="text"
+                                    name={"teks" + (ind_obj + 1)}
+                                    placeholder="teks"
+                                    value={obj.teks}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'teks', ind_obj)
+                                    }}
+                                />
+                                <input
+                                    type="text"
+                                    name={"style" + (ind_obj + 1)}
+                                    placeholder="style"
+                                    value={obj.style}
+                                    onChange={(e) => {
+                                        handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                    }}
+                                />
+                                <div className="d-flex gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            hapusIsi(ind_obj);
+                                        }}
+                                    >
+                                        hapus
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            geserAtas(ind_obj);
+                                        }}
+                                    >
+                                        <i className="material-icons m-0">
+                                            expand_less
+                                        </i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            geserBawah(ind_obj);
+                                        }}
+                                    >
+                                        <i className="material-icons m-0">
+                                            expand_more
+                                        </i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        );
+                    } else if (obj.tag == "img") {
+                        return (
+                            <div className="py-3" key={ind_obj}>
+                                <div
+                                    className="container"
+                                >
+                                    <input
+                                        type="text"
+                                        name={"tag" + (ind_obj + 1)}
+                                        value={obj.tag}
+                                        onChange={(e) => {
+                                            handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                        }}
+                                    />
+                                    <input
+                                        type="file"
+                                        name={"file" + (ind_obj + 1)}
+                                    />
+                                    <input
+                                        type="text"
+                                        name={"style" + (ind_obj + 1)}
+                                        placeholder="style"
+                                        value={obj.style}
+                                        onChange={(e) => {
+                                            handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                        }}
+                                    />
+                                    <div className="d-flex gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                hapusIsi(ind_obj);
+                                            }}
+                                        >
+                                            hapus
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserAtas(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_less
+                                            </i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserBawah(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_more
+                                            </i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    } else if (obj.tag == "space") {
+                        return (
+                            <div className="py-3" key={ind_obj}>
+                                <div
+                                    className="container"
+                                >
+                                    <input
+                                        type="text"
+                                        name={"tag" + (ind_obj + 1)}
+                                        value={obj.tag}
+                                        onChange={(e) => {
+                                            handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                        }}
+                                    />
+                                    <div className="d-flex gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                hapusIsi(ind_obj);
+                                            }}
+                                        >
+                                            hapus
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserAtas(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_less
+                                            </i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserBawah(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_more
+                                            </i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    } else if (obj.tag == "div") {
+                        return (
+                            <div className="py-3" key={ind_obj}>
+                                <div className="container border">
+                                    <div className="d-flex flex-column gap-2">
+                                        {arr[ind_obj].children.map((obj_div, ind_obj_div)=>{
+                                            if (
+                                                obj_div.tag == "p" ||
+                                                obj_div.tag == "h2" ||
+                                                obj_div.tag == "h4"
+                                            ) {
+                                                return (
+                                                <div className="py-3" key={ind_obj}>
+                                                    <div className="container">
+                                                        <input
+                                                            type="text"
+                                                            name={"tag" + (ind_obj + 1)}
+                                                            value={obj_div.tag}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                                            }}
+                                                        />
+                                                        <textarea
+                                                            className="w-100 mt-1"
+                                                            placeholder="teks"
+                                                            name={"teks" + (ind_obj + 1)}
+                                                            value={obj_div.teks}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'teks', ind_obj)
+                                                            }}
+                                                        ></textarea>
+                                                        <input
+                                                            type="text"
+                                                            name={"style" + (ind_obj + 1)}
+                                                            placeholder="style"
+                                                            value={obj_div.style}
+                                                            className="mb-1"
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                                            }}
+                                                        />
+                                                        <div className="d-flex gap-1">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    hapusIsi(ind_obj);
+                                                                }}
+                                                            >
+                                                                hapus
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    geserAtas(ind_obj);
+                                                                }}
+                                                            >
+                                                                <i className="material-icons m-0">
+                                                                    expand_less
+                                                                </i>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    geserBawah(ind_obj);
+                                                                }}
+                                                            >
+                                                                <i className="material-icons m-0">
+                                                                    expand_more
+                                                                </i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                );
+                                            } else if (obj_div.tag == "a") {
+                                                return (
+                                                    <div className="py-3" key={ind_obj}>
+                                                    <div
+                                                        className="container"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            name={"tag" + (ind_obj + 1)}
+                                                            value={obj_div.tag}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                                            }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            name={"link" + (ind_obj + 1)}
+                                                            placeholder="link"
+                                                            value={obj_div.link}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'link', ind_obj)
+                                                            }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            name={"teks" + (ind_obj + 1)}
+                                                            placeholder="teks"
+                                                            value={obj_div.teks}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'teks', ind_obj)
+                                                            }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            name={"style" + (ind_obj + 1)}
+                                                            placeholder="style"
+                                                            value={obj_div.style}
+                                                            onChange={(e) => {
+                                                                handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                                            }}
+                                                        />
+                                                        <div className="d-flex gap-1">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    hapusIsi(ind_obj);
+                                                                }}
+                                                            >
+                                                                hapus
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    geserAtas(ind_obj);
+                                                                }}
+                                                            >
+                                                                <i className="material-icons m-0">
+                                                                    expand_less
+                                                                </i>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    geserBawah(ind_obj);
+                                                                }}
+                                                            >
+                                                                <i className="material-icons m-0">
+                                                                    expand_more
+                                                                </i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                );
+                                            } else if (obj_div.tag == "img") {
+                                                return (
+                                                    <div className="py-3" key={ind_obj}>
+                                                        <div
+                                                            className="container"
+                                                        >
+                                                            <input
+                                                                type="text"
+                                                                name={"tag" + (ind_obj + 1)}
+                                                                value={obj_div.tag}
+                                                                onChange={(e) => {
+                                                                    handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                                                }}
+                                                            />
+                                                            <input
+                                                                type="file"
+                                                                name={"file" + (ind_obj + 1)}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                name={"style" + (ind_obj + 1)}
+                                                                placeholder="style"
+                                                                value={obj_div.style}
+                                                                onChange={(e) => {
+                                                                    handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                                                }}
+                                                            />
+                                                            <div className="d-flex gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        hapusIsi(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    hapus
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        geserAtas(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    <i className="material-icons m-0">
+                                                                        expand_less
+                                                                    </i>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        geserBawah(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    <i className="material-icons m-0">
+                                                                        expand_more
+                                                                    </i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (obj_div.tag == "space") {
+                                                return (
+                                                    <div className="py-3" key={ind_obj}>
+                                                        <div
+                                                            className="container"
+                                                        >
+                                                            <input
+                                                                type="text"
+                                                                name={"tag" + (ind_obj + 1)}
+                                                                value={obj_div.tag}
+                                                                onChange={(e) => {
+                                                                    handleChangeInputIsi(e.target.value, 'tag', ind_obj)
+                                                                }}
+                                                            />
+                                                            <div className="d-flex gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        hapusIsi(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    hapus
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        geserAtas(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    <i className="material-icons m-0">
+                                                                        expand_less
+                                                                    </i>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        geserBawah(ind_obj);
+                                                                    }}
+                                                                >
+                                                                    <i className="material-icons m-0">
+                                                                        expand_more
+                                                                    </i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                        })}
+                                    </div>
+                                    <hr />
+                                    <div className="d-flex gap-2 border-top py-3">
+                                        <select id="select-tag" value={selectTag} onChange={(e)=>{setSelectTag(e.target.value)}}>
+                                            <option value="">
+                                                -- pilih tag --
+                                            </option>
+                                            <option value="h2">h2</option>
+                                            <option value="h4">h3</option>
+                                            <option value="p">p</option>
+                                            <option value="a">a</option>
+                                            <option value="space">space</option>
+                                        </select>
+                                        <button type="button" onClick={()=>{tambahIsi(ind_obj)}}>
+                                            Tambahkan
+                                        </button>
+                                    </div>
+                                    <div className="d-flex gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                hapusIsi(ind_obj);
+                                            }}
+                                        >
+                                            hapus
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserAtas(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_less
+                                            </i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                geserBawah(ind_obj);
+                                            }}
+                                        >
+                                            <i className="material-icons m-0">
+                                                expand_more
+                                            </i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
+                })}
+            </div>
+            <hr />
+            <div className="container">
+                <div className="d-flex gap-2 border-top py-3">
+                    <select id="select-tag" value={selectTag} onChange={(e)=>{setSelectTag(e.target.value)}}>
+                        <option value="">
+                            -- pilih tag --
+                        </option>
+                        <option value="h2">h2</option>
+                        <option value="h4">h3</option>
+                        <option value="p">p</option>
+                        {/* <option value="img">img</option> */}
+                        <option value="a">a</option>
+                        <option value="space">space</option>
+                        <option value="div">div</option>
+                    </select>
+                    <button type="button" onClick={tambahIsi}>
+                        Tambahkan
+                    </button>
+                </div>
+                <div className="d-flex justify-content-center mt-3">
+                    <button className="btn btn-primary1" type="submit">
+                        Simpan
+                    </button>
+                </div>
+                <input
+                    type="text"
+                    className="d-none"
+                    name="arrCounter"
+                    value={arrCounterElm}
+                    onChange={(e) => {
+                        console.log(e.target.value);
+                    }}
+                />
+            </div>
+
+            
+
+            </>
+        );
+    };
+
+    ReactDOM.render(<App />, document.getElementById("container-react"));
 </script>
 <?= $this->endSection(); ?>

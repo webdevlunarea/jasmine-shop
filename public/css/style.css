@@ -129,10 +129,10 @@ a {
     display: grid;
     gap: 1em;
     /* flex-wrap: wrap; */
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
 }
 .card-group1.no-scroll:not(:has(a:nth-child(4))) {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 170px));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 190px));
 }
 
 .list-group-item a.list {
@@ -184,23 +184,30 @@ a {
 }
 .card1 > div {
     margin-top: 1rem;
+    width: 100%;
 }
 .card1 .diskon-coret {
     font-size: small;
 }
 .card1 .container-varian {
+    width: 100%;
+    overflow-x: auto;
+}
+.card1 .container-varian > div {
     display: flex;
-    /* overflow-x: auto; */
+    flex-wrap: nowrap;
+    gap: 0.3em;
 }
 .card1 .varian {
     background-color: var(--bck);
     border-radius: 1em;
     display: block;
-    min-width: min-content;
+    width: fit-content;
     padding: 2px 10px;
     font-weight: bold;
     font-size: small;
     /* flex: 1 1 auto; */
+    text-wrap: nowrap;
 }
 .card1:hover div:has(.harga) {
     transform: translateX(10px);
@@ -418,12 +425,11 @@ a {
     border-radius: 0.7em;
 }
 .img-produk .img-produk-prev {
-    width: 550px;
+    width: 100%;
     /* height: 400px; */
     aspect-ratio: 1/1;
     border-radius: 0.7em;
-    margin-bottom: 0.5em;
-    margin-inline: auto;
+    margin: 0;
     background-size: cover;
 }
 @media (min-width: 1200px) {
@@ -462,6 +468,32 @@ a {
 .img-produk .img-produk-select.selected {
     border: 1px solid var(--hijau);
 }
+
+.img-produk-besar {
+    width: 100%;
+    overflow-x: auto;
+    height: 40svh;
+    display: flex;
+    gap: 0.7em;
+    scroll-snap-type: x mandatory;
+}
+.img-produk-besar::-webkit-scrollbar {
+    display: none;
+}
+.img-produk-besar section {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    scroll-snap-align: center;
+}
+.img-produk-besar .img-produk-prev-baru {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 0.7em;
+    margin: 0;
+    background-size: cover;
+}
+
 .table-input .baris {
     padding: 0.3em 0 0.3em 2em;
 }

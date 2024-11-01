@@ -11,9 +11,9 @@
                 <li class="breadcrumb-item active"><a><?= $produk['nama']; ?></a></li>
             </ol>
         </nav>
-        <div>
+        <div class="baris-ke-kolom">
             <?php if (isset($gambar)) { ?>
-                <div class="img-produk">
+                <div class="img-produk limapuluh-ke-seratus">
                     <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
                         <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')"></figure>
@@ -32,60 +32,22 @@
                     </div>
                 </div>
             <?php } ?>
-            <div class="img-produk-besar">
-                <section id="img-produk-prev-1" class="show-ke-hide">
-                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                    <figure class="img-produk-prev-baru" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
+            <div class="img-produk limapuluh-ke-seratus">
+                <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
+                    <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                    <figure class="img-produk-prev" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
                 </section>
-                <script>
-                    const imgProdukPrev1 = document.getElementById('img-produk-prev-1');
-                    imgProdukPrev1.addEventListener('mousemove', (e) => {
-                        const figureElm = imgProdukPrev1.children[1]
-                        figureElm.style.backgroundSize = "auto"
-                        const widthGambar = e.target.offsetWidth;
-                        const gmbrPosition = [
-                            (e.offsetX / widthGambar) * 100,
-                            (e.offsetY / widthGambar) * 100,
-                        ];
-                        figureElm.style.backgroundPosition =
-                            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                    })
-                    imgProdukPrev1.addEventListener('mouseleave', (e) => {
-                        const figureElm = imgProdukPrev1.children[1]
-                        figureElm.style.backgroundSize = "cover"
-                    })
-                </script>
-                <section id="img-produk-prev-2" class="show-ke-hide">
+                <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="hide-ke-show-block">
                     <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                    <figure class="img-produk-prev-baru" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
+                    <img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="<?= $produk['nama']; ?>" class="img-produk-prev">
                 </section>
-                <script>
-                    const imgProdukPrev2 = document.getElementById('img-produk-prev-2');
-                    imgProdukPrev2.addEventListener('mousemove', (e) => {
-                        const figureElm = imgProdukPrev2.children[1]
-                        figureElm.style.backgroundSize = "auto"
-                        const widthGambar = e.target.offsetWidth;
-                        const gmbrPosition = [
-                            (e.offsetX / widthGambar) * 100,
-                            (e.offsetY / widthGambar) * 100,
-                        ];
-                        figureElm.style.backgroundPosition =
-                            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                    })
-                    imgProdukPrev2.addEventListener('mouseleave', (e) => {
-                        const figureElm = imgProdukPrev2.children[1]
-                        figureElm.style.backgroundSize = "cover"
-                    })
-                </script>
-            </div>
-            <div class="img-produk mb-3">
-                <div class="mt-2">
+                <div>
                     <div class="img-produk-select selected"><img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="<?= $produk['nama']; ?>"></div>
                     <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Dalam.webp" alt="<?= $produk['nama']; ?>"></div>
                     <div class="img-produk-select"><img src="/img/Contoh/MB 812 PTH-SNM Depan.webp" alt="<?= $produk['nama']; ?>"></div>
                 </div>
             </div>
-            <div>
+            <div class="limapuluh-ke-seratus">
                 <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">
                         <?= $msg; ?>
@@ -256,7 +218,7 @@
     const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
-    // const figureElm = document.querySelector("figure");
+    const figureElm = document.querySelector("figure");
     const stokElm = document.getElementById('stok');
     const stokValue = '<?= $stok; ?>'.split(",");
 
@@ -301,6 +263,23 @@
         stokElm.innerHTML = 'Stok : ' + stokValue[Number(e.target.value)]
         setUrlElmBeli(Number(stokValue[Number(e.target.value)]))
     });
+
+    function zoom(e) {
+        figureElm.style.backgroundSize = "auto"
+        const widthGambar = e.target.offsetWidth;
+        const gmbrPosition = [
+            (e.offsetX / widthGambar) * 100,
+            (e.offsetY / widthGambar) * 100,
+        ];
+        // console.log("X: " + (e.offsetX / widthGambar) * 100);
+        // console.log("Y: " + (e.offsetY / widthGambar) * 100);
+        figureElm.style.backgroundPosition =
+            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
+    }
+
+    function mouseoff(e) {
+        figureElm.style.backgroundSize = "cover"
+    }
 
     function setUrlElmBeli(stok) {
         let elmSelected;

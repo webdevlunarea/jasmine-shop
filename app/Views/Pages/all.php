@@ -124,10 +124,12 @@
                         </div>
                         <div>
                             <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                            <div class="container-varian">
-                                <?php foreach (json_decode($p['varian'], true) as $v) { ?>
-                                    <p class="mb-0 varian"><?= $v ?></p>
-                                <?php } ?>
+                            <div class="container-varian my-2 pb-1">
+                                <div>
+                                    <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                                        <p class="mb-0 varian"><?= $v ?></p>
+                                    <?php } ?>
+                                </div>
                             </div>
                             <?php if ($p['diskon']) { ?>
                                 <span class="d-flex gap-1 align-items-center">
