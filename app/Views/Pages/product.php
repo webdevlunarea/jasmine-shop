@@ -13,7 +13,7 @@
         </nav>
         <div>
             <?php if (isset($gambar)) { ?>
-                <div class="img-produk">
+                <!-- <div class="img-produk">
                     <section style="position: relative; width: 100%; aspect-ratio: 1 / 1;" class="show-ke-hide">
                         <img onmousemove="zoom(event)" onmouseleave="mouseoff(event)" src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev" style="background-image: url('data:image/webp;base64,<?= base64_encode($gambar['gambar1']); ?>')"></figure>
@@ -30,54 +30,58 @@
                         <?php }
                         } ?>
                     </div>
+                </div> -->
+                <div class="img-produk-besar">
+                    <?php foreach ($gambar as $ind_g => $g) {
+                        if ($value && $key != 'id') { ?>
+                            <section id="img-produk-prev-<?= $ind_g + 1 ?>" class="show-ke-hide">
+                                <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                                <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
+                            </section>
+                            <script>
+                                const imgProdukPrev1 = document.getElementById('img-produk-prev-1');
+                                imgProdukPrev1.addEventListener('mousemove', (e) => {
+                                    const figureElm = imgProdukPrev1.children[1]
+                                    figureElm.style.backgroundSize = "auto"
+                                    const widthGambar = e.target.offsetWidth;
+                                    const gmbrPosition = [
+                                        (e.offsetX / widthGambar) * 100,
+                                        (e.offsetY / widthGambar) * 100,
+                                    ];
+                                    figureElm.style.backgroundPosition =
+                                        gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
+                                })
+                                imgProdukPrev1.addEventListener('mouseleave', (e) => {
+                                    const figureElm = imgProdukPrev1.children[1]
+                                    figureElm.style.backgroundSize = "cover"
+                                })
+                            </script>
+                    <?php }
+                    } ?>
+                    <!-- <section id="img-produk-prev-2" class="show-ke-hide">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
+                    </section>
+                    <script>
+                        const imgProdukPrev2 = document.getElementById('img-produk-prev-2');
+                        imgProdukPrev2.addEventListener('mousemove', (e) => {
+                            const figureElm = imgProdukPrev2.children[1]
+                            figureElm.style.backgroundSize = "auto"
+                            const widthGambar = e.target.offsetWidth;
+                            const gmbrPosition = [
+                                (e.offsetX / widthGambar) * 100,
+                                (e.offsetY / widthGambar) * 100,
+                            ];
+                            figureElm.style.backgroundPosition =
+                                gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
+                        })
+                        imgProdukPrev2.addEventListener('mouseleave', (e) => {
+                            const figureElm = imgProdukPrev2.children[1]
+                            figureElm.style.backgroundSize = "cover"
+                        })
+                    </script> -->
                 </div>
             <?php } ?>
-            <div class="img-produk-besar">
-                <section id="img-produk-prev-1" class="show-ke-hide">
-                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                    <figure class="img-produk-prev-baru" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
-                </section>
-                <script>
-                    const imgProdukPrev1 = document.getElementById('img-produk-prev-1');
-                    imgProdukPrev1.addEventListener('mousemove', (e) => {
-                        const figureElm = imgProdukPrev1.children[1]
-                        figureElm.style.backgroundSize = "auto"
-                        const widthGambar = e.target.offsetWidth;
-                        const gmbrPosition = [
-                            (e.offsetX / widthGambar) * 100,
-                            (e.offsetY / widthGambar) * 100,
-                        ];
-                        figureElm.style.backgroundPosition =
-                            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                    })
-                    imgProdukPrev1.addEventListener('mouseleave', (e) => {
-                        const figureElm = imgProdukPrev1.children[1]
-                        figureElm.style.backgroundSize = "cover"
-                    })
-                </script>
-                <section id="img-produk-prev-2" class="show-ke-hide">
-                    <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                    <figure class="img-produk-prev-baru" style="background-image: url('/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp')"></figure>
-                </section>
-                <script>
-                    const imgProdukPrev2 = document.getElementById('img-produk-prev-2');
-                    imgProdukPrev2.addEventListener('mousemove', (e) => {
-                        const figureElm = imgProdukPrev2.children[1]
-                        figureElm.style.backgroundSize = "auto"
-                        const widthGambar = e.target.offsetWidth;
-                        const gmbrPosition = [
-                            (e.offsetX / widthGambar) * 100,
-                            (e.offsetY / widthGambar) * 100,
-                        ];
-                        figureElm.style.backgroundPosition =
-                            gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                    })
-                    imgProdukPrev2.addEventListener('mouseleave', (e) => {
-                        const figureElm = imgProdukPrev2.children[1]
-                        figureElm.style.backgroundSize = "cover"
-                    })
-                </script>
-            </div>
             <div class="img-produk mb-3">
                 <div class="mt-2">
                     <div class="img-produk-select selected"><img src="/img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp" alt="<?= $produk['nama']; ?>"></div>
