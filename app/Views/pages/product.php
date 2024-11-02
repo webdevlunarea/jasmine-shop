@@ -14,15 +14,15 @@
         <div>
             <div class="img-produk-besar">
                 <?php foreach ($gambar as $ind_g => $g) {
-                    if ($value && $key != 'id') { ?>
-                        <section id="img-produk-prev-<?= $ind_g + 1 ?>" class="show-ke-hide">
+                    if ($ind_g != 'id') { ?>
+                        <section id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>" class="show-ke-hide">
                             <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                             <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
                         </section>
                         <script>
-                            const imgProdukPrev1 = document.getElementById('img-produk-prev-1');
-                            imgProdukPrev1.addEventListener('mousemove', (e) => {
-                                const figureElm = imgProdukPrev1.children[1]
+                            const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
+                            imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mousemove', (e) => {
+                                const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
                                 figureElm.style.backgroundSize = "auto"
                                 const widthGambar = e.target.offsetWidth;
                                 const gmbrPosition = [
@@ -32,8 +32,8 @@
                                 figureElm.style.backgroundPosition =
                                     gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
                             })
-                            imgProdukPrev1.addEventListener('mouseleave', (e) => {
-                                const figureElm = imgProdukPrev1.children[1]
+                            imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mouseleave', (e) => {
+                                const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
                                 figureElm.style.backgroundSize = "cover"
                             })
                         </script>
@@ -42,9 +42,11 @@
             </div>
             <div class="img-produk mb-3">
                 <div class="mt-2">
-                    <?php foreach ($gambar as $ind_g => $g) { ?>
-                        <div class="img-produk-select <?= $ind_g == 0 ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
-                    <?php } ?>
+                    <?php foreach ($gambar as $ind_g => $g) {
+                        if ($ind_g != 'id') { ?>
+                            <div class="img-produk-select <?= $ind_g == 'id' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
+                    <?php }
+                    } ?>
                 </div>
             </div>
             <div>
