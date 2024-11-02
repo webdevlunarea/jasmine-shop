@@ -3922,7 +3922,7 @@ class Pages extends BaseController
         $produk = $this->barangModel->getBarangNama($nama);
         if (!$produk) return redirect()->to('/all');
         $produksekategori = $this->barangModel->where(['active' => '1', 'subkategori' => $produk['subkategori']])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
-        // $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
+        $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
         $dimensi = explode("X", $produk['dimensi']);
 
@@ -3939,7 +3939,7 @@ class Pages extends BaseController
         $data = [
             'title' => $produk['nama'],
             'produk' => $produk,
-            // 'gambar' => $gambarnya,
+            'gambar' => $gambarnya,
             'varian' => $varian,
             'dimensi' => $dimensi,
             'produksekategori' => $produksekategori,
