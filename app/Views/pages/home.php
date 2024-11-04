@@ -67,48 +67,52 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="/img/logokategori/Lemari_Dewasa.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemnari dewasa" width="50px">
                     <p>Lemari Dewasa</p>
                 </a>
                 <a class="kategori" href="/all/lemari-anak">
-                    <img src="/img/logokategori/Lemari_Anak.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Lemari_Anak.webp" alt="lemari anak" width="50px">
                     <p>Lemari Anak</p>
                 </a>
-                <!-- <a class="kategori" href="/all/lemari-serbaguna">
-                    <img src="/img/logokategori/Lemari_Hias.webp" alt="" width="50px">
-                    <p>Lemari Serbaguna</p>
-                </a> -->
+                <!--<a class="kategori" href="/all/lemari-hias">-->
+                <!--    <img src="/img/logokategori/Lemari_Hias.webp" alt="lemari hias" width="50px">-->
+                <!--    <p>Lemari Hias</p>-->
+                <!--</a>-->
                 <a class="kategori" href="/all/meja-rias">
                     <img src="/img/logokategori/Meja_Rias.webp" alt="" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <a class="kategori" href="/all/meja-belajar">
-                    <img src="/img/logokategori/Meja_Belajar.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Belajar.webp" alt="meja belajar" width="50px">
                     <p>Meja Belajar</p>
                 </a>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="/img/logokategori/Meja_TV.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_TV.webp" alt="meja tv" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="/img/logokategori/Meja_Tulis.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Tulis.webp" alt="meja tulis" width="50px">
                     <p>Meja Tulis</p>
                 </a>
                 <a class="kategori" href="/all/meja-komputer">
-                    <img src="/img/logokategori/Meja_Komputer.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Meja_Komputer.webp" alt="meja kompuiter" width="50px">
                     <p>Meja Komputer</p>
                 </a>
                 <a class="kategori" href="/all/rak-sepatu">
-                    <img src="/img/logokategori/Rak_Sepatu.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Sepatu.webp" alt="rak sepatu" width="50px">
                     <p>Rak Sepatu</p>
                 </a>
                 <a class="kategori" href="/all/rak-besi">
-                    <img src="/img/logokategori/Rak_Besi.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Besi.webp" alt="rak besi" width="50px">
                     <p>Rak Besi</p>
                 </a>
                 <a class="kategori" href="/all/rak-serbaguna">
-                    <img src="/img/logokategori/Rak_Serbaguna.webp" alt="" width="50px">
+                    <img src="/img/logokategori/Rak_Serbaguna.webp" alt="rak serbaguna" width="50px">
                     <p>Rak Serbaguna</p>
+                </a>
+                <a class="kategori" href="/all/kursi">
+                    <img src="/img/logokategori/Kursi.webp" alt="kursi" width="50px">
+                    <p>Kursi</p>
                 </a>
             </div>
         </div>
@@ -131,9 +135,13 @@
                     </div>
                     <div>
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                        <?php foreach (json_decode($p['varian'], true) as $v) { ?>
-                            <p class="mb-0 varian"><?= $v ?></p>
-                        <?php } ?>
+                        <div class="container-varian my-2 pb-1">
+                            <div>
+                                <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                                    <p class="mb-0 varian"><?= $v ?></p>
+                                <?php } ?>
+                            </div>
+                        </div>
                         <!-- <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p> -->
                         <?php if ($p['diskon']) { ?>
                             <span class="d-flex gap-1 align-items-center">
