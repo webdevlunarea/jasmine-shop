@@ -130,8 +130,8 @@
                                     <li>Jika dirasa masih kesulitan untuk merakit dengan bantuan petunjuk perakitan, customer dapat melihat tutorial di Youtube Lunarea Furniture sesuai dengan nama produk yang dibeli atau menghubungi customer service untuk langkah lebih lanjut.</li>
                                     <li>Pengiriman produk akan diproses 1 hari setelah pembayaran selesai. Jika bertepatan pada hari libur nasional atau libur lebaran, pengiriman diproses pada hari pertama setelah agenda libur yang tertulis.</li>
                                     <li>Pengiriman produk menuju alamat tujuan menggunakan jasa dari mitra ekspedisi terpercaya</li>
-                                    <li>Gratis ongkir berlaku untuk wilayah Jawa, Madura & Bali</li>
-                                    <li>Untuk alamat tujuan yang berada di luar Jawa, Madura & Bali akan mendapatkan Subsidi Ongkir.</li>
+                                    <li><b>Gratis ongkir</b> berlaku untuk wilayah Jawa, Madura & Bali</li>
+                                    <li>Untuk alamat tujuan yang berada di luar Jawa, Madura & Bali akan mendapatkan <b>Subsidi Ongkir</b>.</li>
                                     <li>Toleransi kemiripan warna produk 85% karena adanya pengaruh pencahayaan pada resolusi layar masing-masing.</li>
                                 </ol>
                             </div>
