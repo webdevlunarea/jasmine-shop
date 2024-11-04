@@ -14,7 +14,7 @@
         <div>
             <div class="img-produk-besar">
                 <?php foreach ($gambar as $ind_g => $g) {
-                    if ($ind_g != 'id') { ?>
+                    if ($g && $ind_g != 'id') { ?>
                         <section id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>" class="show-ke-hide">
                             <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                             <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
@@ -43,7 +43,7 @@
             <div class="img-produk mb-3">
                 <div class="mt-2">
                     <?php foreach ($gambar as $ind_g => $g) {
-                        if ($ind_g != 'id') { ?>
+                        if ($g && $ind_g != 'id') { ?>
                             <div class="img-produk-select <?= $ind_g == 'id' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
                     <?php }
                     } ?>
