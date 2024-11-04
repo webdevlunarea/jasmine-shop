@@ -112,6 +112,54 @@
                 <!-- <h5>Deskripsi</h5> -->
                 <!-- <hr> -->
                 <p><?= $produk['deskripsi']; ?></p>
+                <hr class="m-0">
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold px-3 pt-3 pb-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse2" aria-expanded="false" aria-controls="flush-collapse2">
+                                HARAP DIPERHATIKAN
+                            </button>
+                        </h2>
+                        <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ol>
+                                    <li>Produk dikirim dalam keadaan <b>BELUM DIRAKIT</b>. Perakitan dilakukan oleh customer.</li>
+                                    <li>Apabila produk yang dipesan sudah sampai di alamat tujuan, periksa dan pastikan secara menyeluruh bahwa nama, warna, dan kode produk sesuai dengan pemesanan.</li>
+                                    <li>Setelah memastikan produk telah sesuai, silahkan buka produk pesanan. Diwajibkan untuk merekam video saat unboxing produk sebagai antisipasi apabila terjadi kerusakan/kecacatan/item dalam produk yang kurang sesuai dapat dijadikan sebagai barang bukti komplain kepada customer service Kami.</li>
+                                    <li>Petunjuk perakitan ada di dalam kardus dalam bentuk selembar kertas.</li>
+                                    <li>Jika dirasa masih kesulitan untuk merakit dengan bantuan petunjuk perakitan, customer dapat melihat tutorial di Youtube Lunarea Furniture sesuai dengan nama produk yang dibeli atau menghubungi customer service untuk langkah lebih lanjut.</li>
+                                    <li>Pengiriman produk akan diproses 1 hari setelah pembayaran selesai. Jika bertepatan pada hari libur nasional atau libur lebaran, pengiriman diproses pada hari pertama setelah agenda libur yang tertulis.</li>
+                                    <li>Pengiriman produk menuju alamat tujuan menggunakan jasa dari mitra ekspedisi terpercaya</li>
+                                    <li>Gratis ongkir berlaku untuk wilayah Jawa, Madura & Bali</li>
+                                    <li>Untuk alamat tujuan yang berada di luar Jawa, Madura & Bali akan mendapatkan Subsidi Ongkir.</li>
+                                    <li>Toleransi kemiripan warna produk 85% karena adanya pengaruh pencahayaan pada resolusi layar masing-masing.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="m-0">
+                <div class="accordion accordion-flush" id="accordionFlushExample1">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold px-3 pt-3 pb-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse" aria-expanded="false" aria-controls="flush-collapse">
+                                SYARAT & KETENTUAN KOMPLAIN
+                            </button>
+                        </h2>
+                        <div id="flush-collapse" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample1">
+                            <div class="accordion-body">
+                                <ol>
+                                    <li>Wajib menyertakan video unboxing dan foto bagian nomer produksi (misal: MBMR 168, AO42)</li>
+                                    <li>Apabila terdapat kerusakan komponen akibat pengiriman, segera hubungi customer service Kami agar dapat segera diproses penggantian komponen tersebut. Estimasi pengiriman komponen pengganti ini memerlukan waktu kurang lebih 14 hari kerja.</li>
+                                    <li>Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak, agar kami dapat segera menggantinya dengan aksesoris yang baru. </li>
+                                    <li>Sebagai informasi, untuk proses pengiriman ulang komponen memerlukan waktu selambat-lambatnya 14 hari kerja untuk komponen dan 7 hari kerja untuk aksesoris.</li>
+                                    <li>Batas waktu komplain maksimal 7 hari kerja setelah produk diterima.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="m-0 mb-4">
                 <div class="show-flex-ke-hide gap-1">
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
