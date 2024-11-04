@@ -12,43 +12,60 @@
             </ol>
         </nav>
         <div>
-            <div class="img-produk-besar">
-                <?php foreach ($gambar as $ind_g => $g) {
-                    if ($g && $ind_g != 'id') { ?>
-                        <section id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>" class="show-ke-hide">
-                            <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                            <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
-                        </section>
-                        <script>
-                            const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
-                            imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mousemove', (e) => {
-                                const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
-                                figureElm.style.backgroundSize = "auto"
-                                const widthGambar = e.target.offsetWidth;
-                                const gmbrPosition = [
-                                    (e.offsetX / widthGambar) * 100,
-                                    (e.offsetY / widthGambar) * 100,
-                                ];
-                                figureElm.style.backgroundPosition =
-                                    gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                            })
-                            imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mouseleave', (e) => {
-                                const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
-                                figureElm.style.backgroundSize = "cover"
-                            })
-                        </script>
-                <?php }
-                } ?>
-            </div>
-            <div class="img-produk mb-3">
-                <div class="mt-2">
+            <?php if (isset($gambar)) { ?>
+                <div class="img-produk-besar">
                     <?php foreach ($gambar as $ind_g => $g) {
                         if ($g && $ind_g != 'id') { ?>
-                            <div class="img-produk-select <?= $ind_g == 'id' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
+                            <section id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
+                                <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                                <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
+                            </section>
+                            <script>
+                                const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
+                                imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mousemove', (e) => {
+                                    const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
+                                    figureElm.style.backgroundSize = "auto"
+                                    const widthGambar = e.target.offsetWidth;
+                                    const gmbrPosition = [
+                                        (e.offsetX / widthGambar) * 100,
+                                        (e.offsetY / widthGambar) * 100,
+                                    ];
+                                    figureElm.style.backgroundPosition =
+                                        gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
+                                })
+                                imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mouseleave', (e) => {
+                                    const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
+                                    figureElm.style.backgroundSize = "cover"
+                                })
+                            </script>
                     <?php }
                     } ?>
                 </div>
-            </div>
+                <div class="img-produk mb-3">
+                    <div class="mt-2">
+                        <?php foreach ($gambar as $ind_g => $g) {
+                            if ($g && $ind_g != 'id') { ?>
+                                <div class="img-produk-select <?= $ind_g == 'id' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
+                        <?php }
+                        } ?>
+                    </div>
+                </div>
+            <?php } else { ?>
+                <div class="img-produk-besar">
+                    <section id="img-produk-prev">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
+                    </section>
+                    <section id="img-produk-prev">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
+                    </section>
+                    <section id="img-produk-prev">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
+                    </section>
+                </div>
+            <?php } ?>
             <div>
                 <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">

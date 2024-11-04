@@ -494,6 +494,15 @@ a {
     background-size: cover;
 }
 
+@media (max-width: 600px) {
+    .img-produk-besar {
+        height: 100%;
+    }
+    .img-produk-besar section {
+        height: calc(100vw - 29px);
+    }
+}
+
 .table-input .baris {
     padding: 0.3em 0 0.3em 2em;
 }
