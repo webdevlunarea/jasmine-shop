@@ -85,7 +85,7 @@
                 <?php } else { ?>
                     <p class="mb-0 harga">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
                 <?php } ?>
-                <p class="mb-0">★★★☆☆ (<?= $produk['rate']; ?>)</p>
+                <!-- <p class="mb-0">★★★☆☆ (<?= $produk['rate']; ?>)</p> -->
                 <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
                     <p id="stok" class="fw-bold <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
                         <?= explode(",", $produk['stok'])[0]; ?></p>
