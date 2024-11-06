@@ -4296,7 +4296,8 @@ class Pages extends BaseController
             'tokped'        => $this->request->getVar('tokped'),
             'tiktok'        => $this->request->getVar('tiktok'),
             'youtube'       => $this->request->getVar('youtube'),
-            'active'        => '1'
+            'active'        => '1',
+            'deskripsi_nonhtml'     => $this->request->getVar('deskripsi_nonhtml'),
         ]);
         $this->gambarBarangModel->insert($insertGambarBarang);
 

@@ -112,6 +112,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Deskripsi Nonhtml</td>
+                                <td>
+                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi_nonhtml" required></textarea></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Pencarian</td>
                                 <td>
                                     <div class="baris"><input type="text" class="form-control" name="pencarian" required>
