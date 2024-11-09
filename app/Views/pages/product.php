@@ -64,6 +64,23 @@
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
                     </section>
+                    <section id="img-produk-prev">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
+                    </section>
+                    <section id="img-produk-prev">
+                        <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
+                    </section>
+                </div>
+                <div class="img-produk mb-3">
+                    <div class="mt-2">
+                        <div class="img-produk-select selected"><img src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="apa=lah"></div>
+                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="apa=lah"></div>
+                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="apa=lah"></div>
+                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="apa=lah"></div>
+                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="apa=lah"></div>
+                    </div>
                 </div>
             <?php } ?>
             <div>
@@ -278,16 +295,22 @@
 <script>
     const elmVarianSelect = document.querySelectorAll(".btn-check")
     const imgProdukSelect = document.querySelectorAll(".img-produk-select")
-    const imgProdukPrev = document.querySelector(".img-produk-prev")
-    const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
+    const imgProdukBesar = document.querySelector(".img-produk-besar")
+    // const imgProdukPrev = document.querySelector(".img-produk-prev")
+    // const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
     const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
-    const jmlVarian = "<?= $produk['jml_varian'] ?>";
+    const jmlVarian = "4";
+    // const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
     // const figureElm = document.querySelector("figure");
     const stokElm = document.getElementById('stok');
     const stokValue = '<?= $stok; ?>'.split(",");
+
+    imgProdukBesar.onscroll = (e) => {
+        console.log("scrollLeft: " + imgProdukBesar.scrollLeft)
+    }
 
     if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
@@ -295,8 +318,8 @@
                 console.log(index, jmlVarian);
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
                 element.classList.add("selected");
-                imgProdukPrev.style = "background-image: url('" + element.childNodes[0].src + "')";
-                imgProdukPrevImg.src = element.childNodes[0].src;
+                // imgProdukPrev.style = "background-image: url('" + element.childNodes[0].src + "')";
+                // imgProdukPrevImg.src = element.childNodes[0].src;
                 // const hitungBagi4 = Math.floor(index / Number(jmlVarian));
                 elmVarianSelect.forEach(e => e.checked = false);
                 if (index >= Number(jmlVarian)) {
@@ -312,20 +335,64 @@
                     stokElm.innerHTML = 'Stok : ' + stokValue[0];
                     setUrlElmBeli(Number(stokValue[0]))
                 }
+
+                if (window.innerWidth <= 600) {
+                    //scroll
+                    let position = Math.floor(
+                        imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth
+                    );
+                    let direction = index - position;
+                    console.log("position: " + position)
+                    console.log("scrollLeft: " + imgProdukBesar.scrollLeft)
+                    console.log("clientWidth: " + imgProdukBesar.clientWidth)
+                    console.log("direction: " + direction)
+                    const scrollAmount = imgProdukBesar.clientWidth * direction;
+                    imgProdukBesar.scrollBy({
+                        left: scrollAmount,
+                        behavior: "smooth",
+                    });
+                } else {
+                    const targetPosition = imgProdukBesar.children[index].offsetLeft;
+                    imgProdukBesar.scrollTo({
+                        left: targetPosition,
+                        behavior: "smooth",
+                    });
+                }
             })
         });
     }
     elmVarian.addEventListener("change", (e) => {
         imgProdukSelect.forEach(e => e.classList.remove("selected"));
+        let indexGambar = 0;
         if (e.target.value == '0') {
             imgProdukSelect[0].classList.add("selected")
-            imgProdukPrev.style = "background-image: url('" + imgProdukSelect[0].childNodes[0].src + "')"
-            imgProdukPrevImg.src = imgProdukSelect[0].childNodes[0].src
+            // imgProdukPrev.style = "background-image: url('" + imgProdukSelect[0].childNodes[0].src + "')"
+            // imgProdukPrevImg.src = imgProdukSelect[0].childNodes[0].src
 
         } else {
+            indexGambar = Number(e.target.value) + Number(jmlVarian) - 1
             imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].classList.add("selected")
-            imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src + "')"
-            imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src
+            // imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src + "')"
+            // imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src
+        }
+
+        //scroll
+        if (window.innerWidth <= 600) {
+            let position = Math.floor(
+                imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth
+            );
+            let direction = indexGambar - position;
+            const scrollAmount = imgProdukBesar.clientWidth * direction;
+            imgProdukBesar.scrollBy({
+                left: scrollAmount,
+                behavior: "smooth",
+            });
+        } else {
+            const targetPosition = imgProdukBesar.children[indexGambar].offsetLeft;
+            imgProdukBesar.scrollTo({
+                left: targetPosition,
+                behavior: "smooth",
+            });
         }
         stokElm.innerHTML = 'Stok : ' + stokValue[Number(e.target.value)]
         setUrlElmBeli(Number(stokValue[Number(e.target.value)]))

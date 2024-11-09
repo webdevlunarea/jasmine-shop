@@ -484,7 +484,7 @@ a {
     position: relative;
     height: 100%;
     aspect-ratio: 1 / 1;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
 }
 .img-produk-besar .img-produk-prev-baru {
     width: 100%;
