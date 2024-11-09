@@ -296,7 +296,7 @@
     const elmVarianSelect = document.querySelectorAll(".btn-check")
     const imgProdukSelect = document.querySelectorAll(".img-produk-select")
     const imgProdukBesar = document.querySelector(".img-produk-besar")
-    // const imgProdukPrev = document.querySelector(".img-produk-prev")
+    const imgProdukPrev = document.querySelectorAll(".img-produk-prev")
     // const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
@@ -352,7 +352,7 @@
                         behavior: "smooth",
                     });
                 } else {
-                    const targetPosition = imgProdukBesar.children[index].offsetLeft;
+                    const targetPosition = imgProdukPrev[index].offsetLeft;
                     imgProdukBesar.scrollTo({
                         left: targetPosition,
                         behavior: "smooth",
@@ -388,7 +388,7 @@
                 behavior: "smooth",
             });
         } else {
-            const targetPosition = imgProdukBesar.children[indexGambar].offsetLeft;
+            const targetPosition = imgProdukPrev[indexGambar].offsetLeft;
             imgProdukBesar.scrollTo({
                 left: targetPosition,
                 behavior: "smooth",
