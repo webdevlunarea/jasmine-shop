@@ -353,6 +353,7 @@
                     });
                 } else {
                     const targetPosition = imgProdukPrev[index].offsetLeft;
+                    console.log("target position: " + targetPosition)
                     imgProdukBesar.scrollTo({
                         left: targetPosition,
                         behavior: "smooth",
