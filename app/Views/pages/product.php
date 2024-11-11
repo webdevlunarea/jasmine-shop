@@ -52,23 +52,23 @@
                 </div>
             <?php } else { ?>
                 <div class="img-produk-besar">
-                    <section id="img-produk-prev">
+                    <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
                     </section>
-                    <section id="img-produk-prev">
+                    <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
                     </section>
-                    <section id="img-produk-prev">
+                    <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
                     </section>
-                    <section id="img-produk-prev">
+                    <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
                     </section>
-                    <section id="img-produk-prev">
+                    <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
                         <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
                     </section>
@@ -352,12 +352,14 @@
                         behavior: "smooth",
                     });
                 } else {
-                    const targetPosition = imgProdukPrev[index].offsetLeft;
+                    const targetPosition = imgProdukPrev[index].clientWidth * index;
+                    console.log(imgProdukPrev[index].le)
                     console.log("target position: " + targetPosition)
                     imgProdukBesar.scrollTo({
                         left: targetPosition,
                         behavior: "smooth",
                     });
+                    console.log("scrollLeft after set: " + imgProdukBesar.scrollLeft)
                 }
             })
         });
@@ -389,7 +391,7 @@
                 behavior: "smooth",
             });
         } else {
-            const targetPosition = imgProdukPrev[indexGambar].offsetLeft;
+            const targetPosition = imgProdukPrev[indexGambar].clientWidth * indexGambar;
             imgProdukBesar.scrollTo({
                 left: targetPosition,
                 behavior: "smooth",
