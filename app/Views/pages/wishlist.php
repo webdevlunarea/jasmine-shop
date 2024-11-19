@@ -13,7 +13,7 @@
                 <?php foreach ($produk as $p) { ?>
                     <a class="card1" href="/product/<?= $p['path']; ?>">
                         <?php if ($p['diskon']) { ?>
-                            <p class="diskon my-3">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
+                            <p class="diskon my-3">-<?= (int)$p['diskon']; ?>%</p>
                         <?php } ?>
                         <!-- <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt=""> -->
                         <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
