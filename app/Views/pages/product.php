@@ -265,7 +265,7 @@
             <?php foreach ($produksekategori as $p) { ?>
                 <a class="card1" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= $p['diskon']; ?>%</p>
+                        <p class="diskon my-3">-<?= $p['diskon']; ?>%</p>
                     <?php } ?>
                     <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
