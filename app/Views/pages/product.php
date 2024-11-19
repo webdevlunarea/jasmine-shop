@@ -91,14 +91,24 @@
                 <?php } ?>
                 <h3><?= $produk['nama']; ?></h3>
                 <?php if ($produk['diskon']) { ?>
-                    <p class="mb-0 harga d-inline">Rp
-                        <?php
-                        $persen = (100 - $produk['diskon']) / 100;
-                        $hasil = $persen * $produk['harga'];
-                        echo number_format($hasil, 0, ",", ".");
-                        ?></p>
-                    <p class="mb-0 d-inline" style="text-decoration: line-through; font-size: small; color: grey;">Rp
-                        <?= number_format($produk['harga'], 0, ",", "."); ?></p>
+                    <div class="d-flex gap-1 align-items-center">
+                        <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
+                        <p class="m-0" style="background-color: var(--hijau);
+                        color: white;
+                        display: block;
+                        width: fit-content;
+                        line-height: 20px;
+                        padding-inline: 6px;
+                        padding-block: 3px;
+                        font-size: small;
+                        text-align: center;
+                        border-radius: 0.5em;">-<?= $produk['diskon'] ?>%</p>
+                    </div>
+                    <p class="mb-0 harga">Rp <?php
+                                                $persen = (100 - $produk['diskon']) / 100;
+                                                $hasil = $persen * $produk['harga'];
+                                                echo number_format($hasil, 0, ",", ".");
+                                                ?></p>
                 <?php } else { ?>
                     <p class="mb-0 harga">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
                 <?php } ?>
