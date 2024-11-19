@@ -202,7 +202,7 @@
         const toastElm = document.querySelector(".toast")
         const toastTeksElm = document.querySelector(".toast p")
         const toastOkElm = document.querySelector(".toast form")
-        const toastCloseElm = document.querySelector(".toast button")
+        const toastCloseElm = document.querySelectorAll(".toast button")
 
         function triggerToast(text, linkAction) {
             toastElm.classList.add("show")
@@ -211,7 +211,7 @@
             if (!linkAction) {
                 toastOkElm.classList.add('d-none');
                 toastOkElm.setAttribute('disabled', '');
-                toastCloseElm.innerHTML = 'Ok';
+                toastCloseElm[1].innerHTML = 'Ok';
             }
         }
 

@@ -223,8 +223,9 @@ a {
 .card1 .diskon {
     background-color: var(--hijau);
     color: white;
-    margin-bottom: -30px;
-    position: relative;
+    /* margin-bottom: -30px; */
+    z-index: 2;
+    position: absolute;
     transform: translate(20px, 20px);
     display: block;
     width: fit-content;
