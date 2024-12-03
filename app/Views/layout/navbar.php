@@ -64,7 +64,7 @@
                     <a class="nav-link <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
                 <?php } ?>
             </ul>
-            <?php if (str_contains(strtolower($title), 'artikel')) { ?>
+            <?php if (!str_contains(strtolower($title), 'artikel')) { ?>
                 <form class="d-flex search-box" role="search">
                     <div class="input-group">
                         <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
