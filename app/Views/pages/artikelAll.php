@@ -2,8 +2,8 @@
 <?= $this->section('content'); ?>
 <div class="konten artikel">
     <div class="container">
-        <form action="/actionsearcharticle" method="post">
-            <div class="d-flex mb-2 align-items-center">
+        <form action="/actionsearcharticle" method="post" class="mb-2">
+            <!-- <div class="d-flex mb-2 align-items-center">
                 <div class="container-search-artikel">
                     <input type="text" placeholder="Cari artikel" class="form-control" name="cari" value="<?= isset($find) ? $find : ''; ?>">
                     <button type="submit" class="btn btn-light"><i class="material-icons">search</i></button>
@@ -32,18 +32,30 @@
                 <div class="container-nav-kategori-artikel">
                     <div class="d-flex gap-5">
                         <a class="nav-kategori-artikel" href="/article">SEMUA</a>
-                        <a class="nav-kategori-artikel" href="/article/category/lemari-dewasa">LEMARI DEWASA</a>
-                        <a class="nav-kategori-artikel" href="/article/category/lemari-anak">LEMARI ANAK</a>
-                        <a class="nav-kategori-artikel" href="/article/category/meja-rias">MEJA RIAS</a>
-                        <a class="nav-kategori-artikel" href="/article/category/meja-belajar">MEJA BELAJAR</a>
-                        <a class="nav-kategori-artikel" href="/article/category/meja-tv">MEJA TV</a>
-                        <a class="nav-kategori-artikel" href="/article/category/meja-tulis">MEJA TULIS</a>
-                        <a class="nav-kategori-artikel" href="/article/category/meja-komputer">MEJA KOMPUTER</a>
-                        <a class="nav-kategori-artikel" href="/article/category/rak-sepatu">RAK SEPATU</a>
-                        <a class="nav-kategori-artikel" href="/article/category/rak-besi">RAK BESI</a>
-                        <a class="nav-kategori-artikel" href="/article/category/rak-serbaguna">RAK SERBAGUNA</a>
-                        <a class="nav-kategori-artikel" href="/article/category/kursi">KURSI</a>
+                        <a class="nav-kategori-artikel" href="/article/category/edukasi">EDUKASI</a>
+                        <a class="nav-kategori-artikel" href="/article/category/tips-trik">TIPS & TRIK</a>
+                        <a class="nav-kategori-artikel" href="/article/category/rekomendasi">REKOMENDASI</a>
+                        <a class="nav-kategori-artikel" href="/article/category/plus-minus">PLUS MINUS</a>
                     </div>
+                </div>
+            </div> -->
+            <div class="d-flex gap-1 align-items-center w-100">
+                <select onchange="changeKategori(event)" class="form-select" style="width: fit-content" name="kategori" id="">
+                    <option <?= isset($category) ? '' : 'selected'; ?> value="semua">Semua Kategori</option>
+                    <option <?= isset($category) ? ($category == 'edukasi' ? 'selected' : '') : ''; ?> value="edukasi">Edukasi</option>
+                    <option <?= isset($category) ? ($category == 'tips-trik' ? 'selected' : '') : ''; ?> value="tips-trik">Tips & Trik</option>
+                    <option <?= isset($category) ? ($category == 'rekomendasi' ? 'selected' : '') : ''; ?> value="rekomendasi">Rekomendasi</option>
+                    <option <?= isset($category) ? ($category == 'plus-minus' ? 'selected' : '') : ''; ?> value="plus-minus">Plus Minus</option>
+                </select>
+                <script>
+                    function changeKategori(e) {
+                        console.log(e.target.value)
+                        window.location.replace('/article/category/' + e.target.value)
+                    }
+                </script>
+                <div class="container-search-artikel">
+                    <input type="text" placeholder="Cari artikel" class="form-control" name="cari" value="<?= isset($find) ? $find : ''; ?>">
+                    <button type="submit" class="btn btn-light"><i class="material-icons">search</i></button>
                 </div>
             </div>
         </form>

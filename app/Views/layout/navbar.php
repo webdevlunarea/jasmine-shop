@@ -64,12 +64,14 @@
                     <a class="nav-link <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
                 <?php } ?>
             </ul>
-            <form class="d-flex search-box" role="search">
-                <div class="input-group">
-                    <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                    <button class="btn btn-light" type="submit"><i id="btn-search" class="material-icons">search</i></button>
-                </div>
-            </form>
+            <?php if (str_contains($title, 'artikel')) { ?>
+                <form class="d-flex search-box" role="search">
+                    <div class="input-group">
+                        <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+                        <button class="btn btn-light" type="submit"><i id="btn-search" class="material-icons">search</i></button>
+                    </div>
+                </form>
+            <?php } ?>
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
                     <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>

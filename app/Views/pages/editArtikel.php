@@ -8,7 +8,7 @@
 <div class="konten">
     <form method="post" action="/editarticle/<?= $artikel['id']; ?>" enctype="multipart/form-data">
         <div class="container">
-            <h1 class="mb-3">Tambah Artikel</h1>
+            <h1 class="mb-3">Edit Artikel</h1>
             <?= csrf_field(); ?>
             <div>
                 <table class="table-input w-100">
@@ -30,7 +30,13 @@
                         <tr>
                             <td>Kategori</td>
                             <td>
-                                <div class="baris"><input type="text" class="form-control" name="kategori" placeholder="pisahkan dengan koma" required value="<?= $artikel['kategori']; ?>">
+                                <div class="baris">
+                                    <select name="kategori" class="form-select">
+                                        <option value="edukasi" <?= $artikel['kategori'] == 'edukasi' ? 'selected' : ''; ?>>Edukasi</option>
+                                        <option value="tips-trik" <?= $artikel['kategori'] == 'tips-trik' ? 'selected' : ''; ?>>Tips & Trik</option>
+                                        <option value="rekomendasi" <?= $artikel['kategori'] == 'rekomendasi' ? 'selected' : ''; ?>>Rekomendasi</option>
+                                        <option value="plus-minus" <?= $artikel['kategori'] == 'plus-minus' ? 'selected' : ''; ?>>Plus & Minus</option>
+                                    </select>
                                 </div>
                             </td>
                         <tr>

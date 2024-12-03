@@ -147,7 +147,7 @@ class Pages extends BaseController
     }
     public function articleCategory($kategori)
     {
-        $artikel = $this->artikelModel->getArtikelKategori(str_replace("-", " ", $kategori));
+        $artikel = $this->artikelModel->getArtikelKategori();
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         if (!$artikel) return redirect()->to('article');
         foreach ($artikel as $ind_a => $a) {
@@ -158,7 +158,8 @@ class Pages extends BaseController
         }
         $data = [
             'title' => 'Artikel',
-            'artikel' => $artikel
+            'artikel' => $artikel,
+            'category' => $kategori
         ];
         return view('pages/artikelAll', $data);
     }
