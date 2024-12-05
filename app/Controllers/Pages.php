@@ -147,7 +147,7 @@ class Pages extends BaseController
     }
     public function articleCategory($kategori)
     {
-        $artikel = $this->artikelModel->getArtikelKategori();
+        $artikel = $this->artikelModel->getArtikelKategori($kategori);
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         if (!$artikel) return redirect()->to('article');
         foreach ($artikel as $ind_a => $a) {

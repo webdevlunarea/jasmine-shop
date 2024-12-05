@@ -311,8 +311,8 @@
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
     const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
-    const jmlVarian = "4";
-    // const jmlVarian = "<?= $produk['jml_varian'] ?>";
+    // const jmlVarian = "4";
+    const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
     // const figureElm = document.querySelector("figure");
     const stokElm = document.getElementById('stok');
