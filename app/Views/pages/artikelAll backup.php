@@ -80,7 +80,7 @@
         <?php
         }
         $indexAwal = -1;
-        if (count($artikel) > 5) { ?>
+        if (count($artikel) > 6) { ?>
             <div class="mb-4">
                 <div class="d-flex justify-content-between mb-3 align-items-center">
                     <h5 class="jdl-section">Artikel Baru</h5>
@@ -88,80 +88,91 @@
                         <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
                     <?php } ?>
                 </div>
-                <div class="show-flex-ke-hide gap-4">
-                    <div style="width: calc(100% / 3);">
-                        <div class="card-artikel-besar" style="height: 320px;" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
+                <div class="gap-4 show-flex-ke-hide container-card-artikel">
+                    <div class="flex-grow-1">
+                        <div class="card-artikel-besar h-100" onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
                             <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="<?= $artikel[0]['judul']; ?>">
                             <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
-                            <div class="container-isi">
-                                <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p>
+                            <div class="flex-grow-1">
+                                <!-- <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p> -->
                             </div>
-                            <a class="readmore">Baca selengkapnya</a>
                             <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[0]['penulis']; ?></p> -->
-                            <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[0]['waktu']; ?></p> -->
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[0]['waktu']; ?></p>
                         </div>
                     </div>
-                    <div style="width: calc(100% / 3);" class="d-flex flex-column gap-4">
-                        <div class="card-artikel-kecil" style="height: 150px;" onclick="pergiKeArtikel(`<?= $artikel[1]['path']; ?>`)">
-                            <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="<?= $artikel[1]['judul']; ?>">
-                            <div style="position: relative;" class="d-flex flex-column">
+                    <div class="d-flex flex-grow-1 flex-column gap-4">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[1]['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="<?= $artikel[1]['judul']; ?>">
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
-                                <div class="container-isi">
-                                    <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[1]['penulis']; ?></p> -->
-                                <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[1]['waktu']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[1]['waktu']; ?></p>
                             </div>
                         </div>
-                        <div class="card-artikel-kecil" style="height: 150px;" onclick="pergiKeArtikel(`<?= $artikel[2]['path']; ?>`)">
-                            <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="<?= $artikel[2]['judul']; ?>">
-                            <div style="position: relative;" class="d-flex flex-column">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[2]['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="<?= $artikel[2]['judul']; ?>">
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
-                                <div class="container-isi">
-                                    <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[2]['penulis']; ?></p> -->
-                                <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[2]['waktu']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[2]['waktu']; ?></p>
                             </div>
                         </div>
                     </div>
-                    <div style="width: calc(100% / 3);" class="d-flex flex-column gap-4">
-                        <div class="card-artikel-kecil" style="height: 150px;" onclick="pergiKeArtikel(`<?= $artikel[3]['path']; ?>`)">
-                            <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="<?= $artikel[3]['judul']; ?>">
-                            <div style="position: relative;" class="d-flex flex-column">
+                    <div class="d-flex flex-grow-1 flex-column gap-4">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[3]['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="<?= $artikel[3]['judul']; ?>">
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
-                                <div class="container-isi">
-                                    <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[3]['penulis']; ?></p> -->
-                                <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[3]['waktu']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[3]['waktu']; ?></p>
                             </div>
                         </div>
-                        <div class="card-artikel-kecil" style="height: 150px;" onclick="pergiKeArtikel(`<?= $artikel[4]['path']; ?>`)">
-                            <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="<?= $artikel[4]['judul']; ?>">
-                            <div style="position: relative;" class="d-flex flex-column">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[4]['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="<?= $artikel[4]['judul']; ?>">
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column">
                                 <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
-                                <div class="container-isi">
-                                    <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p> -->
                                 </div>
-                                <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[4]['penulis']; ?></p> -->
-                                <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[4]['waktu']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[4]['waktu']; ?></p>
+                            </div>
+                        </div>
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $artikel[5]['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $artikel[5]['header']; ?>" alt="<?= $artikel[5]['judul']; ?>">
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column">
+                                <p class="m-0 judul"><?= $artikel[5]['judul']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $artikel[5]['isi'][0]['teks']; ?></p> -->
+                                </div>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[5]['penulis']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $artikel[5]['waktu']; ?></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         <?php
-            $indexAwal = 4;
+            $indexAwal = 5;
         }
         ?>
         <div class="show-flex-ke-hide">
@@ -170,41 +181,37 @@
                     if ($ind_a > $indexAwal) { ?>
                         <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
                             <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
-                            <p class="judul"><?= $a['judul']; ?></p>
-                            <div class="container-isi">
-                                <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
-                                <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
+                            <p class="m-0 judul"><?= $a['judul']; ?></p>
+                            <div class="flex-grow-1">
+                                <!-- <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p> -->
                             </div>
-                            <a class="readmore">Baca selengkapnya</a>
                             <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
-                            <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p> -->
+                            <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p>
                         </div>
                 <?php }
                 } ?>
             </div>
         </div>
         <div class="hide-ke-show-flex flex-column gap-2">
-            <div class="d-flex flex-column gap-3" style="min-height: 100px;">
-                <?php foreach ($artikel as $ind_a => $a) { ?>
-                    <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                        <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
-                        <!-- <div class="img">
-                        </div> -->
-                        <div style="position: relative;" class="d-flex flex-column">
-                            <p class="m-0 judul"><?= $a['judul']; ?></p>
-                            <div class="container-isi">
-                                <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
-                                <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
+            <?php foreach ($artikel as $ind_a => $a) { ?>
+                <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
+                    <div class="d-flex flex-grow-1 flex-column gap-4">
+                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
+                            <div class="img">
+                                <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
                             </div>
-                            <a class="readmore">Baca selengkapnya</a>
-                            <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
-                            <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p> -->
+                            <div class="flex-grow-1 d-flex flex-column">
+                                <p class="m-0 judul"><?= $a['judul']; ?></p>
+                                <div class="flex-grow-1">
+                                    <!-- <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p> -->
+                                </div>
+                                <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
+                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p>
+                            </div>
                         </div>
                     </div>
-                <?php } ?>
-            </div>
+                </div>
+            <?php } ?>
         </div>
     </div>
 </div>
