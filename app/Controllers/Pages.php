@@ -81,10 +81,11 @@ class Pages extends BaseController
     }
     public function article($judul_article = false)
     {
-        $artikel = $this->artikelModel->getArtikelJudul($judul_article);
+        $getArtikel = $this->artikelModel->getArtikelJudul($judul_article);
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        if (!$artikel) return redirect()->to('article');
+        if (!$getArtikel) return redirect()->to('article');
         if ($judul_article) {
+            $artikel = $getArtikel['cur'];
             $artikel['header'] = '/imgart/' . $artikel['id'];
             $artikel['isi'] = json_decode($artikel['isi'], true);
             $artikel['kategori'] = explode(",", $artikel['kategori']);
@@ -101,6 +102,8 @@ class Pages extends BaseController
             $data = [
                 'title' => 'Artikel ' . $artikel['judul'],
                 'artikel' => $artikel,
+                'prevArtikel' => $getArtikel['prev'],
+                'nextArtikel' => $getArtikel['next'],
                 'artikelTerkait' => $artikelTerkait,
                 'produkTerkait' => $produkTerkait,
                 'komen' => json_decode($artikel['komen'], true),
@@ -110,6 +113,7 @@ class Pages extends BaseController
             ];
             return view('pages/artikel', $data);
         } else {
+            $artikel = $getArtikel;
             foreach ($artikel as $ind_a => $a) {
                 $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
                 $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);

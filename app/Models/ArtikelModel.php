@@ -34,7 +34,14 @@ class ArtikelModel extends Model
         if ($judul == false) {
             return $this->orderBy('id', 'desc')->findAll();
         }
-        return $this->where(['path' => $judul])->first();
+        $cur = $this->where(['path' => $judul])->first();
+        $prev = $this->where('id_count <', $cur['id_count'])->orderBy('id_count', 'desc')->first();
+        $next = $this->where('id_count >', $cur['id_count'])->first();
+        return [
+            'cur' => $cur,
+            'prev' => $prev,
+            'next' => $next,
+        ];
     }
     public function getArtikelKategori($kategori = false)
     {

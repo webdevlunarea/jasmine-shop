@@ -116,6 +116,27 @@
                 }
             ?>
             <?php } ?>
+            <span class="garis my-3"></span>
+            <div class="d-flex justify-content-between align-items-start" style="gap: 6em;">
+                <div style="flex: 1;">
+                    <?php if ($prevArtikel) { ?>
+                        <a href="/article/<?= $prevArtikel['path']; ?>" class="d-flex gap-2 align-items-center" style="color: var(--hijau);">
+                            <i class="material-icons">chevron_left</i>
+                            <p class="m-0">Baca sebelumnya</p>
+                        </a>
+                        <p style="color: #888;"><i><?= $prevArtikel['judul']; ?></i></p>
+                    <?php } ?>
+                </div>
+                <div style="flex: 1;" class="d-flex flex-column align-items-end">
+                    <?php if ($nextArtikel) { ?>
+                        <a href="/article/<?= $nextArtikel['path']; ?>" class="d-flex gap-2 align-items-center" style="color: var(--hijau);">
+                            <p class="m-0">Baca berikutnya</p>
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                        <p style="color: #888;"><i><?= $nextArtikel['judul']; ?></i></p>
+                    <?php } ?>
+                </div>
+            </div>
         </div>
         <div class="p-4 mx-4 hide-ke-show-block" style="background-color: white; box-shadow: 5px 5px 20px rgba(0,0,0,0.1); position: relative; margin-top: -15svh">
             <div class="d-flex justify-content-between mb-1 align-items-center">
@@ -164,6 +185,23 @@
                 }
             ?>
             <?php } ?>
+            <span class="garis my-3"></span>
+            <div class="d-flex justify-content-between">
+                <?php if ($prevArtikel) { ?>
+                    <a href="/article/<?= $prevArtikel['path']; ?>" class="d-flex gap-2 align-items-center" style="color: var(--hijau);">
+                        <i class="material-icons">chevron_left</i>
+                        <p class="m-0" style="width: fit-content;">Baca<br>sebelumnya</p>
+                    </a>
+                <?php } else { ?>
+                    <div></div>
+                <?php } ?>
+                <?php if ($nextArtikel) { ?>
+                    <a href="/article/<?= $nextArtikel['path']; ?>" class="d-flex gap-2 align-items-center" style="color: var(--hijau);">
+                        <p class="m-0" style="width: fit-content;">Baca<br>berikutnya</p>
+                        <i class="material-icons">chevron_right</i>
+                    </a>
+                <?php } ?>
+            </div>
         </div>
     </div>
     <div class="container mb-5">
@@ -202,23 +240,20 @@
     </div>
     <div class="container mb-5">
         <h5 class="jdl-section mb-3">Artikel Serupa</h5>
-        <div class="d-flex flex-column gap-2">
+        <div class="d-flex flex-column gap-3" style="min-height: 100px;">
             <?php foreach ($artikelTerkait as $ind_a => $a) { ?>
-                <div class="gap-4 d-flex container-card-artikel" style="height: 100px;">
-                    <div class="d-flex flex-grow-1 flex-column gap-4">
-                        <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                            <div class="img">
-                                <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <p class="m-0 judul" style="line-height: 16px;"><?= $a['judul']; ?></p>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
-                                </div>
-                                <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p>
-                                <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p>
-                            </div>
+                <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
+                    <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
+                    <div style="position: relative;" class="d-flex flex-column">
+                        <p class="m-0 judul"><?= $a['judul']; ?></p>
+                        <div class="container-isi">
+                            <div class="overlay-isi"></div>
+                            <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
+                            <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
                         </div>
+                        <a class="readmore">Baca selengkapnya</a>
+                        <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
+                        <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p> -->
                     </div>
                 </div>
             <?php } ?>
