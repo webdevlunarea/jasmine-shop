@@ -450,8 +450,8 @@ class Pages extends BaseController
     }
     public function all($subkategori = false)
     {
-        $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, 0);
-        $semuaproduk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll();
+        $produk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll(20, 0);
+        $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll();
         if (count($produk) <= 0) return redirect()->to('/all');
         $meta = [
             'lemari-dewasa' => [
@@ -4279,6 +4279,8 @@ class Pages extends BaseController
         // ]);
         $path = str_replace("- ", "", $this->request->getVar('nama'));
         $path = str_replace(".", "", $path);
+        $path = str_replace("& ", "", $path);
+        $path = str_replace("+ ", "", $path);
         $path = str_replace(" ", "-", $path);
         $path = strtolower($path);
         $this->barangModel->insert([
@@ -4346,6 +4348,8 @@ class Pages extends BaseController
         // dd(file_get_contents($this->request->getFile("gambar1")));
         $path = str_replace("- ", "", $this->request->getVar('nama'));
         $path = str_replace(".", "", $path);
+        $path = str_replace("& ", "", $path);
+        $path = str_replace("+ ", "", $path);
         $path = str_replace(" ", "-", $path);
         $path = strtolower($path);
 
