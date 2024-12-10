@@ -448,7 +448,7 @@ class Pages extends BaseController
         ];
         return view('pages/formThanks', $data);
     }
-    public function all($subkategori = false)
+    public function all($subkategori = '')
     {
         $produk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll(20, 0);
         $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll();
