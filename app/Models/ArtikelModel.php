@@ -48,6 +48,6 @@ class ArtikelModel extends Model
         if ($kategori == false) {
             return $this->orderBy('id', 'asc')->findAll();
         }
-        return $this->where("kategori", $kategori)->orderBy('id', 'asc')->findAll();
+        return $this->like("kategori", $kategori, 'both')->orderBy('id', 'asc')->findAll();
     }
 }

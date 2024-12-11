@@ -73,7 +73,7 @@
             <div class="d-flex justify-content-between">
                 <div class="d-flex gap-1 mb-3">
                     <?php foreach ($artikel['kategori'] as $k) { ?>
-                        <h5 class="badge rounded-pill text-bg-secondary"><?= ucfirst($k); ?></h5>
+                        <h5 class="badge rounded-pill text-bg-secondary"><?= ucwords($k); ?></h5>
                     <?php } ?>
                 </div>
                 <div class="d-flex gap-2 align-items-center">

@@ -30,12 +30,25 @@
                         <tr>
                             <td>Kategori</td>
                             <td>
-                                <div class="baris">
+                                <div class="baris d-flex gap-1">
+                                    <select name="kategori-barang" class="form-select">
+                                        <option value="lemari dewasa" <?= explode(',', $artikel['kategori'])[0] == 'lemari dewasa' ? 'selected' : ''; ?>>Lemari Dewasa</option>
+                                        <option value="lemari anak" <?= explode(',', $artikel['kategori'])[0] == 'lemari anak' ? 'selected' : ''; ?>>Lemari Anak</option>
+                                        <option value="meja rias" <?= explode(',', $artikel['kategori'])[0] == 'meja rias' ? 'selected' : ''; ?>>Meja Rias</option>
+                                        <option value="meja belajar" <?= explode(',', $artikel['kategori'])[0] == 'meja belajar' ? 'selected' : ''; ?>>Meja Belajar</option>
+                                        <option value="meja tv" <?= explode(',', $artikel['kategori'])[0] == 'meja tv' ? 'selected' : ''; ?>>Meja TV</option>
+                                        <option value="meja tulis" <?= explode(',', $artikel['kategori'])[0] == 'meja tulis' ? 'selected' : ''; ?>>Meja Tulis</option>
+                                        <option value="meja komputer" <?= explode(',', $artikel['kategori'])[0] == 'meja komputer' ? 'selected' : ''; ?>>Meja Komputer</option>
+                                        <option value="rak sepatu" <?= explode(',', $artikel['kategori'])[0] == 'rak sepatu' ? 'selected' : ''; ?>>Rak Sepatu</option>
+                                        <option value="rak besi" <?= explode(',', $artikel['kategori'])[0] == 'rak besi' ? 'selected' : ''; ?>>Rak Besi</option>
+                                        <option value="rak serbaguna" <?= explode(',', $artikel['kategori'])[0] == 'rak serbaguna' ? 'selected' : ''; ?>>Rak Serbaguna</option>
+                                        <option value="kursi" <?= explode(',', $artikel['kategori'])[0] == 'kursi' ? 'selected' : ''; ?>>Kursi</option>
+                                    </select>
                                     <select name="kategori" class="form-select">
-                                        <option value="edukasi" <?= $artikel['kategori'] == 'edukasi' ? 'selected' : ''; ?>>Edukasi</option>
-                                        <option value="tips-trik" <?= $artikel['kategori'] == 'tips-trik' ? 'selected' : ''; ?>>Tips & Trik</option>
-                                        <option value="rekomendasi" <?= $artikel['kategori'] == 'rekomendasi' ? 'selected' : ''; ?>>Rekomendasi</option>
-                                        <option value="plus-minus" <?= $artikel['kategori'] == 'plus-minus' ? 'selected' : ''; ?>>Plus & Minus</option>
+                                        <option value="edukasi" <?= explode(',', $artikel['kategori'])[1] == 'edukasi' ? 'selected' : ''; ?>>Edukasi</option>
+                                        <option value="tips & trik" <?= explode(',', $artikel['kategori'])[1] == 'tips-trik' ? 'selected' : ''; ?>>Tips & Trik</option>
+                                        <option value="rekomendasi" <?= explode(',', $artikel['kategori'])[1] == 'rekomendasi' ? 'selected' : ''; ?>>Rekomendasi</option>
+                                        <option value="plus minus" <?= explode(',', $artikel['kategori'])[1] == 'plus-minus' ? 'selected' : ''; ?>>Plus & Minus</option>
                                     </select>
                                 </div>
                             </td>

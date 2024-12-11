@@ -261,6 +261,8 @@ class Pages extends BaseController
         $judul = $this->request->getVar('judul');
         $penulis = $this->request->getVar('penulis');
         $kategori = $this->request->getVar('kategori');
+        $kategoriBarang = $this->request->getVar('kategori-barang');
+        $kategori = $kategori . ',' . $kategoriBarang;
         $waktu = $this->request->getVar('waktu');
         $header = $this->request->getFile('header');
         $counter = explode(",", $this->request->getVar('arrCounter'));
