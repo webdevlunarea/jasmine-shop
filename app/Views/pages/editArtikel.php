@@ -46,9 +46,9 @@
                                     </select>
                                     <select name="kategori" class="form-select">
                                         <option value="edukasi" <?= explode(',', $artikel['kategori'])[1] == 'edukasi' ? 'selected' : ''; ?>>Edukasi</option>
-                                        <option value="tips & trik" <?= explode(',', $artikel['kategori'])[1] == 'tips-trik' ? 'selected' : ''; ?>>Tips & Trik</option>
+                                        <option value="tips & trik" <?= explode(',', $artikel['kategori'])[1] == 'tips & trik' ? 'selected' : ''; ?>>Tips & Trik</option>
                                         <option value="rekomendasi" <?= explode(',', $artikel['kategori'])[1] == 'rekomendasi' ? 'selected' : ''; ?>>Rekomendasi</option>
-                                        <option value="plus minus" <?= explode(',', $artikel['kategori'])[1] == 'plus-minus' ? 'selected' : ''; ?>>Plus & Minus</option>
+                                        <option value="plus minus" <?= explode(',', $artikel['kategori'])[1] == 'plus minus' ? 'selected' : ''; ?>>Plus & Minus</option>
                                     </select>
                                 </div>
                             </td>
