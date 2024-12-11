@@ -34,6 +34,7 @@
                                     <select name="kategori-barang" class="form-select">
                                         <option value="lemari dewasa" <?= explode(',', $artikel['kategori'])[0] == 'lemari dewasa' ? 'selected' : ''; ?>>Lemari Dewasa</option>
                                         <option value="lemari anak" <?= explode(',', $artikel['kategori'])[0] == 'lemari anak' ? 'selected' : ''; ?>>Lemari Anak</option>
+                                        <option value="lemari hias" <?= explode(',', $artikel['kategori'])[0] == 'lemari hias' ? 'selected' : ''; ?>>Lemari Hias</option>
                                         <option value="meja rias" <?= explode(',', $artikel['kategori'])[0] == 'meja rias' ? 'selected' : ''; ?>>Meja Rias</option>
                                         <option value="meja belajar" <?= explode(',', $artikel['kategori'])[0] == 'meja belajar' ? 'selected' : ''; ?>>Meja Belajar</option>
                                         <option value="meja tv" <?= explode(',', $artikel['kategori'])[0] == 'meja tv' ? 'selected' : ''; ?>>Meja TV</option>
@@ -87,6 +88,9 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <!-- Skrip JavaScript untuk React dengan Babel -->
+<script>
+    console.log('<?= $isiJson; ?>')
+</script>
 <?php if ($isiJson) { ?>
     <script type="text/babel">
         const { useState, useEffect } = React;
@@ -94,6 +98,11 @@
             const [arr, setArr] = useState(JSON.parse('<?= $isiJson; ?>'));
             const [arrCounterElm, setArrCounterElm] = useState("<?= $arrCounter; ?>");
             const [selectTag, setSelectTag] = useState('')
+
+            useEffect(()=>{
+                console.log(arr)
+                console.log(arr)
+            }, [])
 
             const geserAtas = (index) => {
                 if (index === 0) return;
