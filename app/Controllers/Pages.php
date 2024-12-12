@@ -4283,6 +4283,9 @@ class Pages extends BaseController
         $path = str_replace(".", "", $path);
         $path = str_replace("& ", "", $path);
         $path = str_replace("+ ", "", $path);
+        $path = str_replace("| ", "", $path);
+        $path = str_replace("[", "", $path);
+        $path = str_replace("]", "", $path);
         $path = str_replace(" ", "-", $path);
         $path = strtolower($path);
         $this->barangModel->insert([
@@ -4352,6 +4355,9 @@ class Pages extends BaseController
         $path = str_replace(".", "", $path);
         $path = str_replace("& ", "", $path);
         $path = str_replace("+ ", "", $path);
+        $path = str_replace("| ", "", $path);
+        $path = str_replace("[", "", $path);
+        $path = str_replace("]", "", $path);
         $path = str_replace(" ", "-", $path);
         $path = strtolower($path);
 
