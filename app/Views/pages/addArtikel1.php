@@ -30,7 +30,27 @@
                         <tr>
                             <td>Kategori</td>
                             <td>
-                                <div class="baris"><input type="text" class="form-control" name="kategori" placeholder="pisahkan dengan koma" required>
+                                <div class="baris d-flex gap-1">
+                                    <select name="kategori-barang" class="form-select">
+                                        <option value="lemari dewasa" selected>Lemari Dewasa</option>
+                                        <option value="lemari anak">Lemari Anak</option>
+                                        <option value="lemari hias">Lemari Hias</option>
+                                        <option value="meja rias">Meja Rias</option>
+                                        <option value="meja belajar">Meja Belajar</option>
+                                        <option value="meja tv">Meja TV</option>
+                                        <option value="meja tulis">Meja Tulis</option>
+                                        <option value="meja komputer">Meja Komputer</option>
+                                        <option value="rak sepatu">Rak Sepatu</option>
+                                        <option value="rak besi">Rak Besi</option>
+                                        <option value="rak serbaguna">Rak Serbaguna</option>
+                                        <option value="kursi">Kursi</option>
+                                    </select>
+                                    <select name="kategori" class="form-select">
+                                        <option value="edukasi" selected>Edukasi</option>
+                                        <option value="tips & trik">Tips & Trik</option>
+                                        <option value="rekomendasi">Rekomendasi</option>
+                                        <option value="plus minus">Plus & Minus</option>
+                                    </select>
                                 </div>
                             </td>
                         <tr>
