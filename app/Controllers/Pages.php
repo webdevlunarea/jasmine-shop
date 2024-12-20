@@ -2377,7 +2377,7 @@ class Pages extends BaseController
                 $status = "No Status";
                 break;
         }
-        $this->pemesananModel->insert([
+        $insertDataPemesanan = [
             'email_cus' => $email,
             'nama_pen' => $nama,
             'hp_pen' => $nohp,
@@ -2392,9 +2392,10 @@ class Pages extends BaseController
             'diskonVoucher' => $data['diskonVoucher'],
             'idVoucher' => $voucher ? $voucher['id_voucher'] : 0,
             'cashback' => $cashback
-        ]);
+        ];
+        $this->pemesananModel->insert($insertDataPemesanan);
 
-        if ($data['diskonVoucher'] > 0) {
+        if ($insertDataPemesanan['idVoucher'] > 0) {
             $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
             session()->remove('voucher');
         }
