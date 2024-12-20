@@ -4371,60 +4371,62 @@ class Pages extends BaseController
         }
         return $this->response->setJSON(['success' => true], false);
     }
-    public function isitier()
+    public function isitier($urutan)
     {
-        // $pembeli = $this->pembeliModel->findAll();
-        // foreach ($pembeli as $p) {
-        //     $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode([
-        //         'label' => 'bronze',
-        //         'data' => []
-        //     ])])->update();
-        // }
-
-        // $pemesanan = $this->pemesananModel->findAll();
-        // foreach ($pemesanan as $p) {
-        //     $dataMid = json_decode($p['data_mid'], true);
-        //     $transaction_time = explode(" ", $dataMid['transaction_time'])[0];
-        //     $kadaluarsa = (((int)explode("-", $transaction_time)[0]) + 1) . "-" . explode("-", $transaction_time)[1] . "-" . explode("-", $transaction_time)[2];
-        //     $nominal = (int)$dataMid['gross_amount'];
-        //     $idPesanan = $dataMid['order_id'];
-        //     $datanya = [
-        //         'kadaluarsa' => $kadaluarsa,
-        //         'nominal' => $nominal,
-        //         'id_pesanan' => $idPesanan,
-        //     ];
-
-        //     $pembeli = $this->pembeliModel->where(['email_user' => $p['email_cus']])->first();
-        //     if ($pembeli) {
-        //         $getTier = json_decode($pembeli['tier'], true);
-        //         $waktuCurr = strtotime("+7 Hours");
-        //         // $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-        //         if($waktuCurr <= strtotime($kadaluarsa)) {
-        //             array_push($getTier['data'], $datanya);
-        //             $this->pembeliModel->where(['email_user' => $p['email_cus']])->set(['tier' => json_encode($getTier)])->update();
-        //         }
-        //     }
-        // }
-
-        $pembeli = $this->pembeliModel->findAll();
-        foreach ($pembeli as $p) {
-            $tier = json_decode($p['tier'], true);
-            $data = $tier['data'];
-            $jumlah = 0;
-            foreach ($data as $d) {
-                $jumlah += (int)$d['nominal'];
+        if ($urutan == '1') {
+            $pembeli = $this->pembeliModel->findAll();
+            foreach ($pembeli as $p) {
+                $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode([
+                    'label' => 'bronze',
+                    'data' => []
+                ])])->update();
             }
-            if ($jumlah < 10000000) {
-                $label = 'bronze';
-            } else if ($jumlah < 50000000) {
-                $label = 'silver';
-            } else if ($jumlah < 100000000) {
-                $label = 'gold';
-            } else if ($jumlah >= 100000000) {
-                $label = 'platinum';
+        } else if ($urutan == '2') {
+            $pemesanan = $this->pemesananModel->findAll();
+            foreach ($pemesanan as $p) {
+                $dataMid = json_decode($p['data_mid'], true);
+                $transaction_time = explode(" ", $dataMid['transaction_time'])[0];
+                $kadaluarsa = (((int)explode("-", $transaction_time)[0]) + 1) . "-" . explode("-", $transaction_time)[1] . "-" . explode("-", $transaction_time)[2];
+                $nominal = (int)$dataMid['gross_amount'];
+                $idPesanan = $dataMid['order_id'];
+                $datanya = [
+                    'kadaluarsa' => $kadaluarsa,
+                    'nominal' => $nominal,
+                    'id_pesanan' => $idPesanan,
+                ];
+
+                $pembeli = $this->pembeliModel->where(['email_user' => $p['email_cus']])->first();
+                if ($pembeli) {
+                    $getTier = json_decode($pembeli['tier'], true);
+                    $waktuCurr = strtotime("+7 Hours");
+                    // $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                    if ($waktuCurr <= strtotime($kadaluarsa)) {
+                        array_push($getTier['data'], $datanya);
+                        $this->pembeliModel->where(['email_user' => $p['email_cus']])->set(['tier' => json_encode($getTier)])->update();
+                    }
+                }
             }
-            $tier['label'] = $label;
-            $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode($tier)])->update();
+        } else if ($urutan == '3') {
+            $pembeli = $this->pembeliModel->findAll();
+            foreach ($pembeli as $p) {
+                $tier = json_decode($p['tier'], true);
+                $data = $tier['data'];
+                $jumlah = 0;
+                foreach ($data as $d) {
+                    $jumlah += (int)$d['nominal'];
+                }
+                if ($jumlah < 10000000) {
+                    $label = 'bronze';
+                } else if ($jumlah < 50000000) {
+                    $label = 'silver';
+                } else if ($jumlah < 100000000) {
+                    $label = 'gold';
+                } else if ($jumlah >= 100000000) {
+                    $label = 'platinum';
+                }
+                $tier['label'] = $label;
+                $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode($tier)])->update();
+            }
         }
         return $this->response->setJSON(['success' => true], false);
     }

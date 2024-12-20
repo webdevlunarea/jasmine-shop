@@ -167,7 +167,7 @@ $routes->get('/fixkurir', 'Pages::fixKurir');
 $routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
 $routes->get('/gantiukuran/(:any)', 'Pages::gantiUkuran/$1');
 $routes->get('/gantiukuranartikel', 'Pages::gantiUkuranArtikel');
-$routes->get('/isitier', 'Pages::isitier');
+$routes->get('/isitier/(:any)', 'Pages::isitier/$1');
 $routes->get('/cobaenv', 'Pages::cobaenv');
 
 //API SHEET
