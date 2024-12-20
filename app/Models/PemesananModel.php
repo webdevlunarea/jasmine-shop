@@ -21,6 +21,7 @@ class PemesananModel extends Model
         'note',
         'diskonVoucher',
         'idVoucher',
+        'cashback'
     ];
 
     public function getPemesanan($id_midtrans = false)

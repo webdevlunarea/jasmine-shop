@@ -12,10 +12,12 @@ class VoucherModel extends Model
         'nama',
         'satuan',
         'nominal',
-        'berakhir',
-        'list_email',
+        'durasi',
+        'durasi_poin',
         'jenis',
-        'active'
+        'active',
+        'code',
+        'keterangan'
     ];
 
     public function getVoucher($id = false)

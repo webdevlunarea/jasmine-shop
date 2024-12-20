@@ -15,6 +15,9 @@ class PembeliModel extends Model
         'wishlist',
         'keranjang',
         'transaksi',
+        'poin',
+        'tier',
+        'tgl_lahir'
     ];
 
     public function getPembeli($email = false)

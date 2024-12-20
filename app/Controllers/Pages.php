@@ -14,6 +14,8 @@ use App\Models\SubmitEmailModel;
 use App\Models\VoucherModel;
 use App\Models\InvoiceModel;
 use App\Models\PreorderBarangModel;
+use App\Models\PointHistoryModel;
+use App\Models\VoucherClaimedModel;
 
 class Pages extends BaseController
 {
@@ -29,6 +31,8 @@ class Pages extends BaseController
     protected $voucherModel;
     protected $invoiceModel;
     protected $preorderBarangModel;
+    protected $pointHistoryModel;
+    protected $voucherClaimedModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -43,6 +47,20 @@ class Pages extends BaseController
         $this->voucherModel = new VoucherModel();
         $this->invoiceModel = new InvoiceModel();
         $this->preorderBarangModel = new PreorderBarangModel();
+        $this->pointHistoryModel = new PointHistoryModel();
+        $this->voucherClaimedModel = new VoucherClaimedModel();
+    }
+    public function generateRandomCode()
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $code = '';
+        for ($i = 0; $i < 12; $i++) {
+            $code .= $characters[rand(0, strlen($characters) - 1)];
+            if (($i + 1) % 4 == 0 && $i != 11) {
+                $code .= '-';
+            }
+        }
+        return $code;
     }
     public function index()
     {
@@ -651,6 +669,11 @@ class Pages extends BaseController
             'wishlist' => json_encode([]),
             'keranjang' => json_encode([]),
             'transaksi' => json_encode([]),
+            'poin' => json_encode([]),
+            'tier' => json_encode([
+                'label' => 'bronze',
+                'data' => []
+            ]),
         ]);
 
         $emailUser = $this->request->getVar('email');
@@ -797,17 +820,46 @@ class Pages extends BaseController
         }
         if ($getUser['role'] == '0') {
             $getPembeli = $this->pembeliModel->getPembeli($email);
+            $poin = json_decode($getPembeli['poin'], true);
+            if (count($poin) > 0) {
+                //dicek apakah ada poin yg kadaluarsa, klo ada maka dihapus dr table pembali dan insert tabel point history
+                $waktuCurr = strtotime("+7 Hours");
+                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                $apakahAda = false;
+                foreach ($poin as $ind_p => $p) {
+                    $waktuExpire = strtotime($p['kadaluarsa']);
+                    if ($waktuCurrYmd > $waktuExpire) {
+                        $this->pointHistoryModel->insert([
+                            'id' => $waktuCurr,
+                            'label' => 'kadaluarsa',
+                            'nominal' => ((int)$p['nominal']) * (-1),
+                            'keterangan' => 'Point telah kadaluarsa',
+                            'tanggal' => $p['kadaluarsa'],
+                            'email_user' => $getUser['email']
+                        ]);
+                        unset($poin[$ind_p]);
+                        $apakahAda = true;
+                    }
+                }
+                if ($apakahAda) {
+                    $poin = array_values($poin);
+                    $this->pembeliModel->where(['email_user' => $getUser['email']])->set(['poin' => json_encode($poin)])->update();
+                }
+            }
             $ses_data = [
                 'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'nama' => $getPembeli['nama'],
+                'tgl_lahir' => $getPembeli['tgl_lahir'],
                 'alamat' => json_decode($getPembeli['alamat'], true),
                 'nohp' => $getPembeli['nohp'],
                 'wishlist' => json_decode($getPembeli['wishlist'], true),
                 'keranjang' => json_decode($getPembeli['keranjang'], true),
                 'transaksi' => json_decode($getPembeli['transaksi'], true),
-                'isLogin' => true
+                'tier' => json_decode($getPembeli['tier'], true),
+                'isLogin' => true,
+                'poin' => $poin,
             ];
             session()->set($ses_data);
 
@@ -873,7 +925,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
@@ -1153,6 +1205,83 @@ class Pages extends BaseController
         ];
         return view('pages/errorPay', $data);
     }
+
+    public function voucher()
+    {
+        $voucher = $this->voucherModel->getVoucher();
+        $targetEmail = session()->get('email');
+        $voucherFilter = [];
+        foreach ($voucher as  $v) {
+            $code = json_decode($v['code'], true);
+            foreach ($code as $ind_c => $c) {
+                $data_v = $v;
+                $data_v['index'] = $ind_c;
+                $data_v['code'] = $code;
+                if ($c['email_user'] == $targetEmail) {
+                    array_push($voucherFilter, $data_v);
+                }
+            }
+        }
+
+        //baca dari voucher yg udah di claim
+        $voucherClaimed = $this->voucherClaimedModel->getVoucher();
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+        $adaYgExpire = false;
+        $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+        foreach ($voucherClaimed as $ind_v => $v) {
+            if ($v['kadaluarsa']) {
+                $waktuExpire = strtotime($v['kadaluarsa']);
+                $voucherClaimed[$ind_v]['kadaluarsa'] = explode('-', $v['kadaluarsa'])[2] . ' ' . $bulan[(int)explode('-', $v['kadaluarsa'])[1] - 1] . ' ' . explode('-', $v['kadaluarsa'])[0];
+                if ($waktuCurrYmd > $waktuExpire) $adaYgExpire = true;
+            } else {
+                $voucherClaimed[$ind_v]['kadaluarsa'] = 'Tak terhingga';
+            }
+        }
+        if ($adaYgExpire) return $this->actionLogout();
+        $data = [
+            'title' => 'Voucher',
+            'voucher' => $voucherFilter,
+            'voucherClaimed' => $voucherClaimed,
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/voucher', $data);
+    }
+    public function voucherClaim()
+    {
+        $email = session()->get('email');
+        $id_voucher = $this->request->getVar('id_voucher');
+        $ind_user = $this->request->getVar('ind_user');
+        $codeVar = $this->request->getVar('code');
+        $voucher = $this->voucherModel->getVoucher($id_voucher);
+        $code = json_decode($voucher['code'], true);
+        if (isset($code[$ind_user]['code'])) {
+            if ($codeVar != $code[$ind_user]['code']) {
+                session()->setFlashdata('msg', 'Code salah');
+                return redirect()->to('/voucher');
+            }
+        }
+        unset($code[$ind_user]);
+        $codeNew = array_values($code);
+
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+        $kadaluarsa = null;
+        if ($voucher['durasi']) {
+            $kadaluarsa = date("Y-m-d", strtotime($voucher['durasi'], strtotime($waktuCurrYmd)));
+        }
+
+        $this->voucherModel->where(['id' => $id_voucher])->set(['code' => json_encode($codeNew)])->update();
+        $this->voucherClaimedModel->insert([
+            'id' => $waktuCurr,
+            'id_voucher' => $id_voucher,
+            'kadaluarsa' => $kadaluarsa,
+            'email_user' => $email,
+            'active' => true
+        ]);
+        return redirect()->to('/voucher');
+    }
+
     public function checkout()
     {
         $keranjang = session()->get('keranjang');
@@ -1235,99 +1364,96 @@ class Pages extends BaseController
         $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
 
         //Dapatkan data provinsi
-        // $curl = curl_init();
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
-        //     CURLOPT_SSL_VERIFYHOST => 0,
-        //     CURLOPT_SSL_VERIFYPEER => 0,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => "",
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 30,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => "GET",
-        //     CURLOPT_HTTPHEADER => array(
-        //         "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-        //     ),
-        // ));
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-        // curl_close($curl);
-        // if ($err) {
-        //     return "cURL Error #:" . $err;
-        // }
-        // $provinsi = json_decode($response, true);
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $provinsi = json_decode($response, true);
 
-        // if (count($alamat) > 0) {
-        //     $curl = curl_init();
-        //     curl_setopt_array($curl, array(
-        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $alamat['prov_id'],
-        //         CURLOPT_SSL_VERIFYHOST => 0,
-        //         CURLOPT_SSL_VERIFYPEER => 0,
-        //         CURLOPT_RETURNTRANSFER => true,
-        //         CURLOPT_ENCODING => "",
-        //         CURLOPT_MAXREDIRS => 10,
-        //         CURLOPT_TIMEOUT => 30,
-        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //         CURLOPT_CUSTOMREQUEST => "GET",
-        //         CURLOPT_HTTPHEADER => array(
-        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-        //         ),
-        //     ));
-        //     $response = curl_exec($curl);
-        //     $err = curl_error($curl);
-        //     curl_close($curl);
-        //     if ($err) {
-        //         return "cURL Error #:" . $err;
-        //     }
-        //     $kota = json_decode($response, true);
+        if (count($alamat) > 0) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $alamat['prov_id'],
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $kota = json_decode($response, true);
 
-        //     $curl = curl_init();
-        //     curl_setopt_array($curl, array(
-        //         CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $alamat['kab_id'],
-        //         CURLOPT_SSL_VERIFYHOST => 0,
-        //         CURLOPT_SSL_VERIFYPEER => 0,
-        //         CURLOPT_RETURNTRANSFER => true,
-        //         CURLOPT_ENCODING => "",
-        //         CURLOPT_MAXREDIRS => 10,
-        //         CURLOPT_TIMEOUT => 30,
-        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //         CURLOPT_CUSTOMREQUEST => "GET",
-        //         CURLOPT_HTTPHEADER => array(
-        //             "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
-        //         ),
-        //     ));
-        //     $response = curl_exec($curl);
-        //     $err = curl_error($curl);
-        //     curl_close($curl);
-        //     if ($err) {
-        //         return "cURL Error #:" . $err;
-        //     }
-        //     $kec = json_decode($response, true);
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $alamat['kab_id'],
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $kec = json_decode($response, true);
 
-        //     $curl = curl_init();
-        //     curl_setopt_array($curl, array(
-        //         CURLOPT_URL => "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($alamat['kec']),
-        //         CURLOPT_SSL_VERIFYHOST => 0,
-        //         CURLOPT_SSL_VERIFYPEER => 0,
-        //         CURLOPT_RETURNTRANSFER => true,
-        //         CURLOPT_ENCODING => "",
-        //         CURLOPT_MAXREDIRS => 10,
-        //         CURLOPT_TIMEOUT => 30,
-        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //         CURLOPT_CUSTOMREQUEST => "GET",
-        //     ));
-        //     $response = curl_exec($curl);
-        //     $err = curl_error($curl);
-        //     curl_close($curl);
-        //     if ($err) {
-        //         return "cURL Error #:" . $err;
-        //     }
-        //     $desa = json_decode($response, true);
-        // }
-
-
-
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($alamat['kec']),
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $desa = json_decode($response, true);
+        }
 
         // if (count($alamat) > 0) {
         //     $curl_jne = curl_init();
@@ -1475,27 +1601,41 @@ class Pages extends BaseController
         ];
 
         //voucher
-        $voucher = [];
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-        if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
-            //voucher member baru
-            $voucherMemberBaru = $this->voucherModel->getVoucher(1);
-            if ($voucherMemberBaru) {
-                if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
-                    array_push($voucher, $voucherMemberBaru);
-                }
-            }
-        }
+        // if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
+        //     //voucher member baru
+        //     $voucherMemberBaru = $this->voucherModel->getVoucher(1);
+        //     if ($voucherMemberBaru) {
+        //         if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
+        //             array_push($voucher, $voucherMemberBaru);
+        //         }
+        //     }
+        // }
+        $voucher = $this->voucherClaimedModel->getVoucher();
         $diskonVoucher = 0;
         $voucherSelected = false;
         if (session()->get('voucher')) {
-            $voucherDetail = $this->voucherModel->getVoucher(session()->get('voucher'));
+            $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
+            //cek kadaluarsa
+            $waktuCurr = strtotime("+7 Hours");
+            $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+            if ($voucherDetail['kadaluarsa']) {
+                $waktuExpire = strtotime($voucherDetail['kadaluarsa']);
+                if ($waktuCurrYmd > $waktuExpire) {
+                    return $this->actionLogout();
+                }
+            }
+
             if (!$voucherDetail) {
                 session()->remove('voucher');
                 return redirect()->to('/checkout');
             }
-            if ($voucherDetail['satuan'] == 'persen') {
-                $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+            if ($voucherDetail['satuan'] != 'cashback') {
+                if ($voucherDetail['satuan'] == 'persen') {
+                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                } else if ($voucherDetail['satuan'] == 'persen') {
+                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                }
             }
             $voucherSelected = $voucherDetail;
         }
@@ -1533,10 +1673,10 @@ class Pages extends BaseController
             'user' => $user,
             'total' => $total,
             'subtotal' => $subtotal,
-            // 'provinsi' => $provinsi["rajaongkir"]["results"],
-            // 'kabupaten' => isset($kota) ? $kota["rajaongkir"]["results"] : [],
-            // 'kecamatan' => isset($kec) ? $kec["rajaongkir"]["results"] : [],
-            // 'desa' => isset($desa) ? $desa : [],
+            'provinsi' => $provinsi["rajaongkir"]["results"],
+            'kabupaten' => isset($kota) ? $kota["rajaongkir"]["results"] : [],
+            'kecamatan' => isset($kec) ? $kec["rajaongkir"]["results"] : [],
+            'desa' => isset($desa) ? $desa : [],
             'keranjang' => $keranjang,
             'keranjangJson' => json_encode($keranjang),
             'voucher' => $voucher,
@@ -1839,6 +1979,11 @@ class Pages extends BaseController
         $kota = json_decode($response, true);
         return $this->response->setJSON($kota, false);
     }
+    public function cobaenv()
+    {
+        $myEnv = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
+        dd($myEnv);
+    }
     public function actionPayCore()
     {
         $email = session()->get('email');
@@ -1968,21 +2113,21 @@ class Pages extends BaseController
         array_push($itemDetails, $biayaadmin);
 
         //voucher
-        // $voucher = [];
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-        // if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
-        //     //voucher member baru
-        //     $voucherMemberBaru = $this->voucherModel->getVoucher(1);
-        //     if (!in_array($email, json_decode($voucherMemberBaru['list_email'], true))) {
-        //         array_push($voucher, $voucherMemberBaru);
-        //     }
-        // }
+
         $diskonVoucher = 0;
         $voucherSelected = false;
+        $cashback = 0;
         if (session()->get('voucher')) {
-            $voucherDetail = $this->voucherModel->getVoucher(session()->get('voucher'));
-            if ($voucherDetail['satuan'] == 'persen') {
-                $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+            $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
+            if ($voucherDetail['satuan'] != 'cashback') {
+                if ($voucherDetail['satuan'] == 'persen') {
+                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                } else if ($voucherDetail['satuan'] == 'persen') {
+                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                }
+            } else {
+                $cashback = (int)$voucherDetail['nominal'];
             }
             $voucherSelected = $voucherDetail;
         }
@@ -1998,7 +2143,7 @@ class Pages extends BaseController
                 'id' => 'Diskon Voucher',
                 'price' => -$data['diskonVoucher'],
                 'quantity' => 1,
-                'name' => 'Diskon Voucher',
+                'name' => 'Diskon Voucher ' . $voucherSelected['nama'],
             );
             array_push($itemDetails, $diskonVoucher);
         }
@@ -2012,10 +2157,11 @@ class Pages extends BaseController
             ]);
         }
 
+        $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
         if (in_array($email, $emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         else
-            $auth = base64_encode("" . ":");
+            $auth = base64_encode($midtrans_production_key . ":");
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = "L" . rand();
@@ -2029,7 +2175,8 @@ class Pages extends BaseController
             'v' => [
                 'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
                 'id' => $voucher ? $voucher['id'] : false,
-            ]
+            ],
+            'c' => $cashback
         ]);
         $arrPostField = [
             "transaction_details" => [
@@ -2137,12 +2284,6 @@ class Pages extends BaseController
                 break;
         }
 
-        // if ($email == 'galih8.4.2001@gmail.com') {
-        //     return $this->response->setJSON([
-        //         'arrpost' => $arrPostField,
-        //     ], false);
-        // }
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => in_array($email, $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
@@ -2169,9 +2310,6 @@ class Pages extends BaseController
         }
         $hasilMidtrans = json_decode($response, true);
 
-        // if ($email == 'galih8.4.2001@gmail.com') {
-        //     return $this->response->setJSON($hasilMidtrans, false);
-        // }
         if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
             session()->setFlashdata('msg', $hasilMidtrans['status_message']);
             return redirect()->to('/checkout');
@@ -2223,14 +2361,12 @@ class Pages extends BaseController
             'data_mid' => json_encode($hasilMidtrans),
             'note' => $note,
             'diskonVoucher' => $data['diskonVoucher'],
-            'idVoucher' => $voucher ? $voucher['id'] : 0
+            'idVoucher' => $voucher ? $voucher['id_voucher'] : 0,
+            'cashback' => $cashback
         ]);
 
         if ($data['diskonVoucher'] > 0) {
-            $voucherSelected = $this->voucherModel->getVoucher($voucher['id']);
-            $voucherSelected_email = json_decode($voucherSelected['list_email'], true);
-            array_push($voucherSelected_email, $email);
-            $this->voucherModel->where(['id' => $voucher['id'], 'active' => '1'])->set(['list_email' => json_encode($voucherSelected_email)])->update();
+            $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
             session()->remove('voucher');
         }
 
@@ -3099,9 +3235,71 @@ class Pages extends BaseController
                     'data_mid' => json_encode($dataMid_curr),
                 ])->update();
 
+                $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+                if ($status == 'Proses') {
+                    if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
+                        $this->voucherClaimedModel->where([
+                            'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
+                            'email_user' => $dataTransaksiFulDariDatabase['email_cus']
+                        ])->delete();
+                    }
+                    //tambah poin
+                    $emailCus = $dataTransaksiFulDariDatabase['email_cus'];
+                    $pembeli = $this->pembeliModel->getPembeli($emailCus);
+                    $waktuCurr = strtotime("+7 Hours");
+                    $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+                    if ($dataTransaksiFulDariDatabase['cashback'] > 0) {
+                        $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
+                        $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
+                        $poin = json_decode($pembeli['poin'], true);
+
+                        $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
+                        $dataPoinNew = [
+                            'kadaluarsa' => $kadaluarsa,
+                            'nominal' => $cashback
+                        ];
+                        array_push($poin, $dataPoinNew);
+                        $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poin)])->update();
+                    }
+                    //tambah tier
+                    $tier = json_decode($pembeli['tier'], true);
+                    $data = $tier['data'];
+                    $kadaluarsa = date("Y-m-d", strtotime("+1 year", strtotime($waktuCurrYmd)));
+                    array_push($data, [
+                        'kadaluarsa' => $kadaluarsa,
+                        'nominal' => (int)$dataMid_curr['gross_amount'],
+                        'id_pesanan' => $order_id
+                    ]);
+                    $dataBaru = [];
+                    $jumlah = 0;
+                    foreach ($data as $d) {
+                        $waktuCurr = strtotime("+7 Hours");
+                        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                        if (date("m-d", $waktuCurr) == '01-01') {
+                            if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
+                                $jumlah += (int)$d['nominal'];
+                                array_push($dataBaru, $d);
+                            }
+                        } else {
+                            $jumlah += (int)$d['nominal'];
+                            array_push($dataBaru, $d);
+                        }
+                    }
+                    if ($jumlah < 10000000) {
+                        $label = 'bronze';
+                    } else if ($jumlah < 50000000) {
+                        $label = 'silver';
+                    } else if ($jumlah < 100000000) {
+                        $label = 'gold';
+                    } else if ($jumlah >= 100000000) {
+                        $label = 'platinum';
+                    }
+                    $tier['label'] = $label;
+                    $tier['data'] = $dataBaru;
+                    $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
+                }
                 //reset jumlah produk
                 if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
-                    $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
                     $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
                     foreach ($dataTransaksiFulDariDatabase_items as $item) {
                         //bentuk item
@@ -3129,12 +3327,11 @@ class Pages extends BaseController
                     }
 
                     //cek kalo dia pake voucher maka dihapus emailnya dri list email yg di table vouhcer
-                    if ($dataTransaksiFulDariDatabase['diskonVoucher'] > 0) {
-                        $listEmailBaru = json_decode($this->voucherModel->where(['id' => $dataTransaksiFulDariDatabase['idVoucher']])->first()['list_email'], true);
-                        if (($key = array_search($dataTransaksiFulDariDatabase['email_cus'], $listEmailBaru)) !== false) {
-                            unset($listEmailBaru[$key]);
-                        }
-                        $this->voucherModel->where(['id' => $dataTransaksiFulDariDatabase['idVoucher']])->set(['list_email' => json_encode($listEmailBaru)])->update();
+                    if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
+                        $this->voucherClaimedModel->where([
+                            'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
+                            'email_user' => $dataTransaksiFulDariDatabase['email_cus']
+                        ])->set(['active' => true])->update();
                     }
                 }
             } else {
@@ -3856,14 +4053,167 @@ class Pages extends BaseController
             return redirect()->to('/');
         }
     }
+
+    public function updateTier()
+    {
+        $pembeli = $this->pembeliModel->findAll();
+        foreach ($pembeli as $p) {
+            $tier = json_decode($p['tier'], true);
+            $data = $tier['data'];
+            $dataBaru = [];
+            $jumlah = 0;
+            foreach ($data as $d) {
+                $waktuCurr = strtotime("+7 Hours");
+                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
+                    $jumlah += (int)$d['nominal'];
+                    array_push($dataBaru, $d);
+                }
+            }
+            if ($jumlah < 10000000) {
+                $label = 'bronze';
+            } else if ($jumlah < 50000000) {
+                $label = 'silver';
+            } else if ($jumlah < 100000000) {
+                $label = 'gold';
+            } else if ($jumlah >= 100000000) {
+                $label = 'platinum';
+            }
+            $tier['label'] = $label;
+            $tier['data'] = $dataBaru;
+            $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode($tier)])->update();
+        }
+        return $this->response->setJSON(['success' => true], false);
+    }
+    public function point()
+    {
+        $tgl_lahir = session()->get('tgl_lahir');
+        $poinSession = session()->get("poin");
+        $tier = session()->get("tier");
+        $poin = 0;
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+        $adaYgExpire = false;
+        foreach ($poinSession as $ind_p => $p) {
+            $waktuExpire = strtotime($p['kadaluarsa']);
+            if ($waktuCurrYmd <= $waktuExpire) {
+                $poin += (int)$p['nominal'];
+            } else {
+                $adaYgExpire = true;
+            }
+        }
+        if ($adaYgExpire) return $this->actionLogout();
+
+        $bonus = [
+            'bronze' => [
+                [
+                    'nominal' => '25k',
+                    'nama' => 'Bonus Ulang Tahun',
+                    'keterangan' => 'Dapatkan 25.000 poin bonus pada bulan ulang tahunmu!'
+                ],
+                [
+                    'nominal' => '5%',
+                    'nama' => 'Diskon Produk Private Label',
+                    'keterangan' => 'Dapatkan diskon 5% untuk barang-barang private label'
+                ],
+                [
+                    'nominal' => '',
+                    'nama' => 'Voucher Bulanan Eksklusif',
+                    'keterangan' => 'Dapatkan voucher belanja eksklusif setiap bulan pada program spesial'
+                ],
+                [
+                    'nominal' => '',
+                    'nama' => 'Dapatkan & Gunakan Poin',
+                    'keterangan' => 'Dapatkan poin yang bisa kamu gunakan untuk bertransaksi'
+                ],
+            ],
+            'silver' => [
+                [
+                    'nominal' => '10%',
+                    'nama' => 'Voucher Diskon',
+                    'keterangan' => 'Nikmati diskon hingga 10% untuk barang tertentu tiap bulannya'
+                ],
+            ],
+            'gold' => [
+                [
+                    'nominal' => '25k',
+                    'nama' => 'Voucher Ulang Tahun',
+                    'keterangan' => 'Nikmati voucher belanja eksklusif senilai Rp25.000 di hari ulang tahunmu.'
+                ],
+                [
+                    'nominal' => '',
+                    'nama' => 'Early Access untuk Promo',
+                    'keterangan' => 'Akses ke berbagai produk dan promo lebih awal dari pengguna lainnya.'
+                ],
+            ],
+            'platinum' => [
+                [
+                    'nominal' => '',
+                    'nama' => 'Customer Care Khusus',
+                    'keterangan' => 'Jalur customer care khusus yang kamu bisa hubungi langsung dan tersedia 24 jam.'
+                ],
+                [
+                    'nominal' => '50k',
+                    'nama' => 'Diskon Khusus',
+                    'keterangan' => 'Discount khusus senilai 50rb tiap bulan nya dengan minimum pembelian'
+                ],
+            ],
+        ];
+        if (!$tgl_lahir) {
+            $bonus['bronze'][0]['ket_nonaktif'] = 'Isi tanggal lahir Kamu pada profile untuk mendapatkan bonus ini!';
+            $bonus['gold'][0]['ket_nonaktif'] = 'Isi tanggal lahir Kamu pada profile untuk mendapatkan bonus ini!';
+        }
+        $data = [
+            'title' => 'Luna Reward',
+            'poin' => $poin,
+            'tier' => $tier,
+            'bonus' => $bonus
+        ];
+        return view('pages/point', $data);
+    }
+    public function pointHistory()
+    {
+        $email = session()->get('email');
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $history  = $this->pointHistoryModel->getHistoryCus($email);
+        // $history = [
+        //     [
+        //         'label' => 'Transaksi Pembelian',
+        //         'nominal' => 24000,
+        //         'keterangan' => 'Point dari 5% total pembelian',
+        //         'tanggal' => '2024-12-05'
+        //     ],
+        //     [
+        //         'label' => 'Bonus Ulang Tahun',
+        //         'nominal' => 25000,
+        //         'keterangan' => 'Point dari pembelian tahun ulang tahun',
+        //         'tanggal' => '2024-12-10'
+        //     ],
+        //     [
+        //         'label' => 'Pembelian',
+        //         'nominal' => -10000,
+        //         'keterangan' => 'Pengurangan dari pembelian pada transaksi L00002123',
+        //         'tanggal' => '2024-12-11'
+        //     ],
+        // ];
+        $data = [
+            'title' => 'Luna Point History',
+            'history' => $history,
+            'bulan' => $bulan
+        ];
+        return view('pages/pointHistory', $data);
+    }
+
     public function account()
     {
         $nama = session()->get("nama");
         $nohp = session()->get("nohp");
+        $tgl_lahir = session()->get("tgl_lahir");
         $data = [
             'title' => 'Akun Saya',
             'nama' => $nama,
             'nohp' => $nohp,
+            'tgl_lahir' => $tgl_lahir,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
         return view('pages/account', $data);
@@ -3876,6 +4226,7 @@ class Pages extends BaseController
         $sandi = $this->request->getVar('sandi');
         $nama = $this->request->getVar('nama');
         $nohp = $this->request->getVar('nohp');
+        $tgl_lahir = $this->request->getVar('tgl_lahir');
 
         if ($sandi != '') {
             $this->userModel->where('email', $email)->set([
@@ -3886,11 +4237,13 @@ class Pages extends BaseController
             $this->pembeliModel->where('email_user', $email)->set([
                 'nama' => $nama,
                 'nohp' => $nohp,
+                'tgl_lahir' => $tgl_lahir,
             ])->update();
 
             session()->set([
                 'nama' => $nama,
                 'nohp' => $nohp,
+                'tgl_lahir' => $tgl_lahir,
             ]);
         }
 
@@ -4015,6 +4368,63 @@ class Pages extends BaseController
             if ($t['kurir'] != 'kosong') {
                 $this->pemesananModel->where(['id' => $t['id']])->set(['kurir' => 'Lunarea - Darat'])->update();
             }
+        }
+        return $this->response->setJSON(['success' => true], false);
+    }
+    public function isitier()
+    {
+        // $pembeli = $this->pembeliModel->findAll();
+        // foreach ($pembeli as $p) {
+        //     $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode([
+        //         'label' => 'bronze',
+        //         'data' => []
+        //     ])])->update();
+        // }
+
+        // $pemesanan = $this->pemesananModel->findAll();
+        // foreach ($pemesanan as $p) {
+        //     $dataMid = json_decode($p['data_mid'], true);
+        //     $transaction_time = explode(" ", $dataMid['transaction_time'])[0];
+        //     $kadaluarsa = (((int)explode("-", $transaction_time)[0]) + 1) . "-" . explode("-", $transaction_time)[1] . "-" . explode("-", $transaction_time)[2];
+        //     $nominal = (int)$dataMid['gross_amount'];
+        //     $idPesanan = $dataMid['order_id'];
+        //     $datanya = [
+        //         'kadaluarsa' => $kadaluarsa,
+        //         'nominal' => $nominal,
+        //         'id_pesanan' => $idPesanan,
+        //     ];
+
+        //     $pembeli = $this->pembeliModel->where(['email_user' => $p['email_cus']])->first();
+        //     if ($pembeli) {
+        //         $getTier = json_decode($pembeli['tier'], true);
+        //         $waktuCurr = strtotime("+7 Hours");
+        //         // $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+        //         if($waktuCurr <= strtotime($kadaluarsa)) {
+        //             array_push($getTier['data'], $datanya);
+        //             $this->pembeliModel->where(['email_user' => $p['email_cus']])->set(['tier' => json_encode($getTier)])->update();
+        //         }
+        //     }
+        // }
+
+        $pembeli = $this->pembeliModel->findAll();
+        foreach ($pembeli as $p) {
+            $tier = json_decode($p['tier'], true);
+            $data = $tier['data'];
+            $jumlah = 0;
+            foreach ($data as $d) {
+                $jumlah += (int)$d['nominal'];
+            }
+            if ($jumlah < 10000000) {
+                $label = 'bronze';
+            } else if ($jumlah < 50000000) {
+                $label = 'silver';
+            } else if ($jumlah < 100000000) {
+                $label = 'gold';
+            } else if ($jumlah >= 100000000) {
+                $label = 'platinum';
+            }
+            $tier['label'] = $label;
+            $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode($tier)])->update();
         }
         return $this->response->setJSON(['success' => true], false);
     }

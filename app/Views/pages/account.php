@@ -7,9 +7,9 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><b>Profileku</b></li>
                     <?php if (session()->get('role') == '0') { ?>
-                        <li class="list-group-item"><a class="list" href="/cart">Keranjang</a></li>
-                        <li class="list-group-item"><a class="list" href="/wishlist">Wishlist</a></li>
                         <li class="list-group-item"><a class="list" href="/transaction">Transaksi</a></li>
+                        <li class="list-group-item"><a class="list" href="/point">Luna poin</a></li>
+                        <li class="list-group-item"><a class="list" href="/voucher">Voucher</a></li>
                     <?php } ?>
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
@@ -39,6 +39,10 @@
                             <div class="col-12">
                                 <label for="inputAddress" class="form-label">Nomor Handphone</label>
                                 <input name="nohp" type="number" class="form-control" placeholder="No HP" value="<?= $nohp ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="inputAddress" class="form-label">Tanggal Lahir</label>
+                                <input name="tgl_lahir" type="date" class="form-control" value="<?= $tgl_lahir ?>" required>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary1">Simpan</button>

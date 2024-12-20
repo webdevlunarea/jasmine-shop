@@ -180,7 +180,8 @@
                                     <li>Apabila terdapat kerusakan komponen akibat pengiriman, segera hubungi customer service Kami agar dapat segera diproses penggantian komponen tersebut. Estimasi pengiriman komponen pengganti ini memerlukan waktu kurang lebih 14 hari kerja.</li>
                                     <li>Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak, agar kami dapat segera menggantinya dengan aksesoris yang baru. </li>
                                     <li>Sebagai informasi, untuk proses pengiriman ulang komponen memerlukan waktu selambat-lambatnya 14 hari kerja untuk komponen dan 7 hari kerja untuk aksesoris.</li>
-                                    <li>Batas waktu komplain maksimal 7 hari kerja setelah produk diterima.</li>
+                                    <li>Batas waktu komplain maksimal 14 hari kerja setelah produk diterima dan maksimal pengajuan komplain sebanyak 2 kali.</li>
+                                    <li>Jika kerusakan produk mencapai 50% / produk tidak bisa digunakan semestinya maka akan diganti produk baru dengan syarat barang yang lama dikembalikan (ongkos kirim ditanggung oleh kami).</li>
                                 </ol>
                             </div>
                         </div>

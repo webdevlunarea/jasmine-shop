@@ -246,11 +246,11 @@
 
                 <div style="width: 100%; max-width: 400px;">
                     <?php if (count($voucher) > 0) { ?>
-                        <div class="tombol-pilih-kurir mb-2 <?= $diskonVoucher > 0 ? 'active' : ''; ?>" onclick="pilihVoucher()">
-                            <?php if ($diskonVoucher > 0) { ?>
+                        <div class="tombol-pilih-kurir mb-2 <?= $voucherSelected ? 'active' : ''; ?>" onclick="pilihVoucher()">
+                            <?php if ($voucherSelected) { ?>
                                 <div>
                                     <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
-                                    <p class="m-0">Potongan sebesar <?= $voucherSelected['nominal'] ?> <?= $voucherSelected['satuan'] ?></p>
+                                    <p class="m-0" style="font-size: small;"><?= $voucherSelected['keterangan'] ?></p>
                                 </div>
                                 <i class="material-icons">chevron_right</i>
                             <?php } else { ?>
@@ -263,7 +263,7 @@
                                 <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>" href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
                                     <div>
                                         <h5 class="m-0"><?= $v['nama']; ?></h5>
-                                        <p class="m-0">Potongan sebesar <?= $v['nominal'] ?> <?= $v['satuan'] ?></p>
+                                        <p class="m-0" style="font-size: small;"><?= $v['keterangan'] ?></p>
                                     </div>
                                     <?php if ($activeVoucher == $v['id']) { ?>
                                         <div><i class="material-icons">close</i></div>
@@ -298,7 +298,7 @@
                                             <p class="mb-0"><?= $jumlah[$index]; ?></p>
                                         </td>
                                         <td class="text-end">
-                                            <p class="mb-0">Rp
+                                            <p class="mb-0" style="text-wrap: nowrap;">Rp
                                                 <?php
                                                 if ($p['diskon']) {
                                                     $persen = (100 - $p['diskon']) / 100;
@@ -339,7 +339,7 @@
                     <?php } ?>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
-                        <p class="my-2"><b id="total-semua">Rp
+                        <p class="my-2" style="color: var(--hijau);"><b id="total-semua">Rp
                                 <?= number_format($total - $diskonVoucher - $potonganPreorder, 0, ",", "."); ?></b>
                         </p>
                     </div>

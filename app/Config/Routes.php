@@ -55,6 +55,9 @@ $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/
 $routes->post('/actionpaycore', 'Pages::actionPayCore');
 $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
+$routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusLogin']);
+$routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusLogin']);
+
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 // $routes->post('/addtransaction', 'Pages::addTransaction');
@@ -77,6 +80,10 @@ $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
+
+$routes->get('/point', 'Pages::point', ['filter' => 'harusLogin']);
+$routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusLogin']);
+$routes->get('/updatetier', 'Pages::updateTier', ['filter' => 'harusAdmin']);
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');
@@ -125,7 +132,6 @@ $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter'
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
 
-
 // GambarController
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
@@ -161,6 +167,8 @@ $routes->get('/fixkurir', 'Pages::fixKurir');
 $routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
 $routes->get('/gantiukuran/(:any)', 'Pages::gantiUkuran/$1');
 $routes->get('/gantiukuranartikel', 'Pages::gantiUkuranArtikel');
+$routes->get('/isitier', 'Pages::isitier');
+$routes->get('/cobaenv', 'Pages::cobaenv');
 
 //API SHEET
 $routes->post('/sheet/updatestok', 'ApiSheet::updateStok', ['filter' => 'corsFilter']);

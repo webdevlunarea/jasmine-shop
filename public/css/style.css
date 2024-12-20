@@ -1161,7 +1161,77 @@ footer > .atas > div {
     font-weight: bold;
 }
 
+.tier {
+    color: white;
+    border-radius: 3em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1em;
+    filter: opacity(0.2) saturate(0);
+}
+.tier.aktif {
+    filter: opacity(1) saturate(1);
+}
+.tier.bronze {
+    background-color: brown;
+}
+.tier.silver {
+    background-color: grey;
+}
+.tier.gold {
+    background-color: gold;
+}
+.tier.platinum {
+    background-color: rgb(0, 162, 255);
+}
+.tier.big .material-icons {
+    font-size: 3em;
+}
+.tier.small .material-icons {
+    font-size: 2em;
+}
+.progres-tier {
+    border-radius: 20px;
+    height: 10px;
+    width: 100%;
+    background-color: whitesmoke;
+}
+.progres-tier .bar {
+    border-radius: 20px;
+    background-color: var(--hijau);
+    height: 100%;
+}
+.tier-point {
+    height: 12px;
+    width: 11px;
+    border-radius: 30px;
+    border: 2px solid rgb(199, 199, 199);
+}
+.tier-point.aktif {
+    border: 2px solid var(--hijau);
+    background-color: var(--hijau);
+}
+.tier-split {
+    width: 4px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.list-voucher-customer {
+    border-radius: 1em;
+    padding: 1em 2em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.list-voucher-customer.aktif {
+    background-color: var(--hijaumuda);
+}
+
 @media (max-width: 600px) {
+    .tier.small .material-icons {
+        font-size: 1.4em;
+    }
     p,
     h1,
     input,
