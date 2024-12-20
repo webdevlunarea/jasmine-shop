@@ -782,17 +782,46 @@ class Pages extends BaseController
             $emailasli = substr($email, 0, -11);
             $getPembeli = $this->pembeliModel->getPembeli($emailasli);
             $getUser = $this->userModel->getUser($emailasli);
+            $poin = json_decode($getPembeli['poin'], true);
+            if (count($poin) > 0) {
+                //dicek apakah ada poin yg kadaluarsa, klo ada maka dihapus dr table pembali dan insert tabel point history
+                $waktuCurr = strtotime("+7 Hours");
+                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                $apakahAda = false;
+                foreach ($poin as $ind_p => $p) {
+                    $waktuExpire = strtotime($p['kadaluarsa']);
+                    if ($waktuCurrYmd > $waktuExpire) {
+                        $this->pointHistoryModel->insert([
+                            'id' => $waktuCurr,
+                            'label' => 'kadaluarsa',
+                            'nominal' => ((int)$p['nominal']) * (-1),
+                            'keterangan' => 'Point telah kadaluarsa',
+                            'tanggal' => $p['kadaluarsa'],
+                            'email_user' => $getUser['email']
+                        ]);
+                        unset($poin[$ind_p]);
+                        $apakahAda = true;
+                    }
+                }
+                if ($apakahAda) {
+                    $poin = array_values($poin);
+                    $this->pembeliModel->where(['email_user' => $getUser['email']])->set(['poin' => json_encode($poin)])->update();
+                }
+            }
             $ses_data = [
                 'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'nama' => $getPembeli['nama'],
+                'tgl_lahir' => $getPembeli['tgl_lahir'],
                 'alamat' => json_decode($getPembeli['alamat'], true),
                 'nohp' => $getPembeli['nohp'],
                 'wishlist' => json_decode($getPembeli['wishlist'], true),
                 'keranjang' => json_decode($getPembeli['keranjang'], true),
                 'transaksi' => json_decode($getPembeli['transaksi'], true),
-                'isLogin' => true
+                'tier' => json_decode($getPembeli['tier'], true),
+                'isLogin' => true,
+                'poin' => $poin,
             ];
             session()->set($ses_data);
             return redirect()->to(site_url('/'));
