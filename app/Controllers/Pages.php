@@ -3290,6 +3290,14 @@ class Pages extends BaseController
                         ];
                         array_push($poin, $dataPoinNew);
                         $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poin)])->update();
+                        $this->pointHistoryModel->insert([
+                            'id' => $waktuCurr,
+                            'label' => $voucherSelected['nama'],
+                            'nominal' => $voucherSelected['nominal'],
+                            'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
+                            'tanggal' => $waktuCurrYmd,
+                            'email_user' => $emailCus
+                        ]);
                     }
                     //tambah tier
                     $tier = json_decode($pembeli['tier'], true);
