@@ -1659,11 +1659,11 @@ class Pages extends BaseController
                 session()->remove('voucher');
                 return redirect()->to('/checkout');
             }
-            if ($voucherDetail['satuan'] != 'cashback') {
+            if ($voucherDetail['jenis'] != 'cashback') {
                 if ($voucherDetail['satuan'] == 'persen') {
                     $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
-                } else if ($voucherDetail['satuan'] == 'persen') {
-                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                } else if ($voucherDetail['satuan'] == 'rupiah') {
+                    $diskonVoucher = (int)$voucherDetail['nominal'];
                 }
             }
             $voucherSelected = $voucherDetail;
@@ -2149,11 +2149,11 @@ class Pages extends BaseController
         $cashback = 0;
         if (session()->get('voucher')) {
             $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
-            if ($voucherDetail['satuan'] != 'cashback') {
+            if ($voucherDetail['jenis'] != 'cashback') {
                 if ($voucherDetail['satuan'] == 'persen') {
                     $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
-                } else if ($voucherDetail['satuan'] == 'persen') {
-                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+                } else if ($voucherDetail['satuan'] == 'rupiah') {
+                    $diskonVoucher = (int)$voucherDetail['nominal'];
                 }
             } else {
                 $cashback = (int)$voucherDetail['nominal'];
