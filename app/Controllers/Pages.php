@@ -3488,6 +3488,10 @@ class Pages extends BaseController
                         foreach ($poinCur as $ind_p => $p) {
                             if (!$p['active']) {
                                 $poinCur[$ind_p]['active'] = true;
+                                if ((int)$p['nominal'] == 0) {
+                                    $sisa = $poinCurFinal - $poinCounter;
+                                    $poinCur[$ind_p]['nominal'] = $sisa;
+                                }
                             } else {
                                 if ($poinCurFinal > $poinCounter) {
                                     $sisa = $poinCurFinal - $poinCounter;
