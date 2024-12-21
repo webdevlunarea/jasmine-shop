@@ -78,8 +78,12 @@
                 <p class="my-2">Total Berat:</p>
                 <p class="my-2"><b><?= $berat; ?> kg</b></p>
             </div>
-            <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?><?= count($indStokHabis) > 0 ? "disabled" : ""; ?>" href="/checkout">Proses
-                Checkout</a>
+            <?php if ($adaPesananPending) { ?>
+                <a class="btn btn-outline-danger mt-2" href="/order/<?= $adaPesananPending['id_midtrans']; ?>">Selesaikan pesananmu dulu!</a>
+            <?php } else { ?>
+                <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?><?= count($indStokHabis) > 0 ? "disabled" : ""; ?>" href="/checkout">Proses
+                    Checkout</a>
+            <?php } ?>
         </div>
     </div>
 </div>

@@ -83,6 +83,8 @@ $routes->get('/about', 'Pages::about');
 
 $routes->get('/point', 'Pages::point', ['filter' => 'harusLogin']);
 $routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusLogin']);
+$routes->get("/point/use", 'Pages::pointUse', ['filter' => 'harusLogin']);
+$routes->get("/point/cancel", 'Pages::pointCancel', ['filter' => 'harusLogin']);
 $routes->get('/updatetier', 'Pages::updateTier', ['filter' => 'harusAdmin']);
 
 $routes->get('/product/(:any)', 'Pages::product/$1');

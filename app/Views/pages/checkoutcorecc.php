@@ -1,5 +1,26 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<style>
+    .btn-use-point {
+        display: flex;
+        justify-content: space-between;
+        gap: 10em;
+        color: black;
+        width: 100%;
+        border: 1px solid var(--hijau);
+        margin-block: 0.5em;
+    }
+
+    .btn-use-point:hover {
+        border: 1px solid var(--hijaumuda);
+        color: var(--hijau);
+    }
+
+    .btn-use-point.use {
+        margin: 0;
+        border: none;
+    }
+</style>
 <div class="konten">
     <div class="container">
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
@@ -97,7 +118,7 @@
                         </div>
                     </div>
                     <div class="pt-3">
-                        <h5 class="mb-2">Metode Pembayaran</h5>
+                        <h5 class="mb-3">Metode Pembayaran</h5>
                         <div class="alert d-none" role="alert" id="alert-cc"></div>
                         <div class="container-pembayaran mb-1">
                             <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
@@ -337,16 +358,33 @@
                             </p>
                         </div>
                     <?php } ?>
+                    <?php if ($poin > 0) { ?>
+                        <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                            <a href="/point/<?= $usepoin ? 'cancel' : 'use'; ?>" class="btn-use-point <?= $usepoin ? 'use' : ''; ?>">
+                                <?php if ($usepoin) { ?>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="material-icons" style="font-size: small;">close</i>
+                                        <p class="my-2">Luna point:</p>
+                                    </div>
+                                    <p class="my-2"><b>- Rp
+                                            <?= number_format($poin, 0, ",", "."); ?></b>
+                                    </p>
+                                <?php } else { ?>
+                                    <p class="my-2 text-center w-100">Pakai Luna Point?</p>
+                                <?php } ?>
+                            </a>
+                        </div>
+                    <?php } ?>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
                         <p class="my-2" style="color: var(--hijau);"><b id="total-semua">Rp
-                                <?= number_format($total - $diskonVoucher - $potonganPreorder, 0, ",", "."); ?></b>
+                                <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0), 0, ",", "."); ?></b>
                         </p>
                     </div>
-                    <div class="mt-2">
+                    <div class="mt-4">
                         <p>
-                            <input type="checkbox" id="syarat" style="display: inline;" required>
-                            <label for="syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
+                            <input type="checkbox" id="checkbox-syarat" style="display: inline;" class="me-2" required>
+                            <label for="checkbox-syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
                         </p>
                     </div>
                     <button id="btn-checkout" class="btn btn-primary1 disabled" type="submit">Bayar</button>
@@ -356,7 +394,7 @@
     </div>
 </div>
 <script>
-    const checkboxElm = document.querySelector('input[type="checkbox"]');
+    const checkboxElm = document.getElementById('checkbox-syarat');
     const formAlamatElm = document.querySelectorAll(".form-alamat")
     const inputNamaPemElm = document.querySelector('input[name="namaPem"]');
     const inputNohpPemElm = document.querySelector('input[name="nohpPem"]');

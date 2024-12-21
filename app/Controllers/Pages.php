@@ -954,7 +954,7 @@ class Pages extends BaseController
     }
     public function actionLogout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin'];
         session()->remove($ses_data);
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
@@ -1116,6 +1116,8 @@ class Pages extends BaseController
             return redirect()->to('/cart');
         }
 
+        $pemesananTungguBayar = $this->pemesananModel->getPemesananPending($email);
+
         $data = [
             'title' => 'Keranjang',
             'produk' => $produk,
@@ -1125,7 +1127,8 @@ class Pages extends BaseController
             'tokenMid' => false,
             'berat' => $berat,
             'msg' => session()->getFlashdata('msg'),
-            'indStokHabis' => $indElementStokHabis
+            'indStokHabis' => $indElementStokHabis,
+            'adaPesananPending' => $pemesananTungguBayar
         ];
 
         // if (!isset($total)) {
@@ -1331,6 +1334,10 @@ class Pages extends BaseController
 
         $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
         $potonganPreorder = 0;
+
+        //cek apakah ada pesanan yang masih menunggu pembayaran
+        $pemesananTungguBayar = $this->pemesananModel->getPemesananPending($email);
+        if ($pemesananTungguBayar) return redirect()->to('/order/' . $pemesananTungguBayar['id_midtrans']);
 
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
@@ -1669,6 +1676,27 @@ class Pages extends BaseController
             $voucherSelected = $voucherDetail;
         }
 
+        //hitung point
+        $poinSession = session()->get("poin");
+        $poin = 0;
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+        $adaYgExpire = false;
+        foreach ($poinSession as $p) {
+            $waktuExpire = strtotime($p['kadaluarsa']);
+            if ($waktuCurrYmd <= $waktuExpire) {
+                if ($p['active']) {
+                    $poin += (int)$p['nominal'];
+                }
+            } else {
+                $adaYgExpire = true;
+            }
+        }
+        if ($adaYgExpire) return $this->actionLogout();
+        if ($poin > ($total - $diskonVoucher - $potonganPreorder)) {
+            $poin = $total - $diskonVoucher - $potonganPreorder;
+        }
+
         // $voucherSelected = [
         //     'id' => 1,
         //     'nama' => 'Member Baru',
@@ -1721,7 +1749,9 @@ class Pages extends BaseController
             'emailUji' => $emailUjiCoba,
             // 'paket' => $paketFilter,
             // 'paketJson' => json_encode($paketFilter),
-            'potonganPreorder' => $potonganPreorder
+            'potonganPreorder' => $potonganPreorder,
+            'poin' => $poin,
+            'usepoin' => session()->get('usepoin')
         ];
         // return view('pages/' . (in_array($email, $emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
         return view('pages/checkoutcorecc', $data);
@@ -2168,13 +2198,12 @@ class Pages extends BaseController
         $voucher = $data['voucherSelected'];
 
         if ($data['diskonVoucher'] > 0) {
-            $diskonVoucher = array(
+            array_push($itemDetails, [
                 'id' => 'Diskon Voucher',
                 'price' => -$data['diskonVoucher'],
                 'quantity' => 1,
                 'name' => 'Diskon Voucher ' . $voucherSelected['nama'],
-            );
-            array_push($itemDetails, $diskonVoucher);
+            ]);
         }
 
         if ($potonganPreorder > 0) {
@@ -2184,6 +2213,58 @@ class Pages extends BaseController
                 'quantity' => 1,
                 'name' => 'Potongan Preorder',
             ]);
+        }
+
+        //point
+        $poinSession = session()->get('poin');
+        $usepoin = session()->get('usepoin');
+        $poin = 0;
+        foreach ($poinSession as $p) {
+            if ($p['active']) {
+                $poin += (int)$p['nominal'];
+            }
+        }
+        if ($poin > ($total - $diskonVoucher - $potonganPreorder)) {
+            $poin = $total - $diskonVoucher - $potonganPreorder;
+        }
+        if ($usepoin) {
+            //add poin di itemdetails
+            array_push($itemDetails, [
+                'id' => 'Luna Point',
+                'price' => -$poin,
+                'quantity' => 1,
+                'name' => 'Luna Point',
+            ]);
+
+            //update poin di pembeli
+            $poinCounter = 0;
+            $poinArrIndexTerpakai = [];
+            $poinIndexAkhirHapus = null;
+            foreach ($poinSession as $ind_p => $p) {
+                $poinCounter += (int)$p['nominal'];
+                if ($poinCounter >= $poin) {
+                    $poinSblm = $poinCounter - (int)$p['nominal'];
+                    $penambahnya = $poin - $poinSblm;
+                    $sisa = (int)$p['nominal'] - $penambahnya;
+                    $poinSession[$ind_p]['nominal'] = $sisa;
+                    if ($sisa == 0) {
+                        $poinIndexAkhirHapus = $ind_p;
+                    }
+                    break;
+                } else {
+                    array_push($poinArrIndexTerpakai, $ind_p);
+                }
+            }
+            if ($poinIndexAkhirHapus != null) {
+                $poinSession[$poinIndexAkhirHapus]['active'] = false;
+            }
+            foreach ($poinArrIndexTerpakai as $p) {
+                $poinSession[$p]['active'] = false;
+            }
+            $this->pembeliModel->where(['email_user' => $email])->set(['poin' => json_encode($poinSession)])->update();
+
+            //update poin di session
+            session()->set('poin', $poinSession);
         }
 
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
@@ -2210,7 +2291,7 @@ class Pages extends BaseController
         $arrPostField = [
             "transaction_details" => [
                 "order_id" => in_array($email, $emailUjiCoba) ? $randomId : $idFix,
-                "gross_amount" => $total - $data['diskonVoucher'] - $potonganPreorder,
+                "gross_amount" => $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0),
             ],
             'customer_details' => array(
                 'email' => $email,
@@ -2391,7 +2472,8 @@ class Pages extends BaseController
             'note' => $note,
             'diskonVoucher' => $data['diskonVoucher'],
             'idVoucher' => $voucher ? $voucher['id_voucher'] : 0,
-            'cashback' => $cashback
+            'cashback' => $cashback,
+            'pakai_poin' => $poin
         ];
         $this->pemesananModel->insert($insertDataPemesanan);
 
@@ -2399,6 +2481,7 @@ class Pages extends BaseController
             $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
             session()->remove('voucher');
         }
+        session()->remove('usepoin');
 
         //pengurangan stok produk
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $arrPostField['transaction_details']['order_id'])->first();
@@ -3286,7 +3369,8 @@ class Pages extends BaseController
                         $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
                         $dataPoinNew = [
                             'kadaluarsa' => $kadaluarsa,
-                            'nominal' => $cashback
+                            'nominal' => $cashback,
+                            'active' => true
                         ];
                         array_push($poin, $dataPoinNew);
                         $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poin)])->update();
@@ -3364,12 +3448,33 @@ class Pages extends BaseController
                         }
                     }
 
-                    //cek kalo dia pake voucher maka dihapus emailnya dri list email yg di table vouhcer
+                    //aktifkan kemabli voucher claimednya
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
                         $this->voucherClaimedModel->where([
                             'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
                             'email_user' => $dataTransaksiFulDariDatabase['email_cus']
                         ])->set(['active' => true])->update();
+                    }
+
+                    //aktifkan kembali poinnya
+                    if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
+                        $pembeliCur = $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->first();
+                        $poinCur = json_decode($pembeliCur['poin'], true);
+                        $poinCounter = 0;
+                        $poinCurFinal = $dataTransaksiFulDariDatabase['pakai_poin'];
+                        foreach ($poinCur as $ind_p => $p) {
+                            if (!$p['active']) {
+                                $poinCur[$ind_p]['active'] = true;
+                            } else {
+                                if ($poinCurFinal > $poinCounter) {
+                                    $sisa = $poinCurFinal - $poinCounter;
+                                    $poinCur[$ind_p]['nominal'] = (int)$p['nominal'] + $sisa;
+                                }
+                                break;
+                            }
+                            $poinCounter += (int)$p['nominal'];
+                        }
+                        $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
                     }
                 }
             } else {
@@ -4135,7 +4240,9 @@ class Pages extends BaseController
         foreach ($poinSession as $ind_p => $p) {
             $waktuExpire = strtotime($p['kadaluarsa']);
             if ($waktuCurrYmd <= $waktuExpire) {
-                $poin += (int)$p['nominal'];
+                if ($p['active']) {
+                    $poin += (int)$p['nominal'];
+                }
             } else {
                 $adaYgExpire = true;
             }
@@ -4240,6 +4347,16 @@ class Pages extends BaseController
             'bulan' => $bulan
         ];
         return view('pages/pointHistory', $data);
+    }
+    public function pointUse()
+    {
+        session()->set('usepoin', true);
+        return redirect()->to('/checkout');
+    }
+    public function pointCancel()
+    {
+        session()->remove('usepoin');
+        return redirect()->to('/checkout');
     }
 
     public function account()
