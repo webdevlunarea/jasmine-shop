@@ -595,12 +595,12 @@ class Pages extends BaseController
         session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
         return redirect()->to('/verify');
     }
-    public function actionSignup()
+    public function actionSignupSalah()
     {
         session()->setFlashdata('msg', "Maaf, masih dalam masa perbaikan. Akan aktif kembali ketika pukul 07:30 WIB");
         return redirect()->to('/signup');
     }
-    public function actionSignupBenar()
+    public function actionSignup()
     {
 
         if (!$this->validate([
