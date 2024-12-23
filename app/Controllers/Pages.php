@@ -727,13 +727,18 @@ class Pages extends BaseController
         $getPembeli = $this->pembeliModel->getPembeli($email);
         $ses_data = [
             'active' => '1',
+            'email' => $getUser['email'],
             'role' => $getUser['role'],
             'nama' => $getPembeli['nama'],
+            'tgl_lahir' => $getPembeli['tgl_lahir'],
             'alamat' => json_decode($getPembeli['alamat'], true),
             'nohp' => $getPembeli['nohp'],
             'wishlist' => json_decode($getPembeli['wishlist'], true),
             'keranjang' => json_decode($getPembeli['keranjang'], true),
-            'transaksi' => json_decode($getPembeli['transaksi'], true)
+            'transaksi' => json_decode($getPembeli['transaksi'], true),
+            'tier' => json_decode($getPembeli['tier'], true),
+            'isLogin' => true,
+            'poin' => json_decode($getPembeli['poin'], true),
         ];
         $this->userModel->where('email', $email)->set([
             'active' => '1',
