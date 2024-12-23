@@ -14,9 +14,9 @@
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>
-            <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
+            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
                 <a class="btn btn-outline-danger" style="width: fit-content;" href="/keluar">Keluar</a>
-            </div>
+            </div> -->
             <div class="w-100">
                 <div class="p-2">
                     <h3 class="mb-3">Luna Points Rewards</h3>
@@ -24,7 +24,7 @@
                         <div>
                             <p class="text-secondary m-0">Kamu sebagai</p>
                             <h3 class="m-0"><?= strtoupper($tier['label']); ?> USER</h3>
-                            <a href="/point/history" style="color: var(--hijau);" class="d-flex">POINT HISTORY <i class="material-icons">keyboard_arrow_right</i></a>
+                            <a href="/point/history" style="color: var(--hijau);" class="d-flex align-items-center">POINT HISTORY <i class="material-icons">keyboard_arrow_right</i></a>
                         </div>
                         <div class="baris-ke-kolom gap-1 align-items-end justify-content-end">
                             <h3 class="m-0"><?= number_format($poin, 0, ",", "."); ?></h3>

@@ -14,13 +14,13 @@
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>
-            <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
+            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
                 <a class="btn btn-outline-danger" style="width: fit-content;" href="/keluar">Keluar</a>
-            </div>
+            </div> -->
             <div class="w-100">
                 <div class="p-2">
                     <h3 class="m-0">Luna Points History</h3>
-                    <a href="/point" style="color: var(--hijau);" class="d-flex mb-3"><i class="material-icons">keyboard_arrow_left</i> POINT REWARDS</a>
+                    <a href="/point" style="color: var(--hijau);" class="d-flex mb-3 align-items-center"><i class="material-icons">keyboard_arrow_left</i> POINT REWARDS</a>
                     <hr>
                     <div class="d-flex flex-column gap-1">
                         <?php if (count($history) > 0) { ?>
