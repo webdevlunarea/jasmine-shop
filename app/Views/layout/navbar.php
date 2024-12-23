@@ -1,3 +1,20 @@
+<style>
+    .menu-hp-navbar {
+        position: fixed;
+        left: 0;
+        top: 102px;
+        background-color: rgba(0, 0, 0, 0.2);
+        width: 100vw;
+        height: 0svh;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    #akun-icon:checked~.menu-hp-navbar {
+        height: 100svh;
+        transition: 0.3s;
+    }
+</style>
 <nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
     <div class="container d-flex">
         <form class="d-flex flex-grow-1 search-box" role="search">
@@ -13,7 +30,21 @@
                 <?php if (session()->get('email') == 'tamu') { ?>
                     <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
                 <?php } else { ?>
-                    <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                    <input type="checkbox" id="akun-icon" class="d-none">
+                    <label for="akun-icon" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></label>
+                    <div class="menu-hp-navbar">
+                        <div class="container py-3" style="background-color: white;">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account">Profileku</a></li>
+                                <?php if (session()->get('role') == '0') { ?>
+                                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction">Transaksi</a></li>
+                                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point">Luna poin</a></li>
+                                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher">Voucher</a></li>
+                                <?php } ?>
+                                <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 <?php } ?>
             <?php } else { ?>
                 <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
@@ -33,9 +64,9 @@
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">Beranda</a>
             <a style="font-size: smaller; background-color: var(--hijau) " class="nav-link flex-grow-1 text-center <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
-            <?php if (session()->get('isLogin')) { ?>
+            <!-- <?php if (session()->get('isLogin')) { ?>
                 <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
-            <?php } ?>
+            <?php } ?> -->
         </div>
     </div>
 </nav>

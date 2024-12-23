@@ -16,9 +16,9 @@
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
                 </ul>
             </div>
-            <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
+            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
                 <a class="btn btn-outline-danger" style="width: fit-content;" href="/keluar">Keluar</a>
-            </div>
+            </div> -->
             <div style="flex: 1;">
                 <div class="p-2">
                     <h3>Transaksi Pembayaran</h3>
