@@ -676,6 +676,17 @@ class Pages extends BaseController
             ]),
         ]);
 
+        //klaimkan voucher member baru
+        $waktuCurr = strtotime("+7 Hours");
+        $kadaluarsa = null;
+        $this->voucherClaimedModel->insert([
+            'id' => $waktuCurr,
+            'id_voucher' => '1',
+            'kadaluarsa' => $kadaluarsa,
+            'email_user' => $this->request->getVar('email'),
+            'active' => true
+        ]);
+
         $emailUser = $this->request->getVar('email');
         $getUser = $this->userModel->getUser($emailUser);
         $ses_data = [
