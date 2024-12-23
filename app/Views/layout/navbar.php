@@ -2,7 +2,7 @@
     .menu-hp-navbar {
         position: fixed;
         left: 0;
-        top: 102px;
+        top: 101px;
         background-color: rgba(0, 0, 0, 0.2);
         width: 100vw;
         height: 0svh;
@@ -45,6 +45,18 @@
                             </ul>
                         </div>
                     </div>
+                    <script>
+                        const menuHpNavbarElm = document.querySelector('.menu-hp-navbar');
+                        const akunIconElm = document.getElementById('akun-icon')
+                        menuHpNavbarElm.addEventListener('click', (e) => {
+                            console.log('ini backgroundnnya')
+                            akunIconElm.checked = false
+                        })
+                        menuHpNavbarElm.children[0].addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            console.log('ini anaknya')
+                        })
+                    </script>
                 <?php } ?>
             <?php } else { ?>
                 <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
