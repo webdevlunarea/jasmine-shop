@@ -935,6 +935,7 @@ class Pages extends BaseController
                 'email' => 'tamu',
                 'role' => 0,
                 'nama' => 'tamu',
+                'tgl_lahir' => null,
                 'alamat' => [],
                 'nohp' => 'tamu',
                 'wishlist' => [],
@@ -947,7 +948,12 @@ class Pages extends BaseController
                     ]
                 ],
                 'transaksi' => [],
-                'isLogin' => true
+                'tier' => [
+                    'label' => 'bronze',
+                    'data' => []
+                ],
+                'isLogin' => true,
+                'poin' => []
             ];
             session()->set($ses_data);
             return redirect()->to('/cart');
@@ -957,12 +963,18 @@ class Pages extends BaseController
                 'email' => 'tamu',
                 'role' => 0,
                 'nama' => 'tamu',
+                'tgl_lahir' => null,
                 'alamat' => [],
                 'nohp' => 'tamu',
                 'wishlist' => [],
                 'keranjang' => [],
+                'tier' => [
+                    'label' => 'bronze',
+                    'data' => []
+                ],
                 'transaksi' => [],
-                'isLogin' => true
+                'isLogin' => true,
+                'poin' => []
             ];
             session()->set($ses_data);
             return redirect()->to('/');
