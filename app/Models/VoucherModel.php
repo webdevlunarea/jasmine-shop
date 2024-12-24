@@ -17,7 +17,8 @@ class VoucherModel extends Model
         'jenis',
         'active',
         'code',
-        'keterangan'
+        'keterangan',
+        'auto_claimed'
     ];
 
     public function getVoucher($id = false)
