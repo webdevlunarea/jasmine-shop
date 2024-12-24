@@ -87,7 +87,7 @@
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
         <a class="navbar-brand" href="/" style="font-weight: bold;">
-            <img src="../img/Logo Lunarea Bg Terang ukuran kecil.webp" height="30em" alt="Logo Lunarea">
+            <img src="../img/Logo Lunarea Bg Terang ukuran kecil.webp" height="17em" alt="Logo Lunarea">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
