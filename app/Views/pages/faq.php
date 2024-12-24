@@ -238,6 +238,83 @@
                     </div>
                 </div>
             </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse8" aria-expanded="false" aria-controls="flush-collapse8">
+                        LUNA POINT
+                    </button>
+                </h2>
+                <div id="flush-collapse8" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <p class="mb-0 fw-bold">Apa itu Luna Point?</p>
+                        <p class="mb-3">Luna Point adalah sebutan poin yang dapat digunakan saat melakukan transaksi di <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com/" target="_blank">lunarea furniture</a></p>
+                        <p class="mb-0 fw-bold">Bagaimana Cara Memperoleh Luna Point?</p>
+                        <p class="mb-0">Luna point bisa didapatkan dengan 3 cara berbeda dan dengan jumlah yang berbeda pula. Berikut ini adalah ketiga cara mendapatkannya:                        </p>
+                        <ol>
+                            <li>
+                                <p class="mb-0">Melakukan transaksi website Lunarea Furniture.</p>
+                            </li>
+                            <li>
+                                <p class="mb-0">Mengikuti dan menyelesaikan misi tertentu.</p>
+                            </li>
+                            <li>
+                                <p class="mb-0">Mendapatkan voucher dari Lunarea Furniture sebagai cara Kami merayakan hari kelahiran.</p>
+                            </li>
+                        </ol>
+                        <p class="mb-0 fw-bold">Bagaimana Cara Menikmati Luna Point Yang Sudah Diperoleh?</p>
+                        <p class="mb-0">Luna Point yang telah terkumpul bisa digunakan saat melakukan transaksi pembelian produk atau ditukar dengan berbagai deals menarik di website Lunarea Furniture, dengan mengikuti langkah di bawah ini:
+                        </p>
+                        <ol>
+                            <li>
+                                <p class="m-0">Buka laman pembayaran, lalu pilih atau gunakan Luna point untuk membayar.
+                                </p>
+                                <li><p class="m-0">Apabila Anda pengguna baru, maka masukkan kode OTP untuk mengonfirmasi akun terlebih dahulu. Dimohon untuk tidak memberikan kode OTP ke siapapun.
+                                </p>
+                                </li>
+                               <li><p class="m-0">Jumlah transaksi pembayaran akan langsung dikurangi dengan jumlah luna point Anda.</p></li>
+                            </li>
+                        </ol>
+                        <p class="mb-0 fw-bold">Bagaimana cara menukar Luna Point menjadi Deals?</p>
+                        <p class="mb-0">Berikut ini adalah langkah yang harus dilakukan untuk menukar Luna Point menjadi Deals:</p>
+                        <ol>
+                            <li>
+                                <p class="m-0">Pilih Deals yang diinginkan di halaman Luna Reward
+                                </p>
+                                <li><p class="m-0">Tap <b>“tukar poin”</b> untuk menukarkan point menjadi deals 
+
+                                </p>
+                                </li>
+                               <li><p class="m-0">Selesai. Sekarang deals sudah dapat digunakan!
+                               </p></li>
+                            </li>
+                        </ol>
+                       <p class="mb-0 fw-bold">Apa Itu Tier Luna Reward?</p>
+                        <p class="mb-3">Tier Luna Reward merupakan tingkatan pencapaian belanja di website Lunarea Furniture. Ada 3 tingkatan atau tier yang bisa didapatkan apabila mencapai nominal tertentu perbelanjaan yaitu bronze, silver, gold, dan premium. Semakin tinggi tier yang didapatkan, maka semakin banyak benefit yang akan diterima.</p>
+                       <p class="mb-0 fw-bold">Apakah Tier Luna Reward dapat berubah?</p>
+                        <p class="mb-3">Progress Tier yang Anda peroleh hanya berubah ketika mencapai nominal tertentu akumulasi pembelian di website Lunarea Furniture. Tier tidak akan berubah atau berkurang walaupun menggunakan poin untuk memotong jumlah transaksi atau ditukar dengan Deals.</p>
+                       <p class="mb-0 fw-bold">Apakah ada pembatasan waktu performa tier?</p>
+                        <p class="mb-3">Tier Luna Reward akan bisa dinaikkan atau dipertahankan sebelum tanggal 31 Desember.</p>
+                       <p class="mb-0 fw-bold">Apakah bisa menaikkan tier ke platinum secara langsung?</p>
+                        <p class="mb-3">Tentu. Tier yang Anda peroleh dapat naik ke tier tertentu apabila telah memenuhi persyaratan. Sistem ini berlaku pula pada penurunan tier Anda. Apabila jumlah transaksi tidak sesuai dengan minimal pada tingkatan tier, maka akan diturunkan ke tier di bawahnya, Maka pertahankan dan menaikkan tier Anda terutama saat akhir tahun.</p>
+                       <p class="mb-0 fw-bold">Apabila tidak melakukan verifikasi nomor ponsel, apakah Luna Point yang sudah didapatkan akan hilang?                       </p>
+                        <p class="mb-3">Apabila telah memiliki akun di website Lunarea Furniture, poin yang sudah didapatkan tidak akan hilang. Namun, poin ini hanya bisa dipakai setelah melakukan verifikasi nomor ponsel. </p>
+                       <p class="mb-0 fw-bold">Berapa lama masa aktif Luna Points?</p>
+                        <p class="mb-3">Masa aktif dari Luna Points adalah 30 hari- 1 tahun. Durasi lama waktu masa aktif ini dipengaruhi dari cara mendapatkan point tersebut. Spesial point yang didapatkan pada event tertentu akan memiliki masa aktif lebih pendek, sedangkan point yang didapatkan melalui transaksi perbelanjaan di website Lunarea Furniture akan memiliki jangka waktu masa aktif terlama. 
+                        </p>
+                        <p class="mb-0 fw-bold">Bagaimana cara untuk mengetahui masa kadaluarsa Luna Points?</p>
+                        <p class="mb-0">Kami akan mengirimkan email ketika Luna Points kadaluarsa. Selain itu, Anda juga bisa cek masa aktif Luna Poins dengan cara berikut ini:</p>
+                        <ol>
+                            <li>
+                                <p class="m-0">Masuk ke halaman Luna Points Reward di akun Anda.</p>
+                            </li>
+                            <li>
+                                <p class="m-0">Tap ikon di sebelah jumlah poin.</p>
+                            </li>
+                            <li>
+                                <p class="m-0">Pada bagian Tentang Point, Anda bisa mendapatkan informasi masa aktif poin di bawah tab akan kadaluarsa.</p>
+                            </li>
+                </div>
+            </div>
         </div>
     </div>
 </div>

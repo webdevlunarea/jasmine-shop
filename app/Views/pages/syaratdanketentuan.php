@@ -84,8 +84,7 @@
         </li>
         <li>Perusahaan memiliki hak penuh untuk memblokir, menghapus, hingga menonaktifkan akun pelanggan, baik secara sementara atau selamanya dengan dasar kebijakan Perusahaan atas alasan apapun tanpa pemberitahuan kepada Pelanggan. Alasan pemblokiran, penghapusan, atau penonaktifan akun Pelanggan dapat dilakukan tidak terbatas pada:
             <ul>
-                <li>Pelanggaran ketentuan ini;
-                </li>
+                <li>Pelanggaran ketentuan ini;</li>
                 <li>Larangan dalam peraturan;
                 </li>
                 <li>Penipuan atau pencurian (termasuk indikasi atau dugaan adanya penipuan maupun pencurian), kecurigaan aktivitas kriminal;
@@ -110,7 +109,7 @@
       <li>Dengan menggunakan situs Perusahaan atau layanan yang tersedia di dalamnya, Pelanggan setuju untuk tidak mengunduh, menampilkan, atau mengirimkan dengan cara apapun serta tidak diperkenankan untuk membuat konten untuk umum yang tidak sesuai dengan penggunaan yang telah diperbolehkan dalam Syarat & Ketentuan ini.
       </li>
       <li>Pelanggan dilarang membuat tauran, screenshot, atau data crawling ke situs Perusahaan tanpa mendapatkan izin terlebih dahulu.</li></ol>
-<h5>Kebijak Penggunaan Data</h5>
+<h5>Kebijakan Penggunaan Data</h5>
 <ol><li>Perusahaan akan mencatat dan menyimpan informasi dan data pribadi pada Akun Pelanggan yang telah terdaftar di Lunarea Rewards . Segala informasi dan data ini akan digunakan untuk memberikan layanan prima dari Perusahaan pada Pelanggan. 
 </li>
 <li>Seluruh data dan informasi pelanggan yang diperoleh dari penggunaan layanan Perusahaan akan disimpan, diolah, dan dikumpulkan dalam bentuk lain yang dilakukan oleh perusahaan dan sesuai dengan hukum serta peraturan yang berlaku.
@@ -127,9 +126,9 @@
 </li>
 <li>Pelanggan dihimbau untuk mengecek Luna Point Rewards secara berkala untuk mengetahui masa kadaluarsa point. Luna Point Rewards yang telah melebihi masa aktif akan dianggap hangus dan tidak bisa digunakan sebagaimana mestinya.
 </li>
-<li>Syarat & Ketentuan ini dapat diubah, dimodifikasi, ditambahkan, atau dihapus (“perubaha”) oleh Perusahaan sesuai dengan perkembangan website dan undang-undang. Dengan ini, perusahaan mendorong Pelanggan untuk mengunjungi website secara berkala untuk mengetahui setiap perubahan yang ditetapkan.
+<li>Syarat & Ketentuan ini dapat diubah, dimodifikasi, ditambahkan, atau dihapus (“perubahan”) oleh Perusahaan sesuai dengan perkembangan website dan undang-undang. Dengan ini, perusahaan mendorong Pelanggan untuk mengunjungi website secara berkala untuk mengetahui setiap perubahan yang ditetapkan.
 </li>
-<li>Perusahan terus berupaya untuk meningkatkan layanan dan dengan senang hati menghargai setiap kritik, saran, serta umpan balik yang didapatkan dari Pelanggan untuk kebaikan.Perusahaan melalui Lunarea Customer Care maupun Tiket Customer Care.
+<li>Perusahan terus berupaya untuk meningkatkan layanan dan dengan senang hati menghargai setiap kritik, saran, serta umpan balik yang didapatkan dari Pelanggan untuk kebaikan. Perusahaan melalui Lunarea Customer Care maupun Tiket Customer Care.
 </li>
 <li>Syarat & ketentuan ini diatur oleh Hukum Negara Republik Indonesia.
 </li>
