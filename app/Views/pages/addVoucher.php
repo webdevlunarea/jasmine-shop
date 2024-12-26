@@ -38,7 +38,7 @@
                     <label class="form-label m-0">Durasi Voucher</label>
                     <p class="text-secondary mb-1" style="font-size: small;">Masa aktif voucher setelah di klaim</p>
                     <select name="durasi" class="form-select">
-                        <option value="" selected>Tak hingga</option>
+                        <option value="null" selected>Tak hingga</option>
                         <option value="+3 days">3 Hari</option>
                         <option value="+1 month">1 Bulan</option>
                         <option value="+1 year">1 Tahun</option>
@@ -47,8 +47,8 @@
                 <div style="flex: 1;">
                     <label class="form-label m-0">Durasi Poin</label>
                     <p class="text-secondary mb-1" style="font-size: small;">Masa aktif poin yang di dapat dari voucher cashback</p>
-                    <select name="durasi" class="form-select">
-                        <option value="" selected>Tak hingga</option>
+                    <select name="durasi-poin" class="form-select">
+                        <option value="null" selected>Tak hingga</option>
                         <option value="+3 days">3 Hari</option>
                         <option value="+1 month">1 Bulan</option>
                         <option value="+1 year">1 Tahun</option>
@@ -66,6 +66,10 @@
                 <div class="d-flex gap-1">
                     <input type="checkbox" onchange="handleChangeAllUser(event)" name="set-all-user-voucher" id="checkbox1">
                     <label for="checkbox1">Tambahkan akses klaim ke seluruh customer</label>
+                </div>
+                <div class="d-flex gap-1">
+                    <input type="checkbox" name="set-redeem" id="checkbox3">
+                    <label for="checkbox3">Berikan code redeem</label>
                 </div>
             </div>
             <hr>

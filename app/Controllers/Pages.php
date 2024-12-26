@@ -676,16 +676,27 @@ class Pages extends BaseController
             ]),
         ]);
 
-        //klaimkan voucher member baru
-        $waktuCurr = strtotime("+7 Hours");
-        $kadaluarsa = null;
-        $this->voucherClaimedModel->insert([
-            'id' => $waktuCurr,
-            'id_voucher' => '1',
-            'kadaluarsa' => $kadaluarsa,
-            'email_user' => $this->request->getVar('email'),
-            'active' => true
-        ]);
+        //klaimkan voucher yang auto klaim
+        $vouchers = $this->voucherModel->findAll();
+        $counter = 0;
+        $waktuCurrYmd = date("Y-m-d", strtotime("+7 Hours"));
+        foreach ($vouchers as $v) {
+            $kadaluarsa = null;
+            $waktuCurr = (string)strtotime("+7 Hours") + (string)$counter;
+            if ($v['durasi']) {
+                $kadaluarsa = date("Y-m-d", strtotime($v['durasi'], strtotime($waktuCurrYmd)));
+            }
+            if ($v['auto_claimed']) {
+                $this->voucherClaimedModel->insert([
+                    'id' => $waktuCurr,
+                    'id_voucher' => $v['id'],
+                    'kadaluarsa' => $kadaluarsa,
+                    'email_user' => $this->request->getVar('email'),
+                    'active' => true
+                ]);
+            }
+            $counter++;
+        }
 
         $emailUser = $this->request->getVar('email');
         $getUser = $this->userModel->getUser($emailUser);
@@ -1340,6 +1351,40 @@ class Pages extends BaseController
             'active' => true
         ]);
         return redirect()->to('/voucher');
+    }
+    public function voucherAddCode($email, $id_voucher, $pakai_code = false)
+    {
+        $voucherClaimedUser = $this->voucherClaimedModel->where(['email_user' => $email])->findAll();
+        $checking = array_filter($voucherClaimedUser, function ($var) use ($id_voucher) {
+            return ($var['id_voucher'] == $id_voucher);
+        });
+        if (count($checking) > 0) return false;
+        $voucherBeneran = $this->voucherModel->getVoucher($id_voucher);
+        $code = json_decode($voucherBeneran['code'], true);
+        $checking = array_filter($code, function ($var) use ($email) {
+            return ($var['email_user'] == $email);
+        });
+        if (count($checking) > 0) return false;
+        $datanya = ['email_user' => $email];
+        if ($pakai_code) $datanya['code'] = $this->generateRandomCode();
+        array_push($code, $datanya);
+        $this->voucherModel->where(['id' => $id_voucher])->set(['code' => json_encode($code)])->update();
+        return true;
+    }
+    public function voucherAddMember()
+    {
+        $idvoucher = (int)$this->request->getVar('idvoucher');
+        $counter = (int)$this->request->getVar('counter');
+        $codeArr = [];
+        for ($i = 0; $i < $counter; $i++) {
+            $email = $this->request->getVar('email' . $i);
+            $code = $this->request->getVar('code' . $i);
+            $obj = ['email_user' => $email];
+            if ($code) $obj['code'] = $code;
+            array_push($codeArr, $obj);
+        }
+        $this->voucherModel->where(['id' => $idvoucher])->set(['code' => json_encode($codeArr)])->update();
+        return redirect()->to('/listvoucher');
     }
 
     public function checkout()
@@ -5151,9 +5196,13 @@ class Pages extends BaseController
     public function listVoucher()
     {
         $voucher = $this->voucherModel->findAll();
+        foreach ($voucher as $ind_v => $v) {
+            $voucher[$ind_v]['code'] = json_decode($v['code'], true);
+        }
         $data = [
             'title' => 'List Voucher',
-            'voucher' => $voucher
+            'voucher' => $voucher,
+            'voucherJson' => json_encode($voucher)
         ];
         return view('pages/listVoucher', $data);
     }
@@ -5176,7 +5225,7 @@ class Pages extends BaseController
         if (!$this->validate([
             'nama' => ['rules' => 'required'],
             'nominal' => ['rules' => 'required'],
-            'jenis' => ['rules' => 'required'],
+            'keterangan' => ['rules' => 'required'],
         ])) {
             session()->setFlashdata('msg', 'Ada data yang belum diisi');
             return redirect()->to('/addvoucher')->withInput();
@@ -5185,17 +5234,42 @@ class Pages extends BaseController
         $nama = $this->request->getVar('nama');
         $nominal = $this->request->getVar('nominal');
         $satuan = $this->request->getVar('satuan');
-        $berakhir = $this->request->getVar('berakhir') ? $this->request->getVar('berakhir') : '0000-00-00';
         $jenis = $this->request->getVar('jenis');
+        $durasiVoucher = $this->request->getVar('durasi');
+        $durasiPoin = $this->request->getVar('durasi-poin');
+        $keterangan = $this->request->getVar('keterangan');
+        $email = explode('&', $this->request->getVar('email'));
+        $setRedeemCode = $this->request->getVar('set-redeem');
+        $allUserVoucher = $this->request->getVar('set-all-user-voucher');
+        $autoClaimed = $this->request->getVar('auto-claimed');
+
+        $code = [];
+        if ($allUserVoucher) {
+            $getAllPembeli = $this->pembeliModel->findAll();
+            foreach ($getAllPembeli as $p) {
+                $databarunya = ['email_user' => $p['email_user']];
+                if ($setRedeemCode) $databarunya['code'] = $this->generateRandomCode();
+                array_push($code, $databarunya);
+            }
+        } else {
+            foreach ($email as $e) {
+                $databarunya = ['email_user' => $e];
+                if ($setRedeemCode) $databarunya['code'] = $this->generateRandomCode();
+                array_push($code, $databarunya);
+            }
+        }
 
         $this->voucherModel->insert([
             'nama' => $nama,
             'nominal' => $nominal,
             'satuan' => $satuan,
-            'berakhir' => $berakhir,
             'jenis' => $jenis,
+            'durasi' => $durasiVoucher == 'null' ? null : $durasiVoucher,
+            'durasi_poin' => $durasiPoin == 'null' ? null : $durasiPoin,
+            'keterangan' => $keterangan,
+            'code' => json_encode($code),
             'active' => true,
-            'list_email' => json_encode([])
+            'auto_claimed' => $autoClaimed ? true : false
         ]);
         return redirect()->to('/listvoucher');
     }

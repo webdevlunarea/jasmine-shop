@@ -105,6 +105,9 @@ a {
 .nav-item {
     cursor: pointer;
 }
+.nav-item .nav-link:hover {
+    color: var(--hijau);
+}
 .navbar-hp {
     background-color: var(--hijau);
     width: 100vw;
@@ -113,7 +116,7 @@ a {
     top: 30px;
 }
 .konten {
-    min-height: calc(100vh - 234.5px - 57.74px);
+    min-height: calc(100svh - 387.5px - 57.74px);
     padding-bottom: 2em;
 }
 .card-group1 {
@@ -1414,6 +1417,9 @@ footer > .atas > div {
 }
 .footer__left-menu a {
     color: #555;
+}
+.footer__left-menu a:hover {
+    color: var(--hijau);
 }
 
 .footer__partner__payment {

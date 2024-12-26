@@ -57,7 +57,8 @@ $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 $routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusLogin']);
 $routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusLogin']);
-
+$routes->post('/voucher/add', 'Pages::voucherAddCode', ['filter' => 'harusLogin']);
+$routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusLogin']);
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 // $routes->post('/addtransaction', 'Pages::addTransaction');

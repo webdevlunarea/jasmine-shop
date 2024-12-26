@@ -1,35 +1,104 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<style>
+    .item-list-voucher {
+        background-color: var(--hijaumuda);
+        padding: 1em 2em;
+        border-radius: 1em;
+    }
+</style>
+<div id="modalnya" class="d-none justify-content-center align-items-center" style="z-index: 11; position:fixed; height: 100svh; width: 100vw; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5);">
+    <div style="background-color: white;" class="p-4 rounded-2">
+        <h4 class="m-0">Email Customer</h4>
+        <p class="text-secondary mb-2" style="font-size: small;">Berikut list email customer yang dapat mengklaim</p>
+        <form action="/voucher/addmember" method="post">
+            <input type="text" name="counter" class="d-none">
+            <input type="text" name="idvoucher" class="d-none">
+            <div id="container-email" class="mb-2 d-flex flex-column gap-1">
+                <!-- <div class="d-flex gap-1">
+                    <input name="email1" value="" placeholder="email" type="text" class="form-control" required>
+                    <input name="code1" placeholder="xxxx-xxxx-xxxx" type="text" class="form-control">
+                </div> -->
+            </div>
+            <button onclick="addEmail()" type="button" class="btn"><i class="material-icons">add</i></button>
+            <div class="d-flex gap-1 justify-content-end">
+                <button onclick="closeEmail()" type="button" class="btn btn-outline-dark">Batal</button>
+                <button type="submit" class="btn btn-primary1">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="konten">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>List Voucher</h1>
             <a href="/addvoucher" class="btn btn-primary1">Tambah Voucher</a>
         </div>
-        <div class="d-flex py-2 border-bottom">
-            <p class="m-0" style="flex: 1; color: gray;">No</p>
-            <p class="m-0" style="flex: 3; color: gray;">Nama</p>
-            <p class="m-0" style="flex: 3; color: gray;">Nominal</p>
-            <p class="m-0" style="flex: 3; color: gray;">Satuan</p>
-            <p class="m-0" style="flex: 3; color: gray;">Durasi</p>
-            <p class="m-0" style="flex: 3; color: gray;">Jenis</p>
-            <p class="m-0" style="flex: 3; color: gray;">Active</p>
-        </div>
-        <?php foreach ($voucher as $ind_v => $v) { ?>
-            <div class="d-flex py-1 align-items-start">
-                <p class="m-0" style="flex: 1;"><?= $ind_v + 1 ?></p>
-                <p class="m-0" style="flex: 3;"><?= $v['nama'] ?></p>
-                <p class="m-0" style="flex: 3;"><?= $v['nominal'] ?></p>
-                <p class="m-0" style="flex: 3;"><?= $v['satuan'] ?></p>
-                <p class="m-0" style="flex: 3;"><?= $v['durasi'] ?></p>
-                <p class="m-0" style="flex: 3;"><?= $v['jenis'] ?></p>
-                <div class="m-0" style="flex: 3;">
-                    <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $v['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Voucher <?= $v['nama']; ?> akan di<?= $v['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activevoucher/<?= $v['id']; ?>')">
-                        <div class="bg-<?= $v['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+        <div class="d-flex flex-column gap-1">
+            <?php foreach ($voucher as $ind_v => $v) { ?>
+                <div class="item-list-voucher baris-ke-kolom">
+                    <div style="flex: 1;">
+                        <p class="m-0"><?= ucfirst($v['jenis']); ?></p>
+                        <h5 class="m-0" style="color: var(--hijau);"><?= $v['nama']; ?></h5>
+                        <p class="text-secondary m-0">Durasi : <?= $v['durasi'] ? $v['durasi'] : 'Tak hingga'; ?></p>
+                    </div>
+                    <div class="d-flex flex-column align-items-end justify-content-between">
+                        <div class="d-flex gap-1">
+                            <h5 class="m-0" style="color: var(--hijau);"><?= $v['nominal']; ?></h5>
+                            <p class="m-0" style="font-size: small; color: var(--hijau);"><?= $v['satuan']; ?></p>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $v['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Voucher <?= $v['nama']; ?> akan di<?= $v['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activevoucher/<?= $v['id']; ?>')">
+                                <div class="bg-<?= $v['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+                            </div>
+                            <div onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php } ?>
+            <?php } ?>
+        </div>
     </div>
 </div>
+<script>
+    const modalnyaElm = document.getElementById('modalnya');
+    const voucherJson = JSON.parse('<?= $voucherJson; ?>');
+    const containerEmailElm = document.getElementById('container-email');
+    const counterCodeInputElm = document.querySelector('input[name="counter"]');
+    const idVoucherInputElm = document.querySelector('input[name="idvoucher"]');
+    let jmlCodeCur = 0;
+
+    function closeEmail() {
+        containerEmailElm.innerHTML = '';
+        modalnyaElm.classList.remove('d-flex')
+        modalnyaElm.classList.add('d-none')
+    }
+
+    function openEmail(idVoucher, index) {
+        idVoucherInputElm.value = idVoucher;
+        const codeObj = voucherJson[index].code;
+        jmlCodeCur = codeObj.length;
+        counterCodeInputElm.value = jmlCodeCur
+        codeObj.forEach((c, ind_c) => {
+            const inputBaru = `<div class="d-flex gap-1">
+            <input name="email${ind_c}" value="${c.email_user}" placeholder="email" type="text" class="form-control" required>
+            <input name="code${ind_c}" value="${c.code ? c.code : ''}" placeholder="xxxx-xxxx-xxxx" type="text" class="form-control">
+            </div>`;
+            const initElm = document.createRange().createContextualFragment(inputBaru)
+            containerEmailElm.appendChild(initElm)
+        });
+        modalnyaElm.classList.add('d-flex')
+        modalnyaElm.classList.remove('d-none')
+    }
+
+    function addEmail() {
+        const inputBaru = `<div class="d-flex gap-1">
+        <input name="email${jmlCodeCur}" placeholder="email" type="text" class="form-control" required>
+        <input name="code${jmlCodeCur}" placeholder="xxxx-xxxx-xxxx" type="text" class="form-control">
+        </div>`;
+        const initElm = document.createRange().createContextualFragment(inputBaru)
+        containerEmailElm.appendChild(initElm)
+        jmlCodeCur++;
+        counterCodeInputElm.value = jmlCodeCur
+    }
+</script>
 <?= $this->endSection(); ?>
