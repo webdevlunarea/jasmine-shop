@@ -20,7 +20,42 @@
         margin: 0;
         border: none;
     }
+
+    .tombol-pilih-kurir i {
+        position: relative;
+        transform: rotate(0deg);
+        transition: 0.3s;
+    }
+
+    .tombol-pilih-kurir.show i {
+        transform: rotate(90deg);
+        transition: 0.3s;
+    }
+
+    .tmb-input-redeem {
+        background-color: var(--hijau);
+        color: white;
+        cursor: pointer;
+    }
+
+    .tmb-input-redeem:hover {
+        background-color: var(--hijaumuda);
+        color: var(--hijau);
+    }
 </style>
+<div id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+    <div style="background-color: white;" class="p-4 rounded-3">
+        <h5 class="m-0">Redeem Voucher</h5>
+        <p class="m-0 text-secondary mb-1">Masukan code redeem dan klaim</p>
+        <form action="/voucher/redeem/checkout" method="post">
+            <input type="text" name="code" class="form-control mb-2 w-100" required>
+            <div class="d-flex justify-content-end gap-1">
+                <button onclick="closeRedeem()" type="button" class="btn btn-outline-dark">Batal</button>
+                <button type="submit" class="btn btn-primary1">Ok</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="konten">
     <div class="container">
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
@@ -266,8 +301,12 @@
                 </div>
 
                 <div style="width: 100%; max-width: 400px;">
+                    <div onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
+                        <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
+                        <p class="m-0">Redeem code voucher dan klaim</p>
+                    </div>
                     <?php if (count($voucher) > 0) { ?>
-                        <div class="tombol-pilih-kurir mb-2 <?= $voucherSelected ? 'active' : ''; ?>" onclick="pilihVoucher()">
+                        <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2<?= $voucherSelected ? ' active' : ''; ?>" onclick="pilihVoucher()">
                             <?php if ($voucherSelected) { ?>
                                 <div>
                                     <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
@@ -295,14 +334,36 @@
                         <script>
                             const containerPilihVoucherElm = document.querySelector('.container-pilih-voucher');
                             let bukaContainerPilihVoucher = false;
+                            const tombolPilihKurirElm = document.getElementById('tombol-pilih-kurir');
 
                             function pilihVoucher() {
                                 if (bukaContainerPilihVoucher) {
                                     containerPilihVoucherElm.classList.remove('buka');
                                     bukaContainerPilihVoucher = false
+                                    tombolPilihKurirElm.classList.remove('show');
                                 } else {
                                     containerPilihVoucherElm.classList.add('buka');
                                     bukaContainerPilihVoucher = true
+                                    tombolPilihKurirElm.classList.add('show');
+                                }
+                            }
+                        </script>
+                    <?php } else { ?>
+                        <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2" onclick="pilihVoucher()">
+                            <p class="m-0 fw-bold">Pakai Voucher</p>
+                            <i class="material-icons">chevron_right</i>
+                        </div>
+                        <script>
+                            let bukaContainerPilihVoucher1 = false;
+                            const tombolPilihKurirElm1 = document.getElementById('tombol-pilih-kurir');
+
+                            function pilihVoucher() {
+                                if (bukaContainerPilihVoucher1) {
+                                    bukaContainerPilihVoucher1 = false
+                                    tombolPilihKurirElm1.classList.remove('show');
+                                } else {
+                                    bukaContainerPilihVoucher1 = true
+                                    tombolPilihKurirElm1.classList.add('show');
                                 }
                             }
                         </script>
@@ -393,6 +454,19 @@
         </form>
     </div>
 </div>
+<script>
+    const modalRedeemElm = document.getElementById('modal-redeem');
+
+    function openRedeem() {
+        modalRedeemElm.classList.remove('d-none')
+        modalRedeemElm.classList.add('d-flex')
+    }
+
+    function closeRedeem() {
+        modalRedeemElm.classList.add('d-none')
+        modalRedeemElm.classList.remove('d-flex')
+    }
+</script>
 <script>
     const checkboxElm = document.getElementById('checkbox-syarat');
     const formAlamatElm = document.querySelectorAll(".form-alamat")

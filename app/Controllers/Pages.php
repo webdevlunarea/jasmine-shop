@@ -1381,6 +1381,41 @@ class Pages extends BaseController
         session()->setFlashdata('msg', 'Voucher berhasil ditambahkan');
         return redirect()->to('/voucher');
     }
+    public function voucherRedeemCheckout()
+    {
+        $email = session()->get('email');
+        $code = $this->request->getVar('code');
+        $redeemData = $this->voucherRedeemModel->where(['code' => $code])->first();
+        if (!$redeemData) {
+            session()->setFlashdata('msg', 'Code redeem tidak ditemukan');
+            return redirect()->to('/checkout');
+        }
+        $emailUser = json_decode($redeemData['email_user'], true);
+        if (in_array($email, $emailUser)) {
+            session()->setFlashdata('msg', 'Code redeem sudah digunakan');
+            return redirect()->to('/checkout');
+        }
+        array_push($emailUser, $email);
+        $this->voucherRedeemModel->where(['code' => $code])->set(['email_user' => json_encode($emailUser)])->update();
+
+        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+        $kadaluarsa = null;
+        if ($voucherBeneran['durasi']) {
+            $kadaluarsa = date("Y-m-d", strtotime($voucherBeneran['durasi'], strtotime($waktuCurrYmd)));
+        }
+        $this->voucherClaimedModel->insert([
+            'id' => $waktuCurr,
+            'id_voucher' => $redeemData['id_voucher'],
+            'kadaluarsa' => $kadaluarsa,
+            'email_user' => $email,
+            'active' => true
+        ]);
+
+        session()->set('voucher', $waktuCurr);
+        return redirect()->to('/checkout');
+    }
     public function voucherAddCode($email, $id_voucher, $pakai_code = false)
     {
         $voucherClaimedUser = $this->voucherClaimedModel->where(['email_user' => $email])->findAll();
