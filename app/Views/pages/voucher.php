@@ -14,6 +14,19 @@
         transition: 0.3s;
     }
 </style>
+<div id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+    <div style="background-color: white;" class="p-4 rounded-3">
+        <h5 class="m-0">Redeem Voucher</h5>
+        <p class="m-0 text-secondary mb-1">Masukan code redeem Kamu</p>
+        <form action="/voucher/redeem" method="post">
+            <input type="text" name="code" class="form-control mb-2 w-100">
+            <div class="d-flex justify-content-end gap-1">
+                <button onclick="closeRedeem()" type="button" class="btn btn-outline-dark">Batal</button>
+                <button type="submit" class="btn btn-primary1">Ok</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="konten">
     <div class="container">
         <div class="baris-ke-kolom-reverse">
@@ -34,10 +47,17 @@
             <div class="w-100">
                 <div class="p-2">
                     <div>
-                        <h3 class="m-0">Klaim Voucher Kamu</h3>
-                        <p class="m-0">Berikut beberapa voucher yang sedang aktif</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="m-0">Klaim Voucher Kamu</h3>
+                                <p class="m-0">Berikut beberapa voucher yang sedang aktif</p>
+                            </div>
+                            <div>
+                                <button onclick="openRedeem()" class="btn btn-primary1">Redeem voucher</button>
+                            </div>
+                        </div>
                         <?php if ($msg) { ?>
-                            <div class="alert alert-danger mt-2" role="alert">
+                            <div class="alert alert-primary mt-2" role="alert">
                                 <?= $msg; ?>
                             </div>
                         <?php } ?>
@@ -101,4 +121,17 @@
         </div>
     </div>
 </div>
+<script>
+    const modalRedeemElm = document.getElementById('modal-redeem');
+
+    function openRedeem() {
+        modalRedeemElm.classList.remove('d-none')
+        modalRedeemElm.classList.add('d-flex')
+    }
+
+    function closeRedeem() {
+        modalRedeemElm.classList.add('d-none')
+        modalRedeemElm.classList.remove('d-flex')
+    }
+</script>
 <?= $this->endSection(); ?>

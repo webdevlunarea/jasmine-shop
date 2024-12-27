@@ -16,6 +16,7 @@ use App\Models\InvoiceModel;
 use App\Models\PreorderBarangModel;
 use App\Models\PointHistoryModel;
 use App\Models\VoucherClaimedModel;
+use App\Models\VoucherRedeemModel;
 
 class Pages extends BaseController
 {
@@ -33,6 +34,7 @@ class Pages extends BaseController
     protected $preorderBarangModel;
     protected $pointHistoryModel;
     protected $voucherClaimedModel;
+    protected $voucherRedeemModel;
     public function __construct()
     {
         $this->barangModel = new BarangModel();
@@ -49,6 +51,7 @@ class Pages extends BaseController
         $this->preorderBarangModel = new PreorderBarangModel();
         $this->pointHistoryModel = new PointHistoryModel();
         $this->voucherClaimedModel = new VoucherClaimedModel();
+        $this->voucherRedeemModel = new VoucherRedeemModel();
     }
     public function generateRandomCode()
     {
@@ -1350,6 +1353,32 @@ class Pages extends BaseController
             'email_user' => $email,
             'active' => true
         ]);
+        session()->setFlashdata('msg', 'Voucher ' . $voucher['nama'] . ' berhasil di klaim');
+        return redirect()->to('/voucher');
+    }
+    public function voucherRedeem()
+    {
+        $email = session()->get('email');
+        $code = $this->request->getVar('code');
+        $redeemData = $this->voucherRedeemModel->where(['code' => $code])->first();
+        if (!$redeemData) {
+            session()->setFlashdata('msg', 'Code redeem tidak ditemukan');
+            return redirect()->to('/voucher');
+        }
+        $emailUser = json_decode($redeemData['email_user'], true);
+        if (in_array($email, $emailUser)) {
+            session()->setFlashdata('msg', 'Code redeem sudah digunakan');
+            return redirect()->to('/voucher');
+        }
+        array_push($emailUser, $email);
+        $this->voucherRedeemModel->where(['code' => $code])->set(['email_user' => json_encode($emailUser)])->update();
+
+        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
+        $codeVoucherBeneran = json_decode($voucherBeneran['code'], true);
+        array_push($codeVoucherBeneran, ['email_user' => $email]);
+        $this->voucherModel->where(['id' => $redeemData['id_voucher']])->set(['code' => json_encode($codeVoucherBeneran)])->update();
+
+        session()->setFlashdata('msg', 'Voucher berhasil ditambahkan');
         return redirect()->to('/voucher');
     }
     public function voucherAddCode($email, $id_voucher, $pakai_code = false)
@@ -2576,6 +2605,44 @@ class Pages extends BaseController
             }
         }
         return redirect()->to('/order/' . $arrPostField['transaction_details']['order_id']);
+    }
+    public function cancelOrder($order_id)
+    {
+        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
+        $pemesanan = $this->pemesananModel->getPemesanan($order_id);
+        $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
+        if (in_array($pemesanan['email_cus'], $emailUjiCoba))
+            $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+        else
+            $auth = base64_encode($midtrans_production_key . ":");
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => in_array($pemesanan['email_cus'], $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_HTTPHEADER => array(
+                "Accept: application/json",
+                "Content-Type: application/json",
+                "Authorization: Basic " . $auth,
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            return "cURL Error #:" . $err;
+        }
+        $hasilMidtrans = json_decode($response, true);
+        if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
+            session()->setFlashdata('msg', $hasilMidtrans['status_message']);
+        }
+        return redirect()->to('/order/' . $order_id);
     }
     public function actionPaySnap()
     {
@@ -4272,6 +4339,60 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'items' => $items,
                         'caraPembayaran' => $carapembayaran[$bank],
+                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                    ];
+                    return view('pages/orderExpire', $data);
+                    break;
+                case 'Dibatalkan':
+                    $biller_code = "";
+                    $bank = "";
+                    switch ($dataMid['payment_type']) {
+                        case 'bank_transfer':
+                            if (isset($dataMid['permata_va_number'])) {
+                                $va_number = $dataMid['permata_va_number'];
+                                $bank = "permata";
+                            } else {
+                                $va_number = $dataMid['va_numbers'][0]['va_number'];
+                                $bank = $dataMid['va_numbers'][0]['bank'];
+                            }
+                            break;
+                        case 'echannel':
+                            $va_number = $dataMid['bill_key'];
+                            $biller_code = $dataMid['biller_code'];
+                            $bank = "mandiri";
+                            break;
+                        case 'qris':
+                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $bank = "qris";
+                            break;
+                        case 'gopay':
+                            $va_number = $dataMid['actions'];
+                            $bank = "gopay";
+                            break;
+                        case 'shopeepay':
+                            $va_number = $dataMid['actions'];
+                            $bank = "shopeepay";
+                            break;
+                        case 'credit_card':
+                            $va_number = '';
+                            $bank = "card";
+                            break;
+                        default:
+                            $va_number = "";
+                            break;
+                    }
+
+                    $waktuExpire = strtotime($dataMid['expiry_time']);
+                    $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                    $data = [
+                        'title' => 'Peroses Pembayaran',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
+                        'bank' => $bank,
+                        'items' => $items,
+                        'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
                     ];
                     return view('pages/orderExpire', $data);
@@ -5192,6 +5313,31 @@ class Pages extends BaseController
         $this->invoiceModel->insert($field);
         session()->setFlashdata('msg', 'Invoice ' . $id . ' telah dibuat');
         return redirect()->to('/invoiceadmin');
+    }
+    public function listRedeem()
+    {
+        $redeem = $this->voucherRedeemModel->getVoucher();
+        $voucher = $this->voucherModel->getVoucher();
+        foreach ($redeem as $ind_r => $r) {
+            $redeem[$ind_r]['email_user'] = json_decode($r['email_user'], true);
+        }
+        $data = [
+            'title' => 'List Voucher',
+            'redeem' => $redeem,
+            'voucher' => $voucher
+        ];
+        return view('pages/listRedeem', $data);
+    }
+    public function addRedeem()
+    {
+        $voucher = $this->request->getVar('voucher');
+        $code = $this->request->getVar('code');
+        $this->voucherRedeemModel->insert([
+            'id_voucher' => $voucher,
+            'code' => $code,
+            'email_user' => json_encode([])
+        ]);
+        return redirect()->to('/listredeem');
     }
     public function listVoucher()
     {

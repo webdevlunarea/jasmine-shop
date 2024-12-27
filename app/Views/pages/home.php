@@ -5,7 +5,7 @@
         class="d-flex justify-content-center align-items-center">
         <div style="border-radius: 10px; overflow: hidden; background-color: white; width: 80%; max-width: 500px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);"
             class="p-5">
-            <h1 class="teks-sedang mb-3">Klaim voucher diskon 5% Anda sekarang juga</h1>
+            <h1 class="teks-sedang mb-3 text-center">Klaim voucher diskon 5% Anda sekarang!</h1>
             <p class="text-secondary">*S&K diskon ini hanya berlaku 1 bulan sejak menjadi member kami</p>
             <a href="/all" class="btn btn-primary1 w-100 text-center mb-2">Beli Produk</a>
             <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher()">Nanti</button>

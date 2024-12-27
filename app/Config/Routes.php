@@ -57,6 +57,7 @@ $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 $routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusLogin']);
 $routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusLogin']);
+$routes->post('/voucher/redeem', 'Pages::voucherRedeem', ['filter' => 'harusLogin']);
 $routes->post('/voucher/add', 'Pages::voucherAddCode', ['filter' => 'harusLogin']);
 $routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusLogin']);
 
@@ -72,7 +73,7 @@ $routes->post('/updatetransaction', 'Pages::updateTransaction');
 // $routes->get('/progresspay', 'Pages::progressPay');
 // $routes->get('/errorpay', 'Pages::errorPay');
 $routes->get('/order/(:any)', 'Pages::order/$1');
-// $routes->get('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
+$routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
 // $routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
@@ -92,6 +93,8 @@ $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');
 $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
+$routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
+$routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => 'harusAdmin']);
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);

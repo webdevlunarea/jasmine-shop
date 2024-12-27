@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-center align-items-center gap-2 my-5">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div style="padding: 1em; border-radius: 2em;" class="bg-danger"><i class="material-icons text-light">access_time</i></div>
-                <p class="m-0 text-center fw-bold text-danger" style="line-height: 20px;">Kadaluarsa</p>
+                <p class="m-0 text-center fw-bold text-danger" style="line-height: 20px;"><?= ucfirst($pemesanan['status']); ?></p>
             </div>
             <div style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
@@ -46,7 +46,7 @@
                 <span class="garis mb-3"></span>
                 <div>
                     <p class="m-0">Sisa Waktu Pembayaran</p>
-                    <h5 class="text-danger">Sudah Kadaluarsa</h5>
+                    <h5 class="text-danger">Telah <?= $pemesanan['status']; ?></h5>
                 </div>
             </div>
             <div class="limapuluh-ke-seratus">
