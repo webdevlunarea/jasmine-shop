@@ -76,6 +76,7 @@ class Pages extends BaseController
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
             'msg_active' => session()->getFlashdata('msg_active') ? session()->getFlashdata('msg_active') : false,
+            'msg_event' => session()->get('msg_event')
         ];
         return view('pages/home', $data);
     }
@@ -877,6 +878,53 @@ class Pages extends BaseController
             session()->setFlashdata('msg', "Email " . $email . " perlu diverifikasi");
             return redirect()->to('/verify');
         }
+
+        //munculin notif ada voucher/promo
+        $voucherClaimed = $this->voucherClaimedModel->getVoucherEmail($email);
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+        $adaYgExpire = [];
+        foreach ($voucherClaimed as $ind_v => $v) {
+            if ($v['kadaluarsa']) {
+                $waktuExpire = strtotime($v['kadaluarsa']);
+                if ($waktuCurrYmd > $waktuExpire) {
+                    array_push($adaYgExpire, [
+                        'id' => $v['id'],
+                        'index' => $ind_v
+                    ]);
+                }
+            }
+        }
+        $voucherClaimedBaru = [];
+        if (count($adaYgExpire) > 0) {
+            foreach ($adaYgExpire as $a) {
+                unset($voucherClaimed[(int)$a['index']]);
+                $this->voucherClaimedModel->where(['id' => $a['id']])->delete();
+            }
+        }
+        $voucherClaimedBaru = array_values($voucherClaimed);
+        $voucher = $this->voucherModel->getVoucher();
+        $voucherFilter = [];
+        foreach ($voucher as  $v) {
+            $code = json_decode($v['code'], true);
+            foreach ($code as $ind_c => $c) {
+                $data_v = $v;
+                $data_v['index'] = $ind_c;
+                $data_v['code'] = $code;
+                if ($c['email_user'] == $email) {
+                    array_push($voucherFilter, $data_v);
+                }
+            }
+        }
+        $codeRedeem = $this->voucherRedeemModel->getVoucher();
+        $notifVoucher = [
+            'voucherClaimed' => $voucherClaimedBaru,
+            'voucherNoClaimed' => $voucherFilter,
+            'codeRedeem' => $codeRedeem
+        ];
+        // dd($notifVoucher);
+        session()->setFlashdata('msg_event', $notifVoucher);
+
         if ($getUser['role'] == '0') {
             $getPembeli = $this->pembeliModel->getPembeli($email);
             $poin = json_decode($getPembeli['poin'], true);
@@ -1799,6 +1847,16 @@ class Pages extends BaseController
         $voucherSelected = false;
         if (session()->get('voucher')) {
             $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
+
+            //cek apakah lebih dari 250k
+            if ($voucherDetail['id_voucher'] == '5') {
+                if ($subtotal < 250000) {
+                    session()->setFlashdata('msg', 'Voucher tidak memenuhi syarat');
+                    session()->remove('voucher');
+                    return redirect()->to('/checkout');
+                }
+            }
+
             //cek kadaluarsa
             $waktuCurr = strtotime("+7 Hours");
             $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));

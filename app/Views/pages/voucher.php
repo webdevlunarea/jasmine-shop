@@ -74,7 +74,7 @@
                                             <p class="m-0 text-secondary"><?= $v['keterangan']; ?></p>
                                         </div>
                                         <div class="d-flex gap-1 align-items-end justify-content-end flex-column">
-                                            <p class="m-0" style="text-align:end;"><b>Kadaluarsa sampai</b></p>
+                                            <p class="m-0" style="text-align:end; text-wrap:nowrap;"><b>Kadaluarsa sampai</b></p>
                                             <p class="m-0 text-secondary" style="text-align:end;"><?= $v['kadaluarsa']; ?></p>
                                         </div>
                                     </div>
