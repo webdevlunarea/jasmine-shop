@@ -31,6 +31,7 @@
                 <select name="jenis" class="form-select">
                     <option value="member" selected>Member</option>
                     <option value="cashback">Cashback</option>
+                    <option value="potongan">Potongan</option>
                 </select>
             </div>
             <div class="d-flex gap-1 mb-2">

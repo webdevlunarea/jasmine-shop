@@ -26,6 +26,7 @@ $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
 $routes->post('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
 $routes->post('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
 $routes->get('/keluar', 'Pages::actionLogout');
+$routes->get('/keluar/regist', 'Pages::actionLogoutRegist');
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
 $routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
 

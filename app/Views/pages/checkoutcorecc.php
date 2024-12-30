@@ -301,72 +301,79 @@
                 </div>
 
                 <div style="width: 100%; max-width: 400px;">
-                    <div onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
-                        <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
-                        <p class="m-0">Redeem code voucher dan klaim</p>
-                    </div>
-                    <?php if (count($voucher) > 0) { ?>
-                        <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2<?= $voucherSelected ? ' active' : ''; ?>" onclick="pilihVoucher()">
-                            <?php if ($voucherSelected) { ?>
-                                <div>
-                                    <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
-                                    <p class="m-0" style="font-size: small;"><?= $voucherSelected['keterangan'] ?></p>
-                                </div>
-                                <i class="material-icons">chevron_right</i>
-                            <?php } else { ?>
+                    <?php if (session()->get('email') != 'tamu') { ?>
+                        <div onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
+                            <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
+                            <p class="m-0">Redeem code voucher dan klaim</p>
+                        </div>
+                        <?php if (count($voucher) > 0) { ?>
+                            <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2<?= $voucherSelected ? ' active' : ''; ?>" onclick="pilihVoucher()">
+                                <?php if ($voucherSelected) { ?>
+                                    <div>
+                                        <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
+                                        <p class="m-0" style="font-size: small;"><?= $voucherSelected['keterangan'] ?></p>
+                                    </div>
+                                    <i class="material-icons">chevron_right</i>
+                                <?php } else { ?>
+                                    <p class="m-0 fw-bold">Pakai Voucher</p>
+                                    <i class="material-icons">chevron_right</i>
+                                <?php } ?>
+                            </div>
+                            <div class="container-pilih-voucher">
+                                <?php foreach ($voucher as $v) { ?>
+                                    <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>" href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
+                                        <div>
+                                            <h5 class="m-0"><?= $v['nama']; ?></h5>
+                                            <p class="m-0" style="font-size: small;"><?= $v['keterangan'] ?></p>
+                                        </div>
+                                        <?php if ($activeVoucher == $v['id']) { ?>
+                                            <div><i class="material-icons">close</i></div>
+                                        <?php } ?>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <script>
+                                const containerPilihVoucherElm = document.querySelector('.container-pilih-voucher');
+                                let bukaContainerPilihVoucher = false;
+                                const tombolPilihKurirElm = document.getElementById('tombol-pilih-kurir');
+
+                                function pilihVoucher() {
+                                    if (bukaContainerPilihVoucher) {
+                                        containerPilihVoucherElm.classList.remove('buka');
+                                        bukaContainerPilihVoucher = false
+                                        tombolPilihKurirElm.classList.remove('show');
+                                    } else {
+                                        containerPilihVoucherElm.classList.add('buka');
+                                        bukaContainerPilihVoucher = true
+                                        tombolPilihKurirElm.classList.add('show');
+                                    }
+                                }
+                            </script>
+                        <?php } else { ?>
+                            <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2" onclick="pilihVoucher()">
                                 <p class="m-0 fw-bold">Pakai Voucher</p>
                                 <i class="material-icons">chevron_right</i>
-                            <?php } ?>
-                        </div>
-                        <div class="container-pilih-voucher">
-                            <?php foreach ($voucher as $v) { ?>
-                                <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>" href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
-                                    <div>
-                                        <h5 class="m-0"><?= $v['nama']; ?></h5>
-                                        <p class="m-0" style="font-size: small;"><?= $v['keterangan'] ?></p>
-                                    </div>
-                                    <?php if ($activeVoucher == $v['id']) { ?>
-                                        <div><i class="material-icons">close</i></div>
-                                    <?php } ?>
-                                </a>
-                            <?php } ?>
-                        </div>
-                        <script>
-                            const containerPilihVoucherElm = document.querySelector('.container-pilih-voucher');
-                            let bukaContainerPilihVoucher = false;
-                            const tombolPilihKurirElm = document.getElementById('tombol-pilih-kurir');
+                            </div>
+                            <script>
+                                let bukaContainerPilihVoucher1 = false;
+                                const tombolPilihKurirElm1 = document.getElementById('tombol-pilih-kurir');
 
-                            function pilihVoucher() {
-                                if (bukaContainerPilihVoucher) {
-                                    containerPilihVoucherElm.classList.remove('buka');
-                                    bukaContainerPilihVoucher = false
-                                    tombolPilihKurirElm.classList.remove('show');
-                                } else {
-                                    containerPilihVoucherElm.classList.add('buka');
-                                    bukaContainerPilihVoucher = true
-                                    tombolPilihKurirElm.classList.add('show');
+                                function pilihVoucher() {
+                                    if (bukaContainerPilihVoucher1) {
+                                        bukaContainerPilihVoucher1 = false
+                                        tombolPilihKurirElm1.classList.remove('show');
+                                    } else {
+                                        bukaContainerPilihVoucher1 = true
+                                        tombolPilihKurirElm1.classList.add('show');
+                                    }
                                 }
-                            }
-                        </script>
-                    <?php } else { ?>
-                        <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2" onclick="pilihVoucher()">
-                            <p class="m-0 fw-bold">Pakai Voucher</p>
-                            <i class="material-icons">chevron_right</i>
-                        </div>
-                        <script>
-                            let bukaContainerPilihVoucher1 = false;
-                            const tombolPilihKurirElm1 = document.getElementById('tombol-pilih-kurir');
-
-                            function pilihVoucher() {
-                                if (bukaContainerPilihVoucher1) {
-                                    bukaContainerPilihVoucher1 = false
-                                    tombolPilihKurirElm1.classList.remove('show');
-                                } else {
-                                    bukaContainerPilihVoucher1 = true
-                                    tombolPilihKurirElm1.classList.add('show');
-                                }
-                            }
-                        </script>
+                            </script>
+                        <?php }
+                    } else { ?>
+                        <a href="/keluar/regist" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
+                            <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
+                            <p class="m-0">Daftar member untuk menggunakan voucher</p>
+                        </a>
                     <?php } ?>
                     <div>
                         <table class="table table-borderless">

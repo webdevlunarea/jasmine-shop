@@ -994,12 +994,22 @@ class Pages extends BaseController
             return redirect()->to('/');
         }
     }
-    public function actionLogout()
+    public function logout()
     {
         $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin'];
         session()->remove($ses_data);
+    }
+    public function actionLogout()
+    {
+        $this->logout();
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/login');
+    }
+    public function actionLogoutRegist()
+    {
+        $this->logout();
+        session()->setFlashdata('msg', 'Kamu telah keluar');
+        return redirect()->to('/signup');
     }
     public function wishlist()
     {
