@@ -69,14 +69,29 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangLimit();
         $produkBaru = $this->barangModel->getBarangPopuler();
+        $msgEvent = session()->getFlashdata('msg_event');
+        $msgActive = session()->getFlashdata('msg_active');
+        $counterEvent = 0;
+        // $notifVoucher = [
+        //     'voucherClaimed' => $voucherClaimedBaru,
+        //     'voucherNoClaimed' => $voucherFilter,
+        //     'codeRedeem' => $codeRedeem
+        // ];
+        if ($msgEvent) {
+            $counterEvent += count($msgEvent['voucherClaimed']);
+            $counterEvent += count($msgEvent['voucherNoClaimed']);
+            $counterEvent += count($msgEvent['codeRedeem']);
+        }
+        if ($msgActive) $counterEvent++;
         $data = [
             'title' => 'Beranda',
             'produk' => $produk,
             'produkBaru' => $produkBaru,
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
-            'msg_active' => session()->getFlashdata('msg_active') ? session()->getFlashdata('msg_active') : false,
-            'msg_event' => session()->get('msg_event')
+            'msg_active' => $msgActive,
+            'msg_event' => $msgEvent,
+            'counterEvent' => $counterEvent
         ];
         return view('pages/home', $data);
     }
