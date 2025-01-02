@@ -232,7 +232,7 @@
                 <div id="flush-collapse7" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana kondisi barang yang dikirimkan?</p>
-                        <p class="mb-3">Produk dikirim dalam kondisi <b>BELUM DIRAKIT</b>. Perakitan dilakukan sendiri oleh pelanggan dengan petunjuk perakitan yang mudah untuk diikuti. Apabila membutuhkan jasa dari tim profesional Kami, harap untuk menghubungi customer service Kami terlebih dahulu untuk melakukan koordinasi dengan tim Kami yang berada di wilayah terdekat lokasi Anda dan akan dikenakan biaya jasa perakitan yang telah disetujui bersama.</p>
+                        <p class="mb-3">Produk dikirim dalam kondisi <b>BELUM DIRAKIT</b>. Perakitan dilakukan sendiri oleh pelanggan dengan petunjuk perakitan yang mudah untuk diikuti.</p>
                         <p class="mb-0 mt-1 fw-bold">Apa ada tutorial untuk perakitan barang Lunarea Furniture?</p>
                         <p class="mb-0">Video tutorial perakitan bisa dilihat di YouTube <a style="color: var(--hijau);" class="fw-bold link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.youtube.com/@LunareaFurnitureOfficial" target="_blank">Lunarea Furniture Official</a></p>
                     </div>
