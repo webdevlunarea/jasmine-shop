@@ -15,6 +15,27 @@
         background-color: var(--hijau);
         transition: 0.2s;
     }
+
+    .container-notif-voucher {
+        width: fit-content;
+        background-color: white;
+    }
+
+    .container-notif-voucher img {
+        height: 60svh;
+        aspect-ratio: 1 / 1;
+    }
+
+    @media (orientation: portrait) {
+        .container-notif-voucher {
+            width: 80%;
+        }
+
+        .container-notif-voucher img {
+            width: 100%;
+            height: auto;
+        }
+    }
 </style>
 <?php
 $counterVoucher = 0;
@@ -38,12 +59,6 @@ if ($msg_active) { ?>
             <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher(<?= $counterVoucher; ?>)">Selanjutnya</button>
         </div>
     </div>
-    <!-- <script>
-        function closeModalVoucher() {
-            document.getElementById('modal-voucher').classList.add('d-none')
-            document.getElementById('modal-voucher').classList.remove('d-flex')
-        }
-    </script> -->
 <?php
     $counterVoucher++;
 } ?>
@@ -73,8 +88,8 @@ if ($msg_active) { ?>
         <div id="modal-voucher" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; z-index: 99;"
             class="d-none justify-content-center align-items-center modal-voucher">
             <?php if ($v['poster']) { ?>
-                <div style="border-radius: 10px; overflow: hidden; background-color: white; width: 80%; max-width: 800px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);">
-                    <img style="width: 100%;" src="/imgvoucher/<?= $v['id']; ?>" alt="">
+                <div class="container-notif-voucher" style="border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);">
+                    <img src="/imgvoucher/<?= $v['id']; ?>" alt="">
                     <div class="px-5 py-4">
                         <?php if ($counterEvent > 1) { ?>
                             <div class="d-flex gap-1 justify-content-center mb-3">

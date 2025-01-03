@@ -1466,6 +1466,10 @@ class Pages extends BaseController
     public function voucherRedeemCheckout()
     {
         $email = session()->get('email');
+        if ($email == 'tamu') {
+            session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
+            return redirect()->to('/checkout');
+        }
         $code = $this->request->getVar('code');
         $redeemData = $this->voucherRedeemModel->where(['code' => $code])->first();
         if (!$redeemData) {
@@ -2093,6 +2097,10 @@ class Pages extends BaseController
 
     public function useVoucher($id_voucher)
     {
+        if (session()->get('email') == 'tamu') {
+            session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
+            return redirect()->to('/checkout');
+        }
         session()->set('voucher', $id_voucher);
         return redirect()->to('/checkout');
     }
