@@ -1037,7 +1037,8 @@ class Pages extends BaseController
                 'poin' => []
             ];
             session()->set($ses_data);
-            return redirect()->to('/cart');
+            $getCurItem = $this->barangModel->getBarang($id_barang);
+            return redirect()->to('/product/' . $getCurItem['path']);
         } else {
             $ses_data = [
                 'active' => '1',
@@ -1295,7 +1296,8 @@ class Pages extends BaseController
         session()->set(['keranjang' => $keranjang]);
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
-        return redirect()->to('/cart');
+        $getCurItem = $this->barangModel->getBarang($id_barang);
+        return redirect()->to('/product/' . $getCurItem['path']);
     }
     public function redCart($index_cart)
     {
@@ -1441,6 +1443,10 @@ class Pages extends BaseController
     public function voucherRedeem()
     {
         $email = session()->get('email');
+        if ($email == 'tamu') {
+            session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
+            return redirect()->to('/checkout');
+        }
         $code = $this->request->getVar('code');
         $redeemData = $this->voucherRedeemModel->where(['code' => $code])->first();
         if (!$redeemData) {
