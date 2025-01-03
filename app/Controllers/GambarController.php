@@ -5,17 +5,21 @@ namespace App\Controllers;
 use App\Models\GambarArtikelModel;
 use App\Models\ArtikelModel;
 use App\Models\BarangModel;
+use App\Models\VoucherModel;
+
 
 class GambarController extends BaseController
 {
     protected $artikelModel;
     protected $gambarArtikelModel;
     protected $barangModel;
+    protected $voucherModel;
     public function __construct()
     {
         $this->artikelModel = new ArtikelModel();
         $this->gambarArtikelModel = new GambarArtikelModel();
         $this->barangModel = new BarangModel();
+        $this->voucherModel = new VoucherModel();
     }
 
     public function tampilGambarBarangBener($idBarang)
@@ -106,6 +110,13 @@ class GambarController extends BaseController
             $artikel = $this->artikelModel->getArtikel($idArtikel);
             $gambarSelected = $artikel['header'];
         }
+        $this->response->setHeader('Content-Type', 'image/webp');
+        echo $gambarSelected;
+    }
+    public function voucherPoster($idVoucher)
+    {
+        $gambar = $this->voucherModel->getVoucher($idVoucher);
+        $gambarSelected = $gambar['poster'];
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
     }

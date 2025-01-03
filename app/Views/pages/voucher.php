@@ -38,11 +38,11 @@
                         <li class="list-group-item"><a class="list" href="/point">Luna poin</a></li>
                         <li class="list-group-item"><b>Voucher</b></li>
                     <?php } ?>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
+                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a></li>
                 </ul>
             </div>
             <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
-                <a class="btn btn-outline-danger" style="width: fit-content;" href="/keluar">Keluar</a>
+                <a class="btn btn-outline-danger" style="width: fit-content;" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a>
             </div> -->
             <div class="w-100">
                 <div class="p-2">

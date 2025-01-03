@@ -27,6 +27,7 @@ class VoucherClaimedModel extends Model
                 ->select('voucher.jenis')
                 ->select('voucher.keterangan')
                 ->select('voucher.durasi_poin')
+                ->select('voucher.poster')
                 ->where(['email_user' => session()->get('email'), 'voucher_claimed.active' => true])
                 ->findAll();
         }
@@ -39,6 +40,7 @@ class VoucherClaimedModel extends Model
             ->select('voucher.jenis')
             ->select('voucher.keterangan')
             ->select('voucher.durasi_poin')
+            ->select('voucher.poster')
             ->where(['voucher_claimed.id' => $id, 'voucher_claimed.active' => true])
             ->first();
     }
@@ -54,6 +56,7 @@ class VoucherClaimedModel extends Model
                 ->select('voucher.jenis')
                 ->select('voucher.keterangan')
                 ->select('voucher.durasi_poin')
+                ->select('voucher.poster')
                 ->where(['email_user' => $email, 'voucher_claimed.active' => true])
                 ->findAll();
         }
@@ -66,6 +69,7 @@ class VoucherClaimedModel extends Model
             ->select('voucher.jenis')
             ->select('voucher.keterangan')
             ->select('voucher.durasi_poin')
+            ->select('voucher.poster')
             ->where(['voucher_claimed.id' => $id, 'voucher_claimed.active' => true])
             ->first();
     }

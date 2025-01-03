@@ -81,6 +81,11 @@ class Pages extends BaseController
             $counterEvent += count($msgEvent['voucherClaimed']);
             $counterEvent += count($msgEvent['voucherNoClaimed']);
             $counterEvent += count($msgEvent['codeRedeem']);
+        } else {
+            $msgEvent['voucherNoClaimed'] = $this->voucherModel->getVoucher();
+            $msgEvent['voucherClaimed'] = [];
+            $msgEvent['codeRedeem'] = [];
+            $counterEvent += count($msgEvent['voucherNoClaimed']);
         }
         if ($msgActive) $counterEvent++;
         $data = [
@@ -987,7 +992,6 @@ class Pages extends BaseController
 
             $cekSubmitEmail = $this->submitEmailModel->getEmail($email);
             if ($cekSubmitEmail) session()->set('submitEmail', true);
-            return redirect()->to(site_url('/'));
         } else {
             $ses_data = [
                 'active' => '1',
@@ -996,8 +1000,8 @@ class Pages extends BaseController
                 'isLogin' => true
             ];
             session()->set($ses_data);
-            return redirect()->to('/');
         }
+        return redirect()->to("/hapuslocalstorage/" . base64_encode('/'));
     }
     public function actionLoginTamuSalah($id_barang = false, $varian = false, $index_gambar = false)
     {
@@ -1056,6 +1060,11 @@ class Pages extends BaseController
             session()->set($ses_data);
             return redirect()->to('/');
         }
+    }
+    public function hapusLocalStorage($tujuan)
+    {
+        $data = ['tujuan' => base64_decode($tujuan)];
+        return view('action/hapusLocalStorage', $data);
     }
     public function logout()
     {

@@ -25,8 +25,8 @@ class VoucherRedeemModel extends Model
                 ->select('voucher.nominal')
                 ->select('voucher.jenis')
                 ->select('voucher.keterangan')
-                // ->select('voucher.durasi_poin')
-                // ->where(['email_user' => session()->get('email'), 'voucher_claimed.active' => true])
+                ->select('voucher.durasi_poin')
+                ->select('voucher.poster')
                 ->orderBy('voucher.nama', 'asc')
                 ->findAll();
         }
@@ -38,7 +38,8 @@ class VoucherRedeemModel extends Model
             ->select('voucher.nominal')
             ->select('voucher.jenis')
             ->select('voucher.keterangan')
-            // ->select('voucher.durasi_poin')
+            ->select('voucher.durasi_poin')
+            ->select('voucher.poster')
             ->where(['voucher_redeem.id' => $id])
             ->orderBy('voucher.nama', 'asc')
             ->first();

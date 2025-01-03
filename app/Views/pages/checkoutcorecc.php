@@ -370,7 +370,7 @@
                             </script>
                         <?php }
                     } else { ?>
-                        <a href="/keluar/regist" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
+                        <a href="/hapuslocalstorage/<?= base64_encode('/keluar/regist'); ?>" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
                             <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
                             <p class="m-0">Daftar member untuk menggunakan voucher</p>
                         </a>

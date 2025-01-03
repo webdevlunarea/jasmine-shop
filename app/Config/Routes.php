@@ -25,6 +25,7 @@ $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
 $routes->post('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
 $routes->post('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
+$routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/keluar/regist', 'Pages::actionLogoutRegist');
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
@@ -144,6 +145,7 @@ $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
+$routes->get('/imgvoucher/(:any)', 'GambarController::voucherPoster/$1');
 
 //Artikel
 $routes->get('/article', 'Pages::article');
