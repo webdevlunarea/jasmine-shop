@@ -1,7 +1,9 @@
-<?php $notif = [
+<?php
+$notif = [
     'wishlist' => session()->getFlashdata('notif-wishlist'),
     'cart' => session()->getFlashdata('notif-cart'),
-] ?>
+];
+?>
 <style>
     .menu-hp-navbar {
         position: fixed;
@@ -19,6 +21,14 @@
         transition: 0.3s;
     }
 </style>
+<div class="d-flex justify-content-center" style="position: fixed; top: 0; z-index: 15; left: 0; width: 100%;">
+    <div class="notif">
+        <div class="d-flex py-2 justify-content-center align-items-center">
+            <i class="material-icons fw-bold" style="color: var(--hijau);">check</i>
+        </div>
+        <p class="m-0 fw-bold"><?= $notif['wishlist'] ? $notif['wishlist'] : ''; ?><?= $notif['cart'] ? $notif['cart'] : ''; ?></p>
+    </div>
+</div>
 <nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
     <div class="container d-flex">
         <form class="d-flex flex-grow-1 search-box" role="search">
@@ -164,6 +174,17 @@
     </div>
 </nav>
 <div style="height: 107px" class="show-ke-hide"></div>
+<?php if ($notif['wishlist'] || $notif['cart']) { ?>
+    <script>
+        const notifElm = document.querySelector('.notif');
+        setTimeout(() => {
+            notifElm.classList.add('show');
+        }, 100);
+        setTimeout(() => {
+            notifElm.classList.remove('show');
+        }, 2000);
+    </script>
+<?php } ?>
 <?php if ($notif['cart']) { ?>
     <script>
         window.localStorage.setItem('notif-cart', true);

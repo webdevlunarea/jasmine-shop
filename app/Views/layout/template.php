@@ -123,6 +123,7 @@
     <div class="teks-atas hide-ke-show-flex">
         <p class="m-0">Harga khusus pembelian pertama plus gratis ongkir</p>
     </div>
+
     <?= $this->include('layout/navbar'); ?>
 
     <!-- tombol form dan wa -->

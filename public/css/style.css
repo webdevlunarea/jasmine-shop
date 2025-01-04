@@ -1231,6 +1231,23 @@ footer > .atas > div {
     background-color: var(--hijaumuda);
 }
 
+.notif {
+    border-radius: 0.7em;
+    position: absolute;
+    padding: 0.5em 1em;
+    top: 0;
+    z-index: 15;
+    background-color: white;
+    /* box-shadow: 5px 5px 10px rgba(29, 185, 84, 0.5); */
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+    transform: translateY(-100px);
+    transition: 0.2s;
+}
+.notif.show {
+    transform: translateY(20svh);
+    transition: 0.2s;
+}
+
 @media (max-width: 600px) {
     .tier.small .material-icons {
         font-size: 1.4em;
