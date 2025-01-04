@@ -1038,6 +1038,7 @@ class Pages extends BaseController
             ];
             session()->set($ses_data);
             $getCurItem = $this->barangModel->getBarang($id_barang);
+            session()->setFlashdata('notif-cart', true);
             return redirect()->to('/product/' . $getCurItem['path']);
         } else {
             $ses_data = [
@@ -1126,6 +1127,7 @@ class Pages extends BaseController
             $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
 
         $produknya = $this->barangModel->getBarang($id);
+        session()->setFlashdata('notif-wishlist', true);
         return redirect()->to('/product/' . $produknya['path']);
     }
     public function delWishlist($id)
@@ -1171,6 +1173,7 @@ class Pages extends BaseController
 
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
+        session()->setFlashdata('notif-cart', true);
         return redirect()->to('/cart');
     }
     public function cart()
@@ -1297,6 +1300,7 @@ class Pages extends BaseController
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         $getCurItem = $this->barangModel->getBarang($id_barang);
+        session()->setFlashdata('notif-cart', true);
         return redirect()->to('/product/' . $getCurItem['path']);
     }
     public function redCart($index_cart)

@@ -195,7 +195,7 @@
                                 <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
                                     <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                                        <p class="m-0">Keranjang</p>
+                                        <p class="m-0">Tambah ke keranjang</p>
                                     </button>
                                 </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
@@ -217,7 +217,7 @@
                     <?php } else { ?>
                         <button type="button" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
                             <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                            <p class="m-0">Keranjang</p>
+                            <p class="m-0">Tambah ke keranjang</p>
                         </button>
                     <?php } ?>
                 </div>
@@ -228,7 +228,7 @@
                                 <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
                                     <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                                        <p class="m-0">Tambahkan Keranjang</p>
+                                        <p class="m-0">Tambah ke keranjang</p>
                                     </button>
                                 </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
@@ -250,7 +250,7 @@
                     <?php } else { ?>
                         <button style="width: 100%" type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
                             <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                            <p class="m-0">Tambahkan Keranjang</p>
+                            <p class="m-0">Tambah ke keranjang</p>
                         </button>
                     <?php } ?>
                 </div>

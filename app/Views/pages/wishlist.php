@@ -51,4 +51,7 @@
         <?php } ?>
     </div>
 </div>
+<script>
+    window.localStorage.removeItem('notif-wishlist');
+</script>
 <?= $this->endSection(); ?>

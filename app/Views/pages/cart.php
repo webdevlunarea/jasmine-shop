@@ -87,4 +87,7 @@
         </div>
     </div>
 </div>
+<script>
+    window.localStorage.removeItem('notif-cart');
+</script>
 <?= $this->endSection(); ?>

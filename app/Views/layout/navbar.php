@@ -1,3 +1,7 @@
+<?php $notif = [
+    'wishlist' => session()->getFlashdata('notif-wishlist'),
+    'cart' => session()->getFlashdata('notif-cart'),
+] ?>
 <style>
     .menu-hp-navbar {
         position: fixed;
@@ -25,8 +29,18 @@
         </form>
         <?php if (session()->get('isLogin')) { ?>
             <?php if (session()->get('role') == 0) { ?>
-                <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
-                <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
+                <a href="/wishlist" class="btn position-relative">
+                    <i class="material-icons">favorite_border</i>
+                    <?php if ($title != 'Wishlist') { ?>
+                        <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                    <?php } ?>
+                </a>
+                <a href="/cart" class="btn position-relative">
+                    <i class="material-icons">shopping_cart</i>
+                    <?php if ($title != 'Keranjang') { ?>
+                        <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                    <?php } ?>
+                </a>
                 <?php if (session()->get('email') == 'tamu') { ?>
                     <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
                 <?php } else { ?>
@@ -117,8 +131,18 @@
             <?php } ?>
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn"><i class="material-icons">favorite_border</i></a>
-                    <a href="/cart" class="btn"><i class="material-icons">shopping_cart</i></a>
+                    <a href="/wishlist" class="btn position-relative">
+                        <i class="material-icons">favorite_border</i>
+                        <?php if ($title != 'Wishlist') { ?>
+                            <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                        <?php } ?>
+                    </a>
+                    <a href="/cart" class="btn position-relative">
+                        <i class="material-icons">shopping_cart</i>
+                        <?php if ($title != 'Keranjang') { ?>
+                            <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                        <?php } ?>
+                    </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
                         <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
                     <?php } else { ?>
@@ -140,3 +164,29 @@
     </div>
 </nav>
 <div style="height: 107px" class="show-ke-hide"></div>
+<?php if ($notif['cart']) { ?>
+    <script>
+        window.localStorage.setItem('notif-cart', true);
+    </script>
+<?php } ?>
+<?php if ($notif['wishlist']) { ?>
+    <script>
+        window.localStorage.setItem('notif-wishlist', true);
+    </script>
+<?php } ?>
+<script>
+    const notifWishlist = document.querySelectorAll(".notif-wishlist");
+    const notifCart = document.querySelectorAll(".notif-cart");
+    const sessionWishlist = window.localStorage.getItem('notif-wishlist');
+    const sessionCart = window.localStorage.getItem('notif-cart');
+    if (sessionWishlist) {
+        notifWishlist.forEach(element => {
+            element.classList.remove('d-none')
+        });
+    }
+    if (sessionCart) {
+        notifCart.forEach(element => {
+            element.classList.remove('d-none')
+        });
+    }
+</script>
