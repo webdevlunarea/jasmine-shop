@@ -60,12 +60,12 @@ $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/
 $routes->post('/actionpaycore', 'Pages::actionPayCore');
 $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
-$routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusLogin']);
-$routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusLogin']);
-$routes->post('/voucher/redeem', 'Pages::voucherRedeem', ['filter' => 'harusLogin']);
-$routes->post('/voucher/redeem/checkout', 'Pages::voucherRedeemCheckout', ['filter' => 'harusLogin']);
+$routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusUser']);
+$routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusUser']);
+$routes->post('/voucher/redeem', 'Pages::voucherRedeem', ['filter' => 'harusUser']);
+$routes->post('/voucher/redeem/checkout', 'Pages::voucherRedeemCheckout', ['filter' => 'harusUser']);
 $routes->post('/voucher/add', 'Pages::voucherAddCode', ['filter' => 'harusLogin']);
-$routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusLogin']);
+$routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusAdmin']);
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 // $routes->post('/addtransaction', 'Pages::addTransaction');
@@ -89,10 +89,10 @@ $routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 
-$routes->get('/point', 'Pages::point', ['filter' => 'harusLogin']);
-$routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusLogin']);
-$routes->get("/point/use", 'Pages::pointUse', ['filter' => 'harusLogin']);
-$routes->get("/point/cancel", 'Pages::pointCancel', ['filter' => 'harusLogin']);
+$routes->get('/point', 'Pages::point', ['filter' => 'harusUser']);
+$routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusUser']);
+$routes->get("/point/use", 'Pages::pointUse', ['filter' => 'harusUser']);
+$routes->get("/point/cancel", 'Pages::pointCancel', ['filter' => 'harusUser']);
 $routes->get('/updatetier', 'Pages::updateTier', ['filter' => 'harusAdmin']);
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
