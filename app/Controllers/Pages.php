@@ -65,6 +65,15 @@ class Pages extends BaseController
         }
         return $code;
     }
+    public function kirimPesanEmail($email_cus, $subject, $isi)
+    {
+        $email = \Config\Services::email();
+        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
+        $email->setTo($email_cus);
+        $email->setSubject($subject);
+        $email->setMessage($isi);
+        $email->send();
+    }
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
@@ -463,17 +472,11 @@ class Pages extends BaseController
         $alamat = $this->request->getVar('alamat');
         $pesan = $this->request->getVar('pesan');
 
-        $email = \Config\Services::email();
-        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
-        $email->setTo('info@lunareafurniture.com');
-        $email->setSubject('Lunarea Store - Formulir');
-        $isiEmail = "<div>
+        $this->kirimPesanEmail('info@lunareafurniture.com', 'Lunarea Store - Formulir', "<div>
             <h1>Pengisian Formulir</h1
             <p>Pesan :</p>
             <p>" . $pesan . "</p>
-        </div>";
-        $email->setMessage($isiEmail);
-        $email->send();
+        </div>");
 
         $d = strtotime("+7 hours");
         $this->formModel->insert([
@@ -595,25 +598,40 @@ class Pages extends BaseController
         ];
         return view('pages/signup', $data);
     }
+    public function kirimOTPCoba()
+    {
+        $otp_number = rand(100000, 999999);
+        $d = strtotime("+425 minutes");
+        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
+
+        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
+            <p>Berikut kode OTP verifikasi</p>
+            <h1>' . $otp_number . '</h1>
+            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
+            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
+            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
+
+        return $this->response->setJSON(['succes' => true], false);
+    }
     public function kirimOTP()
     {
         $emailUser = session()->get('email');
         $otp_number = rand(100000, 999999);
-        $waktu_otp = time() + 300;
-        $d = strtotime("+425 Minutes");
+        $d = strtotime("+425 minutes");
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
-        $email = \Config\Services::email();
-        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
-        $email->setTo(session()->get('email'));
-        $email->setSubject('Lunarea Store - Verifikasi OTP');
-        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1><p>Kode ini berlaku hingga " . $waktu_otp_tanggal . "</p>");
-        $email->send();
+        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
+            <p>Berikut kode OTP verifikasi</p>
+            <h1>' . $otp_number . '</h1>
+            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
+            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
+            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
 
         $this->userModel->where('email', $emailUser)->set([
             'otp' => $otp_number,
-            'waktu_otp' => $waktu_otp
+            'waktu_otp' => $d
         ])->update();
 
         session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
@@ -665,17 +683,17 @@ class Pages extends BaseController
         }
 
         $otp_number = rand(100000, 999999);
-        $waktu_otp = time() + 300;
-        $d = strtotime("+425 Minutes");
+        // $waktu_otp = time() + 300;
+        $d = strtotime("+425 minutes");
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
-        $email = \Config\Services::email();
-        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
-        $email->setTo($this->request->getVar('email'));
-        $email->setSubject('Lunarea Store - Verifikasi OTP');
-        $email->setMessage("<p>Berikut kode OTP verifikasi</p><h1>" . $otp_number . "</h1><p>Kode ini berlaku hingga " . $waktu_otp_tanggal . "</p>");
-        $email->send();
+        $this->kirimPesanEmail($this->request->getVar('email'), 'Lunarea Store - Verifikasi OTP', '
+            <p>Berikut kode OTP verifikasi</p>
+            <h1>' . $otp_number . '</h1>
+            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
+            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
+            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
 
         $this->userModel->insert([
             'email' => $this->request->getVar('email'),
@@ -683,7 +701,7 @@ class Pages extends BaseController
             'role' => '0',
             'otp' => $otp_number,
             'active' => '0',
-            'waktu_otp' => $waktu_otp
+            'waktu_otp' => $d
         ]);
         $this->pembeliModel->insert([
             'nama' => $this->request->getVar('nama'),
@@ -781,8 +799,69 @@ class Pages extends BaseController
             'waktu_otp' => '0'
         ])->update();
         session()->set($ses_data);
-        session()->setFlashdata('msg_active', true);
-        return redirect()->to(site_url('/'));
+        return redirect()->to('/verify/url/redirect/success');
+    }
+    public function verifyUrl($code)
+    {
+        $email = session()->get('email');
+        $getUser = $this->userModel->getUser($email);
+        $d = strtotime("+7 hours");
+
+        if (base64_decode($code) != $getUser['otp'] || $d > (int)$getUser['waktu_otp']) {
+            return redirect()->to('/verify/url/redirect/fail');
+        }
+        $getPembeli = $this->pembeliModel->getPembeli($email);
+        $ses_data = [
+            'active' => '1',
+            'email' => $getUser['email'],
+            'role' => $getUser['role'],
+            'nama' => $getPembeli['nama'],
+            'tgl_lahir' => $getPembeli['tgl_lahir'],
+            'alamat' => json_decode($getPembeli['alamat'], true),
+            'nohp' => $getPembeli['nohp'],
+            'wishlist' => json_decode($getPembeli['wishlist'], true),
+            'keranjang' => json_decode($getPembeli['keranjang'], true),
+            'transaksi' => json_decode($getPembeli['transaksi'], true),
+            'tier' => json_decode($getPembeli['tier'], true),
+            'isLogin' => true,
+            'poin' => json_decode($getPembeli['poin'], true),
+        ];
+        $this->userModel->where('email', $email)->set([
+            'active' => '1',
+            'otp' => '0',
+            'waktu_otp' => '0'
+        ])->update();
+        session()->set($ses_data);
+        return redirect()->to('/verify/url/redirect/success');
+    }
+    public function verifyUrlRedirect($status)
+    {
+        switch ($status) {
+            case 'success':
+                $datanya = [
+                    'judul1' => 'Selamat!',
+                    'judul2' => 'Emailmu sudah aktif',
+                    'isi' => 'Nikmati berbagai promo dan voucher kami hanya di Lunarea Furniture. Lengkapi biodatamu untuk menikmati berbagai tawaran dari kami'
+                ];
+                session()->setFlashdata('msg_active', true);
+                break;
+            case 'fail':
+                $datanya = [
+                    'judul1' => 'Terdapat Kesalahan!',
+                    'judul2' => 'Emailmu gagal diaktifkan',
+                    'isi' => 'Kegagalan dapat terjadi karena kode link/OTP yang dimasukan salah atau telah kadaluarsa'
+                ];
+                break;
+            default:
+                return redirect()->to('/verify');
+                break;
+        }
+        $data = [
+            'title' => 'Verify Redirect',
+            'datanya' => $datanya,
+            'status' => $status
+        ];
+        return view('pages/verifyUrl', $data);
     }
     public function login()
     {
@@ -5114,11 +5193,8 @@ class Pages extends BaseController
         foreach ($body['data']['items'] as $item) {
             $list_item = $list_item . "<p>" . $item['quantity'] . " " . $item['name'] . "</p>";
         }
-        $email = \Config\Services::email();
-        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
-        $email->setTo($body['data']['email_cus']);
-        $email->setSubject('Lunarea Store - Pesananmu sudah dikirim');
-        $email->setMessage("<p>Berikut nomor resi pada pesanan " . $body['data']['id_midtrans'] . "</p>
+
+        $this->kirimPesanEmail($body['data']['email_cus'], 'Lunarea Store - Pesananmu sudah dikirim', "<p>Berikut nomor resi pada pesanan " . $body['data']['id_midtrans'] . "</p>
         <h1>" . $body['resi'] . '</h1>
         <p style="margin-bottom: 10px">' . $body['data']['kurir'] . '</p>
         <span style="margin-bottom: 10px>-------------------------------------------------</span>       
@@ -5127,7 +5203,6 @@ class Pages extends BaseController
         <p>Email : ' . $body['data']['email_cus'] . '</p>
         <p style="margin-bottom: 10px">Kode Pesanan : ' . $body['data']['id_midtrans'] . '</p>
         <p>Item Pesanan :</p>' . $list_item);
-        $email->send();
 
         $arr = [
             'success' => true,

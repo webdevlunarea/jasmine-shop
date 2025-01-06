@@ -7,6 +7,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Pages::index');
 $routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
+$routes->get('/kirimotpcoba', 'Pages::kirimOTPCoba', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
@@ -28,6 +29,8 @@ $routes->post('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$
 $routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/keluar/regist', 'Pages::actionLogoutRegist');
+$routes->get('/verify/url/redirect/(:any)', 'Pages::verifyUrlRedirect/$1', ['filter' => 'harusLogin']);
+$routes->get('/verify/url/(:any)', 'Pages::verifyUrl/$1', ['filter' => 'harusLogin']);
 $routes->get('/verify', 'Pages::verify', ['filter' => 'harusLogin']);
 $routes->post('/verify', 'Pages::actionVerify', ['filter' => 'harusLogin']);
 
