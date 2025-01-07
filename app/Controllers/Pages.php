@@ -600,37 +600,250 @@ class Pages extends BaseController
     }
     public function kirimOTPCoba()
     {
-        $otp_number = rand(100000, 999999);
+        $otp_number = [rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)];
         $d = strtotime("+425 minutes");
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
         $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
-            <p>Berikut kode OTP verifikasi</p>
-            <h1>' . $otp_number . '</h1>
-            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
-            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
-            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
-
+            <div style="display: flex">
+                <div style="width: 30px"></div>
+                <div style="width: 100%">
+                    <h1 style="color: #1db954">Verifikasi Email Kamu!</h1>
+                    <hr />
+                    <p>Masukan 6 kode OTP di bawah ini</p>
+                    <div style="background-color: #1db954; font-weight: bold">
+                        <div style="height: 30px"></div>
+                        <div style="display: flex">
+                            <div style="width: 100%"></div>
+                            <div style="display: flex">
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[0] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[1] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[2] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[3] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[4] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[5] . '
+                                </div>
+                            </div>
+                            <div style="width: 100%"></div>
+                        </div>
+                        <p style="color: white; text-align: center">Atau klik</p>
+                        <div style="display: flex">
+                            <div style="width: 100%"></div>
+                            <a
+                                href="https://lunareafurniture.com/verify/url/' . base64_encode(implode('', $otp_number)) . '"
+                                style="
+                                    color: #1db954;
+                                    background-color: #e0ffeb;
+                                    text-decoration: none;
+                                    padding: 0.7em 1em;
+                                    border-radius: 0.3em;
+                                    transition: 0.2s;
+                                    width: 100%;
+                                    text-align: center;
+                                "
+                                >Aktivasi Email</a
+                            >
+                            <div style="width: 100%"></div>
+                        </div>
+                        <div style="height: 30px"></div>
+                    </div>
+                    <p>
+                        Kode ini hanya berlaku sampai dengan
+                        <b style="color: #1db954">' . $waktu_otp_tanggal . '</b>
+                    </p>
+                    <p>
+                        Jaga keamanan akun dengan tidak membagikan kode OTP ataupun
+                        link di atas kepada orang lain.
+                    </p>
+                </div>
+                <div style="width: 30px"></div>
+            </div>
+        ');
         return $this->response->setJSON(['succes' => true], false);
     }
     public function kirimOTP()
     {
         $emailUser = session()->get('email');
-        $otp_number = rand(100000, 999999);
+        $otp_number = [rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)];
         $d = strtotime("+425 minutes");
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
         $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
-            <p>Berikut kode OTP verifikasi</p>
-            <h1>' . $otp_number . '</h1>
-            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
-            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
-            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
+            <div style="display: flex">
+                <div style="width: 30px"></div>
+                <div style="width: 100%">
+                    <h1 style="color: #1db954">Verifikasi Email Kamu!</h1>
+                    <hr />
+                    <p>Masukan 6 kode OTP di bawah ini</p>
+                    <div style="background-color: #1db954; font-weight: bold">
+                        <div style="height: 30px"></div>
+                        <div style="display: flex">
+                            <div style="width: 100%"></div>
+                            <div style="display: flex">
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[0] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[1] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[2] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[3] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[4] . '
+                                </div>
+                                <div style="width: 5px"></div>
+                                <div
+                                    style="
+                                        border-radius: 10px;
+                                        background-color: #e0ffeb;
+                                        padding: 1em;
+                                        color: #1db954;
+                                    "
+                                >
+                                    ' . $otp_number[5] . '
+                                </div>
+                            </div>
+                            <div style="width: 100%"></div>
+                        </div>
+                        <p style="color: white; text-align: center">Atau klik</p>
+                        <div style="display: flex">
+                            <div style="width: 100%"></div>
+                            <a
+                                href="https://lunareafurniture.com/verify/url/' . base64_encode(implode('', $otp_number)) . '"
+                                style="
+                                    color: #1db954;
+                                    background-color: #e0ffeb;
+                                    text-decoration: none;
+                                    padding: 0.7em 1em;
+                                    border-radius: 0.3em;
+                                    transition: 0.2s;
+                                    width: 100%;
+                                    text-align: center;
+                                "
+                                >Aktivasi Email</a
+                            >
+                            <div style="width: 100%"></div>
+                        </div>
+                        <div style="height: 30px"></div>
+                    </div>
+                    <p>
+                        Kode ini hanya berlaku sampai dengan
+                        <b style="color: #1db954">' . $waktu_otp_tanggal . '</b>
+                    </p>
+                    <p>
+                        Jaga keamanan akun dengan tidak membagikan kode OTP ataupun
+                        link di atas kepada orang lain.
+                    </p>
+                </div>
+                <div style="width: 30px"></div>
+            </div>
+        ');
 
         $this->userModel->where('email', $emailUser)->set([
-            'otp' => $otp_number,
+            'otp' => implode('', $otp_number),
             'waktu_otp' => $d
         ])->update();
 
@@ -753,18 +966,35 @@ class Pages extends BaseController
     }
     public function verify()
     {
+        $waktuExpire = $this->userModel->getUser(session()->get('email'))['waktu_otp'];
+        $waktuCurr = strtotime("+7 Hours");
+        $waktuSelisih = $waktuExpire - $waktuCurr;
+        $waktu = false;
+        if ($waktuSelisih >= 0) $waktu = date("i:s", $waktuSelisih);
+        else {
+            return $this->kirimOTP();
+        }
         $data = [
             'title' => 'Verifikasi',
             'val' => [
                 'msg' => session()->getFlashdata('msg'),
                 'val_verify' => session()->getFlashdata('val_verify')
-            ]
+            ],
+            'waktu' => $waktu,
+            'waktuExp' => date("Y-m-d H:i:s", $waktuExpire),
+            'waktuCurr' => date("Y-m-d H:i:s", $waktuCurr)
         ];
         return view('pages/verify', $data);
     }
     public function actionVerify()
     {
-        $otp = $this->request->getVar("otp");
+        $otp1 = $this->request->getVar("otp1");
+        $otp2 = $this->request->getVar("otp2");
+        $otp3 = $this->request->getVar("otp3");
+        $otp4 = $this->request->getVar("otp4");
+        $otp5 = $this->request->getVar("otp5");
+        $otp6 = $this->request->getVar("otp6");
+        $otp = $otp1 . $otp2 . $otp3 . $otp4 . $otp5 . $otp6;
         $email = session()->get("email");
         $getUser = $this->userModel->getUser($email);
         if ($otp != $getUser['otp']) {
@@ -839,17 +1069,19 @@ class Pages extends BaseController
         switch ($status) {
             case 'success':
                 $datanya = [
+                    'icon' => 'check',
                     'judul1' => 'Selamat!',
-                    'judul2' => 'Emailmu sudah aktif',
-                    'isi' => 'Nikmati berbagai promo dan voucher kami hanya di Lunarea Furniture. Lengkapi biodatamu untuk menikmati berbagai tawaran dari kami'
+                    'judul2' => 'Akun kamu telah terverifikasi',
+                    'isi' => 'Nikmati promo spesial yang dibuat hanya untuk Kamu!'
                 ];
                 session()->setFlashdata('msg_active', true);
                 break;
             case 'fail':
                 $datanya = [
-                    'judul1' => 'Terdapat Kesalahan!',
-                    'judul2' => 'Emailmu gagal diaktifkan',
-                    'isi' => 'Kegagalan dapat terjadi karena kode link/OTP yang dimasukan salah atau telah kadaluarsa'
+                    'icon' => 'close',
+                    'judul1' => 'Verifikasi Gagal!',
+                    'judul2' => '',
+                    'isi' => 'Terjadi kesalahan pada proses verifikasi'
                 ];
                 break;
             default:
