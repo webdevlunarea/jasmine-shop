@@ -19,7 +19,9 @@ class VoucherModel extends Model
         'code',
         'keterangan',
         'auto_claimed',
-        'poster'
+        'poster',
+        'private',
+        'kuota'
     ];
 
     public function getVoucher($id = false)

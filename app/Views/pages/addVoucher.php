@@ -34,6 +34,11 @@
                     <option value="potongan">Potongan</option>
                 </select>
             </div>
+            <div class="mb-2">
+                <label class="form-label m-0">Kuota Customer</label>
+                <p class="text-secondary mb-1" style="font-size: small;">Jika tak terbatas isi dengan "-1"</p>
+                <input type="number" class="form-control" value="-1" name="kuota">
+            </div>
             <div class="d-flex gap-1 mb-2">
                 <div style="flex: 1;">
                     <label class="form-label m-0">Durasi Voucher</label>

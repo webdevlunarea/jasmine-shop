@@ -43,7 +43,7 @@
                                 </div>
                             </div>
                             <p class="m-0 fw-bold">Bronze</p>
-                            <p class="m-0 text-secondary" style="font-size: small;">0 PTS</p>
+                            <p class="m-0 text-secondary text-center" style="font-size: small;">0 Total<br>Belanja</p>
                         </div>
                         <div class="tier-split">
                             <div style="width: 70px; height: 12px; position: absolute;">
@@ -62,7 +62,7 @@
                                 </div>
                             </div>
                             <p class="m-0 fw-bold">Silver</p>
-                            <p class="m-0 text-secondary" style="font-size: small;">10JT PTS</p>
+                            <p class="m-0 text-secondary text-center" style="font-size: small;">10JT Total<br>Belanja</p>
                         </div>
                         <div class="tier-split">
                             <div style="width: 70px; height: 12px; position: absolute;">
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
                             <p class="m-0 fw-bold">Gold</p>
-                            <p class="m-0 text-secondary" style="font-size: small;">50JT PTS</p>
+                            <p class="m-0 text-secondary text-center" style="font-size: small;">50JT Total<br>Belanja</p>
                         </div>
                         <div class="tier-split">
                             <div style="width: 70px; height: 12px; position: absolute;">
@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             <p class="m-0 fw-bold">Platinum</p>
-                            <p class="m-0 text-secondary" style="font-size: small;">100JT PTS</p>
+                            <p class="m-0 text-secondary text-center" style="font-size: small;">100JT Total<br>Belanja</p>
                         </div>
                     </div>
                     <hr>

@@ -81,11 +81,6 @@ class Pages extends BaseController
         $msgEvent = session()->getFlashdata('msg_event');
         $msgActive = session()->getFlashdata('msg_active');
         $counterEvent = 0;
-        // $notifVoucher = [
-        //     'voucherClaimed' => $voucherClaimedBaru,
-        //     'voucherNoClaimed' => $voucherFilter,
-        //     'codeRedeem' => $codeRedeem
-        // ];
         if ($msgEvent) {
             $counterEvent += count($msgEvent['voucherClaimed']);
             $counterEvent += count($msgEvent['voucherNoClaimed']);
@@ -1744,7 +1739,14 @@ class Pages extends BaseController
             $kadaluarsa = date("Y-m-d", strtotime($voucher['durasi'], strtotime($waktuCurrYmd)));
         }
 
-        $this->voucherModel->where(['id' => $id_voucher])->set(['code' => json_encode($codeNew)])->update();
+        $dataYgDiupdate = ['code' => json_encode($codeNew)];
+        if ($voucher['kuota'] != -1) {
+            $dataYgDiupdate['kuota'] = $voucher['kuota'] - 1;
+            if ($dataYgDiupdate['kuota'] == 0) {
+                $dataYgDiupdate['active'] = false;
+            }
+        }
+        $this->voucherModel->where(['id' => $id_voucher])->set($dataYgDiupdate)->update();
         $this->voucherClaimedModel->insert([
             'id' => $waktuCurr,
             'id_voucher' => $id_voucher,
@@ -5840,6 +5842,7 @@ class Pages extends BaseController
         $setRedeemCode = $this->request->getVar('set-redeem');
         $allUserVoucher = $this->request->getVar('set-all-user-voucher');
         $autoClaimed = $this->request->getVar('auto-claimed');
+        $kuota = $this->request->getVar('kuota');
 
         $code = [];
         if ($allUserVoucher) {
@@ -5867,7 +5870,8 @@ class Pages extends BaseController
             'keterangan' => $keterangan,
             'code' => json_encode($code),
             'active' => true,
-            'auto_claimed' => $autoClaimed ? true : false
+            'auto_claimed' => $autoClaimed ? true : false,
+            'kuota' => $kuota
         ]);
         return redirect()->to('/listvoucher');
     }
