@@ -2,7 +2,20 @@
 <html lang="en">
 
 <head>
-    <script defer>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JGG7ZWJ1ND"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-JGG7ZWJ1ND');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];
             w[l].push({
@@ -16,8 +29,9 @@
             j.src =
                 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-N2XSVZ4N');
+        })(window, document, 'script', 'dataLayer', 'GTM-WMVCNHX5');
     </script>
+    <!-- End Google Tag Manager -->
     <?php if (isset($produk)) {
         if (isset($produk['nama'])) { ?>
             <script type="application/ld+json">
@@ -62,14 +76,7 @@
     <meta name="twitter:image" content="https://lunareafurniture.com/logo icon.png">
     <title><?= $title; ?> | Lunarea Furniture</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-    </script> -->
-    <!-- <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
-    <!-- icon google -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <?php if ($title == 'Check Out') { ?>
         <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd"></script>
@@ -87,9 +94,10 @@
 </head>
 
 <body>
-    <!-- <div style="width: 100%; height: 30px" class="d-flex justify-content-center align-items-center bg-danger">
-        <p class="m-0 text-light text-sm-center">Sedang dalam pengembangan</p>
-    </div> -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div class="toast start-50 translate-middle">
         <div class="toast-body">
             <p>Hello, world! This is a toast message.</p>
@@ -103,20 +111,6 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-    <!-- <div class="running-text">
-        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 1) * -1);">
-            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
-        </div>
-        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 2) * -1);">
-            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
-        </div>
-        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 3) * -1);">
-            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
-        </div>
-        <div class="item-rt" style="animation-delay: calc(50s / 4 * (4 - 4) * -1);">
-            <p class="m-0">Spesial diskon 5% untuk pembelian pertama || Gratis ongkir hingga 100%</p>
-        </div>
-    </div> -->
     <div class="teks-atas show-flex-ke-hide">
         <p class="m-0">Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%</p>
     </div>
