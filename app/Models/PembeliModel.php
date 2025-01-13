@@ -17,7 +17,8 @@ class PembeliModel extends Model
         'transaksi',
         'poin',
         'tier',
-        'tgl_lahir'
+        'tgl_lahir',
+        'foto'
     ];
 
     public function getPembeli($email = false)

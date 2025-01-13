@@ -1253,12 +1253,14 @@ footer > .atas > div {
         font-size: 1.4em;
     }
     p,
-    h1,
     input,
     option,
     li,
     a {
         font-size: smaller;
+    }
+    h1 {
+        font-size: 25px;
     }
     .card1 h5 {
         font-size: 15px;

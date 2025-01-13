@@ -2,7 +2,8 @@
 <?= $this->section("content"); ?>
 <div class="konten">
     <div class="container">
-        <form action="/actionaddvoucher" method="post">
+        <form action="/actionaddvoucher" method="post" enctype="multipart/form-data">
+            <?= csrf_field(); ?>
             <h3 class="">Buat Voucher</h3>
             <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
@@ -64,6 +65,10 @@
             <div class="mb-2">
                 <label class="form-label">Keterangan</label>
                 <textarea class="form-control" name="keterangan"></textarea>
+            </div>
+            <div class="mb-2">
+                <label class="form-label m-0">Poster</label>
+                <input type="file" class="form-control" name="poster">
             </div>
             <div class="mb-2">
                 <label class="form-label m-0">Email Customer</label>

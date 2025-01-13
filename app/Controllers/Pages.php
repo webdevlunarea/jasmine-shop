@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\BarangModel;
 use App\Models\GambarBarangModel;
+use App\Models\GambarUserModel;
 use App\Models\PembeliModel;
 use App\Models\PemesananModel;
 use App\Models\UserModel;
@@ -22,6 +23,7 @@ class Pages extends BaseController
 {
     protected $barangModel;
     protected $gambarBarangModel;
+    protected $gambarUserModel;
     protected $userModel;
     protected $pembeliModel;
     protected $pemesananModel;
@@ -39,6 +41,7 @@ class Pages extends BaseController
     {
         $this->barangModel = new BarangModel();
         $this->gambarBarangModel = new GambarBarangModel();
+        $this->gambarUserModel = new GambarUserModel();
         $this->userModel = new UserModel();
         $this->pembeliModel = new PembeliModel();
         $this->pemesananModel = new PemesananModel();
@@ -103,6 +106,40 @@ class Pages extends BaseController
             'counterEvent' => $counterEvent
         ];
         return view('pages/home', $data);
+    }
+    public function sendwa()
+    {
+        $targetWa = "6281905266517";
+        $tokenWa = env('TOKEN_FONNTE', 'DefaultValue');
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $targetWa,
+                'message' => 'halo cokkkk',
+            ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $tokenWa
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+        }
+        curl_close($curl);
+
+        if (isset($error_msg)) {
+            echo $error_msg;
+        }
+        echo $response;
     }
     public function kebijakanprivasi()
     {
@@ -924,6 +961,7 @@ class Pages extends BaseController
                 'label' => 'bronze',
                 'data' => []
             ]),
+            'foto' => '/imguser/ZGVmYXVsdA=='
         ]);
 
         //klaimkan voucher yang auto klaim
@@ -1017,6 +1055,7 @@ class Pages extends BaseController
             'tier' => json_decode($getPembeli['tier'], true),
             'isLogin' => true,
             'poin' => json_decode($getPembeli['poin'], true),
+            'foto' => $getPembeli['foto']
         ];
         $this->userModel->where('email', $email)->set([
             'active' => '1',
@@ -1050,6 +1089,7 @@ class Pages extends BaseController
             'tier' => json_decode($getPembeli['tier'], true),
             'isLogin' => true,
             'poin' => json_decode($getPembeli['poin'], true),
+            'foto' => $getPembeli['foto']
         ];
         $this->userModel->where('email', $email)->set([
             'active' => '1',
@@ -1179,6 +1219,7 @@ class Pages extends BaseController
                 'tier' => json_decode($getPembeli['tier'], true),
                 'isLogin' => true,
                 'poin' => $poin,
+                'foto' => $getPembeli['foto']
             ];
             session()->set($ses_data);
             return redirect()->to(site_url('/'));
@@ -1293,6 +1334,7 @@ class Pages extends BaseController
                 'tier' => json_decode($getPembeli['tier'], true),
                 'isLogin' => true,
                 'poin' => $poin,
+                'foto' => $getPembeli['foto']
             ];
             session()->set($ses_data);
 
@@ -1340,7 +1382,8 @@ class Pages extends BaseController
                     'data' => []
                 ],
                 'isLogin' => true,
-                'poin' => []
+                'poin' => [],
+                'foto' => ''
             ];
             session()->set($ses_data);
             $getCurItem = $this->barangModel->getBarang($id_barang);
@@ -1363,7 +1406,8 @@ class Pages extends BaseController
                 ],
                 'transaksi' => [],
                 'isLogin' => true,
-                'poin' => []
+                'poin' => [],
+                'foto' => ''
             ];
             session()->set($ses_data);
             return redirect()->to('/');
@@ -3042,6 +3086,10 @@ class Pages extends BaseController
             session()->remove('voucher');
         }
         session()->remove('usepoin');
+
+        session()->set(['keranjang' => []]);
+        $cekMember = $this->pembeliModel->getPembeli($email);
+        if ($cekMember) $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
 
         //pengurangan stok produk
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $arrPostField['transaction_details']['order_id'])->first();
@@ -5043,11 +5091,13 @@ class Pages extends BaseController
         $nama = session()->get("nama");
         $nohp = session()->get("nohp");
         $tgl_lahir = session()->get("tgl_lahir");
+        $foto = session()->get("foto");
         $data = [
             'title' => 'Akun Saya',
             'nama' => $nama,
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
+            'foto' => $foto,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
         return view('pages/account', $data);
@@ -5061,6 +5111,7 @@ class Pages extends BaseController
         $nama = $this->request->getVar('nama');
         $nohp = $this->request->getVar('nohp');
         $tgl_lahir = $this->request->getVar('tgl_lahir');
+        $foto = $this->request->getFile('foto')->isValid() ? file_get_contents($this->request->getFile('foto')) : false;
 
         if ($sandi != '') {
             $this->userModel->where('email', $email)->set([
@@ -5072,16 +5123,26 @@ class Pages extends BaseController
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
+                'foto' => $foto ? '/imguser/' . base64_encode($email) : session()->get('foto')
             ])->update();
+
+            if ($foto) {
+                if (session()->get('foto') != '/imguser/ZGVmYXVsdA==') {
+                    $this->gambarUserModel->where(['email_user' => $email])->set(['gambar' => $foto])->update();
+                } else {
+                    $this->gambarUserModel->where(['email_user' => $email])->insert(['email_user' => $email, 'gambar' => $foto]);
+                }
+            }
 
             session()->set([
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
+                'foto' => $foto ? '/imguser/' . base64_encode($email) : session()->get('foto')
             ]);
         }
 
-        session()->set('msg', 'Akun Anda telah diperbarui');
+        session()->setFlashdata('msg', 'Akun Anda telah diperbarui');
         return redirect()->to('/account');
         // $data = [
         //     'title' => 'Akun Saya',
@@ -5843,6 +5904,7 @@ class Pages extends BaseController
         $allUserVoucher = $this->request->getVar('set-all-user-voucher');
         $autoClaimed = $this->request->getVar('auto-claimed');
         $kuota = $this->request->getVar('kuota');
+        $poster = $this->request->getFile('poster') ? file_get_contents($this->request->getFile('poster')) : null;
 
         $code = [];
         if ($allUserVoucher) {
@@ -5871,7 +5933,8 @@ class Pages extends BaseController
             'code' => json_encode($code),
             'active' => true,
             'auto_claimed' => $autoClaimed ? true : false,
-            'kuota' => $kuota
+            'kuota' => $kuota,
+            'poster' => $poster
         ]);
         return redirect()->to('/listvoucher');
     }

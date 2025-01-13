@@ -19,6 +19,7 @@ $routes->get('/form', 'Pages::form');
 $routes->get('/formthanks', 'Pages::formThanks');
 $routes->post('/actionform', 'Pages::actionForm');
 
+$routes->get('/sendwa', 'Pages::sendwa');
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
 $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
@@ -149,6 +150,7 @@ $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
 $routes->get('/imgvoucher/(:any)', 'GambarController::voucherPoster/$1');
+$routes->get('/imguser/(:any)', 'GambarController::tampilGambarUser/$1');
 
 //Artikel
 $routes->get('/article', 'Pages::article');

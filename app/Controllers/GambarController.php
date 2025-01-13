@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\GambarArtikelModel;
 use App\Models\ArtikelModel;
 use App\Models\BarangModel;
+use App\Models\GambarUserModel;
 use App\Models\VoucherModel;
 
 
@@ -14,12 +15,14 @@ class GambarController extends BaseController
     protected $gambarArtikelModel;
     protected $barangModel;
     protected $voucherModel;
+    protected $gambarUserModel;
     public function __construct()
     {
         $this->artikelModel = new ArtikelModel();
         $this->gambarArtikelModel = new GambarArtikelModel();
         $this->barangModel = new BarangModel();
         $this->voucherModel = new VoucherModel();
+        $this->gambarUserModel = new GambarUserModel();
     }
 
     public function tampilGambarBarangBener($idBarang)
@@ -112,6 +115,13 @@ class GambarController extends BaseController
         }
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
+    }
+    public function tampilGambarUser($email_user) //emailnya di base64
+    {
+        $email = base64_decode($email_user);
+        $getGambarUser = $this->gambarUserModel->getGambar($email);
+        $this->response->setHeader('Content-Type', 'image/webp');
+        echo $getGambarUser['gambar'];
     }
     public function voucherPoster($idVoucher)
     {
