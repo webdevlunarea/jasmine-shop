@@ -22,7 +22,8 @@ class PemesananModel extends Model
         'diskonVoucher',
         'idVoucher',
         'cashback',
-        'pakai_poin'
+        'pakai_poin',
+        'bukti_bayar'
     ];
 
     public function getPemesanan($id_midtrans = false)
@@ -50,6 +51,10 @@ class PemesananModel extends Model
     //pemesanan menunggu pembayaran
     public function getPemesananPending($email_cus)
     {
-        return $this->where(['email_cus' => $email_cus, 'status' => 'Menunggu Pembayaran'])->first();
+        $statusPending = ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'];
+        return $this
+            ->where('email_cus', $email_cus)
+            ->whereIn('status', $statusPending)
+            ->first();
     }
 }

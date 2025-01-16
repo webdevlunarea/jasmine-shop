@@ -26,14 +26,14 @@
             <div class="print-lunas">
                 <p>L U N A S</p>
             </div>
-        <?php } else if ($transaksi['status'] == 'Menunggu Pembayaran') {
+        <?php } else if ($transaksi['status'] == 'Menunggu Pembayaran' || $transaksi['status'] == 'Menunggu Pembayaran Rekening') {
         } else { ?>
             <div class="print-lunas">
                 <p>G A G A L</p>
             </div>
         <?php } ?>
         <div class="d-flex justify-content-between mb-2">
-            <img src="<?= base_url('img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" style="width: 150em; height:fit-content;" />
+            <img src="<?= base_url('img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" style="width: 50mm; height:fit-content;" />
             <div class="d-flex flex-column align-items-end">
                 <p class="mb-0">INVOICE</p>
                 <p class="mb-0"><?php

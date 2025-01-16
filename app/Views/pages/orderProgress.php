@@ -21,11 +21,14 @@
         <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom mb-3">
             <div class="limapuluh-ke-seratus">
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="flex-grow-1">
-                        <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel') { ?>
-                            <p class="m-0">Nomor Virtual Account</p>
-                            <h5><?= strtoupper($bank); ?> <?= $va_number; ?></h5>
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 0.5em 2em;">
+                    <div>
+                        <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
+                            <p class="m-0"><?= $dataMid['payment_type'] == 'rekening' ? 'Nomor Rekening' : 'Nomor Virtual Account'; ?></p>
+                            <h5 class="m-0"><?= strtoupper($bank); ?> <?= $va_number; ?></h5>
+                            <?php if ($dataMid['payment_type'] == 'rekening') { ?>
+                                <p class="text-secondary">a.n. Catur Bhakti Mandiri</p>
+                            <?php } ?>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
                             <p class="m-0">QR Code</p>
                             <img src="<?= $va_number; ?>" alt="" width="150px" height="150px">
@@ -40,20 +43,72 @@
                             </div>
                         <?php } ?>
                     </div>
-                    <div class="flex-grow-1">
+                    <div>
                         <p class="m-0">Nominal</p>
                         <h5>Rp <?= number_format($dataMid['gross_amount'], 0, ",", "."); ?></h5>
                     </div>
+                    <div>
+                        <p class="m-0">Waktu Kadaluarsa</p>
+                        <h5><?= $waktuExpire; ?></h5>
+                    </div>
+                    <div>
+                        <p class="m-0">Sisa Waktu Pembayaran</p>
+                        <h5 id="waktu" style="color: var(--hijau);"><?= $waktu; ?></h5>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <p class="m-0">Waktu Kadaluarsa</p>
-                    <h5><?= $waktuExpire; ?></h5>
-                </div>
-                <span class="garis mb-3"></span>
-                <div>
-                    <p class="m-0">Sisa Waktu Pembayaran</p>
-                    <h5 id="waktu" style="color: var(--hijau);"><?= $waktu; ?></h5>
-                </div>
+                <?php if ($pemesanan['bukti_bayar']) { ?>
+                    <hr>
+                    <p class="m-0">*Sedang dalam proses pengecekan bukti pembayaran</p>
+                <?php } else if ($dataMid['payment_type'] == 'rekening') { ?>
+                    <hr>
+                    <button class="btn btn-primary1" onclick="openUpload()">Upload bukti pembayaran</button>
+                    <div id="modal-upload" class="d-none p-3 justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+                        <div style="background-color: white;" class="px-4 py-3 rounded">
+                            <div class="d-flex mb-3 gap-4 justify-content-between align-items-center">
+                                <h5 class="m-0">Upload bukti pembayaran</h5>
+                                <i style="cursor: pointer;" class="material-icons" onclick="closeUpload()">close</i>
+                            </div>
+                            <form action="/payorder/<?= $pemesanan['id_midtrans']; ?>" method="post" enctype="multipart/form-data">
+                                <input id="bukti-bayar" type="file" name="buktiBayar" class="d-none" required>
+                                <div id="preview-bayar" class="d-none" style="width: 100%; max-width: 500px; max-height: 300px; overflow: auto;">
+                                    <img src="https://images.unsplash.com/photo-1733320662296-ff70b879480e?q=80&w=1065&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" style="display:block;" class="w-100">
+                                </div>
+                                <label for="bukti-bayar" class="btn btn-outline-dark w-100 mt-2" id="btn-pilih-foto">Pilih foto</label>
+                                <button id="btn-submit-bayar" type="submit" class="mt-1 btn btn-primary1 d-block w-100" disabled>Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                    <script>
+                        const modalUploadElm = document.getElementById('modal-upload');
+                        const buktiBayarElm = document.getElementById('bukti-bayar');
+                        const previewBayarElm = document.getElementById('preview-bayar');
+                        const btnSubmitBayarElm = document.getElementById('btn-submit-bayar');
+                        const btnPilihFotoElm = document.getElementById('btn-pilih-foto');
+
+                        function openUpload() {
+                            modalUploadElm.classList.remove('d-none')
+                            modalUploadElm.classList.add('d-flex')
+                        }
+
+                        function closeUpload() {
+                            modalUploadElm.classList.add('d-none')
+                            modalUploadElm.classList.remove('d-flex')
+                        }
+
+                        buktiBayarElm.addEventListener('change', (e) => {
+                            console.log(e.target)
+                            const file = e.target.files[0];
+                            const blobFile = new Blob([file], {
+                                type: file.type
+                            });
+                            var blobUrl = URL.createObjectURL(blobFile);
+                            previewBayarElm.children[0].src = blobUrl;
+                            previewBayarElm.classList.remove('d-none');
+                            btnSubmitBayarElm.disabled = false
+                            btnPilihFotoElm.innerHTML = 'Ganti foto'
+                        })
+                    </script>
+                <?php } ?>
             </div>
             <div class="limapuluh-ke-seratus">
                 <p class="fw-bold">Produk yang dibeli</p>
@@ -63,7 +118,7 @@
                             <p class="m-0">Nama</p>
                         </div>
                         <div style="flex: 1; color: gray;">
-                            <p class="m-0">Jumlah</p>
+                            <p class="m-0 text-center">Jumlah</p>
                         </div>
                         <div style="flex: 2; color: gray;">
                             <p class="m-0">Harga</p>
@@ -75,7 +130,7 @@
                                 <p class="m-0"><?= $i['name']; ?></p>
                             </div>
                             <div style="flex: 1;">
-                                <p class="m-0"><?= $i['quantity']; ?></p>
+                                <p class="m-0 text-center"><?= $i['quantity']; ?></p>
                             </div>
                             <div style="flex: 2;">
                                 <p class="m-0">Rp <?= number_format($i['value'], 0, ",", "."); ?></p>
@@ -119,6 +174,7 @@
     const de = new Date('<?= $dataMid['expiry_time']; ?>');
     const expireTime = de.getTime();
     const dc = new Date();
+    const isRekening = <?= $dataMid['payment_type'] == 'rekening' ? 'true' : 'false'; ?>;
 
     setInterval(() => {
         const currTime = new Date().getTime();
@@ -130,9 +186,13 @@
         dselisih %= (1000 * 60);
         const seconds = String(Math.floor(dselisih / 1000)).padStart(2, '0');
 
-        expiryTimeElm.innerHTML = `${hours}: ${minutes}: ${seconds}`;
+        expiryTimeElm.innerHTML = `${hours}:${minutes}:${seconds}`;
         if (Number(hours) < 0 && Number(minutes) < 0 && Number(seconds) < 0) {
-            window.location.reload();
+            if (isRekening) {
+                expiryTimeElm.innerHTML = `00:00:00`;
+            } else {
+                window.location.reload();
+            }
         }
     }, 1000);
 

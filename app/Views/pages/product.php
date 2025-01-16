@@ -188,14 +188,18 @@
                     </div>
                 </div>
                 <hr class="m-0 mb-4">
-                <div class="show-flex-ke-hide gap-1">
+                <div class="show-flex-ke-hide gap-1 align-items-center">
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
                                     <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                                        <p class="m-0">Tambah ke keranjang</p>
+                                        <p class="m-0">Beli sekarang</p>
+                                    </button>
+                                </form>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                    <button type="submit" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <i class="material-icons">shopping_cart</i>
                                     </button>
                                 </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
@@ -216,8 +220,7 @@
                         <?php } ?>
                     <?php } else { ?>
                         <button type="button" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
-                            <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                            <p class="m-0">Tambah ke keranjang</p>
+                            <p class="m-0">Beli sekarang</p>
                         </button>
                     <?php } ?>
                 </div>
@@ -225,19 +228,27 @@
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
                                     <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                                        <p class="m-0">Tambah ke keranjang</p>
+                                        <p class="m-0">Beli sekarang</p>
+                                    </button>
+                                </form>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1)  : ""; ?>" method="post">
+                                    <button type="submit" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
                                     </button>
                                 </form>
                                 <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
                                     <form action="/delwishlist/<?= $produk['id']; ?>" method="post">
-                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite</i></button>
+                                        <button type="submit" class="btn btn-outline-dark">
+                                            <i class="material-icons" style="font-size: 20px;">favorite</i>
+                                        </button>
                                     </form>
                                 <?php } else { ?>
                                     <form action="/addwishlist/<?= $produk['id']; ?>" method="post">
-                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite_border</i></button>
+                                        <button type="submit" class="btn btn-outline-dark">
+                                            <i class="material-icons" style="font-size: 20px;">favorite_border</i>
+                                        </button>
                                     </form>
                                 <?php } ?>
                             <?php } else { ?>

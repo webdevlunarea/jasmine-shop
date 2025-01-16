@@ -42,6 +42,7 @@ $routes->post('/wishlisttocart', 'Pages::wishlistToCart', ['filter' => 'harusUse
 
 $routes->get('/cart', 'Pages::cart', ['filter' => 'harusUser']);
 $routes->post('/addcart/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3', ['filter' => 'harusUser']);
+$routes->post('/addcart/(:any)/(:any)/(:any)/(:any)', 'Pages::addCart/$1/$2/$3/$4', ['filter' => 'harusUser']);
 $routes->post('/redcart/(:any)', 'Pages::redCart/$1', ['filter' => 'harusUser']);
 $routes->post('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser']);
 
@@ -81,6 +82,8 @@ $routes->post('/updatetransaction', 'Pages::updateTransaction');
 // $routes->get('/errorpay', 'Pages::errorPay');
 $routes->get('/order/(:any)', 'Pages::order/$1');
 $routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
+$routes->post('/payorder/(:any)/confirm/(:any)', 'Pages::payOrderConfirm/$1/$2', ['filter' => 'harusAdmin']);
+$routes->post('/payorder/(:any)', 'Pages::payOrder/$1');
 // $routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
@@ -151,6 +154,7 @@ $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
 $routes->get('/imgvoucher/(:any)', 'GambarController::voucherPoster/$1');
 $routes->get('/imguser/(:any)', 'GambarController::tampilGambarUser/$1');
+$routes->get('/imgbuktibayar/(:any)', 'GambarController::tampilGambarBuktiBayar/$1');
 
 //Artikel
 $routes->get('/article', 'Pages::article');

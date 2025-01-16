@@ -24,7 +24,7 @@
                 <div class="d-flex justify-content-between mb-3">
                     <div class="flex-grow-1">
                         <p class="m-0 d-block">Metode Pembayaran</p>
-                        <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel') { ?>
+                        <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
                             <h5><?= strtoupper($bank); ?></h5>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
                             <h5>Qris</h5>

@@ -937,12 +937,13 @@ a {
     background-color: whitesmoke;
     padding: 0.5em 1em;
     border-radius: 0.3em;
+    border: 1px solid rgba(0, 0, 0, 0);
 }
 .container-pembayaran .item-logo-pembayaran:hover {
     background-color: rgb(201, 201, 201);
 }
 .container-pembayaran input:checked + .item-logo-pembayaran {
-    border: 2px solid black;
+    border: 1px solid black;
 }
 
 .container-meta {
@@ -1082,6 +1083,9 @@ footer > .atas > div {
     transition: 0.3s;
     padding: 1em 2em;
 }
+.container-list-customer .list-customer.need-confirm {
+    background-color: rgb(238, 216, 162);
+}
 .container-list-customer .list-customer-detail {
     border-top: 1px solid var(--hijau);
     /* background-color: white; */
@@ -1094,11 +1098,14 @@ footer > .atas > div {
 .container-list-customer .list-customer .nama {
     color: var(--hijau);
 }
-.container-list-customer .list-customer div:not(:first-child) {
+.container-list-customer .list-customer.need-confirm .nama {
+    color: black;
+}
+/* .container-list-customer .list-customer div:not(:first-child) {
     display: flex;
     justify-content: center;
     align-items: center;
-}
+} */
 .container-list-customer .list-customer p {
     width: fit-content;
 }
@@ -1261,6 +1268,9 @@ footer > .atas > div {
     }
     h1 {
         font-size: 25px;
+    }
+    h5 {
+        font-size: 16px;
     }
     .card1 h5 {
         font-size: 15px;

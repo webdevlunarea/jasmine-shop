@@ -59,104 +59,18 @@
 <div class="konten">
     <div class="container">
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
-            <div class="baris-ke-kolom gap-5 mt-3">
-                <div class="w-100">
-                    <?php if ($msg) { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <?= $msg; ?>
+            <div id="modal-metode-bayar" class="d-none p-2 justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+                <div style="background-color: white; max-width: 400px;" class="p-4 rounded-3">
+                    <div class="h-100" style="overflow-y: auto; max-height: 80svh;">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="m-0">Metode Pembayaran</h5>
+                            <i style="cursor: pointer;" class="material-icons" onclick="closeMetode()">close</i>
                         </div>
-                    <?php } ?>
-                    <div class="pb-3 border-bottom">
-                        <h5 class="mb-0">Informasi Pemesan</h5>
-                        <?php if ($user['email'] != 'tamu') { ?>
-                            <p class="mb-0">Email : <?= $user['email']; ?></p>
-                        <?php } else { ?>
-                            <div class="form-floating mb-1">
-                                <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
-                                <label for="floatingInput">Email</label>
-                            </div>
-                        <?php } ?>
-                    </div>
-                    <div class="py-3 border-bottom">
-                        <h5 class="mb-2">Informasi Penerima</h5>
-                        <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
-                            <label for="floatingInput">Nama Lengkap</label>
-                        </div>
-                        <div class="form-floating mb-1">
-                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required value="<?= $user['nohp']; ?>">
-                            <label for="floatingInput">No. HP</label>
-                        </div>
-                        <div class="form-alamat d-flex mb-1 gap-1">
-                            <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="provinsi">
-                                    <option value="">-- Pilih provinsi --</option>
-                                    <?php foreach ($provinsi as $p) { ?>
-                                        <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>" <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>><?= $p['province']; ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                                <label for="floatingProvinsi">Provinsi</label>
-                            </div>
-                            <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kota">
-                                    <option value="">-- Pilih kota --</option>
-                                    <?php foreach ($kabupaten as $p) { ?>
-                                        <option value="<?= $p['city_id']; ?>-<?= explode("/", $p['city_name'])[0]; ?>" <?= $user['alamat'] ? ($p['city_id'] == $user['alamat']['kab_id'] ? 'selected' : '') : ''; ?>><?= $p['city_name']; ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                                <label for="floatingProvinsi">Kabupaten/Kota</label>
-                            </div>
-                        </div>
-                        <div class="form-alamat d-flex mb-1 gap-1">
-                            <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kecamatan">
-                                    <option selected value="">-- Pilih kecamatan --</option>
-                                    <?php foreach ($kecamatan as $p) { ?>
-                                        <option value="<?= $p['subdistrict_id']; ?>-<?= explode("/", $p['subdistrict_name'])[0]; ?>" <?= $user['alamat'] ? ($p['subdistrict_id'] == $user['alamat']['kec_id'] ? 'selected' : '') : ''; ?>><?= $p['subdistrict_name']; ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                                <label for="floatingProvinsi">Kecamatan</label>
-                            </div>
-                            <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kodepos">
-                                    <option value="">-- Pilih Desa --</option>
-                                    <?php foreach ($desa as $p) { ?>
-                                        <option value="<?= explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0]; ?>-<?= $p['KodePos']; ?>" <?= $user['alamat'] ? (explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0] == $user['alamat']['desa'] ? 'selected' : '') : ''; ?>><?= ucwords(strtolower($p['DesaKelurahan'])); ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                                <label for="floatingProvinsi">Desa/Kelurahan</label>
-                            </div>
-                        </div>
-                        <div class="form-alamat form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
-                            <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
-                            <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
-                        </div>
-                        <div class="form-alamat d-none">
-                            <fieldset>
-                                <div class="form-floating mb-1">
-                                    <textarea type="text" class="form-control" placeholder="Email" name="alamat" required style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
-                                    <label for="floatingInput">Alamat Lengkap</label>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <p id="peringatan-lokasi" class="my-2 text-secondary" style="display: none;">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
-                    </div>
-                    <div class="py-3">
-                        <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Note" name="note">
-                            <label for="floatingInput">Note</label>
-                        </div>
-                    </div>
-                    <div class="pt-3">
-                        <h5 class="mb-3">Metode Pembayaran</h5>
+                        <hr>
+                        <p>Virtual Account</p>
                         <div class="alert d-none" role="alert" id="alert-cc"></div>
                         <div class="container-pembayaran mb-1">
-                            <input type="radio" checked name="pembayaran" id="pembayaran1" value="bca">
+                            <input type="radio" name="pembayaran" id="pembayaran1" value="bca" checked>
                             <label for="pembayaran1" class="item-logo-pembayaran"><img src="/img/pembayaran/bca.webp" alt=""></label>
                             <input type="radio" name="pembayaran" id="pembayaran2" value="bni">
                             <label for="pembayaran2" class="item-logo-pembayaran"><img src="/img/pembayaran/bni.webp" alt=""></label>
@@ -296,7 +210,108 @@
                                 tokenCCElm.value = '';
                             }
                         </script>
-
+                        <hr>
+                        <p>Rekening Bank Toko</p>
+                        <div class="container-pembayaran mb-3">
+                            <input type="radio" name="pembayaran" id="pembayaran12" value="rekening">
+                            <label for="pembayaran12" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp" alt=""></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary1 w-100">Lanjut bayar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="baris-ke-kolom gap-5 mt-3">
+                <div class="w-100">
+                    <?php if ($msg) { ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= $msg; ?>
+                        </div>
+                    <?php } ?>
+                    <div class="pb-3 border-bottom">
+                        <h5 class="mb-0">Informasi Pemesan</h5>
+                        <?php if ($user['email'] != 'tamu') { ?>
+                            <p class="mb-0">Email : <?= $user['email']; ?></p>
+                        <?php } else { ?>
+                            <div class="form-floating mb-1">
+                                <input type="email" class="form-control" placeholder="Email" name="emailPem" required value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
+                                <label for="floatingInput">Email</label>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <h5 class="mb-2">Informasi Penerima</h5>
+                        <div class="form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Email" name="nama" required value="<?= $user['nama']; ?>">
+                            <label for="floatingInput">Nama Lengkap</label>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required value="<?= $user['nohp']; ?>">
+                            <label for="floatingInput">No. HP</label>
+                        </div>
+                        <div class="form-alamat d-flex mb-1 gap-1">
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="provinsi">
+                                    <option value="">-- Pilih provinsi --</option>
+                                    <?php foreach ($provinsi as $p) { ?>
+                                        <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>" <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>><?= $p['province']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Provinsi</label>
+                            </div>
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kota">
+                                    <option value="">-- Pilih kota --</option>
+                                    <?php foreach ($kabupaten as $p) { ?>
+                                        <option value="<?= $p['city_id']; ?>-<?= explode("/", $p['city_name'])[0]; ?>" <?= $user['alamat'] ? ($p['city_id'] == $user['alamat']['kab_id'] ? 'selected' : '') : ''; ?>><?= $p['city_name']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Kabupaten/Kota</label>
+                            </div>
+                        </div>
+                        <div class="form-alamat d-flex mb-1 gap-1">
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kecamatan">
+                                    <option selected value="">-- Pilih kecamatan --</option>
+                                    <?php foreach ($kecamatan as $p) { ?>
+                                        <option value="<?= $p['subdistrict_id']; ?>-<?= explode("/", $p['subdistrict_name'])[0]; ?>" <?= $user['alamat'] ? ($p['subdistrict_id'] == $user['alamat']['kec_id'] ? 'selected' : '') : ''; ?>><?= $p['subdistrict_name']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Kecamatan</label>
+                            </div>
+                            <div class="form-floating w-50">
+                                <select class="form-select" aria-label="Default select example" name="kodepos">
+                                    <option value="">-- Pilih Desa --</option>
+                                    <?php foreach ($desa as $p) { ?>
+                                        <option value="<?= explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0]; ?>-<?= $p['KodePos']; ?>" <?= $user['alamat'] ? (explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0] == $user['alamat']['desa'] ? 'selected' : '') : ''; ?>><?= ucwords(strtolower($p['DesaKelurahan'])); ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <label for="floatingProvinsi">Desa/Kelurahan</label>
+                            </div>
+                        </div>
+                        <div class="form-alamat form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Email" name="alamat_add" required value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
+                            <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
+                            <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
+                        </div>
+                        <div class="form-alamat d-none">
+                            <fieldset>
+                                <div class="form-floating mb-1">
+                                    <textarea type="text" class="form-control" placeholder="Email" name="alamat" required style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
+                                    <label for="floatingInput">Alamat Lengkap</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <p id="peringatan-lokasi" class="my-2 text-secondary" style="display: none;">*Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://wa.me/+628112938160" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan</p>
+                    </div>
+                    <div class="py-3">
+                        <div class="form-floating mb-1">
+                            <input type="text" class="form-control" placeholder="Note" name="note">
+                            <label for="floatingInput">Note</label>
+                        </div>
                     </div>
                 </div>
 
@@ -375,13 +390,35 @@
                             <p class="m-0">Daftar member untuk menggunakan voucher</p>
                         </a>
                     <?php } ?>
-                    <div>
-                        <table class="table table-borderless">
+                    <div style="border: 1px solid var(--hijau);" class="px-3 py-2 rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="fw-bold m-0" style="color: var(--hijau)">Keranjang kamu</p>
+                            <style>
+                                .go-cart i {
+                                    font-size: 21px;
+                                    color: var(--hijau);
+                                }
+
+                                .go-cart:hover i {
+                                    color: #1a1a1a;
+                                }
+
+                                @media (max-width: 600px) {
+                                    .go-cart i {
+                                        font-size: 17px;
+                                    }
+                                }
+                            </style>
+                            <a href="/cart" style="text-decoration: none;" class="go-cart"><i class="material-icons">edit</i></a>
+                        </div>
+                        <hr class="mb-1 mt-1">
+                        <table class="table table-borderless m-0">
                             <tbody>
                                 <?php foreach ($produk as $index => $p) { ?>
                                     <tr>
                                         <td>
-                                            <p class="mb-0"><?= $p['nama'] . " (" . $keranjang[$index]['varian'] . ")"; ?></p>
+                                            <p class="mb-0 d-inline"><?= $p['nama']; ?>
+                                            <p class="m-0 text-secondary d-inline">(<?= $keranjang[$index]['varian']; ?>)</p>
                                         </td>
                                         <td>
                                             <p class="mb-0"><?= $jumlah[$index]; ?></p>
@@ -455,7 +492,7 @@
                             <label for="checkbox-syarat" style="display: inline;">Saya telah membaca dan menyetujui segala <a href="/syarat-dan-ketentuan" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi" style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kebijakan Privasi</a> yang berlaku</label>
                         </p>
                     </div>
-                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="submit">Bayar</button>
+                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button" onclick="openMetode()">Bayar</button>
                 </div>
             </div>
         </form>
@@ -472,6 +509,19 @@
     function closeRedeem() {
         modalRedeemElm.classList.add('d-none')
         modalRedeemElm.classList.remove('d-flex')
+    }
+</script>
+<script>
+    const modalMetodeBayarElm = document.getElementById('modal-metode-bayar');
+
+    function openMetode() {
+        modalMetodeBayarElm.classList.remove('d-none')
+        modalMetodeBayarElm.classList.add('d-flex')
+    }
+
+    function closeMetode() {
+        modalMetodeBayarElm.classList.add('d-none')
+        modalMetodeBayarElm.classList.remove('d-flex')
     }
 </script>
 <script>

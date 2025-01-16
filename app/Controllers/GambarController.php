@@ -7,6 +7,7 @@ use App\Models\ArtikelModel;
 use App\Models\BarangModel;
 use App\Models\GambarUserModel;
 use App\Models\VoucherModel;
+use App\Models\PemesananModel;
 
 
 class GambarController extends BaseController
@@ -16,6 +17,7 @@ class GambarController extends BaseController
     protected $barangModel;
     protected $voucherModel;
     protected $gambarUserModel;
+    protected $pemesananModel;
     public function __construct()
     {
         $this->artikelModel = new ArtikelModel();
@@ -23,6 +25,7 @@ class GambarController extends BaseController
         $this->barangModel = new BarangModel();
         $this->voucherModel = new VoucherModel();
         $this->gambarUserModel = new GambarUserModel();
+        $this->pemesananModel = new PemesananModel();
     }
 
     public function tampilGambarBarangBener($idBarang)
@@ -127,6 +130,13 @@ class GambarController extends BaseController
     {
         $gambar = $this->voucherModel->getVoucher($idVoucher);
         $gambarSelected = $gambar['poster'];
+        $this->response->setHeader('Content-Type', 'image/webp');
+        echo $gambarSelected;
+    }
+    public function tampilGambarBuktiBayar($idMidtrans)
+    {
+        $pemesananCur = $this->pemesananModel->getPemesanan($idMidtrans);
+        $gambarSelected = $pemesananCur['bukti_bayar'];
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
     }

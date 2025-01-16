@@ -16,9 +16,6 @@
                     <li class="list-group-item"><a class="btn btn-outline-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a></li>
                 </ul>
             </div>
-            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
-                <a class="btn btn-outline-danger" style="width: fit-content;" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a>
-            </div> -->
             <div style="flex: 1;">
                 <div class="p-2">
                     <h3>Transaksi Pembayaran</h3>
@@ -40,6 +37,9 @@
                                                                                         case 'Menunggu Pembayaran':
                                                                                             echo "text-bg-primary";
                                                                                             break;
+                                                                                        case 'Menunggu Pembayaran Rekening':
+                                                                                            echo $item_transaksi['bukti_bayar'] ? 'text-bg-warning' : 'text-bg-primary';
+                                                                                            break;
                                                                                         case 'Proses':
                                                                                             echo "text-bg-warning";
                                                                                             break;
@@ -59,12 +59,12 @@
                                                                                             echo "text-bg-dark";
                                                                                             break;
                                                                                     }
-                                                                                    ?>"><?= ucfirst($item_transaksi['status']); ?></span>
+                                                                                    ?>"><?= ucfirst($item_transaksi['status'] == 'Menunggu Pembayaran Rekening' ? ($item_transaksi['bukti_bayar'] ? 'Menunggu Konfirmasi' : 'Menunggu Pembayaran') : $item_transaksi['status']); ?></span>
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-end">
                                                     <p class="mb-0 text-secondary" style="font-size: 12px;">
                                                         <?= date("d/m/Y H:i:s", strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time'])); ?></p>
-                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran" || $item_transaksi['status'] == "Menunggu Pembayaran Rekening") { ?>
                                                         <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
                                                                                                                                 $dataMid = json_decode($item_transaksi['data_mid'], true);
                                                                                                                                 $d = strtotime($dataMid['transaction_time']);
@@ -104,7 +104,7 @@
                                             </div>
                                             <div class="w-100 d-flex justify-content-between mb-2">
                                                 <div class="w-100">
-                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran") { ?>
+                                                    <?php if ($item_transaksi['status'] == "Menunggu Pembayaran" || $item_transaksi['status'] == "Menunggu Pembayaran Rekening") { ?>
                                                         <p class="mb-0 fw-bold">Metode Pembayaran</p>
                                                         <p class="mb-0">
                                                             <?php
@@ -129,6 +129,9 @@
                                                                         echo "Bank Permata VA<br>" . $dataMid['permata_va_number'];
                                                                     else if (isset($dataMid['bca_va_number']))
                                                                         echo "BCA VA<br>" . $dataMid['bca_va_number'];
+                                                                    break;
+                                                                case 'rekening':
+                                                                    echo strtoupper($dataMid['va_numbers'][0]['bank']) . " No. Rekening<br>" . $dataMid['va_numbers'][0]['va_number'] . '<br>a.n. Catur Bhakti Mandiri';
                                                                     break;
                                                                 case 'gopay':
                                                                     echo 'Gopay';

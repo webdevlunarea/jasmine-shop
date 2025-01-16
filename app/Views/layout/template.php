@@ -83,7 +83,7 @@
         <?php if (in_array($user['email'], $emailUji)) { ?>
             <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="sandbox" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd" type="text/javascript"></script>
         <?php } else { ?>
-            <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="production" data-client-key="" type="text/javascript"></script>
+            <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" data-environment="production" data-client-key="Mid-client-9sUvUz3XTM_xqGOp" type="text/javascript"></script>
         <?php } ?>
     <?php } ?>
 

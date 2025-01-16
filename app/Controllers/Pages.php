@@ -1615,7 +1615,7 @@ class Pages extends BaseController
 
         return view('pages/cart', $data);
     }
-    public function addCart($id_barang, $varian, $index_gambar)
+    public function addCart($id_barang, $varian, $index_gambar, $redirect = false)
     {
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
@@ -1651,7 +1651,7 @@ class Pages extends BaseController
             $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
         $getCurItem = $this->barangModel->getBarang($id_barang);
         session()->setFlashdata('notif-cart', "Produk berhasil masuk keranjang");
-        return redirect()->to('/product/' . $getCurItem['path']);
+        return redirect()->to($redirect ? "/" . $redirect : '/product/' . $getCurItem['path']);
     }
     public function redCart($index_cart)
     {
@@ -2767,13 +2767,15 @@ class Pages extends BaseController
             }
         }
         $total = $subtotal + 5000;
-        $biayaadmin = array(
-            'id' => 'Biaya Admin',
-            'price' => 5000,
-            'quantity' => 1,
-            'name' => 'Biaya Admin',
-        );
-        array_push($itemDetails, $biayaadmin);
+        if ($pembayaran != 'rekening') {
+            $biayaadmin = array(
+                'id' => 'Biaya Admin',
+                'price' => 5000,
+                'quantity' => 1,
+                'name' => 'Biaya Admin',
+            );
+            array_push($itemDetails, $biayaadmin);
+        } else $total -= 5000;
 
         //voucher
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
@@ -2992,41 +2994,75 @@ class Pages extends BaseController
                     "token_id" => $tokencc
                 ];
                 break;
+            case 'rekening':
+                $arrPostField["payment_type"] = "rekening";
+                break;
             default:
                 session()->setFlashdata('msg', 'Tipe pembayaran tidak ditemukan');
                 return redirect()->to('/checkout');
                 break;
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => in_array($email, $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($arrPostField),
-            CURLOPT_HTTPHEADER => array(
-                "Accept: application/json",
-                "Content-Type: application/json",
-                "Authorization: Basic " . $auth,
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $hasilMidtrans = json_decode($response, true);
+        if ($pembayaran == 'rekening') {
+            $dCurr = strtotime("+7 Hours");
+            $dExp = strtotime("+8 Hours");
+            $transaction_time = date("Y-m-d H:i:s", $dCurr);
+            $expiry_time = date("Y-m-d H:i:s", $dExp);
+            $hasilMidtrans = [
+                "va_numbers" => [
+                    [
+                        "va_number" => "003401001574304",
+                        "bank" => "bri"
+                    ]
+                ],
+                "transaction_time" => $transaction_time,
+                "transaction_status" => "pending-rekening",
+                "transaction_id" => "8e80aa9a-4491-4e6e-946e-741848f91d5c",
+                "status_message" => "midtrans payment notification",
+                "status_code" => "201",
+                "signature_key" => "9701774dc96c5fd29ce1a96df0b3936797ae9cd7d901cacd2a2252bb4807a2d3ed26edacc0bd112923c6f18dfac534e6676ccd4a76ad43d5390e0d6fa3f0a87d",
+                "payment_type" => $arrPostField["payment_type"],
+                "order_id" => $arrPostField['transaction_details']['order_id'],
+                "merchant_id" => "G297047633",
+                "gross_amount" => $arrPostField['transaction_details']['gross_amount'],
+                "fraud_status" => "accept",
+                "expiry_time" => $expiry_time,
+                "custom_field1" => substr($customField, 0, 255),
+                "custom_field2" => substr($customField, 255, 255),
+                "custom_field3" => substr($customField, 510, 255),
+                "currency" => "IDR"
+            ];
+        } else {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => in_array($email, $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($arrPostField),
+                CURLOPT_HTTPHEADER => array(
+                    "Accept: application/json",
+                    "Content-Type: application/json",
+                    "Authorization: Basic " . $auth,
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return "cURL Error #:" . $err;
+            }
+            $hasilMidtrans = json_decode($response, true);
 
-        if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
-            session()->setFlashdata('msg', $hasilMidtrans['status_message']);
-            return redirect()->to('/checkout');
+            if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
+                session()->setFlashdata('msg', $hasilMidtrans['status_message']);
+                return redirect()->to('/checkout');
+            }
         }
 
         //dari update transaction =============================
@@ -3057,6 +3093,9 @@ class Pages extends BaseController
                 break;
             case 'cancel':
                 $status = "Dibatalkan";
+                break;
+            case 'pending-rekening':
+                $status = "Menunggu Pembayaran Rekening";
                 break;
             default:
                 $status = "No Status";
@@ -3111,6 +3150,12 @@ class Pages extends BaseController
             }
         }
         return redirect()->to('/order/' . $arrPostField['transaction_details']['order_id']);
+    }
+    public function payOrder($order_id)
+    {
+        $foto = file_get_contents($this->request->getFile('buktiBayar'));
+        $this->pemesananModel->where(['id_midtrans' => $order_id])->set(['bukti_bayar' => $foto])->update();
+        return redirect()->to('/order/' . $order_id);
     }
     public function cancelOrder($order_id)
     {
@@ -4691,6 +4736,31 @@ class Pages extends BaseController
                     ];
                     return view('pages/orderProgress', $data);
                     break;
+                case 'Menunggu Pembayaran Rekening':
+                    $biller_code = "";
+                    $va_number = $dataMid['va_numbers'][0]['va_number'];
+                    $bank = $dataMid['va_numbers'][0]['bank'];
+
+                    $waktuExpire = strtotime($dataMid['expiry_time']);
+                    $waktuCurr = strtotime("+7 Hours");
+                    $waktuSelisih = $waktuExpire - $waktuCurr;
+                    $waktu = date("H:i:s", $waktuSelisih);
+
+                    $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                    $data = [
+                        'title' => 'Peroses Pembayaran',
+                        'pemesanan' => $pemesanan,
+                        'dataMid' => $dataMid,
+                        'va_number' => $va_number,
+                        'biller_code' => $biller_code,
+                        'bank' => $bank,
+                        'items' => $items,
+                        'waktu' => $waktu,
+                        'caraPembayaran' => $carapembayaran[$bank],
+                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
+                    ];
+                    return view('pages/orderProgress', $data);
+                    break;
                 case 'Proses':
                     $biller_code = "";
                     $bank = "";
@@ -4703,6 +4773,10 @@ class Pages extends BaseController
                                 $va_number = $dataMid['va_numbers'][0]['va_number'];
                                 $bank = $dataMid['va_numbers'][0]['bank'];
                             }
+                            break;
+                        case 'rekening':
+                            $va_number = $dataMid['va_numbers'][0]['va_number'];
+                            $bank = $dataMid['va_numbers'][0]['bank'];
                             break;
                         case 'echannel':
                             $va_number = $dataMid['bill_key'];
@@ -4755,6 +4829,10 @@ class Pages extends BaseController
                                 $va_number = $dataMid['va_numbers'][0]['va_number'];
                                 $bank = $dataMid['va_numbers'][0]['bank'];
                             }
+                            break;
+                        case 'rekening':
+                            $va_number = $dataMid['va_numbers'][0]['va_number'];
+                            $bank = $dataMid['va_numbers'][0]['bank'];
                             break;
                         case 'echannel':
                             $va_number = $dataMid['bill_key'];
@@ -4861,6 +4939,10 @@ class Pages extends BaseController
                                 $va_number = $dataMid['va_numbers'][0]['va_number'];
                                 $bank = $dataMid['va_numbers'][0]['bank'];
                             }
+                            break;
+                        case 'rekening':
+                            $va_number = $dataMid['va_numbers'][0]['va_number'];
+                            $bank = $dataMid['va_numbers'][0]['bank'];
                             break;
                         case 'echannel':
                             $va_number = $dataMid['bill_key'];
@@ -5386,6 +5468,8 @@ class Pages extends BaseController
                 if ($t['status'] == 'Proses') array_push($semuaTransaksiCusFilter, $t);
             } else if ($status == 'Menunggu-Pembayaran') {
                 if ($t['status'] == 'Menunggu Pembayaran') array_push($semuaTransaksiCusFilter, $t);
+            } else if ($status == 'Menunggu-Pembayaran-Rekening') {
+                if ($t['status'] == 'Menunggu Pembayaran Rekening') array_push($semuaTransaksiCusFilter, $t);
             } else if ($status == 'Kadaluarsa') {
                 if ($t['status'] == 'Kadaluarsa') array_push($semuaTransaksiCusFilter, $t);
             } else if ($status == 'Ditolak') {
@@ -5414,11 +5498,14 @@ class Pages extends BaseController
                 'kurir' => $transaksi['kurir'],
                 'data_mid' => json_decode($transaksi['data_mid'], true),
                 'note' => $transaksi['note'],
+                'bukti_bayar' => $transaksi['bukti_bayar'] ? '/imgbuktibayar/' . $transaksi['id_midtrans'] : false,
             ];
             if ($status == 'Proses') {
                 if ($transaksi['status'] == 'Proses') array_push($transaksiCusNoJSON, $arr);
             } else if ($status == 'Menunggu-Pembayaran') {
                 if ($transaksi['status'] == 'Menunggu Pembayaran') array_push($transaksiCusNoJSON, $arr);
+            } else if ($status == 'Menunggu-Pembayaran-Rekening') {
+                if ($transaksi['status'] == 'Menunggu Pembayaran Rekening') array_push($transaksiCusNoJSON, $arr);
             } else if ($status == 'Kadaluarsa') {
                 if ($transaksi['status'] == 'Kadaluarsa') array_push($transaksiCusNoJSON, $arr);
             } else if ($status == 'Ditolak') {
@@ -5443,6 +5530,197 @@ class Pages extends BaseController
             'status' => $status
         ];
         return view('pages/listCustomer', $data);
+    }
+    public function payOrderConfirm($id_midtrans, $confirm)
+    {
+        $dataTransaksi_curr = $this->pemesananModel->getPemesanan($id_midtrans);
+        // dd($dataTransaksi_curr);
+        if (!$dataTransaksi_curr) {
+            session()->setFlashdata('msg', 'Pesanan tidak ditemukan');
+            return redirect()->to('/listcustomer');
+        }
+        $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
+        switch ($confirm) {
+            case 'cancel':
+                $dataMid_curr['transaction_status'] = 'cancel';
+                $status = 'Dibatalkan';
+                break;
+            case 'accept':
+                $dataMid_curr['transaction_status'] = 'settlement';
+                $status = 'Proses';
+                break;
+            default:
+                session()->setFlashdata('msg', 'Konfirmasi salah');
+                return redirect()->to('/listcustomer');
+                break;
+        }
+        $this->pemesananModel->where('id_midtrans', $id_midtrans)->set([
+            'status' => $status,
+            'data_mid' => json_encode($dataMid_curr),
+        ])->update();
+
+        $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $id_midtrans)->first();
+        if ($status == 'Proses') {
+            if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
+                $this->voucherClaimedModel->where([
+                    'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
+                    'email_user' => $dataTransaksiFulDariDatabase['email_cus']
+                ])->delete();
+            }
+            //tambah poin
+            $emailCus = $dataTransaksiFulDariDatabase['email_cus'];
+            $pembeli = $this->pembeliModel->getPembeli($emailCus);
+            $waktuCurr = strtotime("+7 Hours");
+            $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+            $poin = json_decode($pembeli['poin'], true);
+            if ($dataTransaksiFulDariDatabase['cashback'] > 0) {
+                $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
+                $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
+
+                $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
+                $dataPoinNew = [
+                    'kadaluarsa' => $kadaluarsa,
+                    'nominal' => $cashback,
+                    'active' => true
+                ];
+                array_push($poin, $dataPoinNew);
+                $this->pointHistoryModel->insert([
+                    'id' => $waktuCurr,
+                    'label' => $voucherSelected['nama'],
+                    'nominal' => $voucherSelected['nominal'],
+                    'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
+                    'tanggal' => $waktuCurrYmd,
+                    'email_user' => $emailCus
+                ]);
+            }
+            //kalo pakai poin
+            if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
+                //add point history
+                $this->pointHistoryModel->insert([
+                    'id' => $waktuCurr,
+                    'label' => 'Pembelian',
+                    'nominal' => $dataTransaksiFulDariDatabase['pakai_poin'],
+                    'keterangan' => 'Pembelian dengan id pemesanan ' . $id_midtrans,
+                    'tanggal' => $waktuCurrYmd,
+                    'email_user' => $emailCus
+                ]);
+                //update poin pembeli
+                $poinArrIndexTerpakai = [];
+                foreach ($poin as $ind_p => $p) {
+                    if (!$p['active']) {
+                        array_push($poinArrIndexTerpakai, $ind_p);
+                    }
+                }
+                foreach ($poinArrIndexTerpakai as $p) {
+                    unset($poin[$p]);
+                }
+            }
+            $poinBaru = array_values($poin);
+            $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poinBaru)])->update();
+            //tambah tier
+            $tier = json_decode($pembeli['tier'], true);
+            $data = $tier['data'];
+            $kadaluarsa = date("Y-m-d", strtotime("+1 year", strtotime($waktuCurrYmd)));
+            array_push($data, [
+                'kadaluarsa' => $kadaluarsa,
+                'nominal' => (int)$dataMid_curr['gross_amount'],
+                'id_pesanan' => $id_midtrans
+            ]);
+            $dataBaru = [];
+            $jumlah = 0;
+            foreach ($data as $d) {
+                $waktuCurr = strtotime("+7 Hours");
+                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                if (date("m-d", $waktuCurr) == '01-01') {
+                    if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
+                        $jumlah += (int)$d['nominal'];
+                        array_push($dataBaru, $d);
+                    }
+                } else {
+                    $jumlah += (int)$d['nominal'];
+                    array_push($dataBaru, $d);
+                }
+            }
+            if ($jumlah < 10000000) {
+                $label = 'bronze';
+            } else if ($jumlah < 50000000) {
+                $label = 'silver';
+            } else if ($jumlah < 100000000) {
+                $label = 'gold';
+            } else if ($jumlah >= 100000000) {
+                $label = 'platinum';
+            }
+            $tier['label'] = $label;
+            $tier['data'] = $dataBaru;
+            $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
+        }
+        //reset jumlah produk
+        if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
+            $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
+            foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                //bentuk item
+                //     {
+                //         "id":"B20240214223820",
+                //         "name":"Rak Serbaguna - RSD 80 (Putih)",
+                //         "value":517000,
+                //         "quantity":1
+                //     }
+
+                $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
+                $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
+                if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
+                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                        'stok' => (int)$barangCurr['stok'] + $item['quantity']
+                    ])->update();
+                } else {
+                    $stokTerbaru = explode(",", $barangCurr['stok']);
+                    $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+                    $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
+                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                        'stok' => implode(",", $stokTerbaru)
+                    ])->update();
+                }
+            }
+
+            //aktifkan kemabli voucher claimednya
+            if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
+                $this->voucherClaimedModel->where([
+                    'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
+                    'email_user' => $dataTransaksiFulDariDatabase['email_cus']
+                ])->set(['active' => true])->update();
+            }
+
+            //aktifkan kembali poinnya
+            if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
+                $pembeliCur = $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->first();
+                $poinCur = json_decode($pembeliCur['poin'], true);
+                $poinCounter = 0;
+                $poinCurFinal = $dataTransaksiFulDariDatabase['pakai_poin'];
+                foreach ($poinCur as $ind_p => $p) {
+                    if (!$p['active']) {
+                        $poinCur[$ind_p]['active'] = true;
+                        if ((int)$p['nominal'] == 0) {
+                            $sisa = $poinCurFinal - $poinCounter;
+                            $poinCur[$ind_p]['nominal'] = $sisa;
+                        }
+                    } else {
+                        if ($poinCurFinal > $poinCounter) {
+                            $sisa = $poinCurFinal - $poinCounter;
+                            $poinCur[$ind_p]['nominal'] = (int)$p['nominal'] + $sisa;
+                        }
+                        break;
+                    }
+                    $poinCounter += (int)$p['nominal'];
+                }
+                $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
+            }
+        }
+
+        // $this->pemesananModel->where(['id_midtrans' => $id_midtrans])->set([
+        //     'data_mid' => json_encode($getdataMidCur),
+        //     'status' => $status
+        // ])->update();
+        return redirect()->to('/listcustomer');
     }
     public function pdf($id_mid)
     {
