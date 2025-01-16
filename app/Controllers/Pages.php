@@ -3161,6 +3161,74 @@ class Pages extends BaseController
     {
         $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         $pemesanan = $this->pemesananModel->getPemesanan($order_id);
+        if ($pemesanan['status'] == 'Menunggu Pembayaran Rekening') {
+            $dataMid_curr = json_decode($pemesanan['data_mid'], true);
+            $dataMid_curr['transaction_status'] = 'cancel';
+            $status = 'Dibatalkan';
+            $this->pemesananModel->where('id_midtrans', $order_id)->set([
+                'status' => $status,
+                'data_mid' => json_encode($dataMid_curr),
+            ])->update();
+
+            $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+            //reset jumlah produk
+            $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
+            foreach ($dataTransaksiFulDariDatabase_items as $item) {
+                //bentuk item
+                //     {
+                //         "id":"B20240214223820",
+                //         "name":"Rak Serbaguna - RSD 80 (Putih)",
+                //         "value":517000,
+                //         "quantity":1
+                //     }
+                $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
+                $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
+                if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
+                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                        'stok' => (int)$barangCurr['stok'] + $item['quantity']
+                    ])->update();
+                } else {
+                    $stokTerbaru = explode(",", $barangCurr['stok']);
+                    $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
+                    $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
+                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
+                        'stok' => implode(",", $stokTerbaru)
+                    ])->update();
+                }
+            }
+            //aktifkan kemabli voucher claimednya
+            if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
+                $this->voucherClaimedModel->where([
+                    'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
+                    'email_user' => $dataTransaksiFulDariDatabase['email_cus']
+                ])->set(['active' => true])->update();
+            }
+            //aktifkan kembali poinnya
+            if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
+                $pembeliCur = $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->first();
+                $poinCur = json_decode($pembeliCur['poin'], true);
+                $poinCounter = 0;
+                $poinCurFinal = $dataTransaksiFulDariDatabase['pakai_poin'];
+                foreach ($poinCur as $ind_p => $p) {
+                    if (!$p['active']) {
+                        $poinCur[$ind_p]['active'] = true;
+                        if ((int)$p['nominal'] == 0) {
+                            $sisa = $poinCurFinal - $poinCounter;
+                            $poinCur[$ind_p]['nominal'] = $sisa;
+                        }
+                    } else {
+                        if ($poinCurFinal > $poinCounter) {
+                            $sisa = $poinCurFinal - $poinCounter;
+                            $poinCur[$ind_p]['nominal'] = (int)$p['nominal'] + $sisa;
+                        }
+                        break;
+                    }
+                    $poinCounter += (int)$p['nominal'];
+                }
+                $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
+            }
+            return redirect()->to('/order/' . $order_id);
+        }
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
         if (in_array($pemesanan['email_cus'], $emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");

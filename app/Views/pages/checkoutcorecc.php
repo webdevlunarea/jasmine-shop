@@ -322,7 +322,7 @@
                             <p class="m-0">Redeem code voucher dan klaim</p>
                         </div>
                         <?php if (count($voucher) > 0) { ?>
-                            <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2<?= $voucherSelected ? ' active' : ''; ?>" onclick="pilihVoucher()">
+                            <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-1<?= $voucherSelected ? ' active' : ''; ?>" onclick="pilihVoucher()">
                                 <?php if ($voucherSelected) { ?>
                                     <div>
                                         <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
@@ -334,7 +334,7 @@
                                     <i class="material-icons">chevron_right</i>
                                 <?php } ?>
                             </div>
-                            <div class="container-pilih-voucher">
+                            <div class="container-pilih-voucher mb-2">
                                 <?php foreach ($voucher as $v) { ?>
                                     <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>" href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
                                         <div>
