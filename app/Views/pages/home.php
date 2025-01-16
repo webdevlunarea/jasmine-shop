@@ -77,7 +77,7 @@ if ($msg_active) { ?>
                         <div class="d-flex my-3 justify-content-center">
                             <img src="<?= session()->get('foto'); ?>" alt="" style="width: 200px; height: 200px; object-fit:cover; border-radius: 400px">
                         </div>
-                        <p class="m-0 text-center">Rayakan pertambahan usia & klaim voucher untuk mendapatkan cashback <b style="color: var(--hijau);">Rp25.000</b></p>
+                        <p class="m-0 text-center">Rayakan pertambahan usia & pakai voucher untuk mendapatkan cashback <b style="color: var(--hijau);">Rp25.000</b></p>
                         <p class="m-0 text-secondary text-center" style="font-size: small;">**promo sesuai dengan S&K berlaku</p>
 
                         <hr>

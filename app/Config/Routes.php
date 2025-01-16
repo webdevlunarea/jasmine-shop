@@ -147,6 +147,9 @@ $routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter
 $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
+//API Automatic
+$routes->post('/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);
+
 
 // GambarController
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');

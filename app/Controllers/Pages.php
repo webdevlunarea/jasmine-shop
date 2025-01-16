@@ -1291,6 +1291,7 @@ class Pages extends BaseController
         ];
         // dd($notifVoucher);
         session()->setFlashdata('msg_event', $notifVoucher);
+        if (count($voucherClaimedBaru) > 0) session()->set('voucher', $voucherClaimedBaru[0]['id']);
 
         if ($getUser['role'] == '0') {
             $getPembeli = $this->pembeliModel->getPembeli($email);
@@ -1887,6 +1888,46 @@ class Pages extends BaseController
         array_push($code, $datanya);
         $this->voucherModel->where(['id' => $id_voucher])->set(['code' => json_encode($code)])->update();
         return true;
+    }
+    public function autoClaimingVoucher()
+    {
+        $response = [
+            'status' => 'ok'
+        ];
+        $pembeli = $this->pembeliModel->findAll();
+        $curTime = date('Y-m-d', strtotime('+7 Hours'));
+        foreach ($pembeli as $p) {
+            $tier = json_decode($p['tier'], true);
+            if ($tier['label'] == 'bronze' || $tier['label'] == 'gold') {
+                if (date('m-d', strtotime($curTime)) == date('m-d', strtotime($p['tgl_lahir']))) {
+                    $cekClaimed = $this->voucherClaimedModel->getVoucherEmail($p['email_user']);
+                    $ulangTahun = true;
+                    foreach ($cekClaimed as $c) {
+                        if ($c['id_voucher'] == 2) {
+                            $ulangTahun = false;
+                        }
+                    }
+                    if ($ulangTahun) {
+                        $voucherBeneran = $this->voucherModel->getVoucher(2);
+                        $waktuCurr = strtotime("+7 Hours");
+                        $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+                        $kadaluarsa = null;
+                        if ($voucherBeneran['durasi']) {
+                            $kadaluarsa = date("Y-m-d", strtotime($voucherBeneran['durasi'], strtotime($waktuCurrYmd)));
+                        }
+                        $this->voucherClaimedModel->insert([
+                            'id' => $waktuCurr,
+                            'id_voucher' => 2,
+                            'kadaluarsa' => $kadaluarsa,
+                            'email_user' => $p['email_user'],
+                            'active' => true
+                        ]);
+                        $response['ulangTahun'] = 'sukses';
+                    } else $response['ulangTahun'] = 'gagal';
+                }
+            }
+        }
+        return $this->response->setJSON($response, false);
     }
     public function voucherAddMember()
     {
