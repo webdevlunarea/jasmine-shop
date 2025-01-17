@@ -1,7 +1,7 @@
 require("dotenv").config();
 async function checkDateAndExecute() {
     const today = new Date();
-    if (today.getHours() == 21) {
+    if (today.getHours() == 1) {
         const response = await fetch(
             `${process.env.BASE_URL}autoclaimingvoucher`,
             {
@@ -15,4 +15,4 @@ async function checkDateAndExecute() {
 }
 
 // Jalankan fungsi setiap jam
-setInterval(checkDateAndExecute, 10 * 1000);
+setInterval(checkDateAndExecute, 60 * 60 * 1000);
