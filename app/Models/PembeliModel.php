@@ -18,6 +18,7 @@ class PembeliModel extends Model
         'poin',
         'tier',
         'tgl_lahir',
+        'batas_tgl_lahir', //stelah tgl ini customer baru bisa ubah tgl lahirnnya lagi
         'foto'
     ];
 

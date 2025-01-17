@@ -65,6 +65,9 @@
                                 <div class="mb-1">
                                     <label for="inputAddress" class="form-label">Tanggal Lahir</label>
                                     <input name="tgl_lahir" type="date" class="form-control" value="<?= $tgl_lahir ?>" required>
+                                    <?php if ($kurang_dari) { ?>
+                                        <p class="m-0 text-secondary" style="font-size: small;">*tanggal lahir dapat diubah kembali setelah tanggal <?= $batas_tgl_lahir; ?></p>
+                                    <?php } ?>
                                 </div>
                                 <div class="mb-1">
                                     <button type="submit" class="btn btn-primary1">Simpan</button>

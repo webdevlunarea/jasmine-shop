@@ -5283,12 +5283,20 @@ class Pages extends BaseController
         $nohp = session()->get("nohp");
         $tgl_lahir = session()->get("tgl_lahir");
         $foto = session()->get("foto");
+        $email = session()->get("email");
+        $getCurPembeli = $this->pembeliModel->getPembeli($email);
+        $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+        $waktuBatas = strtotime($getCurPembeli['batas_tgl_lahir']);
+        $waktuSelisih = $waktuBatas - $waktuCurr;
+
         $data = [
             'title' => 'Akun Saya',
             'nama' => $nama,
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
             'foto' => $foto,
+            'batas_tgl_lahir' => explode('-', $getCurPembeli['batas_tgl_lahir'])[2] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[1] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[0],
+            'kurang_dari' => $waktuSelisih >= 0 ? true : false,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
         return view('pages/account', $data);
@@ -5303,6 +5311,19 @@ class Pages extends BaseController
         $nohp = $this->request->getVar('nohp');
         $tgl_lahir = $this->request->getVar('tgl_lahir');
         $foto = $this->request->getFile('foto')->isValid() ? file_get_contents($this->request->getFile('foto')) : false;
+        $getCurPembeli = $this->pembeliModel->getPembeli($email);
+
+        if ($tgl_lahir != $getCurPembeli['tgl_lahir']) {
+            if ($getCurPembeli['batas_tgl_lahir']) {
+                $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+                $waktuBatas = strtotime($getCurPembeli['batas_tgl_lahir']);
+                $waktuSelisih = $waktuBatas - $waktuCurr;
+                if ($waktuSelisih >= 0) {
+                    session()->setFlashdata('msg', 'Tanggal lahir belum dapat diubah');
+                    return redirect()->to('/account');
+                }
+            }
+        }
 
         if ($sandi != '') {
             $this->userModel->where('email', $email)->set([
@@ -5314,6 +5335,7 @@ class Pages extends BaseController
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
+                'batas_tgl_lahir' => date("Y-m-d", strtotime('+1 year')),
                 'foto' => $foto ? '/imguser/' . base64_encode($email) : session()->get('foto')
             ])->update();
 
@@ -5335,12 +5357,6 @@ class Pages extends BaseController
 
         session()->setFlashdata('msg', 'Akun Anda telah diperbarui');
         return redirect()->to('/account');
-        // $data = [
-        //     'title' => 'Akun Saya',
-        //     'nama' => $nama,
-        //     'nohp' => $nohp
-        // ];
-        // return view('pages/account', $data);
     }
     public function contact()
     {
