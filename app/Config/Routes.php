@@ -7,7 +7,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Pages::index');
 $routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
-$routes->get('/kirimotpcoba', 'Pages::kirimOTPCoba', ['filter' => 'harusLogin']);
+$routes->get('/kirimemail', 'Pages::kirimEmail', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
@@ -155,6 +155,7 @@ $routes->post('/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' =>
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
+$routes->get('/imgvoucher/email/(:any)', 'GambarController::voucherPosterEmail/$1');
 $routes->get('/imgvoucher/(:any)', 'GambarController::voucherPoster/$1');
 $routes->get('/imguser/(:any)', 'GambarController::tampilGambarUser/$1');
 $routes->get('/imgbuktibayar/(:any)', 'GambarController::tampilGambarBuktiBayar/$1');

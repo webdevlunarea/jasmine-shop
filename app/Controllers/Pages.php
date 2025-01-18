@@ -630,7 +630,7 @@ class Pages extends BaseController
         ];
         return view('pages/signup', $data);
     }
-    public function kirimOTPCoba()
+    public function kirimEmail()
     {
         $otp_number = [rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)];
         $d = strtotime("+425 minutes");
@@ -6308,6 +6308,7 @@ class Pages extends BaseController
         $autoClaimed = $this->request->getVar('auto-claimed');
         $kuota = $this->request->getVar('kuota');
         $poster = $this->request->getFile('poster') ? file_get_contents($this->request->getFile('poster')) : null;
+        $posterEmail = $this->request->getFile('poster-email') ? file_get_contents($this->request->getFile('poster-email')) : null;
 
         $code = [];
         if ($allUserVoucher) {
@@ -6337,7 +6338,8 @@ class Pages extends BaseController
             'active' => true,
             'auto_claimed' => $autoClaimed ? true : false,
             'kuota' => $kuota,
-            'poster' => $poster
+            'poster' => $poster,
+            'poster_email' => $posterEmail
         ]);
         return redirect()->to('/listvoucher');
     }

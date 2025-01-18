@@ -133,6 +133,13 @@ class GambarController extends BaseController
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
     }
+    public function voucherPosterEmail($idVoucher)
+    {
+        $gambar = $this->voucherModel->getVoucher($idVoucher);
+        $gambarSelected = $gambar['poster_email'];
+        $this->response->setHeader('Content-Type', 'image/webp');
+        echo $gambarSelected;
+    }
     public function tampilGambarBuktiBayar($idMidtrans)
     {
         $pemesananCur = $this->pemesananModel->getPemesanan($idMidtrans);

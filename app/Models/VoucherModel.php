@@ -21,7 +21,8 @@ class VoucherModel extends Model
         'auto_claimed',
         'poster',
         'private',
-        'kuota'
+        'kuota',
+        'poster_email',
     ];
 
     public function getVoucher($id = false)

@@ -66,9 +66,15 @@
                 <label class="form-label">Keterangan</label>
                 <textarea class="form-control" name="keterangan"></textarea>
             </div>
-            <div class="mb-2">
-                <label class="form-label m-0">Poster</label>
-                <input type="file" class="form-control" name="poster">
+            <div class="d-flex mb-2 gap-1">
+                <div style="flex: 1;">
+                    <label class="form-label m-0">Poster</label>
+                    <input type="file" class="form-control" name="poster">
+                </div>
+                <div style="flex: 1;">
+                    <label class="form-label m-0">Poster Email</label>
+                    <input type="file" class="form-control" name="poster-email" required>
+                </div>
             </div>
             <div class="mb-2">
                 <label class="form-label m-0">Email Customer</label>
