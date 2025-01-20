@@ -8,7 +8,7 @@
     }
 </style>
 <div id="modalnya" class="d-none justify-content-center align-items-center" style="z-index: 11; position:fixed; height: 100svh; width: 100vw; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5);">
-    <div style="background-color: white;" class="p-4 rounded-2">
+    <div style="background-color: white; max-height: 90svh; overflow:scroll;" class="p-4 rounded-2">
         <h4 class="m-0">Email Customer</h4>
         <p class="text-secondary mb-2" style="font-size: small;">Berikut list email customer yang dapat mengklaim</p>
         <form action="/voucher/addmember" method="post">
@@ -34,6 +34,11 @@
             <h1>List Voucher</h1>
             <a href="/addvoucher" class="btn btn-primary1">Tambah Voucher</a>
         </div>
+        <?php if ($msg) { ?>
+            <div class="alert alert-primary" role="alert">
+                <?= $msg; ?>
+            </div>
+        <?php } ?>
         <div class="d-flex flex-column gap-1">
             <?php foreach ($voucher as $ind_v => $v) { ?>
                 <div class="item-list-voucher baris-ke-kolom">
@@ -52,6 +57,7 @@
                                 <div class="bg-<?= $v['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
                             </div>
                             <div onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
+                            <div onclick="triggerToast('Broadcast ke customer?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
                         </div>
                     </div>
                 </div>

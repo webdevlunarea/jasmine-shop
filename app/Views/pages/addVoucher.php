@@ -63,18 +63,12 @@
                 </div>
             </div>
             <div class="mb-2">
+                <label class="form-label">Poster</label>
+                <input type="file" class="form-control" name="poster">
+            </div>
+            <div class="mb-2">
                 <label class="form-label">Keterangan</label>
                 <textarea class="form-control" name="keterangan"></textarea>
-            </div>
-            <div class="d-flex mb-2 gap-1">
-                <div style="flex: 1;">
-                    <label class="form-label m-0">Poster</label>
-                    <input type="file" class="form-control" name="poster">
-                </div>
-                <div style="flex: 1;">
-                    <label class="form-label m-0">Poster Email</label>
-                    <input type="file" class="form-control" name="poster-email" required>
-                </div>
             </div>
             <div class="mb-2">
                 <label class="form-label m-0">Email Customer</label>
@@ -84,9 +78,26 @@
                     <input type="checkbox" onchange="handleChangeAllUser(event)" name="set-all-user-voucher" id="checkbox1">
                     <label for="checkbox1">Tambahkan akses klaim ke seluruh customer</label>
                 </div>
-                <div class="d-flex gap-1">
+                <div class="d-none gap-1">
                     <input type="checkbox" name="set-redeem" id="checkbox3">
                     <label for="checkbox3">Berikan code redeem</label>
+                </div>
+            </div>
+            <hr>
+            <h5 class="m-0">Broadcast Email Customer</h5>
+            <p class="text-secondary mb-1" style="font-size: small;">Memberikan informasi ke customer mengenai voucher ini</p>
+            <div class="d-flex gap-1 mb-2">
+                <input onchange="handleChangeBroadcast(event)" checked type="checkbox" name="broadcast" id="broadcast-checkbox">
+                <label for="broadcast-checkbox">Broadcast ke customer</label>
+            </div>
+            <div id="form-broadcast">
+                <div class="mb-2">
+                    <label class="form-label m-0">Poster Email</label>
+                    <input type="file" class="form-control" name="poster-email">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Isi Email</label>
+                    <textarea class="form-control" name="isi-email" placeholder="Ditulis dalam bentuk HTML"></textarea>
                 </div>
             </div>
             <hr>
@@ -105,11 +116,18 @@
 </div>
 <script>
     const keteranganElm = document.querySelector('textarea[name="email"]');
+    const formBroadcastElm = document.getElementById('form-broadcast')
 
     function handleChangeAllUser(e) {
         const valuenya = e.target.checked;
         if (valuenya) keteranganElm.classList.add('d-none');
         else keteranganElm.classList.remove('d-none');
+    }
+
+    function handleChangeBroadcast(e) {
+        const valuenya = e.target.checked;
+        if (valuenya) formBroadcastElm.classList.remove('d-none');
+        else formBroadcastElm.classList.add('d-none');
     }
 </script>
 <?= $this->endSection(); ?>

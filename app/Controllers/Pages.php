@@ -74,7 +74,215 @@ class Pages extends BaseController
         $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
         $email->setTo($email_cus);
         $email->setSubject($subject);
-        $email->setMessage($isi);
+        $template = '
+        <table
+            align="center"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="background-color: #ebfaee; width: 100%"
+        >
+            <tbody>
+                <tr>
+                    <td style="padding: 20px">
+                        <div>' . $isi . '</div>
+                        <div style="height: 15px"></div>
+                        <div style="padding-top: 20px; padding-bottom: 10px">
+                            <table
+                                align="center"
+                                border="0"
+                                cellpadding="0"
+                                cellspacing="0"
+                                role="presentation"
+                                style="width: 100%"
+                            >
+                                <tbody>
+                                    <tr style="text-align: center">
+                                        <td>
+                                            <div>
+                                                <table
+                                                    style="
+                                                        margin-right: auto;
+                                                        margin-left: auto;
+                                                    "
+                                                >
+                                                    <tbody>
+                                                        <tr
+                                                            style="
+                                                                text-align: center;
+                                                            "
+                                                        >
+                                                            <td>
+                                                                <img
+                                                                    style="
+                                                                        width: 150px;
+                                                                    "
+                                                                    src="https://lunareafurniture.com/img/Logo%20Lunarea%20Bg%20Terang.png"
+                                                                    alt="Lunarea"
+                                                                />
+                                                            </td>
+                                                            <td width="10">
+                                                                &nbsp;
+                                                            </td>
+                                                            <td>
+                                                                <span>|</span>
+                                                            </td>
+                                                            <td width="10">
+                                                                &nbsp;
+                                                            </td>
+                                                            <td>
+                                                                <span
+                                                                    style="
+                                                                        text-wrap: nowrap;
+                                                                    "
+                                                                    >©2025 All
+                                                                    rights
+                                                                    reserved.</span
+                                                                >
+                                                            </td>
+                                                        </tr>
+                                                        <tr
+                                                            style="
+                                                                text-align: center;
+                                                            "
+                                                        >
+                                                            <td colspan="5">
+                                                                <div
+                                                                    style="
+                                                                        padding-top: 5px;
+                                                                        margin-left: auto;
+                                                                        margin-right: auto;
+                                                                    "
+                                                                >
+                                                                    <table
+                                                                        align="center"
+                                                                        border="0"
+                                                                        cellpadding="0"
+                                                                        cellspacing="0"
+                                                                        role="presentation"
+                                                                    >
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://www.instagram.com/Lunareafurniture.official"
+                                                                                    >
+                                                                                        <img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/ig.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                        />
+                                                                                    </a>
+                                                                                </td>
+                                                                                <td
+                                                                                    width="15"
+                                                                                >
+                                                                                    &nbsp;
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://www.tiktok.com/@lunareafurnitureofficial"
+                                                                                        ><img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/tiktok.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                    /></a>
+                                                                                </td>
+                                                                                <td
+                                                                                    width="15"
+                                                                                >
+                                                                                    &nbsp;
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://www.threads.net/@lunareafurniture.official"
+                                                                                        ><img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/thread.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                    /></a>
+                                                                                </td>
+                                                                                <td
+                                                                                    width="15"
+                                                                                >
+                                                                                    &nbsp;
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://x.com/official14312"
+                                                                                        ><img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/x.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                    /></a>
+                                                                                </td>
+                                                                                <td
+                                                                                    width="15"
+                                                                                >
+                                                                                    &nbsp;
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://www.facebook.com/profile.php?id=61560396845112&locale=id_ID"
+                                                                                        ><img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/fb.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                    /></a>
+                                                                                </td>
+                                                                                <td
+                                                                                    width="15"
+                                                                                >
+                                                                                    &nbsp;
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a
+                                                                                        target="_blank"
+                                                                                        href="https://www.youtube.com/@LunareaFurnitureOfficial"
+                                                                                        ><img
+                                                                                            src="https://lunareafurniture.com/img/sosmed/youtube.png"
+                                                                                            alt="instagram"
+                                                                                            style="
+                                                                                                height: 15px;
+                                                                                            "
+                                                                                    /></a>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        ';
+        $email->setMessage($template);
         $email->send();
     }
     public function index()
@@ -638,161 +846,82 @@ class Pages extends BaseController
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
         $isinya = '
-            <table
-            align="center"
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            role="presentation"
-            style="background-color: #ebfaee; width: 100%"
+        <div style="width: 100%">
+            <img
+                src="https://lunareafurniture.com/imgvoucher/email/2"
+                alt="banner"
+                style="width: 100%; border-radius: 5px"
+            />
+        </div>
+        <div style="height: 15px"></div>
+        <div
+            style="
+                background-color: white;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-top: 20px;
+                    padding-bottom: 20px;
+                    border-radius: 10px;
+                "
         >
-            <tbody>
-                <tr>
-                    <td style="padding: 20px">
-                        <div style="width: 100%">
-                            <img
-                                src="https://lunareafurniture.com/imgvoucher/email/2"
-                                alt="banner"
-                                style="width: 100%; border-radius: 5px"
-                            />
-                        </div>
-                        <div style="height: 15px"></div>
-                        <div
-                            style="
-                                background-color: white;
-                                padding-right: 20px;
-                                padding-left: 20px;
-                                padding-top: 20px;
-                                padding-bottom: 20px;
-                                border-radius: 10px;
-                            "
-                        >
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <span>Klaim Cashback Sebesar</span>
-                                            <span style="font-weight: 700"
-                                                >Rp. 25.000,00</span
-                                            >
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span
-                                                >Dengan minimal belanja produk
-                                                lunarea senilai Rp
-                                                250.000,00</span
-                                            >
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span
-                                                style="
-                                                    color: #8292b0;
-                                                    margin-bottom: 20px;
-                                                "
-                                                >**promo terbatas hanya untuk 30
-                                                pembeli pertama</span
-                                            >
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div style="padding-top: 10px">
-                                                <a
-                                                    href="https://lunareafurniture.com/"
-                                                    style="
-                                                        text-decoration: none;
-                                                        color: white;
-                                                        background-color: #1db954;
-                                                        padding-left: 20px;
-                                                        padding-right: 20px;
-                                                        padding-top: 10px;
-                                                        padding-bottom: 10px;
-                                                        border-radius: 7px;
-                                                        line-height: 40px;
-                                                        font-weight: 700;
-                                                    "
-                                                    >Belanja sekarang</a
-                                                >
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="height: 15px"></div>
-                        <div style="padding-top: 20px; padding-bottom: 10px">
-                            <table
-                                align="center"
-                                border="0"
-                                cellpadding="0"
-                                cellspacing="0"
-                                role="presentation"
-                                style="width: 100%"
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span>Klaim Cashback Sebesar</span>
+                            <span style="font-weight: 700"
+                                >Rp. 25.000,00</span
                             >
-                                <tbody>
-                                    <tr style="text-align: center">
-                                        <td>
-                                            <div>
-                                                <table
-                                                    style="
-                                                        margin-right: auto;
-                                                        margin-left: auto;
-                                                    "
-                                                >
-                                                    <tbody>
-                                                        <tr
-                                                            style="
-                                                                text-align: center;
-                                                            "
-                                                        >
-                                                            <td>
-                                                                <img
-                                                                    style="
-                                                                        width: 150px;
-                                                                    "
-                                                                    src="https://lunareafurniture.com/img/Logo%20Lunarea%20Bg%20Terang.png"
-                                                                    alt="Lunarea"
-                                                                />
-                                                            </td>
-                                                            <td width="10">
-                                                                &nbsp;
-                                                            </td>
-                                                            <td>
-                                                                <span>|</span>
-                                                            </td>
-                                                            <td width="10">
-                                                                &nbsp;
-                                                            </td>
-                                                            <td>
-                                                                <span
-                                                                    style="
-                                                                        text-wrap: nowrap;
-                                                                    "
-                                                                    >©2025 All
-                                                                    rights
-                                                                    reserved.</span
-                                                                >
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span
+                                >Dengan minimal belanja produk
+                                lunarea senilai Rp
+                                250.000,00</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span
+                                style="
+                                    color: #8292b0;
+                                    margin-bottom: 20px;
+                                "
+                                >**promo terbatas hanya untuk 30
+                                pembeli pertama</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="padding-top: 10px">
+                                <a
+                                    href="https://lunareafurniture.com/"
+                                    style="
+                                        text-decoration: none;
+                                        color: white;
+                                        background-color: #1db954;
+                                        padding-left: 20px;
+                                        padding-right: 20px;
+                                        padding-top: 10px;
+                                        padding-bottom: 10px;
+                                        border-radius: 7px;
+                                        line-height: 40px;
+                                        font-weight: 700;
+                                    "
+                                    >Belanja sekarang</a
+                                >
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         ';
         $email = session()->get('email');
-        // dd($email);
         $this->kirimPesanEmail($email, 'Lunarea Store - Voucher Ulang Tahun', $isinya);
         return $this->response->setJSON(['succes' => true], false);
     }
@@ -6306,11 +6435,16 @@ class Pages extends BaseController
         $voucher = $this->voucherModel->findAll();
         foreach ($voucher as $ind_v => $v) {
             $voucher[$ind_v]['code'] = json_decode($v['code'], true);
+            $voucher[$ind_v]['poster'] = '';
+            $voucher[$ind_v]['poster_email'] = '';
+            $voucher[$ind_v]['isi_email'] = '';
         }
+        // dd($voucher);
         $data = [
             'title' => 'List Voucher',
             'voucher' => $voucher,
-            'voucherJson' => json_encode($voucher)
+            'voucherJson' => json_encode($voucher),
+            'msg' => session()->getFlashdata('msg')
         ];
         return view('pages/listVoucher', $data);
     }
@@ -6351,8 +6485,16 @@ class Pages extends BaseController
         $allUserVoucher = $this->request->getVar('set-all-user-voucher');
         $autoClaimed = $this->request->getVar('auto-claimed');
         $kuota = $this->request->getVar('kuota');
-        $poster = $this->request->getFile('poster') ? file_get_contents($this->request->getFile('poster')) : null;
-        $posterEmail = $this->request->getFile('poster-email') ? file_get_contents($this->request->getFile('poster-email')) : null;
+        $poster = $this->request->getFile('poster')->isValid() ? file_get_contents($this->request->getFile('poster')) : null;
+        $posterEmail = $this->request->getFile('poster-email')->isValid() ? file_get_contents($this->request->getFile('poster-email')) : null;
+        $isiEmail = $this->request->getVar('isi-email');
+        $broadcast = $this->request->getVar('broadcast');
+        if ($broadcast) {
+            if (!$posterEmail || !$isiEmail) {
+                session()->setFlashdata('msg', 'Ada data yang belum diisi');
+                return redirect()->to('/addvoucher')->withInput();
+            }
+        }
 
         $code = [];
         if ($allUserVoucher) {
@@ -6369,6 +6511,7 @@ class Pages extends BaseController
                 array_push($code, $databarunya);
             }
         }
+        // dd($code);
 
         $this->voucherModel->insert([
             'nama' => $nama,
@@ -6383,8 +6526,85 @@ class Pages extends BaseController
             'auto_claimed' => $autoClaimed ? true : false,
             'kuota' => $kuota,
             'poster' => $poster,
-            'poster_email' => $posterEmail
+            'poster_email' => $posterEmail,
+            'isi_email' => $isiEmail
         ]);
+        session()->setFlashdata('msg', 'Voucher berhasil dibuat');
+        if (!$broadcast) {
+            return redirect()->to('/listvoucher');
+        }
+
+        $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
+        //kirim email ke customer
+        foreach ($code as $c) {
+            $isinya = '
+            <div style="width: 100%">
+                <img
+                    src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
+                    alt="banner"
+                    style="width: 100%; border-radius: 5px"
+                />
+            </div>
+            <div style="height: 15px"></div>
+            <div
+                style="
+                    background-color: white;
+                        padding-right: 20px;
+                        padding-left: 20px;
+                        padding-top: 20px;
+                        padding-bottom: 20px;
+                        border-radius: 10px;
+                    "
+            >
+                <table>
+                    <tbody>
+                        ' . $isiEmail . '
+                    </tbody>
+                </table>
+            </div>
+            ';
+            $email = $c['email_user'];
+            $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
+        }
+        return redirect()->to('/listvoucher');
+    }
+    public function actionBroadcastVoucher($id_voucher)
+    {
+        $voucherCurr = $this->voucherModel->getVoucher($id_voucher);
+        $code = json_decode($voucherCurr['code'], true);
+        $isiEmail  = $voucherCurr['isi_email'];
+        $nama = $voucherCurr['nama'];
+        foreach ($code as $c) {
+            $isinya = '
+            <div style="width: 100%">
+                <img
+                    src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
+                    alt="banner"
+                    style="width: 100%; border-radius: 5px"
+                />
+            </div>
+            <div style="height: 15px"></div>
+            <div
+                style="
+                    background-color: white;
+                        padding-right: 20px;
+                        padding-left: 20px;
+                        padding-top: 20px;
+                        padding-bottom: 20px;
+                        border-radius: 10px;
+                    "
+            >
+                <table>
+                    <tbody>
+                        ' . $isiEmail . '
+                    </tbody>
+                </table>
+            </div>
+            ';
+            $email = $c['email_user'];
+            $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
+        }
+        session()->setFlashdata('msg', 'Voucher ' . $nama . ' telah diinfokan');
         return redirect()->to('/listvoucher');
     }
 

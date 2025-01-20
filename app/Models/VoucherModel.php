@@ -23,6 +23,7 @@ class VoucherModel extends Model
         'private',
         'kuota',
         'poster_email',
+        'isi_email',
     ];
 
     public function getVoucher($id = false)
