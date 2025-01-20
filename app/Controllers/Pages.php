@@ -652,7 +652,7 @@ class Pages extends BaseController
                         <div style="width: 100%">
                             <img
                                 src="https://lunareafurniture.com/imgvoucher/email/2"
-                                alt=""
+                                alt="banner"
                                 style="width: 100%; border-radius: 5px"
                             />
                         </div>
@@ -751,8 +751,11 @@ class Pages extends BaseController
                                                         >
                                                             <td>
                                                                 <img
-                                                                    src="https://lunareafurniture.com/img/Logo%20Lunarea%20Bg%20Terang%20ukuran%20kecil.webp"
-                                                                    alt=""
+                                                                    style="
+                                                                        width: 150px;
+                                                                    "
+                                                                    src="https://lunareafurniture.com/img/Logo%20Lunarea%20Bg%20Terang.png"
+                                                                    alt="Lunarea"
                                                                 />
                                                             </td>
                                                             <td width="10">
