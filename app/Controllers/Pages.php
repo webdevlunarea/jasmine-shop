@@ -637,119 +637,160 @@ class Pages extends BaseController
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
-        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
-            <div style="display: flex">
-                <div style="width: 30px"></div>
-                <div style="width: 100%">
-                    <h1 style="color: #1db954">Verifikasi Email Kamu!</h1>
-                    <hr />
-                    <p>Masukan 6 kode OTP di bawah ini</p>
-                    <div style="background-color: #1db954; font-weight: bold">
-                        <div style="height: 30px"></div>
-                        <div style="display: flex">
-                            <div style="width: 100%"></div>
-                            <div style="display: flex">
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[0] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[1] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[2] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[3] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[4] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: #e0ffeb;
-                                        padding: 1em;
-                                        color: #1db954;
-                                    "
-                                >
-                                    ' . $otp_number[5] . '
-                                </div>
-                            </div>
-                            <div style="width: 100%"></div>
+        $isinya = '
+            <table
+            align="center"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="background-color: #ebfaee; width: 100%"
+        >
+            <tbody>
+                <tr>
+                    <td style="padding: 20px">
+                        <div style="width: 100%">
+                            <img
+                                src="https://lunareafurniture.com/imgvoucher/email/2"
+                                alt=""
+                                style="width: 100%; border-radius: 5px"
+                            />
                         </div>
-                        <p style="color: white; text-align: center">Atau klik</p>
-                        <div style="display: flex">
-                            <div style="width: 100%"></div>
-                            <a
-                                href="https://lunareafurniture.com/verify/url/' . base64_encode(implode('', $otp_number)) . '"
-                                style="
-                                    color: #1db954;
-                                    background-color: #e0ffeb;
-                                    text-decoration: none;
-                                    padding: 0.7em 1em;
-                                    border-radius: 0.3em;
-                                    transition: 0.2s;
-                                    width: 100%;
-                                    text-align: center;
-                                "
-                                >Aktivasi Email</a
+                        <div style="height: 15px"></div>
+                        <div
+                            style="
+                                background-color: white;
+                                padding-right: 20px;
+                                padding-left: 20px;
+                                padding-top: 20px;
+                                padding-bottom: 20px;
+                                border-radius: 10px;
+                            "
+                        >
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span>Klaim Cashback Sebesar</span>
+                                            <span style="font-weight: 700"
+                                                >Rp. 25.000,00</span
+                                            >
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                >Dengan minimal belanja produk
+                                                lunarea senilai Rp
+                                                250.000,00</span
+                                            >
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span
+                                                style="
+                                                    color: #8292b0;
+                                                    margin-bottom: 20px;
+                                                "
+                                                >**promo terbatas hanya untuk 30
+                                                pembeli pertama</span
+                                            >
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="padding-top: 10px">
+                                                <a
+                                                    href="https://lunareafurniture.com/"
+                                                    style="
+                                                        text-decoration: none;
+                                                        color: white;
+                                                        background-color: #1db954;
+                                                        padding-left: 20px;
+                                                        padding-right: 20px;
+                                                        padding-top: 10px;
+                                                        padding-bottom: 10px;
+                                                        border-radius: 7px;
+                                                        line-height: 40px;
+                                                        font-weight: 700;
+                                                    "
+                                                    >Belanja sekarang</a
+                                                >
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="height: 15px"></div>
+                        <div style="padding-top: 20px; padding-bottom: 10px">
+                            <table
+                                align="center"
+                                border="0"
+                                cellpadding="0"
+                                cellspacing="0"
+                                role="presentation"
+                                style="width: 100%"
                             >
-                            <div style="width: 100%"></div>
+                                <tbody>
+                                    <tr style="text-align: center">
+                                        <td>
+                                            <div>
+                                                <table
+                                                    style="
+                                                        margin-right: auto;
+                                                        margin-left: auto;
+                                                    "
+                                                >
+                                                    <tbody>
+                                                        <tr
+                                                            style="
+                                                                text-align: center;
+                                                            "
+                                                        >
+                                                            <td>
+                                                                <img
+                                                                    src="https://lunareafurniture.com/img/Logo%20Lunarea%20Bg%20Terang%20ukuran%20kecil.webp"
+                                                                    alt=""
+                                                                />
+                                                            </td>
+                                                            <td width="10">
+                                                                &nbsp;
+                                                            </td>
+                                                            <td>
+                                                                <span>|</span>
+                                                            </td>
+                                                            <td width="10">
+                                                                &nbsp;
+                                                            </td>
+                                                            <td>
+                                                                <span
+                                                                    style="
+                                                                        text-wrap: nowrap;
+                                                                    "
+                                                                    >©2025 All
+                                                                    rights
+                                                                    reserved.</span
+                                                                >
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div style="height: 30px"></div>
-                    </div>
-                    <p>
-                        Kode ini hanya berlaku sampai dengan
-                        <b style="color: #1db954">' . $waktu_otp_tanggal . '</b>
-                    </p>
-                    <p>
-                        Jaga keamanan akun dengan tidak membagikan kode OTP ataupun
-                        link di atas kepada orang lain.
-                    </p>
-                </div>
-                <div style="width: 30px"></div>
-            </div>
-        ');
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        ';
+        $email = session()->get('email');
+        // dd($email);
+        $this->kirimPesanEmail($email, 'Lunarea Store - Voucher Ulang Tahun', $isinya);
         return $this->response->setJSON(['succes' => true], false);
     }
     public function kirimOTP()
@@ -5295,7 +5336,7 @@ class Pages extends BaseController
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
             'foto' => $foto,
-            'batas_tgl_lahir' => explode('-', $getCurPembeli['batas_tgl_lahir'])[2] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[1] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[0],
+            'batas_tgl_lahir' => $getCurPembeli['batas_tgl_lahir'] ? explode('-', $getCurPembeli['batas_tgl_lahir'])[2] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[1] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[0] : null,
             'kurang_dari' => $waktuSelisih >= 0 ? true : false,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
