@@ -6433,18 +6433,28 @@ class Pages extends BaseController
     public function listVoucher()
     {
         $voucher = $this->voucherModel->findAll();
+        $broadcast = session()->getFlashdata('broadcast');
+        // $broadcast = 10;
+        $emailBroadcast = false;
         foreach ($voucher as $ind_v => $v) {
             $voucher[$ind_v]['code'] = json_decode($v['code'], true);
             $voucher[$ind_v]['poster'] = '';
             $voucher[$ind_v]['poster_email'] = '';
             $voucher[$ind_v]['isi_email'] = '';
+            if ($v['id'] == $broadcast) {
+                $emailBroadcast = json_decode($v['code'], true);
+            }
         }
+
         // dd($voucher);
         $data = [
             'title' => 'List Voucher',
             'voucher' => $voucher,
             'voucherJson' => json_encode($voucher),
-            'msg' => session()->getFlashdata('msg')
+            'msg' => session()->getFlashdata('msg'),
+            'broadcast' => $broadcast,
+            'emailBroadcast' => $emailBroadcast,
+            'emailBroadcastJson' => $emailBroadcast ? json_encode($emailBroadcast) : ''
         ];
         return view('pages/listVoucher', $data);
     }
@@ -6570,42 +6580,46 @@ class Pages extends BaseController
     }
     public function actionBroadcastVoucher($id_voucher)
     {
+        session()->setFlashdata('broadcast', $id_voucher);
+        return redirect()->to('/listvoucher');
+    }
+    public function actionBroadcastVoucherEmail()
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        $email = $body['email'];
+        $id_voucher = $body['idVoucher'];
         $voucherCurr = $this->voucherModel->getVoucher($id_voucher);
-        $code = json_decode($voucherCurr['code'], true);
         $isiEmail  = $voucherCurr['isi_email'];
         $nama = $voucherCurr['nama'];
-        foreach ($code as $c) {
-            $isinya = '
-            <div style="width: 100%">
-                <img
-                    src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
-                    alt="banner"
-                    style="width: 100%; border-radius: 5px"
-                />
-            </div>
-            <div style="height: 15px"></div>
-            <div
-                style="
-                    background-color: white;
-                        padding-right: 20px;
-                        padding-left: 20px;
-                        padding-top: 20px;
-                        padding-bottom: 20px;
-                        border-radius: 10px;
-                    "
-            >
-                <table>
-                    <tbody>
-                        ' . $isiEmail . '
-                    </tbody>
-                </table>
-            </div>
-            ';
-            $email = $c['email_user'];
-            $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
-        }
-        session()->setFlashdata('msg', 'Voucher ' . $nama . ' telah diinfokan');
-        return redirect()->to('/listvoucher');
+        $isinya = '
+        <div style="width: 100%">
+            <img
+                src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
+                alt="banner"
+                style="width: 100%; border-radius: 5px"
+            />
+        </div>
+        <div style="height: 15px"></div>
+        <div
+            style="
+                background-color: white;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-top: 20px;
+                    padding-bottom: 20px;
+                    border-radius: 10px;
+                "
+        >
+            <table>
+                <tbody>
+                    ' . $isiEmail . '
+                </tbody>
+            </table>
+        </div>
+        ';
+        $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
+        return $this->response->setStatusCode(200)->setJSON(['success' => true], false);
     }
 
     public function gantiUkuran($kategori)

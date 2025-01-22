@@ -110,6 +110,7 @@ $routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => '
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddvoucher', 'Pages::actionAddVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$1', ['filter' => 'harusAdmin']);
+$routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail/$1', ['filter' => 'corsFilter']);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);

@@ -6,6 +6,20 @@
         padding: 1em 2em;
         border-radius: 1em;
     }
+
+    .loading {
+        animation: putarputar 2s linear infinite;
+    }
+
+    @keyframes putarputar {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 <div id="modalnya" class="d-none justify-content-center align-items-center" style="z-index: 11; position:fixed; height: 100svh; width: 100vw; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5);">
     <div style="background-color: white; max-height: 90svh; overflow:scroll;" class="p-4 rounded-2">
@@ -41,25 +55,40 @@
         <?php } ?>
         <div class="d-flex flex-column gap-1">
             <?php foreach ($voucher as $ind_v => $v) { ?>
-                <div class="item-list-voucher baris-ke-kolom">
-                    <div style="flex: 1;">
-                        <p class="m-0"><?= ucfirst($v['jenis']); ?></p>
-                        <h5 class="m-0" style="color: var(--hijau);"><?= $v['nama']; ?></h5>
-                        <p class="text-secondary m-0">Durasi : <?= $v['durasi'] ? $v['durasi'] : 'Tak hingga'; ?></p>
-                    </div>
-                    <div class="d-flex flex-column align-items-end justify-content-between">
-                        <div class="d-flex gap-1">
-                            <h5 class="m-0" style="color: var(--hijau);"><?= $v['nominal']; ?></h5>
-                            <p class="m-0" style="font-size: small; color: var(--hijau);"><?= $v['satuan']; ?></p>
+                <div class="item-list-voucher">
+                    <div class="baris-ke-kolom">
+                        <div style="flex: 1;">
+                            <p class="m-0"><?= ucfirst($v['jenis']); ?></p>
+                            <h5 class="m-0" style="color: var(--hijau);"><?= $v['nama']; ?></h5>
+                            <p class="text-secondary m-0">Durasi : <?= $v['durasi'] ? $v['durasi'] : 'Tak hingga'; ?></p>
                         </div>
-                        <div class="d-flex gap-2 align-items-center">
-                            <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $v['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Voucher <?= $v['nama']; ?> akan di<?= $v['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activevoucher/<?= $v['id']; ?>')">
-                                <div class="bg-<?= $v['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+                        <div class="d-flex flex-column align-items-end justify-content-between">
+                            <div class="d-flex gap-1">
+                                <h5 class="m-0" style="color: var(--hijau);"><?= $v['nominal']; ?></h5>
+                                <p class="m-0" style="font-size: small; color: var(--hijau);"><?= $v['satuan']; ?></p>
                             </div>
-                            <div onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
-                            <div onclick="triggerToast('Broadcast ke customer?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $v['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Voucher <?= $v['nama']; ?> akan di<?= $v['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activevoucher/<?= $v['id']; ?>')">
+                                    <div class="bg-<?= $v['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
+                                </div>
+                                <?php if ($v['active']) { ?>
+                                    <div onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
+                                    <div onclick="triggerToast('Broadcast ke customer?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
+                                <?php } ?>
+                            </div>
                         </div>
                     </div>
+                    <?php if ($broadcast == $v['id']) { ?>
+                        <div>
+                            <p class="fw-bold m-0">Proses Broadcasting</p>
+                            <?php foreach ($emailBroadcast as $e) { ?>
+                                <div class="d-flex gap-1">
+                                    <i class="material-icons loading">data_usage</i>
+                                    <p class="m-0"><?= $e['email_user']; ?></p>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
                 </div>
             <?php } ?>
         </div>
@@ -68,6 +97,7 @@
 <script>
     const modalnyaElm = document.getElementById('modalnya');
     const voucherJson = JSON.parse('<?= $voucherJson; ?>');
+    console.log(voucherJson)
     const containerEmailElm = document.getElementById('container-email');
     const counterCodeInputElm = document.querySelector('input[name="counter"]');
     const idVoucherInputElm = document.querySelector('input[name="idvoucher"]');
@@ -107,4 +137,35 @@
         counterCodeInputElm.value = jmlCodeCur
     }
 </script>
+<?php if ($broadcast) { ?>
+    <script>
+        const loadingElm = document.querySelectorAll('.loading');
+        const emailBroadcast = JSON.parse('<?= $emailBroadcastJson; ?>');
+        const idVoucherBroadcast = <?= $broadcast; ?>;
+        console.log(emailBroadcast)
+        console.log(idVoucherBroadcast)
+        async function broadcastSkuy() {
+            for (let i = 0; i < emailBroadcast.length; i++) {
+                const email = emailBroadcast[i];
+                const response = await fetch('/actionbroadcastvoucheremail', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        idVoucher: idVoucherBroadcast
+                    }),
+                })
+                if (response.status == 200) {
+                    loadingElm[i].classList.remove('loading')
+                    loadingElm[i].innerHTML = 'done'
+                }
+                const responseJson = await response.json();
+            }
+        }
+        broadcastSkuy();
+    </script>
+<?php } ?>
 <?= $this->endSection(); ?>
