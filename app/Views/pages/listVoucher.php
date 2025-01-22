@@ -87,6 +87,7 @@
                                     <p class="m-0"><?= $e['email_user']; ?></p>
                                 </div>
                             <?php } ?>
+                            <p id="status-proses-broadcast" class="d-none m-0" style="color: var(--hijau);">Proses broadcast telah selesai</p>
                         </div>
                     <?php } ?>
                 </div>
@@ -139,6 +140,7 @@
 </script>
 <?php if ($broadcast) { ?>
     <script>
+        const statusProsesBroadcastElm = document.getElementById('status-proses-broadcast');
         const loadingElm = document.querySelectorAll('.loading');
         const emailBroadcast = JSON.parse('<?= $emailBroadcastJson; ?>');
         const idVoucherBroadcast = <?= $broadcast; ?>;
@@ -164,6 +166,7 @@
                 }
                 const responseJson = await response.json();
             }
+            statusProsesBroadcastElm.classList.remove('d-none');
         }
         broadcastSkuy();
     </script>
