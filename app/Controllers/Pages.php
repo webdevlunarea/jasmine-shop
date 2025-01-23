@@ -310,7 +310,7 @@ class Pages extends BaseController
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
             'msg_active' => $msgActive,
-            'msg_event' => $msgEvent,
+            'msg_event' => session()->get('role') == '1' ? false : $msgEvent,
             'counterEvent' => $counterEvent
         ];
         return view('pages/home', $data);
