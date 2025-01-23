@@ -5865,92 +5865,95 @@ class Pages extends BaseController
                     'email_user' => $dataTransaksiFulDariDatabase['email_cus']
                 ])->delete();
             }
+
             //tambah poin
             $emailCus = $dataTransaksiFulDariDatabase['email_cus'];
             $pembeli = $this->pembeliModel->getPembeli($emailCus);
-            $waktuCurr = strtotime("+7 Hours");
-            $waktuCurrYmd = date("Y-m-d", $waktuCurr);
-            $poin = json_decode($pembeli['poin'], true);
-            if ($dataTransaksiFulDariDatabase['cashback'] > 0) {
-                $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
-                $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
+            if ($pembeli) {
+                $waktuCurr = strtotime("+7 Hours");
+                $waktuCurrYmd = date("Y-m-d", $waktuCurr);
+                $poin = json_decode($pembeli['poin'], true);
+                if ($dataTransaksiFulDariDatabase['cashback'] > 0) {
+                    $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
+                    $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
 
-                $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
-                $dataPoinNew = [
-                    'kadaluarsa' => $kadaluarsa,
-                    'nominal' => $cashback,
-                    'active' => true
-                ];
-                array_push($poin, $dataPoinNew);
-                $this->pointHistoryModel->insert([
-                    'id' => $waktuCurr,
-                    'label' => $voucherSelected['nama'],
-                    'nominal' => $voucherSelected['nominal'],
-                    'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
-                    'tanggal' => $waktuCurrYmd,
-                    'email_user' => $emailCus
-                ]);
-            }
-            //kalo pakai poin
-            if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
-                //add point history
-                $this->pointHistoryModel->insert([
-                    'id' => $waktuCurr,
-                    'label' => 'Pembelian',
-                    'nominal' => $dataTransaksiFulDariDatabase['pakai_poin'],
-                    'keterangan' => 'Pembelian dengan id pemesanan ' . $id_midtrans,
-                    'tanggal' => $waktuCurrYmd,
-                    'email_user' => $emailCus
-                ]);
-                //update poin pembeli
-                $poinArrIndexTerpakai = [];
-                foreach ($poin as $ind_p => $p) {
-                    if (!$p['active']) {
-                        array_push($poinArrIndexTerpakai, $ind_p);
+                    $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
+                    $dataPoinNew = [
+                        'kadaluarsa' => $kadaluarsa,
+                        'nominal' => $cashback,
+                        'active' => true
+                    ];
+                    array_push($poin, $dataPoinNew);
+                    $this->pointHistoryModel->insert([
+                        'id' => $waktuCurr,
+                        'label' => $voucherSelected['nama'],
+                        'nominal' => $voucherSelected['nominal'],
+                        'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
+                        'tanggal' => $waktuCurrYmd,
+                        'email_user' => $emailCus
+                    ]);
+                }
+                //kalo pakai poin
+                if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
+                    //add point history
+                    $this->pointHistoryModel->insert([
+                        'id' => $waktuCurr,
+                        'label' => 'Pembelian',
+                        'nominal' => $dataTransaksiFulDariDatabase['pakai_poin'],
+                        'keterangan' => 'Pembelian dengan id pemesanan ' . $id_midtrans,
+                        'tanggal' => $waktuCurrYmd,
+                        'email_user' => $emailCus
+                    ]);
+                    //update poin pembeli
+                    $poinArrIndexTerpakai = [];
+                    foreach ($poin as $ind_p => $p) {
+                        if (!$p['active']) {
+                            array_push($poinArrIndexTerpakai, $ind_p);
+                        }
+                    }
+                    foreach ($poinArrIndexTerpakai as $p) {
+                        unset($poin[$p]);
                     }
                 }
-                foreach ($poinArrIndexTerpakai as $p) {
-                    unset($poin[$p]);
-                }
-            }
-            $poinBaru = array_values($poin);
-            $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poinBaru)])->update();
-            //tambah tier
-            $tier = json_decode($pembeli['tier'], true);
-            $data = $tier['data'];
-            $kadaluarsa = date("Y-m-d", strtotime("+1 year", strtotime($waktuCurrYmd)));
-            array_push($data, [
-                'kadaluarsa' => $kadaluarsa,
-                'nominal' => (int)$dataMid_curr['gross_amount'],
-                'id_pesanan' => $id_midtrans
-            ]);
-            $dataBaru = [];
-            $jumlah = 0;
-            foreach ($data as $d) {
-                $waktuCurr = strtotime("+7 Hours");
-                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-                if (date("m-d", $waktuCurr) == '01-01') {
-                    if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
+                $poinBaru = array_values($poin);
+                $this->pembeliModel->where(['email_user' => $emailCus])->set(['poin' => json_encode($poinBaru)])->update();
+                //tambah tier
+                $tier = json_decode($pembeli['tier'], true);
+                $data = $tier['data'];
+                $kadaluarsa = date("Y-m-d", strtotime("+1 year", strtotime($waktuCurrYmd)));
+                array_push($data, [
+                    'kadaluarsa' => $kadaluarsa,
+                    'nominal' => (int)$dataMid_curr['gross_amount'],
+                    'id_pesanan' => $id_midtrans
+                ]);
+                $dataBaru = [];
+                $jumlah = 0;
+                foreach ($data as $d) {
+                    $waktuCurr = strtotime("+7 Hours");
+                    $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
+                    if (date("m-d", $waktuCurr) == '01-01') {
+                        if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
+                            $jumlah += (int)$d['nominal'];
+                            array_push($dataBaru, $d);
+                        }
+                    } else {
                         $jumlah += (int)$d['nominal'];
                         array_push($dataBaru, $d);
                     }
-                } else {
-                    $jumlah += (int)$d['nominal'];
-                    array_push($dataBaru, $d);
                 }
+                if ($jumlah < 10000000) {
+                    $label = 'bronze';
+                } else if ($jumlah < 50000000) {
+                    $label = 'silver';
+                } else if ($jumlah < 100000000) {
+                    $label = 'gold';
+                } else if ($jumlah >= 100000000) {
+                    $label = 'platinum';
+                }
+                $tier['label'] = $label;
+                $tier['data'] = $dataBaru;
+                $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
             }
-            if ($jumlah < 10000000) {
-                $label = 'bronze';
-            } else if ($jumlah < 50000000) {
-                $label = 'silver';
-            } else if ($jumlah < 100000000) {
-                $label = 'gold';
-            } else if ($jumlah >= 100000000) {
-                $label = 'platinum';
-            }
-            $tier['label'] = $label;
-            $tier['data'] = $dataBaru;
-            $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
         }
         //reset jumlah produk
         if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
