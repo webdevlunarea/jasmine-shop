@@ -590,6 +590,8 @@ class Pages extends BaseController
                 $insertGambarArtikel["gambar" . $counterGambar] = $this->request->getFile('file' . $c)->isValid() ? file_get_contents($this->request->getFile('file' . $c)) : $this->gambarArtikelModel->where(['id' => $id])->first()['gambar' . (array_search($c, $arrUrutanImg) + 1)];
                 $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
                 $itemIsi['style'] = $this->request->getVar('style' . $c);
+                $itemIsi['link'] = $this->request->getVar('link' . $c);
+                $itemIsi['sumber'] = $this->request->getVar('sumber' . $c);
             }
             array_push($isi, $itemIsi);
         }
