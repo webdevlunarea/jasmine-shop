@@ -101,7 +101,6 @@
 
             useEffect(()=>{
                 console.log(arr)
-                console.log(arr)
             }, [])
 
             const geserAtas = (index) => {
@@ -259,76 +258,76 @@
                         } else if (obj.tag == "a") {
                             return (
                                 <div className="py-3" key={ind_obj}>
-                                <div
-                                    className="container"
-                                >
-                                    <input
-                                        type="text"
-                                        name={"tag" + (ind_obj + 1)}
-                                        value={obj.tag}
-                                        onChange={(e) => {
-                                            handleChangeInputIsi(e.target.value, 'tag', ind_obj)
-                                        }}
-                                    />
-                                    <input
-                                        type="text"
-                                        name={"link" + (ind_obj + 1)}
-                                        placeholder="link"
-                                        value={obj.link}
-                                        onChange={(e) => {
-                                            handleChangeInputIsi(e.target.value, 'link', ind_obj)
-                                        }}
-                                    />
-                                    <input
-                                        type="text"
-                                        name={"teks" + (ind_obj + 1)}
-                                        placeholder="teks"
-                                        value={obj.teks}
-                                        onChange={(e) => {
-                                            handleChangeInputIsi(e.target.value, 'teks', ind_obj)
-                                        }}
-                                    />
-                                    <input
-                                        type="text"
-                                        name={"style" + (ind_obj + 1)}
-                                        placeholder="style"
-                                        value={obj.style}
-                                        onChange={(e) => {
-                                            handleChangeInputIsi(e.target.value, 'style', ind_obj)
-                                        }}
-                                    />
-                                    <div className="d-flex gap-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                hapusIsi(ind_obj);
+                                    <div
+                                        className="container"
+                                    >
+                                        <input
+                                            type="text"
+                                            name={"tag" + (ind_obj + 1)}
+                                            value={obj.tag}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'tag', ind_obj)
                                             }}
-                                        >
-                                            hapus
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                geserAtas(ind_obj);
+                                        />
+                                        <input
+                                            type="text"
+                                            name={"link" + (ind_obj + 1)}
+                                            placeholder="link"
+                                            value={obj.link}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'link', ind_obj)
                                             }}
-                                        >
-                                            <i className="material-icons m-0">
-                                                expand_less
-                                            </i>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                geserBawah(ind_obj);
+                                        />
+                                        <input
+                                            type="text"
+                                            name={"teks" + (ind_obj + 1)}
+                                            placeholder="teks"
+                                            value={obj.teks}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'teks', ind_obj)
                                             }}
-                                        >
-                                            <i className="material-icons m-0">
-                                                expand_more
-                                            </i>
-                                        </button>
+                                        />
+                                        <input
+                                            type="text"
+                                            name={"style" + (ind_obj + 1)}
+                                            placeholder="style"
+                                            value={obj.style}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                            }}
+                                        />
+                                        <div className="d-flex gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    hapusIsi(ind_obj);
+                                                }}
+                                            >
+                                                hapus
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    geserAtas(ind_obj);
+                                                }}
+                                            >
+                                                <i className="material-icons m-0">
+                                                    expand_less
+                                                </i>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    geserBawah(ind_obj);
+                                                }}
+                                            >
+                                                <i className="material-icons m-0">
+                                                    expand_more
+                                                </i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             );
                         } else if (obj.tag == "img") {
                             return (
@@ -751,13 +750,11 @@
                 <div className="container">
                     <div className="d-flex gap-2 border-top py-3">
                         <select id="select-tag" value={selectTag} onChange={(e)=>{setSelectTag(e.target.value)}}>
-                            <option value="">
-                                -- pilih tag --
-                            </option>
+                            <option value="">-- pilih tag umum --</option>
                             <option value="h2">h2</option>
                             <option value="h4">h3</option>
                             <option value="p">p</option>
-                            {/* <option value="img">img</option> */}
+                            <option value="img">img</option>
                             <option value="a">a</option>
                             <option value="space">space</option>
                             <option value="div">div</option>
@@ -781,9 +778,6 @@
                         }}
                     />
                 </div>
-
-                
-
                 </>
             );
         };
