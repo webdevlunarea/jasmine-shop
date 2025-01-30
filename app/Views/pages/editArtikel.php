@@ -149,7 +149,9 @@
                     } else if (selectTag == 'img') {
                         tagBaru = {
                             tag: selectTag,
-                            style: ''
+                            style: '',
+                            link: '',
+                            sumber: ''
                         }
                     } else if (selectTag == 'div') {
                         tagBaru = {
@@ -354,6 +356,24 @@
                                             value={obj.style}
                                             onChange={(e) => {
                                                 handleChangeInputIsi(e.target.value, 'style', ind_obj)
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            name={"link" + (ind_obj + 1)}
+                                            placeholder="link"
+                                            value={obj.link ? obj.link : ''}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'link', ind_obj)
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            name={"sumber" + (ind_obj + 1)}
+                                            placeholder="sumber"
+                                            value={obj.sumber ? obj.sumber : ''}
+                                            onChange={(e) => {
+                                                handleChangeInputIsi(e.target.value, 'sumber', ind_obj)
                                             }}
                                         />
                                         <div className="d-flex gap-1">
