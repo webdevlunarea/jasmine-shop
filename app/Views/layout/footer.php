@@ -118,9 +118,9 @@
                             tersedia juga di
                         </p>
                         <div>
-                            <a href="https://shopee.co.id/lunareafurniture_" title="Shopee" target="blank"><img src="/img/logo/shopee.webp" class="marketplace">
+                            <a href="https://shopee.co.id/lunareafurniture_" title="Shopee" target="blank"><img src="/img/logo/shopee_logo.webp" class="marketplace">
                             </a>
-                            <a href="https://www.tokopedia.com/Lunareafurnitureofc" title="Tokopedia" target="blank"><img src="/img/logo/tokopedia.webp" class="marketplace">
+                            <a href="https://www.tokopedia.com/Lunareafurnitureofc" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace">
                             </a>
                             <a href="https://www.tiktok.com/@lunareafurnitureofficial" title="Tokopedia" target="blank"><img src="/img/logo/tiktok.webp" class="marketplace">
                             </a>

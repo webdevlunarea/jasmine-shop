@@ -119,7 +119,7 @@
                         <p class="m-0 text-sm text-secondary"><?= $isi['sumber']; ?></p>
                     </a>
                 <?php } else if ($isi['tag'] == 'space') { ?>
-                    echo '<div class="w-100" style="height: 1em"></div>';
+                    <div class="w-100" style="height: 1em"></div>
                 <?php }
                 ?>
             <?php } ?>
@@ -181,16 +181,23 @@
             </div>
             <span class="garis my-3"></span>
             <?php foreach ($artikel['isi'] as $isi) {
-                if ($isi['tag'] == 'h2' || $isi['tag'] == 'h4' || $isi['tag'] == 'p') {
-                    echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
-                } else if ($isi['tag'] == 'a') {
-                    echo '<' . $isi['tag'] . ' class="' . $isi['style'] . '" href="' . $isi['link'] . '">' . $isi['teks'] . '</' . $isi['tag'] . '>';
-                } else if ($isi['tag'] == 'img') {
-                    echo '<' . $isi['tag'] . ' class="w-100 ' . $isi['style'] . '" src="' . $isi['src'] . '">';
-                } else if ($isi['tag'] == 'space') {
-                    echo '<div class="w-100" style="height: 1em"></div>';
-                }
-            ?>
+                if ($isi['tag'] == 'h2') { ?>
+                    <h2 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h2>
+                <?php } else if ($isi['tag'] == 'h4') { ?>
+                    <h4 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h4>
+                <?php } else if ($isi['tag'] == 'p') { ?>
+                    <p class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></p>
+                <?php } else if ($isi['tag'] == 'a') { ?>
+                    <a href="<?= $isi['link']; ?>" class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></a>
+                <?php } else if ($isi['tag'] == 'img') { ?>
+                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= $isi['link']; ?>">
+                        <img src="<?= $isi['src']; ?>" style="height: 500px; max-width: 100%" class="mb-1">
+                        <p class="m-0 text-sm text-secondary"><?= $isi['sumber']; ?></p>
+                    </a>
+                <?php } else if ($isi['tag'] == 'space') { ?>
+                    <div class="w-100" style="height: 1em"></div>
+                <?php }
+                ?>
             <?php } ?>
             <span class="garis my-3"></span>
             <div class="d-flex justify-content-between">

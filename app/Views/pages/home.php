@@ -375,7 +375,7 @@ if ($msg_active) { ?>
             <div style="flex: 1" class="d-flex justify-content-start gap-4">
                 <img src="../img/logo ongkir.webp" alt="" style="width: 70px; height: 40px">
                 <div>
-                    <p class="fw-bold mb-1">Gratis Ongkir 100%</p>
+                    <p class="fw-bold mb-1">Gratis ongkir 100%</p>
                     <p>Pengiriman di pulau Jawa, Madura, dan Bali tanpa minimum pembelian</p>
                 </div>
             </div>
