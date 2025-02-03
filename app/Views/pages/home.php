@@ -36,6 +36,23 @@
             height: auto;
         }
     }
+
+    .btn-next {
+        border: none;
+        outline: none;
+        background-color: white;
+        /* width: 30px;
+        height: 30px; */
+        border-radius: 2em;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 0;
+        color: grey;
+    }
+
+    .btn-next:hover {
+        background-color: var(--hijau);
+        color: white;
+    }
 </style>
 <?php
 $counterVoucher = 0;
@@ -81,15 +98,17 @@ if ($msg_active) { ?>
                         <p class="m-0 text-secondary text-center" style="font-size: small;">**promo sesuai dengan S&K berlaku</p>
 
                         <hr>
-                        <?php if ($counterEvent > 1) { ?>
-                            <div class="d-flex gap-1 justify-content-center mb-3">
-                                <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
-                                    <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
+                        <div class="d-flex gap-2 align-items-center justify-content-center mb-3">
+                            <?php if ($counterEvent > 1) { ?>
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
+                                        <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
+                                    <?php } ?>
+                                </div>
+                                <button class="btn-next" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i class="material-icons">chevron_right</i></button>
+                            <?php } ?>
+                        </div>
                         <a href="/voucher" class="btn btn-primary1 w-100 text-center mb-2">Klaim sekarang</a>
-                        <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher(<?= $counterVoucher; ?>)">Selanjutnya</button>
                     </div>
                 </div>
             </div>
@@ -104,15 +123,17 @@ if ($msg_active) { ?>
                         <h1 class="mb-3">Gunakan voucher <b style="color: var(--hijau);"><?= $v['nama']; ?></b> sebelum kadaluarsa!</h1>
                         <p class="text-secondary"><?= $v['keterangan']; ?></p>
                         <hr>
-                        <?php if ($counterEvent > 1) { ?>
-                            <div class="d-flex gap-1 justify-content-center mb-3">
-                                <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
-                                    <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
+                        <div class="d-flex gap-2 align-items-center justify-content-center mb-3">
+                            <?php if ($counterEvent > 1) { ?>
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
+                                        <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
+                                    <?php } ?>
+                                </div>
+                                <button class="btn-next" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i class="material-icons">chevron_right</i></button>
+                            <?php } ?>
+                        </div>
                         <a href="/all" class="btn btn-primary1 w-100 text-center mb-2">Beli Produk</a>
-                        <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher(<?= $counterVoucher; ?>)">Selanjutnya</button>
                     </div>
                 </div>
             </div>
@@ -128,16 +149,18 @@ if ($msg_active) { ?>
                         <i class="material-icons" onclick="closeModalVoucherAll(<?= $counterVoucher; ?>)" style="cursor: pointer; color: rgba(0, 0, 0, 0.5)">close</i>
                     </div>
                     <img src="/imgvoucher/<?= $v['id']; ?>" alt="">
-                    <div class="px-5 py-4">
-                        <?php if ($counterEvent > 1) { ?>
-                            <div class="d-flex gap-1 justify-content-center mb-3">
-                                <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
-                                    <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
+                    <div class="px-5 py-4 position-relative">
+                        <div class="d-flex gap-2 align-items-center justify-content-center mb-3">
+                            <?php if ($counterEvent > 1) { ?>
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
+                                        <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
+                                    <?php } ?>
+                                </div>
+                                <button class="btn-next" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i class="material-icons">chevron_right</i></button>
+                            <?php } ?>
+                        </div>
                         <a href="/voucher" class="btn btn-primary1 w-100 text-center mb-2">Coba sekarang</a>
-                        <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher(<?= $counterVoucher; ?>)">Selanjutnya</button>
                     </div>
                 </div>
             <?php } else { ?>
@@ -151,15 +174,17 @@ if ($msg_active) { ?>
                         <p class="mb-3 text-center">untuk mendapatkan <?= $v['jenis'] == 'member' ? 'potongan' : $v['jenis']; ?>!</p>
                         <p class="text-secondary text-center"><?= $v['keterangan']; ?></p>
                         <hr>
-                        <?php if ($counterEvent > 1) { ?>
-                            <div class="d-flex gap-1 justify-content-center mb-3">
-                                <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
-                                    <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
+                        <div class="d-flex gap-2 align-items-center justify-content-center mb-3">
+                            <?php if ($counterEvent > 1) { ?>
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
+                                        <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
+                                    <?php } ?>
+                                </div>
+                                <button class="btn-next" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i class="material-icons">chevron_right</i></button>
+                            <?php } ?>
+                        </div>
                         <a href="/voucher" class="btn btn-primary1 w-100 text-center mb-2">Klaim Sekarang</a>
-                        <button class="btn-teks-aja mx-auto" onclick="closeModalVoucher(<?= $counterVoucher; ?>)">Selanjutnya</button>
                     </div>
                 </div>
             <?php } ?>
