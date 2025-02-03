@@ -1,5 +1,22 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
+<style>
+    .tombol-copy {
+        border: 1px solid gray;
+        padding: 7px;
+        border-radius: 10px;
+        font-size: 13px;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .tombol-copy.checked {
+        font-weight: bold;
+        color: var(--hijau);
+        border: 1px solid var(--hijau);
+        transition: 0.2s;
+    }
+</style>
 <div class="konten">
     <div class="container">
         <div class="d-flex justify-content-center align-items-center gap-2 my-5">
@@ -25,13 +42,23 @@
                     <div>
                         <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
                             <p class="m-0"><?= $dataMid['payment_type'] == 'rekening' ? 'Nomor Rekening' : 'Nomor Virtual Account'; ?></p>
-                            <h5 class="m-0"><?= strtoupper($bank); ?> <?= $va_number; ?></h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <h5 class="m-0"><?= strtoupper($bank); ?> <b><?= $va_number; ?></b></h5>
+                                <i class="material-icons tombol-copy" onclick="copyVA(event)">content_copy</i>
+                            </div>
                             <?php if ($dataMid['payment_type'] == 'rekening') { ?>
                                 <p class="text-secondary">a.n. Catur Bhakti Mandiri</p>
                             <?php } ?>
+                            <script>
+                                function copyVA(e) {
+                                    e.target.innerHTML = 'check';
+                                    e.target.classList.add('checked');
+                                    navigator.clipboard.writeText('<?= $va_number; ?>');
+                                }
+                            </script>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
                             <p class="m-0">QR Code</p>
-                            <img src="<?= $va_number; ?>" alt="" width="150px" height="150px">
+                            <img style="cursor: zoom-in;" onclick="openQR()" src="<?= $va_number; ?>" alt="" width="150px" height="150px">
                         <?php } else if ($dataMid['payment_type'] == 'gopay') { ?>
                             <div class="d-flex gap-1">
                                 <a class="btn btn-primary1" href="<?= $va_number[0]['url']; ?>">QR Code</a>
@@ -45,7 +72,17 @@
                     </div>
                     <div>
                         <p class="m-0">Nominal</p>
-                        <h5>Rp <?= number_format($dataMid['gross_amount'], 0, ",", "."); ?></h5>
+                        <div class="d-flex gap-2 align-items-center">
+                            <h5 class="m-0">Rp <?= number_format($dataMid['gross_amount'], 0, ",", "."); ?></h5>
+                            <i class="material-icons tombol-copy" onclick="copyNominal(event)">content_copy</i>
+                        </div>
+                        <script>
+                            function copyNominal(e) {
+                                e.target.innerHTML = 'check';
+                                e.target.classList.add('checked');
+                                navigator.clipboard.writeText('<?= $dataMid['gross_amount']; ?>');
+                            }
+                        </script>
                     </div>
                     <div>
                         <p class="m-0">Waktu Kadaluarsa</p>
@@ -191,7 +228,7 @@
             if (isRekening) {
                 expiryTimeElm.innerHTML = `00:00:00`;
             } else {
-                window.location.reload();
+                // window.location.reload();
             }
         }
     }, 1000);
@@ -200,4 +237,40 @@
         navigator.clipboard.writeText(teks);
     }
 </script>
+<?php if ($dataMid['payment_type'] == 'qris') { ?>
+    <style>
+        .gambar-qr {
+            width: auto;
+            height: 100%;
+            background-color: white;
+        }
+
+        @media (orientation: portrait) {
+            .gambar-qr {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+    <div id="modal-qr" style="z-index: 100;position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.3);" class="d-flex justify-content-center align-items-center p-5">
+        <div class="gambar-qr p-2 rounded">
+            <img src="<?= $va_number; ?>" alt="QRCode" class="w-100 h-100" style="object-fit: cover;">
+        </div>
+    </div>
+    <script>
+        const modalQrElm = document.getElementById('modal-qr');
+        modalQrElm.addEventListener('click', () => {
+            modalQrElm.classList.remove('d-flex');
+            modalQrElm.classList.add('d-none');
+        });
+        modalQrElm.children[0].addEventListener('click', (e) => {
+            e.stopPropagation();
+        })
+
+        function openQR() {
+            modalQrElm.classList.add('d-flex');
+            modalQrElm.classList.remove('d-none');
+        }
+    </script>
+<?php } ?>
 <?= $this->endSection(); ?>

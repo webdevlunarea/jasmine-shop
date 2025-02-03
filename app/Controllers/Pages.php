@@ -37,8 +37,11 @@ class Pages extends BaseController
     protected $pointHistoryModel;
     protected $voucherClaimedModel;
     protected $voucherRedeemModel;
+
+    protected $emailUjiCoba;
     public function __construct()
     {
+        $this->emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         $this->barangModel = new BarangModel();
         $this->gambarBarangModel = new GambarBarangModel();
         $this->gambarUserModel = new GambarUserModel();
@@ -2443,8 +2446,8 @@ class Pages extends BaseController
         ];
 
         //voucher
-        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-        // if ($email != 'tamu' && in_array($email, $emailUjiCoba)) {
+
+        // if ($email != 'tamu' && in_array($email, $this->emailUjiCoba)) {
         //     //voucher member baru
         //     $voucherMemberBaru = $this->voucherModel->getVoucher(1);
         //     if ($voucherMemberBaru) {
@@ -2562,14 +2565,14 @@ class Pages extends BaseController
             ])),
             'voucherSelected' => $voucherSelected,
             'msg' => session()->getFlashdata('msg'),
-            'emailUji' => $emailUjiCoba,
+            'emailUji' => $this->emailUjiCoba,
             // 'paket' => $paketFilter,
             // 'paketJson' => json_encode($paketFilter),
             'potonganPreorder' => $potonganPreorder,
             'poin' => $poin,
             'usepoin' => session()->get('usepoin')
         ];
-        // return view('pages/' . (in_array($email, $emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
+        // return view('pages/' . (in_array($email, $this->emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
         return view('pages/checkoutcorecc', $data);
     }
     public function getAllSelectAlamat()
@@ -2994,8 +2997,6 @@ class Pages extends BaseController
         } else $total -= 5000;
 
         //voucher
-        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-
         $diskonVoucher = 0;
         $voucherSelected = false;
         $cashback = 0;
@@ -3090,29 +3091,30 @@ class Pages extends BaseController
         }
 
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
-        if (in_array($email, $emailUjiCoba))
+        if (in_array($email, $this->emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         else
             $auth = base64_encode($midtrans_production_key . ":");
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = "L" . rand();
-        $customField = json_encode([
-            'e' => $email,
-            'n' => $nama,
-            'h' => $nohp,
-            'a' => $alamatLengkap,
-            'i' => $produk,
-            'nt' => $note,
-            'v' => [
-                'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
-                'id' => $voucher ? $voucher['id'] : false,
-            ],
-            'c' => $cashback
-        ]);
+        // $customField = json_encode([
+        //     'e' => $email,
+        //     'n' => $nama,
+        //     'h' => $nohp,
+        //     'a' => $alamatLengkap,
+        //     'i' => $produk,
+        //     'nt' => $note,
+        //     'v' => [
+        //         'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
+        //         'id' => $voucher ? $voucher['id'] : false,
+        //     ],
+        //     'c' => $cashback
+        // ]);
+        $customField = '';
         $arrPostField = [
             "transaction_details" => [
-                "order_id" => in_array($email, $emailUjiCoba) ? $randomId : $idFix,
+                "order_id" => in_array($email, $this->emailUjiCoba) ? $randomId : $idFix,
                 "gross_amount" => $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0),
             ],
             'customer_details' => array(
@@ -3251,7 +3253,7 @@ class Pages extends BaseController
         } else {
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => in_array($email, $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
+                CURLOPT_URL => in_array($email, $this->emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_RETURNTRANSFER => true,
@@ -3375,7 +3377,6 @@ class Pages extends BaseController
     }
     public function cancelOrder($order_id)
     {
-        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
         $pemesanan = $this->pemesananModel->getPemesanan($order_id);
         if ($pemesanan['status'] == 'Menunggu Pembayaran Rekening') {
             $dataMid_curr = json_decode($pemesanan['data_mid'], true);
@@ -3446,13 +3447,13 @@ class Pages extends BaseController
             return redirect()->to('/order/' . $order_id);
         }
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
-        if (in_array($pemesanan['email_cus'], $emailUjiCoba))
+        if (in_array($pemesanan['email_cus'], $this->emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
         else
             $auth = base64_encode($midtrans_production_key . ":");
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => in_array($pemesanan['email_cus'], $emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
+            CURLOPT_URL => in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
@@ -3479,506 +3480,505 @@ class Pages extends BaseController
         }
         return redirect()->to('/order/' . $order_id);
     }
-    public function actionPaySnap()
-    {
-        $bodyJson = $this->request->getBody();
-        $body = json_decode($bodyJson, true);
-        $email = $body['email'];
-        $nama = $body['nama'];
-        $nohp = $body['nohp'];
-        $prov = $body['provinsi'];
-        $kab = $body['kota'];
-        $kec = $body['kecamatan'];
-        $kode = $body['kodepos'];
-        $alamatAdd = $body['alamat_add'];
-        $alamatLengkap = $body['alamat'];
-        $note = $body['note'];
-        $data = json_decode(base64_decode($body['data']), true);
-        $keranjang = $data['keranjang'];
-        $voucher = $data['voucherSelected'];
+    // public function actionPaySnap()
+    // {
+    //     $bodyJson = $this->request->getBody();
+    //     $body = json_decode($bodyJson, true);
+    //     $email = $body['email'];
+    //     $nama = $body['nama'];
+    //     $nohp = $body['nohp'];
+    //     $prov = $body['provinsi'];
+    //     $kab = $body['kota'];
+    //     $kec = $body['kecamatan'];
+    //     $kode = $body['kodepos'];
+    //     $alamatAdd = $body['alamat_add'];
+    //     $alamatLengkap = $body['alamat'];
+    //     $note = $body['note'];
+    //     $data = json_decode(base64_decode($body['data']), true);
+    //     $keranjang = $data['keranjang'];
+    //     $voucher = $data['voucherSelected'];
 
-        $alamat = [
-            "prov_id" => explode("-", $prov)[0],
-            "prov" => explode("-", $prov)[1],
-            "kab_id" => explode("-", $kab)[0],
-            "kab" => explode("-", $kab)[1],
-            "kec_id" => explode("-", $kec)[0],
-            "kec" => explode("-", $kec)[1],
-            "desa" => explode("-", $kode)[0],
-            "kodepos" => explode("-", $kode)[1],
-            "add" => $alamatAdd,
-            "alamat" => $alamatLengkap,
-        ];
+    //     $alamat = [
+    //         "prov_id" => explode("-", $prov)[0],
+    //         "prov" => explode("-", $prov)[1],
+    //         "kab_id" => explode("-", $kab)[0],
+    //         "kab" => explode("-", $kab)[1],
+    //         "kec_id" => explode("-", $kec)[0],
+    //         "kec" => explode("-", $kec)[1],
+    //         "desa" => explode("-", $kode)[0],
+    //         "kodepos" => explode("-", $kode)[1],
+    //         "add" => $alamatAdd,
+    //         "alamat" => $alamatLengkap,
+    //     ];
 
-        $cariUser = $this->pembeliModel->getPembeli($email);
-        if ($cariUser) {
-            $this->pembeliModel->where('email_user', $email)->set([
-                'alamat' => json_encode($alamat),
-            ])->update();
-        }
+    //     $cariUser = $this->pembeliModel->getPembeli($email);
+    //     if ($cariUser) {
+    //         $this->pembeliModel->where('email_user', $email)->set([
+    //             'alamat' => json_encode($alamat),
+    //         ])->update();
+    //     }
 
-        $produk = [];
-        $subtotal = 0;
-        $itemDetails = [];
-        if (!empty($keranjang)) {
-            foreach ($keranjang as $ind => $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = round($persen * $produknya['harga']);
-                $subtotal += $hasil * (int)$element['jumlah'];
-                array_push($produk, array(
-                    'id' => $produknya["id"],
-                    'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
-                    'value' => $hasil,
-                    'quantity' => (int)$element['jumlah'],
-                ));
+    //     $produk = [];
+    //     $subtotal = 0;
+    //     $itemDetails = [];
+    //     if (!empty($keranjang)) {
+    //         foreach ($keranjang as $ind => $element) {
+    //             $produknya = $this->barangModel->getBarang($element['id']);
+    //             $persen = (100 - $produknya['diskon']) / 100;
+    //             $hasil = round($persen * $produknya['harga']);
+    //             $subtotal += $hasil * (int)$element['jumlah'];
+    //             array_push($produk, array(
+    //                 'id' => $produknya["id"],
+    //                 'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
+    //                 'value' => $hasil,
+    //                 'quantity' => (int)$element['jumlah'],
+    //             ));
 
-                //untuk midtrans
-                $item = array(
-                    'id' => $produknya["id"],
-                    'price' => $hasil,
-                    'quantity' => $element['jumlah'],
-                    'name' => substr($produknya["nama"] . " (" . ucfirst($element['varian']) . ")", 0, 50),
-                    'packed' => false
-                );
-                array_push($itemDetails, $item);
-            }
-            $total = $subtotal + 5000;
-        }
+    //             //untuk midtrans
+    //             $item = array(
+    //                 'id' => $produknya["id"],
+    //                 'price' => $hasil,
+    //                 'quantity' => $element['jumlah'],
+    //                 'name' => substr($produknya["nama"] . " (" . ucfirst($element['varian']) . ")", 0, 50),
+    //                 'packed' => false
+    //             );
+    //             array_push($itemDetails, $item);
+    //         }
+    //         $total = $subtotal + 5000;
+    //     }
 
-        $biayaadmin = array(
-            'id' => 'Biaya Admin',
-            'price' => 5000,
-            'quantity' => 1,
-            'name' => 'Biaya Admin',
-        );
-        array_push($itemDetails, $biayaadmin);
+    //     $biayaadmin = array(
+    //         'id' => 'Biaya Admin',
+    //         'price' => 5000,
+    //         'quantity' => 1,
+    //         'name' => 'Biaya Admin',
+    //     );
+    //     array_push($itemDetails, $biayaadmin);
 
-        if ($data['diskonVoucher'] > 0) {
-            $diskonVoucher = array(
-                'id' => 'Diskon Voucher',
-                'price' => -$data['diskonVoucher'],
-                'quantity' => 1,
-                'name' => 'Diskon Voucher',
-            );
-            array_push($itemDetails, $diskonVoucher);
-        }
+    //     if ($data['diskonVoucher'] > 0) {
+    //         $diskonVoucher = array(
+    //             'id' => 'Diskon Voucher',
+    //             'price' => -$data['diskonVoucher'],
+    //             'quantity' => 1,
+    //             'name' => 'Diskon Voucher',
+    //         );
+    //         array_push($itemDetails, $diskonVoucher);
+    //     }
 
-        // \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
-        // \Midtrans\Config::$isProduction = false;
-        $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
-        $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = "L" . rand();
-        $customField = json_encode([
-            'e' => $email,
-            'n' => $nama,
-            'h' => $nohp,
-            'a' => $alamatLengkap,
-            'i' => $produk,
-            'nt' => $note,
-            'v' => [
-                'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
-                'id' => $voucher ? $voucher['id'] : false,
-            ]
-        ]);
-        $emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
-        $arrPostField = [
-            "transaction_details" => [
-                "order_id" => in_array($email, $emailUjiCoba) ? $randomId : $idFix,
-                "gross_amount" => $total - $data['diskonVoucher'],
-            ],
-            'customer_details' => array(
-                'email' => $email,
-                'first_name' => $nama,
-                'phone' => $nohp,
-                'billing_address' => array(
-                    'email' => $email,
-                    'first_name' => $nama,
-                    'phone' => $nohp,
-                    'address' => $alamatLengkap,
-                ),
-                'shipping_address' => array(
-                    'email' => $email,
-                    'first_name' => $nama,
-                    'phone' => $nohp,
-                    'address' => $alamatLengkap,
-                )
-            ),
-            'callbacks' => array(
-                'finish' => "https://lunareafurniture.com/order/" . (in_array($email, $emailUjiCoba) ? $randomId : $idFix),
-            ),
-            'item_details' => $itemDetails,
-            "custom_field1" => substr($customField, 0, 255),
-            "custom_field2" => substr($customField, 255, 255),
-            "custom_field3" => substr($customField, 510, 255),
-        ];
+    //     // \Midtrans\Config::$serverKey = "SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh";
+    //     // \Midtrans\Config::$isProduction = false;
+    //     $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+    //     $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
+    //     $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+    //     $randomId = "L" . rand();
+    //     $customField = json_encode([
+    //         'e' => $email,
+    //         'n' => $nama,
+    //         'h' => $nohp,
+    //         'a' => $alamatLengkap,
+    //         'i' => $produk,
+    //         'nt' => $note,
+    //         'v' => [
+    //             'd' => $data['diskonVoucher'], //ini udah bentuk rupiah
+    //             'id' => $voucher ? $voucher['id'] : false,
+    //         ]
+    //     ]);
+    //     $arrPostField = [
+    //         "transaction_details" => [
+    //             "order_id" => in_array($email, $this->emailUjiCoba) ? $randomId : $idFix,
+    //             "gross_amount" => $total - $data['diskonVoucher'],
+    //         ],
+    //         'customer_details' => array(
+    //             'email' => $email,
+    //             'first_name' => $nama,
+    //             'phone' => $nohp,
+    //             'billing_address' => array(
+    //                 'email' => $email,
+    //                 'first_name' => $nama,
+    //                 'phone' => $nohp,
+    //                 'address' => $alamatLengkap,
+    //             ),
+    //             'shipping_address' => array(
+    //                 'email' => $email,
+    //                 'first_name' => $nama,
+    //                 'phone' => $nohp,
+    //                 'address' => $alamatLengkap,
+    //             )
+    //         ),
+    //         'callbacks' => array(
+    //             'finish' => "https://lunareafurniture.com/order/" . (in_array($email, $this->emailUjiCoba) ? $randomId : $idFix),
+    //         ),
+    //         'item_details' => $itemDetails,
+    //         "custom_field1" => substr($customField, 0, 255),
+    //         "custom_field2" => substr($customField, 255, 255),
+    //         "custom_field3" => substr($customField, 510, 255),
+    //     ];
 
-        // $snapToken = \Midtrans\Snap::getSnapToken($arrPostField);
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://app.midtrans.com/snap/v1/transactions",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($arrPostField),
-            CURLOPT_HTTPHEADER => array(
-                "Accept: application/json",
-                "Content-Type: application/json",
-                "Authorization: Basic " . $auth,
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $hasilMidtrans = json_decode($response, true);
-        return $this->response->setJSON($hasilMidtrans, false);
-    }
-    public function actionPay()
-    {
-        $emailPem = $this->request->getVar('emailPem') ? $this->request->getVar('emailPem') : session()->get('email');
-        $namaPem = $this->request->getVar('namaPem') ? $this->request->getVar('namaPem') : session()->get('nama');
-        $nohpPem = $this->request->getVar('nohpPem') ? $this->request->getVar('nohpPem') : session()->get('nohp');
-        $nama = $this->request->getVar('nama');
-        $nohp = $this->request->getVar('nohp');
-        $prov = $this->request->getVar('provinsi');
-        $kab = $this->request->getVar('kota');
-        $kec = $this->request->getVar('kecamatan');
-        $kode = $this->request->getVar('kodepos');
-        $alamatAdd = $this->request->getVar('alamat_add');
-        $alamatLengkap = $this->request->getVar('alamat');
-        $pembayaran = $this->request->getVar('pembayaran');
+    //     // $snapToken = \Midtrans\Snap::getSnapToken($arrPostField);
+    //     $curl = curl_init();
+    //     curl_setopt_array($curl, array(
+    //         CURLOPT_URL => "https://app.midtrans.com/snap/v1/transactions",
+    //         CURLOPT_SSL_VERIFYHOST => 0,
+    //         CURLOPT_SSL_VERIFYPEER => 0,
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_ENCODING => "",
+    //         CURLOPT_MAXREDIRS => 10,
+    //         CURLOPT_TIMEOUT => 30,
+    //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //         CURLOPT_CUSTOMREQUEST => "POST",
+    //         CURLOPT_POSTFIELDS => json_encode($arrPostField),
+    //         CURLOPT_HTTPHEADER => array(
+    //             "Accept: application/json",
+    //             "Content-Type: application/json",
+    //             "Authorization: Basic " . $auth,
+    //         ),
+    //     ));
+    //     $response = curl_exec($curl);
+    //     $err = curl_error($curl);
+    //     curl_close($curl);
+    //     if ($err) {
+    //         return "cURL Error #:" . $err;
+    //     }
+    //     $hasilMidtrans = json_decode($response, true);
+    //     return $this->response->setJSON($hasilMidtrans, false);
+    // }
+    // public function actionPay()
+    // {
+    //     $emailPem = $this->request->getVar('emailPem') ? $this->request->getVar('emailPem') : session()->get('email');
+    //     $namaPem = $this->request->getVar('namaPem') ? $this->request->getVar('namaPem') : session()->get('nama');
+    //     $nohpPem = $this->request->getVar('nohpPem') ? $this->request->getVar('nohpPem') : session()->get('nohp');
+    //     $nama = $this->request->getVar('nama');
+    //     $nohp = $this->request->getVar('nohp');
+    //     $prov = $this->request->getVar('provinsi');
+    //     $kab = $this->request->getVar('kota');
+    //     $kec = $this->request->getVar('kecamatan');
+    //     $kode = $this->request->getVar('kodepos');
+    //     $alamatAdd = $this->request->getVar('alamat_add');
+    //     $alamatLengkap = $this->request->getVar('alamat');
+    //     $pembayaran = $this->request->getVar('pembayaran');
 
-        $alamat = [
-            "prov_id" => explode("-", $prov)[0],
-            "prov" => explode("-", $prov)[1],
-            "kab_id" => explode("-", $kab)[0],
-            "kab" => explode("-", $kab)[1],
-            "kec_id" => explode("-", $kec)[0],
-            "kec" => explode("-", $kec)[1],
-            "desa" => explode("-", $kode)[0],
-            "kodepos" => explode("-", $kode)[1],
-            "add" => $alamatAdd,
-            "alamat" => $alamatLengkap,
-        ];
-        if (session()->get('email') != 'tamu') {
-            $this->pembeliModel->where('email_user', $emailPem)->set([
-                'alamat' => json_encode($alamat),
-            ])->update();
-        }
-        session()->set(['alamat' => $alamat]);
-        $keranjang = session()->get('keranjang');
-        $produk = [];
+    //     $alamat = [
+    //         "prov_id" => explode("-", $prov)[0],
+    //         "prov" => explode("-", $prov)[1],
+    //         "kab_id" => explode("-", $kab)[0],
+    //         "kab" => explode("-", $kab)[1],
+    //         "kec_id" => explode("-", $kec)[0],
+    //         "kec" => explode("-", $kec)[1],
+    //         "desa" => explode("-", $kode)[0],
+    //         "kodepos" => explode("-", $kode)[1],
+    //         "add" => $alamatAdd,
+    //         "alamat" => $alamatLengkap,
+    //     ];
+    //     if (session()->get('email') != 'tamu') {
+    //         $this->pembeliModel->where('email_user', $emailPem)->set([
+    //             'alamat' => json_encode($alamat),
+    //         ])->update();
+    //     }
+    //     session()->set(['alamat' => $alamat]);
+    //     $keranjang = session()->get('keranjang');
+    //     $produk = [];
 
-        $subtotal = 0;
-        $itemDetails = [];
-        if (!empty($keranjang)) {
-            foreach ($keranjang as $ind => $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = round($persen * $produknya['harga']);
-                $subtotal += $hasil * (int)$element['jumlah'];
-                $dimensi = explode("X", $produknya['dimensi']);
-                array_push($produk, array(
-                    'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
-                    'value' => $hasil,
-                    'length' => (float)$dimensi[0],
-                    'width' => (float)$dimensi[1],
-                    'height' => (float)$dimensi[2],
-                    'weight' => (float)$produknya['berat'],
-                    'quantity' => (int)$element['jumlah'],
-                ));
+    //     $subtotal = 0;
+    //     $itemDetails = [];
+    //     if (!empty($keranjang)) {
+    //         foreach ($keranjang as $ind => $element) {
+    //             $produknya = $this->barangModel->getBarang($element['id']);
+    //             $persen = (100 - $produknya['diskon']) / 100;
+    //             $hasil = round($persen * $produknya['harga']);
+    //             $subtotal += $hasil * (int)$element['jumlah'];
+    //             $dimensi = explode("X", $produknya['dimensi']);
+    //             array_push($produk, array(
+    //                 'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
+    //                 'value' => $hasil,
+    //                 'length' => (float)$dimensi[0],
+    //                 'width' => (float)$dimensi[1],
+    //                 'height' => (float)$dimensi[2],
+    //                 'weight' => (float)$produknya['berat'],
+    //                 'quantity' => (int)$element['jumlah'],
+    //             ));
 
-                //untuk midtrans
-                $item = array(
-                    'id' => $produknya["id"],
-                    'price' => $hasil,
-                    'quantity' => $element['jumlah'],
-                    'name' => substr($produknya["nama"] . " (" . ucfirst($element['varian']) . ")", 0, 50),
-                    'packed' => false
-                );
-                array_push($itemDetails, $item);
-            }
-            $total = $subtotal + 5000;
-        }
+    //             //untuk midtrans
+    //             $item = array(
+    //                 'id' => $produknya["id"],
+    //                 'price' => $hasil,
+    //                 'quantity' => $element['jumlah'],
+    //                 'name' => substr($produknya["nama"] . " (" . ucfirst($element['varian']) . ")", 0, 50),
+    //                 'packed' => false
+    //             );
+    //             array_push($itemDetails, $item);
+    //         }
+    //         $total = $subtotal + 5000;
+    //     }
 
-        $biayaadmin = array(
-            'id' => 'Biaya Admin',
-            'price' => 5000,
-            'quantity' => 1,
-            'name' => 'Biaya Admin',
-        );
-        array_push($itemDetails, $biayaadmin);
+    //     $biayaadmin = array(
+    //         'id' => 'Biaya Admin',
+    //         'price' => 5000,
+    //         'quantity' => 1,
+    //         'name' => 'Biaya Admin',
+    //     );
+    //     array_push($itemDetails, $biayaadmin);
 
-        $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
-        $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = "JM" . rand();
-        $customField = json_encode([
-            'e' => $emailPem,
-            'n' => $nama,
-            'h' => $nohp,
-            'a' => $alamatLengkap,
-            'i' => $produk
-        ]);
-        $arrPostField = [
-            "transaction_details" => [
-                "order_id" => $idFix,
-                "gross_amount" => $total,
-                "payment_link_id" => "payment-link-lunarea-" . $idFix
-            ],
-            // 'customer_details' => array(
-            //     'email' => $emailPem,
-            //     'first_name' => $namaPem,
-            //     'phone' => $nohpPem,
-            //     'billing_address' => array(
-            //         'email' => $emailPem,
-            //         'first_name' => $namaPem,
-            //         'phone' => $nohpPem,
-            //         'address' => $alamatLengkap,
-            //     ),
-            //     'shipping_address' => array(
-            //         'email' => $emailPem,
-            //         'first_name' => $nama,
-            //         'phone' => $nohp,
-            //         'address' => $alamatLengkap,
-            //     )
-            // ),
-            'customer_details' => array(
-                'email' => $emailPem,
-                'phone' => $nohp,
-                'first_name' => $nama,
-            ),
-            'item_details' => $itemDetails,
-            "usage_limit" =>  1,
-            "enabled_payments" => ["gopay", "cimb_clicks", "bca_klikbca", "bca_klikpay", 'bri_epay', 'echannel', 'permata_va', 'bca_va', 'bni_va', 'bri_va', 'shopeepay'],
-            "expiry" => [
-                "duration" => 24,
-                "unit" => "hours"
-            ],
-            "custom_field1" => substr($customField, 0, 255),
-            "custom_field2" => substr($customField, 255, 255),
-            "custom_field3" => substr($customField, 510, 255),
-        ];
+    //     $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
+    //     $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
+    //     $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+    //     $randomId = "JM" . rand();
+    //     $customField = json_encode([
+    //         'e' => $emailPem,
+    //         'n' => $nama,
+    //         'h' => $nohp,
+    //         'a' => $alamatLengkap,
+    //         'i' => $produk
+    //     ]);
+    //     $arrPostField = [
+    //         "transaction_details" => [
+    //             "order_id" => $idFix,
+    //             "gross_amount" => $total,
+    //             "payment_link_id" => "payment-link-lunarea-" . $idFix
+    //         ],
+    //         // 'customer_details' => array(
+    //         //     'email' => $emailPem,
+    //         //     'first_name' => $namaPem,
+    //         //     'phone' => $nohpPem,
+    //         //     'billing_address' => array(
+    //         //         'email' => $emailPem,
+    //         //         'first_name' => $namaPem,
+    //         //         'phone' => $nohpPem,
+    //         //         'address' => $alamatLengkap,
+    //         //     ),
+    //         //     'shipping_address' => array(
+    //         //         'email' => $emailPem,
+    //         //         'first_name' => $nama,
+    //         //         'phone' => $nohp,
+    //         //         'address' => $alamatLengkap,
+    //         //     )
+    //         // ),
+    //         'customer_details' => array(
+    //             'email' => $emailPem,
+    //             'phone' => $nohp,
+    //             'first_name' => $nama,
+    //         ),
+    //         'item_details' => $itemDetails,
+    //         "usage_limit" =>  1,
+    //         "enabled_payments" => ["gopay", "cimb_clicks", "bca_klikbca", "bca_klikpay", 'bri_epay', 'echannel', 'permata_va', 'bca_va', 'bni_va', 'bri_va', 'shopeepay'],
+    //         "expiry" => [
+    //             "duration" => 24,
+    //             "unit" => "hours"
+    //         ],
+    //         "custom_field1" => substr($customField, 0, 255),
+    //         "custom_field2" => substr($customField, 255, 255),
+    //         "custom_field3" => substr($customField, 510, 255),
+    //     ];
 
-        // switch ($pembayaran) {
-        //     case 'bca':
-        //         $arrPostField["payment_type"] = "bank_transfer";
-        //         $arrPostField["bank_transfer"] = ["bank" => "bca"];
-        //         break;
-        //     case 'bri':
-        //         $arrPostField["payment_type"] = "bank_transfer";
-        //         $arrPostField["bank_transfer"] = ["bank" => "bri"];
-        //         break;
-        //     case 'bni':
-        //         $arrPostField["payment_type"] = "bank_transfer";
-        //         $arrPostField["bank_transfer"] = ["bank" => "bni"];
-        //         break;
-        //     case 'cimb':
-        //         $arrPostField["payment_type"] = "bank_transfer";
-        //         $arrPostField["bank_transfer"] = ["bank" => "cimb"];
-        //         break;
-        //     case 'permata':
-        //         $arrPostField["payment_type"] = "permata";
-        //         break;
-        //     case 'mandiri':
-        //         $arrPostField["payment_type"] = "echannel";
-        //         $arrPostField["echannel"] = [
-        //             "bill_info1" => "Payment:",
-        //             "bill_info2" => "Online purchase"
-        //         ];
-        //         break;
-        //     default:
-        //         return redirect()->to('/cart');
-        //         break;
-        // }
+    //     // switch ($pembayaran) {
+    //     //     case 'bca':
+    //     //         $arrPostField["payment_type"] = "bank_transfer";
+    //     //         $arrPostField["bank_transfer"] = ["bank" => "bca"];
+    //     //         break;
+    //     //     case 'bri':
+    //     //         $arrPostField["payment_type"] = "bank_transfer";
+    //     //         $arrPostField["bank_transfer"] = ["bank" => "bri"];
+    //     //         break;
+    //     //     case 'bni':
+    //     //         $arrPostField["payment_type"] = "bank_transfer";
+    //     //         $arrPostField["bank_transfer"] = ["bank" => "bni"];
+    //     //         break;
+    //     //     case 'cimb':
+    //     //         $arrPostField["payment_type"] = "bank_transfer";
+    //     //         $arrPostField["bank_transfer"] = ["bank" => "cimb"];
+    //     //         break;
+    //     //     case 'permata':
+    //     //         $arrPostField["payment_type"] = "permata";
+    //     //         break;
+    //     //     case 'mandiri':
+    //     //         $arrPostField["payment_type"] = "echannel";
+    //     //         $arrPostField["echannel"] = [
+    //     //             "bill_info1" => "Payment:",
+    //     //             "bill_info2" => "Online purchase"
+    //     //         ];
+    //     //         break;
+    //     //     default:
+    //     //         return redirect()->to('/cart');
+    //     //         break;
+    //     // }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.midtrans.com/v1/payment-links",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($arrPostField),
-            CURLOPT_HTTPHEADER => array(
-                "Accept: application/json",
-                "Content-Type: application/json",
-                "Authorization: Basic " . $auth,
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $hasilMidtrans = json_decode($response, true);
-        // dd($hasilMidtrans);
+    //     $curl = curl_init();
+    //     curl_setopt_array($curl, array(
+    //         CURLOPT_URL => "https://api.midtrans.com/v1/payment-links",
+    //         CURLOPT_SSL_VERIFYHOST => 0,
+    //         CURLOPT_SSL_VERIFYPEER => 0,
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_ENCODING => "",
+    //         CURLOPT_MAXREDIRS => 10,
+    //         CURLOPT_TIMEOUT => 30,
+    //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //         CURLOPT_CUSTOMREQUEST => "POST",
+    //         CURLOPT_POSTFIELDS => json_encode($arrPostField),
+    //         CURLOPT_HTTPHEADER => array(
+    //             "Accept: application/json",
+    //             "Content-Type: application/json",
+    //             "Authorization: Basic " . $auth,
+    //         ),
+    //     ));
+    //     $response = curl_exec($curl);
+    //     $err = curl_error($curl);
+    //     curl_close($curl);
+    //     if ($err) {
+    //         return "cURL Error #:" . $err;
+    //     }
+    //     $hasilMidtrans = json_decode($response, true);
+    //     // dd($hasilMidtrans);
 
-        // if ($hasilMidtrans['fraud_status'] == "accept") {
-        //     switch ($hasilMidtrans['transaction_status']) {
-        //         case 'settlement':
-        //             $status = "Proses";
-        //             break;
-        //         case 'capture':
-        //             $status = "Proses";
-        //             break;
-        //         case 'pending':
-        //             $status = "Menunggu Pembayaran";
-        //             break;
-        //         case 'expire':
-        //             $status = "Kadaluarsa";
-        //             break;
-        //         case 'deny':
-        //             $status = "Ditolak";
-        //             break;
-        //         case 'failure':
-        //             $status = "Gagal";
-        //             break;
-        //         case 'refund':
-        //             $status = "Refund";
-        //             break;
-        //         case 'partial_refund':
-        //             $status = "Partial Refund";
-        //             break;
-        //         case 'cancel':
-        //             $status = "Dibatalkan";
-        //             break;
-        //         default:
-        //             $status = "No Status";
-        //             break;
-        //     }
-        // } else {
-        //     $status = 'Forbidden';
-        // }
-        // $this->pemesananModel->set([
-        //     'nama_cus' => $namaPem,
-        //     'email_cus' => $emailPem,
-        //     'hp_cus' => $nohpPem,
-        //     'nama_pen' => $nama,
-        //     'hp_pen' => $nohp,
-        //     'alamat_pen' => json_encode($alamat),
-        //     'resi' => "Menunggu pengiriman",
-        //     'items' => json_encode($produk),
-        //     'status' => $status,
-        //     'kurir' => 'kosong'
-        // ])->update();
+    //     // if ($hasilMidtrans['fraud_status'] == "accept") {
+    //     //     switch ($hasilMidtrans['transaction_status']) {
+    //     //         case 'settlement':
+    //     //             $status = "Proses";
+    //     //             break;
+    //     //         case 'capture':
+    //     //             $status = "Proses";
+    //     //             break;
+    //     //         case 'pending':
+    //     //             $status = "Menunggu Pembayaran";
+    //     //             break;
+    //     //         case 'expire':
+    //     //             $status = "Kadaluarsa";
+    //     //             break;
+    //     //         case 'deny':
+    //     //             $status = "Ditolak";
+    //     //             break;
+    //     //         case 'failure':
+    //     //             $status = "Gagal";
+    //     //             break;
+    //     //         case 'refund':
+    //     //             $status = "Refund";
+    //     //             break;
+    //     //         case 'partial_refund':
+    //     //             $status = "Partial Refund";
+    //     //             break;
+    //     //         case 'cancel':
+    //     //             $status = "Dibatalkan";
+    //     //             break;
+    //     //         default:
+    //     //             $status = "No Status";
+    //     //             break;
+    //     //     }
+    //     // } else {
+    //     //     $status = 'Forbidden';
+    //     // }
+    //     // $this->pemesananModel->set([
+    //     //     'nama_cus' => $namaPem,
+    //     //     'email_cus' => $emailPem,
+    //     //     'hp_cus' => $nohpPem,
+    //     //     'nama_pen' => $nama,
+    //     //     'hp_pen' => $nohp,
+    //     //     'alamat_pen' => json_encode($alamat),
+    //     //     'resi' => "Menunggu pengiriman",
+    //     //     'items' => json_encode($produk),
+    //     //     'status' => $status,
+    //     //     'kurir' => 'kosong'
+    //     // ])->update();
 
-        session()->setFlashdata('id_pesanan', $hasilMidtrans['order_id']);
-        return redirect()->to($hasilMidtrans['payment_url']);
-    }
-    public function actionCheckout()
-    {
-        $namaPen = $this->request->getVar('namaPen');
-        $nohpPen = $this->request->getVar('nohpPen');
-        $nama = $this->request->getVar('nama');
-        $alamat = $this->request->getVar('alamat');
-        $nohp = $this->request->getVar('nohp');
-        $email = $this->request->getVar('email');
-        $paketData = $this->request->getVar('paket');
-        $items = $this->request->getVar('produk');
-        $keranjangJson = $this->request->getVar('keranjang');
-        $paket = (int)explode("@", base64_decode($paketData))[0];
-        $kurir = explode("@", base64_decode($paketData))[1];
+    //     session()->setFlashdata('id_pesanan', $hasilMidtrans['order_id']);
+    //     return redirect()->to($hasilMidtrans['payment_url']);
+    // }
+    // public function actionCheckout()
+    // {
+    //     $namaPen = $this->request->getVar('namaPen');
+    //     $nohpPen = $this->request->getVar('nohpPen');
+    //     $nama = $this->request->getVar('nama');
+    //     $alamat = $this->request->getVar('alamat');
+    //     $nohp = $this->request->getVar('nohp');
+    //     $email = $this->request->getVar('email');
+    //     $paketData = $this->request->getVar('paket');
+    //     $items = $this->request->getVar('produk');
+    //     $keranjangJson = $this->request->getVar('keranjang');
+    //     $paket = (int)explode("@", base64_decode($paketData))[0];
+    //     $kurir = explode("@", base64_decode($paketData))[1];
 
-        // $getPembeli = $this->pembeliModel->getPembeli($email);
-        // $keranjang = json_decode($getPembeli['keranjang'], true);
-        $keranjang = json_decode($keranjangJson, true);
-        // $produk = [];
-        $jumlah = [];
-        $subtotal = 0;
-        $total = 0;
-        $itemDetails = [];
-        if (!empty($keranjang)) {
-            foreach ($keranjang as $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
-                // array_push($produk, $produknya);
-                array_push($jumlah, $element['jumlah']);
-                $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = round($persen * $produknya['harga']);
-                $subtotal += $hasil * $element['jumlah'];
-                $item = array(
-                    'id' => $produknya["id"],
-                    'price' => $hasil,
-                    'quantity' => $element['jumlah'],
-                    'name' => $produknya["nama"] . " (" . $element['varian'] . ")",
-                );
-                array_push($itemDetails, $item);
-            }
-            // $item = array(
-            //     'id' => 'Biaya Tambahan',
-            //     'price' => $paket,
-            //     'quantity' => 1,
-            //     'name' => 'Biaya Ongkir',
-            // );
-            $biayaadmin = array(
-                'id' => 'Biaya Admin',
-                'price' => 5000,
-                'quantity' => 1,
-                'name' => 'Biaya Admin',
-            );
-            // array_push($itemDetails, $item);
-            array_push($itemDetails, $biayaadmin);
-            $total = $subtotal + $paket + 5000;
-        }
+    //     // $getPembeli = $this->pembeliModel->getPembeli($email);
+    //     // $keranjang = json_decode($getPembeli['keranjang'], true);
+    //     $keranjang = json_decode($keranjangJson, true);
+    //     // $produk = [];
+    //     $jumlah = [];
+    //     $subtotal = 0;
+    //     $total = 0;
+    //     $itemDetails = [];
+    //     if (!empty($keranjang)) {
+    //         foreach ($keranjang as $element) {
+    //             $produknya = $this->barangModel->getBarang($element['id']);
+    //             // array_push($produk, $produknya);
+    //             array_push($jumlah, $element['jumlah']);
+    //             $persen = (100 - $produknya['diskon']) / 100;
+    //             $hasil = round($persen * $produknya['harga']);
+    //             $subtotal += $hasil * $element['jumlah'];
+    //             $item = array(
+    //                 'id' => $produknya["id"],
+    //                 'price' => $hasil,
+    //                 'quantity' => $element['jumlah'],
+    //                 'name' => $produknya["nama"] . " (" . $element['varian'] . ")",
+    //             );
+    //             array_push($itemDetails, $item);
+    //         }
+    //         // $item = array(
+    //         //     'id' => 'Biaya Tambahan',
+    //         //     'price' => $paket,
+    //         //     'quantity' => 1,
+    //         //     'name' => 'Biaya Ongkir',
+    //         // );
+    //         $biayaadmin = array(
+    //             'id' => 'Biaya Admin',
+    //             'price' => 5000,
+    //             'quantity' => 1,
+    //             'name' => 'Biaya Admin',
+    //         );
+    //         // array_push($itemDetails, $item);
+    //         array_push($itemDetails, $biayaadmin);
+    //         $total = $subtotal + $paket + 5000;
+    //     }
 
-        \Midtrans\Config::$serverKey = "";
-        \Midtrans\Config::$isProduction = false;
-        $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = rand();
-        $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $idFix . "&" . str_replace("&", "@", $kurir) . "&" . $items;
-        $params = array(
-            'transaction_details' => array(
-                'order_id' => $idFix,
-                //'order_id' => $randomId,
-                'gross_amount' => $total,
-            ),
-            'callbacks' => array(
-                'finish' => "https://lunareafurniture.com/finish_url/JSM-zWYWObdPEKlHA0PWP6BN/" . $stringData,
-            ),
-            'customer_details' => array(
-                'email' => $email,
-                'first_name' => $nama,
-                'phone' => $nohp,
-                'billing_address' => array(
-                    'email' => $email,
-                    'first_name' => $nama,
-                    'phone' => $nohp,
-                    'address' => json_decode($alamat, true)['alamat'],
-                ),
-                'shipping_address' => array(
-                    'email' => $email,
-                    'first_name' => $namaPen,
-                    'phone' => $nohpPen,
-                    'address' => json_decode($alamat, true)['alamat'],
-                )
-            ),
-            'item_details' => $itemDetails
-        );
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
-        $arr = array(
-            'snapToken' => $snapToken,
-            'email' => $email,
-            'alamat' => $alamat,
-            'nama' => $nama,
-            'phone' => $nohp,
-        );
-        return $this->response->setJSON($arr, false);
-    }
+    //     \Midtrans\Config::$serverKey = "";
+    //     \Midtrans\Config::$isProduction = false;
+    //     $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
+    //     $idFix = "JM" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
+    //     $randomId = rand();
+    //     $stringData = $email . "&" . $nama . "&" . $nohp . "&" . $namaPen . "&" . $nohpPen . "&" . $alamat . "&" . $idFix . "&" . str_replace("&", "@", $kurir) . "&" . $items;
+    //     $params = array(
+    //         'transaction_details' => array(
+    //             'order_id' => $idFix,
+    //             //'order_id' => $randomId,
+    //             'gross_amount' => $total,
+    //         ),
+    //         'callbacks' => array(
+    //             'finish' => "https://lunareafurniture.com/finish_url/JSM-zWYWObdPEKlHA0PWP6BN/" . $stringData,
+    //         ),
+    //         'customer_details' => array(
+    //             'email' => $email,
+    //             'first_name' => $nama,
+    //             'phone' => $nohp,
+    //             'billing_address' => array(
+    //                 'email' => $email,
+    //                 'first_name' => $nama,
+    //                 'phone' => $nohp,
+    //                 'address' => json_decode($alamat, true)['alamat'],
+    //             ),
+    //             'shipping_address' => array(
+    //                 'email' => $email,
+    //                 'first_name' => $namaPen,
+    //                 'phone' => $nohpPen,
+    //                 'address' => json_decode($alamat, true)['alamat'],
+    //             )
+    //         ),
+    //         'item_details' => $itemDetails
+    //     );
+    //     $snapToken = \Midtrans\Snap::getSnapToken($params);
+    //     $arr = array(
+    //         'snapToken' => $snapToken,
+    //         'email' => $email,
+    //         'alamat' => $alamat,
+    //         'nama' => $nama,
+    //         'phone' => $nohp,
+    //     );
+    //     return $this->response->setJSON($arr, false);
+    // }
 
     public function tracking($tipe, $resi)
     {
@@ -4980,7 +4980,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -5068,7 +5068,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -5124,7 +5124,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -5176,7 +5176,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -5234,7 +5234,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
