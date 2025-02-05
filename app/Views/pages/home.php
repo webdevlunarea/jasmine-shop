@@ -227,6 +227,14 @@ if ($msg_active) { ?>
             modalVoucherElm[0].classList.remove('d-none')
         }
     }
+    modalVoucherElm.forEach((e, ind_e) => {
+        e.addEventListener('click', () => {
+            closeModalVoucherAll(ind_e);
+        })
+        e.children[0].addEventListener('click', (event) => {
+            event.stopPropagation()
+        })
+    })
 
     function closeModalVoucher(index) {
         modalVoucherElm[index].classList.add('d-none')
