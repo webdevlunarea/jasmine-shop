@@ -28,7 +28,7 @@ class GambarController extends BaseController
         $this->pemesananModel = new PemesananModel();
     }
 
-    public function tampilGambarBarangBener($idBarang)
+    public function tampilGambarBarang($idBarang)
     {
         $gambar = $this->barangModel->getBarangAdmin($idBarang)['gambar'];
         $this->response->setHeader('Content-Type', 'image/webp');
@@ -43,7 +43,7 @@ class GambarController extends BaseController
     //     echo $gambarSelected;
     // }
 
-    public function tampilGambarBarang($idBarang)
+    public function tampilGambarBarangSlaah($idBarang)
     {
         // Decode URL dari Base64
         // $imageUrl = base64_decode($encodedUrl);
