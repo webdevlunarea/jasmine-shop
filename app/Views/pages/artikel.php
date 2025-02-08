@@ -114,9 +114,9 @@
                 <?php } else if ($isi['tag'] == 'a') { ?>
                     <a href="<?= $isi['link']; ?>" class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></a>
                 <?php } else if ($isi['tag'] == 'img') { ?>
-                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= $isi['link']; ?>">
+                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= isset($isi['link']) ? $isi['link'] : '/'; ?>">
                         <img src="<?= $isi['src']; ?>" style="height: 500px; max-width: 100%" class="mb-1">
-                        <p class="m-0 text-sm text-secondary"><?= $isi['sumber']; ?></p>
+                        <p class="m-0 text-sm text-secondary"><?= isset($isi['sumber']) ? $isi['sumber'] : 'Lunarea Furniture'; ?></p>
                     </a>
                 <?php } else if ($isi['tag'] == 'space') { ?>
                     <div class="w-100" style="height: 1em"></div>
@@ -190,9 +190,9 @@
                 <?php } else if ($isi['tag'] == 'a') { ?>
                     <a href="<?= $isi['link']; ?>" class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></a>
                 <?php } else if ($isi['tag'] == 'img') { ?>
-                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= $isi['link']; ?>">
+                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= isset($isi['link']) ? $isi['link'] : '/'; ?>">
                         <img src="<?= $isi['src']; ?>" style="height: 500px; max-width: 100%" class="mb-1">
-                        <p class="m-0 text-sm text-secondary"><?= $isi['sumber']; ?></p>
+                        <p class="m-0 text-sm text-secondary"><?= isset($isi['sumber']) ? $isi['sumber'] : 'Lunarea Furniture'; ?></p>
                     </a>
                 <?php } else if ($isi['tag'] == 'space') { ?>
                     <div class="w-100" style="height: 1em"></div>
