@@ -6750,7 +6750,10 @@ class Pages extends BaseController
                 ->join('pembeli', 'pembeli.email_user = stok.email_admin')
                 ->select('stok.*')
                 ->select('pembeli.nama AS nama_admin')
-                ->where(['id_barang' => $produk['id'], ['email_admin' => session()->get('email')]])
+                ->where([
+                    'id_barang' => $produk['id'],
+                    'email_admin' => session()->get('email')
+                ])
                 ->findAll(20, $offset);
         }
         $produkAll = $this->barangModel->findAll();
