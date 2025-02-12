@@ -83,12 +83,11 @@ $notif = [
                     </script>
                 <?php } ?>
             <?php } else { ?>
-                <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
-                <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
                 <a href="/invoiceadmin" class="btn"><i class="material-icons">description</i></a>
                 <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                 <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                 <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
+                <a href="/stokadmin" class="btn"><i class="material-icons">unarchive</i></a>
                 <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
             <?php } ?>
         <?php } else { ?>
@@ -111,7 +110,7 @@ $notif = [
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
         <a class="navbar-brand" href="/" style="font-weight: bold;">
-            <img src="../img/Logo Lunarea Bg Terang ukuran kecil.webp" height="17em" alt="Logo Lunarea">
+            <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" height="17em" alt="Logo Lunarea">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -165,6 +164,7 @@ $notif = [
                     <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
+                    <a href="/stokadmin" class="btn"><i class="material-icons">unarchive</i></a>
                     <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
             <?php } else { ?>

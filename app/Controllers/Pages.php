@@ -18,6 +18,7 @@ use App\Models\PreorderBarangModel;
 use App\Models\PointHistoryModel;
 use App\Models\VoucherClaimedModel;
 use App\Models\VoucherRedeemModel;
+use App\Models\StokModel;
 
 class Pages extends BaseController
 {
@@ -37,6 +38,7 @@ class Pages extends BaseController
     protected $pointHistoryModel;
     protected $voucherClaimedModel;
     protected $voucherRedeemModel;
+    protected $stokModel;
 
     protected $emailUjiCoba;
     public function __construct()
@@ -58,6 +60,7 @@ class Pages extends BaseController
         $this->pointHistoryModel = new PointHistoryModel();
         $this->voucherClaimedModel = new VoucherClaimedModel();
         $this->voucherRedeemModel = new VoucherRedeemModel();
+        $this->stokModel = new StokModel();
     }
     public function generateRandomCode()
     {
@@ -6725,6 +6728,84 @@ class Pages extends BaseController
         }
         session()->set('cekdouble', $cekSession);
         return redirect()->to('/about');
+    }
+
+    public function stokAdmin($idProduk = false, $pag = 1)
+    {
+        $offset = ($pag - 1) * 20;
+        if ($idProduk) {
+            $produk = $this->barangModel->getBarang($idProduk);
+        } else {
+            $produk = $this->barangModel->first();
+        }
+        if (session()->get('email') == 'galih8.4.2001@gmail.com') {
+            $stok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin')
+                ->select('stok.*')
+                ->select('pembeli.nama AS nama_admin')
+                ->where(['id_barang' => $produk['id']])
+                ->findAll(20, $offset);
+        } else {
+            $stok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin')
+                ->select('stok.*')
+                ->select('pembeli.nama AS nama_admin')
+                ->where(['id_barang' => $produk['id'], ['email_admin' => session()->get('email')]])
+                ->findAll(20, $offset);
+        }
+        $produkAll = $this->barangModel->findAll();
+        foreach ($stok as $ind_s => $s) {
+            $stok[$ind_s]['tanggal'] = date('d/m/Y H:i:s', strtotime($s['tanggal']));
+        }
+        $produk['varian'] = json_decode($produk['varian'], true);
+        $stokVarian = [];
+        foreach ($produk['varian'] as $v) {
+            $stokTerakhir = $this->stokModel->orderBy('tanggal', 'desc')->where([
+                'id_barang' => $produk['id'],
+                'varian' => $v
+            ])->first();
+            array_push($stokVarian, [
+                'nama' => $v,
+                'stok' => $stokTerakhir ? $stokTerakhir['stok_akhir'] : 0
+            ]);
+        }
+        $data = [
+            'title' => 'Stok',
+            'produk' => $produk,
+            'stok' => $stok,
+            'produkAll' => $produkAll,
+            'url' => base64_encode($idProduk ? '/stokadmin/' . $idProduk . '/' . $pag : '/stokadmin'),
+            'msg' => session()->getFlashdata('msg'),
+            'stokVarian' => $stokVarian
+        ];
+        // dd($data);
+        return view('pages/stokAdmin', $data);
+    }
+    public function addStokAdmin($url)
+    {
+        $lastData = $this->stokModel->orderBy('id', 'desc')->where(['id_barang' => $this->request->getVar('id_barang'), 'varian' => $this->request->getVar('varian')])->first();
+        if (!$lastData) $currentStok = 0;
+        else $currentStok = $lastData['stok_akhir'];
+        if ($this->request->getVar('jenis') == 'keluar')
+            $currentStok -= (int)$this->request->getVar('jumlah');
+        else
+            $currentStok += (int)$this->request->getVar('jumlah');
+        if ($currentStok < 0) {
+            session()->setFlashdata('msg', 'Stok tidak mencukupi');
+            return redirect()->to(base64_decode($url));
+        }
+        $this->stokModel->insert([
+            'id' => time(),
+            'id_barang' => $this->request->getVar('id_barang'),
+            'nama' => $this->request->getVar('nama'),
+            'varian' => $this->request->getVar('varian'),
+            'jumlah' => ($this->request->getVar('jenis') == 'keluar' ? '-' : '') . $this->request->getVar('jumlah'),
+            'email_admin' => session()->get('email'),
+            'keterangan' => $this->request->getVar('keterangan'),
+            'stok_akhir' => $currentStok,
+            'tanggal' => date('Y-m-d H:i:s', strtotime('+7 Hours'))
+        ]);
+        return redirect()->to(base64_decode($url));
     }
 
     public function notFound()

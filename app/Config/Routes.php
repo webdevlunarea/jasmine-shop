@@ -137,6 +137,9 @@ $routes->get('/invoiceadmin/(:any)', 'Pages::invoiceAdmin/$1', ['filter' => 'har
 $routes->get('/addinvoiceadmin', 'Pages::addInvoiceAdmin', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter' => 'harusAdmin']);
 
+$routes->get('/stokadmin', 'Pages::stokAdmin', ['filter' => 'harusAdmin']);
+$routes->get('/stokadmin/(:any)/(:any)', 'Pages::stokAdmin/$1/$2', ['filter' => 'harusAdmin']);
+$routes->post('/stokadmin/(:any)', 'Pages::addStokAdmin/$1', ['filter' => 'harusAdmin']);
 // $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
