@@ -6734,7 +6734,7 @@ class Pages extends BaseController
     {
         $offset = ($pag - 1) * 20;
         if ($idProduk) {
-            $produk = $this->barangModel->getBarang($idProduk);
+            $produk = $this->barangModel->getBarangAdmin($idProduk);
         } else {
             $produk = $this->barangModel->first();
         }
