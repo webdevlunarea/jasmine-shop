@@ -6756,7 +6756,11 @@ class Pages extends BaseController
                 ])
                 ->findAll(20, $offset);
         }
-        $produkAll = $this->barangModel->findAll();
+        $produkAll = $this->barangModel
+            ->select('barang.id')
+            ->select('barang.nama')
+            ->select('barang.stok')
+            ->findAll();
         foreach ($stok as $ind_s => $s) {
             $stok[$ind_s]['tanggal'] = date('d/m/Y H:i:s', strtotime($s['tanggal']));
         }
@@ -6777,6 +6781,7 @@ class Pages extends BaseController
             'produk' => $produk,
             'stok' => $stok,
             'produkAll' => $produkAll,
+            'produkAllJson' => json_encode($produkAll),
             'url' => base64_encode($idProduk ? '/stokadmin/' . $idProduk . '/' . $pag : '/stokadmin'),
             'msg' => session()->getFlashdata('msg'),
             'stokVarian' => $stokVarian

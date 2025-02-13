@@ -40,16 +40,35 @@
         </form>
     </div>
 </div>
+<style>
+    .item-list-produk {
+        text-decoration: none;
+        color: black;
+        transition: 0.1s;
+        padding: 0.3em 1em;
+        cursor: pointer;
+    }
+
+    .item-list-produk:hover {
+        background-color: var(--hijau);
+        color: white;
+        transition: 0.1s;
+    }
+</style>
 <div class="konten">
     <div class="container">
         <div class="d-flex gap-5 justify-content-between align-items-center">
-            <div>
-                <h3 class="mb-1">Mutasi Produk</h3>
-                <select class="form-select" onchange="handleChangeProduk(event)">
+            <div style="flex: 1">
+                <h3 class="mb-1">Mutasi <?= explode(' - ', $produk['nama'])[1]; ?></h3>
+                <input placeholder="Cari produk" type="text" class="form-select w-100" oninput="handleInput(event)">
+                <!-- <select class="form-select" onchange="handleChangeProduk(event)">
                     <?php foreach ($produkAll as $p) { ?>
                         <option value="<?= $p['id']; ?>" <?= $p['id'] == $produk['id'] ? 'selected' : ''; ?>><?= $p['nama']; ?></option>
                     <?php } ?>
-                </select>
+                </select> -->
+                <div style="position: relative;" class="w-100">
+                    <div id="container-cari-barang" class="d-none flex-column gap-1 border rounded w-100 bg-light" style="overflow: auto; max-height: 40svh; position: absolute; z-index: 3"></div>
+                </div>
             </div>
             <button onclick="openTambal()" class="btn btn-primary1">Tambah</button>
         </div>
@@ -97,7 +116,9 @@
     </div>
 </div>
 <script>
+    const produkAll = JSON.parse('<?= $produkAllJson; ?>');
     const modalAddElm = document.getElementById('modal-add');
+    const containerCariBarangElm = document.getElementById('container-cari-barang')
 
     function openTambal() {
         modalAddElm.classList.remove('d-none')
@@ -110,8 +131,25 @@
     }
 
     function handleChangeProduk(e) {
-        console.log(e.target.value)
         window.location.replace(`/stokadmin/${e.target.value}/1`)
+    }
+
+    function handleInput(e) {
+        const inputType = e.target.value.toLowerCase();
+        containerCariBarangElm.innerHTML = '';
+        if (inputType == '') {
+            containerCariBarangElm.classList.remove('d-flex')
+            containerCariBarangElm.classList.add('d-none')
+            return;
+        }
+        containerCariBarangElm.classList.add('d-flex')
+        containerCariBarangElm.classList.remove('d-none')
+        const produkFilter = produkAll.filter((p) => {
+            return p.nama.toLowerCase().includes(inputType)
+        })
+        produkFilter.forEach(p => {
+            containerCariBarangElm.innerHTML += `<a href="/stokadmin/${p.id}/1" class="item-list-produk rounded">${p.nama}</a>`
+        });
     }
 </script>
 <?= $this->endSection(); ?>
