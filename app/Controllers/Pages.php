@@ -6548,43 +6548,43 @@ class Pages extends BaseController
             'isi_email' => $isiEmail
         ]);
         session()->setFlashdata('msg', 'Voucher berhasil dibuat');
-        if (!$broadcast) {
-            return redirect()->to('/listvoucher');
-        }
-
-        $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
-        //kirim email ke customer
-        foreach ($code as $c) {
-            $isinya = '
-            <div style="width: 100%">
-                <img
-                    src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
-                    alt="banner"
-                    style="width: 100%; border-radius: 5px"
-                />
-            </div>
-            <div style="height: 15px"></div>
-            <div
-                style="
-                    background-color: white;
-                        padding-right: 20px;
-                        padding-left: 20px;
-                        padding-top: 20px;
-                        padding-bottom: 20px;
-                        border-radius: 10px;
-                    "
-            >
-                <table>
-                    <tbody>
-                        ' . $isiEmail . '
-                    </tbody>
-                </table>
-            </div>
-            ';
-            $email = $c['email_user'];
-            $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
+        if ($broadcast) {
+            $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
+            session()->setFlashdata('broadcast', $voucherCurr['id']);
         }
         return redirect()->to('/listvoucher');
+        //kirim email ke customer
+        // foreach ($code as $c) {
+        //     $isinya = '
+        //     <div style="width: 100%">
+        //         <img
+        //             src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
+        //             alt="banner"
+        //             style="width: 100%; border-radius: 5px"
+        //         />
+        //     </div>
+        //     <div style="height: 15px"></div>
+        //     <div
+        //         style="
+        //             background-color: white;
+        //                 padding-right: 20px;
+        //                 padding-left: 20px;
+        //                 padding-top: 20px;
+        //                 padding-bottom: 20px;
+        //                 border-radius: 10px;
+        //             "
+        //     >
+        //         <table>
+        //             <tbody>
+        //                 ' . $isiEmail . '
+        //             </tbody>
+        //         </table>
+        //     </div>
+        //     ';
+        //     $email = $c['email_user'];
+        //     $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
+        // }
+        // return redirect()->to('/listvoucher');
     }
     public function actionBroadcastVoucher($id_voucher)
     {
