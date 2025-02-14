@@ -1146,7 +1146,7 @@ class Pages extends BaseController
         ]);
 
         //klaimkan voucher yang auto klaim
-        $vouchers = $this->voucherModel->findAll();
+        $vouchers = $this->voucherModel->where(['active' => true])->findAll();
         $counter = 0;
         $waktuCurrYmd = date("Y-m-d", strtotime("+7 Hours"));
         foreach ($vouchers as $v) {
