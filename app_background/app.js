@@ -1,7 +1,7 @@
 require("dotenv").config();
 const cron = require("node-cron");
 
-cron.schedule("37 15 * * *", async () => {
+cron.schedule("0 1 * * *", async () => {
     try {
         const response = await fetch(
             `${process.env.BASE_URL}/autoclaimingvoucher`
