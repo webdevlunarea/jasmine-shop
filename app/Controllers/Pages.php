@@ -6782,24 +6782,12 @@ class Pages extends BaseController
         } else {
             $produk = $this->barangModel->first();
         }
-        if (session()->get('email') == 'galih8.4.2001@gmail.com') {
-            $stok = $this->stokModel
-                ->join('pembeli', 'pembeli.email_user = stok.email_admin')
-                ->select('stok.*')
-                ->select('pembeli.nama AS nama_admin')
-                ->where(['id_barang' => $produk['id']])
-                ->findAll(20, $offset);
-        } else {
-            $stok = $this->stokModel
-                ->join('pembeli', 'pembeli.email_user = stok.email_admin')
-                ->select('stok.*')
-                ->select('pembeli.nama AS nama_admin')
-                ->where([
-                    'id_barang' => $produk['id'],
-                    'email_admin' => session()->get('email')
-                ])
-                ->findAll(20, $offset);
-        }
+        $stok = $this->stokModel
+            ->join('pembeli', 'pembeli.email_user = stok.email_admin')
+            ->select('stok.*')
+            ->select('pembeli.nama AS nama_admin')
+            ->where(['id_barang' => $produk['id']])
+            ->findAll(20, $offset);
         $produkAll = $this->barangModel
             ->select('barang.id')
             ->select('barang.nama')
