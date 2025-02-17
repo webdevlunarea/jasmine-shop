@@ -2073,6 +2073,7 @@ class Pages extends BaseController
     public function autoClaimingVoucher()
     {
         $response = [
+            'function' => 'autoClaimingVoucher',
             'status' => 'ok'
         ];
         $pembeli = $this->pembeliModel->findAll();
@@ -6452,6 +6453,11 @@ class Pages extends BaseController
             if ($v['id'] == $broadcast) {
                 $emailBroadcast = json_decode($v['code'], true);
             }
+            if ($v['jadwal']) {
+                $jadwal1  = date('d M Y', strtotime(explode('@', $v['jadwal'])[0]));
+                $jadwal2  = date('d M Y', strtotime(explode('@', $v['jadwal'])[1]));
+                $voucher[$ind_v]['jadwal'] = $jadwal1 . ' - ' . $jadwal2;
+            }
         }
 
         // dd($voucher);
@@ -6507,11 +6513,36 @@ class Pages extends BaseController
         $posterEmail = $this->request->getFile('poster-email')->isValid() ? file_get_contents($this->request->getFile('poster-email')) : null;
         $isiEmail = $this->request->getVar('isi-email');
         $broadcast = $this->request->getVar('broadcast');
-        if ($broadcast) {
-            if (!$posterEmail || !$isiEmail) {
-                session()->setFlashdata('msg', 'Ada data yang belum diisi');
+        $jadwal1 = $this->request->getVar('jadwal1');
+        $jadwal2 = $this->request->getVar('jadwal2');
+
+        if ($jadwal1) {
+            if (!$jadwal2) {
+                session()->setFlashdata('msg', 'Jadwal akhir belum di set');
                 return redirect()->to('/addvoucher')->withInput();
             }
+        }
+        if ($jadwal2) {
+            if (!$jadwal1) {
+                session()->setFlashdata('msg', 'Jadwal awal belum di set');
+                return redirect()->to('/addvoucher')->withInput();
+            }
+        }
+        if (strtotime($jadwal1) > strtotime($jadwal2)) {
+            session()->setFlashdata('msg', 'Jadwal harus dari kecil ke besar');
+            return redirect()->to('/addvoucher')->withInput();
+        }
+
+        if ($broadcast) {
+            if (!$posterEmail || !$isiEmail) {
+                session()->setFlashdata('msg', 'Poster atau isi email belum di isi');
+                return redirect()->to('/addvoucher')->withInput();
+            }
+        }
+
+        if (!$this->request->getVar('email') && !$allUserVoucher) {
+            session()->setFlashdata('msg', 'Email customer belum diisi');
+            return redirect()->to('/addvoucher')->withInput();
         }
 
         $code = [];
@@ -6529,9 +6560,8 @@ class Pages extends BaseController
                 array_push($code, $databarunya);
             }
         }
-        // dd($code);
 
-        $this->voucherModel->insert([
+        $insertData = [
             'nama' => $nama,
             'nominal' => $nominal,
             'satuan' => $satuan,
@@ -6540,51 +6570,30 @@ class Pages extends BaseController
             'durasi_poin' => $durasiPoin == 'null' ? null : $durasiPoin,
             'keterangan' => $keterangan,
             'code' => json_encode($code),
-            'active' => true,
+            'all_user' => $allUserVoucher ? true : false,
+            'active' => $jadwal1 ? ($jadwal1 == date('Y-m-d', strtotime('+7 Hours')) ? true : false) : true,
             'auto_claimed' => $autoClaimed ? true : false,
             'kuota' => $kuota,
             'poster' => $poster,
             'poster_email' => $posterEmail,
-            'isi_email' => $isiEmail
-        ]);
+            'isi_email' => $isiEmail,
+            'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null
+        ];
+        // dd($insertData);
+        $this->voucherModel->insert($insertData);
         session()->setFlashdata('msg', 'Voucher berhasil dibuat');
-        if ($broadcast) {
+        if ($insertData['active'] && $broadcast) {
             $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
             session()->setFlashdata('broadcast', $voucherCurr['id']);
         }
         return redirect()->to('/listvoucher');
-        //kirim email ke customer
-        // foreach ($code as $c) {
-        //     $isinya = '
-        //     <div style="width: 100%">
-        //         <img
-        //             src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
-        //             alt="banner"
-        //             style="width: 100%; border-radius: 5px"
-        //         />
-        //     </div>
-        //     <div style="height: 15px"></div>
-        //     <div
-        //         style="
-        //             background-color: white;
-        //                 padding-right: 20px;
-        //                 padding-left: 20px;
-        //                 padding-top: 20px;
-        //                 padding-bottom: 20px;
-        //                 border-radius: 10px;
-        //             "
-        //     >
-        //         <table>
-        //             <tbody>
-        //                 ' . $isiEmail . '
-        //             </tbody>
-        //         </table>
-        //     </div>
-        //     ';
-        //     $email = $c['email_user'];
-        //     $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
-        // }
-        // return redirect()->to('/listvoucher');
+    }
+    public function actionAddVoucherAPI($id_voucher)
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        $voucher = $this->voucherModel->getVoucher($id_voucher);
+        return $this->response->setJSON($voucher, false);
     }
     public function actionBroadcastVoucher($id_voucher)
     {
@@ -6628,6 +6637,41 @@ class Pages extends BaseController
         ';
         $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
         return $this->response->setStatusCode(200)->setJSON(['success' => true], false);
+    }
+
+    public function scheduleVoucher()
+    {
+        $getAllVoucher = $this->voucherModel->where('jadwal is NOT NULL')->findAll();
+        foreach ($getAllVoucher as $ind_g => $g) {
+            $getAllVoucher[$ind_g]['code'] = json_decode($g['code'], true);
+            $getAllVoucher[$ind_g]['poster'] = '';
+            $getAllVoucher[$ind_g]['poster_email'] = '';
+
+            $code = [];
+            if ($g['all_user']) {
+                $getAllPembeli = $this->pembeliModel->findAll();
+                foreach ($getAllPembeli as $p) {
+                    $databarunya = ['email_user' => $p['email_user']];
+                    array_push($code, $databarunya);
+                }
+            }
+
+            if ($g['jadwal']) {
+                $jadwal = explode('@', $g['jadwal']);
+                $tglSkrg = date('Y-m-d', strtotime('+7 hours'));
+                if ($jadwal[0] == $tglSkrg) {
+                    $this->voucherModel->where(['id' => $g['id']])->set(['active' => true, 'code' => json_encode($code)])->update();
+                }
+                $tglAkhir = date('Y-m-d', strtotime('+1 day', strtotime($jadwal[1])));
+                if ($tglAkhir == $tglSkrg) {
+                    $this->voucherModel->where(['id' => $g['id']])->set(['active' => false])->update();
+                }
+            }
+        }
+        return $this->response->setStatusCode(200)->setJSON([
+            'function' => 'scheduleVoucher',
+            'success' => true
+        ], false);
     }
 
     public function gantiUkuran($kategori)

@@ -17,6 +17,7 @@ class VoucherModel extends Model
         'jenis',
         'active',
         'code',
+        'all_user',
         'keterangan',
         'auto_claimed',
         'poster',
@@ -24,6 +25,7 @@ class VoucherModel extends Model
         'kuota',
         'poster_email',
         'isi_email',
+        'jadwal',
     ];
 
     public function getVoucher($id = false)

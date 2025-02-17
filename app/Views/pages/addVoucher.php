@@ -84,6 +84,19 @@
                 </div>
             </div>
             <hr>
+            <h5 class="m-0">Penjadwalan</h5>
+            <p class="text-secondary mb-1" style="font-size: small;">*kosongin jika tanpa penjadwalan</p>
+            <div class="baris-ke-kolom gap-1">
+                <div style="flex: 1">
+                    <p class="m-0">Dari</p>
+                    <input name="jadwal1" type="date" class="form-control" min="<?= date('Y-m-d', strtotime('+7 hours')); ?>">
+                </div>
+                <div style="flex: 1">
+                    <p class="m-0">Sampai</p>
+                    <input name="jadwal2" type="date" class="form-control" min="<?= date('Y-m-d', strtotime('+7 hours')); ?>">
+                </div>
+            </div>
+            <hr>
             <h5 class="m-0">Broadcast Email Customer</h5>
             <p class="text-secondary mb-1" style="font-size: small;">Memberikan informasi ke customer mengenai voucher ini</p>
             <div class="d-flex gap-1 mb-2">

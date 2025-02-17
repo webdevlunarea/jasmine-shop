@@ -1,18 +1,17 @@
 require("dotenv").config();
-async function checkDateAndExecute() {
-    const today = new Date();
-    if (today.getHours() == 1) {
-        const response = await fetch(
-            `${process.env.BASE_URL}autoclaimingvoucher`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            }
-        );
-        const responseJson = await response.json();
-        console.log(responseJson);
-    }
-}
+const cron = require("node-cron");
 
-// Jalankan fungsi setiap jam
-setInterval(checkDateAndExecute, 60 * 60 * 1000);
+cron.schedule("0 1 * * *", async () => {
+    try {
+        const response = await fetch(
+            `${process.env.BASE_URL}/autoclaimingvoucher`
+        );
+        const response1 = await fetch(`${process.env.BASE_URL}/schedule`);
+        const responseJson = await response.json();
+        const response1Json = await response1.json();
+        console.log(responseJson);
+        console.log(response1Json);
+    } catch (error) {
+        console.log(error);
+    }
+});

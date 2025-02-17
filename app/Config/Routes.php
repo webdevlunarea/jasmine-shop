@@ -109,6 +109,7 @@ $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddvoucher', 'Pages::actionAddVoucher', ['filter' => 'harusAdmin']);
+$routes->get('/actionaddvoucherapi/(:any)', 'Pages::actionAddVoucherAPI/$1', ['filter' => 'corsFilter']);
 $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail/$1', ['filter' => 'corsFilter']);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
@@ -153,8 +154,8 @@ $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter'
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 
 //API Automatic
-$routes->post('/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);
-
+$routes->get('/apiauto/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);
+$routes->get('/apiauto/schedule', 'Pages::scheduleVoucher', ['filter' => 'corsFilter']);
 
 // GambarController
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');

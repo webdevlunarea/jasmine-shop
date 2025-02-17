@@ -61,6 +61,9 @@
                             <p class="m-0"><?= ucfirst($v['jenis']); ?></p>
                             <h5 class="m-0" style="color: var(--hijau);"><?= $v['nama']; ?></h5>
                             <p class="text-secondary m-0">Durasi : <?= $v['durasi'] ? $v['durasi'] : 'Tak hingga'; ?></p>
+                            <?php if ($v['jadwal']) { ?>
+                                <p class="m-0">Dijadwalkan : <?= $v['jadwal']; ?></p>
+                            <?php } ?>
                         </div>
                         <div class="d-flex flex-column align-items-end justify-content-between">
                             <div class="d-flex gap-1">
