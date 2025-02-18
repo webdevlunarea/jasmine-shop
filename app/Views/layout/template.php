@@ -89,7 +89,7 @@
 
     <script defer src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="/css/style.css?v=16012025">
+    <link rel="stylesheet" href="/css/style.css?v=18022025">
     <link rel="icon" href="/logo icon.png">
 </head>
 

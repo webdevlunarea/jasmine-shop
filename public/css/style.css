@@ -70,6 +70,9 @@ a {
     outline: none;
     background: none;
 }
+.btn-teks-aja:hover {
+    color: #159e45;
+}
 .link-primary {
     color: var(--hijau);
 }
