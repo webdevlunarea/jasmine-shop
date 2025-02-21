@@ -4421,6 +4421,26 @@ class Pages extends BaseController
                     $tier['label'] = $label;
                     $tier['data'] = $dataBaru;
                     $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
+
+                    //input stok admin
+                    $itemsNya = json_decode($dataTransaksiFulDariDatabase['items'], true);
+                    foreach ($itemsNya as $i) {
+                        $variannya = rtrim(explode("(", $i['name'])[1], ")");
+                        $lastData = $this->stokModel->orderBy('id', 'desc')->where(['id_barang' => $i['id'], 'varian' => $variannya])->first();
+                        if (!$lastData) $currentStok = 0;
+                        else $currentStok = $lastData['stok_akhir'];
+                        $this->stokModel->insert([
+                            'id' => time(),
+                            'id_barang' => $i['id'],
+                            'nama' => explode(" (", $i['name'])[0],
+                            'varian' => $variannya,
+                            'jumlah' => '-' . $i['quantity'],
+                            'email_admin' => '',
+                            'keterangan' => 'Pmebelian WEB',
+                            'stok_akhir' => $currentStok,
+                            'tanggal' => $dataMid_curr['transaction_time'],
+                        ]);
+                    }
                 }
                 //reset jumlah produk
                 if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
@@ -6783,9 +6803,10 @@ class Pages extends BaseController
             $produk = $this->barangModel->first();
         }
         $stok = $this->stokModel
-            ->join('pembeli', 'pembeli.email_user = stok.email_admin')
+            ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
             ->select('stok.*')
             ->select('pembeli.nama AS nama_admin')
+            ->orderBy('id', 'asc')
             ->where(['id_barang' => $produk['id']])
             ->findAll(20, $offset);
         $produkAll = $this->barangModel
@@ -6812,6 +6833,7 @@ class Pages extends BaseController
             'title' => 'Stok',
             'produk' => $produk,
             'stok' => $stok,
+            'stokJson' => json_encode($stok),
             'produkAll' => $produkAll,
             'produkAllJson' => json_encode($produkAll),
             'url' => base64_encode($idProduk ? '/stokadmin/' . $idProduk . '/' . $pag : '/stokadmin'),
@@ -6834,6 +6856,13 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Stok tidak mencukupi');
             return redirect()->to(base64_decode($url));
         }
+        $produkSelected = $this->barangModel->where(['id' => $this->request->getVar('id_barang')])->first();
+        $index_varian = array_search($this->request->getVar('varian'), json_decode($produkSelected['varian'], true));
+        $stokCur = explode(',', $produkSelected['stok']);
+        $stokCur[$index_varian] = $currentStok;
+
+        $this->barangModel->where(['id' => $produkSelected['id']])->set(['stok' => implode(',', $stokCur)])->update();
+
         $this->stokModel->insert([
             'id' => time(),
             'id_barang' => $this->request->getVar('id_barang'),
@@ -6846,6 +6875,58 @@ class Pages extends BaseController
             'tanggal' => date('Y-m-d H:i:s', strtotime('+7 Hours'))
         ]);
         return redirect()->to(base64_decode($url));
+    }
+    public function accStokAdmin($id, $url)
+    {
+        $lastData = $this->stokModel->orderBy('id', 'desc')->where(['id_barang' => $this->request->getVar('id_barang'), 'varian' => $this->request->getVar('varian')])->first();
+        if (!$lastData) $currentStok = 0;
+        else $currentStok = $lastData['stok_akhir'];
+        if ($this->request->getVar('jenis') == 'keluar')
+            $currentStok -= (int)$this->request->getVar('jumlah');
+        else
+            $currentStok += (int)$this->request->getVar('jumlah');
+        if ($currentStok < 0) {
+            session()->setFlashdata('msg', 'Stok tidak mencukupi');
+            return redirect()->to(base64_decode($url));
+        }
+        $produkSelected = $this->barangModel->where(['id' => $this->request->getVar('id_barang')])->first();
+        $index_varian = array_search($this->request->getVar('varian'), json_decode($produkSelected['varian'], true));
+        $stokCur = explode(',', $produkSelected['stok']);
+        $stokCur[$index_varian] = $currentStok;
+
+        $this->barangModel->where(['id' => $produkSelected['id']])->set(['stok' => implode(',', $stokCur)])->update();
+
+        $this->stokModel->where(['id' => $id])->set([
+            'id' => time(),
+            'email_admin' => session()->get('email'),
+            'stok_akhir' => $currentStok,
+        ])->update();
+        return redirect()->to(base64_decode($url));
+    }
+    public function benerinStokLuna()
+    {
+        $allProduk = $this->barangModel->findAll();
+        // $produknya = [];
+        foreach ($allProduk as $p) {
+            $varian = json_decode($p['varian'], true);
+            $stokBaru = '';
+            foreach ($varian as $ind_v => $v) {
+                $stokTerakhir = $this->stokModel->orderBy('tanggal', 'desc')->where([
+                    'id_barang' => $p['id'],
+                    'varian' => $v
+                ])->first();
+                $stokBaru .=  ($ind_v == 0 ? '' : ',') . ($stokTerakhir ? (string)$stokTerakhir['stok_akhir'] : '0');
+            }
+            // array_push($produknya, [
+            //     'nama' => $p['nama'],
+            //     'varian' => $varian,
+            //     'stokbaru' => $stokBaru
+            // ]);
+            $this->barangModel->where(['id' => $p['id']])->set(['stok' => $stokBaru])->update();
+        }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
     }
 
     public function notFound()

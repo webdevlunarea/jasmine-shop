@@ -141,6 +141,7 @@ $routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter
 $routes->get('/stokadmin', 'Pages::stokAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/stokadmin/(:any)/(:any)', 'Pages::stokAdmin/$1/$2', ['filter' => 'harusAdmin']);
 $routes->post('/stokadmin/(:any)', 'Pages::addStokAdmin/$1', ['filter' => 'harusAdmin']);
+$routes->post('/stokadminacc/(:any)/(:any)', 'Pages::accStokAdmin/$1/$2', ['filter' => 'harusAdmin']);
 // $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
@@ -152,6 +153,8 @@ $routes->post('/stokadmin/(:any)', 'Pages::addStokAdmin/$1', ['filter' => 'harus
 // $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
 $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
+$routes->get('/benerinstokluna', 'Pages::benerinStokLuna', ['filter' => 'corsFilter']);
+
 
 //API Automatic
 $routes->get('/apiauto/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);

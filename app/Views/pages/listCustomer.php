@@ -78,8 +78,8 @@
                             <div style="flex: 4;">
                                 <p class="mb-0 fw-bold nama"><?= $t['nama_pen']; ?></p>
                                 <p class="mb-0"><?= $t['email_cus']; ?></p>
-                                <a href="/order/<?= $t['id_midtrans']; ?>" class="d-flex gap-1 align-items-center mb-1 text-secondary">
-                                    <p class="m-0 hide-ke-show-block" style="font-size: 12px; text-wrap:nowrap;">ID Pesanan : <?= $t['id_midtrans']; ?></p>
+                                <a href="/order/<?= $t['id_midtrans']; ?>" class="hide-ke-show-flex gap-1 align-items-center mb-1 text-secondary">
+                                    <p class="m-0" style="font-size: 12px; text-wrap:nowrap;">ID Pesanan : <?= $t['id_midtrans']; ?></p>
                                     <i class="material-icons" style="font-size: 10px;">open_in_new</i>
                                 </a>
                                 <p class="mb-2 fw-bold badge rounded-pill hide-ke-show-block <?php
@@ -160,8 +160,8 @@
                                                                                         }
                                                                                         ?>"><?= $t['status'] == 'Menunggu Pembayaran Rekening' ? ($t['bukti_bayar'] ? 'Butuh Konfirmasi' : 'Menunggu Pembayaran') : $t['status']; ?></p>
                             </div>
-                            <a href="/order/<?= $t['id_midtrans']; ?>" style="flex: 3;" class="d-flex justify-content-center align-items-center gap-1 btn-teks-aja">
-                                <p class="mb-0 fw-bold show-ke-hide"><?= $t['id_midtrans']; ?></p>
+                            <a href="/order/<?= $t['id_midtrans']; ?>" style="flex: 3;" class="show-flex-ke-hide justify-content-center align-items-center gap-1 btn-teks-aja">
+                                <p class="mb-0 fw-bold"><?= $t['id_midtrans']; ?></p>
                                 <i class="material-icons" style="font-size: 13px;">open_in_new</i>
                             </a>
                             <div style="flex: 3;" class="d-flex justify-content-center align-items-start">

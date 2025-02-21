@@ -211,7 +211,7 @@
                             }
                         </script>
                         <hr>
-                        <p>Rekening Bank Toko</p>
+                        <p>Rekening Bank</p>
                         <div class="container-pembayaran mb-3">
                             <input type="radio" name="pembayaran" id="pembayaran12" value="rekening">
                             <label for="pembayaran12" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp" alt=""></label>
