@@ -121,23 +121,19 @@
                 <?php } ?>
                 <span class="garis mb-2"></span>
                 <h5>Varian</h5>
+                <style>
+                    @media (max-width: 600px) {
+                        .btn-group label {
+                            font-size: 12px;
+                        }
+                    }
+                </style>
                 <div class="btn-group" id="varian-group" role="group" aria-label="Basic radio toggle button group">
                     <?php foreach ($varian as $key => $value) { ?>
                         <input type="radio" value="<?= $key ?>" class="btn-check" name="btnradio" autocomplete="off" id="btnradio<?= $key ?>" <?= $key == 0 ? "checked" : "" ?>>
                         <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= $value ?></label>
                     <?php } ?>
                 </div>
-                <!-- <h5>Dimensi Pengiriman</h5>
-                <?php if (isset($dimensi[3])) { ?>
-                    <p class="m-0">Box 1 : <?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
-                    <p>Box 2 : <?= $dimensi[3] . " cm x " . $dimensi[4] . " cm x " . $dimensi[5] . " cm"; ?></p>
-                <?php } else { ?>
-                    <p><?= $dimensi[0] . " cm x " . $dimensi[1] . " cm x " . $dimensi[2] . " cm"; ?></p>
-                <?php } ?>
-                <h5>Berat</h5>
-                <p><?= $produk['berat'] ?> kg</p> -->
-                <!-- <h5>Deskripsi</h5> -->
-                <!-- <hr> -->
                 <p><?= $produk['deskripsi']; ?></p>
                 <hr class="m-0">
                 <div class="accordion accordion-flush" id="accordionFlushExample">
@@ -193,7 +189,7 @@
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
                                 <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
-                                    <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                    <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <p class="m-0">Beli sekarang</p>
                                     </button>
                                 </form>
@@ -219,8 +215,11 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <button type="button" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
+                        <button type="button" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-tamu-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>/checkout')">
                             <p class="m-0">Beli sekarang</p>
+                        </button>
+                        <button type="button" class="d-flex gap-2 align-items-center btn btn-outline-dark btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
+                            <i class="material-icons">shopping_cart</i>
                         </button>
                     <?php } ?>
                 </div>
@@ -229,7 +228,7 @@
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
                                 <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
-                                    <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                    <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <p class="m-0">Beli sekarang</p>
                                     </button>
                                 </form>
@@ -259,13 +258,14 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <button style="width: 100%" type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
-                            <i class="material-icons" style="font-size: 1em;">shopping_cart</i>
-                            <p class="m-0">Tambah ke keranjang</p>
+                        <button style="width: 100%" type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 btn-beli-product-tamu-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>/checkout')">
+                            <p class="m-0">Beli sekarang</p>
+                        </button>
+                        <button type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-outline-dark btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
+                            <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
                         </button>
                     <?php } ?>
                 </div>
-
 
                 <div class="mt-2">
                     <p class="mb-1">
@@ -331,14 +331,13 @@
     const imgProdukSelect = document.querySelectorAll(".img-produk-select")
     const imgProdukBesar = document.querySelector(".img-produk-besar")
     const imgProdukPrev = document.querySelectorAll(".img-produk-prev")
-    // const imgProdukPrevImg = document.querySelector("img.img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
     const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
-    // const jmlVarian = "4";
+    const elmBtnBeliCheckout = document.querySelectorAll('.btn-beli-product-checkout')
+    const elmBtnBeliTamuCheckout = document.querySelectorAll('.btn-beli-product-tamu-checkout')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
-    // const figureElm = document.querySelector("figure");
     const stokElm = document.getElementById('stok');
     const stokValue = '<?= $stok; ?>'.split(",");
 
@@ -349,12 +348,8 @@
     if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
             element.addEventListener("click", () => {
-                console.log(index, jmlVarian);
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
                 element.classList.add("selected");
-                // imgProdukPrev.style = "background-image: url('" + element.childNodes[0].src + "')";
-                // imgProdukPrevImg.src = element.childNodes[0].src;
-                // const hitungBagi4 = Math.floor(index / Number(jmlVarian));
                 elmVarianSelect.forEach(e => e.checked = false);
                 if (index >= Number(jmlVarian)) {
                     elmVarianSelect[index - Number(jmlVarian) + 1].checked = true
@@ -403,14 +398,9 @@
         let indexGambar = 0;
         if (e.target.value == '0') {
             imgProdukSelect[0].classList.add("selected")
-            // imgProdukPrev.style = "background-image: url('" + imgProdukSelect[0].childNodes[0].src + "')"
-            // imgProdukPrevImg.src = imgProdukSelect[0].childNodes[0].src
-
         } else {
             indexGambar = Number(e.target.value) + Number(jmlVarian) - 1
             imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].classList.add("selected")
-            // imgProdukPrev.style = "background-image: url('" + imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src + "')"
-            // imgProdukPrevImg.src = imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].childNodes[0].src
         }
 
         //scroll
@@ -447,13 +437,10 @@
                             }
                             ?>";
         const varianArray = varians.split(",")
-        // const indexGambar = Number(elmSelected) * Number(jmlVarian)
         const indexGambar = Number(jmlVarian) + Number(elmSelected) - 1;
-        console.log(varians, varianArray, indexGambar)
-        console.log("/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar)
         elmBtnBeli.forEach(element => {
             if (stok > 0) {
-                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + '';
                 element.classList.remove('disabled')
                 element.removeAttribute('disabled')
             } else {
@@ -464,7 +451,28 @@
         });
         elmBtnBeliTamu.forEach(element => {
             if (stok > 0) {
-                const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar;
+                const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + "";
+                element.setAttribute('onclick', "triggerToast('Anda akan membeli dengan mode Tamu?', '" + urlnya + "')");
+                element.classList.remove('disabled')
+            } else {
+                element.removeAttribute('onclick');
+                element.classList.add('disabled')
+            }
+        });
+        elmBtnBeliCheckout.forEach(element => {
+            if (stok > 0) {
+                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + '/checkout';
+                element.classList.remove('disabled')
+                element.removeAttribute('disabled')
+            } else {
+                element.parentNode.action = ''
+                element.classList.add('disabled')
+                element.setAttribute('disabled', '')
+            }
+        });
+        elmBtnBeliTamuCheckout.forEach(element => {
+            if (stok > 0) {
+                const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + "/checkout";
                 element.setAttribute('onclick', "triggerToast('Anda akan membeli dengan mode Tamu?', '" + urlnya + "')");
                 element.classList.remove('disabled')
             } else {

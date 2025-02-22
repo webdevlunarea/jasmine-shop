@@ -1538,7 +1538,7 @@ class Pages extends BaseController
         session()->setFlashdata('msg', "Maaf, masih dalam masa perbaikan. Akan aktif kembali ketika pukul 07:30 WIB");
         return redirect()->to('/login');
     }
-    public function actionLoginTamu($id_barang = false, $varian = false, $index_gambar = false)
+    public function actionLoginTamu($id_barang = false, $varian = false, $index_gambar = false, $redirect = false)
     {
         if ($id_barang) {
             $ses_data = [
@@ -1570,7 +1570,7 @@ class Pages extends BaseController
             session()->set($ses_data);
             $getCurItem = $this->barangModel->getBarang($id_barang);
             session()->setFlashdata('notif-cart', "Produk berhasil masuk keranjang");
-            return redirect()->to('/product/' . $getCurItem['path']);
+            return redirect()->to($redirect ? '/' . $redirect : '/product/' . $getCurItem['path']);
         } else {
             $ses_data = [
                 'active' => '1',
