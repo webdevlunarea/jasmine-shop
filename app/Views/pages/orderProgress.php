@@ -237,13 +237,16 @@
         navigator.clipboard.writeText(teks);
     }
 
-    const socket = new WebSocket('ws://localhost:4000');
+    const socket = new WebSocket('<?= $wsUrl; ?>');
     socket.onopen = () => {
-        console.log('Socket berhasil terkoneksi')
+        console.log(`Socket berhasil terkoneksi <?= $wsUrl; ?>`)
     }
     socket.onmessage = (event) => {
         const datanya = JSON.parse(event.data);
         console.log(datanya)
+        if (datanya.jenis == 'order' && datanya.id_order == '<?= $pemesanan['id_midtrans']; ?>') {
+            window.location.reload();
+        }
     }
 </script>
 <?php if ($dataMid['payment_type'] == 'qris') { ?>

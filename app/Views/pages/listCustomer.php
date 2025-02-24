@@ -56,6 +56,17 @@
                 <label for="floatingInput">Status</label>
             </div>
         </div>
+        <style>
+            .btn-reload {
+                color: black;
+                text-decoration: underline;
+            }
+
+            .btn-reload:hover {
+                color: white;
+            }
+        </style>
+        <p id="btn-reload" class="d-none bg-warning px-2 py-1">Terdeteksi terjadi perubahan data! <a href="/listcustomer" class="btn-reload">Reload sekarang!</a></p>
         <div class="mb-2 show-flex-ke-hide" style="padding-inline: 2em;">
             <div style="flex: 4;">
                 <p class="mb-0 fw-bold text-black-50">Basic Info</p>
@@ -416,6 +427,20 @@
     function pilihStatus(e) {
         console.log(e.target.value)
         window.location.href = '/listcustomer/' + '<?= $page; ?>' + '/' + e.target.value
+    }
+</script>
+<script>
+    const btnReloadElm = document.getElementById('btn-reload');
+    const socket = new WebSocket('<?= $wsUrl; ?>');
+    socket.onopen = () => {
+        console.log(`Socket berhasil terkoneksi <?= $wsUrl; ?>`)
+    }
+    socket.onmessage = (event) => {
+        const datanya = JSON.parse(event.data);
+        console.log(datanya)
+        if (datanya.jenis == 'order') {
+            btnReloadElm.classList.remove('d-none');
+        }
     }
 </script>
 <?= $this->endSection(); ?>
