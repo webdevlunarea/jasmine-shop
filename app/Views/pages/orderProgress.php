@@ -236,6 +236,15 @@
     function copytext(teks) {
         navigator.clipboard.writeText(teks);
     }
+
+    const socket = new WebSocket('ws://localhost:4000');
+    socket.onopen = () => {
+        console.log('Socket berhasil terkoneksi')
+    }
+    socket.onmessage = (event) => {
+        const datanya = JSON.parse(event.data);
+        console.log(datanya)
+    }
 </script>
 <?php if ($dataMid['payment_type'] == 'qris') { ?>
     <style>

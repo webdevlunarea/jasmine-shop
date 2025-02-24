@@ -155,7 +155,7 @@ $routes->post('/stokadminacc/(:any)/(:any)', 'Pages::accStokAdmin/$1/$2', ['filt
 $routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
 $routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
 $routes->get('/benerinstokluna', 'Pages::benerinStokLuna', ['filter' => 'corsFilter']);
-
+$routes->get('/cobaws', 'Pages::cobaWs', ['filter' => 'corsFilter']);
 
 //API Automatic
 $routes->get('/apiauto/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);

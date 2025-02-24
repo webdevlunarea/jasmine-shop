@@ -19,6 +19,8 @@ use App\Models\PointHistoryModel;
 use App\Models\VoucherClaimedModel;
 use App\Models\VoucherRedeemModel;
 use App\Models\StokModel;
+use Exception;
+use WebSocket\Client;
 
 class Pages extends BaseController
 {
@@ -6924,6 +6926,18 @@ class Pages extends BaseController
             // ]);
             $this->barangModel->where(['id' => $p['id']])->set(['stok' => $stokBaru])->update();
         }
+        return $this->response->setJSON([
+            'success' => true
+        ], false);
+    }
+    public function cobaWs()
+    {
+        $ws_url = env('WS_URL', 'DefaultValue');
+        $client = new Client($ws_url);
+        $client->send(json_encode([
+            'jenis' => 'order'
+        ]));
+        $client->close();
         return $this->response->setJSON([
             'success' => true
         ], false);
