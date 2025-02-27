@@ -299,7 +299,7 @@ if ($msg_active) { ?>
                 <div class="btn-primary1 btn-geser-kategori" id="kanan" style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i class="material-icons">chevron_right</i></div>
             </div>
         </div>
-        <div class="container-kategori-scroll">
+        <div class="container-kategori-scroll" id="section-produk-populer">
             <div class="container-kategori">
                 <a class="kategori" href="/all/lemari-dewasa">
                     <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemnari dewasa" width="50px">
