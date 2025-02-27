@@ -128,14 +128,14 @@ class GambarController extends BaseController
     }
     public function voucherPoster($idVoucher)
     {
-        $gambar = $this->voucherModel->where(['id' => $idVoucher]);
+        $gambar = $this->voucherModel->where(['id' => $idVoucher])->first();
         $gambarSelected = $gambar['poster'];
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
     }
     public function voucherPosterEmail($idVoucher)
     {
-        $gambar = $this->voucherModel->where(['id' => $idVoucher]);
+        $gambar = $this->voucherModel->where(['id' => $idVoucher])->first();
         $gambarSelected = $gambar['poster_email'];
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
