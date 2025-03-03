@@ -366,8 +366,10 @@ class Pages extends BaseController
     }
     public function syaratdanketentuan()
     {
+        $voucher = $this->voucherModel->where('syarat_ketentuan is NOT NULL')->findAll();
         $data = [
             'title' => 'Syarat dan Ketentuan',
+            'voucher' => $voucher
         ];
         return view('pages/syaratdanketentuan', $data);
     }
@@ -6072,6 +6074,7 @@ class Pages extends BaseController
         $broadcast = $this->request->getVar('broadcast');
         $jadwal1 = $this->request->getVar('jadwal1');
         $jadwal2 = $this->request->getVar('jadwal2');
+        $syaratKetentuan = $this->request->getVar('syarat-ketentuan') ? $this->request->getVar('syarat-ketentuan') : null;
 
         if ($jadwal1) {
             if (!$jadwal2) {
@@ -6134,7 +6137,8 @@ class Pages extends BaseController
             'poster' => $poster,
             'poster_email' => $posterEmail,
             'isi_email' => $isiEmail,
-            'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null
+            'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
+            'syarat_ketentuan' => $syaratKetentuan
         ];
         // dd($insertData);
         $this->voucherModel->insert($insertData);
@@ -6143,6 +6147,12 @@ class Pages extends BaseController
             $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
             session()->setFlashdata('broadcast', $voucherCurr['id']);
         }
+        return redirect()->to('/listvoucher');
+    }
+    public function deleteVoucher($id_voucher)
+    {
+        $this->voucherModel->where(['id' => $id_voucher])->delete();
+        session()->setFlashdata('msg', 'Voucher berhasil dihapus');
         return redirect()->to('/listvoucher');
     }
     public function actionAddVoucherAPI($id_voucher)

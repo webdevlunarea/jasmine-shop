@@ -26,6 +26,7 @@ class VoucherModel extends Model
         'poster_email',
         'isi_email',
         'jadwal',
+        'syarat_ketentuan',
     ];
 
     public function getVoucher($id = false)

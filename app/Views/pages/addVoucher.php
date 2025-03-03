@@ -83,6 +83,11 @@
                     <label for="checkbox3">Berikan code redeem</label>
                 </div>
             </div>
+            <div class="mb-2">
+                <label class="form-label m-0">Syarat & Ketentuan</label>
+                <p class="text-secondary mb-1" style="font-size: small;">Jika tidak ada biarkan kosong</p>
+                <textarea class="form-control" name="syarat-ketentuan" placeholder="Ditulis dalam bentuk HTML"></textarea>
+            </div>
             <hr>
             <h5 class="m-0">Penjadwalan</h5>
             <p class="text-secondary mb-1" style="font-size: small;">*kosongin jika tanpa penjadwalan</p>
