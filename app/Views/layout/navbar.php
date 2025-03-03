@@ -20,6 +20,33 @@ $notif = [
         height: 100svh;
         transition: 0.3s;
     }
+
+    .menu-hp-navbar-admin {
+        position: fixed;
+        top: 70px;
+        right: 5px;
+        right: -50vw;
+        z-index: 16;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        width: 50vw;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        transition: 0.2s;
+    }
+
+    .menu-hp-navbar-admin a:not(.btn) {
+        color: black;
+        display: block;
+        padding-block: 0.5em;
+        text-align: end;
+    }
+
+    #menu-icon-admin:checked~.menu-hp-navbar-admin {
+        transition: 0.2s;
+        right: 5px;
+    }
 </style>
 <div class="d-flex justify-content-center" style="position: fixed; top: 0; z-index: 15; left: 0; width: 100%;">
     <div class="notif">
@@ -83,12 +110,19 @@ $notif = [
                     </script>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/invoiceadmin" class="btn"><i class="material-icons">description</i></a>
-                <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
-                <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
-                <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
-                <a href="/stokadmin" class="btn"><i class="material-icons">unarchive</i></a>
-                <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                <div>
+                    <input type="checkbox" id="menu-icon-admin" class="d-none">
+                    <label for="menu-icon-admin" class="btn pe-0"><i class="material-icons">menu</i></label>
+                    <div class="menu-hp-navbar-admin p-3">
+                        <a href="/invoiceadmin">Invoice Admin</a>
+                        <a href="/listvoucher">List Voucher</a>
+                        <a href="/listcustomer">List Customer</a>
+                        <a href="/listproduct">List Products</a>
+                        <a href="/stokadmin" class="mb-2">Mutasi Stok</a>
+
+                        <a href="/keluar" class="btn btn-outline-danger">Keluar</a>
+                    </div>
+                </div>
             <?php } ?>
         <?php } else { ?>
             <a href="/login" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
@@ -99,9 +133,6 @@ $notif = [
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">Beranda</a>
             <a style="font-size: smaller; background-color: var(--hijau) " class="nav-link flex-grow-1 text-center <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
             <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
-            <!-- <?php if (session()->get('isLogin')) { ?>
-                <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Transaksi Pembayaran' ? "active " : ""; ?>" href="/transaction">Transaksi</a>
-            <?php } ?> -->
         </div>
     </div>
 </nav>

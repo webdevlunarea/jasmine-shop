@@ -56,7 +56,7 @@
 </style>
 <div class="konten">
     <div class="container">
-        <div class="d-flex gap-5 justify-content-between align-items-center">
+        <div class="d-flex gap-3 justify-content-between align-items-center">
             <div style="flex: 1">
                 <h3 class="mb-1">Mutasi <?= explode(' - ', $produk['nama'])[1]; ?></h3>
                 <input placeholder="Cari produk" type="text" class="form-select w-100" oninput="handleInput(event)">
@@ -84,41 +84,45 @@
                 <?= $msg; ?>
             </div>
         <?php } ?>
-        <div class="d-flex w-100 fw-bold gap-2 mb-2">
-            <div style="flex: 1" class="m-0">Tanggal</div>
-            <div style="flex: 1" class="m-0">Nama</div>
-            <div style="flex: 0.7" class="m-0">Varian</div>
-            <div style="flex: 0.4" class="m-0">Jumlah</div>
-            <div style="flex: 0.5" class="m-0">PJ</div>
-            <div style="flex: 1" class="m-0">Keterangan</div>
-            <div style="flex: 0.4" class="m-0">Stok Akhir</div>
-            <div style="flex: 0.4" class="m-0">Action</div>
-        </div>
-        <div class="d-flex flex-column gap-2">
-            <?php if (count($stok) > 0) { ?>
-                <?php foreach ($stok as $ind_s => $s) { ?>
-                    <div class="d-flex w-100 gap-2">
-                        <div style="flex: 1" class="m-0"><?= $s['tanggal']; ?></div>
-                        <div style="flex: 1" class="m-0"><?= $s['nama']; ?></div>
-                        <div style="flex: 0.7" class="m-0"><?= $s['varian']; ?></div>
-                        <div style="flex: 0.4; color: <?= $s['jumlah'] < 0 ? 'red' : 'var(--hijau)'; ?>" class="m-0"><?= $s['jumlah'] < 0 ? '' : '+'; ?><?= $s['jumlah']; ?></div>
-                        <?php if ($s['nama_admin']) { ?>
-                            <div style="flex: 0.5" class="m-0"><?= explode(' ', $s['nama_admin'])[0]; ?> <?= count(explode(' ', $s['nama_admin'])) > 1 ? substr(explode(' ', $s['nama_admin'])[1], 0, 1) : ''; ?></div>
-                        <?php } else { ?>
-                            <div style="flex: 0.5" class="m-0 text-sm text-secondary"><i>Butuh konfirm</i></div>
+        <div style="overflow-x: auto;">
+            <div style="min-width: 900px;">
+                <div class="d-flex w-100 fw-bold gap-2 mb-2">
+                    <div style="flex: 1;" class="m-0">Tanggal</div>
+                    <div style="flex: 1;" class="m-0">Nama</div>
+                    <div style="flex: 0.7;" class="m-0">Varian</div>
+                    <div style="flex: 0.4;" class="m-0">Jumlah</div>
+                    <div style="flex: 0.5;" class="m-0">PJ</div>
+                    <div style="flex: 1;" class="m-0">Keterangan</div>
+                    <div style="flex: 0.6;" class="m-0">Stok Akhir</div>
+                    <div style="flex: 0.4;" class="m-0">Action</div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <?php if (count($stok) > 0) { ?>
+                        <?php foreach ($stok as $ind_s => $s) { ?>
+                            <div class="d-flex w-100 gap-2">
+                                <div style="flex: 1;" class="m-0"><?= $s['tanggal']; ?></div>
+                                <div style="flex: 1;" class="m-0"><?= $s['nama']; ?></div>
+                                <div style="flex: 0.7;" class="m-0"><?= $s['varian']; ?></div>
+                                <div style="flex: 0.4; color: <?= $s['jumlah'] < 0 ? 'red' : 'var(--hijau)'; ?>" class="m-0"><?= $s['jumlah'] < 0 ? '' : '+'; ?><?= $s['jumlah']; ?></div>
+                                <?php if ($s['nama_admin']) { ?>
+                                    <div style="flex: 0.5;" class="m-0"><?= explode(' ', $s['nama_admin'])[0]; ?> <?= count(explode(' ', $s['nama_admin'])) > 1 ? substr(explode(' ', $s['nama_admin'])[1], 0, 1) : ''; ?></div>
+                                <?php } else { ?>
+                                    <div style="flex: 0.5;" class="m-0 text-sm text-secondary"><i>Butuh konfirm</i></div>
+                                <?php } ?>
+                                <div style="flex: 1;" class="m-0"><?= $s['keterangan']; ?></div>
+                                <div style="flex: 0.6;" class="m-0"><?= $s['stok_akhir']; ?></div>
+                                <div style="flex: 0.4;" class="m-0 d-flex justify-content-center align-items-center">
+                                    <?php if (!$s['nama_admin']) { ?>
+                                        <button type="button" onclick="openKofirm(<?= $ind_s; ?>)" class="btn btn-primary1 p-2"><i class="material-icons" style="font-size: 12px;">border_color</i></button>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         <?php } ?>
-                        <div style="flex: 1" class="m-0"><?= $s['keterangan']; ?></div>
-                        <div style="flex: 0.4" class="m-0"><?= $s['stok_akhir']; ?></div>
-                        <div style="flex: 0.4" class="m-0 d-flex justify-content-center align-items-center">
-                            <?php if (!$s['nama_admin']) { ?>
-                                <button type="button" onclick="openKofirm(<?= $ind_s; ?>)" class="btn btn-primary1 p-2"><i class="material-icons" style="font-size: 12px;">border_color</i></button>
-                            <?php } ?>
-                        </div>
-                    </div>
-                <?php } ?>
-            <?php } else { ?>
-                <p class="text-center text-sm text-secondary"><i>Belum ada data mutasi</i></p>
-            <?php } ?>
+                    <?php } else { ?>
+                        <p class="text-center text-sm text-secondary"><i>Belum ada data mutasi</i></p>
+                    <?php } ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>
