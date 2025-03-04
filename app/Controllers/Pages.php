@@ -6009,6 +6009,7 @@ class Pages extends BaseController
             $voucher[$ind_v]['poster'] = '';
             $voucher[$ind_v]['poster_email'] = '';
             $voucher[$ind_v]['isi_email'] = '';
+            $voucher[$ind_v]['syarat_ketentuan'] = '';
             if ($v['id'] == $broadcast) {
                 $emailBroadcast = json_decode($v['code'], true);
             }
@@ -6019,7 +6020,6 @@ class Pages extends BaseController
             }
         }
 
-        // dd($voucher);
         $data = [
             'title' => 'List Voucher',
             'voucher' => $voucher,

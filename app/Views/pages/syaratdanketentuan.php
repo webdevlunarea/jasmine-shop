@@ -163,7 +163,7 @@
 
         <?php if (count($voucher) > 0) { ?>
             <hr class="my-4">
-            <h5 class="jdl-section mb-3">Voucher</h5>
+            <h5 class="jdl-section mb-3" id="voucher">Voucher</h5>
             <?php foreach ($voucher as $v) { ?>
                 <h5><?= $v['nama']; ?></h5>
                 <?php echo $v['syarat_ketentuan']; ?>
