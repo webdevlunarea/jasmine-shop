@@ -6490,6 +6490,9 @@ class Pages extends BaseController
 
     public function notFound()
     {
-        return redirect()->to('/');
+        $data = [
+            'title' => '404 Not Found'
+        ];
+        return view('pages/404', $data);
     }
 }
