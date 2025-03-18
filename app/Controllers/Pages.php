@@ -6149,6 +6149,116 @@ class Pages extends BaseController
         }
         return redirect()->to('/listvoucher');
     }
+    public function editVoucher($id_voucher)
+    {
+        $voucher = $this->voucherModel->where(['id' => $id_voucher])->first();
+        $voucher['code'] = json_decode($voucher['code'], true);
+        $voucher['all_user'] = '0';
+        $data = [
+            'title' => 'Edit Voucher',
+            'msg' => session()->getFlashdata('msg'),
+            'voucher' => $voucher
+        ];
+        return view('pages/editVoucher', $data);
+    }
+    public function actionEditVoucher($id_voucher)
+    {
+        if (!$this->validate([
+            'nama' => ['rules' => 'required'],
+            'nominal' => ['rules' => 'required'],
+            'keterangan' => ['rules' => 'required'],
+        ])) {
+            session()->setFlashdata('msg', 'Ada data yang belum diisi');
+            return redirect()->to('/addvoucher')->withInput();
+        }
+
+        $nama = $this->request->getVar('nama');
+        $nominal = $this->request->getVar('nominal');
+        $satuan = $this->request->getVar('satuan');
+        $jenis = $this->request->getVar('jenis');
+        $durasiVoucher = $this->request->getVar('durasi');
+        $durasiPoin = $this->request->getVar('durasi-poin');
+        $keterangan = $this->request->getVar('keterangan');
+        $email = explode('&', $this->request->getVar('email'));
+        $setRedeemCode = $this->request->getVar('set-redeem');
+        $allUserVoucher = $this->request->getVar('set-all-user-voucher');
+        $autoClaimed = $this->request->getVar('auto-claimed');
+        $kuota = $this->request->getVar('kuota');
+        $poster = $this->request->getFile('poster')->isValid() ? file_get_contents($this->request->getFile('poster')) : null;
+        $posterEmail = $this->request->getFile('poster-email')->isValid() ? file_get_contents($this->request->getFile('poster-email')) : null;
+        $isiEmail = $this->request->getVar('isi-email');
+        $broadcast = $this->request->getVar('broadcast');
+        $jadwal1 = $this->request->getVar('jadwal1');
+        $jadwal2 = $this->request->getVar('jadwal2');
+        $syaratKetentuan = $this->request->getVar('syarat-ketentuan') ? $this->request->getVar('syarat-ketentuan') : null;
+
+        if ($jadwal1) {
+            if (!$jadwal2) {
+                session()->setFlashdata('msg', 'Jadwal akhir belum di set');
+                return redirect()->to('/addvoucher')->withInput();
+            }
+        }
+        if ($jadwal2) {
+            if (!$jadwal1) {
+                session()->setFlashdata('msg', 'Jadwal awal belum di set');
+                return redirect()->to('/addvoucher')->withInput();
+            }
+        }
+        if (strtotime($jadwal1) > strtotime($jadwal2)) {
+            session()->setFlashdata('msg', 'Jadwal harus dari kecil ke besar');
+            return redirect()->to('/addvoucher')->withInput();
+        }
+
+        if (!$this->request->getVar('email') && !$allUserVoucher) {
+            session()->setFlashdata('msg', 'Email customer belum diisi');
+            return redirect()->to('/addvoucher')->withInput();
+        }
+
+        $code = [];
+        if ($allUserVoucher) {
+            $getAllPembeli = $this->pembeliModel->findAll();
+            foreach ($getAllPembeli as $p) {
+                $databarunya = ['email_user' => $p['email_user']];
+                if ($setRedeemCode) $databarunya['code'] = $this->generateRandomCode();
+                array_push($code, $databarunya);
+            }
+        } else {
+            foreach ($email as $e) {
+                $databarunya = ['email_user' => $e];
+                if ($setRedeemCode) $databarunya['code'] = $this->generateRandomCode();
+                array_push($code, $databarunya);
+            }
+        }
+
+        $insertData = [
+            'nama' => $nama,
+            'nominal' => $nominal,
+            'satuan' => $satuan,
+            'jenis' => $jenis,
+            'durasi' => $durasiVoucher == 'null' ? null : $durasiVoucher,
+            'durasi_poin' => $durasiPoin == 'null' ? null : $durasiPoin,
+            'keterangan' => $keterangan,
+            'code' => json_encode($code),
+            'all_user' => $allUserVoucher ? true : false,
+            'active' => $jadwal1 ? ($jadwal1 == date('Y-m-d', strtotime('+7 Hours')) ? true : false) : true,
+            'auto_claimed' => $autoClaimed ? true : false,
+            'kuota' => $kuota,
+            'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
+            'syarat_ketentuan' => $syaratKetentuan
+        ];
+        if ($poster) $insertData['poster'] = $poster;
+        if (!$broadcast) {
+            $insertData['poster_email'] = null;
+            $insertData['isi_email'] = '';
+        } else {
+            if ($posterEmail) $insertData['poster_email'] = $posterEmail;
+            $insertData['isi_email'] = $isiEmail;
+        }
+        // dd($insertData);
+        $this->voucherModel->where(['id' => $id_voucher])->set($insertData)->update();
+        session()->setFlashdata('msg', 'Voucher berhasil dibuat');
+        return redirect()->to('/listvoucher');
+    }
     public function deleteVoucher($id_voucher)
     {
         $this->voucherModel->where(['id' => $id_voucher])->delete();

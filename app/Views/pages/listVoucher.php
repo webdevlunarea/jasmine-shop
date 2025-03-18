@@ -77,8 +77,9 @@
                                 <?php if ($v['active']) { ?>
                                     <div onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
                                     <div onclick="triggerToast('Broadcast ke customer?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
-                                    <div onclick="triggerToast('Hapus voucher <?= $v['nama']; ?>?','/deletevoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">delete_forever</i></div>
                                 <?php } ?>
+                                <a href="/editvoucher/<?= $v['id']; ?>" class="text-dark"><i class="material-icons">edit</i></a>
+                                <div onclick="triggerToast('Hapus voucher <?= $v['nama']; ?>?','/deletevoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">delete_forever</i></div>
                             </div>
                         </div>
                     </div>
