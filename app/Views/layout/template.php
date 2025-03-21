@@ -90,7 +90,7 @@
     <script defer src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="/css/style.css?v=18022025">
-    <link rel="icon" href="/logo icon.png">
+    <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">
 </head>
 
 <body>
