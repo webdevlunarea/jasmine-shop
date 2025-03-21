@@ -32,7 +32,7 @@ class VoucherModel extends Model
     public function getVoucher($id = false)
     {
         if ($id == false) {
-            return $this->where(['active' => '1'])->findAll();
+            return $this->where(['active' => '1'])->orderBy('id', 'desc')->findAll();
         }
         return $this->where(['active' => '1', 'id' => $id])->first();
     }
