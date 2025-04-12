@@ -91,23 +91,6 @@
 
                             <input type="radio" name="pembayaran" id="pembayaran10" value="card">
                             <label for="pembayaran10" class="item-logo-pembayaran"><img src="/img/pembayaran/mastercard.webp" alt=""></label>
-                            <script>
-                                const alertCcElm = document.getElementById('alert-cc');
-                                const radioPembayaranElm = document.querySelectorAll('input[name="pembayaran"]');
-                                radioPembayaranElm.forEach(elm => {
-                                    elm.addEventListener('change', (e) => {
-                                        alertCcElm.classList.add('d-none')
-                                        const pembayaranSelected = e.target.value
-                                        const containerFormCCElm = document.getElementById('container-form-cc')
-                                        if (pembayaranSelected == 'card') {
-                                            containerFormCCElm.classList.remove('d-none')
-                                        } else {
-                                            containerFormCCElm.classList.add('d-none')
-                                        }
-                                    })
-                                })
-                            </script>
-
                         </div>
 
                         <div class="pt-3 border-top d-none" id="container-form-cc">
@@ -146,7 +129,71 @@
                             <input type="text" name="tokencc" class="d-none">
                             <button type="button" class="btn btn-primary1" onclick="verifKartu(event)">Verifikasi Kartu</button>
                         </div>
+                        <hr>
+                        <p>Rekening Bank</p>
+                        <div class="container-pembayaran">
+                            <input type="radio" name="pembayaran" id="pembayaran12" value="rekening">
+                            <label for="pembayaran12" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp" alt=""></label>
+                        </div>
+                        <hr>
+                        <table class="mb-3">
+                            <tbody>
+                                <tr>
+                                    <td>Total Pembelian</td>
+                                    <td class="fw-bold ps-4 text-right">: Rp <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0), 0, ",", "."); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Biaya Admin</td>
+                                    <td id="biaya-admin" class="fw-bold ps-4 text-right">: Rp <?= number_format($biayaAdmin, 0, ",", "."); ?></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <hr class="my-1">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Total Bayar</td>
+                                    <td id="biaya-total" class="fw-bold ps-4 text-right" style="color: var(--hijau);">: Rp <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + $biayaAdmin, 0, ",", "."); ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <script>
+                            const biayaAdminElm = document.getElementById('biaya-admin');
+                            const biayaTotalElm = document.getElementById('biaya-total');
+                            const alertCcElm = document.getElementById('alert-cc');
+                            const radioPembayaranElm = document.querySelectorAll('input[name="pembayaran"]');
+                            radioPembayaranElm.forEach(elm => {
+                                elm.addEventListener('change', (e) => {
+                                    alertCcElm.classList.add('d-none')
+                                    const pembayaranSelected = e.target.value
+                                    const containerFormCCElm = document.getElementById('container-form-cc')
+                                    if (pembayaranSelected == 'card') {
+                                        containerFormCCElm.classList.remove('d-none')
+                                    } else {
+                                        containerFormCCElm.classList.add('d-none')
+                                    }
+
+                                    (async () => {
+                                        const bodyFetchBiayaaAdmin = {
+                                            bank: pembayaranSelected,
+                                            nominal: <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0); ?>
+                                        }
+                                        const fetchBiayaAdmin = await fetch('/getadminfee', {
+                                            method: 'post',
+                                            headers: {
+                                                'Content-type': 'application/json'
+                                            },
+                                            body: JSON.stringify(bodyFetchBiayaaAdmin)
+                                        })
+                                        const fetchBiayaAdminJson = await fetchBiayaAdmin.json()
+                                        console.log('fetch Admin')
+                                        console.log(fetchBiayaAdminJson)
+                                        biayaAdminElm.innerHTML = `: Rp ${fetchBiayaAdminJson.biayaAdmin.toLocaleString("id-ID")}`
+                                        biayaTotalElm.innerHTML = `: Rp ${(fetchBiayaAdminJson.biayaAdmin + bodyFetchBiayaaAdmin.nominal).toLocaleString("id-ID")}`
+                                    })()
+                                })
+                            })
+
                             const tokenCCElm = document.querySelector('input[name="tokencc"]');
                             const ccNumber = document.querySelector('input[name="ccNumber"]');
                             const ccCvv = document.querySelector('input[name="ccCvv"]');
@@ -210,12 +257,6 @@
                                 tokenCCElm.value = '';
                             }
                         </script>
-                        <hr>
-                        <p>Rekening Bank</p>
-                        <div class="container-pembayaran mb-3">
-                            <input type="radio" name="pembayaran" id="pembayaran12" value="rekening">
-                            <label for="pembayaran12" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp" alt=""></label>
-                        </div>
                         <button type="submit" class="btn btn-primary1 w-100">Lanjut bayar</button>
                     </div>
                 </div>
@@ -451,10 +492,10 @@
                             <p class="my-2"><b>- Rp <?= number_format($diskonVoucher, 0, ",", "."); ?></b></p>
                         </div>
                     <?php } ?>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Biaya Admin:</p>
                         <p class="my-2"><b>Rp 5.000</b></p>
-                    </div>
+                    </div> -->
                     <?php if ($potonganPreorder > 0) { ?>
                         <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                             <p class="my-2">Potongan Preorder:</p>

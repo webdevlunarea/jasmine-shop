@@ -19,6 +19,7 @@ use App\Models\PointHistoryModel;
 use App\Models\VoucherClaimedModel;
 use App\Models\VoucherRedeemModel;
 use App\Models\StokModel;
+use App\Models\KonstantaModel;
 use Exception;
 use WebSocket\Client;
 
@@ -41,6 +42,7 @@ class Pages extends BaseController
     protected $voucherClaimedModel;
     protected $voucherRedeemModel;
     protected $stokModel;
+    protected $konstantaModel;
 
     protected $emailUjiCoba;
     public function __construct()
@@ -63,6 +65,7 @@ class Pages extends BaseController
         $this->voucherClaimedModel = new VoucherClaimedModel();
         $this->voucherRedeemModel = new VoucherRedeemModel();
         $this->stokModel = new StokModel();
+        $this->konstantaModel = new KonstantaModel();
     }
     public function generateRandomCode()
     {
@@ -2200,7 +2203,7 @@ class Pages extends BaseController
                     }
                 }
             }
-            $total = $subtotal + 5000;
+            $total = $subtotal;
         }
 
         if (count($indElementNotFound) > 0) {
@@ -2546,6 +2549,9 @@ class Pages extends BaseController
         //     ]
         // ];
 
+        $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
+        $biayaAdmin = 4000 + (4000 * $ppn);
+
         $data = [
             'title' => 'Check Out',
             'produk' => $produk,
@@ -2578,10 +2584,38 @@ class Pages extends BaseController
             // 'paketJson' => json_encode($paketFilter),
             'potonganPreorder' => $potonganPreorder,
             'poin' => $poin,
-            'usepoin' => session()->get('usepoin')
+            'usepoin' => session()->get('usepoin'),
+            'biayaAdmin' => $biayaAdmin
         ];
         // return view('pages/' . (in_array($email, $this->emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
         return view('pages/checkoutcorecc', $data);
+    }
+    public function getBiayaAdminMidtrans()
+    {
+        $bodyJson = $this->request->getBody();
+        $body = json_decode($bodyJson, true);
+        // [
+        //     'bank' => 'bri',
+        //     'nominal' => 20000 
+        // ]
+
+        $biayaAdmin = 0;
+        $pembayaran = $body['bank'];
+        $gross_amount = $body['nominal'];
+        $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
+        if (in_array($pembayaran, $banks)) {
+            $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
+            $biayaAdmin = 4000 + (4000 * $ppn);
+        } else if ($pembayaran == 'gopay' || $pembayaran == 'shopeepay') {
+            $biayaAdmin = $gross_amount * 0.02;
+        } else if ($pembayaran == 'qris') {
+            $biayaAdmin = $gross_amount * 0.007;
+        } else if ($pembayaran == 'dana') {
+            $biayaAdmin = $gross_amount * 0.015;
+        } else if ($pembayaran == 'card') {
+            $biayaAdmin = $gross_amount * 0.029 + 2000;
+        }
+        return $this->response->setJSON(['biayaAdmin' => ceil($biayaAdmin)], false);
     }
     public function getAllSelectAlamat()
     {
@@ -2993,16 +3027,7 @@ class Pages extends BaseController
                 }
             }
         }
-        $total = $subtotal + 5000;
-        if ($pembayaran != 'rekening') {
-            $biayaadmin = array(
-                'id' => 'Biaya Admin',
-                'price' => 5000,
-                'quantity' => 1,
-                'name' => 'Biaya Admin',
-            );
-            array_push($itemDetails, $biayaadmin);
-        } else $total -= 5000;
+        $total = $subtotal;
 
         //voucher
         $diskonVoucher = 0;
@@ -3120,10 +3145,35 @@ class Pages extends BaseController
         //     'c' => $cashback
         // ]);
         $customField = '';
+
+        $gross_amount = $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0);
+        $biayaAdmin = 0;
+        $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
+        if (in_array($pembayaran, $banks)) {
+            $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
+            $biayaAdmin = 4000 + (4000 * $ppn);
+        } else if ($pembayaran == 'gopay' || $pembayaran == 'shopeepay') {
+            $biayaAdmin = $gross_amount * 0.02;
+        } else if ($pembayaran == 'qris') {
+            $biayaAdmin = $gross_amount * 0.007;
+        } else if ($pembayaran == 'dana') {
+            $biayaAdmin = $gross_amount * 0.015;
+        } else if ($pembayaran == 'card') {
+            $biayaAdmin = $gross_amount * 0.029 + 2000;
+        }
+
+        array_push($itemDetails, array(
+            'id' => 'Biaya Admin',
+            'price' => $biayaAdmin,
+            'quantity' => 1,
+            'name' => 'Biaya Admin',
+        ));
+
+        $gross_amount += $biayaAdmin;
         $arrPostField = [
             "transaction_details" => [
                 "order_id" => in_array($email, $this->emailUjiCoba) ? $randomId : $idFix,
-                "gross_amount" => $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0),
+                "gross_amount" => $gross_amount,
             ],
             'customer_details' => array(
                 'email' => $email,
