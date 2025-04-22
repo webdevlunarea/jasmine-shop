@@ -171,35 +171,35 @@ $notif = [
             <?php } ?>
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn position-relative">
+                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Wishlist">
                         <i class="material-icons">favorite_border</i>
                         <?php if ($title != 'Wishlist') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
                     </a>
-                    <a href="/cart" class="btn position-relative">
+                    <a href="/cart" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keranjang">
                         <i class="material-icons">shopping_cart</i>
                         <?php if ($title != 'Keranjang') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
-                        <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
+                        <a href="/keluar" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout"><i class="material-icons">exit_to_app</i></a>
                     <?php } else { ?>
-                        <a href="/account" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                        <a href="/account" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
                     <?php } ?>
                 <?php } else { ?>
                     <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                     <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
-                    <a href="/invoiceadmin" class="btn"><i class="material-icons">description</i></a>
-                    <a href="/listvoucher" class="btn"><i class="material-icons">confirmation_number</i></a>
-                    <a href="/listcustomer" class="btn"><i class="material-icons">people</i></a>
-                    <a href="/listproduct" class="btn"><i class="material-icons">view_list</i></a>
-                    <a href="/stokadmin" class="btn"><i class="material-icons">unarchive</i></a>
-                    <a href="/account" class="btn"><i class="material-icons">person_outline</i></a>
+                    <a href="/invoiceadmin" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice"><i class="material-icons">description</i></a>
+                    <a href="/listvoucher" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Voucher"><i class="material-icons">confirmation_number</i></a>
+                    <a href="/listcustomer" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Customer"><i class="material-icons">people</i></a>
+                    <a href="/listproduct" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Product"><i class="material-icons">view_list</i></a>
+                    <a href="/stokadmin" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stok"><i class="material-icons">unarchive</i></a>
+                    <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
+                <a href="/login" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Login"><i class="material-icons">person_outline</i></a>
             <?php } ?>
         </div>
     </div>

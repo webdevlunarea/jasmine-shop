@@ -172,6 +172,10 @@
         </script>
     <?php } ?>
     <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+    <script>
         document.addEventListener("DOMContentLoaded", function() {
             const startTime = Date.now();
 
