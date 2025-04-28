@@ -1,0 +1,26 @@
+name: Deploy Next.js to VPS
+
+on:
+  push:
+    branches:
+      - main # atau branch yang kamu pakai buat production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install SSH Key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+    - name: Deploy to VPS
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << 'EOF'
+          cd /mine/lunareafurniture.com/jasmine-shop
+          git pull
+        EOF
