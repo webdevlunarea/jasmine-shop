@@ -58,7 +58,7 @@
     <div class="container">
         <div class="d-flex gap-3 justify-content-between align-items-center">
             <div style="flex: 1">
-                <h3 class="mb-1">Mutasi <?= explode(' - ', $produk['nama'])[1]; ?></h3>
+                <h3 class="mb-1">Mutasi <?= $idProduk == 'all' ? 'Semua Produk' : explode(' - ', $produk['nama'])[1]; ?></h3>
                 <input placeholder="Cari produk" type="text" class="form-select w-100" oninput="handleInput(event)">
                 <div style="position: relative;" class="w-100">
                     <div id="container-cari-barang" class="d-none flex-column gap-1 border rounded w-100 bg-light" style="overflow: auto; max-height: 40svh; position: absolute; z-index: 3"></div>
@@ -70,21 +70,23 @@
             </div>
         </div>
         <hr>
-        <div class="d-flex">
-            <?php foreach ($stokVarian as $s) { ?>
-                <div style="flex: 1;" class="d-flex flex-column justify-content-center align-items-center">
-                    <p class="mb-1 text-secondary"><?= $s['nama']; ?></p>
-                    <h3><?= $s['stok']; ?></h3>
-                </div>
-            <?php } ?>
-        </div>
-        <hr>
+        <?php if ($idProduk != 'all') { ?>
+            <div class="d-flex">
+                <?php foreach ($stokVarian as $s) { ?>
+                    <div style="flex: 1;" class="d-flex flex-column justify-content-center align-items-center">
+                        <p class="mb-1 text-secondary"><?= $s['nama']; ?></p>
+                        <h3><?= $s['stok']; ?></h3>
+                    </div>
+                <?php } ?>
+            </div>
+            <hr>
+        <?php } ?>
         <?php if ($msg) { ?>
             <div class="alert alert-danger" role="alert">
                 <?= $msg; ?>
             </div>
         <?php } ?>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto;" class="mb-3">
             <div style="min-width: 900px;">
                 <div class="d-flex w-100 fw-bold gap-2 mb-2">
                     <div style="flex: 1;" class="m-0">Tanggal</div>
@@ -124,6 +126,31 @@
                 </div>
             </div>
         </div>
+        <?php if ($countAllStok > 20) { ?>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <?php if ((int)$pag > 1) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . ((int)$pag - 1); ?>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <?php }
+                    $hitungGrupMax = ceil($countAllStok / 20);
+                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
+                    ?>
+                        <li class="page-item"><a class="page-link <?= $x == $pag ? "aktif" : "" ?>" href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . $x; ?>"><?= $x; ?></a></li>
+                    <?php } ?>
+                    <?php if ((int)$pag < $hitungGrupMax) { ?>
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . ((int)$pag + 1); ?>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </nav>
+        <?php } ?>
     </div>
 </div>
 <script>
@@ -135,6 +162,7 @@
     const inputKeteranganELm = document.querySelector('input[name="keterangan"]');
     const stok = JSON.parse('<?= $stokJson; ?>');
     const produkAll = JSON.parse('<?= $produkAllJson; ?>');
+    console.log(produkAll)
     const modalAddElm = document.getElementById('modal-add');
     const containerCariBarangElm = document.getElementById('container-cari-barang')
 
@@ -182,6 +210,7 @@
         const produkFilter = produkAll.filter((p) => {
             return p.nama.toLowerCase().includes(inputType)
         })
+        containerCariBarangElm.innerHTML += `<a href="/stokadmin/all/1" class="item-list-produk rounded">All</a>`
         produkFilter.forEach(p => {
             containerCariBarangElm.innerHTML += `<a href="/stokadmin/${p.id}/1" class="item-list-produk rounded">${p.nama}</a>`
         });

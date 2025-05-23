@@ -6504,18 +6504,40 @@ class Pages extends BaseController
     public function stokAdmin($idProduk = false, $pag = 1)
     {
         $offset = ($pag - 1) * 20;
-        if ($idProduk) {
+        if ($idProduk != 'all') {
             $produk = $this->barangModel->getBarangAdmin($idProduk);
         } else {
             $produk = $this->barangModel->first();
         }
-        $stok = $this->stokModel
-            ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
-            ->select('stok.*')
-            ->select('pembeli.nama AS nama_admin')
-            ->orderBy('id', 'asc')
-            ->where(['id_barang' => $produk['id']])
-            ->findAll(20, $offset);
+        if ($idProduk == 'all') {
+            $stok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
+                ->select('stok.*')
+                ->select('pembeli.nama AS nama_admin')
+                ->orderBy('id', 'desc')
+                ->findAll(20, $offset);
+            $countAllStok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
+                ->select('stok.id')
+                ->select('pembeli.nama AS nama_admin')
+                ->orderBy('id', 'desc')
+                ->countAllResults();
+        } else {
+            $stok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
+                ->select('stok.*')
+                ->select('pembeli.nama AS nama_admin')
+                ->orderBy('id', 'desc')
+                ->where(['id_barang' => $produk['id']])
+                ->findAll(20, $offset);
+            $countAllStok = $this->stokModel
+                ->join('pembeli', 'pembeli.email_user = stok.email_admin', 'left')
+                ->select('stok.id')
+                ->select('pembeli.nama AS nama_admin')
+                ->orderBy('id', 'desc')
+                ->where(['id_barang' => $produk['id']])
+                ->countAllResults();
+        }
         $produkAll = $this->barangModel
             ->select('barang.id')
             ->select('barang.nama')
@@ -6545,7 +6567,10 @@ class Pages extends BaseController
             'produkAllJson' => json_encode($produkAll),
             'url' => base64_encode($idProduk ? '/stokadmin/' . $idProduk . '/' . $pag : '/stokadmin'),
             'msg' => session()->getFlashdata('msg'),
-            'stokVarian' => $stokVarian
+            'stokVarian' => $stokVarian,
+            'countAllStok' => $countAllStok,
+            'pag' => $pag,
+            'idProduk' => $idProduk
         ];
         // dd($data);
         return view('pages/stokAdmin', $data);
