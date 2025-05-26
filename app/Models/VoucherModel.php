@@ -25,6 +25,7 @@ class VoucherModel extends Model
         'kuota',
         'poster_email',
         'isi_email',
+        'isi_email_input',
         'jadwal',
         'syarat_ketentuan',
     ];

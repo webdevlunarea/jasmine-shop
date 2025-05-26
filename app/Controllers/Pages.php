@@ -20,6 +20,7 @@ use App\Models\VoucherClaimedModel;
 use App\Models\VoucherRedeemModel;
 use App\Models\StokModel;
 use App\Models\KonstantaModel;
+use DOMDocument;
 use Exception;
 use WebSocket\Client;
 
@@ -6089,9 +6090,11 @@ class Pages extends BaseController
     }
     public function addVoucher()
     {
+        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
         $data = [
             'title' => 'Add Voucher',
-            'msg' => session()->getFlashdata('msg')
+            'msg' => session()->getFlashdata('msg'),
+            'tinyMCE' => $tinymce_key
         ];
         return view('pages/addVoucher', $data);
     }
@@ -6171,6 +6174,92 @@ class Pages extends BaseController
             }
         }
 
+        $arrlines = explode("\n", $isiEmail);
+        $isi_email_fix = '';
+        foreach ($arrlines as $line) {
+            if (strpos($line, '&nbsp;') !== false) {
+                $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span style="display: block; height: 20px"></span>
+                        </td>
+                    </tr>
+                ';
+            } else if (strpos($line, '</div>') !== false) {
+                $dom = new DOMDocument();
+                libxml_use_internal_errors(true); // Hindari warning dari HTML tidak valid
+                $dom->loadHTML($line);
+                libxml_clear_errors();
+
+                $anchor = $dom->getElementsByTagName('a')->item(0);
+                if ($anchor) {
+                    $href = $anchor->getAttribute('href');
+                    $innerHTML = '';
+                    foreach ($anchor->childNodes as $child) {
+                        $innerHTML .= $dom->saveHTML($child);
+                    }
+                    $isi_email_fix .= '
+                        <tr>
+                            <td>
+                                <div style="padding-top: 10px">
+                                    <a
+                                        href="' . htmlspecialchars($href) . '"
+                                        style="
+                                            text-decoration: none;
+                                            color: white;
+                                            background-color: #1db954;
+                                            padding-left: 20px;
+                                            padding-right: 20px;
+                                            padding-top: 10px;
+                                            padding-bottom: 10px;
+                                            border-radius: 7px;
+                                            line-height: 40px;
+                                            font-weight: 700;
+                                        "
+                                    >' . $innerHTML . '</a>
+                                </div>
+                            </td>
+                        </tr>
+                    ';
+                } else {
+                    $isi_email_fix .= '
+                            <tr>
+                                <td>
+                                    <span style="display: block; height: 20px"></span>
+                                </td>
+                            </tr>
+                        ';
+                }
+            } else if (strpos($line, '</h1>') !== false) {
+                $text = str_replace(['<h1>', '</h1>'], '', $line);
+                $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span
+                                style="
+                                    font-weight: 700;
+                                    display: block;
+                                    font-size: 20px;
+                                "
+                            >' . $text . '</span>
+                        </td>
+                    </tr>
+                ';
+            } else if (strpos($line, '</p>') !== false) {
+                $text = str_replace(['<p>', '</p>'], '', $line);
+                $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+
+                $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span>' . $text . '</span>
+                        </td>
+                    </tr>
+                ';
+            }
+        }
+
         $insertData = [
             'nama' => $nama,
             'nominal' => $nominal,
@@ -6186,7 +6275,8 @@ class Pages extends BaseController
             'kuota' => $kuota,
             'poster' => $poster,
             'poster_email' => $posterEmail,
-            'isi_email' => $isiEmail,
+            'isi_email' => $isi_email_fix,
+            'isi_email_input' => $isiEmail,
             'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
             'syarat_ketentuan' => $syaratKetentuan
         ];
@@ -6203,11 +6293,13 @@ class Pages extends BaseController
     {
         $voucher = $this->voucherModel->where(['id' => $id_voucher])->first();
         $voucher['code'] = json_decode($voucher['code'], true);
-        $voucher['all_user'] = '0';
+        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
+
         $data = [
             'title' => 'Edit Voucher',
             'msg' => session()->getFlashdata('msg'),
-            'voucher' => $voucher
+            'voucher' => $voucher,
+            'tinyMCE' => $tinymce_key
         ];
         return view('pages/editVoucher', $data);
     }
@@ -6296,17 +6388,106 @@ class Pages extends BaseController
             'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
             'syarat_ketentuan' => $syaratKetentuan
         ];
+
         if ($poster) $insertData['poster'] = $poster;
+
         if (!$broadcast) {
             $insertData['poster_email'] = null;
             $insertData['isi_email'] = '';
+            $insertData['isi_email_input'] = '';
         } else {
+            $arrlines = explode("\n", $isiEmail);
+            $isi_email_fix = '';
+            foreach ($arrlines as $line) {
+                if (strpos($line, '&nbsp;') !== false) {
+                    $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span style="display: block; height: 20px"></span>
+                        </td>
+                    </tr>
+                ';
+                } else if (strpos($line, '</div>') !== false) {
+                    $dom = new DOMDocument();
+                    libxml_use_internal_errors(true); // Hindari warning dari HTML tidak valid
+                    $dom->loadHTML($line);
+                    libxml_clear_errors();
+
+                    $anchor = $dom->getElementsByTagName('a')->item(0);
+                    if ($anchor) {
+                        $href = $anchor->getAttribute('href');
+                        $innerHTML = '';
+                        foreach ($anchor->childNodes as $child) {
+                            $innerHTML .= $dom->saveHTML($child);
+                        }
+                        $isi_email_fix .= '
+                        <tr>
+                            <td>
+                                <div style="padding-top: 10px">
+                                    <a
+                                        href="' . htmlspecialchars($href) . '"
+                                        style="
+                                            text-decoration: none;
+                                            color: white;
+                                            background-color: #1db954;
+                                            padding-left: 20px;
+                                            padding-right: 20px;
+                                            padding-top: 10px;
+                                            padding-bottom: 10px;
+                                            border-radius: 7px;
+                                            line-height: 40px;
+                                            font-weight: 700;
+                                        "
+                                    >' . $innerHTML . '</a>
+                                </div>
+                            </td>
+                        </tr>
+                    ';
+                    } else {
+                        $isi_email_fix .= '
+                            <tr>
+                                <td>
+                                    <span style="display: block; height: 20px"></span>
+                                </td>
+                            </tr>
+                        ';
+                    }
+                } else if (strpos($line, '</h1>') !== false) {
+                    $text = str_replace(['<h1>', '</h1>'], '', $line);
+                    $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                    $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span
+                                style="
+                                    font-weight: 700;
+                                    display: block;
+                                    font-size: 20px;
+                                "
+                            >' . $text . '</span>
+                        </td>
+                    </tr>
+                ';
+                } else if (strpos($line, '</p>') !== false) {
+                    $text = str_replace(['<p>', '</p>'], '', $line);
+                    $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+
+                    $isi_email_fix .= '
+                    <tr>
+                        <td>
+                            <span>' . $text . '</span>
+                        </td>
+                    </tr>
+                ';
+                }
+            }
             if ($posterEmail) $insertData['poster_email'] = $posterEmail;
-            $insertData['isi_email'] = $isiEmail;
+            $insertData['isi_email'] = $isi_email_fix;
+            $insertData['isi_email_input'] = $isiEmail;
         }
         // dd($insertData);
         $this->voucherModel->where(['id' => $id_voucher])->set($insertData)->update();
-        session()->setFlashdata('msg', 'Voucher berhasil dibuat');
+        session()->setFlashdata('msg', 'Voucher ' . $nama . ' berhasil diupdate');
         return redirect()->to('/listvoucher');
     }
     public function deleteVoucher($id_voucher)

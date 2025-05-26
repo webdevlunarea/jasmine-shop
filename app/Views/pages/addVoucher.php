@@ -1,5 +1,6 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyMCE; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <div class="konten">
     <div class="container">
         <form action="/actionaddvoucher" method="post" enctype="multipart/form-data">
@@ -83,10 +84,11 @@
                     <label for="checkbox3">Berikan code redeem</label>
                 </div>
             </div>
+
             <div class="mb-2">
                 <label class="form-label m-0">Syarat & Ketentuan</label>
                 <p class="text-secondary mb-1" style="font-size: small;">Jika tidak ada biarkan kosong</p>
-                <textarea class="form-control" name="syarat-ketentuan" placeholder="Ditulis dalam bentuk HTML"></textarea>
+                <textarea class="form-control" name="syarat-ketentuan"></textarea>
             </div>
             <hr>
             <h5 class="m-0">Penjadwalan</h5>
@@ -113,9 +115,26 @@
                     <label class="form-label m-0">Poster Email</label>
                     <input type="file" class="form-control" name="poster-email">
                 </div>
-                <div class="mb-2">
-                    <label class="form-label">Isi Email</label>
-                    <textarea class="form-control" name="isi-email" placeholder="Ditulis dalam bentuk HTML"></textarea>
+                <label class="form-label">Isi Email</label>
+                <div class="d-flex gap-2 mb-2">
+                    <div style="flex: 1">
+                        <textarea class="form-control" name="isi-email"></textarea>
+                    </div>
+                    <div style="flex: 1; box-shadow: 0 0 5px rgba(0,0,0,0.2)" class="p-2">
+                        <p class="text-secondary m-0">Preview isi Email</p>
+                        <hr class="my-1">
+                        <ul class="m-0 text-secondary">
+                            <li>Hanya boleh tag Paragraph, Header 1, div</li>
+                            <li>Untuk membuat tombol, gunakan tag div</li>
+                            <li>Font color yang diperbolehkan : Green dan Gray</li>
+                        </ul>
+                        <hr class="my-1">
+                        <table>
+                            <tbody id="preview-isi-email">
+
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -135,6 +154,7 @@
 <script>
     const keteranganElm = document.querySelector('textarea[name="email"]');
     const formBroadcastElm = document.getElementById('form-broadcast')
+    const previewIsiEmailElm = document.getElementById('preview-isi-email');
 
     function handleChangeAllUser(e) {
         const valuenya = e.target.checked;
@@ -147,5 +167,161 @@
         if (valuenya) formBroadcastElm.classList.remove('d-none');
         else formBroadcastElm.classList.add('d-none');
     }
+
+    tinymce.init({
+        selector: `textarea[name="syarat-ketentuan"]`,
+        setup: function(editor) {
+            editor.on('input', function() {
+                console.log(editor.getContent());
+            });
+        },
+        plugins: [
+            // "anchor",
+            // "autolink",
+            // "charmap",
+            // "codesample",
+            // "emoticons",
+            "image",
+            "link",
+            "lists",
+            "media",
+            // "searchreplace",
+            "table",
+            // "visualblocks",
+            // "wordcount",
+            // "checklist",
+            // "mediaembed",
+            // "casechange",
+            // "export",
+            // "formatpainter",
+            // "pageembed",
+            // "a11ychecker",
+            // "tinymcespellchecker",
+            // "permanentpen",
+            // "powerpaste",
+            // "advtable",
+            // "advcode",
+            // "editimage",
+            // "advtemplate",
+            // "ai",
+            // "mentions",
+            // "tinycomments",
+            // "tableofcontents",
+            // "footnotes",
+            // "mergetags",
+            // "autocorrect",
+            // "typography",
+            // "inlinecss",
+            // "markdown",
+            // "importword",
+            // "exportword",
+            // "exportpdf",
+        ],
+    });
+
+    const generateIsiEmail = (str) => {
+        const arrlines = str.split('\n');
+        let hasil = '';
+        arrlines.forEach(line => {
+            if (line.includes('&nbsp;')) {
+                hasil += `
+                        <tr>
+                            <td>
+                                <span style="display: block; height: 20px"></span>
+                            </td>
+                        </tr>
+                    `
+            } else if (line.includes('</div>')) {
+                const div = document.createElement('div');
+                div.innerHTML = line;
+                const anchor = div.querySelector('a');
+                if (anchor) {
+                    hasil += `
+                        <tr>
+                            <td>
+                                <div style="padding-top: 10px">
+                                    <a
+                                        href="${anchor.getAttribute('href')}"
+                                        style="
+                                            text-decoration: none;
+                                            color: white;
+                                            background-color: #1db954;
+                                            padding-left: 20px;
+                                            padding-right: 20px;
+                                            padding-top: 10px;
+                                            padding-bottom: 10px;
+                                            border-radius: 7px;
+                                            line-height: 40px;
+                                            font-weight: 700;
+                                        "
+                                        >${anchor.innerHTML}</a
+                                    >
+                                </div>
+                            </td>
+                        </tr>
+                    `
+                } else {
+                    hasil += `
+                        <tr>
+                            <td>
+                                <span style="display: block; height: 20px"></span>
+                            </td>
+                        </tr>
+                    `
+                }
+            } else if (line.includes('</h1>')) {
+                hasil += `
+                    <tr>
+                        <td>
+                            <span
+                                style="
+                                    font-weight: 700;
+                                    display: block;
+                                    font-size: 20px;
+                                "
+                                >${line
+                                .replace('<h1>', '')
+                                .replace('</h1>', '')
+                                .replaceAll("#2dc26b", "#1db954") // hijau
+                                }
+                            </span>
+                        </td>
+                    </tr>
+                `
+            } else if (line.includes('</p>')) {
+                hasil += `
+                        <tr>
+                            <td>
+                                <span>
+                                    ${line
+                                    .replace('<p>', '')
+                                    .replace('</p>', '')
+                                    .replaceAll("#2dc26b", "#1db954") // hijau
+                                    }
+                                </span>
+                            </td>
+                        </tr>
+                    `
+            }
+        });
+        previewIsiEmailElm.innerHTML = hasil;
+        console.log('====== PREVIEW ========')
+        console.log(hasil)
+    }
+
+    tinymce.init({
+        selector: `textarea[name="isi-email"]`,
+        setup: function(editor) {
+            editor.on('input', function() {
+                console.log('====== Editor ========')
+                console.log(editor.getContent());
+                generateIsiEmail(editor.getContent());
+                // previewIsiEmailElm.innerHTML = editor.getContent();
+            });
+        },
+        plugins: [
+            "link",
+        ],
+    });
 </script>
 <?= $this->endSection(); ?>
