@@ -95,6 +95,7 @@
                     </div>
                     <?php if (session()->get('role') == 1) { ?>
                         <a href="/editarticle/<?= $artikel['id'] ?>" class="btn btn-primary1">Edit</a>
+                        <button class="btn btn-danger d-flex" onclick="triggerToast('Artikel <?= $artikel['judul']; ?> akan dihapus?','/delarticle/<?= $artikel['id']; ?>')"><i class="material-icons">delete_forever</i></button>
                     <?php } ?>
                 </div>
             </div>
@@ -104,25 +105,7 @@
                 <p class="m-0 text-secondary">Terakhir diubah pada <?= $artikel['waktu']; ?></p>
             </div>
             <span class="garis my-3"></span>
-            <?php foreach ($artikel['isi'] as $isi) {
-                if ($isi['tag'] == 'h2') { ?>
-                    <h2 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h2>
-                <?php } else if ($isi['tag'] == 'h4') { ?>
-                    <h4 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h4>
-                <?php } else if ($isi['tag'] == 'p') { ?>
-                    <p class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></p>
-                <?php } else if ($isi['tag'] == 'a') { ?>
-                    <a href="<?= $isi['link']; ?>" class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></a>
-                <?php } else if ($isi['tag'] == 'img') { ?>
-                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= isset($isi['link']) ? $isi['link'] : '/'; ?>">
-                        <img src="<?= $isi['src']; ?>" style="height: 500px; max-width: 100%" class="mb-1">
-                        <p class="m-0 text-sm text-secondary"><?= isset($isi['sumber']) ? $isi['sumber'] : 'Lunarea Furniture'; ?></p>
-                    </a>
-                <?php } else if ($isi['tag'] == 'space') { ?>
-                    <div class="w-100" style="height: 1em"></div>
-                <?php }
-                ?>
-            <?php } ?>
+            <?= $artikel['isi']; ?>
             <span class="garis my-3"></span>
             <div class="d-flex justify-content-between align-items-start" style="gap: 6em;">
                 <div style="flex: 1;">
@@ -180,25 +163,7 @@
                 <p class="m-0 text-secondary"><?= $artikel['waktu']; ?></p>
             </div>
             <span class="garis my-3"></span>
-            <?php foreach ($artikel['isi'] as $isi) {
-                if ($isi['tag'] == 'h2') { ?>
-                    <h2 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h2>
-                <?php } else if ($isi['tag'] == 'h4') { ?>
-                    <h4 class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></h4>
-                <?php } else if ($isi['tag'] == 'p') { ?>
-                    <p class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></p>
-                <?php } else if ($isi['tag'] == 'a') { ?>
-                    <a href="<?= $isi['link']; ?>" class="<?= $isi['style']; ?>"><?= $isi['teks']; ?></a>
-                <?php } else if ($isi['tag'] == 'img') { ?>
-                    <a class="d-flex flex-column align-items-center <?= $isi['style']; ?>" href="<?= isset($isi['link']) ? $isi['link'] : '/'; ?>">
-                        <img src="<?= $isi['src']; ?>" style="height: 500px; max-width: 100%" class="mb-1">
-                        <p class="m-0 text-sm text-secondary"><?= isset($isi['sumber']) ? $isi['sumber'] : 'Lunarea Furniture'; ?></p>
-                    </a>
-                <?php } else if ($isi['tag'] == 'space') { ?>
-                    <div class="w-100" style="height: 1em"></div>
-                <?php }
-                ?>
-            <?php } ?>
+            <?= $artikel['isi']; ?>
             <span class="garis my-3"></span>
             <div class="d-flex justify-content-between">
                 <?php if ($prevArtikel) { ?>
@@ -262,12 +227,9 @@
                         <p class="m-0 judul"><?= $a['judul']; ?></p>
                         <div class="container-isi">
                             <div class="overlay-isi"></div>
-                            <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
-                            <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
+                            <p class="m-0 isi"><?= $a['isi']; ?></p>
                         </div>
                         <a class="readmore">Baca selengkapnya</a>
-                        <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $a['penulis']; ?></p> -->
-                        <!-- <p class="m-0" style="font-size: smaller; color: #888;"><?= $a['waktu']; ?></p> -->
                     </div>
                 </div>
             <?php } ?>

@@ -184,6 +184,7 @@ $routes->post('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');
 $routes->post('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
 $routes->get('/addarticle', 'Pages::addArticle', ['filter' => 'harusAdmin']);
 $routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
+$routes->post('/delarticle/(:any)', 'Pages::actionDeleteArticle/$1', ['filter' => 'harusAdmin']);
 $routes->get('/editarticle/(:any)', 'Pages::editArticle/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editarticle/(:any)', 'Pages::actionEditArticle/$1', ['filter' => 'harusAdmin']);
 $routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
@@ -200,6 +201,7 @@ $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'c
 $routes->get('/copygambar', 'CopyGambarController::copyGambar');
 
 //benerin format data
+$routes->get('/fixisiartikel', 'Pages::fixIsiArtikel');
 $routes->get('/fixkurir', 'Pages::fixKurir');
 $routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
 $routes->get('/gantiukuran/(:any)', 'Pages::gantiUkuran/$1');

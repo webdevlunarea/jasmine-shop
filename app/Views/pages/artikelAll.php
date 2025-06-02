@@ -95,7 +95,7 @@
                             <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
                             <div class="container-isi">
                                 <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $artikel[0]['isi'][0]['teks']; ?></p>
+                                <p class="m-0 isi"><?= $artikel[0]['isi']; ?></p>
                             </div>
                             <a class="readmore">Baca selengkapnya</a>
                             <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[0]['penulis']; ?></p> -->
@@ -109,7 +109,7 @@
                                 <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
                                 <div class="container-isi">
                                     <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[1]['isi'][0]['teks']; ?></p>
+                                    <p class="m-0 isi"><?= $artikel[1]['isi']; ?></p>
                                 </div>
                                 <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[1]['penulis']; ?></p> -->
@@ -122,7 +122,7 @@
                                 <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
                                 <div class="container-isi">
                                     <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[2]['isi'][0]['teks']; ?></p>
+                                    <p class="m-0 isi"><?= $artikel[2]['isi']; ?></p>
                                 </div>
                                 <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[2]['penulis']; ?></p> -->
@@ -137,7 +137,7 @@
                                 <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
                                 <div class="container-isi">
                                     <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[3]['isi'][0]['teks']; ?></p>
+                                    <p class="m-0 isi"><?= $artikel[3]['isi']; ?></p>
                                 </div>
                                 <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[3]['penulis']; ?></p> -->
@@ -150,7 +150,7 @@
                                 <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
                                 <div class="container-isi">
                                     <div class="overlay-isi"></div>
-                                    <p class="m-0 isi"><?= $artikel[4]['isi'][0]['teks']; ?></p>
+                                    <p class="m-0 isi"><?= $artikel[4]['isi']; ?></p>
                                 </div>
                                 <a class="readmore">Baca selengkapnya</a>
                                 <!-- <p class="m-0 fw-bold" style="font-size: smaller;"><?= $artikel[4]['penulis']; ?></p> -->
@@ -173,7 +173,7 @@
                             <p class="judul"><?= $a['judul']; ?></p>
                             <div class="container-isi">
                                 <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
+                                <p class="m-0 isi"><?= $a['isi']; ?></p>
                                 <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
                             </div>
                             <a class="readmore">Baca selengkapnya</a>
@@ -195,7 +195,7 @@
                             <p class="m-0 judul"><?= $a['judul']; ?></p>
                             <div class="container-isi">
                                 <div class="overlay-isi"></div>
-                                <p class="m-0 isi"><?= $a['isi'][0]['teks']; ?></p>
+                                <p class="m-0 isi"><?= $a['isi']; ?></p>
                                 <!-- <p class="m-0 isi">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nam odio accusamus optio alias voluptatibus, mollitia maxime sed? Nostrum corporis, quisquam libero quos eaque veritatis? Ipsam odio officia aliquid, veritatis vel nemo vero aliquam dignissimos enim vitae ipsum distinctio id quidem voluptatum ex, earum quis illum illo nihil quasi non. Nesciunt tenetur quaerat nostrum dignissimos, ipsa eum dolorum a, fugiat voluptate fuga officiis inventore. Molestias, adipisci id ut vel animi saepe sapiente labore, dolor eveniet nulla soluta tempore hic! Laboriosam laudantium modi dolorem sit similique, illo numquam nisi voluptas adipisci dolor blanditiis alias nobis exercitationem possimus, tenetur perferendis fugit voluptates dolores!</p> -->
                             </div>
                             <a class="readmore">Baca selengkapnya</a>

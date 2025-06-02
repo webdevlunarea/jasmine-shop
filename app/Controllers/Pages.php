@@ -392,14 +392,17 @@ class Pages extends BaseController
         if ($judul_article) {
             $artikel = $getArtikel['cur'];
             $artikel['header'] = '/imgart/' . $artikel['id'];
-            $artikel['isi'] = json_decode($artikel['isi'], true);
             $artikel['kategori'] = explode(",", $artikel['kategori']);
             $artikel['waktu'] = date("d", strtotime($artikel['waktu'])) . " " . $bulan[date("m", strtotime($artikel['waktu'])) - 1] . " " . date("Y", strtotime($artikel['waktu']));
 
             $artikelTerkait = $this->artikelModel->like('kategori', $artikel['kategori'][0], 'both')->findAll();
             foreach ($artikelTerkait as $ind_a => $a) {
                 $artikelTerkait[$ind_a]['header'] = '/imgart/' . $a['id'];
-                $artikelTerkait[$ind_a]['isi'] = json_decode($a['isi'], true);
+                if (preg_match('/<p>(.*?)<\/p>/', $a['isi'], $matches)) {
+                    $artikelTerkait[$ind_a]['isi'] = $matches[1];
+                } else {
+                    $artikelTerkait[$ind_a]['isi'] = '';
+                }
                 $artikelTerkait[$ind_a]['kategori'] = explode(",", $a['kategori']);
                 $artikelTerkait[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
             }
@@ -421,7 +424,11 @@ class Pages extends BaseController
             $artikel = $getArtikel;
             foreach ($artikel as $ind_a => $a) {
                 $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
-                $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+                if (preg_match('/<p>(.*?)<\/p>/', $a['isi'], $matches)) {
+                    $artikel[$ind_a]['isi'] = $matches[1];
+                } else {
+                    $artikel[$ind_a]['isi'] = '';
+                }
                 $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
                 $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
             }
@@ -443,7 +450,11 @@ class Pages extends BaseController
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         foreach ($artikel as $ind_a => $a) {
             $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
-            $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
+            if (preg_match('/<p>(.*?)<\/p>/', $a['isi'], $matches)) {
+                $artikel[$ind_a]['isi'] = $matches[1];
+            } else {
+                $artikel[$ind_a]['isi'] = '';
+            }
             $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
             $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
         }
@@ -474,8 +485,10 @@ class Pages extends BaseController
     }
     public function addArticle()
     {
+        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
         $data = [
             'title' => 'Tambah Artikel',
+            'tinymce' => $tinymce_key
         ];
         return view('pages/addArtikel1', $data);
     }
@@ -488,33 +501,34 @@ class Pages extends BaseController
         $kategori = $kategoriBarang . ',' . $kategori;
         $waktu = $this->request->getVar('waktu');
         $header = file_get_contents($this->request->getFile('header'));
-        $counter = explode(",", $this->request->getVar('arrCounter'));
+        // $counter = explode(",", $this->request->getVar('arrCounter'));
+        $isi = $this->request->getVar('isi');
 
         $d = strtotime("+7 Hours");
         $id = "A" . date("YmdHis", $d);
         $insertGambarArtikel = ['id' => $id];
 
-        $isi = [];
-        $counterGambar = 0;
-        foreach ($counter as $c) {
-            $itemIsi = [];
-            $tag = $this->request->getVar('tag' . $c);
-            $itemIsi['tag'] = $tag;
-            if ($tag == 'h2' || $tag == 'h4' || $tag == 'p') {
-                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-            } else if ($tag == 'a') {
-                $itemIsi['link'] = $this->request->getVar('link' . $c);
-                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-            } else if ($tag == 'img') {
-                $counterGambar++;
-                $insertGambarArtikel["gambar" . $counterGambar] = file_get_contents($this->request->getFile('file' . $c));
-                $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-            }
-            array_push($isi, $itemIsi);
-        }
+        // $isi = [];
+        // $counterGambar = 0;
+        // foreach ($counter as $c) {
+        //     $itemIsi = [];
+        //     $tag = $this->request->getVar('tag' . $c);
+        //     $itemIsi['tag'] = $tag;
+        //     if ($tag == 'h2' || $tag == 'h4' || $tag == 'p') {
+        //         $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+        //         $itemIsi['style'] = $this->request->getVar('style' . $c);
+        //     } else if ($tag == 'a') {
+        //         $itemIsi['link'] = $this->request->getVar('link' . $c);
+        //         $itemIsi['teks'] = $this->request->getVar('teks' . $c);
+        //         $itemIsi['style'] = $this->request->getVar('style' . $c);
+        //     } else if ($tag == 'img') {
+        //         $counterGambar++;
+        //         $insertGambarArtikel["gambar" . $counterGambar] = file_get_contents($this->request->getFile('file' . $c));
+        //         $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
+        //         $itemIsi['style'] = $this->request->getVar('style' . $c);
+        //     }
+        //     array_push($isi, $itemIsi);
+        // }
 
         $path = str_replace(",", "", $judul);
         $path = str_replace(".", "", $path);
@@ -529,7 +543,7 @@ class Pages extends BaseController
             'penulis' => $penulis,
             'kategori' => $kategori,
             'waktu' => $waktu,
-            'isi' => json_encode($isi),
+            'isi' => $isi,
             'header' => $header,
             'suka' => 0,
             'bagikan' => 0,
@@ -543,23 +557,26 @@ class Pages extends BaseController
     public function editArticle($id)
     {
         $artikel = $this->artikelModel->where(['id' => $id])->first();
-        $artikel['isi'] = json_decode($artikel['isi'], true);
-        $counterIsi = count($artikel['isi']);
-        $arrCounterIsi = [];
-        for ($i = 1; $i <= $counterIsi; $i++) {
-            array_push($arrCounterIsi, $i);
-        }
+        // $artikel['isi'] = json_decode($artikel['isi'], true);
+        // $counterIsi = count($artikel['isi']);
+        // $arrCounterIsi = [];
+        // for ($i = 1; $i <= $counterIsi; $i++) {
+        //     array_push($arrCounterIsi, $i);
+        // }
         $d = strtotime("+7 Hours");
         $waktu = date("Y-m-d H:i:", $d) . "00";
+        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
         $data = [
             'title' => 'Edit Artikel',
             'artikel' => $artikel,
-            'isi' => $artikel['isi'],
-            'isiJson' => json_encode($artikel['isi']),
-            'counterIsi' => $counterIsi,
-            'arrCounterIsi' => json_encode($arrCounterIsi),
-            'arrCounter' => implode(",", $arrCounterIsi),
-            'waktu' => $waktu
+            // 'isi' => $artikel['isi'],
+            // 'isiJson' => json_encode($artikel['isi']),
+            // 'counterIsi' => $counterIsi,
+            // 'arrCounterIsi' => json_encode($arrCounterIsi),
+            // 'arrCounter' => implode(",", $arrCounterIsi),
+            'waktu' => $waktu,
+            'tinymce' => $tinymce_key
+
         ];
         return view('pages/editArtikel', $data);
     }
@@ -571,44 +588,8 @@ class Pages extends BaseController
         $kategoriBarang = $this->request->getVar('kategori-barang');
         $kategori = $kategoriBarang . ',' . $kategori;
         $waktu = $this->request->getVar('waktu');
+        $isi = $this->request->getVar('isi');
         $header = $this->request->getFile('header');
-        $counter = explode(",", $this->request->getVar('arrCounter'));
-
-        $getFiles = $this->request->getFiles();
-        unset($getFiles['header']);
-
-        $isiCur = json_decode($this->artikelModel->where(['id' => $id])->first()['isi'], true);
-        $insertGambarArtikel = [];
-        $arrUrutanImg = [];
-        foreach ($isiCur as $ind_i => $i) {
-            if ($i['tag'] == 'img') {
-                array_push($arrUrutanImg, ($ind_i + 1));
-            }
-        }
-
-        $isi = [];
-        $counterGambar = 0;
-        foreach ($counter as $c) {
-            $itemIsi = [];
-            $tag = $this->request->getVar('tag' . $c);
-            $itemIsi['tag'] = $tag;
-            if ($tag == 'h2' || $tag == 'h4' || $tag == 'p') {
-                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-            } else if ($tag == 'a') {
-                $itemIsi['link'] = $this->request->getVar('link' . $c);
-                $itemIsi['teks'] = $this->request->getVar('teks' . $c);
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-            } else if ($tag == 'img') {
-                $counterGambar++;
-                $insertGambarArtikel["gambar" . $counterGambar] = $this->request->getFile('file' . $c)->isValid() ? file_get_contents($this->request->getFile('file' . $c)) : $this->gambarArtikelModel->where(['id' => $id])->first()['gambar' . (array_search($c, $arrUrutanImg) + 1)];
-                $itemIsi['src'] = "/imgart/" . $id . "/" . $counterGambar;
-                $itemIsi['style'] = $this->request->getVar('style' . $c);
-                $itemIsi['link'] = $this->request->getVar('link' . $c);
-                $itemIsi['sumber'] = $this->request->getVar('sumber' . $c);
-            }
-            array_push($isi, $itemIsi);
-        }
 
         $path = str_replace(",", "", $judul);
         $path = str_replace(".", "", $path);
@@ -624,7 +605,7 @@ class Pages extends BaseController
                 'penulis' => $penulis,
                 'kategori' => $kategori,
                 'waktu' => $waktu,
-                'isi' => json_encode($isi),
+                'isi' => $isi,
                 'header' => file_get_contents($header),
             ])->update();
         } else {
@@ -634,24 +615,23 @@ class Pages extends BaseController
                 'penulis' => $penulis,
                 'kategori' => $kategori,
                 'waktu' => $waktu,
-                'isi' => json_encode($isi)
+                'isi' => $isi
             ])->update();
-        }
-
-        //pengosongan gambar artikel
-        $kosongkanGambar = [];
-        for ($i = 1; $i <= count($arrUrutanImg); $i++) {
-            $kosongkanGambar['gambar' . $i] = null;
-        }
-        if (count($kosongkanGambar) > 0) {
-            $this->gambarArtikelModel->where(['id' => $id])->set($kosongkanGambar)->update();
-        }
-        if (count($insertGambarArtikel) > 0) {
-            $this->gambarArtikelModel->where(['id' => $id])->set($insertGambarArtikel)->update();
         }
 
         session()->setFlashdata('msg', 'Artikel berhasil diubah');
         return redirect()->to('/article/' . $path);
+    }
+    public function actionDeleteArticle($id)
+    {
+        $artikel = $this->artikelModel->getArtikel($id);
+        if (!$artikel) {
+            session()->setFlashdata('msg', 'Artikel tidak ditemukan');
+            return redirect()->to('/article');
+        }
+        $this->artikelModel->where(['id' => $id])->delete();
+        session()->setFlashdata('msg', 'Artikel ' . $artikel['judul'] . ' berhasil dihapus');
+        return redirect()->to('/article');
     }
     public function isiGambarArtikel()
     {
@@ -5247,6 +5227,43 @@ class Pages extends BaseController
             'bulan' => $bulan
         ];
         return view('pages/invoice', $data);
+    }
+    public function fixIsiArtikel()
+    {
+        $allArtikel = $this->artikelModel
+            ->select('id')
+            ->select('isi')
+            ->findAll();
+        foreach ($allArtikel as $a) {
+            $isiFix = '';
+            $isi = json_decode($a['isi'], true);
+            foreach ($isi as $i) {
+                switch ($i['tag']) {
+                    case 'h1':
+                        $isiFix .= '<h2>' . $i['teks'] . '</h2>';
+                        break;
+                    case 'h2':
+                        $isiFix .= '<h2>' . $i['teks'] . '</h2>';
+                        break;
+                    case 'h3':
+                        $isiFix .= '<h4>' . $i['teks'] . '</h4>';
+                        break;
+                    case 'h4':
+                        $isiFix .= '<h4>' . $i['teks'] . '</h4>';
+                        break;
+                    case 'p':
+                        $isiFix .= '<p>' . $i['teks'] . '</p>';
+                        break;
+                    case 'a':
+                        $isiFix .= '<a href="' . $i['link'] . '">' . $i['teks'] . '</a>';
+                        break;
+                    default:
+                        break;
+                }
+            }
+            $this->artikelModel->where(['id' => $a['id']])->set(['isi' => $isiFix])->update();
+        }
+        dd('berhasil');
     }
     public function fixKurir()
     {
