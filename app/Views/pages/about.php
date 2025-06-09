@@ -11,7 +11,7 @@
         <h1>
             Sejarah Perusahaan
         </h1>
-        <h5 class="mb-5">Lunarea Furniture</h5>
+        <h5 class="mb-5">Lunarea Furniture Edit</h5>
         <div class="baris-ke-kolom-reverse align-items-center justify-content-between">
             <div style="height: fit-content; flex: 2;">
                 <p>
