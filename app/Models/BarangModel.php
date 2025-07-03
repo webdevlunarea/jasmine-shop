@@ -29,7 +29,8 @@ class BarangModel extends Model
         'tiktok',
         'youtube',
         'tracking_pop',
-        'active'
+        'active',
+        'kaca'
     ];
 
     public function getBarang($id = false)

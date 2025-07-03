@@ -50,6 +50,7 @@ $routes->post('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser'])
 // $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
+$routes->get('/gantikaca/(:any)', 'Pages::gantiKaca/$1', ['filter' => 'harusUser']);
 $routes->post('/getadminfee', 'Pages::getBiayaAdminMidtrans');
 $routes->post('/getalamat', 'Pages::getAllSelectAlamat');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');

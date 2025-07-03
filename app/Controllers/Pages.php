@@ -1590,7 +1590,7 @@ class Pages extends BaseController
     }
     public function logout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca'];
         session()->remove($ses_data);
     }
     public function actionLogout()
@@ -2115,6 +2115,12 @@ class Pages extends BaseController
         return redirect()->to('/listvoucher');
     }
 
+    public function gantiKaca($value)
+    {
+        session()->set('gantiKaca', $value  == 'true' ? true : false);
+        return redirect()->to('/checkout');
+    }
+
     public function checkout()
     {
         $keranjang = session()->get('keranjang');
@@ -2132,6 +2138,8 @@ class Pages extends BaseController
         $paket = [];
         $paketFilter = [];
         $indElementNotFound = [];
+        $totalkaca = 0;
+
 
         $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
         $potonganPreorder = 0;
@@ -2173,6 +2181,11 @@ class Pages extends BaseController
                         $stokSelected = explode(",", $produknya['stok'])[array_search($element['varian'], json_decode($produknya['varian'], true))];
                     if ((int)$stokSelected - (int)$element['jumlah'] < 0)
                         return redirect()->to('cart');
+
+                        // cek apakah barang ada kaca apa ga
+                        if($produknya['kaca'] == true) {
+                            $totalkaca += (int)$element['jumlah'] * 25000;
+                        }
                 } else {
                     array_push($indElementNotFound, $ind);
                 }
@@ -2566,7 +2579,9 @@ class Pages extends BaseController
             'potonganPreorder' => $potonganPreorder,
             'poin' => $poin,
             'usepoin' => session()->get('usepoin'),
-            'biayaAdmin' => $biayaAdmin
+            'biayaAdmin' => $biayaAdmin,
+            'totalkaca' => $totalkaca,
+            'gantiKaca' => session()->get('gantiKaca') ? session()->get('gantiKaca') : false,
         ];
         // return view('pages/' . (in_array($email, $this->emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
         return view('pages/checkoutcorecc', $data);
@@ -2976,6 +2991,7 @@ class Pages extends BaseController
         $itemDetails = [];
         $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
         $potonganPreorder = 0;
+        $totalkaca = 0;
 
         if (!empty($keranjang)) {
             foreach ($keranjang as $ind => $element) {
@@ -3005,6 +3021,11 @@ class Pages extends BaseController
                     if ($p['id_barang'] == $element['id']) {
                         $potonganPreorder += ((int)$produknya['harga'] - (int)$p['harga']) * (int)$element['jumlah'];
                     }
+                }
+                
+                //Hitung total kaca nya disini
+                if ($produknya['kaca'] ==  true){
+                    $totalkaca += (int)$element['jumlah'] * 25000;
                 }
             }
         }
@@ -3104,6 +3125,17 @@ class Pages extends BaseController
             session()->set('poin', $poinSession);
         }
 
+        // penambahan jika ada kaca
+        $gantiKaca = $this->request->getVar('ganti-kaca');
+        if ($gantiKaca) {
+            array_push($itemDetails, [
+                'id' => 'Ganti Kaca',
+                'price' => $totalkaca,
+                'quantity' => 1,
+                'name' => 'Ganti Kaca',
+            ]);
+        }
+
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
         if (in_array($email, $this->emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
@@ -3127,7 +3159,7 @@ class Pages extends BaseController
         // ]);
         $customField = '';
 
-        $gross_amount = $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0);
+        $gross_amount = $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0);
         $biayaAdmin = 0;
         $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
         if (in_array($pembayaran, $banks)) {
@@ -3259,6 +3291,8 @@ class Pages extends BaseController
                 return redirect()->to('/checkout');
                 break;
         }
+
+        // dd($arrPostField);
 
         if ($pembayaran == 'rekening') {
             $dCurr = strtotime("+7 Hours");
