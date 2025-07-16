@@ -215,4 +215,15 @@ $routes->post('/sheet/updatestok', 'ApiSheet::updateStok', ['filter' => 'corsFil
 
 $routes->get('/cekdouble', 'Pages::cekDouble');
 
+// nyolong data
+$routes->get('/ro', 'NyolongController::index');
+$routes->get('/ro/provinsi', 'NyolongController::provinsi');
+$routes->get('/ro/get-provinsi', 'NyolongController::getProvinsi');
+$routes->get('/ro/kabupaten/(:any)', 'NyolongController::kabupaten/$1');
+$routes->get('/ro/get-kabupaten', 'NyolongController::getKabupaten');
+$routes->get('/ro/kecamatan/(:any)', 'NyolongController::kecamatan/$1');
+$routes->get('/ro/get-kecamatan/(:any)', 'NyolongController::getKecamatan/$1');
+$routes->post('/ro/kelurahan/(:any)', 'NyolongController::kelurahan/$1');
+
+
 $routes->get('(:any)', 'Pages::notFound');

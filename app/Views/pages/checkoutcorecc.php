@@ -318,9 +318,9 @@
                                 <select class="form-select" aria-label="Default select example" name="provinsi">
                                     <option value="">-- Pilih provinsi --</option>
                                     <?php foreach ($provinsi as $p) { ?>
-                                    <option value="<?= $p['province_id']; ?>-<?= $p['province']; ?>"
+                                    <option value="<?= $p['id']; ?>-<?= $p['label']; ?>"
                                         <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>>
-                                        <?= $p['province']; ?>
+                                        <?= $p['label']; ?>
                                     </option>
                                     <?php } ?>
                                 </select>
@@ -678,46 +678,103 @@ function titleCase(str) {
 const btnCheckoutElm = document.getElementById('btn-checkout')
 
 async function getKota(idprov) {
-    const response = await fetch("getkota/" + idprov);
-    const kota = await response.json();
-    const hasil = kota.rajaongkir.results;
-    // console.log(hasil)
-    kotaElm.innerHTML = '<option value="">-- Pilih kota --</option>';
-    hasil.forEach(element => {
-        const optElm = document.createElement("option");
-        optElm.value = element.city_id + "-" + element.city_name.split("/")[0]
-        optElm.innerHTML = element.type == 'Kota' ? `${element.city_name} Kota` : element.city_name
-        kotaElm.appendChild(optElm);
-    });
+    kotaElm.innerHTML = '<option value="">Loading kota…</option>';
+    try {
+        const res = await fetch(`/getkota/${idprov}`);
+        if (!res.ok) throw new Error(res.statusText);
+        const payload = await res.json();
+        // console.log("getKota payload:", payload);
+        const list =
+            Array.isArray(payload) ? payload :
+            Array.isArray(payload.label) ? payload.label :
+            Array.isArray(payload.results) ? payload.results :
+            Array.isArray(payload.data?.results) ? payload.data.results : [];
+        kotaElm.innerHTML = '<option value="">-- Pilih kota --</option>';
+        if (list.length === 0) {
+            kotaElm.innerHTML = '<option value="">(Tidak ada kota)</option>';
+            return;
+        }
+        list.forEach(item => {
+            const id = item.city_id ?? item.id;
+            const nama = (item.city_name?.split("/")[0] ?? item.label).trim();
+            const type = item.type === 'Kota' ? ' Kota' : '';
+            const opt = document.createElement("option");
+            opt.value = `${id}-${nama}`;
+            opt.textContent = `${nama}${type}`;
+            kotaElm.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error("getKota error:", err);
+        kotaElm.innerHTML = '<option value="">(Gagal memuat kota)</option>';
+    }
 }
+
 async function getKec(idkota) {
-    const response = await fetch("getkec/" + idkota);
-    const kecamatan = await response.json();
-    const hasil = kecamatan.rajaongkir.results;
-    // console.log(hasil)
-    kecElm.innerHTML = '<option value="">-- Pilih kecamatan --</option>';
+    kecElm.innerHTML = '<option value="">Loading kecamatan…</option>';
     kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
-    hasil.forEach(element => {
-        const optElm = document.createElement("option");
-        optElm.value = element.subdistrict_id + "-" + element.subdistrict_name.split("/")[0]
-        optElm.innerHTML = element.subdistrict_name
-        kecElm.appendChild(optElm);
-    });
+    try {
+        const res = await fetch(`/getkec/${idkota}`);
+        if (!res.ok) throw new Error(res.statusText);
+        const payload = await res.json();
+        // console.log("getKec payload:", payload);
+        const list =
+            Array.isArray(payload) ? payload :
+            Array.isArray(payload.rajaongkir?.results) ? payload.rajaongkir.results :
+            Array.isArray(payload.results) ? payload.results :
+            Array.isArray(payload.data?.results) ? payload.data.results : [];
+        kecElm.innerHTML = '<option value="">-- Pilih kecamatan --</option>';
+        if (list.length === 0) {
+            kecElm.innerHTML = '<option value="">(Tidak ada kecamatan)</option>';
+            return;
+        }
+        list.forEach(el => {
+            const id = el.id;
+            const nama = (el.subdistrict_name ?? el.label).split("/")[0].trim();
+            const opt = document.createElement("option");
+            opt.value = `${id}-${nama}`;
+            opt.textContent = nama;
+            kecElm.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error("getKec error:", err);
+        kecElm.innerHTML = '<option value="">(Gagal memuat kecamatan)</option>';
+    }
 }
-async function getKode(kec) {
-    const response = await fetch("getkode/" + kec);
-    const kode = await response.json();
-    console.log(kode);
-    const hasil = kode;
-    // console.log(hasil)
-    kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
-    hasil.forEach(element => {
-        const optElm = document.createElement("option");
-        optElm.value = titleCase(element.DesaKelurahan).split("/")[0] + "-" + element.KodePos
-        optElm.innerHTML = titleCase(element.DesaKelurahan)
-        kodeElm.appendChild(optElm);
-    });
+
+async function getKode(kecId) {
+    kodeElm.innerHTML = '<option value="">Loading desa…</option>';
+    try {
+        const res = await fetch(`/getkode/${kecId}`);
+        if (!res.ok) throw new Error(res.statusText);
+        const payload = await res.json();
+        // console.log("getKode payload:", payload);
+        const list =
+            Array.isArray(payload) ? payload :
+            Array.isArray(payload.results) ? payload.results :
+            Array.isArray(payload.data) ? payload.data : [];
+        kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
+        if (list.length === 0) {
+            kodeElm.innerHTML = '<option value="">(Tidak ada desa)</option>';
+            return;
+        }
+        list.forEach(el => {
+            const rawName = el.DesaKelurahan ?? el.label;
+            const nama = titleCase(rawName).split("/")[0].trim();
+            const pos = el.KodePos ?? el.kodepos;
+            const opt = document.createElement("option");
+            opt.value = `${nama}-${pos}`;
+            opt.textContent = nama;
+            kodeElm.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error("getKode error:", err);
+        kodeElm.innerHTML = '<option value="">(Gagal memuat desa)</option>';
+    }
 }
+
 
 function generateAlamat(isi, posisi) {
     //posisi : 1.jln 2.desa 3.kec 4.kab 5.prov 6.kodepos
@@ -774,21 +831,17 @@ kotaElm.addEventListener("change", (e) => {
     btnCheckoutElm.classList.add('disabled');
 })
 kecElm.addEventListener("change", (e) => {
-    generateAlamat(e.target.value.split("-")[1], 3);
-    kodeElm.innerHTML = '<option value="">Loading..</option>'
-    // costElm.innerHTML = '-'
-    // hasilApiKurir = [];
-    // hasilApiKurirRO = [];
-    // resetUIBtnPilihKurir();
-    const value = e.target.value.split("-")
-    const idkec = Number(value[0])
-    if (idkec > 0) {
+    const namaKec = e.target.value.split("-")[1];
+    generateAlamat(namaKec, 3);
+    kodeElm.innerHTML = '<option value="">Loading..</option>';
+    const [idkec] = e.target.value.split("-");
+    if (Number(idkec) > 0) {
         prov_kab_kec_desa[2] = e.target.value;
-        getKode(value[1])
+        getKode(idkec);
     }
 
     btnCheckoutElm.classList.add('disabled');
-})
+});
 kodeElm.addEventListener("change", (e) => {
     generateAlamat(e.target.value.split("-")[0], 2);
     generateAlamat(e.target.value.split("-")[1], 6);
