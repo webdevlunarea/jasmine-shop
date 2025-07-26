@@ -49,7 +49,7 @@
         <div class="container-kategori-scroll">
             <div class="container-kategori">
                 <a class="kategori" href="/all/diskon">
-                    <img src="/img/logokategori/Diskon.webp" alt="Diskon" width="50px">
+                    <img src="/img/logokategori/15.webp" alt="Diskon" width="50px">
                     <p>Big Sale up to 15%</p>
                 </a>
                 <a class="kategori" href="/all/lemari-dewasa">
@@ -275,7 +275,8 @@
                 tapi masih belum menemukan toko yang <i>trusted</i>?</p>
             <p class="text-justify">Tenang saja, Kamu berada di tempat yang tepat! Sekarang semua cukup mudah. Kamu bisa
                 mendapatkan lemari sepatu kayu olahan dengan cepat dan aman dalam genggaman tangan saja melalui,
-                <i>Website</i> Lunarea Furniture.</p>
+                <i>Website</i> Lunarea Furniture.
+            </p>
             <p class="text-justify">Jangan lupa juga untuk perhatikan pembelian dan pastikan Kamu mendapatkan lemari
                 sepatu minimalis dengan harga terbaik dan diskon menarik serta <b>gratis ongkir</b> untuk Pulau Jawa,
                 Madura dan Bali lho!</p>
@@ -301,7 +302,8 @@
                 baju minimalis menyamarkan kesan sesak dalam ruangan. Desain lemari kayu minimalis olahan yang seperti
                 inilah yang sedang banyak jadi furniture populer yang dengan mudah ditemukan di berbagai toko
                 <i>offline</i> dan <i>online</i>. Lemari pakaian minimalis modern minimalis terbaru hadir dengan
-                berbagai jenis mulai dari lemari dengan 2 pintu, lemari kayu 3 pintu, hingga 4 pintu.</p>
+                berbagai jenis mulai dari lemari dengan 2 pintu, lemari kayu 3 pintu, hingga 4 pintu.
+            </p>
 
             <h5>Jenis Lemari Pakaian</h5>
             <p class="text-justify">Banyaknya minat masyarakat terhadap lemari pakaian minimalis, membuat para pengrajin
@@ -347,10 +349,12 @@
                 lakukan riset sederhana seperti bertanya pada orang-orang terpercaya, atau ngepoin marketplace sampai
                 website toko <i>furniture online</i>. Kalau kamu bingung, website Lunarea Furniture bisa dengan mudah
                 Kamu akses dengan mudah untuk tahu desain, material, dan harga lemari pakaian minimalis modern yang
-                cocok buat Kamu.</p>
+                cocok buat Kamu.
+            </p>
             <p class="text-justify">Kabar gembiranya, Lunarea Furniture yang jual lemari pakaian plus lagi ngadain
                 <b>gratis ongkir</b> untuk pengiriman di pulau Jawa, Madura dan Bali nih! Kapan lagi? Yuk sekarang aja,
-                sebelum kehabisan promonya!</p>
+                sebelum kehabisan promonya!
+            </p>
         </div>
     </div>
     <div class="d-flex justify-content-center mb-5">
@@ -455,7 +459,8 @@
                 sampai disitu saja, tapi ada <b>gratis pengiriman ke pulau Jawa, Madura dan Bali!</b></p>
             <p class="text-justify">Buat yang diluar ketiga pulau tadi jangan khawatir, Lunarea bakal kasih kamu
                 <b>subsidi ongkir</b> yang nggak tanggung-tanggung agar kamu dapatin harga meja kantor terbaik buat
-                Kamu.</p>
+                Kamu.
+            </p>
             <p class="text-justify">Tunggu apa lagi, <i>check out</i> meja kantor minimalis sekarang juga dan dapatkan
                 keuntungannya segera!</p>
         </div>
@@ -477,7 +482,8 @@
                 saja, furniture meja yang satu ini juga punya fungsi lain sebagai tempat penyimpanan peralatan pendukung
                 nonton TV seperti DVD <i>player</i>, PS <i>player</i>, WiFi, dan masih banyak lagi. Karena saking
                 multifungsinya, furniture meja tempat TV ini punya sebutan lain di masyarakat seperti rak TV,
-                <i>buffet</i> TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.</p>
+                <i>buffet</i> TV, credenza TV, dan sebutan lain yang sebenarnya jika dilihat dari fungsi tetap sama.
+            </p>
 
             <h5>Desain Meja TV Minimalis</h5>
             <p class="text-justify">Ngomong desain, ada berbagai jenis model yang bisa Kamu pilih lho! Terlebih jika
@@ -487,7 +493,8 @@
                 dengan warna-warna cantik dari rak TV minimalis. Serba serbi minimalis memang jadi primadona bagi banyak
                 orang, yang mungkin kamu salah satunya. Selain desain yang cantik, kebutuhan furniture yang pas dengan
                 <i>space</i> terbatas jadi alasan mengapa meja TV minimalis kayu olahan jadi pilihan terbaik saat ini
-                buat orang-orang.</p>
+                buat orang-orang.
+            </p>
 
             <h5>Tips Jitu Anti Gagal Beli Rak TV</h5>
             <p class="text-justify mb-1">Semakin kesini, Kamu mungkin akan makin bimbang dengan berbagai model variatif
@@ -565,7 +572,8 @@
                 adalah meja rias. Sama seperti namanya, furniture satu ini punya fungsi yang vital terlebih buat
                 perempuan. Dengan meja rias atau tolet inilah yang membuatmu tidak perlu <i>worry</i> lagi bakalan nggak
                 <i>stunning</i> setiap harinya. Karena diperuntukkan secara spesial buat perempuan, tentunya kamu juga
-                bisa dengan mudah menemukan berbagai jenis desain yang cantik dan menarik.</p>
+                bisa dengan mudah menemukan berbagai jenis desain yang cantik dan menarik.
+            </p>
 
             <h5>Dari Material Bahan Apa Meja Rias Dibuat?</h5>
             <p class="text-justify">Furniture ini kebanyakan terbuat dari bahan <i>particle board</i>. Material yang
@@ -590,13 +598,15 @@
                 menawan, siapa sih yang nggak kelimpungan buat dapetin meja rias multifungsi kayak gini? Nah, tapi
                 jangan asal pilih juga ya! Pastikan Kamu beli meja rias di tempat yang terpercaya agar tak menyesal
                 kemudian. Salah satunya yang bakalan nggak bikin kecewa bisa Kamu dapetin lewat websitenya Lunarea
-                Furniture.</p>
+                Furniture.
+            </p>
             <p class="text-justify">Pastiin kamu sudah cek dulu baru <i>check out</i> produk idaman Kamu ya! Jangan
                 kelamaan <i>checking</i> sebelum kehabisan stok, mumpung ada <b>gratis ongkir</b> pengiriman di Pulau
                 Jawa, Madura, dan Bali.</p>
             <p class="text-justify">Atau jika masih bimbang mau meja rias minimalis, meja rias multifungsi, meja rias
                 simple, meja rias minimalis modern, meja rias minimalis kecil atau meja-meja lainnya, Kamu bisa hubungi
-                <i>Customer Service</i> Lunarea yang bakal menjawab semua pertanyaanmu dengan sepenuh hati!</p>
+                <i>Customer Service</i> Lunarea yang bakal menjawab semua pertanyaanmu dengan sepenuh hati!
+            </p>
         </div>
     </div>
     <div class="d-flex justify-content-center mb-5">
@@ -623,7 +633,8 @@
                 menjadi alasan utama mengapa <i>particle board</i> sering jadi bahan pembuatan furniture. Selain itu,
                 beberapa model meja juga dibuat dengan kombinasi besi pada rangka yang menjadikannya jadi lebih kuat dan
                 kokoh Lho! Hal inilah yang menjadi dasar penetapan harga meja belajar kayu olahan dari bahan ini lebih
-                terjangkau di pasaran dibanding dengan material lainnya.</p>
+                terjangkau di pasaran dibanding dengan material lainnya.
+            </p>
 
             <h5>Desain & Jenisnya</h5>
             <p class="text-justify mb-1">Sudah diulas sebelumnya, jika keberagaman desain ini tak luput dari beragam
@@ -808,14 +819,16 @@
                 serta bentuk dalam jangka waktu lama. Poliester juga mudah dibersihkan dan dirawat, menjadikannya
                 pilihan praktis untuk furniture yang sering digunakan. Kain ini tersedia dalam berbagai tekstur dan
                 warna, memungkinkan desainer untuk menciptakan kursi yang tidak hanya nyaman tetapi juga estetis dan
-                sesuai dengan berbagai tema dekorasi.</p>
+                sesuai dengan berbagai tema dekorasi.
+            </p>
             <h6>Busa</h6>
             <p class="text-justify">Busa poliuretan (PU <i>Foam</i>) adalah pilihan umum untuk bantalan dudukan dan
                 sandaran kursi khususnya untuk kursi besi. Busa ini dipilih karena elastisitasnya yang baik, kemampuan
                 untuk kembali ke bentuk semula setelah digunakan, serta daya tahannya yang tinggi. Busa poliuretan
                 memberikan dukungan yang nyaman dan dapat menahan tekanan dalam jangka waktu lama, membuat kursi tumpuk
                 <i>stainless</i> cocok untuk penggunaan jangka panjang. Penggunaan busa juga membantu mendistribusikan
-                berat tubuh secara merata, mengurangi titik-titik tekanan, dan meningkatkan kenyamanan saat duduk.</p>
+                berat tubuh secara merata, mengurangi titik-titik tekanan, dan meningkatkan kenyamanan saat duduk.
+            </p>
             <p class="text-justify">Gabungan antara kerangka <i>stainless steel</i> yang kokoh dan pelapis kain yang
                 nyaman serta estetis menjadikan kursi susun <i>stainless</i> pilihan yang ideal untuk berbagai
                 kebutuhan. <i>Stainless steel</i> memberikan struktur yang kuat dan tahan lama, sementara kain poliester
@@ -873,7 +886,8 @@
                 <i>tricky</i>. Terlebih jika mencari desain dan tipe lemari yang bisa mendukung perkembangan si buah
                 hati. Lemari minimalis kecil bisa jadi solusi yang tepat untuk penyimpanan pakaian anak. Dilengkapi
                 dengan banyak rak susun dan rak gantung dengan tinggi dan ukuran lemari kecil kayu olahan yang mudah
-                dijangkau anak sehingga anak tak perlu repot minta bantuan orang dewasa untuk mengambil pakaiannya.</p>
+                dijangkau anak sehingga anak tak perlu repot minta bantuan orang dewasa untuk mengambil pakaiannya.
+            </p>
             <p class="text-justify">Nah, bagi <i>Moms</i> yang lagi cari-cari lemari kayu kecil minimalis anak, berikut
                 ini tips lengkap memilihnya:</p>
             <ul>
@@ -896,7 +910,8 @@
                     pelanggan yang telah membeli produk lemarianak tersebut. Jika dirasa memuaskan, maka <i>Moms</i>
                     bisa segera memutuskan untuk membelinya. Tapi jika <i>Moms</i> ragu setelah membaca ulasan,
                     sebaiknya <i>Moms move on</i> dari produk lemari di toko tersebut dan beralih ke toko yang lebih
-                    <i>trusted</i>.</li>
+                    <i>trusted</i>.
+                </li>
             </ul>
 
             <h5>Rekomendasi Lemari Minimalis Kecil</h5>
