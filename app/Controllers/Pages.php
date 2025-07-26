@@ -751,10 +751,22 @@ class Pages extends BaseController
     }
     public function all($subkategori = '')
     {
-        $produk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll(20, 0);
+        if ($subkategori == 'diskon') {
+            $produk = $this->barangModel
+                ->where(['active' => '1'])
+                ->where('diskon >', 0)
+                ->orderBy('nama', 'asc')
+                ->findAll(20, 0);
+        }else {
+            $produk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll(20, 0);
+        }
         $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll();
         if (count($produk) <= 0) return redirect()->to('/all');
         $meta = [
+            'diskon' => [
+                'deskripsi' => 'Dapatkan diskon menarik untuk produk furniture Lunarea. Temukan berbagai penawaran menarik untuk mempercantik rumah Anda dengan harga terjangkau.',
+                'keywords' => ['diskon', 'diskon furniture', 'diskon lunarea', 'diskon lunarea furniture', 'diskon lunarea furniture semarang'],
+            ],
             'lemari-dewasa' => [
                 'deskripsi' => 'Kenapa Harus Punya Lemari Pakaian? Sebagai salah satu furniture penting yang ada di rumah, lemari memegang peran penting untuk memastikan barang di dalamnya tertata rapi. Lemari bisa ditempatkan pada bagian rumah di mana saja tergantung dari jenis penyimpanannya. Sesuai dengan namanya, lemari pakaian biasanya di tempat tidur sebagai tempat penyimpanan pakaian. Tapi tidak menutup kemungkinan juga lemari digunakan untuk menyimpan keperluan lain dan bisa ditempatkan secara fleksibel di ruangan lainnya.',
                 'keywords' => ['lemari pakaian minimalis', 'lemari baju minimalis', 'Lemari pakaian minimalis modern minimalis terbaru', 'lemari pakaian 2 pintu', 'lemari pakaian 3 pintu', 'Harga Lemari Pakaian Minimalis Modern', 'Harga lemari baju', 'jual lemari pakaian', 'harga lemari pakaian minimalis modern', 'lemari dewasa lunarea'],
