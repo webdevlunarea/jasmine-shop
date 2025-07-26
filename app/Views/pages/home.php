@@ -340,7 +340,7 @@ function closeModalVoucherAll(index) {
         <div class="container-kategori-scroll" id="section-produk-populer">
             <div class="container-kategori">
                 <a class="kategori" href="/all/diskon">
-                    <img src="/img/logokategori/15.webp" alt="Diskon" width="50px">
+                    <img src="/img/logokategori/Diskon15.webp" alt="Diskon" width="50px">
                     <p>Big Sale up to 15%</p>
                 </a>
                 <a class="kategori" href="/all/lemari-dewasa">
