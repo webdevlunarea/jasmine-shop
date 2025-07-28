@@ -1319,7 +1319,7 @@ footer > .atas > div {
     .card1 .diskon-bwh {
         display: inline;
         font-size: 10px;
-        font-weight: bold;
+        /* font-weight: bold; */
     }
     .card-group1 {
         gap: 0.6em;
