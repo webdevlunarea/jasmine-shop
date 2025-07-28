@@ -225,6 +225,7 @@ a {
 }
 .harga {
     color: var(--hijau);
+    font-weight: bold;
 }
 .card1 .diskon {
     background-color: var(--hijau);
