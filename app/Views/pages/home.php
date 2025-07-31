@@ -285,6 +285,8 @@ function closeModalVoucherAll(index) {
                     aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
                     aria-label="Slide 4"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
+                    aria-label="Slide 5"></button>
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
@@ -310,6 +312,12 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                     <img loading="lazy" src="img/banner4 hp.webp?v=123" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                </div>
+                <div class="carousel-item">
+                    <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
+                        style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
+                    <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
