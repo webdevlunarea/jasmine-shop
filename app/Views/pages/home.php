@@ -314,10 +314,12 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
-                    <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
+                    <a href="/all/diskon">
+                        <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
+                            style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
+                        <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
+                            style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
+                    </a>
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
