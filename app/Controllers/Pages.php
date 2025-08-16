@@ -6701,7 +6701,8 @@ class Pages extends BaseController
             'stokVarian' => $stokVarian,
             'countAllStok' => $countAllStok,
             'pag' => $pag,
-            'idProduk' => $idProduk
+            'idProduk' => $idProduk,
+            'emailtambah' => in_array(session()->get('email'), ['adminlunarea@gmail.com', 'galih8.4.2001@gmail.com']) 
         ];
         // dd($data);
         return view('pages/stokAdmin', $data);
