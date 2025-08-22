@@ -48,10 +48,10 @@
         </div>
         <div class="container-kategori-scroll">
             <div class="container-kategori">
-                <a class="kategori" href="/all/diskon">
+                <!-- <a class="kategori" href="/all/diskon">
                     <img src="/img/logokategori/Diskon15.webp" alt="Diskon" width="50px">
                     <p>Big Sale up to 15%</p>
-                </a>
+                </a> -->
                 <a class="kategori" href="/all/lemari-dewasa">
                     <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemnari dewasa" width="50px">
                     <p>Lemari Dewasa</p>

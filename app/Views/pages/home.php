@@ -313,14 +313,14 @@ function closeModalVoucherAll(index) {
                     <img loading="lazy" src="img/banner4 hp.webp?v=123" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
-                <div class="carousel-item">
+                <!-- <div class="carousel-item">
                     <a href="/all/diskon">
                         <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
                             style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
                         <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
                             style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
                     </a>
-                </div>
+                </div> -->
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
                 data-bs-slide="prev">
@@ -349,10 +349,10 @@ function closeModalVoucherAll(index) {
         </div>
         <div class="container-kategori-scroll" id="section-produk-populer">
             <div class="container-kategori">
-                <a class="kategori" href="/all/diskon">
+                <!-- <a class="kategori" href="/all/diskon">
                     <img src="/img/logokategori/Diskon15.webp" alt="Diskon" width="50px">
                     <p>Big Sale up to 15%</p>
-                </a>
+                </a> -->
                 <a class="kategori" href="/all/lemari-dewasa">
                     <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemnari dewasa" width="50px">
                     <p>Lemari Dewasa</p>
