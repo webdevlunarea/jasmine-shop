@@ -2,6 +2,12 @@
 <?= $this->section('content'); ?>
 <div class="konten artikel">
     <div class="container">
+        <?php
+        // === NEW: deteksi halaman pertama ===
+        // jika $pagination tidak ada (misal tidak pakai paginate manual), dianggap halaman 1
+        $isFirstPage = !isset($pagination) || (int)($pagination['current'] ?? 1) <= 1;
+        ?>
+
         <style>
         /* === Pagination Look & Feel (ringkas, rapi, nyatu tema) === */
         .lunarea-pager {
@@ -123,10 +129,14 @@
                 src="https://images.unsplash.com/photo-1613575831056-0acd5da8f085?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="">
         </div>
+        <?php } ?>
+
         <?php
-        }
+        // Default: TIDAK skip item awal (grid rata 3 untuk halaman > 1)
         $indexAwal = -1;
-        if (count($artikel) > 5) { ?>
+
+        // HANYA HALAMAN PERTAMA: tampilkan "Artikel Baru" (item 0..4) lalu sisanya ke grid
+        if ($isFirstPage && count($artikel) > 5) { ?>
         <div class="mb-4">
             <div class="d-flex justify-content-between mb-3 align-items-center">
                 <h5 class="jdl-section">Artikel Baru</h5>
@@ -202,7 +212,8 @@
             </div>
         </div>
         <?php
-            $indexAwal = 4;
+            // NEW: karena sudah tampilkan 0..4 di atas, sisanya mulai dari index 5 untuk grid
+            $indexAwal = 5;
         }
         ?>
 
@@ -210,6 +221,7 @@
         <div class="show-flex-ke-hide">
             <div style="display:grid; grid-template-columns: repeat(3, 1fr);" class="gap-4">
                 <?php foreach ($artikel as $ind_a => $a) {
+                    // NEW: jika halaman > 1 -> $indexAwal tetap -1 => semua item masuk grid (rata 3)
                     if ($ind_a > $indexAwal) { ?>
                 <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
                     <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
@@ -273,7 +285,6 @@
                 $pages = $makePages($pagination['current'], $pagination['totalPages']);
             ?>
         <div class="lunarea-pager my-4">
-
             <a class="btn btn-light <?= $pagination['current'] <= 1 ? 'disabled' : '' ?>"
                 href="<?= $pagination['current'] <= 1 ? 'javascript:void(0)' : $pagination['firstUrl']; ?>"
                 aria-label="Halaman pertama" title="Halaman pertama">
