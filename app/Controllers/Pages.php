@@ -437,21 +437,73 @@ class Pages extends BaseController
             ];
             return view('pages/artikel', $data);
         } else {
-            $artikel = $getArtikel;
+            // Ambil semua artikel seperti biasa dari model custom-mu
+            $artikelAll = $getArtikel;
+
+            // ===== Pagination manual (tanpa ubah model) =====
+            $perPage = 9; // jumlah kartu per halaman (atur sesukamu)
+            $page = (int) ($this->request->getGet('page') ?? 1);
+            $page = max(1, $page);
+
+            $total = is_array($artikelAll) ? count($artikelAll) : 0;
+            $totalPages = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $totalPages);
+
+            $offset = ($page - 1) * $perPage;
+            $artikel = array_slice($artikelAll, $offset, $perPage);
+
+            // Siapkan query string selain ?page= agar tetap terbawa (misal ?cari= & ?kategori=)
+            $qs = $this->request->getGet();
+            unset($qs['page']);
+            $queryKeep = http_build_query($qs);
+            $baseUrl = current_url();
+            $buildUrl = function($p) use ($baseUrl, $queryKeep) {
+                $q = $queryKeep ? ($queryKeep . '&') : '';
+                return $baseUrl . '?' . $q . 'page=' . max(1, (int)$p);
+            };
+
+            // ===== Format field artikel seperti sebelumnya =====
+            $bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
             foreach ($artikel as $ind_a => $a) {
                 $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
+
                 if (preg_match('/<p>(.*?)<\/p>/', $a['isi'], $matches)) {
                     $artikel[$ind_a]['isi'] = $matches[1];
                 } else {
                     $artikel[$ind_a]['isi'] = '';
                 }
+
                 $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
-                $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+                $artikel[$ind_a]['waktu']   = date("d", strtotime($a['waktu'])) . " " .
+                                            $bulan[date("m", strtotime($a['waktu'])) - 1] . " " .
+                                            date("Y", strtotime($a['waktu']));
             }
-            $data = [
-                'title' => 'Artikel',
-                'artikel' => $artikel
+
+            // Paket data pagination untuk view
+            $pagination = [
+                'current'     => $page,
+                'perPage'     => $perPage,
+                'total'       => $total,
+                'totalPages'  => $totalPages,
+                'firstUrl'    => $buildUrl(1),
+                'prevUrl'     => $buildUrl(max(1, $page - 1)),
+                'nextUrl'     => $buildUrl(min($totalPages, $page + 1)),
+                'lastUrl'     => $buildUrl($totalPages),
+                // range nomor sekitar halaman aktif (mirip surroundCount = 1)
+                'numbers'     => (function() use ($page, $totalPages) {
+                    $from = max(1, $page - 1);
+                    $to   = min($totalPages, $page + 1);
+                    return range($from, $to);
+                })(),
+                'numberUrl'   => $buildUrl, // kirim closure biar view bisa panggil
             ];
+
+            $data = [
+                'title'      => 'Artikel',
+                'artikel'    => $artikel,
+                'pagination' => $pagination,
+            ];
+
             return view('pages/artikelAll', $data);
         }
     }
