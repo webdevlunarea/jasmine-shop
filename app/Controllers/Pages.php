@@ -5112,18 +5112,71 @@ class Pages extends BaseController
     {
         $artikel = $this->artikelModel->orderBy('rand()')->limit(3)->findAll();
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+        // helper trim sederhana (bisa dipindah ke library kalau mau)
+        $trimText = function (string $text, int $limit = 120): string {
+            $text = trim(strip_tags($text));
+            if (mb_strlen($text) <= $limit) return $text;
+            return mb_substr($text, 0, $limit) . '…';
+        };
+
         foreach ($artikel as $ind_a => $a) {
+            // header
             $artikel[$ind_a]['header'] = '/imgart/' . $a['id'];
-            $artikel[$ind_a]['isi'] = json_decode($a['isi'], true);
-            $artikel[$ind_a]['kategori'] = explode(",", $a['kategori']);
-            $artikel[$ind_a]['waktu'] = date("d", strtotime($a['waktu'])) . " " . $bulan[date("m", strtotime($a['waktu'])) - 1] . " " . date("Y", strtotime($a['waktu']));
+
+            // isi -> pastikan array
+            $decoded = null;
+            if (isset($a['isi']) && $a['isi'] !== '' && $a['isi'] !== null) {
+                $decoded = json_decode($a['isi'], true);
+            }
+            $artikel[$ind_a]['isi'] = is_array($decoded) ? $decoded : [];
+
+            // kategori -> array
+            $artikel[$ind_a]['kategori'] = isset($a['kategori']) && $a['kategori'] !== ''
+                ? explode(",", $a['kategori'])
+                : [];
+
+            // waktu -> "dd Mon YYYY"
+            $ts = strtotime($a['waktu'] ?? 'now');
+            $artikel[$ind_a]['waktu'] = date("d", $ts) . " " . $bulan[(int)date("m", $ts) - 1] . " " . date("Y", $ts);
+
+            // excerpt aman:
+            // prioritas: isi[0]['teks'] -> elemen lain yg punya 'teks' -> kalau 'isi' ternyata string -> kosong
+            $excerpt = '';
+            if (!empty($artikel[$ind_a]['isi'])) {
+                // kasus umum: array of blocks
+                if (isset($artikel[$ind_a]['isi'][0]['teks']) && is_string($artikel[$ind_a]['isi'][0]['teks'])) {
+                    $excerpt = $artikel[$ind_a]['isi'][0]['teks'];
+                } else {
+                    // cari item pertama yang punya 'teks'
+                    foreach ($artikel[$ind_a]['isi'] as $blk) {
+                        if (is_array($blk) && isset($blk['teks']) && is_string($blk['teks'])) {
+                            $excerpt = $blk['teks'];
+                            break;
+                        }
+                        // jaga-jaga: kalau block string langsung
+                        if (is_string($blk) && $blk !== '') {
+                            $excerpt = $blk;
+                            break;
+                        }
+                    }
+                }
+            } elseif (is_string($a['isi'] ?? null) && $a['isi'] !== '') {
+                // edge-case: isi bukan JSON tapi string polos
+                $excerpt = $a['isi'];
+            }
+
+            $artikel[$ind_a]['excerpt'] = $trimText((string)$excerpt);
         }
+
         $data = [
-            'title' => 'Kontak',
-            'artikel' => $artikel
+            'title'   => 'Kontak',
+            'artikel' => $artikel,
         ];
+
         return view('pages/contact', $data);
     }
+
     public function about()
     {
         $data = [
