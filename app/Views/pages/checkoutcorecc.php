@@ -332,12 +332,17 @@
                             <div class="form-floating w-50">
                                 <select class="form-select" aria-label="Default select example" name="kota">
                                     <option value="">-- Pilih kota --</option>
-                                    <?php foreach ($kabupaten as $p) { ?>
-                                    <option value="<?= $p['city_id']; ?>-<?= explode("/", $p['city_name'])[0]; ?>"
-                                        <?= $user['alamat'] ? ($p['city_id'] == $user['alamat']['kab_id'] ? 'selected' : '') : ''; ?>>
-                                        <?= $p['city_name']; ?>
+                                    <?php foreach ($kabupaten as $p) {
+                                        $id   = $p['city_id']  ?? $p['id']    ?? '';
+                                        $name = $p['city_name']?? $p['label'] ?? '';
+                                        $name = explode('/', (string)$name)[0];
+                                        $isSelected = !empty($user['alamat']['kab_id']) && (string)$id === (string)$user['alamat']['kab_id'];
+                                        ?>
+                                    <option value="<?= $id; ?>-<?= $name; ?>" <?= $isSelected ? 'selected' : ''; ?>>
+                                        <?= $p['city_name'] ?? $p['label'] ?? $name; ?>
                                     </option>
                                     <?php } ?>
+
                                 </select>
                                 <label for="floatingProvinsi">Kabupaten/Kota</label>
                             </div>
@@ -346,26 +351,34 @@
                             <div class="form-floating w-50">
                                 <select class="form-select" aria-label="Default select example" name="kecamatan">
                                     <option selected value="">-- Pilih kecamatan --</option>
-                                    <?php foreach ($kecamatan as $p) { ?>
-                                    <option
-                                        value="<?= $p['subdistrict_id']; ?>-<?= explode("/", $p['subdistrict_name'])[0]; ?>"
-                                        <?= $user['alamat'] ? ($p['subdistrict_id'] == $user['alamat']['kec_id'] ? 'selected' : '') : ''; ?>>
-                                        <?= $p['subdistrict_name']; ?>
+                                    <?php foreach ($kecamatan as $p) {
+                                        $id   = $p['subdistrict_id']   ?? $p['id']    ?? '';
+                                        $name = $p['subdistrict_name'] ?? $p['label'] ?? '';
+                                        $name = explode('/', (string)$name)[0];
+                                        $isSelected = !empty($user['alamat']['kec_id']) && (string)$id === (string)$user['alamat']['kec_id'];
+                                        ?>
+                                    <option value="<?= $id; ?>-<?= $name; ?>" <?= $isSelected ? 'selected' : ''; ?>>
+                                        <?= $p['subdistrict_name'] ?? $p['label'] ?? $name; ?>
                                     </option>
                                     <?php } ?>
+
                                 </select>
                                 <label for="floatingProvinsi">Kecamatan</label>
                             </div>
                             <div class="form-floating w-50">
                                 <select class="form-select" aria-label="Default select example" name="kodepos">
                                     <option value="">-- Pilih Desa --</option>
-                                    <?php foreach ($desa as $p) { ?>
-                                    <option
-                                        value="<?= explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0]; ?>-<?= $p['KodePos']; ?>"
-                                        <?= $user['alamat'] ? (explode("/", ucwords(strtolower($p['DesaKelurahan'])))[0] == $user['alamat']['desa'] ? 'selected' : '') : ''; ?>>
-                                        <?= ucwords(strtolower($p['DesaKelurahan'])); ?>
+                                    <?php foreach ($desa as $p) {
+                                    $name = $p['DesaKelurahan'] ?? $p['label'] ?? '';
+                                    $name = ucwords(strtolower(explode('/', (string)$name)[0]));
+                                    $pos  = $p['KodePos'] ?? $p['kodepos'] ?? '';
+                                    $isSelected = !empty($user['alamat']['desa']) && ($name === $user['alamat']['desa']);
+                                    ?>
+                                    <option value="<?= $name; ?>-<?= $pos; ?>" <?= $isSelected ? 'selected' : ''; ?>>
+                                        <?= $p['DesaKelurahan'] ?? $p['label'] ?? $name; ?>
                                     </option>
                                     <?php } ?>
+
                                 </select>
                                 <label for="floatingProvinsi">Desa/Kelurahan</label>
                             </div>
