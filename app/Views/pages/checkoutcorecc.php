@@ -318,8 +318,11 @@
                                 <select class="form-select" aria-label="Default select example" name="provinsi">
                                     <option value="">-- Pilih provinsi --</option>
                                     <?php foreach ($provinsi as $p) { ?>
-                                    <option value="<?= $p['id']; ?>-<?= $p['label']; ?>"
-                                        <?= $user['alamat'] ? ($p['province_id'] == $user['alamat']['prov_id'] ? 'selected' : '') : ''; ?>>
+                                    <option value="<?= $p['id']; ?>-<?= $p['label']; ?>" <?= (!empty($user['alamat'])
+                                                && isset($user['alamat']['prov_id'])
+                                                && isset($p['id'])
+                                                && (string)$p['id'] === (string)$user['alamat']['prov_id'])
+                                                ? 'selected' : ''; ?>>
                                         <?= $p['label']; ?>
                                     </option>
                                     <?php } ?>
