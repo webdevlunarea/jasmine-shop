@@ -316,14 +316,14 @@ function closeModalVoucherAll(index) {
                 <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=2026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
-                    <!-- <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture"> -->
+                    <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=2026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Ramadan 5%">
-                    <!-- <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture"> -->
+                    <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Ramadan 5%">
                 </div>
                 <!-- <div class="carousel-item">
                     <a href="/all/diskon">
