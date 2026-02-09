@@ -302,9 +302,9 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner3.webp?v=1.0" class="show-ke-hide"
+                    <img loading="lazy" src="img/banner3.webp?v=2026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                    <img loading="lazy" src="img/banner3 hp.webp?v=1.0" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/banner3 hp.webp?v=2026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
                 </div>
                 <div class="carousel-item">
@@ -321,7 +321,7 @@ function closeModalVoucherAll(index) {
                 </div>
                 <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=2026" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
+                        style="width: 100%; height: auto;" alt="Ramadan 5%">
                     <!-- <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture"> -->
                 </div>
