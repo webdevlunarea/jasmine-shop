@@ -278,15 +278,15 @@ function closeModalVoucherAll(index) {
         <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" 
-                    aria-current="true" aria-label="Slide 1"></button>
+                    aria-label="Slide 1"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
                     aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" class="active"
-                    aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" class="active" 
+                    aria-current="true" aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
                     aria-label="Slide 4"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
-                    aria-label="Slide 5"></button>
+                <!-- <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
+                    aria-label="Slide 5"></button> -->
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
@@ -313,12 +313,12 @@ function closeModalVoucherAll(index) {
                     <img loading="lazy" src="img/banner4 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
-                <div class="carousel-item">
+                <!-- <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
                     <img loading="lazy" src="img/banner5 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                </div>
+                </div> -->
                 <!-- <div class="carousel-item">
                     <a href="/all/diskon">
                         <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
