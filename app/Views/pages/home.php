@@ -290,33 +290,33 @@ function closeModalVoucherAll(index) {
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
-                    <img src="img/banner1.webp?v=2026" class="show-ke-hide" style="width: 100%; height: auto;"
+                    <img src="img/banner1.webp?v=022026" class="show-ke-hide" style="width: 100%; height: auto;"
                         alt="Lunarea Furniture">
-                    <img src="img/banner1 hp.webp?v=2026" class="hide-ke-show-block" style="width: 100%; height: auto;"
+                    <img src="img/banner1 hp.webp?v=022026" class="hide-ke-show-block" style="width: 100%; height: auto;"
                         alt="Lunarea Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner2.webp?v=2026" class="show-ke-hide"
+                    <img loading="lazy" src="img/banner2.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
-                    <img loading="lazy" src="img/banner2 hp.webp?v=2026" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/banner2 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner3.webp?v=2026" class="show-ke-hide"
+                    <img loading="lazy" src="img/banner3.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                    <img loading="lazy" src="img/banner3 hp.webp?v=2026" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/banner3 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner4.webp?v=2026" class="show-ke-hide"
+                    <img loading="lazy" src="img/banner4.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/banner4 hp.webp?v=2026" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/banner4 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner5.webp?v=2026" class="show-ke-hide"
+                    <img loading="lazy" src="img/banner5.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
-                    <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/banner5 hp.webp?v=022026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <!-- <div class="carousel-item">
