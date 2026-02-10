@@ -277,11 +277,11 @@ function closeModalVoucherAll(index) {
     <div class="container">
         <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" 
                     aria-current="true" aria-label="Slide 1"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
                     aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" class="active"
                     aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
                     aria-label="Slide 4"></button>
@@ -318,12 +318,6 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
                     <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/banner5.webp?v=2026" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Ramadan 5%">
-                    <img loading="lazy" src="img/banner5 hp.webp?v=2026" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Ramadan 5%">
                 </div>
                 <!-- <div class="carousel-item">
                     <a href="/all/diskon">
