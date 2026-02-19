@@ -285,8 +285,8 @@ function closeModalVoucherAll(index) {
                     aria-current="true" aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
                     aria-label="Slide 4"></button>
-                <!-- <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
-                    aria-label="Slide 5"></button> -->
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
+                    aria-label="Slide 5"></button>
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
@@ -310,9 +310,15 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/udin.webp?v=188" class="show-ke-hide"
+                    <img loading="lazy" src="img/jj.svg?v=188" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/udin hp hp.webp?v=188" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/jj hp.svg?v=188" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                </div>
+                <div class="carousel-item">
+                    <img loading="lazy" src="img/ramdan.svg?v=188" class="show-ke-hide"
+                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <img loading="lazy" src="img/ramdan hp.svg?v=188" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <!-- <div class="carousel-item">
