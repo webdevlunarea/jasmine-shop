@@ -291,34 +291,34 @@ function closeModalVoucherAll(index) {
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
                     <a href="/all/diskon">
-                        <img src="img/banner3.webp?v=199" class="show-ke-hide" style="width: 100%; height: auto;"
+                        <img src="img/rmdn.webp?v=201" class="show-ke-hide" style="width: 100%; height: auto;"
                             alt="Lunarea Furniture">
-                        <img src="img/banner3 hp.webp?v=199" class="hide-ke-show-block" style="width: 100%; height: auto;"
+                        <img src="img/rmdn hp.webp?v=201" class="hide-ke-show-block" style="width: 100%; height: auto;"
                             alt="Lunarea Furniture">
                     </a>
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/banner2.webp?v=199" class="show-ke-hide"
+                    <img loading="lazy" src="img/rmdn2.webp?v=201" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
-                    <img loading="lazy" src="img/banner2 hp.webp?v=199" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/rmdn2 hp.webp?v=201" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/alamak1.webp?v=199" class="show-ke-hide"
+                    <img loading="lazy" src="img/alamak1.webp?v=201" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                    <img loading="lazy" src="img/alamak1 hp.webp?v=199" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/alamak1 hp.webp?v=201" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/jj.svg?v=199" class="show-ke-hide"
+                    <img loading="lazy" src="img/jj.svg?v=201" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/jj hp.svg?v=199" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/jj hp.svg?v=201" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/ramdan.svg?v=199" class="show-ke-hide"
+                    <img loading="lazy" src="img/ramdan.svg?v=201" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/ramdan hp.svg?v=199" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/ramdan hp.svg?v=201" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <!-- <div class="carousel-item">
