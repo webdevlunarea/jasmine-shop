@@ -291,38 +291,39 @@ function closeModalVoucherAll(index) {
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <div class=" carousel-item active">
                     <a href="/all/diskon">
-                        <img src="img/rmdn.webp?v=201" class="show-ke-hide" style="width: 100%; height: auto;"
+                        <img src="img/ramdan.svg?v=202" class="show-ke-hide" style="width: 100%; height: auto;"
                             alt="Lunarea Furniture">
-                        <img src="img/rmdn hp.webp?v=201" class="hide-ke-show-block" style="width: 100%; height: auto;"
+                        <img src="img/ramdan hp.svg?v=202" class="hide-ke-show-block" style="width: 100%; height: auto;"
                             alt="Lunarea Furniture">
                     </a>
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/rmdn2.webp?v=201" class="show-ke-hide"
+                    <img loading="lazy" src="img/rmdn2.webp?v=202" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
-                    <img loading="lazy" src="img/rmdn2 hp.webp?v=201" class="hide-ke-show-block"
+                    <img loading="lazy" src="img/rmdn2 hp.webp?v=202" class="hide-ke-show-block"
                         style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/alamak1.webp?v=201" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                    <img loading="lazy" src="img/alamak1 hp.webp?v=201" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/jj.svg?v=201" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/jj hp.svg?v=201" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
                     <a href="/all/diskon">
-                        <img loading="lazy" src="img/ramdan.svg?v=201" class="show-ke-hide"
+                        <img loading="lazy" src="img/rmdn.webp?v=202" class="show-ke-hide"
                             style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                        <img loading="lazy" src="img/ramdan hp.svg?v=201" class="hide-ke-show-block"
+                        <img loading="lazy" src="img/rmdn hp.webp?v=202" class="hide-ke-show-block"
                             style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                     </a>
                 </div>
+                <div class="carousel-item">
+                    <img loading="lazy" src="img/alamak1.webp?v=202" class="show-ke-hide"
+                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
+                    <img loading="lazy" src="img/alamak1 hp.webp?v=202" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
+                </div>
+                <div class="carousel-item">
+                    <img loading="lazy" src="img/jj.svg?v=202" class="show-ke-hide"
+                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <img loading="lazy" src="img/jj hp.svg?v=202" class="hide-ke-show-block"
+                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                </div>
+                
                 <!-- <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=022026" class="show-ke-hide"
                         style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
