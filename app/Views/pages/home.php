@@ -316,10 +316,12 @@ function closeModalVoucherAll(index) {
                         style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/ramdan.svg?v=201" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/ramdan hp.svg?v=201" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <a href="/all/diskon">
+                        <img loading="lazy" src="img/ramdan.svg?v=201" class="show-ke-hide"
+                            style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                        <img loading="lazy" src="img/ramdan hp.svg?v=201" class="hide-ke-show-block"
+                            style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    </a>
                 </div>
                 <!-- <div class="carousel-item">
                     <img loading="lazy" src="img/banner5.webp?v=022026" class="show-ke-hide"
