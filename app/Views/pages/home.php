@@ -277,67 +277,38 @@ function closeModalVoucherAll(index) {
     <div class="container">
         <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" 
-                    aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"
+                    aria-current="true" aria-label="Slide 1"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
                     aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" class="active" 
-                    aria-current="true" aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
+                    aria-label="Slide 3"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
                     aria-label="Slide 4"></button>
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
                     aria-label="Slide 5"></button>
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
-                <div class=" carousel-item active">
-                    <a href="/all/diskon">
-                        <img src="img/ramdan.svg?v=202" class="show-ke-hide" style="width: 100%; height: auto;"
-                            alt="Lunarea Furniture">
-                        <img src="img/ramdan hp.svg?v=202" class="hide-ke-show-block" style="width: 100%; height: auto;"
-                            alt="Lunarea Furniture">
-                    </a>
+                <div class="carousel-item active">
+                    <img src="img/benner/1.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                        alt="Lunarea Furniture Banner 1">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/rmdn2.webp?v=202" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
-                    <img loading="lazy" src="img/rmdn2 hp.webp?v=202" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Furniture Gratis Ongkir">
+                    <img loading="lazy" src="img/benner/2.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                        alt="Lunarea Furniture Banner 2">
                 </div>
                 <div class="carousel-item">
-                    <a href="/all/diskon">
-                        <img loading="lazy" src="img/rmdn.webp?v=202" class="show-ke-hide"
-                            style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                        <img loading="lazy" src="img/rmdn hp.webp?v=202" class="hide-ke-show-block"
-                            style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    </a>
+                    <img loading="lazy" src="img/benner/3.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                        alt="Lunarea Furniture Banner 3">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/alamak1.webp?v=202" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
-                    <img loading="lazy" src="img/alamak1 hp.webp?v=202" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Special Sale Discount 5%">
+                    <img loading="lazy" src="img/benner/4.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                        alt="Lunarea Furniture Banner 4">
                 </div>
                 <div class="carousel-item">
-                    <img loading="lazy" src="img/jj.svg?v=202" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                    <img loading="lazy" src="img/jj hp.svg?v=202" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
+                    <img loading="lazy" src="img/benner/5.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                        alt="Lunarea Furniture Banner 5">
                 </div>
-                
-                <!-- <div class="carousel-item">
-                    <img loading="lazy" src="img/banner5.webp?v=022026" class="show-ke-hide"
-                        style="width: 100%; height: auto;" alt="Ramadan Barang lunarea">
-                    <img loading="lazy" src="img/banner5 hp.webp?v=022026" class="hide-ke-show-block"
-                        style="width: 100%; height: auto;" alt="Lunarea Minimalist Furniture">
-                </div> -->
-                <!-- <div class="carousel-item">
-                    <a href="/all/diskon">
-                        <img loading="lazy" src="img/banner5.webp?v=123" class="show-ke-hide"
-                            style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
-                        <img loading="lazy" src="img/banner5 hp.webp?v=123" class="hide-ke-show-block"
-                            style="width: 100%; height: auto;" alt="Lunarea 15% Furniture">
-                    </a>
-                </div> -->
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
                 data-bs-slide="prev">
