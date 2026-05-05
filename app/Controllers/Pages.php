@@ -5949,6 +5949,7 @@ class Pages extends BaseController
                 'tokped'        => $this->request->getVar('tokped'),
                 'tiktok'        => $this->request->getVar('tiktok'),
                 'youtube'       => $this->request->getVar('youtube'),
+                'terjual_custom' => $this->request->getVar('terjual_custom'),
             ]);
             $this->gambarBarangModel->save($insertGambarBarang);
 
@@ -5988,6 +5989,7 @@ class Pages extends BaseController
                 'tokped'        => $this->request->getVar('tokped'),
                 'tiktok'        => $this->request->getVar('tiktok'),
                 'youtube'       => $this->request->getVar('youtube'),
+                'terjual_custom' => $this->request->getVar('terjual_custom'),
             ]);
         }
 

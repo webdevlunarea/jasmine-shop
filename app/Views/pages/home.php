@@ -436,6 +436,15 @@ function closeModalVoucherAll(index) {
                     <?php } else { ?>
                     <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                     <?php } ?>
+                    <?php 
+                    $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
+                    if ($terjualTampil > 0) { 
+                    ?>
+                    <p class="mb-0 mt-1" style="font-size: 0.8rem; color: #666;">
+                        <i class="material-icons" style="font-size: 0.9rem;">shopping_cart</i>
+                        <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> terjual
+                    </p>
+                    <?php } ?>
                     <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
                 </div>
             </a>

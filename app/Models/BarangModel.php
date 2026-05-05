@@ -30,7 +30,9 @@ class BarangModel extends Model
         'youtube',
         'tracking_pop',
         'active',
-        'kaca'
+        'kaca',
+        'terjual',
+        'terjual_custom'
     ];
 
     public function getBarang($id = false)

@@ -53,6 +53,18 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Terjual (otomatis)</td>
+                                <td>
+                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['terjual'] ?? 0; ?>" name="terjual" readonly style="background-color: #f8f9fa;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Terjual (custom)</td>
+                                <td>
+                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['terjual_custom'] ?? 0; ?>" name="terjual_custom" placeholder="Atur manual jumlah terjual"></div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Kategori</td>
                                 <td>
                                     <div class="baris"><input type="text" class="form-control" value="<?= $produk['kategori']; ?>" name="kategori" required onchange="isiPencarian(event)"></div>
