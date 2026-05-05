@@ -252,6 +252,27 @@ a {
     font-size: small;
     margin: 0;
 }
+.card1 .terjual-badge {
+    background-color: rgba(0, 0, 0, 0.65);
+    color: white;
+    z-index: 2;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    width: fit-content;
+    line-height: 26px;
+    padding-inline: 8px;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 0.5em;
+    backdrop-filter: blur(4px);
+}
+.card1 .terjual-badge i {
+    font-size: 14px;
+}
 
 .container-melayang {
     position: fixed;
@@ -1320,6 +1341,16 @@ footer > .atas > div {
         display: inline;
         font-size: 10px;
         /* font-weight: bold; */
+    }
+    .card1 .terjual-badge {
+        font-size: 10px;
+        line-height: 20px;
+        padding-inline: 6px;
+        bottom: 5px;
+        right: 5px;
+    }
+    .card1 .terjual-badge i {
+        font-size: 11px;
     }
     .card-group1 {
         gap: 0.6em;

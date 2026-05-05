@@ -117,9 +117,9 @@
                 $terjualTampil = !empty($produk['terjual_custom']) && $produk['terjual_custom'] > 0 ? $produk['terjual_custom'] : ($produk['terjual'] ?? 0);
                 if ($terjualTampil > 0) { 
                 ?>
-                <p class="mb-0 mt-1" style="font-size: 0.9rem; color: #666;">
-                    <i class="material-icons" style="font-size: 1rem; vertical-align: middle;">shopping_cart</i>
-                    <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> terjual
+                <p class="mb-0 mt-1 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #f5f5f5; width: fit-content; padding: 4px 10px; border-radius: 2em;">
+                    <i class="material-icons" style="font-size: 1rem; color: #ff6b00;">local_fire_department</i>
+                    <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                 </p>
                 <?php } ?>
                 <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
@@ -313,6 +313,15 @@
                     <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
+                        <?php 
+                        $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
+                        if ($terjualTampil > 0) { 
+                        ?>
+                        <span class="terjual-badge">
+                            <i class="material-icons">local_fire_department</i>
+                            <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
+                        </span>
+                        <?php } ?>
                     </div>
                     <div class="mt-3">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -328,15 +337,7 @@
                         <?php } else { ?>
                             <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                         <?php } ?>
-                        <?php 
-                        $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
-                        if ($terjualTampil > 0) { 
-                        ?>
-                        <p class="mb-0 mt-1" style="font-size: 0.8rem; color: #666;">
-                            <i class="material-icons" style="font-size: 0.9rem;">shopping_cart</i>
-                            <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> terjual
-                        </p>
-                        <?php } ?>
+
                         <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
                     </div>
                 </a>
