@@ -118,7 +118,6 @@
                 if ($terjualTampil > 0) { 
                 ?>
                 <p class="mb-0 mt-1 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #f5f5f5; width: fit-content; padding: 4px 10px; border-radius: 2em;">
-                    <i class="material-icons" style="font-size: 1rem; color: #ff6b00;">local_fire_department</i>
                     <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                 </p>
                 <?php } ?>
@@ -318,7 +317,6 @@
                         if ($terjualTampil > 0) { 
                         ?>
                         <span class="terjual-badge">
-                            <i class="material-icons">local_fire_department</i>
                             <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                         </span>
                         <?php } ?>

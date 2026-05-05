@@ -270,9 +270,6 @@ a {
     border-radius: 0.5em;
     backdrop-filter: blur(4px);
 }
-.card1 .terjual-badge i {
-    font-size: 14px;
-}
 
 .container-melayang {
     position: fixed;
@@ -1348,9 +1345,6 @@ footer > .atas > div {
         padding-inline: 6px;
         bottom: 5px;
         right: 5px;
-    }
-    .card1 .terjual-badge i {
-        font-size: 11px;
     }
     .card-group1 {
         gap: 0.6em;

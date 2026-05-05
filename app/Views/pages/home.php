@@ -413,7 +413,6 @@ function closeModalVoucherAll(index) {
                     if ($terjualTampil > 0) { 
                     ?>
                     <span class="terjual-badge">
-                        <i class="material-icons">local_fire_department</i>
                         <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                     </span>
                     <?php } ?>
