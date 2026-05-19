@@ -92,9 +92,9 @@
                     <input type="hidden" name="tab" value="rating">
                     <label class="m-0">Filter produk:</label>
                     <select name="filter_barang" class="form-select" style="max-width: 320px;" onchange="this.form.submit()">
-                        <option value="0">— Semua produk —</option>
+                        <option value="">— Semua produk —</option>
                         <?php foreach ($produkOpsi as $po) { ?>
-                            <option value="<?= $po['id']; ?>" <?= (int)$filterBarang == (int)$po['id'] ? 'selected' : ''; ?>><?= esc($po['nama']); ?></option>
+                            <option value="<?= esc($po['id']); ?>" <?= (string)$filterBarang === (string)$po['id'] ? 'selected' : ''; ?>><?= esc($po['nama']); ?></option>
                         <?php } ?>
                     </select>
                     <?php if ($filterBarang) { ?>

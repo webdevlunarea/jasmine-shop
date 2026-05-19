@@ -5392,8 +5392,8 @@ class Pages extends BaseController
             $namaBarangMap[$p['id']] = ['nama' => $p['nama'], 'path' => $p['path']];
         }
 
-        $filterBarang = (int)$this->request->getVar('filter_barang');
-        if ($filterBarang > 0) {
+        $filterBarang = trim((string)$this->request->getVar('filter_barang'));
+        if ($filterBarang !== '' && $filterBarang !== '0') {
             $ratingList = $this->ratingModel->where('id_barang', $filterBarang)->orderBy('created_at', 'desc')->findAll();
         } else {
             $ratingList = $allRatings;
