@@ -5463,45 +5463,121 @@ class Pages extends BaseController
         return redirect()->to('/manageratingterjual#tab-rating');
     }
 
+    private function generateKomentar($bintang)
+    {
+        // Bank frase: tiap kategori berisi banyak fragmen kalimat berbeda
+        $opener5 = [
+            'Barangnya sangat bagus', 'Mantap banget produknya', 'Suka banget sama barang ini', 'Bagus banget kualitasnya',
+            'Wah keren, sesuai ekspektasi', 'Sangat puas dengan pembelian ini', 'Top markotop pokoknya', 'Recommended banget sellernya',
+            'Produknya melebihi ekspektasi saya', 'Mantul, mantap betul', 'Barang berkualitas tinggi', 'Pas banget di hati',
+            'Cinta banget sama produknya', 'Worth it banget harganya', 'Bagus banget, ga nyangka', 'Beneran puas sama produknya',
+            'Pengiriman cepat dan barang bagus', 'Wow, kualitasnya juara', 'Anak-anak suka banget', 'Istri saya seneng banget'
+        ];
+        $opener4 = [
+            'Produknya bagus', 'Kualitas oke', 'Lumayan bagus', 'Cukup memuaskan',
+            'Sesuai dengan deskripsi', 'Overall puas', 'Barangnya cukup bagus', 'Recommended',
+            'Pelayanan baik', 'Bagus sih', 'Cukup oke kok', 'Mantap walaupun ada minus',
+            'Sesuai harga lah ya', 'Lumayan worth it', 'Barangnya bagus kok', 'Sip lah'
+        ];
+        $opener3 = [
+            'Produknya standar saja', 'Cukup oke', 'Lumayan', 'Biasa aja sih',
+            'Sesuai dengan harganya', 'Cukup memuaskan', 'Standar', 'Ya gitu lah',
+            'Untuk harga segini lumayan', 'Tidak istimewa tapi ya okelah', 'Cukup',
+            'Bukan yang terbaik, tapi oke', 'Ada plus minusnya', 'Lumayanlah ya'
+        ];
+
+        $bodyPositif = [
+            'sesuai deskripsi', 'packingnya rapi banget', 'pengiriman cepat sekali', 'kurirnya ramah',
+            'warnanya cantik', 'bahannya kokoh', 'finishingnya halus', 'kualitasnya premium',
+            'ukurannya pas', 'modelnya elegan', 'tampilan sangat menarik', 'kemasan aman',
+            'bonus stiker keren', 'tidak ada kerusakan', 'detail rapi', 'sangat presisi',
+            'bahan kuat', 'tidak goyang', 'pas dipake', 'cocok buat di rumah',
+            'desainnya simpel tapi cantik', 'sellernya fast respon', 'admin ramah dan informatif',
+            'instruksi perakitan jelas', 'cocok untuk hadiah', 'mudah dirakit', 'beratnya pas'
+        ];
+        $bodyNetral = [
+            'pengiriman agak lama', 'perakitannya lumayan ribet', 'ada sedikit baret kecil', 'warnanya sedikit beda dari foto',
+            'ukuran agak beda sedikit', 'finishing kurang rata sedikit', 'instruksi perakitan kurang jelas', 'packing biasa saja',
+            'untuk merakit perlu kesabaran', 'ada satu skrup yang kurang', 'baut sedikit longgar', 'sudut agak kasar sedikit',
+            'butuh waktu untuk merapikan', 'kurirnya agak telat', 'estimasi sampai bisa lebih cepat',
+            'kemasan agak penyok di luar tapi isi aman', 'butuh extra alat untuk merakit', 'agak susah dibersihkan'
+        ];
+
+        $closer5 = [
+            'Pasti order lagi.', 'Terima kasih seller!', '5 bintang pantas banget!', 'Top!',
+            'Mantul pokoknya!', 'Recommended seller!', 'Sukses terus!', 'Pasti repeat order.',
+            'Wajib coba!', 'Worth it banget.', 'Puas banget belanja di sini.', 'Sukses selalu.',
+            'Terbaik!', 'Salut sama kualitasnya.'
+        ];
+        $closer4 = [
+            'Recommended.', 'Tetap puas kok.', 'Bisa order lagi nanti.', 'Lumayan worth it.',
+            'Sukses ya seller.', 'Semoga makin bagus.', 'Tetap mantap.', 'Cukup direkomendasikan.',
+            'Overall puas.', 'Lain kali order lagi semoga lebih cepat.'
+        ];
+        $closer3 = [
+            'Semoga makin bagus ke depannya.', 'Mungkin bisa diperbaiki.', 'Cukup lah ya.',
+            'Saran: tingkatkan kualitas finishing.', 'Boleh dicoba.', 'Mudah-mudahan awet.',
+            'Lumayan untuk pemakaian harian.', 'Saran: perbanyak varian warna.'
+        ];
+
+        if ($bintang == 5) {
+            $op = $opener5;
+            $bd = $bodyPositif;
+            $cl = $closer5;
+        } else if ($bintang == 4) {
+            $op = $opener4;
+            $bd = mt_rand(0, 1) ? $bodyPositif : $bodyNetral;
+            $cl = $closer4;
+        } else {
+            $op = $opener3;
+            $bd = $bodyNetral;
+            $cl = $closer3;
+        }
+
+        $opener = $op[array_rand($op)];
+        // pilih 1-2 body fragment unik
+        $bodyKeys = array_rand($bd, min(count($bd), mt_rand(1, 2)));
+        if (!is_array($bodyKeys)) $bodyKeys = [$bodyKeys];
+        $bodyParts = [];
+        foreach ($bodyKeys as $k) $bodyParts[] = $bd[$k];
+        $bodyText = implode(', ', $bodyParts);
+
+        // 30% chance tanpa closer (komentar lebih pendek)
+        $tutup = mt_rand(0, 99) < 70 ? ' ' . $cl[array_rand($cl)] : '';
+        // 50% chance pakai koma sebelum body, 50% pakai titik
+        $pemisah = mt_rand(0, 1) ? ', ' : '. ';
+
+        return $opener . $pemisah . $bodyText . '.' . $tutup;
+    }
+
+    private function bankNamaIndonesia()
+    {
+        $namaDepan = ['Adi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fitri', 'Gilang', 'Hana', 'Indra', 'Joko', 'Kartika', 'Lina', 'Maya', 'Nadia', 'Oki', 'Putri', 'Rian', 'Sari', 'Tono', 'Umi', 'Vina', 'Wahyu', 'Yuni', 'Zaki', 'Bayu', 'Dian', 'Endah', 'Galih', 'Heni', 'Ilham', 'Jihan', 'Krisna', 'Lukman', 'Maharani', 'Naufal', 'Olivia', 'Prabowo', 'Qori', 'Rangga', 'Siska', 'Tika', 'Ujang', 'Vera', 'Widya', 'Yoga', 'Zahra', 'Anton', 'Bagas', 'Cahya', 'Dimas', 'Hesti', 'Reza', 'Rini', 'Anisa', 'Faisal', 'Gita', 'Hendra', 'Intan', 'Yudi', 'Tari'];
+        $namaBelakang = ['Pratama', 'Setiawan', 'Wijaya', 'Permata', 'Nugroho', 'Saputra', 'Hartono', 'Lestari', 'Maulana', 'Anggraini', 'Rahmawati', 'Susanto', 'Kusuma', 'Iskandar', 'Hidayat', 'Firmansyah', 'Santoso', 'Wibowo', 'Prasetyo', 'Mahendra', 'Sulistiyo', 'Hakim', 'Ramadhan', 'Kurniawan', 'Sari', 'Putra', 'Putri', 'Aditya', 'Yulianto', 'Halim', 'Suryadi', 'Cahyono', 'Wardana', 'Pranata', 'Sinaga', 'Manurung', 'Tambunan', 'Simbolon'];
+        return ['depan' => $namaDepan, 'belakang' => $namaBelakang];
+    }
+
     public function generateDummyRatingTerjual()
     {
-        $namaDepan = ['Adi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fitri', 'Gilang', 'Hana', 'Indra', 'Joko', 'Kartika', 'Lina', 'Maya', 'Nadia', 'Oki', 'Putri', 'Rian', 'Sari', 'Tono', 'Umi', 'Vina', 'Wahyu', 'Yuni', 'Zaki', 'Bayu', 'Dian', 'Endah', 'Galih', 'Heni', 'Ilham', 'Jihan', 'Krisna', 'Lukman', 'Maharani', 'Naufal', 'Olivia', 'Prabowo', 'Qori', 'Rangga', 'Siska', 'Tika', 'Ujang', 'Vera', 'Widya', 'Yoga', 'Zahra', 'Anton', 'Bagas', 'Cahya', 'Dimas'];
-        $namaBelakang = ['Pratama', 'Setiawan', 'Wijaya', 'Permata', 'Nugroho', 'Saputra', 'Hartono', 'Lestari', 'Maulana', 'Anggraini', 'Rahmawati', 'Susanto', 'Kusuma', 'Iskandar', 'Hidayat', 'Firmansyah', 'Santoso', 'Wibowo', 'Prasetyo', 'Mahendra', 'Sulistiyo', 'Hakim', 'Ramadhan', 'Kurniawan', 'Sari', 'Putra', 'Putri', 'Aditya', 'Yulianto', 'Halim'];
+        return $this->_runGenerate(false);
+    }
 
-        $komentar5 = [
-            'Barangnya sangat bagus, sesuai deskripsi! Pengiriman cepat dan packing aman. Terima kasih.',
-            'Kualitasnya mantap banget, harga sebanding dengan kualitas. Recommended seller!',
-            'Produk sampai dengan selamat, tidak ada kerusakan. Mantul pokoknya!',
-            'Suka banget sama produknya, warnanya cantik dan kokoh. Pasti order lagi.',
-            'Pelayanan sellernya ramah, produk sesuai gambar. 5 bintang pantas banget!',
-            'Sudah lama nyari produk seperti ini, akhirnya ketemu di sini. Top markotop!',
-            'Pengemasan rapi, produk berkualitas. Worth it sama harganya.',
-            'Bagus banget, anak-anak saya suka. Bahan kuat dan finishing halus.',
-            'Cocok banget buat di rumah, modelnya simple tapi elegan. Puas!',
-            'Mantap! Sesuai ekspektasi. Pengiriman juga cepat banget.'
-        ];
-        $komentar4 = [
-            'Produknya bagus, hanya saja pengiriman agak lama. Tapi overall puas.',
-            'Kualitas oke, packing rapi. Warnanya sedikit beda dari foto tapi masih bagus.',
-            'Bagus kok, cuma ada sedikit baret kecil tapi tidak masalah. Recommended.',
-            'Lumayan bagus, harga sesuai. Untuk perakitan agak ribet tapi seru.',
-            'Sesuai dengan deskripsi, hanya saja ukurannya agak beda sedikit. Tetap puas.',
-            'Pelayanan baik, produk bagus. Kurang sedikit di bagian finishing.',
-            'Barangnya sampai dengan baik, kualitas oke untuk harga segini.',
-            'Cukup memuaskan, hanya saja perlu waktu untuk merakit. Sabar ya guys.',
-            'Bagus, recommended. Cuma estimasi sampainya bisa lebih cepet lagi.',
-            'Overall puas, produk sesuai. Mungkin nanti ada update warna lebih banyak.'
-        ];
-        $komentar3 = [
-            'Produknya standar saja, biasa. Harga lumayan terjangkau.',
-            'Cukup oke untuk harga segini. Tidak istimewa tapi tidak mengecewakan.',
-            'Lumayan, ada beberapa bagian yang menurut saya kurang rapi.',
-            'Pengiriman lama, tapi barang akhirnya sampai. Kualitasnya biasa saja.',
-            'Cukup, sesuai harga. Untuk varian warna semoga ditambah lagi.',
-            'Barangnya oke, packingnya kurang kuat tapi untungnya tidak rusak.',
-            'Kualitasnya sesuai harga. Tidak buruk tapi juga tidak wow.',
-            'Lumayan lah ya, sesuai ekspektasi standar. Mudah-mudahan awet.'
-        ];
+    public function freshGenerateDummyRatingTerjual()
+    {
+        return $this->_runGenerate(true);
+    }
+
+    private function _runGenerate($fresh = false)
+    {
+        $countDeleted = 0;
+        if ($fresh) {
+            $countDeleted = $this->ratingModel->like('email_cus', '@dummymail.com', 'before')->countAllResults();
+            $this->ratingModel->like('email_cus', '@dummymail.com', 'before')->delete();
+        }
+
+        $nama = $this->bankNamaIndonesia();
+        $namaDepan = $nama['depan'];
+        $namaBelakang = $nama['belakang'];
 
         $produkAll = $this->barangModel->findAll();
         $countTerjual = 0;
@@ -5511,21 +5587,18 @@ class Pages extends BaseController
         foreach ($produkAll as $p) {
             $idBarang = $p['id'];
 
-            // 1) Random terjual untuk semua produk (tidak diutak-atik kalau terjual_custom sudah di-set manual > 0)
             $randomTerjual = rand(5, 400);
             $this->barangModel->where('id', $idBarang)->set([
                 'terjual' => $randomTerjual
             ])->update();
             $countTerjual++;
 
-            // 2) Cek apakah produk sudah punya rating
             $existing = $this->ratingModel->where('id_barang', $idBarang)->countAllResults();
             if ($existing > 0) {
                 $countSkip++;
                 continue;
             }
 
-            // 3) Generate 3-7 rating dummy
             $jmlRating = rand(3, 7);
             $usedEmails = [];
             for ($i = 0; $i < $jmlRating; $i++) {
@@ -5533,23 +5606,16 @@ class Pages extends BaseController
                 $belakang = $namaBelakang[array_rand($namaBelakang)];
                 $namaPembeli = $depan . ' ' . $belakang;
 
-                $emailBase = strtolower($depan . '.' . $belakang) . rand(10, 9999);
-                $emailCus = $emailBase . '@dummymail.com';
+                $emailCus = strtolower($depan . '.' . $belakang) . rand(10, 99999) . '@dummymail.com';
                 $tryCount = 0;
                 while (in_array($emailCus, $usedEmails) && $tryCount < 10) {
-                    $emailCus = strtolower($depan . '.' . $belakang) . rand(10, 99999) . '@dummymail.com';
+                    $emailCus = strtolower($depan . '.' . $belakang) . rand(10, 999999) . '@dummymail.com';
                     $tryCount++;
                 }
                 $usedEmails[] = $emailCus;
 
                 $bintang = rand(3, 5);
-                if ($bintang == 5) {
-                    $kom = $komentar5[array_rand($komentar5)];
-                } else if ($bintang == 4) {
-                    $kom = $komentar4[array_rand($komentar4)];
-                } else {
-                    $kom = $komentar3[array_rand($komentar3)];
-                }
+                $kom = $this->generateKomentar($bintang);
 
                 $hariLalu = rand(1, 180);
                 $tgl = date('Y-m-d H:i:s', strtotime("-{$hariLalu} days") + rand(0, 86400));
@@ -5567,7 +5633,21 @@ class Pages extends BaseController
             }
         }
 
-        session()->setFlashdata('msg', "Berhasil generate: {$countTerjual} produk terjual di-random, {$countRating} rating dummy ditambahkan ({$countSkip} produk di-skip karena sudah ada rating).");
+        $pesan = "Berhasil: {$countTerjual} produk terjual di-random, {$countRating} rating dummy ditambahkan";
+        if ($fresh) {
+            $pesan = "Fresh generate selesai: {$countDeleted} rating dummy lama dihapus, {$countTerjual} terjual di-random, {$countRating} rating baru dibuat.";
+        } else {
+            $pesan .= " ({$countSkip} produk di-skip karena sudah ada rating).";
+        }
+        session()->setFlashdata('msg', $pesan);
+        return redirect()->to('/manageratingterjual');
+    }
+
+    public function hapusDummyRating()
+    {
+        $count = $this->ratingModel->like('email_cus', '@dummymail.com', 'before')->countAllResults();
+        $this->ratingModel->like('email_cus', '@dummymail.com', 'before')->delete();
+        session()->setFlashdata('msg', "Berhasil menghapus {$count} rating dummy.");
         return redirect()->to('/manageratingterjual');
     }
 
