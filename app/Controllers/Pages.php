@@ -5348,10 +5348,119 @@ class Pages extends BaseController
         $produk = $this->barangModel->where('id', $r['id_barang'])->first();
         $this->ratingModel->where('id', $id_rating)->delete();
         session()->setFlashdata('msg', 'Rating berhasil dihapus.');
+        $fromAdmin = $this->request->getVar('from_admin');
+        if ($fromAdmin) {
+            return redirect()->to('/manageratingterjual#tab-rating');
+        }
         if ($produk) {
             return redirect()->to('/product/' . $produk['path'] . '#rating-section');
         }
         return redirect()->back();
+    }
+
+    public function manageRatingTerjual()
+    {
+        $cari = trim((string)$this->request->getVar('cari'));
+        if ($cari !== '') {
+            $produkAll = $this->barangModel->like('pencarian', $cari, 'both')->orderBy('nama', 'asc')->findAll();
+        } else {
+            $produkAll = $this->barangModel->orderBy('nama', 'asc')->findAll();
+        }
+
+        $statsMap = [];
+        $allRatings = $this->ratingModel->orderBy('created_at', 'desc')->findAll();
+        foreach ($allRatings as $rRow) {
+            $bid = $rRow['id_barang'];
+            if (!isset($statsMap[$bid])) {
+                $statsMap[$bid] = ['count' => 0, 'total' => 0];
+            }
+            $statsMap[$bid]['count']++;
+            $statsMap[$bid]['total'] += (int)$rRow['rating'];
+        }
+
+        $produkList = [];
+        foreach ($produkAll as $p) {
+            $bid = $p['id'];
+            $stat = isset($statsMap[$bid]) ? $statsMap[$bid] : ['count' => 0, 'total' => 0];
+            $p['rating_count'] = $stat['count'];
+            $p['rating_avg'] = $stat['count'] > 0 ? round($stat['total'] / $stat['count'], 1) : 0;
+            $produkList[] = $p;
+        }
+
+        $namaBarangMap = [];
+        foreach ($produkAll as $p) {
+            $namaBarangMap[$p['id']] = ['nama' => $p['nama'], 'path' => $p['path']];
+        }
+
+        $filterBarang = (int)$this->request->getVar('filter_barang');
+        if ($filterBarang > 0) {
+            $ratingList = $this->ratingModel->where('id_barang', $filterBarang)->orderBy('created_at', 'desc')->findAll();
+        } else {
+            $ratingList = $allRatings;
+        }
+        foreach ($ratingList as &$rRow) {
+            $rRow['nama_sensor'] = $this->sensorNama($rRow['nama_pembeli']);
+            $rRow['nama_barang'] = isset($namaBarangMap[$rRow['id_barang']]) ? $namaBarangMap[$rRow['id_barang']]['nama'] : '-';
+            $rRow['path_barang'] = isset($namaBarangMap[$rRow['id_barang']]) ? $namaBarangMap[$rRow['id_barang']]['path'] : '';
+        }
+        unset($rRow);
+
+        $data = [
+            'title' => 'Kelola Rating & Terjual',
+            'produk' => $produkList,
+            'ratingList' => $ratingList,
+            'cari' => $cari,
+            'filterBarang' => $filterBarang,
+            'produkOpsi' => $produkAll,
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/manageRatingTerjual', $data);
+    }
+
+    public function updateTerjualAdmin($id_barang)
+    {
+        $produk = $this->barangModel->where('id', $id_barang)->first();
+        if (!$produk) {
+            session()->setFlashdata('msg', 'Produk tidak ditemukan.');
+            return redirect()->to('/manageratingterjual');
+        }
+        $terjual = (int)$this->request->getVar('terjual');
+        $terjualCustom = (int)$this->request->getVar('terjual_custom');
+        if ($terjual < 0) $terjual = 0;
+        if ($terjualCustom < 0) $terjualCustom = 0;
+        $this->barangModel->where('id', $id_barang)->set([
+            'terjual' => $terjual,
+            'terjual_custom' => $terjualCustom
+        ])->update();
+        session()->setFlashdata('msg', 'Terjual produk "' . $produk['nama'] . '" berhasil diperbarui.');
+        return redirect()->to('/manageratingterjual#tab-terjual');
+    }
+
+    public function editRatingAdmin($id_rating)
+    {
+        $r = $this->ratingModel->where('id', $id_rating)->first();
+        if (!$r) {
+            session()->setFlashdata('msg', 'Rating tidak ditemukan.');
+            return redirect()->to('/manageratingterjual');
+        }
+        $rating = (int)$this->request->getVar('rating');
+        if ($rating < 1) $rating = 1;
+        if ($rating > 5) $rating = 5;
+        $komentar = trim((string)$this->request->getVar('komentar'));
+        if (mb_strlen($komentar) > 1000) {
+            $komentar = mb_substr($komentar, 0, 1000);
+        }
+        $namaPembeli = trim((string)$this->request->getVar('nama_pembeli'));
+        if ($namaPembeli === '') $namaPembeli = $r['nama_pembeli'];
+
+        $this->ratingModel->where('id', $id_rating)->set([
+            'rating' => $rating,
+            'komentar' => $komentar,
+            'nama_pembeli' => $namaPembeli,
+            'updated_at' => date('Y-m-d H:i:s')
+        ])->update();
+        session()->setFlashdata('msg', 'Rating berhasil diperbarui.');
+        return redirect()->to('/manageratingterjual#tab-rating');
     }
 
     public function productFilter($namaDash, $page = 1)

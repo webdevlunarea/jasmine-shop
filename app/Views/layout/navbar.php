@@ -118,6 +118,7 @@ $notif = [
                         <a href="/listvoucher">List Voucher</a>
                         <a href="/listcustomer">List Customer</a>
                         <a href="/listproduct">List Products</a>
+                        <a href="/manageratingterjual">Rating &amp; Terjual</a>
                         <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>
 
                         <a href="/keluar" class="btn btn-outline-danger">Keluar</a>
@@ -195,6 +196,7 @@ $notif = [
                     <a href="/listvoucher" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Voucher"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Customer"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Product"><i class="material-icons">view_list</i></a>
+                    <a href="/manageratingterjual" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rating & Terjual"><i class="material-icons">star_rate</i></a>
                     <a href="/stokadmin/all/1" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stok"><i class="material-icons">unarchive</i></a>
                     <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
                 <?php } ?>
