@@ -106,6 +106,9 @@ $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');
 $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
+$routes->post('/addrating/(:num)', 'Pages::addRating/$1', ['filter' => 'harusUser']);
+$routes->post('/delrating/(:num)', 'Pages::delRating/$1', ['filter' => 'harusAdmin']);
+
 $routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
 $routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => 'harusAdmin']);
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
