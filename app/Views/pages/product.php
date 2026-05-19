@@ -112,15 +112,31 @@
                 <?php } else { ?>
                     <p class="mb-0 harga">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
                 <?php } ?>
-                <!-- <p class="mb-0">★★★☆☆ (<?= $produk['rate']; ?>)</p> -->
-                <?php 
+                <?php
                 $terjualTampil = !empty($produk['terjual_custom']) && $produk['terjual_custom'] > 0 ? $produk['terjual_custom'] : ($produk['terjual'] ?? 0);
-                if ($terjualTampil > 0) { 
+                $avgRating = isset($ratingStats) ? (float)$ratingStats['avg'] : 0;
+                $jmlRating = isset($ratingStats) ? (int)$ratingStats['count'] : 0;
                 ?>
-                <p class="mb-0 mt-1 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #f5f5f5; width: fit-content; padding: 4px 10px; border-radius: 2em;">
-                    <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
-                </p>
-                <?php } ?>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                    <?php if ($jmlRating > 0) { ?>
+                        <a href="#rating-section" class="text-decoration-none" style="color:inherit;">
+                            <p class="mb-0 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #fff7e0; width: fit-content; padding: 4px 10px; border-radius: 2em;">
+                                <span style="color:#f5b301;">
+                                    <?php for ($i = 1; $i <= 5; $i++) {
+                                        echo $i <= round($avgRating) ? '★' : '☆';
+                                    } ?>
+                                </span>
+                                <strong><?= number_format($avgRating, 1, ",", "."); ?></strong>
+                                <span style="color:#888;">(<?= $jmlRating; ?> ulasan)</span>
+                            </p>
+                        </a>
+                    <?php } ?>
+                    <?php if ($terjualTampil > 0) { ?>
+                        <p class="mb-0 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #f5f5f5; width: fit-content; padding: 4px 10px; border-radius: 2em;">
+                            <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
+                        </p>
+                    <?php } ?>
+                </div>
                 <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
                     <p id="stok" class="fw-bold <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
                         <?= explode(",", $produk['stok'])[0]; ?></p>
@@ -299,6 +315,123 @@
                 <?php } ?>
             </div>
         </div>
+    </div>
+
+    <div class="container my-5" id="rating-section">
+        <h5 class="jdl-section">Rating &amp; Ulasan Pembeli</h5>
+        <style>
+            .rating-summary {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                background: #fafafa;
+                border-radius: 12px;
+                padding: 16px 20px;
+                margin-bottom: 16px;
+                flex-wrap: wrap;
+            }
+            .rating-summary .big-score {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #f5b301;
+                line-height: 1;
+            }
+            .rating-summary .stars {
+                color: #f5b301;
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+            .rating-card {
+                border: 1px solid #ececec;
+                border-radius: 10px;
+                padding: 14px 16px;
+                margin-bottom: 12px;
+                background: #fff;
+            }
+            .rating-card .stars { color: #f5b301; letter-spacing: 1px; }
+            .rating-card .nama { font-weight: 600; }
+            .rating-card .tgl { font-size: 0.8rem; color: #888; }
+            .rating-form { background: #f9f9f9; border-radius: 12px; padding: 16px 20px; }
+            .star-input { display: inline-flex; flex-direction: row-reverse; gap: 4px; }
+            .star-input input { display: none; }
+            .star-input label {
+                font-size: 1.8rem;
+                cursor: pointer;
+                color: #ddd;
+                line-height: 1;
+            }
+            .star-input input:checked ~ label,
+            .star-input label:hover,
+            .star-input label:hover ~ label { color: #f5b301; }
+        </style>
+
+        <?php if ($jmlRating > 0) { ?>
+            <div class="rating-summary">
+                <div class="big-score"><?= number_format($avgRating, 1, ",", "."); ?></div>
+                <div>
+                    <div class="stars">
+                        <?php for ($i = 1; $i <= 5; $i++) {
+                            echo $i <= round($avgRating) ? '★' : '☆';
+                        } ?>
+                    </div>
+                    <div style="font-size: 0.9rem; color:#555;">Berdasarkan <?= $jmlRating; ?> ulasan</div>
+                </div>
+            </div>
+        <?php } else { ?>
+            <p class="text-muted">Belum ada ulasan untuk produk ini.</p>
+        <?php } ?>
+
+        <?php if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('active') == '1') { ?>
+            <?php if ($bolehRating) { ?>
+                <div class="rating-form mb-4">
+                    <h6 class="mb-2"><?= $userRating ? 'Ubah Rating &amp; Ulasan Anda' : 'Berikan Rating &amp; Ulasan'; ?></h6>
+                    <form action="/addrating/<?= $produk['id']; ?>" method="post">
+                        <div class="star-input mb-2">
+                            <?php for ($s = 5; $s >= 1; $s--) { ?>
+                                <input type="radio" id="star<?= $s; ?>" name="rating" value="<?= $s; ?>" <?= $userRating && (int)$userRating['rating'] == $s ? 'checked' : ($s == 5 && !$userRating ? 'checked' : ''); ?>>
+                                <label for="star<?= $s; ?>" title="<?= $s; ?> bintang">★</label>
+                            <?php } ?>
+                        </div>
+                        <textarea name="komentar" class="form-control mb-2" rows="3" maxlength="1000" placeholder="Tulis komentar Anda (opsional)..."><?= $userRating ? esc($userRating['komentar']) : ''; ?></textarea>
+                        <button type="submit" class="btn btn-primary1"><?= $userRating ? 'Update Ulasan' : 'Kirim Ulasan'; ?></button>
+                    </form>
+                </div>
+            <?php } else { ?>
+                <p class="text-muted fst-italic" style="font-size: 0.9rem;">Anda dapat memberikan ulasan setelah membeli produk ini.</p>
+            <?php } ?>
+        <?php } else if (!session()->get('isLogin')) { ?>
+            <p class="text-muted fst-italic" style="font-size: 0.9rem;"><a href="/login">Login</a> untuk memberikan ulasan setelah pembelian.</p>
+        <?php } ?>
+
+        <?php if (!empty($ratingList)) { ?>
+            <div>
+                <?php foreach ($ratingList as $r) { ?>
+                    <div class="rating-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="nama"><?= esc($r['nama_sensor']); ?></div>
+                                <div class="stars">
+                                    <?php for ($i = 1; $i <= 5; $i++) {
+                                        echo $i <= (int)$r['rating'] ? '★' : '☆';
+                                    } ?>
+                                </div>
+                                <div class="tgl"><?= date('d M Y', strtotime($r['created_at'])); ?><?= $r['updated_at'] && $r['updated_at'] != $r['created_at'] ? ' (diedit)' : ''; ?></div>
+                            </div>
+                            <?php if (session()->get('isLogin') && session()->get('role') != 0) { ?>
+                                <form action="/delrating/<?= $r['id']; ?>" method="post" onsubmit="return confirm('Hapus ulasan ini?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus ulasan">
+                                        <i class="material-icons" style="font-size:16px;">delete</i>
+                                    </button>
+                                </form>
+                            <?php } ?>
+                        </div>
+                        <?php if (!empty($r['komentar'])) { ?>
+                            <p class="mb-0 mt-2" style="white-space: pre-wrap;"><?= esc($r['komentar']); ?></p>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="container my-5">

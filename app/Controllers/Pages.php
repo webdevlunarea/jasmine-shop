@@ -24,6 +24,7 @@ use App\Models\VoucherClaimedModel;
 use App\Models\VoucherRedeemModel;
 use App\Models\StokModel;
 use App\Models\KonstantaModel;
+use App\Models\RatingModel;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -48,6 +49,7 @@ class Pages extends BaseController
     protected $voucherRedeemModel;
     protected $stokModel;
     protected $konstantaModel;
+    protected $ratingModel;
 
     protected $emailUjiCoba;
 
@@ -77,6 +79,7 @@ class Pages extends BaseController
         $this->voucherRedeemModel = new VoucherRedeemModel();
         $this->stokModel = new StokModel();
         $this->konstantaModel = new KonstantaModel();
+        $this->ratingModel = new RatingModel();
 
         // ngambil data dari model provinsi,kabupaten, kecamatan, kelurahan
         $this->provinsiModel = new ProvinsiModel();
@@ -5204,6 +5207,20 @@ class Pages extends BaseController
             array_push($metakeywords, str_replace('-', ' ', $produk['subkategori']) . ' ' . $v . ' lunarea');
             array_push($metakeywords, str_replace('-', ' ', $produk['subkategori']) . ' ' . $v . ' semarang');
         }
+        $ratingList = $this->ratingModel->getByBarang($produk['id']);
+        foreach ($ratingList as &$rRow) {
+            $rRow['nama_sensor'] = $this->sensorNama($rRow['nama_pembeli']);
+        }
+        unset($rRow);
+        $ratingStats = $this->ratingModel->getStats($produk['id']);
+        $userRating = null;
+        $bolehRating = false;
+        if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('active') == '1') {
+            $emailCus = session()->get('email');
+            $userRating = $this->ratingModel->getByUser($produk['id'], $emailCus);
+            $bolehRating = $this->cekPembeliProduk($emailCus, $produk['nama']);
+        }
+
         $data = [
             'title' => $produk['nama'],
             'produk' => $produk,
@@ -5214,9 +5231,127 @@ class Pages extends BaseController
             'msg' => session()->getFlashdata('msg'),
             'geser_container_melayang' => true,
             'stok' => $produk['stok'],
-            'metaKeyword' => implode(',', $metakeywords)
+            'metaKeyword' => implode(',', $metakeywords),
+            'ratingList' => $ratingList,
+            'ratingStats' => $ratingStats,
+            'userRating' => $userRating,
+            'bolehRating' => $bolehRating
         ];
         return view('pages/product', $data);
+    }
+
+    private function cekPembeliProduk($emailCus, $namaProduk)
+    {
+        $pemesanan = $this->pemesananModel
+            ->where('email_cus', $emailCus)
+            ->whereIn('status', ['Dikirim', 'Selesai'])
+            ->findAll();
+        foreach ($pemesanan as $p) {
+            $items = json_decode($p['items'], true);
+            if (!is_array($items)) continue;
+            foreach ($items as $item) {
+                $namaItem = isset($item['name']) ? $item['name'] : '';
+                $namaBarangItem = trim(explode("(", $namaItem)[0]);
+                if ($namaBarangItem == $namaProduk) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function sensorNama($nama)
+    {
+        $nama = trim($nama);
+        if ($nama === '') return 'Anonim';
+        $parts = preg_split('/\s+/', $nama);
+        $hasil = [];
+        foreach ($parts as $kata) {
+            $len = mb_strlen($kata);
+            if ($len <= 2) {
+                $hasil[] = $kata;
+            } else if ($len <= 4) {
+                $hasil[] = mb_substr($kata, 0, 1) . str_repeat('*', $len - 2) . mb_substr($kata, -1);
+            } else {
+                $hasil[] = mb_substr($kata, 0, 2) . str_repeat('*', $len - 3) . mb_substr($kata, -1);
+            }
+        }
+        return implode(' ', $hasil);
+    }
+
+    public function addRating($id_barang)
+    {
+        if (!session()->get('isLogin') || session()->get('role') != 0 || session()->get('active') != '1') {
+            session()->setFlashdata('msg', 'Anda harus login dan verifikasi email untuk memberikan rating.');
+            return redirect()->back();
+        }
+        $produk = $this->barangModel->where('id', $id_barang)->first();
+        if (!$produk) {
+            session()->setFlashdata('msg', 'Produk tidak ditemukan.');
+            return redirect()->back();
+        }
+        $emailCus = session()->get('email');
+        if (!$this->cekPembeliProduk($emailCus, $produk['nama'])) {
+            session()->setFlashdata('msg', 'Anda hanya bisa memberikan rating jika sudah membeli produk ini.');
+            return redirect()->to('/product/' . $produk['path']);
+        }
+
+        $rating = (int)$this->request->getVar('rating');
+        if ($rating < 1 || $rating > 5) {
+            session()->setFlashdata('msg', 'Rating harus antara 1 sampai 5.');
+            return redirect()->to('/product/' . $produk['path']);
+        }
+        $komentar = trim((string)$this->request->getVar('komentar'));
+        if (mb_strlen($komentar) > 1000) {
+            $komentar = mb_substr($komentar, 0, 1000);
+        }
+
+        $pembeli = $this->pembeliModel->getPembeli($emailCus);
+        $namaPembeli = $pembeli && !empty($pembeli['nama']) ? $pembeli['nama'] : explode('@', $emailCus)[0];
+
+        $existing = $this->ratingModel->getByUser($id_barang, $emailCus);
+        $now = date('Y-m-d H:i:s');
+        if ($existing) {
+            $this->ratingModel->where('id', $existing['id'])->set([
+                'rating' => $rating,
+                'komentar' => $komentar,
+                'nama_pembeli' => $namaPembeli,
+                'updated_at' => $now
+            ])->update();
+            session()->setFlashdata('msg', 'Rating berhasil diperbarui.');
+        } else {
+            $this->ratingModel->insert([
+                'id_barang' => $id_barang,
+                'email_cus' => $emailCus,
+                'nama_pembeli' => $namaPembeli,
+                'rating' => $rating,
+                'komentar' => $komentar,
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+            session()->setFlashdata('msg', 'Terima kasih atas rating Anda.');
+        }
+        return redirect()->to('/product/' . $produk['path'] . '#rating-section');
+    }
+
+    public function delRating($id_rating)
+    {
+        if (!session()->get('isLogin') || session()->get('role') == 0) {
+            session()->setFlashdata('msg', 'Tidak diizinkan.');
+            return redirect()->back();
+        }
+        $r = $this->ratingModel->where('id', $id_rating)->first();
+        if (!$r) {
+            session()->setFlashdata('msg', 'Rating tidak ditemukan.');
+            return redirect()->back();
+        }
+        $produk = $this->barangModel->where('id', $r['id_barang'])->first();
+        $this->ratingModel->where('id', $id_rating)->delete();
+        session()->setFlashdata('msg', 'Rating berhasil dihapus.');
+        if ($produk) {
+            return redirect()->to('/product/' . $produk['path'] . '#rating-section');
+        }
+        return redirect()->back();
     }
 
     public function productFilter($namaDash, $page = 1)
