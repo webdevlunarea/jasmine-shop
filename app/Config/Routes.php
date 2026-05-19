@@ -111,6 +111,7 @@ $routes->post('/delrating/(:num)', 'Pages::delRating/$1', ['filter' => 'harusAdm
 $routes->get('/manageratingterjual', 'Pages::manageRatingTerjual', ['filter' => 'harusAdmin']);
 $routes->post('/updateterjualadmin/(:any)', 'Pages::updateTerjualAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editratingadmin/(:num)', 'Pages::editRatingAdmin/$1', ['filter' => 'harusAdmin']);
+$routes->post('/generatedummyratingterjual', 'Pages::generateDummyRatingTerjual', ['filter' => 'harusAdmin']);
 
 $routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
 $routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => 'harusAdmin']);
