@@ -4,12 +4,26 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h5 class="jdl-section m-0">Kelola Rating &amp; Terjual</h5>
-            <form action="/generatedummyratingterjual" method="post" onsubmit="return confirm('Yakin generate data demo?\n\n- Terjual semua produk akan di-random 5 sampai 400\n- Produk yang BELUM punya rating akan dibuat 3-7 ulasan dummy (rating 3-5 bintang, nama dan komentar Bahasa Indonesia)\n- Produk yang SUDAH punya rating akan di-skip\n\nLanjutkan?');">
-                <button type="submit" class="btn btn-warning d-flex gap-1 align-items-center">
-                    <i class="material-icons" style="font-size: 18px;">auto_awesome</i>
-                    Generate Data Demo
-                </button>
-            </form>
+            <div class="d-flex gap-2 flex-wrap">
+                <form action="/generatedummyratingterjual" method="post" onsubmit="return confirm('Generate Data Demo:\n\n- Terjual semua produk di-random 5-400\n- Produk yang BELUM punya rating dibuat 3-7 ulasan dummy\n- Produk yang SUDAH punya rating di-skip\n\nLanjutkan?');">
+                    <button type="submit" class="btn btn-warning d-flex gap-1 align-items-center">
+                        <i class="material-icons" style="font-size: 18px;">auto_awesome</i>
+                        Generate
+                    </button>
+                </form>
+                <form action="/freshgeneratedummyratingterjual" method="post" onsubmit="return confirm('FRESH GENERATE:\n\nSemua rating dummy (yg email-nya @dummymail.com) akan DIHAPUS, lalu di-generate ulang dengan komentar dan nama baru.\n\nRating dari pembeli ASLI tidak terpengaruh.\n\nLanjutkan?');">
+                    <button type="submit" class="btn btn-danger d-flex gap-1 align-items-center">
+                        <i class="material-icons" style="font-size: 18px;">refresh</i>
+                        Fresh Generate
+                    </button>
+                </form>
+                <form action="/hapusdummyrating" method="post" onsubmit="return confirm('Hapus SEMUA rating dummy (@dummymail.com)?\n\nRating asli pembeli tidak terhapus.');">
+                    <button type="submit" class="btn btn-outline-danger d-flex gap-1 align-items-center">
+                        <i class="material-icons" style="font-size: 18px;">delete_sweep</i>
+                        Hapus Dummy
+                    </button>
+                </form>
+            </div>
         </div>
 
         <?php if (!empty($msg)) { ?>
