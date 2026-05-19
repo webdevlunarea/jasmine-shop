@@ -2,7 +2,15 @@
 <?= $this->section('content'); ?>
 <div class="konten">
     <div class="container">
-        <h5 class="jdl-section mb-3">Kelola Rating &amp; Terjual</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="jdl-section m-0">Kelola Rating &amp; Terjual</h5>
+            <form action="/generatedummyratingterjual" method="post" onsubmit="return confirm('Yakin generate data demo?\n\n- Terjual semua produk akan di-random 5 sampai 400\n- Produk yang BELUM punya rating akan dibuat 3-7 ulasan dummy (rating 3-5 bintang, nama dan komentar Bahasa Indonesia)\n- Produk yang SUDAH punya rating akan di-skip\n\nLanjutkan?');">
+                <button type="submit" class="btn btn-warning d-flex gap-1 align-items-center">
+                    <i class="material-icons" style="font-size: 18px;">auto_awesome</i>
+                    Generate Data Demo
+                </button>
+            </form>
+        </div>
 
         <?php if (!empty($msg)) { ?>
             <div class="alert alert-info py-2"><?= esc($msg); ?></div>

@@ -5463,6 +5463,114 @@ class Pages extends BaseController
         return redirect()->to('/manageratingterjual#tab-rating');
     }
 
+    public function generateDummyRatingTerjual()
+    {
+        $namaDepan = ['Adi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fitri', 'Gilang', 'Hana', 'Indra', 'Joko', 'Kartika', 'Lina', 'Maya', 'Nadia', 'Oki', 'Putri', 'Rian', 'Sari', 'Tono', 'Umi', 'Vina', 'Wahyu', 'Yuni', 'Zaki', 'Bayu', 'Dian', 'Endah', 'Galih', 'Heni', 'Ilham', 'Jihan', 'Krisna', 'Lukman', 'Maharani', 'Naufal', 'Olivia', 'Prabowo', 'Qori', 'Rangga', 'Siska', 'Tika', 'Ujang', 'Vera', 'Widya', 'Yoga', 'Zahra', 'Anton', 'Bagas', 'Cahya', 'Dimas'];
+        $namaBelakang = ['Pratama', 'Setiawan', 'Wijaya', 'Permata', 'Nugroho', 'Saputra', 'Hartono', 'Lestari', 'Maulana', 'Anggraini', 'Rahmawati', 'Susanto', 'Kusuma', 'Iskandar', 'Hidayat', 'Firmansyah', 'Santoso', 'Wibowo', 'Prasetyo', 'Mahendra', 'Sulistiyo', 'Hakim', 'Ramadhan', 'Kurniawan', 'Sari', 'Putra', 'Putri', 'Aditya', 'Yulianto', 'Halim'];
+
+        $komentar5 = [
+            'Barangnya sangat bagus, sesuai deskripsi! Pengiriman cepat dan packing aman. Terima kasih.',
+            'Kualitasnya mantap banget, harga sebanding dengan kualitas. Recommended seller!',
+            'Produk sampai dengan selamat, tidak ada kerusakan. Mantul pokoknya!',
+            'Suka banget sama produknya, warnanya cantik dan kokoh. Pasti order lagi.',
+            'Pelayanan sellernya ramah, produk sesuai gambar. 5 bintang pantas banget!',
+            'Sudah lama nyari produk seperti ini, akhirnya ketemu di sini. Top markotop!',
+            'Pengemasan rapi, produk berkualitas. Worth it sama harganya.',
+            'Bagus banget, anak-anak saya suka. Bahan kuat dan finishing halus.',
+            'Cocok banget buat di rumah, modelnya simple tapi elegan. Puas!',
+            'Mantap! Sesuai ekspektasi. Pengiriman juga cepat banget.'
+        ];
+        $komentar4 = [
+            'Produknya bagus, hanya saja pengiriman agak lama. Tapi overall puas.',
+            'Kualitas oke, packing rapi. Warnanya sedikit beda dari foto tapi masih bagus.',
+            'Bagus kok, cuma ada sedikit baret kecil tapi tidak masalah. Recommended.',
+            'Lumayan bagus, harga sesuai. Untuk perakitan agak ribet tapi seru.',
+            'Sesuai dengan deskripsi, hanya saja ukurannya agak beda sedikit. Tetap puas.',
+            'Pelayanan baik, produk bagus. Kurang sedikit di bagian finishing.',
+            'Barangnya sampai dengan baik, kualitas oke untuk harga segini.',
+            'Cukup memuaskan, hanya saja perlu waktu untuk merakit. Sabar ya guys.',
+            'Bagus, recommended. Cuma estimasi sampainya bisa lebih cepet lagi.',
+            'Overall puas, produk sesuai. Mungkin nanti ada update warna lebih banyak.'
+        ];
+        $komentar3 = [
+            'Produknya standar saja, biasa. Harga lumayan terjangkau.',
+            'Cukup oke untuk harga segini. Tidak istimewa tapi tidak mengecewakan.',
+            'Lumayan, ada beberapa bagian yang menurut saya kurang rapi.',
+            'Pengiriman lama, tapi barang akhirnya sampai. Kualitasnya biasa saja.',
+            'Cukup, sesuai harga. Untuk varian warna semoga ditambah lagi.',
+            'Barangnya oke, packingnya kurang kuat tapi untungnya tidak rusak.',
+            'Kualitasnya sesuai harga. Tidak buruk tapi juga tidak wow.',
+            'Lumayan lah ya, sesuai ekspektasi standar. Mudah-mudahan awet.'
+        ];
+
+        $produkAll = $this->barangModel->findAll();
+        $countTerjual = 0;
+        $countRating = 0;
+        $countSkip = 0;
+
+        foreach ($produkAll as $p) {
+            $idBarang = $p['id'];
+
+            // 1) Random terjual untuk semua produk (tidak diutak-atik kalau terjual_custom sudah di-set manual > 0)
+            $randomTerjual = rand(5, 400);
+            $this->barangModel->where('id', $idBarang)->set([
+                'terjual' => $randomTerjual
+            ])->update();
+            $countTerjual++;
+
+            // 2) Cek apakah produk sudah punya rating
+            $existing = $this->ratingModel->where('id_barang', $idBarang)->countAllResults();
+            if ($existing > 0) {
+                $countSkip++;
+                continue;
+            }
+
+            // 3) Generate 3-7 rating dummy
+            $jmlRating = rand(3, 7);
+            $usedEmails = [];
+            for ($i = 0; $i < $jmlRating; $i++) {
+                $depan = $namaDepan[array_rand($namaDepan)];
+                $belakang = $namaBelakang[array_rand($namaBelakang)];
+                $namaPembeli = $depan . ' ' . $belakang;
+
+                $emailBase = strtolower($depan . '.' . $belakang) . rand(10, 9999);
+                $emailCus = $emailBase . '@dummymail.com';
+                $tryCount = 0;
+                while (in_array($emailCus, $usedEmails) && $tryCount < 10) {
+                    $emailCus = strtolower($depan . '.' . $belakang) . rand(10, 99999) . '@dummymail.com';
+                    $tryCount++;
+                }
+                $usedEmails[] = $emailCus;
+
+                $bintang = rand(3, 5);
+                if ($bintang == 5) {
+                    $kom = $komentar5[array_rand($komentar5)];
+                } else if ($bintang == 4) {
+                    $kom = $komentar4[array_rand($komentar4)];
+                } else {
+                    $kom = $komentar3[array_rand($komentar3)];
+                }
+
+                $hariLalu = rand(1, 180);
+                $tgl = date('Y-m-d H:i:s', strtotime("-{$hariLalu} days") + rand(0, 86400));
+
+                $this->ratingModel->insert([
+                    'id_barang' => $idBarang,
+                    'email_cus' => $emailCus,
+                    'nama_pembeli' => $namaPembeli,
+                    'rating' => $bintang,
+                    'komentar' => $kom,
+                    'created_at' => $tgl,
+                    'updated_at' => $tgl
+                ]);
+                $countRating++;
+            }
+        }
+
+        session()->setFlashdata('msg', "Berhasil generate: {$countTerjual} produk terjual di-random, {$countRating} rating dummy ditambahkan ({$countSkip} produk di-skip karena sudah ada rating).");
+        return redirect()->to('/manageratingterjual');
+    }
+
     public function productFilter($namaDash, $page = 1)
     {
         $nama = str_replace("-", " ", $namaDash);
