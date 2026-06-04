@@ -99,6 +99,24 @@ class Pages extends BaseController
         }
         return $code;
     }
+    protected function broadcastOrderUpdate($id_order = '')
+    {
+        $ws_url = env('WS_URL', '');
+        if (!$ws_url || $ws_url === 'DefaultValue') {
+            return;
+        }
+
+        try {
+            $client = new Client($ws_url, ['timeout' => 1]);
+            $client->send(json_encode([
+                'jenis' => 'order',
+                'id_order' => $id_order
+            ]));
+            $client->close();
+        } catch (\Throwable $e) {
+            log_message('warning', 'WebSocket order broadcast failed: {message}', ['message' => $e->getMessage()]);
+        }
+    }
     public function kirimPesanEmail($email_cus, $subject, $isi)
     {
         $email = \Config\Services::email();
@@ -2551,11 +2569,12 @@ class Pages extends BaseController
         // ]
 
         $biayaAdmin = 0;
-        $pembayaran = $body['bank'];
-        $gross_amount = $body['nominal'];
+        $pembayaran = $body['bank'] ?? '';
+        $gross_amount = (float)($body['nominal'] ?? 0);
         $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
         if (in_array($pembayaran, $banks)) {
-            $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
+            $konstantaPpn = $this->konstantaModel->getKonstantaById(1);
+            $ppn = ((float)($konstantaPpn['value'] ?? 0)) / 100;
             $biayaAdmin = 4000 + (4000 * $ppn);
         } else if ($pembayaran == 'gopay' || $pembayaran == 'shopeepay') {
             $biayaAdmin = $gross_amount * 0.02;
@@ -3395,26 +3414,14 @@ class Pages extends BaseController
                 ])->update();
             }
         }
-        $ws_url = env('WS_URL', 'DefaultValue');
-        $client = new Client($ws_url);
-        $client->send(json_encode([
-            'jenis' => 'order',
-            'id_order' => ''
-        ]));
-        $client->close();
+        $this->broadcastOrderUpdate();
         return redirect()->to('/order/' . $arrPostField['transaction_details']['order_id']);
     }
     public function payOrder($order_id)
     {
         $foto = file_get_contents($this->request->getFile('buktiBayar'));
         $this->pemesananModel->where(['id_midtrans' => $order_id])->set(['bukti_bayar' => $foto])->update();
-        $ws_url = env('WS_URL', 'DefaultValue');
-        $client = new Client($ws_url);
-        $client->send(json_encode([
-            'jenis' => 'order',
-            'id_order' => ''
-        ]));
-        $client->close();
+        $this->broadcastOrderUpdate();
         return redirect()->to('/order/' . $order_id);
     }
     public function cancelOrder($order_id)
@@ -3486,12 +3493,7 @@ class Pages extends BaseController
                 }
                 $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
             }
-            $ws_url = env('WS_URL', 'DefaultValue');
-            $client = new Client($ws_url);
-            $client->send(json_encode([
-                'jenis' => 'order',
-                'id_order' => ''
-            ]));
+            $this->broadcastOrderUpdate();
             return redirect()->to('/order/' . $order_id);
         }
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
@@ -4048,13 +4050,7 @@ class Pages extends BaseController
                         $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
                     }
                 }
-                $ws_url = env('WS_URL', 'DefaultValue');
-                $client = new Client($ws_url);
-                $client->send(json_encode([
-                    'jenis' => 'order',
-                    'id_order' => $order_id
-                ]));
-                $client->close();
+                $this->broadcastOrderUpdate($order_id);
             } else {
                 // $this->pemesananModel->insert([
                 //     'email_cus' => $customField['e'],
@@ -6118,13 +6114,7 @@ class Pages extends BaseController
             }
         }
 
-        $ws_url = env('WS_URL', 'DefaultValue');
-        $client = new Client($ws_url);
-        $client->send(json_encode([
-            'jenis' => 'order',
-            'id_order' => $id_midtrans
-        ]));
-        $client->close();
+        $this->broadcastOrderUpdate($id_midtrans);
         return redirect()->to('/listcustomer');
     }
     public function pdf($id_mid)
@@ -7334,12 +7324,7 @@ class Pages extends BaseController
     }
     public function cobaWs()
     {
-        $ws_url = env('WS_URL', 'DefaultValue');
-        $client = new Client($ws_url);
-        $client->send(json_encode([
-            'jenis' => 'order'
-        ]));
-        $client->close();
+        $this->broadcastOrderUpdate();
         return $this->response->setJSON([
             'success' => true
         ], false);

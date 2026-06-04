@@ -197,20 +197,30 @@
                                         bank: pembayaranSelected,
                                         nominal: <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?>
                                     }
-                                    const fetchBiayaAdmin = await fetch('/getadminfee', {
-                                        method: 'post',
-                                        headers: {
-                                            'Content-type': 'application/json'
-                                        },
-                                        body: JSON.stringify(bodyFetchBiayaaAdmin)
-                                    })
-                                    const fetchBiayaAdminJson = await fetchBiayaAdmin.json()
-                                    console.log('fetch Admin')
-                                    console.log(fetchBiayaAdminJson)
-                                    biayaAdminElm.innerHTML =
-                                        `: Rp ${fetchBiayaAdminJson.biayaAdmin.toLocaleString("id-ID")}`
-                                    biayaTotalElm.innerHTML =
-                                        `: Rp ${(fetchBiayaAdminJson.biayaAdmin + bodyFetchBiayaaAdmin.nominal).toLocaleString("id-ID")}`
+
+                                    try {
+                                        const fetchBiayaAdmin = await fetch('/getadminfee', {
+                                            method: 'post',
+                                            headers: {
+                                                'Content-type': 'application/json'
+                                            },
+                                            body: JSON.stringify(bodyFetchBiayaaAdmin)
+                                        })
+                                        if (!fetchBiayaAdmin.ok) throw new Error(fetchBiayaAdmin.statusText)
+
+                                        const fetchBiayaAdminJson = await fetchBiayaAdmin.json()
+                                        const biayaAdmin = Number(fetchBiayaAdminJson.biayaAdmin ?? 0)
+                                        biayaAdminElm.innerHTML =
+                                            `: Rp ${biayaAdmin.toLocaleString("id-ID")}`
+                                        biayaTotalElm.innerHTML =
+                                            `: Rp ${(biayaAdmin + bodyFetchBiayaaAdmin.nominal).toLocaleString("id-ID")}`
+                                    } catch (error) {
+                                        console.error('fetch biaya admin error:', error)
+                                        alertCcElm.classList.remove('d-none')
+                                        alertCcElm.classList.remove('alert-success')
+                                        alertCcElm.classList.add('alert-danger')
+                                        alertCcElm.innerHTML = 'Gagal menghitung biaya admin. Silakan coba lagi.'
+                                    }
                                 })()
                             })
                         })
