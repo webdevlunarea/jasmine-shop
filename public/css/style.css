@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@100;300;400;500;700;900&display=swap");
 
 * {
     font-family: "Outfit", sans-serif;
@@ -1617,6 +1617,22 @@ footer > .atas > div {
     --admin-primary-soft: #e8f8ed;
     background-color: var(--admin-bg);
     color: var(--admin-text);
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    letter-spacing: 0;
+}
+
+.admin-body * {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: 0;
+}
+
+.admin-body .material-icons {
+    font-family: "Material Icons";
+}
+
+.admin-body .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
 }
 
 .admin-body .toast {
@@ -1659,7 +1675,7 @@ footer > .atas > div {
 
 .admin-brand span {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.96rem;
 }
 
 .admin-nav {
@@ -1679,6 +1695,8 @@ footer > .atas > div {
     color: rgba(255, 255, 255, 0.78);
     border-radius: 8px;
     transition: background-color 0.16s ease, color 0.16s ease;
+    font-size: 0.94rem;
+    font-weight: 500;
 }
 
 .admin-nav-item i {
@@ -1731,13 +1749,13 @@ footer > .atas > div {
 
 .admin-eyebrow {
     color: var(--admin-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.74rem;
+    font-weight: 700;
 }
 
 .admin-page-title {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.18rem;
+    font-weight: 800;
     line-height: 1.2;
 }
 
@@ -1798,13 +1816,31 @@ footer > .atas > div {
 
 .admin-body .jdl-section {
     color: var(--admin-primary);
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
+}
+
+.admin-body h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.admin-body h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.admin-body h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
 }
 
 .admin-body .btn {
     border-radius: 8px;
+    font-weight: 600;
 }
 
 .admin-body .btn-light {
@@ -1833,6 +1869,18 @@ footer > .atas > div {
     min-height: 44px;
     border-radius: 8px;
     border-color: #d5dde3;
+    font-size: 0.95rem;
+}
+
+.admin-body .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #273541;
+}
+
+.admin-body .text-secondary,
+.admin-body .text-muted {
+    color: var(--admin-muted) !important;
 }
 
 .admin-body .form-control:focus,
