@@ -1683,6 +1683,7 @@ footer > .atas > div {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-height: 0;
     overflow-y: auto;
 }
 
@@ -1721,6 +1722,7 @@ footer > .atas > div {
     margin-top: auto;
     padding: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
 }
 
 .admin-topbar {
