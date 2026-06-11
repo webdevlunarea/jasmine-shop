@@ -105,6 +105,12 @@
             </div>
         </form>
 
+        <?php if (session()->get('role') == 1) { ?>
+        <div class="d-flex justify-content-end mb-3">
+            <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
+        </div>
+        <?php } ?>
+
         <?php if (!isset($find)) { ?>
         <div class="mb-4">
             <div class="p-5 header show-flex-ke-hide"
@@ -140,9 +146,6 @@
         <div class="mb-4">
             <div class="d-flex justify-content-between mb-3 align-items-center">
                 <h5 class="jdl-section">Artikel Baru</h5>
-                <?php if (session()->get('role') == 1) { ?>
-                <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
-                <?php } ?>
             </div>
             <div class="show-flex-ke-hide gap-4">
                 <div style="width: calc(100% / 3);">

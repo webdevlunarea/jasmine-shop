@@ -10,6 +10,7 @@ if ($isAdminNav) {
         ['label' => 'Order', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
         ['label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
+        ['label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
         ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
         ['label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
         ['label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
@@ -68,6 +69,7 @@ if ($isAdminNav) {
     </div>
     <div class="admin-topbar-actions">
         <a href="/addproduct" class="btn btn-primary1 admin-quick-action"><i class="material-icons">add</i><span>Produk</span></a>
+        <a href="/addarticle" class="btn btn-light admin-icon-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tambah Artikel"><i class="material-icons">article</i></a>
         <a href="/addbanner" class="btn btn-light admin-icon-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tambah Banner"><i class="material-icons">add_photo_alternate</i></a>
     </div>
 </header>
@@ -189,6 +191,7 @@ if ($isAdminNav) {
                         <a href="/listvoucher">List Voucher</a>
                         <a href="/listcustomer">List Customer</a>
                         <a href="/listproduct">List Products</a>
+                        <a href="/article">Artikel</a>
                         <a href="/manageratingterjual">Rating &amp; Terjual</a>
                         <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>
 
@@ -261,13 +264,13 @@ if ($isAdminNav) {
                         <a href="/account" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
                     <?php } ?>
                 <?php } else { ?>
-                    <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
-                    <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
+                    <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a> -->
                     <a href="/invoiceadmin" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice"><i class="material-icons">description</i></a>
                     <a href="/listbanner" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Banner"><i class="material-icons">image</i></a>
                     <a href="/listvoucher" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Voucher"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Customer"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Product"><i class="material-icons">view_list</i></a>
+                    <a href="/article" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Artikel"><i class="material-icons">article</i></a>
                     <a href="/manageratingterjual" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rating & Terjual"><i class="material-icons">star_rate</i></a>
                     <a href="/stokadmin/all/1" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stok"><i class="material-icons">unarchive</i></a>
                     <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
