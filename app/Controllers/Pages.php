@@ -26,6 +26,7 @@ use App\Models\StokModel;
 use App\Models\KonstantaModel;
 use App\Models\RatingModel;
 use App\Models\BannerModel;
+use App\Models\TrackingModel;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -52,6 +53,7 @@ class Pages extends BaseController
     protected $konstantaModel;
     protected $ratingModel;
     protected $bannerModel;
+    protected $trackingModel;
 
     protected $emailUjiCoba;
 
@@ -83,6 +85,7 @@ class Pages extends BaseController
         $this->konstantaModel = new KonstantaModel();
         $this->ratingModel = new RatingModel();
         $this->bannerModel = new BannerModel();
+        $this->trackingModel = new TrackingModel();
 
         // ngambil data dari model provinsi,kabupaten, kecamatan, kelurahan
         $this->provinsiModel = new ProvinsiModel();
@@ -6553,6 +6556,45 @@ class Pages extends BaseController
         ];
         return view('pages/listBanner', $data);
     }
+
+    public function trafficAdmin($range = 30)
+    {
+        $allowedRanges = [7, 30, 90];
+        $range = in_array((int)$range, $allowedRanges, true) ? (int)$range : 30;
+        $error = '';
+
+        try {
+            $summary = $this->trackingModel->getTrafficSummary($range);
+            $dailyTraffic = $this->trackingModel->getDailyTraffic($range);
+            $topPages = $this->trackingModel->getTopPages($range, 10);
+            $recentVisits = $this->trackingModel->getRecentVisits(30);
+        } catch (\Throwable $e) {
+            log_message('error', 'Traffic admin failed: {message}', ['message' => $e->getMessage()]);
+            $summary = [
+                'pageviews' => 0,
+                'visitors' => 0,
+                'avg_duration' => 0,
+                'today' => 0,
+            ];
+            $dailyTraffic = [];
+            $topPages = [];
+            $recentVisits = [];
+            $error = 'Data traffic belum bisa dibaca. Pastikan tabel tracking sudah tersedia.';
+        }
+
+        $data = [
+            'title' => 'Traffic Pengunjung',
+            'range' => $range,
+            'summary' => $summary,
+            'dailyTraffic' => $dailyTraffic,
+            'topPages' => $topPages,
+            'recentVisits' => $recentVisits,
+            'error' => $error,
+        ];
+
+        return view('pages/trafficAdmin', $data);
+    }
+
     public function addBanner()
     {
         $data = [

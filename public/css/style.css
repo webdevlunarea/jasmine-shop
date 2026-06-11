@@ -1928,6 +1928,167 @@ footer > .atas > div {
     box-shadow: none;
 }
 
+.traffic-range {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: #f8fafb;
+}
+
+.traffic-range a {
+    padding: 7px 12px;
+    color: var(--admin-muted);
+    border-radius: 6px;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.traffic-range a.active,
+.traffic-range a:hover {
+    background: white;
+    color: var(--admin-primary);
+    box-shadow: 0 1px 4px rgba(20, 33, 43, 0.08);
+}
+
+.traffic-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.traffic-card,
+.traffic-section {
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: white;
+}
+
+.traffic-card {
+    padding: 16px;
+}
+
+.traffic-card p {
+    margin: 0 0 8px;
+    color: var(--admin-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.traffic-card h3 {
+    margin: 0;
+}
+
+.traffic-section {
+    padding: 18px;
+}
+
+.traffic-chart {
+    min-height: 220px;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.traffic-bar-item {
+    min-width: 52px;
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+    gap: 6px;
+    text-align: center;
+}
+
+.traffic-bar-track {
+    min-height: 150px;
+    display: flex;
+    align-items: end;
+    border-radius: 8px;
+    background: #eef3f1;
+    overflow: hidden;
+}
+
+.traffic-bar-track span {
+    width: 100%;
+    display: block;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, #28b464, var(--admin-primary));
+}
+
+.traffic-bar-item p,
+.traffic-bar-item strong {
+    margin: 0;
+    font-size: 0.76rem;
+}
+
+.traffic-bar-item p {
+    color: var(--admin-muted);
+}
+
+.traffic-table {
+    margin-bottom: 0;
+}
+
+.traffic-table th {
+    color: var(--admin-muted);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+}
+
+.traffic-table td {
+    font-size: 0.88rem;
+}
+
+.traffic-table a {
+    color: var(--admin-text);
+    font-weight: 600;
+}
+
+.traffic-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.traffic-recent-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.traffic-recent-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.traffic-recent-item p {
+    color: var(--admin-text);
+    font-weight: 600;
+}
+
+.traffic-recent-item span {
+    color: var(--admin-muted);
+    font-size: 0.8rem;
+}
+
+.traffic-recent-item strong {
+    white-space: nowrap;
+    color: var(--admin-primary);
+}
+
+.traffic-empty {
+    padding: 18px;
+    color: var(--admin-muted);
+    border: 1px dashed #cbd5dc;
+    border-radius: 8px;
+    background: #f8fafb;
+    text-align: center;
+}
+
 @media (max-width: 992px) {
     .admin-sidebar {
         transform: translateX(-100%);
@@ -1967,6 +2128,10 @@ footer > .atas > div {
     .admin-topbar-actions {
         display: none;
     }
+
+    .traffic-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (min-width: 993px) {
@@ -1981,6 +2146,14 @@ footer > .atas > div {
     }
 
     .admin-body .konten > .container {
+        padding: 14px;
+    }
+
+    .traffic-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .traffic-section {
         padding: 14px;
     }
 }

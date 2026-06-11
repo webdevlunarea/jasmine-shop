@@ -11,6 +11,7 @@ if ($isAdminNav) {
         ['label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
         ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
+        ['label' => 'Traffic', 'icon' => 'monitoring', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
         ['label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
         ['label' => 'Rating', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
         ['label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],

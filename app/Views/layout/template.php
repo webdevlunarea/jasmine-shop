@@ -195,27 +195,42 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
     <script>
+    <?php if (!$isAdminLayout) { ?>
     document.addEventListener("DOMContentLoaded", function() {
         const startTime = Date.now();
+        let trackingSent = false;
 
-        window.addEventListener('beforeunload', function() {
-            const endTime = Date.now();
-            const duration = (endTime - startTime) / 1000; // duration in seconds
+        function sendVisitorTracking() {
+            if (trackingSent) return;
+            trackingSent = true;
 
-            navigator.sendBeacon('/addtracking', JSON.stringify({
+            const duration = Math.max(0, (Date.now() - startTime) / 1000);
+            const payload = JSON.stringify({
                 durasi: duration,
                 path: window.location.pathname
-            }));
+            });
 
-            // const greetingCardElm = document.getElementById('container-greeting-card');
-            // const greetingCardInputElm = document.getElementById('input-greeting-card');
-            // if (greetingCardElm) {
-            //     if (greetingCardInputElm.value == 'true') {
+            if (navigator.sendBeacon) {
+                const blob = new Blob([payload], {
+                    type: 'application/json'
+                });
+                navigator.sendBeacon('/addtracking', blob);
+                return;
+            }
 
-            //     }
-            // }
-        });
+            fetch('/addtracking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload,
+                keepalive: true
+            }).catch(function() {});
+        }
+
+        window.addEventListener('pagehide', sendVisitorTracking);
     });
+    <?php } ?>
 
     const toastElm = document.querySelector(".toast")
     const toastTeksElm = document.querySelector(".toast p")
