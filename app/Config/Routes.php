@@ -117,6 +117,13 @@ $routes->post('/hapusdummyrating', 'Pages::hapusDummyRating', ['filter' => 'haru
 
 $routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
 $routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => 'harusAdmin']);
+$routes->get('/listbanner', 'Pages::listBanner', ['filter' => 'harusAdmin']);
+$routes->get('/addbanner', 'Pages::addBanner', ['filter' => 'harusAdmin']);
+$routes->post('/actionaddbanner', 'Pages::actionAddBanner', ['filter' => 'harusAdmin']);
+$routes->get('/editbanner/(:num)', 'Pages::editBanner/$1', ['filter' => 'harusAdmin']);
+$routes->post('/actioneditbanner/(:num)', 'Pages::actionEditBanner/$1', ['filter' => 'harusAdmin']);
+$routes->post('/activebanner/(:num)', 'Pages::activeBanner/$1', ['filter' => 'harusAdmin']);
+$routes->post('/deletebanner/(:num)', 'Pages::deleteBanner/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);
@@ -181,6 +188,7 @@ $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
 $routes->get('/imgvoucher/email/(:any)', 'GambarController::voucherPosterEmail/$1');
 $routes->get('/imgvoucher/(:any)', 'GambarController::voucherPoster/$1');
+$routes->get('/imgbanner/(:num)', 'GambarController::tampilGambarBanner/$1');
 $routes->get('/imguser/(:any)', 'GambarController::tampilGambarUser/$1');
 $routes->get('/imgbuktibayar/(:any)', 'GambarController::tampilGambarBuktiBayar/$1');
 

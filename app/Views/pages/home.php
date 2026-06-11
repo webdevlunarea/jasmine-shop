@@ -277,38 +277,40 @@ function closeModalVoucherAll(index) {
     <div class="container">
         <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"
-                    aria-current="true" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
-                    aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
-                    aria-label="Slide 3"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
-                    aria-label="Slide 4"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
-                    aria-label="Slide 5"></button>
+                <?php if (!empty($banner)) { ?>
+                    <?php foreach ($banner as $ind_b => $b) { ?>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<?= $ind_b; ?>" class="<?= $ind_b == 0 ? 'active' : ''; ?>"
+                            <?= $ind_b == 0 ? 'aria-current="true"' : ''; ?> aria-label="Slide <?= $ind_b + 1; ?>"></button>
+                    <?php } ?>
+                <?php } else { ?>
+                    <?php for ($i = 0; $i < 5; $i++) { ?>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<?= $i; ?>" class="<?= $i == 0 ? 'active' : ''; ?>"
+                            <?= $i == 0 ? 'aria-current="true"' : ''; ?> aria-label="Slide <?= $i + 1; ?>"></button>
+                    <?php } ?>
+                <?php } ?>
             </div>
             <div class="carousel-inner" style="border-radius: 0.5em;">
-                <div class="carousel-item active">
-                    <img src="img/benner/1.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
-                        alt="Lunarea Furniture Banner 1">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/benner/2.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
-                        alt="Lunarea Furniture Banner 2">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/benner/3.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
-                        alt="Lunarea Furniture Banner 3">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/benner/4.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
-                        alt="Lunarea Furniture Banner 4">
-                </div>
-                <div class="carousel-item">
-                    <img loading="lazy" src="img/benner/5.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
-                        alt="Lunarea Furniture Banner 5">
-                </div>
+                <?php if (!empty($banner)) { ?>
+                    <?php foreach ($banner as $ind_b => $b) { ?>
+                        <div class="carousel-item <?= $ind_b == 0 ? 'active' : ''; ?>">
+                            <?php if ($b['link']) { ?>
+                                <a href="<?= esc($b['link']); ?>">
+                            <?php } ?>
+                            <img <?= $ind_b > 0 ? 'loading="lazy"' : ''; ?> src="/imgbanner/<?= $b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: $b['id']; ?>" style="width: 100%; height: auto;"
+                                alt="<?= esc($b['alt'] ?: $b['judul']); ?>">
+                            <?php if ($b['link']) { ?>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
+                <?php } else { ?>
+                    <?php for ($i = 1; $i <= 5; $i++) { ?>
+                        <div class="carousel-item <?= $i == 1 ? 'active' : ''; ?>">
+                            <img <?= $i > 1 ? 'loading="lazy"' : ''; ?> src="img/benner/<?= $i; ?>.webp?v=<?= date('Ymd'); ?>" style="width: 100%; height: auto;"
+                                alt="Lunarea Furniture Banner <?= $i; ?>">
+                        </div>
+                    <?php } ?>
+                <?php } ?>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
                 data-bs-slide="prev">

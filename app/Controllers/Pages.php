@@ -25,6 +25,7 @@ use App\Models\VoucherRedeemModel;
 use App\Models\StokModel;
 use App\Models\KonstantaModel;
 use App\Models\RatingModel;
+use App\Models\BannerModel;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -50,6 +51,7 @@ class Pages extends BaseController
     protected $stokModel;
     protected $konstantaModel;
     protected $ratingModel;
+    protected $bannerModel;
 
     protected $emailUjiCoba;
 
@@ -80,6 +82,7 @@ class Pages extends BaseController
         $this->stokModel = new StokModel();
         $this->konstantaModel = new KonstantaModel();
         $this->ratingModel = new RatingModel();
+        $this->bannerModel = new BannerModel();
 
         // ngambil data dari model provinsi,kabupaten, kecamatan, kelurahan
         $this->provinsiModel = new ProvinsiModel();
@@ -338,6 +341,7 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangLimit();
         $produkBaru = $this->barangModel->getBarangPopuler();
+        $banner = $this->getHomeBanner();
         $msgEvent = session()->getFlashdata('msg_event');
         $msgActive = session()->getFlashdata('msg_active');
         $counterEvent = 0;
@@ -356,6 +360,7 @@ class Pages extends BaseController
             'title' => 'Beranda',
             'produk' => $produk,
             'produkBaru' => $produkBaru,
+            'banner' => $banner,
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
             'msg_active' => $msgActive,
@@ -363,6 +368,15 @@ class Pages extends BaseController
             'counterEvent' => $counterEvent
         ];
         return view('pages/home', $data);
+    }
+    private function getHomeBanner()
+    {
+        try {
+            return $this->bannerModel->getActiveBanner();
+        } catch (\Throwable $e) {
+            log_message('warning', 'Banner table unavailable: {message}', ['message' => $e->getMessage()]);
+            return [];
+        }
     }
     public function sendwa()
     {
@@ -6528,6 +6542,127 @@ class Pages extends BaseController
             'email_user' => json_encode([])
         ]);
         return redirect()->to('/listredeem');
+    }
+    public function listBanner()
+    {
+        $banner = $this->bannerModel->orderBy('urutan', 'asc')->orderBy('id', 'asc')->findAll();
+        $data = [
+            'title' => 'List Banner',
+            'banner' => $banner,
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/listBanner', $data);
+    }
+    public function addBanner()
+    {
+        $data = [
+            'title' => 'Tambah Banner',
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/addBanner', $data);
+    }
+    public function actionAddBanner()
+    {
+        if (!$this->validate([
+            'judul' => ['rules' => 'required'],
+            'gambar' => ['rules' => 'uploaded[gambar]|is_image[gambar]|max_size[gambar,4096]'],
+        ])) {
+            session()->setFlashdata('msg', 'Judul dan gambar banner wajib diisi. Maksimal ukuran gambar 4 MB.');
+            return redirect()->to('/addbanner')->withInput();
+        }
+
+        $gambar = $this->request->getFile('gambar');
+        $this->bannerModel->insert([
+            'judul' => $this->request->getVar('judul'),
+            'alt' => $this->request->getVar('alt') ? $this->request->getVar('alt') : $this->request->getVar('judul'),
+            'link' => $this->normalizeBannerLink($this->request->getVar('link')),
+            'gambar' => file_get_contents($gambar->getTempName()),
+            'urutan' => $this->request->getVar('urutan') !== null ? (int)$this->request->getVar('urutan') : 0,
+            'active' => $this->request->getVar('active') ? 1 : 0,
+        ]);
+
+        session()->setFlashdata('msg', 'Banner berhasil ditambahkan');
+        return redirect()->to('/listbanner');
+    }
+    public function editBanner($id)
+    {
+        $banner = $this->bannerModel->where(['id' => $id])->first();
+        if (!$banner) {
+            session()->setFlashdata('msg', 'Banner tidak ditemukan');
+            return redirect()->to('/listbanner');
+        }
+        $data = [
+            'title' => 'Edit Banner',
+            'banner' => $banner,
+            'msg' => session()->getFlashdata('msg')
+        ];
+        return view('pages/editBanner', $data);
+    }
+    public function actionEditBanner($id)
+    {
+        $banner = $this->bannerModel->where(['id' => $id])->first();
+        if (!$banner) {
+            session()->setFlashdata('msg', 'Banner tidak ditemukan');
+            return redirect()->to('/listbanner');
+        }
+
+        if (!$this->validate([
+            'judul' => ['rules' => 'required'],
+        ])) {
+            session()->setFlashdata('msg', 'Judul banner wajib diisi');
+            return redirect()->to('/editbanner/' . $id)->withInput();
+        }
+
+        $dataUpdate = [
+            'judul' => $this->request->getVar('judul'),
+            'alt' => $this->request->getVar('alt') ? $this->request->getVar('alt') : $this->request->getVar('judul'),
+            'link' => $this->normalizeBannerLink($this->request->getVar('link')),
+            'urutan' => $this->request->getVar('urutan') !== null ? (int)$this->request->getVar('urutan') : 0,
+            'active' => $this->request->getVar('active') ? 1 : 0,
+        ];
+
+        $gambar = $this->request->getFile('gambar');
+        if ($gambar && $gambar->isValid()) {
+            if (!$this->validate([
+                'gambar' => ['rules' => 'is_image[gambar]|max_size[gambar,4096]'],
+            ])) {
+                session()->setFlashdata('msg', 'Format gambar tidak valid atau ukuran lebih dari 4 MB.');
+                return redirect()->to('/editbanner/' . $id)->withInput();
+            }
+            $dataUpdate['gambar'] = file_get_contents($gambar->getTempName());
+        }
+
+        $this->bannerModel->where(['id' => $id])->set($dataUpdate)->update();
+        session()->setFlashdata('msg', 'Banner berhasil diupdate');
+        return redirect()->to('/listbanner');
+    }
+    public function activeBanner($id)
+    {
+        $banner = $this->bannerModel->where(['id' => $id])->first();
+        if (!$banner) {
+            session()->setFlashdata('msg', 'Banner tidak ditemukan');
+            return redirect()->to('/listbanner');
+        }
+        $this->bannerModel->where(['id' => $id])->set(['active' => $banner['active'] ? 0 : 1])->update();
+        return redirect()->to('/listbanner');
+    }
+    public function deleteBanner($id)
+    {
+        $this->bannerModel->where(['id' => $id])->delete();
+        session()->setFlashdata('msg', 'Banner berhasil dihapus');
+        return redirect()->to('/listbanner');
+    }
+    private function normalizeBannerLink($link)
+    {
+        $link = trim((string)$link);
+        if ($link === '') return null;
+        if (strpos($link, '/') === 0) return $link;
+        if (filter_var($link, FILTER_VALIDATE_URL)) {
+            $scheme = parse_url($link, PHP_URL_SCHEME);
+            if (in_array($scheme, ['http', 'https'])) return $link;
+            return null;
+        }
+        return '/' . ltrim($link, '/');
     }
     public function listVoucher()
     {

@@ -3,6 +3,75 @@ $notif = [
     'wishlist' => session()->getFlashdata('notif-wishlist'),
     'cart' => session()->getFlashdata('notif-cart'),
 ];
+$isAdminNav = session()->get('role') == '1';
+if ($isAdminNav) {
+    $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+    $adminNav = [
+        ['label' => 'Order', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
+        ['label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
+        ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
+        ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
+        ['label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
+        ['label' => 'Rating', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
+        ['label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
+        ['label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'match' => ['listredeem']],
+    ];
+?>
+<input type="checkbox" id="admin-menu-toggle" class="d-none">
+<aside class="admin-sidebar">
+    <a href="/listcustomer" class="admin-brand">
+        <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
+        <span>Admin</span>
+    </a>
+    <nav class="admin-nav" aria-label="Navigasi admin">
+        <?php foreach ($adminNav as $item) {
+            $active = false;
+            foreach ($item['match'] as $pattern) {
+                if ($currentPath === $pattern || strpos($currentPath, $pattern . '/') === 0) {
+                    $active = true;
+                    break;
+                }
+            }
+        ?>
+            <a href="<?= $item['url']; ?>" class="admin-nav-item <?= $active ? 'active' : ''; ?>">
+                <i class="material-icons"><?= $item['icon']; ?></i>
+                <span><?= $item['label']; ?></span>
+            </a>
+        <?php } ?>
+    </nav>
+    <div class="admin-sidebar-footer">
+        <a href="/" class="admin-nav-item">
+            <i class="material-icons">storefront</i>
+            <span>Lihat Toko</span>
+        </a>
+        <a href="/account" class="admin-nav-item">
+            <i class="material-icons">person_outline</i>
+            <span>Akun</span>
+        </a>
+        <a href="/keluar" class="admin-nav-item danger">
+            <i class="material-icons">logout</i>
+            <span>Keluar</span>
+        </a>
+    </div>
+</aside>
+<label for="admin-menu-toggle" class="admin-menu-scrim"></label>
+<header class="admin-topbar">
+    <div class="admin-topbar-left">
+        <label for="admin-menu-toggle" class="admin-icon-btn" aria-label="Buka menu admin">
+            <i class="material-icons">menu</i>
+        </label>
+        <div>
+            <p class="admin-eyebrow m-0">Lunarea Admin</p>
+            <h1 class="admin-page-title m-0"><?= esc($title); ?></h1>
+        </div>
+    </div>
+    <div class="admin-topbar-actions">
+        <a href="/addproduct" class="btn btn-primary1 admin-quick-action"><i class="material-icons">add</i><span>Produk</span></a>
+        <a href="/addbanner" class="btn btn-light admin-icon-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tambah Banner"><i class="material-icons">add_photo_alternate</i></a>
+    </div>
+</header>
+<?php return;
+}
 ?>
 <style>
     .menu-hp-navbar {
@@ -115,6 +184,7 @@ $notif = [
                     <label for="menu-icon-admin" class="btn pe-0"><i class="material-icons">menu</i></label>
                     <div class="menu-hp-navbar-admin p-3">
                         <a href="/invoiceadmin">Invoice Admin</a>
+                        <a href="/listbanner">Banner</a>
                         <a href="/listvoucher">List Voucher</a>
                         <a href="/listcustomer">List Customer</a>
                         <a href="/listproduct">List Products</a>
@@ -193,6 +263,7 @@ $notif = [
                     <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a>
                     <a href="/addarticle" class="btn"><i class="material-icons">import_contacts</i></a> -->
                     <a href="/invoiceadmin" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice"><i class="material-icons">description</i></a>
+                    <a href="/listbanner" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Banner"><i class="material-icons">image</i></a>
                     <a href="/listvoucher" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Voucher"><i class="material-icons">confirmation_number</i></a>
                     <a href="/listcustomer" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Customer"><i class="material-icons">people</i></a>
                     <a href="/listproduct" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Product"><i class="material-icons">view_list</i></a>

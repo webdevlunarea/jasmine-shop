@@ -8,6 +8,7 @@ use App\Models\BarangModel;
 use App\Models\GambarUserModel;
 use App\Models\VoucherModel;
 use App\Models\PemesananModel;
+use App\Models\BannerModel;
 
 
 class GambarController extends BaseController
@@ -18,6 +19,7 @@ class GambarController extends BaseController
     protected $voucherModel;
     protected $gambarUserModel;
     protected $pemesananModel;
+    protected $bannerModel;
     public function __construct()
     {
         $this->artikelModel = new ArtikelModel();
@@ -26,6 +28,7 @@ class GambarController extends BaseController
         $this->voucherModel = new VoucherModel();
         $this->gambarUserModel = new GambarUserModel();
         $this->pemesananModel = new PemesananModel();
+        $this->bannerModel = new BannerModel();
     }
 
     public function tampilGambarBarang($idBarang)
@@ -139,6 +142,16 @@ class GambarController extends BaseController
         $gambarSelected = $gambar['poster_email'];
         $this->response->setHeader('Content-Type', 'image/webp');
         echo $gambarSelected;
+    }
+    public function tampilGambarBanner($idBanner)
+    {
+        $banner = $this->bannerModel->where(['id' => $idBanner])->first();
+        if (!$banner) {
+            return $this->response->setStatusCode(404, 'Banner not found.');
+        }
+        $info = getimagesizefromstring($banner['gambar']);
+        $this->response->setHeader('Content-Type', $info['mime'] ?? 'image/webp');
+        echo $banner['gambar'];
     }
     public function tampilGambarBuktiBayar($idMidtrans)
     {

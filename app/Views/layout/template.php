@@ -101,7 +101,9 @@
     <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">
 </head>
 
-<body>
+<?php $isAdminLayout = session()->get('role') == '1'; ?>
+
+<body class="<?= $isAdminLayout ? 'admin-body' : ''; ?>">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
@@ -121,17 +123,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">
     </script>
-    <div class="teks-atas show-flex-ke-hide">
-        <p class="m-0">Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%</p>
-    </div>
-    <div class="teks-atas hide-ke-show-flex">
-        <p class="m-0">Harga khusus pembelian pertama plus gratis ongkir</p>
-    </div>
+    <?php if (!$isAdminLayout) { ?>
+        <div class="teks-atas show-flex-ke-hide">
+            <p class="m-0">Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%</p>
+        </div>
+        <div class="teks-atas hide-ke-show-flex">
+            <p class="m-0">Harga khusus pembelian pertama plus gratis ongkir</p>
+        </div>
+    <?php } ?>
 
     <?= $this->include('layout/navbar'); ?>
 
     <!-- tombol form dan wa -->
-    <?php if (!session()->get('role') == '1') { ?>
+    <?php if (!$isAdminLayout) { ?>
     <div
         class="container-melayang d-flex gap-2 align-items-end <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
         <div id="container-greeting-card" class="d-none">
@@ -156,7 +160,9 @@
     <?php } ?>
 
     <?= $this->renderSection('content'); ?>
-    <?= $this->include('layout/footer'); ?>
+    <?php if (!$isAdminLayout) { ?>
+        <?= $this->include('layout/footer'); ?>
+    <?php } ?>
     <?php if (isset($geser_container_melayang)) { ?>
     <div class="hide-ke-show-block" style="height: 53px; width: 100vw"></div>
     <?php } ?>
