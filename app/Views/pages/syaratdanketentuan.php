@@ -49,7 +49,7 @@
 
         <h5 class="jdl-section mb-3">Luna Point</h5>
         <h5>Pendahuluan</h5>
-        <p>Syarat & ketentuan ini mengikat CV Catur Bhakti Mandiri (dalam hal ini <b>“Lunarea”</b>) akan disebut sebagai <b>"Perusahaan"</b> dan <b>Pelanggan</b>. Istilah yang dikapitalisasi dalam syarat & ketentuan ini memiliki arti/ makna tertentu seperti yang akan dijabarkan lebih detail pada bagian <b>“Definisi”</b>.</p>
+        <p>Syarat & ketentuan ini mengikat Lunarea Furniture yang akan disebut sebagai <b>"Perusahaan"</b> dan <b>Pelanggan</b>. Istilah yang dikapitalisasi dalam syarat & ketentuan ini memiliki arti/ makna tertentu seperti yang akan dijabarkan lebih detail pada bagian <b>“Definisi”</b>.</p>
         <h5>Jasa</h5>
         <ol>
             <li>Luna Reward merupakan sistem yang ditujukan sebagai bentuk loyalitas kepada pengguna Lunarea Furniture yang memungkinkan pengguna melihat dan mengelola poin yang dimiliki untuk dipergunakan pada layanan Perusahaan.</li>

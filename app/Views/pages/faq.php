@@ -203,21 +203,21 @@
                 <div id="flush-collapse6" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana prosedur komplain?</p>
-                        <p class="mb-0">Untuk prosedur komplain dapat menghubungi customer service Lunarea Furniture dengan syarat dan ketentuan berikut:</p>
+                        <p class="mb-0">Jika produk yang diterima bermasalah, silakan hubungi customer service Lunarea Furniture maksimal 7 hari kerja setelah produk diterima. Agar komplain dapat diproses, siapkan bukti berikut:</p>
                         <ul>
                             <li>
-                                <p class="mb-0">Wajib menyertakan video unboxing dan menyertakan foto pada bagian nomor produksi (misal: MBMR 168, A042).
+                                <p class="mb-0">Video unboxing sejak paket dibuka.
                                 </p>
                             </li>
                             <li>
-                                <p class="mb-0">Apabila terdapat kerusakan komponen akibat pengiriman, segera hubungi customer service Kami agar dapat segera diproses penggantian komponen tersebut. Estimasi pengiriman komponen pengganti ini memerlukan waktu kurang lebih 14 hari kerja.
+                                <p class="mb-0">Foto bagian yang bermasalah dan foto nomor produksi produk, misalnya MBMR 168 atau A042.
                                 </p>
                             </li>
                             <li>
-                                <p class="mb-0">Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak, agar kami dapat segera menggantinya dengan aksesoris yang baru. Sebagai informasi, untuk proses pengiriman ulang komponen memerlukan waktu selambat-lambatnya 7 hari kerja.</p>
+                                <p class="mb-0">Jika komponen produk rusak karena pengiriman, customer service akan membantu proses penggantian komponen. Estimasi pengiriman komponen pengganti kurang lebih 14 hari kerja.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Batas waktu komplain maksimal 7 hari kerja setelah produk diterima.</p>
+                                <p class="mb-0">Jika aksesoris rusak karena pengiriman, aksesoris yang rusak perlu dikirimkan kembali terlebih dahulu. Setelah diterima, kami akan mengirimkan aksesoris pengganti maksimal 7 hari kerja.</p>
                             </li>
                         </ul>
                     </div>
