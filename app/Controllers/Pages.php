@@ -424,7 +424,14 @@ class Pages extends BaseController
     }
     public function syaratdanketentuan()
     {
-        $voucher = $this->voucherModel->where('syarat_ketentuan is NOT NULL')->findAll();
+        $voucher = $this->voucherModel
+            ->where('syarat_ketentuan is NOT NULL')
+            ->whereNotIn('nama', [
+                'SPESIAL THR BUAT TEMAN LUNA!',
+                'PROMO KARTINI',
+                'PROMO IDUL ADHA',
+            ])
+            ->findAll();
         $data = [
             'title' => 'Syarat dan Ketentuan',
             'voucher' => $voucher
