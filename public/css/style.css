@@ -1548,7 +1548,16 @@ footer > .atas > div {
 }
 
 .footer__brand {
-    margin-top: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.footer__brand p {
+    color: #555;
+    font-size: 0.9rem;
 }
 
 .footer__brand-list {
@@ -1562,19 +1571,29 @@ footer > .atas > div {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 118px;
-    height: 45px;
-    padding: 0.6rem;
+    width: 92px;
+    height: 36px;
+    padding: 0.45rem 0.55rem;
     border: 1px solid #ddd;
     border-radius: 5px;
-    background-color: #202020;
+    background-color: #fff;
     transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.footer__brand-link--dark {
+    background-color: #242424;
+    border-color: #242424;
 }
 
 .footer__brand-link:hover,
 .footer__brand-link:focus {
     border-color: var(--hijau);
-    background-color: #161616;
+    background-color: #f8f8f8;
+}
+
+.footer__brand-link--dark:hover,
+.footer__brand-link--dark:focus {
+    background-color: #181818;
 }
 
 .footer__brand-link:focus-visible {

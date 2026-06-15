@@ -128,9 +128,9 @@
                     </div>
 
                     <div class="footer__brand">
-                        <div class="fw-700 fs-3 mb-2"><strong>Our Brand</strong></div>
+                        <p class="m-0">Our Brand</p>
                         <div class="footer__brand-list">
-                            <a href="https://ilenafurniture.com" class="footer__brand-link" title="Ilena Furniture" target="_blank" rel="noopener noreferrer">
+                            <a href="https://ilenafurniture.com" class="footer__brand-link footer__brand-link--dark" title="Ilena Furniture" target="_blank" rel="noopener noreferrer">
                                 <img src="/img/logo/logoilenaputih.png" alt="Ilena Furniture">
                             </a>
                             <a href="https://lunareafurniture.com" class="footer__brand-link" title="Lunarea Furniture" target="_blank" rel="noopener noreferrer">
