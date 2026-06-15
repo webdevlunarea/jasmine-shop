@@ -95,8 +95,8 @@
                     </ul>
                 </div>
             </div>
-            <div style="flex: 2;">
-                <div class="footer__left-menu">
+            <div class="footer__contact-brand" style="flex: 2;">
+                <div class="footer__left-menu footer__contact">
                     <div class="fw-700 fs-3 mb-2"><strong>Kontak kami</strong></div>
                     <p class="mb-1" style="color: #555">
                         Senin - Jumat | 08.00 - 16.00 WIB
@@ -126,17 +126,16 @@
                             </a>
                         </div>
                     </div>
-
-                    <div class="footer__brand">
-                        <p class="m-0">Our Brand</p>
-                        <div class="footer__brand-list">
-                            <a href="https://ilenafurniture.com" class="footer__brand-link footer__brand-link--dark" title="Ilena Furniture" target="_blank" rel="noopener noreferrer">
-                                <img src="/img/logo/logoilenaputih.png" alt="Ilena Furniture">
-                            </a>
-                            <a href="https://lunareafurniture.com" class="footer__brand-link" title="Lunarea Furniture" target="_blank" rel="noopener noreferrer">
-                                <img src="/img/logo/logolunareaputih.webp" alt="Lunarea Furniture">
-                            </a>
-                        </div>
+                </div>
+                <div class="footer__brand">
+                    <div class="fw-700 fs-3 mb-2"><strong>Our Brand</strong></div>
+                    <div class="footer__brand-list">
+                        <a href="https://ilenafurniture.com" class="footer__brand-link footer__brand-link--dark" title="Ilena Furniture" target="_blank" rel="noopener noreferrer">
+                            <img src="/img/logo/logoilenaputih.png" alt="Ilena Furniture">
+                        </a>
+                        <a href="https://lunareafurniture.com" class="footer__brand-link" title="Lunarea Furniture" target="_blank" rel="noopener noreferrer">
+                            <img src="/img/logo/logolunareaputih.webp" alt="Lunarea Furniture">
+                        </a>
                     </div>
                 </div>
             </div>
