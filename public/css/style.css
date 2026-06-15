@@ -1547,6 +1547,72 @@ footer > .atas > div {
     border-radius: 5px;
 }
 
+.footer__brand {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+.footer__brand p {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.footer__brand-list {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.footer__brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    min-height: 44px;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.footer__brand-link--dark {
+    background-color: #111;
+    border-color: #111;
+}
+
+.footer__brand-link:hover,
+.footer__brand-link:focus {
+    border-color: var(--hijau);
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.14);
+    transform: translateY(-1px);
+}
+
+.footer__brand-link:focus {
+    outline: 2px solid var(--hijau);
+    outline-offset: 2px;
+}
+
+.footer__brand-link img {
+    display: block;
+    width: auto;
+    max-width: 96px;
+    max-height: 24px;
+    object-fit: contain;
+}
+
+@media (max-width: 600px) {
+    .footer__brand {
+        text-align: left;
+    }
+
+    .footer__brand-list {
+        justify-content: flex-start;
+    }
+}
+
 /* baru */
 
 .print {

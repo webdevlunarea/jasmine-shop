@@ -126,6 +126,18 @@
                             </a>
                         </div>
                     </div>
+
+                    <div class="footer__brand">
+                        <p class="mb-2">Our Brand</p>
+                        <div class="footer__brand-list">
+                            <a href="https://ilenafurniture.com" class="footer__brand-link footer__brand-link--dark" title="Ilena Furniture" target="_blank" rel="noopener noreferrer">
+                                <img src="/img/logo/logoilenaputih.png" alt="Ilena Furniture">
+                            </a>
+                            <a href="https://lunareafurniture.com" class="footer__brand-link" title="Lunarea Furniture" target="_blank" rel="noopener noreferrer">
+                                <img src="/img/logo/logolunareaputih.webp" alt="Lunarea Furniture">
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
