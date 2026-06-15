@@ -1558,7 +1558,7 @@ footer > .atas > div {
 }
 
 .footer__brand {
-    flex: 0 0 135px;
+    flex: 0 0 165px;
 }
 
 .footer__brand-list {
@@ -1573,9 +1573,9 @@ footer > .atas > div {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 118px;
-    height: 45px;
-    padding: 0.6rem;
+    width: 150px;
+    height: 56px;
+    padding: 0.7rem 0.8rem;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #fff;
