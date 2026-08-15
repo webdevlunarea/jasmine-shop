@@ -6672,6 +6672,36 @@ class Pages extends BaseController
         return view('pages/trafficAdmin', $data);
     }
 
+    public function settingWarna()
+    {
+        $data = [
+            'title' => 'Setting Warna',
+            'theme' => $this->konstantaModel->getThemeWarna(),
+            'msg' => session()->getFlashdata('msg'),
+        ];
+
+        return view('pages/settingWarna', $data);
+    }
+
+    public function actionSettingWarna()
+    {
+        $colors = [
+            'primary' => $this->request->getVar('primary'),
+            'primaryHover' => $this->request->getVar('primaryHover'),
+            'soft' => $this->request->getVar('soft'),
+            'soft1' => $this->request->getVar('soft1'),
+            'soft2' => $this->request->getVar('soft2'),
+            'accent' => $this->request->getVar('accent'),
+            'background' => $this->request->getVar('background'),
+            'sidebar' => $this->request->getVar('sidebar'),
+        ];
+
+        $this->konstantaModel->saveThemeWarna($colors);
+        session()->setFlashdata('msg', 'Tone warna berhasil disimpan dan sudah aktif untuk semua pengunjung.');
+
+        return redirect()->to('/settingwarna');
+    }
+
     public function addBanner()
     {
         $data = [

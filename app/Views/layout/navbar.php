@@ -13,6 +13,7 @@ if ($isAdminNav) {
         ['label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
         ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
         ['label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
+        ['label' => 'Warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
         ['label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
         ['label' => 'Rating', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
         ['label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],

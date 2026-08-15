@@ -1,3 +1,17 @@
+<?php
+$themeWarna = \App\Models\KonstantaModel::defaultThemeWarna();
+try {
+    $themeModel = new \App\Models\KonstantaModel();
+    $themeWarna = $themeModel->getThemeWarna();
+} catch (\Throwable $e) {
+    $themeWarna = \App\Models\KonstantaModel::defaultThemeWarna();
+}
+
+$themeCss = [];
+foreach ($themeWarna as $key => $value) {
+    $themeCss[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -98,6 +112,37 @@
     <script defer src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="/css/style.css?v=<?= time(); ?>">
+    <style id="global-theme-tone">
+    :root,
+    * {
+        --hijau: <?= $themeCss['primary']; ?>;
+        --hijaumuda: <?= $themeCss['soft']; ?>;
+        --hijaumuda1: <?= $themeCss['soft1']; ?>;
+        --hijaumuda2: <?= $themeCss['soft2']; ?>;
+        --theme-primary: <?= $themeCss['primary']; ?>;
+        --theme-primary-hover: <?= $themeCss['primaryHover']; ?>;
+        --theme-soft: <?= $themeCss['soft']; ?>;
+        --theme-soft-1: <?= $themeCss['soft1']; ?>;
+        --theme-soft-2: <?= $themeCss['soft2']; ?>;
+        --theme-accent: <?= $themeCss['accent']; ?>;
+        --theme-background: <?= $themeCss['background']; ?>;
+        --theme-sidebar: <?= $themeCss['sidebar']; ?>;
+    }
+
+    .btn-teks-aja:hover {
+        color: var(--theme-primary-hover);
+    }
+
+    .admin-body {
+        --admin-bg: var(--theme-background);
+        --admin-primary: var(--theme-primary);
+        --admin-primary-soft: var(--theme-soft);
+    }
+
+    .admin-sidebar {
+        background: var(--theme-sidebar);
+    }
+    </style>
     <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">
 </head>
 

@@ -5,10 +5,10 @@
     /* --merah: #db4444; */
     --merah: #df2e38;
     --merahLogo: #b00404;
-    --hijaumuda: #f2fbf4;
-    --hijaumuda1: #ddf7e3;
-    --hijaumuda2: #c7e8ca;
-    --hijau: #1db954;
+    --hijaumuda: #faf7f2;
+    --hijaumuda1: #f3e8df;
+    --hijaumuda2: #e7d7c9;
+    --hijau: #243b6b;
     --bck: #f5f5f5;
 }
 
@@ -1692,8 +1692,8 @@ footer > .atas > div {
     --admin-border: #dfe5ea;
     --admin-text: #14212b;
     --admin-muted: #66737f;
-    --admin-primary: #178f45;
-    --admin-primary-soft: #e8f8ed;
+    --admin-primary: #243b6b;
+    --admin-primary-soft: #faf7f2;
     background-color: var(--admin-bg);
     color: var(--admin-text);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
@@ -1723,7 +1723,7 @@ footer > .atas > div {
     inset: 0 auto 0 0;
     width: var(--admin-sidebar);
     z-index: 1000;
-    background: #102017;
+    background: #1f2a44;
     color: white;
     display: flex;
     flex-direction: column;
@@ -1855,7 +1855,7 @@ footer > .atas > div {
 
 .admin-icon-btn:hover {
     color: var(--admin-primary);
-    border-color: #b8d9c4;
+    border-color: var(--admin-primary);
     background: var(--admin-primary-soft);
 }
 
@@ -1931,7 +1931,7 @@ footer > .atas > div {
 }
 
 .admin-body .btn-light:hover {
-    border-color: #b8d9c4;
+    border-color: var(--admin-primary);
     background: var(--admin-primary-soft);
     color: var(--admin-primary);
 }
@@ -1942,7 +1942,7 @@ footer > .atas > div {
 }
 
 .admin-body .btn-primary1:hover {
-    background-color: #0f7d39;
+    background-color: var(--theme-primary-hover, #1a2c52);
     color: white;
 }
 
@@ -1967,8 +1967,8 @@ footer > .atas > div {
 
 .admin-body .form-control:focus,
 .admin-body .form-select:focus {
-    border-color: #76c68f;
-    box-shadow: 0 0 0 0.2rem rgba(29, 185, 84, 0.14);
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--admin-primary) 18%, transparent);
 }
 
 .admin-body .alert {
