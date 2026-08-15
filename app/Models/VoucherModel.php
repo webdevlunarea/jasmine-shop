@@ -28,13 +28,33 @@ class VoucherModel extends Model
         'isi_email_input',
         'jadwal',
         'syarat_ketentuan',
+        'max_potongan',
+        'tidak_gabung_voucher_baru',
     ];
 
     public function getVoucher($id = false)
     {
         if ($id == false) {
-            return $this->where(['active' => '1'])->orderBy('id', 'desc')->findAll();
+            $voucher = $this->where(['active' => '1'])->orderBy('id', 'desc')->findAll();
+            return array_values(array_filter($voucher, fn ($v) => $this->masihDalamPeriode($v)));
         }
-        return $this->where(['active' => '1', 'id' => $id])->first();
+
+        $voucher = $this->where(['active' => '1', 'id' => $id])->first();
+        return $this->masihDalamPeriode($voucher) ? $voucher : null;
+    }
+
+    private function masihDalamPeriode($voucher)
+    {
+        if (!$voucher || empty($voucher['jadwal'])) {
+            return true;
+        }
+
+        $jadwal = explode('@', $voucher['jadwal']);
+        if (count($jadwal) < 2 || !$jadwal[0] || !$jadwal[1]) {
+            return true;
+        }
+
+        $tanggalHariIni = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+        return $tanggalHariIni >= strtotime($jadwal[0]) && $tanggalHariIni <= strtotime($jadwal[1]);
     }
 }

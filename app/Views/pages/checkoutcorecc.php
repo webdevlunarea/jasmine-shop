@@ -437,6 +437,12 @@
                         <div>
                             <h5 class="m-0"><?= $voucherSelected['nama']; ?></h5>
                             <p class="m-0" style="font-size: small;"><?= $voucherSelected['keterangan'] ?></p>
+                            <?php if (!empty($voucherSelected['max_potongan'])) { ?>
+                            <p class="m-0 text-secondary" style="font-size: small;">Maks. potongan Rp <?= number_format((int)$voucherSelected['max_potongan'], 0, ",", "."); ?></p>
+                            <?php } ?>
+                            <?php if (!empty($voucherSelected['tidak_gabung_voucher_baru'])) { ?>
+                            <p class="m-0 text-secondary" style="font-size: small;">Tidak digabung dengan voucher pengguna baru</p>
+                            <?php } ?>
                         </div>
                         <i class="material-icons">chevron_right</i>
                         <?php } else { ?>
@@ -451,6 +457,12 @@
                             <div>
                                 <h5 class="m-0"><?= $v['nama']; ?></h5>
                                 <p class="m-0" style="font-size: small;"><?= $v['keterangan'] ?></p>
+                                <?php if (!empty($v['max_potongan'])) { ?>
+                                <p class="m-0 text-secondary" style="font-size: small;">Maks. potongan Rp <?= number_format((int)$v['max_potongan'], 0, ",", "."); ?></p>
+                                <?php } ?>
+                                <?php if (!empty($v['tidak_gabung_voucher_baru'])) { ?>
+                                <p class="m-0 text-secondary" style="font-size: small;">Tidak digabung dengan voucher pengguna baru</p>
+                                <?php } ?>
                             </div>
                             <?php if ($activeVoucher == $v['id']) { ?>
                             <div><i class="material-icons">close</i></div>

@@ -61,6 +61,12 @@
                             <p class="m-0"><?= ucfirst($v['jenis']); ?></p>
                             <h5 class="m-0" style="color: var(--hijau);"><?= $v['nama']; ?></h5>
                             <p class="text-secondary m-0">Durasi : <?= $v['durasi'] ? $v['durasi'] : 'Tak hingga'; ?></p>
+                            <?php if (!empty($v['max_potongan'])) { ?>
+                                <p class="text-secondary m-0">Maks. potongan : Rp <?= number_format((int)$v['max_potongan'], 0, ",", "."); ?></p>
+                            <?php } ?>
+                            <?php if (!empty($v['tidak_gabung_voucher_baru'])) { ?>
+                                <p class="text-secondary m-0">Tidak digabung voucher pengguna baru</p>
+                            <?php } ?>
                             <?php if ($v['jadwal']) { ?>
                                 <p class="m-0">Dijadwalkan : <?= $v['jadwal']; ?></p>
                             <?php } ?>

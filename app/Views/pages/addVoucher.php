@@ -29,6 +29,11 @@
                 </div>
             </div>
             <div class="mb-2">
+                <label class="form-label m-0">Maksimal Potongan</label>
+                <p class="text-secondary mb-1" style="font-size: small;">Khusus voucher persen. Kosongkan jika tidak ada batas maksimal.</p>
+                <input type="number" class="form-control" name="max_potongan" placeholder="Contoh: 30000">
+            </div>
+            <div class="mb-2">
                 <label class="form-label">Jenis</label>
                 <select name="jenis" class="form-select">
                     <option value="member" selected>Member</option>
@@ -143,6 +148,10 @@
                 <div class="d-flex gap-1">
                     <input type="checkbox" name="auto-claimed" id="checkbox2">
                     <label for="checkbox2">Auto klaim ketika customer registrasi</label>
+                </div>
+                <div class="d-flex gap-1">
+                    <input type="checkbox" name="tidak_gabung_voucher_baru" id="checkbox4">
+                    <label for="checkbox4">Voucher tidak bisa digabung dengan voucher pengguna baru</label>
                 </div>
             </div>
             <hr>

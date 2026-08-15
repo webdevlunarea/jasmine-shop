@@ -23,17 +23,22 @@
                 <div style="flex: 1">
                     <label class="form-label">Satuan</label>
                     <select name="satuan" class="form-select" value="<?= $voucher['satuan']; ?>">
-                        <option value="persen" selected>Persen</option>
-                        <option value="rupiah">Rupiah</option>
+                        <option value="persen" <?= $voucher['satuan'] == 'persen' ? 'selected' : ''; ?>>Persen</option>
+                        <option value="rupiah" <?= $voucher['satuan'] == 'rupiah' ? 'selected' : ''; ?>>Rupiah</option>
                     </select>
                 </div>
             </div>
             <div class="mb-2">
+                <label class="form-label m-0">Maksimal Potongan</label>
+                <p class="text-secondary mb-1" style="font-size: small;">Khusus voucher persen. Kosongkan jika tidak ada batas maksimal.</p>
+                <input type="number" class="form-control" name="max_potongan" placeholder="Contoh: 30000" value="<?= $voucher['max_potongan'] ?? ''; ?>">
+            </div>
+            <div class="mb-2">
                 <label class="form-label">Jenis</label>
                 <select name="jenis" class="form-select" value="<?= $voucher['jenis']; ?>">
-                    <option value="member" selected>Member</option>
-                    <option value="cashback">Cashback</option>
-                    <option value="potongan">Potongan</option>
+                    <option value="member" <?= $voucher['jenis'] == 'member' ? 'selected' : ''; ?>>Member</option>
+                    <option value="cashback" <?= $voucher['jenis'] == 'cashback' ? 'selected' : ''; ?>>Cashback</option>
+                    <option value="potongan" <?= $voucher['jenis'] == 'potongan' ? 'selected' : ''; ?>>Potongan</option>
                 </select>
             </div>
             <div class="mb-2">
@@ -46,20 +51,20 @@
                     <label class="form-label m-0">Durasi Voucher</label>
                     <p class="text-secondary mb-1" style="font-size: small;">Masa aktif voucher setelah di klaim</p>
                     <select name="durasi" class="form-select" value="<?= $voucher['durasi']; ?>">
-                        <option value="null" selected>Tak hingga</option>
-                        <option value="+3 days">3 Hari</option>
-                        <option value="+1 month">1 Bulan</option>
-                        <option value="+1 year">1 Tahun</option>
+                        <option value="null" <?= empty($voucher['durasi']) ? 'selected' : ''; ?>>Tak hingga</option>
+                        <option value="+3 days" <?= $voucher['durasi'] == '+3 days' ? 'selected' : ''; ?>>3 Hari</option>
+                        <option value="+1 month" <?= $voucher['durasi'] == '+1 month' ? 'selected' : ''; ?>>1 Bulan</option>
+                        <option value="+1 year" <?= $voucher['durasi'] == '+1 year' ? 'selected' : ''; ?>>1 Tahun</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label class="form-label m-0">Durasi Poin</label>
                     <p class="text-secondary mb-1" style="font-size: small;">Masa aktif poin yang di dapat dari voucher cashback</p>
                     <select name="durasi-poin" class="form-select" value="<?= $voucher['durasi_poin']; ?>">
-                        <option value="null" selected>Tak hingga</option>
-                        <option value="+3 days">3 Hari</option>
-                        <option value="+1 month">1 Bulan</option>
-                        <option value="+1 year">1 Tahun</option>
+                        <option value="null" <?= empty($voucher['durasi_poin']) ? 'selected' : ''; ?>>Tak hingga</option>
+                        <option value="+3 days" <?= $voucher['durasi_poin'] == '+3 days' ? 'selected' : ''; ?>>3 Hari</option>
+                        <option value="+1 month" <?= $voucher['durasi_poin'] == '+1 month' ? 'selected' : ''; ?>>1 Bulan</option>
+                        <option value="+1 year" <?= $voucher['durasi_poin'] == '+1 year' ? 'selected' : ''; ?>>1 Tahun</option>
                     </select>
                 </div>
             </div>
@@ -146,6 +151,10 @@
                 <div class="d-flex gap-1">
                     <input type="checkbox" name="auto-claimed" id="checkbox2" <?= $voucher['auto_claimed'] ? 'checked' : ''; ?>>
                     <label for="checkbox2">Auto klaim ketika customer registrasi</label>
+                </div>
+                <div class="d-flex gap-1">
+                    <input type="checkbox" name="tidak_gabung_voucher_baru" id="checkbox4" <?= !empty($voucher['tidak_gabung_voucher_baru']) ? 'checked' : ''; ?>>
+                    <label for="checkbox4">Voucher tidak bisa digabung dengan voucher pengguna baru</label>
                 </div>
             </div>
             <hr>

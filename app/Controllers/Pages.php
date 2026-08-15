@@ -2062,6 +2062,10 @@ class Pages extends BaseController
         $ind_user = $this->request->getVar('ind_user');
         $codeVar = $this->request->getVar('code');
         $voucher = $this->voucherModel->getVoucher($id_voucher);
+        if (!$voucher) {
+            session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+            return redirect()->to('/voucher');
+        }
         $code = json_decode($voucher['code'], true);
         if (isset($code[$ind_user]['code'])) {
             if ($codeVar != $code[$ind_user]['code']) {
@@ -2245,6 +2249,48 @@ class Pages extends BaseController
     {
         session()->set('gantiKaca', $value  == 'true' ? true : false);
         return redirect()->to('/checkout');
+    }
+
+    private function hitungDiskonVoucher($voucherDetail, $total)
+    {
+        if (!$voucherDetail || $voucherDetail['jenis'] == 'cashback') {
+            return 0;
+        }
+
+        if ($voucherDetail['satuan'] == 'persen') {
+            $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
+            $maxPotongan = (int)($voucherDetail['max_potongan'] ?? 0);
+
+            if ($maxPotongan > 0 && $diskonVoucher > $maxPotongan) {
+                $diskonVoucher = $maxPotongan;
+            }
+
+            return max(0, (int)$diskonVoucher);
+        }
+
+        if ($voucherDetail['satuan'] == 'rupiah') {
+            return max(0, (int)$voucherDetail['nominal']);
+        }
+
+        return 0;
+    }
+
+    private function voucherMasihDalamPeriode($voucherDetail)
+    {
+        if (!$voucherDetail || empty($voucherDetail['jadwal'])) {
+            return true;
+        }
+
+        $jadwal = explode('@', $voucherDetail['jadwal']);
+        if (count($jadwal) < 2 || !$jadwal[0] || !$jadwal[1]) {
+            return true;
+        }
+
+        $tanggalHariIni = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+        $tanggalMulai = strtotime($jadwal[0]);
+        $tanggalSelesai = strtotime($jadwal[1]);
+
+        return $tanggalHariIni >= $tanggalMulai && $tanggalHariIni <= $tanggalSelesai;
     }
 
     public function checkout()
@@ -2464,6 +2510,17 @@ class Pages extends BaseController
         if (session()->get('voucher')) {
             $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
 
+            if (!$voucherDetail) {
+                session()->remove('voucher');
+                return redirect()->to('/checkout');
+            }
+
+            if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
+                session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+                session()->remove('voucher');
+                return redirect()->to('/checkout');
+            }
+
             //cek apakah lebih dari 250k
             if ($voucherDetail['id_voucher'] == '5') {
                 if ($subtotal < 250000) {
@@ -2483,17 +2540,7 @@ class Pages extends BaseController
                 }
             }
 
-            if (!$voucherDetail) {
-                session()->remove('voucher');
-                return redirect()->to('/checkout');
-            }
-            if ($voucherDetail['jenis'] != 'cashback') {
-                if ($voucherDetail['satuan'] == 'persen') {
-                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
-                } else if ($voucherDetail['satuan'] == 'rupiah') {
-                    $diskonVoucher = (int)$voucherDetail['nominal'];
-                }
-            }
+            $diskonVoucher = $this->hitungDiskonVoucher($voucherDetail, $total);
             $voucherSelected = $voucherDetail;
         }
 
@@ -2723,6 +2770,20 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
             return redirect()->to('/checkout');
         }
+
+        $voucherDetail = $this->voucherClaimedModel->getVoucher($id_voucher);
+        if (!$voucherDetail) {
+            session()->setFlashdata('msg', 'Voucher tidak ditemukan');
+            session()->remove('voucher');
+            return redirect()->to('/checkout');
+        }
+
+        if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
+            session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+            session()->remove('voucher');
+            return redirect()->to('/checkout');
+        }
+
         session()->set('voucher', $id_voucher);
         return redirect()->to('/checkout');
     }
@@ -3035,14 +3096,23 @@ class Pages extends BaseController
         $cashback = 0;
         if (session()->get('voucher')) {
             $voucherDetail = $this->voucherClaimedModel->getVoucher(session()->get('voucher'));
-            if ($voucherDetail['jenis'] != 'cashback') {
-                if ($voucherDetail['satuan'] == 'persen') {
-                    $diskonVoucher = round($voucherDetail['nominal'] / 100 * ($total - 5000));
-                } else if ($voucherDetail['satuan'] == 'rupiah') {
-                    $diskonVoucher = (int)$voucherDetail['nominal'];
-                }
-            } else {
+
+            if (!$voucherDetail) {
+                session()->remove('voucher');
+                session()->setFlashdata('msg', 'Voucher tidak ditemukan');
+                return redirect()->to('/checkout');
+            }
+
+            if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
+                session()->remove('voucher');
+                session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+                return redirect()->to('/checkout');
+            }
+
+            if ($voucherDetail['jenis'] == 'cashback') {
                 $cashback = (int)$voucherDetail['nominal'];
+            } else {
+                $diskonVoucher = $this->hitungDiskonVoucher($voucherDetail, $total);
             }
             $voucherSelected = $voucherDetail;
         }
@@ -6792,6 +6862,8 @@ class Pages extends BaseController
         $jadwal1 = $this->request->getVar('jadwal1');
         $jadwal2 = $this->request->getVar('jadwal2');
         $syaratKetentuan = $this->request->getVar('syarat-ketentuan') ? $this->request->getVar('syarat-ketentuan') : null;
+        $maxPotongan = $this->request->getVar('max_potongan') ? (int)$this->request->getVar('max_potongan') : null;
+        $tidakGabungVoucherBaru = $this->request->getVar('tidak_gabung_voucher_baru') ? true : false;
 
         if ($jadwal1) {
             if (!$jadwal2) {
@@ -6942,7 +7014,9 @@ class Pages extends BaseController
             'isi_email' => $isi_email_fix,
             'isi_email_input' => $isiEmail,
             'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
-            'syarat_ketentuan' => $syaratKetentuan
+            'syarat_ketentuan' => $syaratKetentuan,
+            'max_potongan' => $maxPotongan,
+            'tidak_gabung_voucher_baru' => $tidakGabungVoucherBaru
         ];
         // dd($insertData);
         $this->voucherModel->insert($insertData);
@@ -6997,6 +7071,8 @@ class Pages extends BaseController
         $jadwal1 = $this->request->getVar('jadwal1');
         $jadwal2 = $this->request->getVar('jadwal2');
         $syaratKetentuan = $this->request->getVar('syarat-ketentuan') ? $this->request->getVar('syarat-ketentuan') : null;
+        $maxPotongan = $this->request->getVar('max_potongan') ? (int)$this->request->getVar('max_potongan') : null;
+        $tidakGabungVoucherBaru = $this->request->getVar('tidak_gabung_voucher_baru') ? true : false;
 
         if ($jadwal1) {
             if (!$jadwal2) {
@@ -7050,7 +7126,9 @@ class Pages extends BaseController
             'auto_claimed' => $autoClaimed ? true : false,
             'kuota' => $kuota,
             'jadwal' => $jadwal1 ? ($jadwal1 . "@" . $jadwal2) : null,
-            'syarat_ketentuan' => $syaratKetentuan
+            'syarat_ketentuan' => $syaratKetentuan,
+            'max_potongan' => $maxPotongan,
+            'tidak_gabung_voucher_baru' => $tidakGabungVoucherBaru
         ];
 
         if ($poster) $insertData['poster'] = $poster;
