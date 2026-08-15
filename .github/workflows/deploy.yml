@@ -25,24 +25,50 @@ jobs:
         VPS_PORT: ${{ secrets.VPS_PORT }}
       run: |
         set -e
+        set -o pipefail
 
         PORT="${VPS_PORT:-22}"
         echo "Deploy target: ${VPS_USER}@${VPS_IP}:${PORT}"
 
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+
+        echo "::group::SSH preflight"
+        echo "Checking TCP connection to VPS SSH port..."
+        if timeout 15 bash -c "cat < /dev/null > /dev/tcp/${VPS_IP}/${PORT}" 2>/dev/null; then
+          echo "TCP port ${PORT} is reachable from GitHub Actions."
+        else
+          echo "TCP port ${PORT} is not reachable or was reset from GitHub Actions."
+        fi
+
+        echo "Scanning SSH host key..."
+        if ssh-keyscan -p "${PORT}" -T 15 "${VPS_IP}" >> ~/.ssh/known_hosts 2>/tmp/ssh-keyscan.log; then
+          echo "SSH host key scan succeeded."
+        else
+          echo "SSH host key scan failed:"
+          cat /tmp/ssh-keyscan.log || true
+        fi
+        echo "::endgroup::"
+
         for attempt in 1 2 3; do
           echo "SSH deploy attempt ${attempt}/3"
 
+          SSH_VERBOSE=""
+          if [ "${attempt}" = "3" ]; then
+            SSH_VERBOSE="-vvv"
+            echo "Final attempt uses verbose SSH logs."
+          fi
+
           if ssh -T \
+            ${SSH_VERBOSE} \
             -p "${PORT}" \
             -o StrictHostKeyChecking=no \
             -o BatchMode=yes \
             -o ConnectTimeout=20 \
             -o ServerAliveInterval=15 \
             -o ServerAliveCountMax=3 \
-            "${VPS_USER}@${VPS_IP}" << 'EOF'
-          cd /mine/lunareafurniture.com/jasmine-shop
-          git pull
-        EOF
+            "${VPS_USER}@${VPS_IP}" \
+            "cd /mine/lunareafurniture.com/jasmine-shop && git pull"
           then
             echo "Deploy success"
             exit 0
