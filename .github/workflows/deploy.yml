@@ -12,15 +12,45 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Install SSH Key
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    
+
     - name: Deploy to VPS
+      env:
+        VPS_USER: ${{ secrets.VPS_USER }}
+        VPS_IP: ${{ secrets.VPS_IP }}
+        VPS_PORT: ${{ secrets.VPS_PORT }}
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << 'EOF'
+        set -e
+
+        PORT="${VPS_PORT:-22}"
+        echo "Deploy target: ${VPS_USER}@${VPS_IP}:${PORT}"
+
+        for attempt in 1 2 3; do
+          echo "SSH deploy attempt ${attempt}/3"
+
+          if ssh -T \
+            -p "${PORT}" \
+            -o StrictHostKeyChecking=no \
+            -o BatchMode=yes \
+            -o ConnectTimeout=20 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
+            "${VPS_USER}@${VPS_IP}" << 'EOF'
           cd /mine/lunareafurniture.com/jasmine-shop
           git pull
         EOF
+          then
+            echo "Deploy success"
+            exit 0
+          fi
+
+          echo "SSH deploy attempt ${attempt} failed, retrying..."
+          sleep 10
+        done
+
+        echo "Deploy failed after 3 attempts. Please check VPS SSH service, firewall, port, and fail2ban."
+        exit 1
