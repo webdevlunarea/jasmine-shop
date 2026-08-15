@@ -105,6 +105,34 @@ class Pages extends BaseController
         }
         return $code;
     }
+
+    protected function applyThemeWarnaToEmailHtml($html)
+    {
+        $theme = $this->konstantaModel->getThemeWarna();
+        $primary = $theme['primary'] ?? KonstantaModel::defaultThemeWarna()['primary'];
+        $soft = $theme['soft'] ?? KonstantaModel::defaultThemeWarna()['soft'];
+
+        return str_ireplace(
+            [
+                '{{THEME_PRIMARY}}',
+                '{{THEME_SOFT}}',
+                '#' . '2dc26b',
+                '#' . '1db954',
+                '#' . 'e0ffeb',
+                '#' . 'ebfff2',
+            ],
+            [
+                $primary,
+                $soft,
+                $primary,
+                $primary,
+                $soft,
+                $soft,
+            ],
+            $html
+        );
+    }
+
     protected function broadcastOrderUpdate($id_order = '')
     {
         $ws_url = env('WS_URL', '');
@@ -1025,7 +1053,7 @@ class Pages extends BaseController
                                     style="
                                         text-decoration: none;
                                         color: white;
-                                        background-color: #1db954;
+                                        background-color: {{THEME_PRIMARY}};
                                         padding-left: 20px;
                                         padding-right: 20px;
                                         padding-top: 10px;
@@ -1043,6 +1071,7 @@ class Pages extends BaseController
             </table>
         </div>
         ';
+        $isinya = $this->applyThemeWarnaToEmailHtml($isinya);
         $email = session()->get('email');
         $this->kirimPesanEmail($email, 'Lunarea Store - Voucher Ulang Tahun', $isinya);
         return $this->response->setJSON(['succes' => true], false);
@@ -1055,14 +1084,14 @@ class Pages extends BaseController
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
-        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', '
+        $isiOtp = '
             <div style="display: flex">
                 <div style="width: 30px"></div>
                 <div style="width: 100%">
-                    <h1 style="color: #1db954">Verifikasi Email Kamu!</h1>
+                    <h1 style="color: {{THEME_PRIMARY}}">Verifikasi Email Kamu!</h1>
                     <hr />
                     <p>Masukan 6 kode OTP di bawah ini</p>
-                    <div style="background-color: #1db954; font-weight: bold">
+                    <div style="background-color: {{THEME_PRIMARY}}; font-weight: bold">
                         <div style="height: 30px"></div>
                         <div style="display: flex">
                             <div style="width: 100%"></div>
@@ -1070,9 +1099,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[0] . '
@@ -1081,9 +1110,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[1] . '
@@ -1092,9 +1121,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[2] . '
@@ -1103,9 +1132,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[3] . '
@@ -1114,9 +1143,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[4] . '
@@ -1125,9 +1154,9 @@ class Pages extends BaseController
                                 <div
                                     style="
                                         border-radius: 10px;
-                                        background-color: #e0ffeb;
+                                        background-color: {{THEME_SOFT}};
                                         padding: 1em;
-                                        color: #1db954;
+                                        color: {{THEME_PRIMARY}};
                                     "
                                 >
                                     ' . $otp_number[5] . '
@@ -1141,8 +1170,8 @@ class Pages extends BaseController
                             <a
                                 href="https://lunareafurniture.com/verify/url/' . base64_encode(implode('', $otp_number)) . '"
                                 style="
-                                    color: #1db954;
-                                    background-color: #e0ffeb;
+                                    color: {{THEME_PRIMARY}};
+                                    background-color: {{THEME_SOFT}};
                                     text-decoration: none;
                                     padding: 0.7em 1em;
                                     border-radius: 0.3em;
@@ -1158,7 +1187,7 @@ class Pages extends BaseController
                     </div>
                     <p>
                         Kode ini hanya berlaku sampai dengan
-                        <b style="color: #1db954">' . $waktu_otp_tanggal . '</b>
+                        <b style="color: {{THEME_PRIMARY}}">' . $waktu_otp_tanggal . '</b>
                     </p>
                     <p>
                         Jaga keamanan akun dengan tidak membagikan kode OTP ataupun
@@ -1167,7 +1196,8 @@ class Pages extends BaseController
                 </div>
                 <div style="width: 30px"></div>
             </div>
-        ');
+        ';
+        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', $this->applyThemeWarnaToEmailHtml($isiOtp));
 
         $this->userModel->where('email', $emailUser)->set([
             'otp' => implode('', $otp_number),
@@ -1228,12 +1258,13 @@ class Pages extends BaseController
         $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
 
-        $this->kirimPesanEmail($this->request->getVar('email'), 'Lunarea Store - Verifikasi OTP', '
+        $isiOtp = '
             <p>Berikut kode OTP verifikasi</p>
             <h1>' . $otp_number . '</h1>
             <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
-            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: #1db954;text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'#1db954\'; this.style.backgroundColor=\'#ebfff2\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'#1db954\'">Aktivasi Email</a>
-            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>');
+            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: {{THEME_PRIMARY}};text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'{{THEME_PRIMARY}}\'; this.style.backgroundColor=\'{{THEME_SOFT}}\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'{{THEME_PRIMARY}}\'">Aktivasi Email</a>
+            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>';
+        $this->kirimPesanEmail($this->request->getVar('email'), 'Lunarea Store - Verifikasi OTP', $this->applyThemeWarnaToEmailHtml($isiOtp));
 
         $this->userModel->insert([
             'email' => $this->request->getVar('email'),
@@ -6973,7 +7004,7 @@ class Pages extends BaseController
                                         style="
                                             text-decoration: none;
                                             color: white;
-                                            background-color: #1db954;
+                                            background-color: {{THEME_PRIMARY}};
                                             padding-left: 20px;
                                             padding-right: 20px;
                                             padding-top: 10px;
@@ -6997,8 +7028,7 @@ class Pages extends BaseController
                         ';
                 }
             } else if (strpos($line, '</h1>') !== false) {
-                $text = str_replace(['<h1>', '</h1>'], '', $line);
-                $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                $text = $this->applyThemeWarnaToEmailHtml(str_replace(['<h1>', '</h1>'], '', $line));
                 $isi_email_fix .= '
                     <tr>
                         <td>
@@ -7013,8 +7043,7 @@ class Pages extends BaseController
                     </tr>
                 ';
             } else if (strpos($line, '</p>') !== false) {
-                $text = str_replace(['<p>', '</p>'], '', $line);
-                $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                $text = $this->applyThemeWarnaToEmailHtml(str_replace(['<p>', '</p>'], '', $line));
 
                 $isi_email_fix .= '
                     <tr>
@@ -7025,6 +7054,7 @@ class Pages extends BaseController
                 ';
             }
         }
+        $isi_email_fix = $this->applyThemeWarnaToEmailHtml($isi_email_fix);
 
         $insertData = [
             'nama' => $nama,
@@ -7201,7 +7231,7 @@ class Pages extends BaseController
                                         style="
                                             text-decoration: none;
                                             color: white;
-                                            background-color: #1db954;
+                                            background-color: {{THEME_PRIMARY}};
                                             padding-left: 20px;
                                             padding-right: 20px;
                                             padding-top: 10px;
@@ -7225,8 +7255,7 @@ class Pages extends BaseController
                         ';
                     }
                 } else if (strpos($line, '</h1>') !== false) {
-                    $text = str_replace(['<h1>', '</h1>'], '', $line);
-                    $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                    $text = $this->applyThemeWarnaToEmailHtml(str_replace(['<h1>', '</h1>'], '', $line));
                     $isi_email_fix .= '
                     <tr>
                         <td>
@@ -7241,8 +7270,7 @@ class Pages extends BaseController
                     </tr>
                 ';
                 } else if (strpos($line, '</p>') !== false) {
-                    $text = str_replace(['<p>', '</p>'], '', $line);
-                    $text = str_replace('#2dc26b', '#1db954', $text); // ubah warna hijau
+                    $text = $this->applyThemeWarnaToEmailHtml(str_replace(['<p>', '</p>'], '', $line));
 
                     $isi_email_fix .= '
                     <tr>
@@ -7253,6 +7281,7 @@ class Pages extends BaseController
                 ';
                 }
             }
+            $isi_email_fix = $this->applyThemeWarnaToEmailHtml($isi_email_fix);
             if ($posterEmail) $insertData['poster_email'] = $posterEmail;
             $insertData['isi_email'] = $isi_email_fix;
             $insertData['isi_email_input'] = $isiEmail;

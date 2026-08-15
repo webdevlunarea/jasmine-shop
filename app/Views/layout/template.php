@@ -11,6 +11,12 @@ $themeCss = [];
 foreach ($themeWarna as $key => $value) {
     $themeCss[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
+
+$primaryHex = ltrim($themeWarna['primary'], '#');
+$themePrimaryRgb = '36, 59, 107';
+if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
+    $themePrimaryRgb = hexdec(substr($primaryHex, 0, 2)) . ', ' . hexdec(substr($primaryHex, 2, 2)) . ', ' . hexdec(substr($primaryHex, 4, 2));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,6 +133,12 @@ foreach ($themeWarna as $key => $value) {
         --theme-accent: <?= $themeCss['accent']; ?>;
         --theme-background: <?= $themeCss['background']; ?>;
         --theme-sidebar: <?= $themeCss['sidebar']; ?>;
+        --theme-primary-rgb: <?= $themePrimaryRgb; ?>;
+        --bs-success: var(--theme-primary);
+        --bs-success-rgb: var(--theme-primary-rgb);
+        --bs-success-bg-subtle: var(--theme-soft);
+        --bs-success-border-subtle: var(--theme-soft-2);
+        --bs-success-text-emphasis: var(--theme-primary-hover);
     }
 
     .btn-teks-aja:hover {
@@ -141,6 +153,49 @@ foreach ($themeWarna as $key => $value) {
 
     .admin-sidebar {
         background: var(--theme-sidebar);
+    }
+
+    .btn-success {
+        --bs-btn-color: #fff;
+        --bs-btn-bg: var(--theme-primary);
+        --bs-btn-border-color: var(--theme-primary);
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: var(--theme-primary-hover);
+        --bs-btn-hover-border-color: var(--theme-primary-hover);
+        --bs-btn-focus-shadow-rgb: var(--theme-primary-rgb);
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: var(--theme-primary-hover);
+        --bs-btn-active-border-color: var(--theme-primary-hover);
+        --bs-btn-disabled-color: #fff;
+        --bs-btn-disabled-bg: var(--theme-primary);
+        --bs-btn-disabled-border-color: var(--theme-primary);
+    }
+
+    .btn-outline-success {
+        --bs-btn-color: var(--theme-primary);
+        --bs-btn-border-color: var(--theme-primary);
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: var(--theme-primary);
+        --bs-btn-hover-border-color: var(--theme-primary);
+        --bs-btn-focus-shadow-rgb: var(--theme-primary-rgb);
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: var(--theme-primary);
+        --bs-btn-active-border-color: var(--theme-primary);
+        --bs-btn-disabled-color: var(--theme-primary);
+        --bs-btn-disabled-border-color: var(--theme-primary);
+    }
+
+    .bg-success,
+    .text-bg-success {
+        background-color: rgba(var(--theme-primary-rgb), var(--bs-bg-opacity, 1)) !important;
+    }
+
+    .border-success {
+        border-color: rgba(var(--theme-primary-rgb), var(--bs-border-opacity, 1)) !important;
+    }
+
+    .text-success {
+        color: rgba(var(--theme-primary-rgb), var(--bs-text-opacity, 1)) !important;
     }
     </style>
     <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">

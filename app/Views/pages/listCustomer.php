@@ -265,10 +265,10 @@
                                                 echo "BCA VA<br>" . $t['data_mid']['bca_va_number'];
                                             break;
                                         case 'gopay':
-                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                             break;
                                         case 'qris':
-                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                             break;
                                         default:
                                             echo $t['data_mid']['payment_type'];

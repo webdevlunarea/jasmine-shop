@@ -71,7 +71,7 @@ a {
     background: none;
 }
 .btn-teks-aja:hover {
-    color: #159e45;
+    color: var(--theme-primary-hover, var(--hijau));
 }
 .link-primary {
     color: var(--hijau);
@@ -1267,7 +1267,6 @@ footer > .atas > div {
     top: 0;
     z-index: 15;
     background-color: white;
-    /* box-shadow: 5px 5px 10px rgba(29, 185, 84, 0.5); */
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
     transform: translateY(-100px);
     transition: 0.2s;

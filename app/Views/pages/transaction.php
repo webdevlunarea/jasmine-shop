@@ -143,10 +143,10 @@
                                                                     echo 'Qris';
                                                                     break;
                                                                     // case 'gopay':
-                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                                                     //     break;
                                                                     // case 'qris':
-                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: #1db954; cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                                                    //     echo 'Qris<br><a href="/qris/' . $dataMid['order_id'] . '-' . $dataMid['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                                                     //     break;
                                                                 default:
                                                                     echo $dataMid['payment_type'];

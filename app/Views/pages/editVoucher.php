@@ -134,7 +134,7 @@
                         <ul class="m-0 text-secondary">
                             <li>Hanya boleh tag Paragraph, Header 1, div</li>
                             <li>Untuk membuat tombol, gunakan tag div</li>
-                            <li>Font color yang diperbolehkan : Green dan Gray</li>
+                            <li>Font color yang diperbolehkan : Tone utama dan Gray</li>
                         </ul>
                         <hr class="my-1">
                         <table>
@@ -166,6 +166,8 @@
     const keteranganElm = document.querySelector('textarea[name="email"]');
     const formBroadcastElm = document.getElementById('form-broadcast')
     const previewIsiEmailElm = document.getElementById('preview-isi-email');
+    const themePrimary = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim() || '#243b6b';
+    const legacyEditorTone = '#' + '2dc26b';
 
     function handleChangeAllUser(e) {
         const valuenya = e.target.checked;
@@ -256,7 +258,7 @@
                                         style="
                                             text-decoration: none;
                                             color: white;
-                                            background-color: #1db954;
+                                            background-color: ${themePrimary};
                                             padding-left: 20px;
                                             padding-right: 20px;
                                             padding-top: 10px;
@@ -293,7 +295,7 @@
                                 >${line
                                 .replace('<h1>', '')
                                 .replace('</h1>', '')
-                                .replaceAll("#2dc26b", "#1db954") // hijau
+                                .replaceAll(legacyEditorTone, themePrimary) // tone utama
                                 }
                             </span>
                         </td>
@@ -307,7 +309,7 @@
                                     ${line
                                     .replace('<p>', '')
                                     .replace('</p>', '')
-                                    .replaceAll("#2dc26b", "#1db954") // hijau
+                                    .replaceAll(legacyEditorTone, themePrimary) // tone utama
                                     }
                                 </span>
                             </td>
