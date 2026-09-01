@@ -325,74 +325,64 @@ function closeModalVoucherAll(index) {
         </div>
     </div>
     <div class="container my-3">
-        <h5 class="jdl-section">Kategori</h5>
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="mb-1">Kategori Produk</h1>
-            <div class="gap-2 show-flex-ke-hide">
-                <div class="btn-primary1 btn-geser-kategori" id="kiri"
-                    style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i
-                        class="material-icons">chevron_left</i></div>
-                <div class="btn-primary1 btn-geser-kategori" id="kanan"
-                    style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i
-                        class="material-icons">chevron_right</i></div>
+        <section class="kategori-pira-section" id="section-produk-populer">
+            <div class="kategori-pira-head">
+                <h5 class="jdl-section mb-0">Kategori</h5>
+                <div class="kategori-pira-dropdown" data-category-dropdown>
+                    <button type="button" class="kategori-pira-toggle" aria-expanded="false"
+                        aria-controls="kategoriPiraMenu">
+                        <span>Semua Kategori</span>
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-pira-menu" id="kategoriPiraMenu">
+                        <a class="kategori-pira-item" href="/all/lemari-dewasa">
+                            <img src="/img/logokategori/Lemari_Dewasa.webp" alt="Lemari Dewasa" width="48" height="48">
+                            <span>Lemari Dewasa</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/lemari-anak">
+                            <img src="/img/logokategori/Lemari_Anak.webp" alt="Lemari Anak" width="48" height="48">
+                            <span>Lemari Anak</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/meja-rias">
+                            <img src="/img/logokategori/Meja_Rias.webp" alt="Meja Rias" width="48" height="48">
+                            <span>Meja Rias</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/meja-belajar">
+                            <img src="/img/logokategori/Meja_Belajar.webp" alt="Meja Belajar" width="48" height="48">
+                            <span>Meja Belajar</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/meja-tv">
+                            <img src="/img/logokategori/Meja_TV.webp" alt="Meja TV" width="48" height="48">
+                            <span>Meja TV</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/meja-tulis">
+                            <img src="/img/logokategori/Meja_Tulis.webp" alt="Meja Tulis" width="48" height="48">
+                            <span>Meja Tulis</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/meja-komputer">
+                            <img src="/img/logokategori/Meja_Komputer.webp" alt="Meja Komputer" width="48" height="48">
+                            <span>Meja Komputer</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/rak-sepatu">
+                            <img src="/img/logokategori/Rak_Sepatu.webp" alt="Rak Sepatu" width="48" height="48">
+                            <span>Rak Sepatu</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/rak-besi">
+                            <img src="/img/logokategori/Rak_Besi.webp" alt="Rak Besi" width="48" height="48">
+                            <span>Rak Besi</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/rak-serbaguna">
+                            <img src="/img/logokategori/Rak_Serbaguna.webp" alt="Rak Serbaguna" width="48" height="48">
+                            <span>Rak Serbaguna</span>
+                        </a>
+                        <a class="kategori-pira-item" href="/all/kursi">
+                            <img src="/img/logokategori/Kursi.webp" alt="Kursi" width="48" height="48">
+                            <span>Kursi</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="container-kategori-scroll" id="section-produk-populer">
-            <div class="container-kategori">
-                <!-- <a class="kategori" href="/all/diskon">
-                    <img src="/img/logokategori/Diskon15.webp" alt="Diskon" width="50px">
-                    <p>Big Sale up to 15%</p>
-                </a> -->
-                <a class="kategori" href="/all/lemari-dewasa">
-                    <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemnari dewasa" width="50px">
-                    <p>Lemari Dewasa</p>
-                </a>
-                <a class="kategori" href="/all/lemari-anak">
-                    <img src="/img/logokategori/Lemari_Anak.webp" alt="lemari anak" width="50px">
-                    <p>Lemari Anak</p>
-                </a>
-                <!--<a class="kategori" href="/all/lemari-hias">-->
-                <!--    <img src="/img/logokategori/Lemari_Hias.webp" alt="lemari hias" width="50px">-->
-                <!--    <p>Lemari Hias</p>-->
-                <!--</a>-->
-                <a class="kategori" href="/all/meja-rias">
-                    <img src="/img/logokategori/Meja_Rias.webp" alt="" width="50px">
-                    <p>Meja Rias</p>
-                </a>
-                <a class="kategori" href="/all/meja-belajar">
-                    <img src="/img/logokategori/Meja_Belajar.webp" alt="meja belajar" width="50px">
-                    <p>Meja Belajar</p>
-                </a>
-                <a class="kategori" href="/all/meja-tv">
-                    <img src="/img/logokategori/Meja_TV.webp" alt="meja tv" width="50px">
-                    <p>Meja TV</p>
-                </a>
-                <a class="kategori" href="/all/meja-tulis">
-                    <img src="/img/logokategori/Meja_Tulis.webp" alt="meja tulis" width="50px">
-                    <p>Meja Tulis</p>
-                </a>
-                <a class="kategori" href="/all/meja-komputer">
-                    <img src="/img/logokategori/Meja_Komputer.webp" alt="meja kompuiter" width="50px">
-                    <p>Meja Komputer</p>
-                </a>
-                <a class="kategori" href="/all/rak-sepatu">
-                    <img src="/img/logokategori/Rak_Sepatu.webp" alt="rak sepatu" width="50px">
-                    <p>Rak Sepatu</p>
-                </a>
-                <a class="kategori" href="/all/rak-besi">
-                    <img src="/img/logokategori/Rak_Besi.webp" alt="rak besi" width="50px">
-                    <p>Rak Besi</p>
-                </a>
-                <a class="kategori" href="/all/rak-serbaguna">
-                    <img src="/img/logokategori/Rak_Serbaguna.webp" alt="rak serbaguna" width="50px">
-                    <p>Rak Serbaguna</p>
-                </a>
-                <a class="kategori" href="/all/kursi">
-                    <img src="/img/logokategori/Kursi.webp" alt="kursi" width="50px">
-                    <p>Kursi</p>
-                </a>
-            </div>
-        </div>
+        </section>
     </div>
     <div class="container my-3">
         <?php
@@ -485,18 +475,27 @@ function closeModalVoucherAll(index) {
     </div>
 </div>
 <script>
-const containeKategoriScrollElm = document.querySelector('.container-kategori-scroll');
-const btnGeserKategoriElm = document.querySelectorAll('.btn-geser-kategori');
+const categoryDropdownElm = document.querySelector('[data-category-dropdown]');
+if (categoryDropdownElm) {
+    const categoryToggleElm = categoryDropdownElm.querySelector('.kategori-pira-toggle');
+    categoryToggleElm.addEventListener('click', () => {
+        const isOpen = categoryDropdownElm.classList.toggle('show');
+        categoryToggleElm.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
 
-btnGeserKategoriElm.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const direction = btn.id === 'kiri' ? -1 : 1;
-        const scrollAmount = containeKategoriScrollElm.clientWidth * direction;
-        containeKategoriScrollElm.scrollBy({
-            left: scrollAmount,
-            behavior: "smooth"
-        });
-    })
-})
+    document.addEventListener('click', (event) => {
+        if (!categoryDropdownElm.contains(event.target)) {
+            categoryDropdownElm.classList.remove('show');
+            categoryToggleElm.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            categoryDropdownElm.classList.remove('show');
+            categoryToggleElm.setAttribute('aria-expanded', 'false');
+        }
+    });
+}
 </script>
 <?= $this->endSection(); ?>
