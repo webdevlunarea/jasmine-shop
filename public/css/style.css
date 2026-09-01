@@ -401,113 +401,13 @@ a {
     width: 1em;
     background-color: var(--hijau);
 }
-.kategori-pira-section {
-    position: relative;
-    z-index: 5;
-    padding: 6px 0 2px;
-}
-.kategori-pira-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-.kategori-pira-dropdown {
-    position: relative;
-    min-width: 210px;
-}
-.kategori-pira-toggle {
-    width: 100%;
-    min-height: 48px;
-    border: 1px solid #e6e8eb;
-    border-radius: 14px;
-    background: #fff;
-    color: #202124;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 14px 10px 16px;
-    font-weight: 600;
-    box-shadow: 0 8px 22px rgba(20, 28, 40, 0.06);
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-}
-.kategori-pira-toggle:hover,
-.kategori-pira-toggle:focus {
-    border-color: var(--hijau);
-    box-shadow: 0 10px 28px rgba(20, 28, 40, 0.1);
-    outline: none;
-}
-.kategori-pira-toggle i {
-    color: var(--hijau);
-    transition: transform 0.2s;
-}
-.kategori-pira-dropdown.show .kategori-pira-toggle i {
-    transform: rotate(180deg);
-}
-.kategori-pira-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: min(720px, calc(100vw - 24px));
-    display: grid;
-    grid-template-columns: repeat(4, minmax(130px, 1fr));
-    gap: 10px;
-    padding: 14px;
-    border: 1px solid #eceff3;
-    border-radius: 18px;
-    background: #fff;
-    box-shadow: 0 20px 50px rgba(20, 28, 40, 0.16);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    pointer-events: none;
-    transition: opacity 0.18s, visibility 0.18s, transform 0.18s;
-}
-.kategori-pira-dropdown.show .kategori-pira-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-.kategori-pira-item {
-    min-height: 92px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 8px;
-    border-radius: 14px;
-    color: #222;
-    text-align: center;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.25;
-    transition: background-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
-}
-.kategori-pira-item:hover,
-.kategori-pira-item:focus {
-    background-color: var(--hijau);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-    outline: none;
-}
-.kategori-pira-item img {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    padding: 6px;
-    border: 1px solid #e1e4e8;
-    border-radius: 12px;
-    background: #fff;
-}
 .container-kategori-scroll {
     /* height: 307px; */
     overflow-x: scroll;
     /* padding-right: 10px; */
+}
+.container-kategori-scroll:has(.kategori-wrap.show) {
+    overflow: visible;
 }
 .container-kategori {
     display: flex;
@@ -557,6 +457,103 @@ a {
 .kategori p {
     text-align: center;
     line-height: 18px;
+}
+.kategori-wrap {
+    position: relative;
+    flex: 1 0 120px;
+    display: flex;
+    justify-content: center;
+}
+.kategori-wrap > .kategori {
+    flex: 1 0 120px;
+    width: 120px;
+    padding-bottom: 10px;
+}
+.kategori-arrow {
+    position: absolute;
+    right: 10px;
+    top: 48px;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #64748b;
+    padding: 0;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.1);
+    z-index: 3;
+    transition: color 0.2s, transform 0.2s, border-color 0.2s;
+}
+.kategori-arrow .material-icons {
+    font-size: 16px;
+    line-height: 1;
+}
+.kategori-wrap.show .kategori-arrow,
+.kategori-wrap:hover .kategori-arrow {
+    color: var(--hijau);
+    border-color: var(--hijau);
+}
+.kategori-wrap.show .kategori-arrow .material-icons {
+    transform: rotate(180deg);
+}
+.kategori-dropdown-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 4px);
+    width: 235px;
+    max-height: 345px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    pointer-events: none;
+    z-index: 50;
+    transition: opacity 0.18s, visibility 0.18s, transform 0.18s;
+}
+.kategori-wrap.show .kategori-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.kategori-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #243b6b;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    transition: background-color 0.18s, color 0.18s;
+}
+.kategori-dropdown-menu a:hover,
+.kategori-dropdown-menu a:focus {
+    background: var(--hijaumuda);
+    color: var(--hijau);
+    outline: none;
+}
+.kategori-dropdown-menu .material-icons,
+.kategori-dropdown-menu .material-symbols-outlined {
+    width: 22px;
+    min-width: 22px;
+    color: #6b7280;
+    font-size: 22px;
+    letter-spacing: normal;
 }
 .btn-icon {
     background-color: whitesmoke;
@@ -1498,37 +1495,6 @@ footer > .atas > div {
         width: 0.5em;
         background-color: var(--hijau);
     }
-    .kategori-pira-head {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .kategori-pira-dropdown {
-        width: 100%;
-        min-width: 0;
-    }
-    .kategori-pira-toggle {
-        min-height: 46px;
-        border-radius: 12px;
-    }
-    .kategori-pira-menu {
-        left: 0;
-        right: auto;
-        width: 100%;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        padding: 10px;
-        gap: 8px;
-        border-radius: 14px;
-    }
-    .kategori-pira-item {
-        min-height: 84px;
-        padding: 10px 6px;
-        font-size: 11px;
-    }
-    .kategori-pira-item img {
-        width: 42px;
-        height: 42px;
-    }
     .card1 .diskon {
         display: none;
     }
@@ -1604,6 +1570,24 @@ footer > .atas > div {
     .kategori {
         padding: 5px 1px 0 1px;
         flex: 1 0 60px;
+    }
+    .kategori-wrap {
+        flex: 1 0 68px;
+    }
+    .kategori-wrap > .kategori {
+        flex: 1 0 68px;
+        width: 68px;
+    }
+    .kategori-arrow {
+        right: 2px;
+        top: 36px;
+        width: 18px;
+        height: 18px;
+    }
+    .kategori-dropdown-menu {
+        width: 220px;
+        max-height: 300px;
+        padding: 10px;
     }
     .kategori span {
         font-size: 2em;
