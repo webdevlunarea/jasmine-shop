@@ -11,7 +11,8 @@
                 <li class="breadcrumb-item active"><a><?= $produk['nama']; ?></a></li>
             </ol>
         </nav>
-        <div>
+        <div class="product-detail-layout">
+            <div class="product-gallery">
             <?php if (isset($gambar)) { ?>
                 <div class="img-produk-besar">
                     <?php foreach ($gambar as $ind_g => $g) {
@@ -83,13 +84,14 @@
                     </div>
                 </div>
             <?php } ?>
-            <div>
+            </div>
+            <div class="product-detail-info">
                 <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">
                         <?= $msg; ?>
                     </div>
                 <?php } ?>
-                <h3><?= $produk['nama']; ?></h3>
+                <h3 class="product-detail-title"><?= $produk['nama']; ?></h3>
                 <?php if ($produk['diskon']) { ?>
                     <div class="d-flex gap-1 align-items-center">
                         <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
@@ -138,13 +140,13 @@
                     <?php } ?>
                 </div>
                 <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
-                    <p id="stok" class="fw-bold <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
+                    <p id="stok" class="product-stock <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
                         <?= explode(",", $produk['stok'])[0]; ?></p>
                 <?php } else { ?>
-                    <p id="stok" class="fw-bold text-danger">Stok habis</p>
+                    <p id="stok" class="product-stock text-danger">Stok habis</p>
                 <?php } ?>
                 <span class="garis mb-2"></span>
-                <h5>Varian</h5>
+                <h5 class="product-section-label">Varian</h5>
                 <style>
                     @media (max-width: 600px) {
                         .btn-group label {
@@ -158,7 +160,7 @@
                         <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= $value ?></label>
                     <?php } ?>
                 </div>
-                <p><?= $produk['deskripsi']; ?></p>
+                <div class="product-description"><?= $produk['deskripsi']; ?></div>
                 <hr class="m-0">
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <div class="accordion-item">
@@ -291,7 +293,7 @@
                     <?php } ?>
                 </div>
 
-                <div class="mt-2">
+                <div class="product-marketplace mt-3">
                     <p class="mb-1">
                         <?php if ($produk['tokped'] || $produk['shopee'] || $produk['tiktok']) { ?>
                             Produk ini juga tersedia di

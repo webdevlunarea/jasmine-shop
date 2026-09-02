@@ -2886,3 +2886,498 @@ body:not(.admin-body) {
         border-radius: 10px;
     }
 }
+
+/* Category dropdown bugfix */
+body.kategori-dropdown-open .container-kategori-scroll {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+}
+
+body.kategori-dropdown-open .btn-geser-kategori {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+body.kategori-dropdown-open .kategori-wrap:not(.show) .kategori,
+body.kategori-dropdown-open .container-kategori > a.kategori {
+    pointer-events: none;
+}
+
+/* Product detail refresh */
+.product-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    gap: clamp(24px, 4vw, 52px);
+    align-items: start;
+    margin-top: 12px;
+}
+
+.product-detail-layout > :first-child,
+.product-detail-layout > .img-produk-besar {
+    min-width: 0;
+}
+
+.product-detail-info {
+    position: sticky;
+    top: 128px;
+    min-width: 0;
+    padding: 4px 0 0;
+}
+
+.product-detail-title {
+    margin-bottom: 10px;
+    color: #111827;
+    font-size: clamp(1.45rem, 2.2vw, 2rem);
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.product-detail-info .harga {
+    margin-top: 4px;
+    color: var(--hijau);
+    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+    font-weight: 700;
+}
+
+.product-detail-info .garis {
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 18px 0;
+    background: #eef0f3;
+}
+
+.product-stock {
+    width: fit-content;
+    margin: 14px 0 0;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.product-section-label {
+    margin-bottom: 10px;
+    color: #111827;
+    font-size: 0.96rem;
+    font-weight: 600;
+}
+
+.product-description {
+    margin: 18px 0;
+    color: #4b5563;
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.product-description p:last-child {
+    margin-bottom: 0;
+}
+
+.img-produk-besar {
+    height: auto;
+    max-height: none;
+    aspect-ratio: 1 / 1;
+    gap: 12px;
+    scroll-snap-type: x mandatory;
+    border-radius: 18px;
+}
+
+.img-produk-besar section {
+    height: auto;
+    width: 100%;
+    min-width: 100%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.img-produk-besar .img-produk-prev-baru {
+    border-radius: 18px;
+}
+
+.img-produk > div {
+    gap: 10px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+}
+
+.img-produk .img-produk-select {
+    flex: 0 0 76px;
+    max-width: 76px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 4px;
+    background: #fff;
+    opacity: 0.72;
+    transition: border-color 0.2s, opacity 0.2s, transform 0.2s;
+}
+
+.img-produk .img-produk-select:hover,
+.img-produk .img-produk-select.selected {
+    opacity: 1;
+    border: 1px solid var(--hijau);
+    transform: translateY(-1px);
+}
+
+.img-produk .img-produk-select img {
+    border-radius: 9px;
+}
+
+.product-detail-info .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.product-detail-info .btn-group > .btn {
+    border-radius: 999px !important;
+    margin: 0 !important;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.product-detail-info .btn-check:checked + .btn,
+.product-detail-info .btn-outline-dark:hover {
+    background: var(--hijau);
+    border-color: var(--hijau);
+    color: #fff;
+}
+
+.product-detail-info .show-flex-ke-hide,
+.product-detail-info .hide-ke-show-flex {
+    align-items: center;
+}
+
+.product-detail-info .show-flex-ke-hide .btn,
+.product-detail-info .hide-ke-show-flex .btn {
+    min-height: 46px;
+    border-radius: 999px;
+    padding-inline: 18px;
+}
+
+.product-detail-info .show-flex-ke-hide form:first-child,
+.product-detail-info .hide-ke-show-flex form:first-child {
+    min-width: 190px;
+}
+
+.product-detail-info .accordion {
+    border-top: 1px solid #edf0f4;
+}
+
+.product-detail-info .accordion-item {
+    border-color: #edf0f4;
+    background: transparent;
+}
+
+.product-detail-info .accordion-button {
+    background: transparent;
+    color: #111827;
+    font-size: 0.92rem;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em;
+    box-shadow: none;
+}
+
+.product-detail-info .accordion-button:not(.collapsed) {
+    color: var(--hijau);
+    background: #faf7f2;
+}
+
+.product-detail-info .accordion-body {
+    color: #4b5563;
+    font-size: 0.92rem;
+    line-height: 1.65;
+}
+
+.product-marketplace p {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.product-marketplace .marketplace {
+    height: 34px;
+    width: auto;
+    padding: 5px 8px;
+    border: 1px solid #edf0f4;
+    border-radius: 999px;
+    background: #fff;
+    object-fit: contain;
+    transition: transform 0.18s, border-color 0.18s;
+}
+
+.product-marketplace a:hover .marketplace {
+    transform: translateY(-1px);
+    border-color: #d5dbe3;
+}
+
+#rating-section .rating-summary,
+#rating-section .rating-form,
+#rating-section .rating-card {
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+}
+
+@media (max-width: 900px) {
+    .product-detail-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .product-detail-info {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .product-detail-layout {
+        margin-top: 4px;
+    }
+
+    .img-produk-besar {
+        border-radius: 14px;
+    }
+
+    .img-produk-besar section {
+        height: calc(100vw - 29px);
+        border-radius: 14px;
+    }
+
+    .img-produk-besar .img-produk-prev-baru {
+        border-radius: 14px;
+    }
+
+    .img-produk .img-produk-select {
+        flex-basis: 62px;
+        max-width: 62px;
+        border-radius: 10px;
+    }
+
+    .product-detail-title {
+        font-size: 1.3rem;
+    }
+
+    .product-detail-info .harga {
+        font-size: 1.35rem;
+    }
+
+    .product-detail-info .hide-ke-show-flex {
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom)) !important;
+        box-shadow: 0 -8px 26px rgba(15, 23, 42, 0.14) !important;
+    }
+}
+
+.product-gallery {
+    min-width: 0;
+}
+
+/* Footer refresh */
+.footer.footer-transparent {
+    margin-top: 56px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-top: 1px solid #edf0f4;
+}
+
+.footer.footer-transparent > .container > .baris-ke-kolom {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 1.15fr;
+    gap: clamp(24px, 4vw, 48px) !important;
+    padding-top: 48px !important;
+}
+
+.footer .fs-3 {
+    margin-bottom: 14px !important;
+    color: #111827;
+    font-size: 1rem !important;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.footer .fs-3 strong {
+    font-weight: inherit;
+}
+
+.footer__partner__payment {
+    gap: 8px;
+}
+
+.footer__partner__payment .footer__partner__img {
+    width: auto;
+    min-width: 62px;
+    height: 38px;
+    padding: 8px 10px;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: none;
+}
+
+.footer__partner__payment .footer__partner__img img {
+    filter: saturate(0.95);
+}
+
+.footer .footer__partner__payment + .d-flex,
+.footer__contact p,
+.footer__contact a,
+.footer__left-menu a {
+    color: #64748b !important;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.footer__left-menu li {
+    line-height: 1.55rem;
+    margin-bottom: 4px;
+}
+
+.footer__left-menu a {
+    transition: color 0.18s, transform 0.18s;
+}
+
+.footer__left-menu a:hover {
+    color: var(--hijau) !important;
+}
+
+.footer__left-menu li:has(.socialSvg) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+}
+
+.socialSvg {
+    width: 17px;
+    height: 17px;
+    fill: #94a3b8;
+    transition: fill 0.18s;
+}
+
+.footer__left-menu li:hover .socialSvg {
+    fill: var(--hijau);
+}
+
+.footer__contact-brand {
+    gap: 28px;
+}
+
+.footer__contact a.d-flex {
+    width: fit-content;
+    min-height: 32px;
+}
+
+.footer__contact .material-icons {
+    color: var(--hijau);
+}
+
+.footer .marketplace {
+    height: 34px;
+    max-width: 92px;
+    padding: 6px 10px;
+    border: 1px solid #e8edf3;
+    border-radius: 999px;
+    background: #fff;
+    object-fit: contain;
+    transition: transform 0.18s, border-color 0.18s;
+}
+
+.footer a:hover .marketplace {
+    transform: translateY(-1px);
+    border-color: #d6dde6;
+}
+
+.footer__brand {
+    flex-basis: 180px;
+}
+
+.footer__brand-list {
+    gap: 10px;
+}
+
+.footer__brand-link {
+    width: 156px;
+    height: 50px;
+    border: 1px solid #e8edf3;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: none;
+    transition: transform 0.18s, border-color 0.18s, background-color 0.18s;
+}
+
+.footer__brand-link:hover,
+.footer__brand-link:focus {
+    transform: translateY(-1px);
+    border-color: var(--hijau);
+}
+
+.footer__brand-link--dark {
+    background: #111827;
+    border-color: #111827;
+}
+
+.footer__brand-link--dark:hover,
+.footer__brand-link--dark:focus {
+    background: #0f172a;
+}
+
+.footer .text-muted.pb-3 {
+    margin-top: 30px;
+    border-top: 1px solid #edf0f4;
+}
+
+.footer .text-muted.pb-3 p {
+    color: #94a3b8;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.18em !important;
+}
+
+@media (max-width: 992px) {
+    .footer.footer-transparent > .container > .baris-ke-kolom {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .footer__contact-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer.footer-transparent {
+        margin-top: 38px;
+    }
+
+    .footer.footer-transparent > .container > .baris-ke-kolom {
+        grid-template-columns: 1fr;
+        gap: 26px !important;
+        padding-top: 34px !important;
+    }
+
+    .footer .fs-3 {
+        font-size: 0.96rem !important;
+    }
+
+    .footer__contact-brand {
+        flex-direction: column;
+        gap: 26px;
+    }
+
+    .footer__brand-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .footer__brand-link {
+        width: 145px;
+        height: 48px;
+    }
+
+    .footer__partner__payment .footer__partner__img {
+        min-width: 58px;
+        height: 36px;
+    }
+}

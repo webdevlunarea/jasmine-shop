@@ -47,10 +47,29 @@
         </div>
         <div class="container-kategori-scroll">
             <div class="container-kategori">
-                <a class="kategori" href="/all">
-                    <img src="/img/logo icon.png" alt="Semua Kategori" width="50px">
-                    <p>Semua Kategori</p>
-                </a>
+                <div class="kategori-wrap has-dropdown">
+                    <a class="kategori" href="/all">
+                        <img src="/img/logo icon.png" alt="Semua Kategori" width="50px">
+                        <p>Semua Kategori</p>
+                    </a>
+                    <button type="button" class="kategori-arrow" aria-label="Buka semua kategori" aria-expanded="false">
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-dropdown-menu">
+                        <a href="/all"><i class="material-symbols-outlined">grid_view</i><span>Semua Produk</span></a>
+                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Dewasa</span></a>
+                        <a href="/all/lemari-anak"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Anak</span></a>
+                        <a href="/all/meja-rias"><i class="material-symbols-outlined">styler</i><span>Meja Rias</span></a>
+                        <a href="/all/meja-belajar"><i class="material-symbols-outlined">school</i><span>Meja Belajar</span></a>
+                        <a href="/all/meja-tv"><i class="material-symbols-outlined">tv</i><span>Meja TV</span></a>
+                        <a href="/all/meja-tulis"><i class="material-symbols-outlined">edit_square</i><span>Meja Tulis</span></a>
+                        <a href="/all/meja-komputer"><i class="material-symbols-outlined">desktop_windows</i><span>Meja Komputer</span></a>
+                        <a href="/all/rak-sepatu"><i class="material-symbols-outlined">dresser</i><span>Rak Sepatu</span></a>
+                        <a href="/all/rak-besi"><i class="material-symbols-outlined">shelves</i><span>Rak Besi</span></a>
+                        <a href="/all/rak-serbaguna"><i class="material-symbols-outlined">inventory_2</i><span>Rak Serbaguna</span></a>
+                        <a href="/all/kursi"><i class="material-symbols-outlined">chair</i><span>Kursi</span></a>
+                    </div>
+                </div>
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all/lemari-dewasa">
                         <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemari dewasa" width="50px">
@@ -991,6 +1010,10 @@ btnGeserKategoriElm.forEach(btn => {
 
 const kategoriDropdownWraps = document.querySelectorAll('.kategori-wrap.has-dropdown');
 
+function syncKategoriDropdownState() {
+    document.body.classList.toggle('kategori-dropdown-open', document.querySelector('.kategori-wrap.show') !== null);
+}
+
 function closeKategoriDropdowns(exceptWrap = null) {
     kategoriDropdownWraps.forEach(wrap => {
         if (wrap !== exceptWrap) {
@@ -998,6 +1021,7 @@ function closeKategoriDropdowns(exceptWrap = null) {
             wrap.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
         }
     });
+    syncKategoriDropdownState();
 }
 
 function positionKategoriDropdown(wrap) {
@@ -1024,8 +1048,10 @@ kategoriDropdownWraps.forEach(wrap => {
         toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 
         if (willOpen) {
+            containeKategoriScrollElm.dataset.lockScrollLeft = containeKategoriScrollElm.scrollLeft;
             positionKategoriDropdown(wrap);
         }
+        syncKategoriDropdownState();
     });
 });
 
@@ -1045,8 +1071,22 @@ window.addEventListener('resize', () => {
     document.querySelectorAll('.kategori-wrap.show').forEach(positionKategoriDropdown);
 });
 
+containeKategoriScrollElm?.addEventListener('wheel', (event) => {
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+containeKategoriScrollElm?.addEventListener('touchmove', (event) => {
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
 containeKategoriScrollElm?.addEventListener('scroll', () => {
-    document.querySelectorAll('.kategori-wrap.show').forEach(positionKategoriDropdown);
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        containeKategoriScrollElm.scrollLeft = containeKategoriScrollElm.dataset.lockScrollLeft || containeKategoriScrollElm.scrollLeft;
+    }
 });
 
 let bukaMeta = false;
