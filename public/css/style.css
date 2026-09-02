@@ -2712,3 +2712,177 @@ body:not(.admin-body) {
         font-size: 0.92rem;
     }
 }
+
+/* UI polish revision - cleaner non-card storefront */
+body:not(.admin-body) {
+    background: #fff;
+}
+
+.navbar,
+.navbar-hp {
+    box-shadow: 0 2px 18px rgba(15, 23, 42, 0.06);
+}
+
+.carousel-inner {
+    box-shadow: none;
+    border-radius: 12px !important;
+}
+
+.container-kategori {
+    gap: 14px;
+    padding: 0 2px 6px;
+}
+
+.kategori,
+.kategori-wrap > .kategori {
+    min-height: 96px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 6px 6px;
+}
+
+.kategori:hover {
+    background: transparent;
+    box-shadow: none;
+    border-color: transparent;
+    color: var(--hijau);
+    transform: none;
+}
+
+.kategori img {
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 3px;
+}
+
+.kategori p {
+    color: #111827;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.kategori:hover p {
+    color: var(--hijau);
+}
+
+.kategori-arrow {
+    right: 11px;
+    top: 45px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+.kategori-dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+.card-group1.no-scroll {
+    gap: 22px 18px;
+}
+
+.card1 {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+}
+
+.card1:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.card1 .img-card1,
+.card1 .img-card1-wm {
+    border-radius: 12px;
+}
+
+.card1 .img-card1 {
+    border-bottom: 0;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.card1:hover .img-card1 {
+    border-color: transparent;
+    opacity: 0.94;
+    transform: scale(1.01);
+}
+
+.card1 > div {
+    margin-top: 0.55rem;
+}
+
+.card1 h5 {
+    margin-bottom: 5px;
+    color: #1f2937;
+    font-size: 0.94rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.harga {
+    font-size: 0.96rem;
+    font-weight: 650;
+}
+
+.card1 .varian {
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.card1 .diskon,
+.card1 .diskon-bwh,
+.card1 .terjual-badge {
+    box-shadow: none;
+}
+
+@media (max-width: 600px) {
+    .container-kategori {
+        gap: 10px;
+    }
+
+    .kategori,
+    .kategori-wrap > .kategori {
+        min-height: 78px;
+        padding: 5px 2px 4px;
+    }
+
+    .kategori img {
+        width: 46px;
+        height: 46px;
+    }
+
+    .kategori p {
+        font-size: 10px;
+    }
+
+    .kategori-arrow {
+        top: 34px;
+        right: 1px;
+    }
+
+    .card-group1.no-scroll {
+        gap: 18px 12px;
+    }
+
+    .card1 {
+        padding: 0;
+    }
+
+    .card1 .img-card1,
+    .card1 .img-card1-wm {
+        border-radius: 10px;
+    }
+}
