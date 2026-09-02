@@ -1,157 +1,155 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<?php
+$namaProduk = $produk['nama'] ?? '';
+$hargaProduk = $produk['harga'] ?? 0;
+$diskonProduk = $produk['diskon'] ?? 0;
+$dimensiProduk = $produk['dimensi'] ?? '';
+$beratProduk = $produk['berat'] ?? '';
+$stokProduk = $produk['stok'] ?? '';
+$kategoriProduk = $produk['kategori'] ?? '';
+$subkategoriProduk = $produk['subkategori'] ?? '';
+$varianText = $varian ?? '';
+$jmlVarianProduk = $produk['jml_varian'] ?? 1;
+$deskripsiProduk = $produk['deskripsi'] ?? '';
+$deskripsiNonhtmlProduk = $produk['deskripsi_nonhtml'] ?? '';
+$pencarianProduk = $produk['pencarian'] ?? '';
+?>
 <div class="konten">
-    <div class="container">
-        <h1 class="mb-3">Edit Produk</h1>
-        <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data">
+    <div class="container admin-product-editor">
+        <div class="admin-form-hero mb-4">
+            <div>
+                <p class="admin-form-eyebrow mb-1">Produk</p>
+                <h1 class="mb-1">Edit Produk</h1>
+                <p class="text-muted mb-0">Perbarui data produk dengan panduan field dan live preview agar hasilnya langsung terlihat.</p>
+            </div>
+            <a class="btn btn-outline-dark" href="/listproduct">Kembali</a>
+        </div>
+        <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data" class="admin-product-form">
             <?= csrf_field(); ?>
-            <div class="baris-ke-kolom">
-                <div class="limapuluh-ke-seratus">
-                    <table class="table-input w-100">
-                        <tbody>
-                            <tr>
-                                <td>Nama</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['nama']; ?>" name="nama" required onchange="isiPencarian(event)"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Harga</td>
-                                <td>
-                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['harga']; ?>" name="harga" required></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Diskon</td>
-                                <td>
-                                    <div class="baris">
-                                        <div class="input-group mb-3">
-                                            <input type="number" class="form-control" value="<?= $produk['diskon']; ?>" name="diskon" step="any" required onchange="isiPencarian(event)">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Dimensi (cm)</td>
-                                <td>
-                                    <div class="baris"><input value="<?= $produk['dimensi']; ?>" type="text" class="form-control" name="dimensi" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Berat (kg)</td>
-                                <td>
-                                    <div class="baris"><input value="<?= $produk['berat']; ?>" type="number" class="form-control" name="berat" step="any" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Stok</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['stok']; ?>" name="stok" required></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Terjual (otomatis)</td>
-                                <td>
-                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['terjual'] ?? 0; ?>" name="terjual" readonly style="background-color: #f8f9fa;"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Terjual (custom)</td>
-                                <td>
-                                    <div class="baris"><input type="number" class="form-control" value="<?= $produk['terjual_custom'] ?? 0; ?>" name="terjual_custom" placeholder="Atur manual jumlah terjual"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Kategori</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['kategori']; ?>" name="kategori" required onchange="isiPencarian(event)"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Sub Kategori</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['subkategori']; ?>" name="subkategori" required onchange="isiPencarian(event)"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Varian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $varian; ?>" name="varian" required onchange="isiPencarian(event)"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Jumlah Varian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['jml_varian']; ?>" name="jml_varian" required></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Shopee</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['shopee']; ?>" name="shopee"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Tokopedia</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['tokped']; ?>" name="tokped"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Tiktok Shop</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['tiktok']; ?>" name="tiktok"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Youtube</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['youtube']; ?>" name="youtube"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Deskripsi</td>
-                                <td>
-                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required><?= $produk['deskripsi']; ?></textarea></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Deskripsi Nonhtml</td>
-                                <td>
-                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi_nonhtml" required><?= $produk['deskripsi_nonhtml']; ?></textarea></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Pencarian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" value="<?= $produk['pencarian']; ?>" name="pencarian" required>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="show-ke-hide mt-2">
-                        <button class="btn btn-primary1" type="submit">Simpan</button>
+            <div class="admin-product-grid">
+                <div class="admin-product-fields">
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head"><span>1</span><div><h5>Informasi utama</h5><p>Data yang tampil di kartu produk dan halaman detail.</p></div></div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="nama">Nama produk</label>
+                                <input id="nama" type="text" class="form-control" value="<?= esc($namaProduk); ?>" name="nama" required onchange="isiPencarian(event)" placeholder="Contoh: Lemari Pakaian 3 Pintu Luna">
+                                <small>Tulis nama singkat, jelas, dan mudah dicari customer.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="harga">Harga</label>
+                                <div class="input-group"><span class="input-group-text">Rp</span><input id="harga" type="number" class="form-control" value="<?= esc($hargaProduk); ?>" name="harga" required placeholder="1250000"></div>
+                                <small>Masukkan angka tanpa titik/koma.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="diskon">Diskon</label>
+                                <div class="input-group"><input id="diskon" type="number" class="form-control" value="<?= esc($diskonProduk); ?>" name="diskon" step="any" required onchange="isiPencarian(event)"><span class="input-group-text">%</span></div>
+                                <small>Isi 0 kalau tidak ada promo.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="dimensi">Dimensi</label>
+                                <input id="dimensi" value="<?= esc($dimensiProduk); ?>" type="text" class="form-control" name="dimensi" required placeholder="80 x 45 x 180">
+                                <small>Format disarankan: P x L x T dalam cm.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="berat">Berat</label>
+                                <div class="input-group"><input id="berat" value="<?= esc($beratProduk); ?>" type="number" class="form-control" name="berat" step="any" required><span class="input-group-text">kg</span></div>
+                                <small>Berat untuk estimasi pengiriman.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="stok">Stok</label>
+                                <input id="stok" type="text" class="form-control" value="<?= esc($stokProduk); ?>" name="stok" required placeholder="ready / 25 / pre-order 7 hari">
+                                <small>Bisa angka stok atau status ready/pre-order.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="terjual_custom">Terjual custom</label>
+                                <input id="terjual_custom" type="number" class="form-control" value="<?= esc($produk['terjual_custom'] ?? 0); ?>" name="terjual_custom" placeholder="Atur manual jumlah terjual">
+                                <small>Angka manual untuk tampilan terjual.</small>
+                                <input type="hidden" value="<?= esc($produk['terjual'] ?? 0); ?>" name="terjual">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head"><span>2</span><div><h5>Kategori & varian</h5><p>Ubah varian untuk menyesuaikan jumlah slot gambar.</p></div></div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field">
+                                <label class="form-label" for="kategori">Kategori</label>
+                                <input id="kategori" list="kategori-list" type="text" class="form-control" value="<?= esc($kategoriProduk); ?>" name="kategori" required onchange="isiPencarian(event)" placeholder="lemari-dewasa">
+                                <small>Contoh: lemari-dewasa, meja-belajar, rak-serbaguna.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="subkategori">Sub kategori</label>
+                                <input id="subkategori" type="text" class="form-control" value="<?= esc($subkategoriProduk); ?>" name="subkategori" required onchange="isiPencarian(event)" placeholder="lemari-3-pintu">
+                                <small>Gunakan huruf kecil dan tanda minus agar URL rapi.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="varian">Varian warna/model</label>
+                                <input id="varian" type="text" class="form-control" value="<?= esc($varianText); ?>" name="varian" required onchange="isiPencarian(event)" placeholder="Putih, Coklat, Oak">
+                                <small>Pisahkan dengan koma. Contoh: Putih, Coklat, Oak.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="jml_varian">Jumlah foto per varian</label>
+                                <input id="jml_varian" type="number" min="1" class="form-control" value="<?= esc($jmlVarianProduk); ?>" name="jml_varian" required>
+                                <small>Jika tiap varian punya 2 foto, isi 2.</small>
+                            </div>
+                        </div>
+                        <datalist id="kategori-list"><option value="lemari-dewasa"></option><option value="lemari-anak"></option><option value="meja-rias"></option><option value="meja-belajar"></option><option value="meja-tv"></option><option value="meja-tulis"></option><option value="meja-komputer"></option><option value="rak-sepatu"></option><option value="rak-besi"></option><option value="rak-serbaguna"></option><option value="kursi"></option></datalist>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head"><span>3</span><div><h5>Link marketplace & video</h5><p>Opsional, isi jika produk tersedia di platform tersebut.</p></div></div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field"><label class="form-label" for="shopee">Link Shopee</label><input id="shopee" type="url" class="form-control" value="<?= esc($produk['shopee'] ?? ''); ?>" name="shopee" placeholder="https://shopee.co.id/..."><small>Link tombol Shopee di halaman detail.</small></div>
+                            <div class="admin-field"><label class="form-label" for="tokped">Link Tokopedia</label><input id="tokped" type="url" class="form-control" value="<?= esc($produk['tokped'] ?? ''); ?>" name="tokped" placeholder="https://tokopedia.com/..."><small>Link tombol Tokopedia.</small></div>
+                            <div class="admin-field"><label class="form-label" for="tiktok">Link Tiktok Shop</label><input id="tiktok" type="url" class="form-control" value="<?= esc($produk['tiktok'] ?? ''); ?>" name="tiktok" placeholder="https://www.tiktok.com/..."><small>Link tombol Tiktok Shop.</small></div>
+                            <div class="admin-field"><label class="form-label" for="youtube">Link Youtube</label><input id="youtube" type="url" class="form-control" value="<?= esc($produk['youtube'] ?? ''); ?>" name="youtube" placeholder="https://youtube.com/..."><small>Video review/perakitan produk.</small></div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi & pencarian</h5><p>Preview deskripsi akan tampil di kanan secara langsung.</p></div></div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="deskripsi">Deskripsi HTML</label>
+                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" required><?= esc($deskripsiProduk); ?></textarea>
+                                <small>Boleh pakai &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;b&gt; agar detail produk rapi.</small>
+                            </div>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="deskripsi_nonhtml">Deskripsi tanpa HTML</label>
+                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" required><?= esc($deskripsiNonhtmlProduk); ?></textarea>
+                                <small>Versi teks biasa untuk SEO/share/search.</small>
+                            </div>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="pencarian">Keyword pencarian</label>
+                                <input id="pencarian" type="text" class="form-control" value="<?= esc($pencarianProduk); ?>" name="pencarian" required placeholder="lemari pakaian minimalis modern putih murah">
+                                <small>Kata kunci yang mungkin diketik customer.</small>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="admin-product-preview">
+                    <div class="admin-preview-card">
+                        <p class="admin-form-eyebrow mb-2">Live preview</p>
+                        <div class="add-gambar admin-preview-image mb-3"><img src="/img/nopic.jpg" id="addProduct_PreviewUtama" alt="Preview produk"></div>
+                        <div class="admin-preview-meta"><span id="previewCategory">Kategori produk</span><span id="previewStock">Stok</span></div>
+                        <h3 id="previewName">Nama produk</h3>
+                        <p class="admin-preview-price" id="previewPrice">Rp0</p>
+                        <p class="admin-preview-spec" id="previewSpec">Dimensi dan berat.</p>
+                        <div class="admin-preview-variants" id="previewVariants">Varian: -</div>
+                        <div class="admin-description-preview" id="previewDescription">Preview deskripsi.</div>
+                    </div>
+                    <section class="admin-form-section admin-image-section mt-3">
+                        <div class="admin-form-section__head"><span>5</span><div><h5>Gambar produk</h5><p>Upload gambar baru hanya jika ingin mengganti. Slot mengikuti varian.</p></div></div>
+                        <div id="foto-varian" class="d-flex gap-2"></div>
+                    </section>
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-primary1" type="submit">Simpan Perubahan</button>
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
                     </div>
-                </div>
-                <div class="limapuluh-ke-seratus">
-                    <h5 class="jdl-section">Gambar Produk</h5>
-                    <div class="add-gambar mb-1">
-                        <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">
-                            Preview</p>
-                        <img src="/img/nopic.jpg" id="addProduct_PreviewUtama">
-                    </div>
-                    <div id="foto-varian" class="d-flex gap-2" style="overflow-y: auto; width:100%">
-                    </div>
-                </div>
-            </div>
-            <div class="justify-content-center hide-ke-show-flex gap-2 mt-3">
-                <button class="btn btn-primary1" type="submit">Simpan</button>
-                <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
+                </aside>
             </div>
         </form>
     </div>
@@ -165,56 +163,52 @@
     const elmPencarian = document.querySelector('input[name="pencarian"]');
     const elmVarian = document.querySelector('input[name="varian"]');
     const elmJmlvarian = document.querySelector('input[name="jml_varian"]');
-    const ambilVarian = "<?= count(json_decode($produk['varian'], true)); ?>"
-    const ambilJmlvarian = "<?= $produk['jml_varian'] ?>"
-    let varian = Number(ambilVarian);
-    let jmlVarian = Number(ambilJmlvarian);
-    let hasilVarian = jmlVarian + varian - 1
-    console.log(varian, jmlVarian, hasilVarian, ambilVarian, ambilJmlvarian)
-    inputElement(hasilVarian);
+    const ambilVarian = "<?= count(json_decode($produk['varian'], true)); ?>";
+    const ambilJmlvarian = "<?= $produk['jml_varian'] ?>";
+    let varian = Number(ambilVarian) || 1;
+    let jmlVarian = Number(ambilJmlvarian) || 1;
+    let hasilVarian = jmlVarian + varian - 1;
 
     function isiPencarian(e) {
-        console.log(e);
         if (e.srcElement.value != '') {
-            if (e.srcElement.name == 'nama') {
-                elmPencarian.value += `${e.srcElement.value} `
-            } else if (e.srcElement.name == 'kategori') {
-                elmPencarian.value += `${e.srcElement.value} elegan ${e.srcElement.value} simpel ${e.srcElement.value} minimalis ${e.srcElement.value} estetik ${e.srcElement.value} modern `
-            } else if (e.srcElement.name == 'subkategori') {
-                const subkategorinya = e.srcElement.value.replace(/-/g, ' ')
-                elmPencarian.value += `${subkategorinya} elegan ${subkategorinya} simpel ${subkategorinya} minimalis ${subkategorinya} estetik ${subkategorinya} modern `
-            } else if (e.srcElement.name == 'varian') {
-                const arrVar = e.srcElement.value.split(",");
-                const subkategorinya = elmSubkategori.value.replace(/-/g, ' ')
-                arrVar.forEach((va) => {
-                    elmPencarian.value += `${elmKategori.value} ${va} ${subkategorinya} ${va} `
-                })
-            } else if (e.srcElement.name == 'diskon') {
-                const subkategorinya = elmSubkategori.value.replace(/-/g, ' ')
-                if (Number(e.srcElement.value) > 0) elmPencarian.value += `${elmKategori.value} promo ${elmKategori.value} diskon ${subkategorinya} promo ${subkategorinya} diskon `
-            }
+            if (e.srcElement.name == 'nama') elmPencarian.value += `${e.srcElement.value} `;
+            else if (e.srcElement.name == 'kategori') elmPencarian.value += `${e.srcElement.value} elegan ${e.srcElement.value} simpel ${e.srcElement.value} minimalis ${e.srcElement.value} estetik ${e.srcElement.value} modern `;
+            else if (e.srcElement.name == 'subkategori') { const subkategorinya = e.srcElement.value.replace(/-/g, ' '); elmPencarian.value += `${subkategorinya} elegan ${subkategorinya} simpel ${subkategorinya} minimalis ${subkategorinya} estetik ${subkategorinya} modern `; }
+            else if (e.srcElement.name == 'varian') { const arrVar = e.srcElement.value.split(','); const subkategorinya = elmSubkategori.value.replace(/-/g, ' '); arrVar.forEach((va) => { elmPencarian.value += `${elmKategori.value} ${va} ${subkategorinya} ${va} `; }) }
+            else if (e.srcElement.name == 'diskon') { const subkategorinya = elmSubkategori.value.replace(/-/g, ' '); if (Number(e.srcElement.value) > 0) elmPencarian.value += `${elmKategori.value} promo ${elmKategori.value} diskon ${subkategorinya} promo ${subkategorinya} diskon `; }
         }
     }
 
-    elmVarian.addEventListener("change", (e) => {
-        const varianArray = e.target.value.split(",");
-        console.log(varianArray);
-        varian = varianArray.length;
-        console.log(varian);
-        hasilVarian = jmlVarian + varian - 1;
-        console.log(hasilVarian);
-        inputElement(hasilVarian);
-    });
+    function formatRupiah(value) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value || 0)); }
+    function updateAdminProductPreview() {
+        const get = (name) => document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+        const harga = Number(get('harga') || 0);
+        const diskon = Number(get('diskon') || 0);
+        const finalPrice = diskon > 0 ? harga - (harga * diskon / 100) : harga;
+        document.getElementById('previewName').textContent = get('nama') || 'Nama produk';
+        document.getElementById('previewCategory').textContent = get('kategori') || 'Kategori produk';
+        document.getElementById('previewStock').textContent = get('stok') || 'Stok';
+        document.getElementById('previewPrice').textContent = `${formatRupiah(finalPrice)}${diskon > 0 ? ' • Diskon ' + diskon + '%' : ''}`;
+        document.getElementById('previewSpec').textContent = `${get('dimensi') || 'Dimensi'} cm • ${get('berat') || 'Berat'} kg`;
+        document.getElementById('previewVariants').textContent = `Varian: ${get('varian') || '-'}`;
+        document.getElementById('previewDescription').innerHTML = get('deskripsi') || 'Preview deskripsi.';
+    }
 
-    elmJmlvarian.addEventListener("change", (e) => {
-        jmlVarian = Number(e.target.value);
+    document.querySelectorAll('.admin-product-form input, .admin-product-form textarea').forEach((field) => { field.addEventListener('input', updateAdminProductPreview); field.addEventListener('change', updateAdminProductPreview); });
+    elmVarian.addEventListener('input', syncImageInputs);
+    elmJmlvarian.addEventListener('input', syncImageInputs);
+
+    function syncImageInputs() {
+        const varianArray = (elmVarian.value || '').split(',').map(v => v.trim()).filter(Boolean);
+        varian = Math.max(varianArray.length, 1);
+        jmlVarian = Math.max(Number(elmJmlvarian.value || 1), 1);
         hasilVarian = jmlVarian + varian - 1;
-        console.log(hasilVarian);
         inputElement(hasilVarian);
-    });
+        updateAdminProductPreview();
+    }
 
     function inputElement(hasilVarian) {
-        elmFotoVarian.innerHTML = "";
+        elmFotoVarian.innerHTML = '';
         for (let i = 1; i <= hasilVarian; i++) {
             const cardVarian = document.createElement('div');
             cardVarian.classList.add('input-group-gambar');
@@ -223,71 +217,33 @@
             cardAnkvarian.setAttribute('id', 'addProduct_Input' + i);
             cardAnkvarian.setAttribute('data-bs-toggle', 'tooltip');
             cardAnkvarian.setAttribute('data-bs-placement', 'top');
-            cardAnkvarian.setAttribute('data-bs-title', 'Wajib diisi');
+            cardAnkvarian.setAttribute('data-bs-title', 'Upload gambar baru ke-' + i);
             const cardlabel = document.createElement('label');
             cardlabel.classList.add('input-gambar-label');
             cardlabel.setAttribute('for', 'addProduct_InputGambar' + i);
             const cardIlabel = document.createElement('i');
             cardIlabel.classList.add('material-icons');
-            cardIlabel.innerHTML = "add";
+            cardIlabel.innerHTML = 'add_photo_alternate';
             const cardinput = document.createElement('input');
             cardinput.classList.add('input-gambar');
             cardinput.setAttribute('type', 'file');
             cardinput.setAttribute('id', 'addProduct_InputGambar' + i);
             cardinput.setAttribute('name', 'gambar' + i);
-            // cardinput.setAttribute('required', '');
+            cardinput.setAttribute('accept', 'image/*');
             const cardImg = document.createElement('img');
-            cardImg.src = "img/nopic.jpg";
+            cardImg.src = '/img/nopic.jpg';
             cardImg.setAttribute('id', 'addProduct_PreviewGambar' + i);
             cardImg.classList.add('addProduct_Preview');
-            cardlabel.appendChild(cardIlabel);
-            cardAnkvarian.appendChild(cardlabel);
-            cardAnkvarian.appendChild(cardinput);
-            cardVarian.appendChild(cardAnkvarian);
-            cardVarian.appendChild(cardImg);
-            elmFotoVarian.appendChild(cardVarian);
+            cardlabel.appendChild(cardIlabel); cardAnkvarian.appendChild(cardlabel); cardAnkvarian.appendChild(cardinput); cardVarian.appendChild(cardAnkvarian); cardVarian.appendChild(cardImg); elmFotoVarian.appendChild(cardVarian);
         }
-        const addProduct_inputGambar = document.querySelectorAll(".input-gambar");
-        const addProduct_previewGambar = document.querySelectorAll(".addProduct_Preview");
-        const addProduct_labelInput = document.querySelectorAll(".input-gambar-label");
-        const addProduct_input = document.querySelectorAll(".addProduct_Input");
-        const addProduct_previewUtama = document.getElementById("addProduct_PreviewUtama");
-        const addProduct_form = document.querySelector("form");
-        addProduct_inputGambar.forEach((item, index) => {
-            item.addEventListener("change", () => {
-                const file = addProduct_inputGambar[index].files[0];
-                const blobFile = new Blob([file], {
-                    type: file.type
-                });
-                var blobUrl = URL.createObjectURL(blobFile);
-                addProduct_previewGambar[index].src = blobUrl;
-                addProduct_previewUtama.src = blobUrl;
-                addProduct_previewGambar[index].style.display = "block";
-                addProduct_input[index].style.display = 'none';
-            })
-        })
+        const addProduct_inputGambar = document.querySelectorAll('.input-gambar');
+        const addProduct_previewGambar = document.querySelectorAll('.addProduct_Preview');
+        const addProduct_input = document.querySelectorAll('.addProduct_Input');
+        const addProduct_previewUtama = document.getElementById('addProduct_PreviewUtama');
+        addProduct_inputGambar.forEach((item, index) => { item.addEventListener('change', () => { const file = addProduct_inputGambar[index].files[0]; if (!file) return; const blobUrl = URL.createObjectURL(file); addProduct_previewGambar[index].src = blobUrl; addProduct_previewUtama.src = blobUrl; addProduct_previewGambar[index].style.display = 'block'; addProduct_input[index].style.display = 'none'; }) })
     }
-    // const addProduct_inputGambar = document.querySelectorAll(".input-gambar");
-    // const addProduct_previewGambar = document.querySelectorAll(".addProduct_Preview");
-    // const addProduct_input = document.querySelectorAll(".addProduct_Input");
-    // const addProduct_previewUtama = document.getElementById("addProduct_PreviewUtama");
-    // const addProduct_form = document.querySelector("form");
 
-    // addProduct_inputGambar.forEach((item, index) => {
-    //     item.addEventListener("change", () => {
-    //         addProduct_inputGambar.forEach((element, ind) => {
-    //             if (ind < 3) element.required = true;
-    //         });
-    //         const file = addProduct_inputGambar[index].files[0];
-    //         const blobFile = new Blob([file], {
-    //             type: file.type
-    //         });
-    //         var blobUrl = URL.createObjectURL(blobFile);
-    //         addProduct_previewGambar[index].src = blobUrl;
-    //         addProduct_previewUtama.src = blobUrl;
-    //         addProduct_previewGambar[index].style.display = "block";
-    //         addProduct_input[index].style.display = 'none';
-    //     })
-    // })
+    syncImageInputs();
+    updateAdminProductPreview();
 </script>
 <?= $this->endSection(); ?>

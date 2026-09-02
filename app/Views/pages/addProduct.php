@@ -1,146 +1,187 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
 <div class="konten">
-    <div class="container">
-        <h1 class="mb-3">Tambah Produk</h1>
-        <form method="post" action="/addproduct" enctype="multipart/form-data">
-            <?= csrf_field(); ?>
-            <div class="baris-ke-kolom">
-                <div class="limapuluh-ke-seratus">
-                    <table class="table-input w-100">
-                        <tbody>
-                            <tr>
-                                <td>Nama</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="nama" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Harga</td>
-                                <td>
-                                    <div class="baris"><input type="number" class="form-control" name="harga" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Diskon</td>
-                                <td>
-                                    <div class="baris">
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" name="diskon" step="any" required>
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Dimensi (cm)</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="dimensi" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Berat (kg)</td>
-                                <td>
-                                    <div class="baris"><input type="number" class="form-control" name="berat" step="any" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Stok</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="stok" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Kategori</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="kategori" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Sub Kategori</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="subkategori" required></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Varian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="varian" required>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Jumlah Varian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="jml_varian" required></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Shopee</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="shopee"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Tokopedia</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="tokped"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Tiktok Shop</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="tiktok"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Link Youtube</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="youtube"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Deskripsi</td>
-                                <td>
-                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi" required></textarea></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Deskripsi Nonhtml</td>
-                                <td>
-                                    <div class="baris"><textarea type="text" class="form-control" name="deskripsi_nonhtml" required></textarea></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Pencarian</td>
-                                <td>
-                                    <div class="baris"><input type="text" class="form-control" name="pencarian" required>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class="btn btn-primary1 show-ke-hide" type="submit">Simpan</button>
-                </div>
-                <div class="limapuluh-ke-seratus">
-                    <h5 class="jdl-section">Gambar Produk</h5>
-                    <div class="add-gambar mb-1">
-                        <p style="position: absolute; transform: translate(15px, 10px); color: rgba(0, 0, 0, 0.5)">
-                            Preview</p>
-                        <img src="img/nopic.jpg" id="addProduct_PreviewUtama">
-                    </div>
-                    <div class="d-flex gap-2" id="foto-varian" style="overflow-y: auto;">
-                    </div>
-                </div>
+    <div class="container admin-product-editor">
+        <div class="admin-form-hero mb-4">
+            <div>
+                <p class="admin-form-eyebrow mb-1">Produk</p>
+                <h1 class="mb-1">Tambah Produk</h1>
+                <p class="text-muted mb-0">Isi data produk dari atas ke bawah. Preview di kanan akan berubah otomatis saat admin mengetik.</p>
             </div>
-            <div class="hide-ke-show-flex justify-content-center mt-3">
-                <button class="btn btn-primary1" type="submit">Simpan</button>
+            <a class="btn btn-outline-dark" href="/listproduct">Kembali</a>
+        </div>
+        <form method="post" action="/addproduct" enctype="multipart/form-data" class="admin-product-form">
+            <?= csrf_field(); ?>
+            <div class="admin-product-grid">
+                <div class="admin-product-fields">
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head">
+                            <span>1</span>
+                            <div>
+                                <h5>Informasi utama</h5>
+                                <p>Data yang pertama kali dilihat customer di halaman produk.</p>
+                            </div>
+                        </div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="nama">Nama produk</label>
+                                <input id="nama" type="text" class="form-control" name="nama" required placeholder="Contoh: Lemari Pakaian 3 Pintu Luna" data-preview="name">
+                                <small>Tulis nama singkat, jelas, dan mudah dicari customer.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="harga">Harga</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input id="harga" type="number" class="form-control" name="harga" required placeholder="1250000" data-preview="price">
+                                </div>
+                                <small>Masukkan angka tanpa titik/koma.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="diskon">Diskon</label>
+                                <div class="input-group">
+                                    <input id="diskon" type="number" class="form-control" name="diskon" step="any" required value="0" placeholder="0" data-preview="discount">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <small>Isi 0 kalau produk tidak diskon.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="dimensi">Dimensi</label>
+                                <input id="dimensi" type="text" class="form-control" name="dimensi" required placeholder="80 x 45 x 180" data-preview="dimension">
+                                <small>Format disarankan: P x L x T dalam cm.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="berat">Berat</label>
+                                <div class="input-group">
+                                    <input id="berat" type="number" class="form-control" name="berat" step="any" required placeholder="25" data-preview="weight">
+                                    <span class="input-group-text">kg</span>
+                                </div>
+                                <small>Berat untuk estimasi pengiriman.</small>
+                            </div>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="stok">Stok</label>
+                                <input id="stok" type="text" class="form-control" name="stok" required placeholder="Contoh: ready / 25 / pre-order 7 hari" data-preview="stock">
+                                <small>Bisa angka stok atau status seperti ready/pre-order.</small>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head">
+                            <span>2</span>
+                            <div>
+                                <h5>Kategori & varian</h5>
+                                <p>Pastikan kategori sama dengan struktur produk di website.</p>
+                            </div>
+                        </div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field">
+                                <label class="form-label" for="kategori">Kategori</label>
+                                <input id="kategori" list="kategori-list" type="text" class="form-control" name="kategori" required placeholder="lemari-dewasa" data-preview="category">
+                                <small>Contoh: lemari-dewasa, meja-belajar, rak-serbaguna.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="subkategori">Sub kategori</label>
+                                <input id="subkategori" type="text" class="form-control" name="subkategori" required placeholder="lemari-3-pintu" data-preview="subcategory">
+                                <small>Gunakan huruf kecil dan tanda minus agar URL rapi.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="varian">Varian warna/model</label>
+                                <input id="varian" type="text" class="form-control" name="varian" required placeholder="Putih, Coklat, Oak" data-preview="variant">
+                                <small>Pisahkan dengan koma. Contoh: Putih, Coklat, Oak.</small>
+                            </div>
+                            <div class="admin-field">
+                                <label class="form-label" for="jml_varian">Jumlah foto per varian</label>
+                                <input id="jml_varian" type="number" min="1" class="form-control" name="jml_varian" required value="1">
+                                <small>Jika tiap varian punya 2 foto, isi 2.</small>
+                            </div>
+                        </div>
+                        <datalist id="kategori-list">
+                            <option value="lemari-dewasa"></option>
+                            <option value="lemari-anak"></option>
+                            <option value="meja-rias"></option>
+                            <option value="meja-belajar"></option>
+                            <option value="meja-tv"></option>
+                            <option value="meja-tulis"></option>
+                            <option value="meja-komputer"></option>
+                            <option value="rak-sepatu"></option>
+                            <option value="rak-besi"></option>
+                            <option value="rak-serbaguna"></option>
+                            <option value="kursi"></option>
+                        </datalist>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head">
+                            <span>3</span>
+                            <div>
+                                <h5>Link marketplace & video</h5>
+                                <p>Opsional, isi jika produk tersedia di platform tersebut.</p>
+                            </div>
+                        </div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field"><label class="form-label" for="shopee">Link Shopee</label><input id="shopee" type="url" class="form-control" name="shopee" placeholder="https://shopee.co.id/..."><small>Link tombol Shopee di halaman detail.</small></div>
+                            <div class="admin-field"><label class="form-label" for="tokped">Link Tokopedia</label><input id="tokped" type="url" class="form-control" name="tokped" placeholder="https://tokopedia.com/..."><small>Link tombol Tokopedia.</small></div>
+                            <div class="admin-field"><label class="form-label" for="tiktok">Link Tiktok Shop</label><input id="tiktok" type="url" class="form-control" name="tiktok" placeholder="https://www.tiktok.com/..."><small>Link tombol Tiktok Shop.</small></div>
+                            <div class="admin-field"><label class="form-label" for="youtube">Link Youtube</label><input id="youtube" type="url" class="form-control" name="youtube" placeholder="https://youtube.com/..."><small>Video review/perakitan produk.</small></div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__head">
+                            <span>4</span>
+                            <div>
+                                <h5>Deskripsi & pencarian</h5>
+                                <p>Deskripsi HTML akan tampil di detail produk, non-HTML untuk teks bersih.</p>
+                            </div>
+                        </div>
+                        <div class="admin-field-grid">
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="deskripsi">Deskripsi HTML</label>
+                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" required placeholder="<p>Lemari modern dengan material kokoh...</p>" data-preview="description"></textarea>
+                                <small>Boleh pakai tag HTML sederhana seperti &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;b&gt; agar tampilan detail langsung rapi.</small>
+                            </div>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="deskripsi_nonhtml">Deskripsi tanpa HTML</label>
+                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" required placeholder="Ringkasan produk tanpa tag HTML."></textarea>
+                                <small>Tulis versi teks biasa untuk kebutuhan SEO/share/search.</small>
+                            </div>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="pencarian">Keyword pencarian</label>
+                                <input id="pencarian" type="text" class="form-control" name="pencarian" required placeholder="lemari pakaian minimalis modern putih murah">
+                                <small>Masukkan kata kunci yang mungkin diketik customer, pisahkan dengan spasi.</small>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="admin-product-preview">
+                    <div class="admin-preview-card">
+                        <p class="admin-form-eyebrow mb-2">Live preview</p>
+                        <div class="add-gambar admin-preview-image mb-3">
+                            <img src="/img/nopic.jpg" id="addProduct_PreviewUtama" alt="Preview produk">
+                        </div>
+                        <div class="admin-preview-meta">
+                            <span id="previewCategory">Kategori produk</span>
+                            <span id="previewStock">Stok</span>
+                        </div>
+                        <h3 id="previewName">Nama produk akan tampil di sini</h3>
+                        <p class="admin-preview-price" id="previewPrice">Rp0</p>
+                        <p class="admin-preview-spec" id="previewSpec">Dimensi dan berat akan tampil di sini.</p>
+                        <div class="admin-preview-variants" id="previewVariants">Varian: -</div>
+                        <div class="admin-description-preview" id="previewDescription">Preview deskripsi akan muncul di sini saat admin mengetik.</div>
+                    </div>
+                    <section class="admin-form-section admin-image-section mt-3">
+                        <div class="admin-form-section__head">
+                            <span>5</span>
+                            <div>
+                                <h5>Gambar produk</h5>
+                                <p>Jumlah upload mengikuti varian dan jumlah foto per varian.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2" id="foto-varian"></div>
+                    </section>
+                    <button class="btn btn-primary1 w-100 mt-3" type="submit">Simpan Produk</button>
+                </aside>
             </div>
         </form>
     </div>
@@ -151,26 +192,45 @@
     const elmFotoVarian = document.getElementById('foto-varian');
     const elmVarian = document.querySelector('input[name="varian"]');
     const elmJmlvarian = document.querySelector('input[name="jml_varian"]');
-    let varian = 1
-    let jmlVarian = 1
-    let hasilVarian = 1
+    let varian = 1;
+    let jmlVarian = 1;
+    let hasilVarian = 1;
 
-    elmVarian.addEventListener("change", (e) => {
-        const varianArray = e.target.value.split(",");
-        console.log(varianArray);
-        varian = varianArray.length;
-        console.log(varian);
-        hasilVarian = jmlVarian + varian - 1;
-        console.log(hasilVarian);
-        inputElement(hasilVarian);
+    function formatRupiah(value) {
+        const number = Number(value || 0);
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+    }
+
+    function updateAdminProductPreview() {
+        const get = (name) => document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+        const harga = Number(get('harga') || 0);
+        const diskon = Number(get('diskon') || 0);
+        const finalPrice = diskon > 0 ? harga - (harga * diskon / 100) : harga;
+        document.getElementById('previewName').textContent = get('nama') || 'Nama produk akan tampil di sini';
+        document.getElementById('previewCategory').textContent = get('kategori') || 'Kategori produk';
+        document.getElementById('previewStock').textContent = get('stok') || 'Stok';
+        document.getElementById('previewPrice').textContent = `${formatRupiah(finalPrice)}${diskon > 0 ? ' • Diskon ' + diskon + '%' : ''}`;
+        document.getElementById('previewSpec').textContent = `${get('dimensi') || 'Dimensi'} cm • ${get('berat') || 'Berat'} kg`;
+        document.getElementById('previewVariants').textContent = `Varian: ${get('varian') || '-'}`;
+        document.getElementById('previewDescription').innerHTML = get('deskripsi') || 'Preview deskripsi akan muncul di sini saat admin mengetik.';
+    }
+
+    document.querySelectorAll('.admin-product-form input, .admin-product-form textarea').forEach((field) => {
+        field.addEventListener('input', updateAdminProductPreview);
+        field.addEventListener('change', updateAdminProductPreview);
     });
 
-    elmJmlvarian.addEventListener("change", (e) => {
-        jmlVarian = Number(e.target.value);
+    function syncImageInputs() {
+        const varianArray = (elmVarian.value || '').split(',').map(v => v.trim()).filter(Boolean);
+        varian = Math.max(varianArray.length, 1);
+        jmlVarian = Math.max(Number(elmJmlvarian.value || 1), 1);
         hasilVarian = jmlVarian + varian - 1;
-        console.log(hasilVarian);
         inputElement(hasilVarian);
-    });
+        updateAdminProductPreview();
+    }
+
+    elmVarian.addEventListener('input', syncImageInputs);
+    elmJmlvarian.addEventListener('input', syncImageInputs);
 
     function inputElement(hasilVarian) {
         elmFotoVarian.innerHTML = "";
@@ -182,21 +242,22 @@
             cardAnkvarian.setAttribute('id', 'addProduct_Input' + i);
             cardAnkvarian.setAttribute('data-bs-toggle', 'tooltip');
             cardAnkvarian.setAttribute('data-bs-placement', 'top');
-            cardAnkvarian.setAttribute('data-bs-title', 'Wajib diisi');
+            cardAnkvarian.setAttribute('data-bs-title', 'Upload gambar ke-' + i);
             const cardlabel = document.createElement('label');
             cardlabel.classList.add('input-gambar-label');
             cardlabel.setAttribute('for', 'addProduct_InputGambar' + i);
             const cardIlabel = document.createElement('i');
             cardIlabel.classList.add('material-icons');
-            cardIlabel.innerHTML = "add";
+            cardIlabel.innerHTML = "add_photo_alternate";
             const cardinput = document.createElement('input');
             cardinput.classList.add('input-gambar');
             cardinput.setAttribute('type', 'file');
             cardinput.setAttribute('id', 'addProduct_InputGambar' + i);
             cardinput.setAttribute('name', 'gambar' + i);
+            cardinput.setAttribute('accept', 'image/*');
             cardinput.setAttribute('required', '');
             const cardImg = document.createElement('img');
-            cardImg.src = "img/nopic.jpg";
+            cardImg.src = "/img/nopic.jpg";
             cardImg.setAttribute('id', 'addProduct_PreviewGambar' + i);
             cardImg.classList.add('addProduct_Preview');
             cardlabel.appendChild(cardIlabel);
@@ -208,17 +269,13 @@
         }
         const addProduct_inputGambar = document.querySelectorAll(".input-gambar");
         const addProduct_previewGambar = document.querySelectorAll(".addProduct_Preview");
-        const addProduct_labelInput = document.querySelectorAll(".input-gambar-label");
         const addProduct_input = document.querySelectorAll(".addProduct_Input");
         const addProduct_previewUtama = document.getElementById("addProduct_PreviewUtama");
-        const addProduct_form = document.querySelector("form");
         addProduct_inputGambar.forEach((item, index) => {
             item.addEventListener("change", () => {
                 const file = addProduct_inputGambar[index].files[0];
-                const blobFile = new Blob([file], {
-                    type: file.type
-                });
-                var blobUrl = URL.createObjectURL(blobFile);
+                if (!file) return;
+                const blobUrl = URL.createObjectURL(file);
                 addProduct_previewGambar[index].src = blobUrl;
                 addProduct_previewUtama.src = blobUrl;
                 addProduct_previewGambar[index].style.display = "block";
@@ -226,5 +283,8 @@
             })
         })
     }
+
+    syncImageInputs();
+    updateAdminProductPreview();
 </script>
 <?= $this->endSection(); ?>
