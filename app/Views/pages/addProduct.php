@@ -1,5 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<script src="https://cdn.tiny.cloud/1/<?= $tinymce; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <div class="konten">
     <div class="container admin-product-editor">
         <div class="admin-form-hero mb-4">
@@ -137,18 +138,21 @@
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="deskripsi">Deskripsi HTML</label>
-                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" required placeholder="<p>Lemari modern dengan material kokoh...</p>" data-preview="description"></textarea>
-                                <small>Boleh pakai tag HTML sederhana seperti &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;b&gt; agar tampilan detail langsung rapi.</small>
+                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" required placeholder="Tulis deskripsi produk seperti biasa, editor akan membuat format rapi otomatis." data-preview="description"></textarea>
+                                <small>Tulis seperti di artikel. Admin bisa bold, list, heading, dan link tanpa mengetik tag HTML manual.</small>
                             </div>
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="deskripsi_nonhtml">Deskripsi tanpa HTML</label>
-                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" required placeholder="Ringkasan produk tanpa tag HTML."></textarea>
-                                <small>Tulis versi teks biasa untuk kebutuhan SEO/share/search.</small>
+                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" required placeholder="Akan otomatis terisi dari deskripsi. Bisa diedit manual jika perlu."></textarea>
+                                <small>Otomatis dibuat dari deskripsi tanpa format HTML.</small>
                             </div>
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="pencarian">Keyword pencarian</label>
-                                <input id="pencarian" type="text" class="form-control" name="pencarian" required placeholder="lemari pakaian minimalis modern putih murah">
-                                <small>Masukkan kata kunci yang mungkin diketik customer, pisahkan dengan spasi.</small>
+                                <div class="input-group">
+                                    <input id="pencarian" type="text" class="form-control" name="pencarian" required placeholder="lemari pakaian minimalis modern putih murah">
+                                    <button class="btn btn-outline-dark" type="button" id="generateSearchKeyword">Generate</button>
+                                </div>
+                                <small>Bisa otomatis dibuat dari nama, kategori, subkategori, varian, dan deskripsi.</small>
                             </div>
                         </div>
                     </section>
@@ -201,6 +205,36 @@
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
     }
 
+    function stripHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html || '';
+        return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function getDescriptionContent() {
+        if (window.tinymce && tinymce.get('deskripsi')) return tinymce.get('deskripsi').getContent();
+        return document.querySelector('[name="deskripsi"]')?.value || '';
+    }
+
+    function syncPlainDescription(force = false) {
+        const plainField = document.querySelector('[name="deskripsi_nonhtml"]');
+        if (!plainField) return;
+        const plain = stripHtml(getDescriptionContent());
+        if (force || !plainField.dataset.touched || plainField.value.trim() === '') {
+            plainField.value = plain;
+        }
+    }
+
+    function generateSearchKeyword() {
+        const get = (name) => document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+        const sub = get('subkategori').replace(/-/g, ' ');
+        const kat = get('kategori').replace(/-/g, ' ');
+        const variants = get('varian').split(',').map(v => v.trim()).filter(Boolean).join(' ');
+        const descWords = stripHtml(getDescriptionContent()).split(' ').slice(0, 24).join(' ');
+        const keywords = `${get('nama')} ${kat} ${sub} ${variants} ${kat} minimalis ${kat} modern ${sub} elegan ${sub} simpel ${descWords}`.replace(/\s+/g, ' ').trim();
+        document.querySelector('[name="pencarian"]').value = keywords;
+    }
+
     function updateAdminProductPreview() {
         const get = (name) => document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
         const harga = Number(get('harga') || 0);
@@ -212,12 +246,33 @@
         document.getElementById('previewPrice').textContent = `${formatRupiah(finalPrice)}${diskon > 0 ? ' • Diskon ' + diskon + '%' : ''}`;
         document.getElementById('previewSpec').textContent = `${get('dimensi') || 'Dimensi'} cm • ${get('berat') || 'Berat'} kg`;
         document.getElementById('previewVariants').textContent = `Varian: ${get('varian') || '-'}`;
-        document.getElementById('previewDescription').innerHTML = get('deskripsi') || 'Preview deskripsi akan muncul di sini saat admin mengetik.';
+        document.getElementById('previewDescription').innerHTML = getDescriptionContent() || 'Preview deskripsi akan muncul di sini saat admin mengetik.';
     }
 
     document.querySelectorAll('.admin-product-form input, .admin-product-form textarea').forEach((field) => {
         field.addEventListener('input', updateAdminProductPreview);
         field.addEventListener('change', updateAdminProductPreview);
+    });
+    document.querySelector('[name="deskripsi_nonhtml"]').addEventListener('input', (e) => e.target.dataset.touched = 'true');
+    document.getElementById('generateSearchKeyword').addEventListener('click', generateSearchKeyword);
+    document.querySelector('.admin-product-form').addEventListener('submit', () => {
+        if (window.tinymce) tinymce.triggerSave();
+        syncPlainDescription(true);
+        if (!document.querySelector('[name="pencarian"]').value.trim()) generateSearchKeyword();
+    });
+
+    tinymce.init({
+        selector: '#deskripsi',
+        height: 320,
+        menubar: false,
+        plugins: ['link', 'lists', 'table', 'code'],
+        toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code',
+        setup: function(editor) {
+            editor.on('input change keyup setcontent', function() {
+                syncPlainDescription();
+                updateAdminProductPreview();
+            });
+        }
     });
 
     function syncImageInputs() {

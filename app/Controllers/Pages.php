@@ -6377,8 +6377,10 @@ class Pages extends BaseController
     }
     public function addProduct()
     {
+        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
         $data = [
-            'title' => 'Tambah Produk'
+            'title' => 'Tambah Produk',
+            'tinymce' => $tinymce_key
         ];
         return view('pages/addProduct', $data);
     }
@@ -6465,7 +6467,8 @@ class Pages extends BaseController
             'title'     => 'Edit Produk',
             'produk'    => $produk,
             'gambar'    => $gambar,
-            'varian'    => implode(',', $varian)
+            'varian'    => implode(',', $varian),
+            'tinymce'   => env('TINYMCE_KEY', 'DefaultValue')
         ];
         return view('pages/editProduct', $data);
     }

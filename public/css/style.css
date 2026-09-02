@@ -4237,6 +4237,17 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     min-width: 78px;
 }
 
+.admin-product-editor .tox-tinymce {
+    border-color: #dbe3ea;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-product-editor .tox .tox-toolbar,
+.admin-product-editor .tox .tox-toolbar__primary {
+    background: #f8fafc;
+}
+
 .admin-product-editor .admin-image-section .addProduct_Input,
 .admin-product-editor .admin-product-preview .addProduct_Input,
 .admin-product-editor .admin-image-section .addProduct_Preview,
