@@ -325,9 +325,8 @@ function closeModalVoucherAll(index) {
         </div>
     </div>
     <div class="container my-3">
-        <h5 class="jdl-section">Kategori</h5>
         <div class="d-flex justify-content-between align-items-center">
-            <h1 class="mb-1">Kategori Produk</h1>
+            <h5 class="jdl-section mb-1">Kategori</h5>
             <div class="gap-2 show-flex-ke-hide">
                 <div class="btn-primary1 btn-geser-kategori" id="kiri"
                     style="padding: 0.5em; border-radius: 1.5em; cursor: default;"><i
@@ -339,24 +338,10 @@ function closeModalVoucherAll(index) {
         </div>
         <div class="container-kategori-scroll" id="section-produk-populer">
             <div class="container-kategori">
-                <div class="kategori-wrap has-dropdown">
-                    <a class="kategori" href="/all">
-                        <img src="/img/logo icon.png" alt="Semua Kategori" width="50px">
-                        <p>Semua Kategori</p>
-                    </a>
-                    <button type="button" class="kategori-arrow" aria-label="Buka semua kategori" aria-expanded="false">
-                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
-                    </button>
-                    <div class="kategori-dropdown-menu">
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Dewasa</span></a>
-                        <a href="/all/lemari-anak"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Anak</span></a>
-                        <a href="/all/meja-rias"><i class="material-symbols-outlined">table_restaurant</i><span>Meja Rias</span></a>
-                        <a href="/all/meja-belajar"><i class="material-symbols-outlined">table_restaurant</i><span>Meja Belajar</span></a>
-                        <a href="/all/meja-tv"><i class="material-symbols-outlined">tv</i><span>Meja TV</span></a>
-                        <a href="/all/rak-serbaguna"><i class="material-symbols-outlined">shelves</i><span>Rak Serbaguna</span></a>
-                        <a href="/all/kursi"><i class="material-symbols-outlined">chair</i><span>Kursi</span></a>
-                    </div>
-                </div>
+                <a class="kategori" href="/all">
+                    <img src="/img/logo icon.png" alt="Semua Kategori" width="50px">
+                    <p>Semua Kategori</p>
+                </a>
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all/lemari-dewasa">
                         <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemari dewasa" width="50px">
@@ -545,40 +530,63 @@ btnGeserKategoriElm.forEach(btn => {
 })
 
 const kategoriDropdownWraps = document.querySelectorAll('.kategori-wrap.has-dropdown');
+
+function closeKategoriDropdowns(exceptWrap = null) {
+    kategoriDropdownWraps.forEach(wrap => {
+        if (wrap !== exceptWrap) {
+            wrap.classList.remove('show');
+            wrap.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
+        }
+    });
+}
+
+function positionKategoriDropdown(wrap) {
+    const menu = wrap.querySelector('.kategori-dropdown-menu');
+    const rect = wrap.getBoundingClientRect();
+    const gap = 6;
+    const menuWidth = menu.offsetWidth || 235;
+    const maxLeft = window.innerWidth - menuWidth - 12;
+    const left = Math.max(12, Math.min(rect.left, maxLeft));
+
+    menu.style.left = `${left}px`;
+    menu.style.top = `${rect.bottom + gap}px`;
+}
+
 kategoriDropdownWraps.forEach(wrap => {
     const toggle = wrap.querySelector('.kategori-arrow');
     toggle.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
 
-        kategoriDropdownWraps.forEach(item => {
-            if (item !== wrap) {
-                item.classList.remove('show');
-                item.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
-            }
-        });
+        const willOpen = !wrap.classList.contains('show');
+        closeKategoriDropdowns(wrap);
+        wrap.classList.toggle('show', willOpen);
+        toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 
-        const isOpen = wrap.classList.toggle('show');
-        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (willOpen) {
+            positionKategoriDropdown(wrap);
+        }
     });
 });
 
 document.addEventListener('click', (event) => {
-    if (!event.target.closest('.kategori-wrap')) {
-        kategoriDropdownWraps.forEach(wrap => {
-            wrap.classList.remove('show');
-            wrap.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
-        });
+    if (!event.target.closest('.kategori-wrap') && !event.target.closest('.kategori-dropdown-menu')) {
+        closeKategoriDropdowns();
     }
 });
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-        kategoriDropdownWraps.forEach(wrap => {
-            wrap.classList.remove('show');
-            wrap.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
-        });
+        closeKategoriDropdowns();
     }
+});
+
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.kategori-wrap.show').forEach(positionKategoriDropdown);
+});
+
+containeKategoriScrollElm?.addEventListener('scroll', () => {
+    document.querySelectorAll('.kategori-wrap.show').forEach(positionKategoriDropdown);
 });
 </script>
 <?= $this->endSection(); ?>

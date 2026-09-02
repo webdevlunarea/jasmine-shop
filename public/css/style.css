@@ -20,8 +20,8 @@ body {
     color: #1f2937;
     font-size: 15px;
     font-weight: 400;
-    line-height: 1.6;
-    letter-spacing: -0.01em;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
 }
 
 h1,
@@ -31,17 +31,17 @@ h4,
 h5,
 h6 {
     color: #111827;
-    font-weight: 800;
-    line-height: 1.18;
-    letter-spacing: -0.035em;
+    font-weight: 700;
+    line-height: 1.22;
+    letter-spacing: -0.02em;
 }
 
 h1 {
-    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    font-size: clamp(1.55rem, 2.6vw, 2.1rem);
 }
 
 h5 {
-    font-weight: 700;
+    font-weight: 600;
 }
 
 p {
@@ -274,9 +274,9 @@ a {
 .card1 h5 {
     color: #111827;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.35;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
 }
 .card1:hover div:has(.harga) {
     transform: translateX(10px);
@@ -289,8 +289,8 @@ a {
 .harga {
     color: var(--hijau);
     font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
+    font-weight: 700;
+    letter-spacing: -0.015em;
 }
 .card1 .diskon {
     background-color: var(--hijau);
@@ -406,9 +406,6 @@ a {
     overflow-x: scroll;
     /* padding-right: 10px; */
 }
-.container-kategori-scroll:has(.kategori-wrap.show) {
-    overflow: visible;
-}
 .container-kategori {
     display: flex;
     /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
@@ -457,6 +454,7 @@ a {
 .kategori p {
     text-align: center;
     line-height: 18px;
+    font-weight: 500;
 }
 .kategori-wrap {
     position: relative;
@@ -500,12 +498,12 @@ a {
     transform: rotate(180deg);
 }
 .kategori-dropdown-menu {
-    position: absolute;
+    position: fixed;
     left: 0;
-    top: calc(100% + 4px);
+    top: 0;
     width: 235px;
-    max-height: 345px;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -536,8 +534,8 @@ a {
     border-radius: 8px;
     color: #243b6b;
     font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     text-decoration: none;
     transition: background-color 0.18s, color 0.18s;
 }
@@ -1462,7 +1460,7 @@ footer > .atas > div {
         font-size: 15px;
     }
     .card1 .varian {
-        font-weight: bold;
+        font-weight: 600;
         font-size: 10px;
     }
     .card1 > div {
@@ -1586,7 +1584,7 @@ footer > .atas > div {
     }
     .kategori-dropdown-menu {
         width: 220px;
-        max-height: 300px;
+        max-height: none;
         padding: 10px;
     }
     .kategori span {
@@ -2418,5 +2416,299 @@ footer > .atas > div {
 
     .traffic-section {
         padding: 14px;
+    }
+}
+
+/* UI polish - storefront */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body:not(.admin-body) {
+    background: radial-gradient(circle at top left, rgba(36, 59, 107, 0.06), transparent 30vw), linear-gradient(180deg, #ffffff 0%, #fbfaf8 45%, #ffffff 100%);
+}
+
+.navbar,
+.navbar-hp {
+    width: 100%;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.navbar {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.navbar .navbar-brand img {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+}
+
+.navbar .nav-link {
+    color: #334155;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 8px 14px !important;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background: var(--hijaumuda);
+    color: var(--hijau);
+}
+
+.navbar .btn,
+.navbar-hp .btn {
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-box .input-group {
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.search-box .form-control,
+.search-box .btn {
+    border: 0;
+    box-shadow: none !important;
+}
+
+.search-box .form-control {
+    min-height: 42px;
+    padding-left: 16px;
+    font-size: 0.92rem;
+}
+
+.search-box .form-control::placeholder {
+    color: #94a3b8;
+}
+
+.btn-primary1,
+.btn-outline-dark,
+.btn-outline-danger,
+.btn-light,
+.btn-dark {
+    border-radius: 999px;
+    font-weight: 600;
+    transition: transform 0.18s, box-shadow 0.18s, background-color 0.18s, color 0.18s;
+}
+
+.btn-primary1 {
+    box-shadow: 0 10px 22px rgba(36, 59, 107, 0.18);
+}
+
+.btn-primary1:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(36, 59, 107, 0.16);
+}
+
+.carousel-inner {
+    overflow: hidden;
+    border-radius: 18px !important;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.1);
+}
+
+.jdl-section {
+    color: var(--hijau);
+    font-size: 0.96rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.jdl-section::before {
+    width: 6px;
+    height: 24px;
+    border-radius: 999px;
+}
+
+.container-kategori-scroll {
+    margin-top: 8px;
+    padding-bottom: 8px;
+    overflow-y: visible;
+    scroll-padding-inline: 8px;
+}
+
+.container-kategori {
+    gap: 10px;
+    padding: 2px 2px 8px;
+}
+
+.kategori {
+    min-height: 112px;
+    border: 1px solid #edf0f4;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    color: #1f2937;
+    padding: 14px 10px 10px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.kategori:hover {
+    transform: translateY(-2px);
+    border-color: rgba(36, 59, 107, 0.22);
+    background: #fff;
+    color: var(--hijau);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
+}
+
+.kategori img {
+    width: 54px;
+    height: 54px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.kategori p {
+    margin-bottom: 0;
+    color: inherit;
+    font-size: 0.86rem;
+    line-height: 1.25;
+}
+
+.kategori-arrow {
+    right: 8px;
+    top: 48px;
+    color: var(--hijau);
+    border-color: #e2e8f0;
+}
+
+.kategori-dropdown-menu {
+    border-radius: 16px;
+    border-color: #edf0f4;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.18);
+}
+
+.card-group1 {
+    gap: 18px;
+    padding-block: 14px 18px;
+}
+
+.card-group1::-webkit-scrollbar,
+.card1 .container-varian::-webkit-scrollbar {
+    display: none;
+}
+
+.card1 {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+.card1:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+}
+
+.card1 .img-card1,
+.card1 .img-card1-wm {
+    border-radius: 16px;
+}
+
+.card1:hover div:has(.harga) {
+    transform: none;
+}
+
+.card1 .container-varian {
+    scrollbar-width: none;
+}
+
+.card1 .varian {
+    background: #f3f5f8;
+    color: #64748b;
+}
+
+.card1 .diskon,
+.card1 .diskon-bwh,
+.card1 .terjual-badge {
+    border-radius: 999px;
+}
+
+.container-kategori-sticky {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    .navbar-hp {
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .search-box .form-control {
+        min-height: 40px;
+        font-size: 0.88rem;
+    }
+
+    .carousel-inner {
+        border-radius: 14px !important;
+    }
+
+    .container-kategori {
+        gap: 8px;
+    }
+
+    .kategori {
+        min-height: 86px;
+        border-radius: 14px;
+        padding: 8px 6px 7px;
+    }
+
+    .kategori img {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+
+    .kategori p {
+        font-size: 10.5px;
+        line-height: 1.15;
+    }
+
+    .kategori-arrow {
+        top: 35px;
+        right: 1px;
+    }
+
+    .card1 {
+        padding: 8px;
+        border-radius: 16px;
+    }
+
+    .card1 h5 {
+        font-size: 0.9rem;
+    }
+
+    .harga {
+        font-size: 0.92rem;
     }
 }

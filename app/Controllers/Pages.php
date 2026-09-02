@@ -154,7 +154,17 @@ class Pages extends BaseController
     public function kirimPesanEmail($email_cus, $subject, $isi)
     {
         $email = \Config\Services::email();
-        $email->setFrom('no-reply@lunareafurniture.com', 'Lunarea Furniture');
+        $emailConfig = config('Email');
+        $fromEmail = $emailConfig->SMTPUser ?: 'lunareailena@gmail.com';
+
+        if (!filter_var($email_cus, FILTER_VALIDATE_EMAIL)) {
+            log_message('warning', 'Email tidak valid: {email}', ['email' => $email_cus]);
+            return false;
+        }
+
+        $email->clear(true);
+        $email->setFrom($fromEmail, 'Lunarea Furniture');
+        $email->setReplyTo('info@lunareafurniture.com', 'Customer Care Lunarea Furniture');
         $email->setTo($email_cus);
         $email->setSubject($subject);
         $template = '
@@ -366,7 +376,17 @@ class Pages extends BaseController
         </table>
         ';
         $email->setMessage($template);
-        $email->send();
+        $email->setAltMessage(trim(preg_replace('/\s+/', ' ', strip_tags($isi))) . "\n\nLunarea Furniture\nhttps://lunareafurniture.com");
+
+        if (!$email->send(false)) {
+            log_message('error', 'Gagal mengirim email ke {email}. Debug: {debug}', [
+                'email' => $email_cus,
+                'debug' => $email->printDebugger(['headers'])
+            ]);
+            return false;
+        }
+
+        return true;
     }
     public function index()
     {
