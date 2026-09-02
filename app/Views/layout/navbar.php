@@ -130,89 +130,100 @@ if ($isAdminNav) {
     </div>
 </div>
 <nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
-    <div class="container d-flex">
-        <form class="d-flex flex-grow-1 search-box" role="search">
+    <div class="container mobile-navbar-main">
+        <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
+            <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
+        </a>
+        <div class="mobile-navbar-actions">
+            <?php if (session()->get('isLogin')) { ?>
+                <?php if (session()->get('role') == 0) { ?>
+                    <a href="/wishlist" class="btn position-relative" aria-label="Wishlist">
+                        <i class="material-icons">favorite_border</i>
+                        <?php if ($title != 'Wishlist') { ?>
+                            <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                        <?php } ?>
+                    </a>
+                    <a href="/cart" class="btn position-relative" aria-label="Keranjang">
+                        <i class="material-icons">shopping_cart</i>
+                        <?php if ($title != 'Keranjang') { ?>
+                            <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                        <?php } ?>
+                    </a>
+                    <?php if (session()->get('email') == 'tamu') { ?>
+                        <a href="/keluar" class="btn" aria-label="Keluar"><i class="material-icons">exit_to_app</i></a>
+                    <?php } else { ?>
+                        <input type="checkbox" id="akun-icon" class="d-none">
+                        <label for="akun-icon" class="btn" aria-label="Menu akun"><i class="material-icons">person_outline</i></label>
+                    <?php } ?>
+                <?php } else { ?>
+                    <div class="mobile-admin-menu-wrap">
+                        <input type="checkbox" id="menu-icon-admin" class="d-none">
+                        <label for="menu-icon-admin" class="btn" aria-label="Menu admin"><i class="material-icons">menu</i></label>
+                        <div class="menu-hp-navbar-admin p-3">
+                            <a href="/invoiceadmin">Invoice Admin</a>
+                            <a href="/listbanner">Banner</a>
+                            <a href="/listvoucher">List Voucher</a>
+                            <a href="/listcustomer">List Customer</a>
+                            <a href="/listproduct">List Products</a>
+                            <a href="/article">Artikel</a>
+                            <a href="/manageratingterjual">Rating &amp; Terjual</a>
+                            <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>
+                            <a href="/keluar" class="btn btn-outline-danger">Keluar</a>
+                        </div>
+                    </div>
+                <?php } ?>
+            <?php } else { ?>
+                <a href="/login" class="btn" aria-label="Login"><i class="material-icons">person_outline</i></a>
+            <?php } ?>
+        </div>
+    </div>
+    <div class="container mobile-search-container">
+        <form class="d-flex w-100 search-box" role="search">
             <div class="input-group">
-                <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+                <input required type="text" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Search" aria-describedby="button-addon2">
                 <button class="btn btn-dark" type="submit"><i id="btn-search" class="material-icons">search</i></button>
             </div>
         </form>
-        <?php if (session()->get('isLogin')) { ?>
-            <?php if (session()->get('role') == 0) { ?>
-                <a href="/wishlist" class="btn position-relative">
-                    <i class="material-icons">favorite_border</i>
-                    <?php if ($title != 'Wishlist') { ?>
-                        <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
-                    <?php } ?>
-                </a>
-                <a href="/cart" class="btn position-relative">
-                    <i class="material-icons">shopping_cart</i>
-                    <?php if ($title != 'Keranjang') { ?>
-                        <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
-                    <?php } ?>
-                </a>
-                <?php if (session()->get('email') == 'tamu') { ?>
-                    <a href="/keluar" class="btn" style="padding-right: 0"><i class="material-icons">exit_to_app</i></a>
-                <?php } else { ?>
-                    <input type="checkbox" id="akun-icon" class="d-none">
-                    <label for="akun-icon" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></label>
-                    <div class="menu-hp-navbar">
-                        <div class="container py-3" style="background-color: white;">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account">Profileku</a></li>
-                                <?php if (session()->get('role') == '0') { ?>
-                                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction">Transaksi</a></li>
-                                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point">Luna poin</a></li>
-                                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher">Voucher</a></li>
-                                <?php } ?>
-                                <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <script>
-                        const menuHpNavbarElm = document.querySelector('.menu-hp-navbar');
-                        const akunIconElm = document.getElementById('akun-icon')
-                        menuHpNavbarElm.addEventListener('click', (e) => {
-                            console.log('ini backgroundnnya')
-                            akunIconElm.checked = false
-                        })
-                        menuHpNavbarElm.children[0].addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            console.log('ini anaknya')
-                        })
-                    </script>
-                <?php } ?>
-            <?php } else { ?>
-                <div>
-                    <input type="checkbox" id="menu-icon-admin" class="d-none">
-                    <label for="menu-icon-admin" class="btn pe-0"><i class="material-icons">menu</i></label>
-                    <div class="menu-hp-navbar-admin p-3">
-                        <a href="/invoiceadmin">Invoice Admin</a>
-                        <a href="/listbanner">Banner</a>
-                        <a href="/listvoucher">List Voucher</a>
-                        <a href="/listcustomer">List Customer</a>
-                        <a href="/listproduct">List Products</a>
-                        <a href="/article">Artikel</a>
-                        <a href="/manageratingterjual">Rating &amp; Terjual</a>
-                        <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>
-
-                        <a href="/keluar" class="btn btn-outline-danger">Keluar</a>
-                    </div>
-                </div>
-            <?php } ?>
-        <?php } else { ?>
-            <a href="/login" class="btn" style="padding-right: 0"><i class="material-icons">person_outline</i></a>
-        <?php } ?>
     </div>
-    <div class="container pt-1">
-        <div class="d-flex mt-1" style="gap: 1px; background-color: rgba(255, 255, 255, 0.5)">
-            <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">Beranda</a>
-            <a style="font-size: smaller; background-color: var(--hijau) " class="nav-link flex-grow-1 text-center <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">Artikel</a>
-            <a style="font-size: smaller; background-color: var(--hijau)" class="nav-link flex-grow-1 text-center <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">Produk</a>
+    <?php if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('email') != 'tamu') { ?>
+        <div class="menu-hp-navbar">
+            <div class="container py-3" style="background-color: white;">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account">Profileku</a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction">Transaksi</a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point">Luna poin</a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher">Voucher</a></li>
+                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
+        <script>
+            const menuHpNavbarElm = document.querySelector('.menu-hp-navbar');
+            const akunIconElm = document.getElementById('akun-icon')
+            menuHpNavbarElm.addEventListener('click', (e) => {
+                akunIconElm.checked = false
+            })
+            menuHpNavbarElm.children[0].addEventListener('click', (e) => {
+                e.stopPropagation();
+            })
+        </script>
+    <?php } ?>
 </nav>
-<div style="height: 107px" class="hide-ke-show-block"></div>
+<nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
+    <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
+        <i class="material-icons">home</i>
+        <span>Beranda</span>
+    </a>
+    <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">
+        <i class="material-icons">category</i>
+        <span>Produk</span>
+    </a>
+    <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">
+        <i class="material-icons">article</i>
+        <span>Artikel</span>
+    </a>
+</nav>
+<div style="height: 94px" class="hide-ke-show-block"></div>
 
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
