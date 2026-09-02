@@ -213,15 +213,21 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <div class="toast start-50 translate-middle">
-        <div class="toast-body">
-            <p>Hello, world! This is a toast message.</p>
-            <div class="mt-2 pt-2 border-top d-flex gap-1">
-                <!-- <a type="button">Ok</a> -->
+    <div class="toast confirm-dialog start-50 translate-middle" role="dialog" aria-modal="true" aria-live="polite">
+        <div class="toast-body confirm-dialog__body">
+            <div class="confirm-dialog__icon">
+                <i class="material-icons">help_outline</i>
+            </div>
+            <div class="confirm-dialog__content">
+                <p class="confirm-dialog__eyebrow">Konfirmasi</p>
+                <h5>Apakah Anda yakin?</h5>
+                <p class="confirm-dialog__message">Hello, world! This is a toast message.</p>
+            </div>
+            <div class="confirm-dialog__actions">
+                <button type="button" class="btn btn-light confirm-dialog__cancel" onclick="hapusToast()">Batal</button>
                 <form action="" method="post">
-                    <button type="submit" class="btn btn-danger btn-sm">Ok</button>
+                    <button type="submit" class="btn btn-primary1 confirm-dialog__ok">Lanjutkan</button>
                 </form>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="hapusToast()">Batal</button>
             </div>
         </div>
     </div>
@@ -338,18 +344,27 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?php } ?>
 
     const toastElm = document.querySelector(".toast")
-    const toastTeksElm = document.querySelector(".toast p")
-    const toastOkElm = document.querySelector(".toast form")
-    const toastCloseElm = document.querySelectorAll(".toast button")
+    const toastTeksElm = document.querySelector(".confirm-dialog__message")
+    const toastTitleElm = document.querySelector(".confirm-dialog__content h5")
+    const toastOkElm = document.querySelector(".confirm-dialog form")
+    const toastOkBtnElm = document.querySelector(".confirm-dialog__ok")
+    const toastCancelBtnElm = document.querySelector(".confirm-dialog__cancel")
 
     function triggerToast(text, linkAction) {
         toastElm.classList.add("show")
+        toastTitleElm.innerHTML = 'Konfirmasi tindakan'
         toastTeksElm.innerHTML = text
         toastOkElm.action = linkAction
         if (!linkAction) {
             toastOkElm.classList.add('d-none');
             toastOkElm.setAttribute('disabled', '');
-            toastCloseElm[1].innerHTML = 'Ok';
+            toastTitleElm.innerHTML = 'Informasi'
+            toastCancelBtnElm.innerHTML = 'Ok';
+        } else {
+            toastOkElm.classList.remove('d-none');
+            toastOkElm.removeAttribute('disabled');
+            toastOkBtnElm.innerHTML = 'Lanjutkan';
+            toastCancelBtnElm.innerHTML = 'Batal';
         }
     }
 
