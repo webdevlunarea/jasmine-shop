@@ -3651,15 +3651,12 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 .mobile-navbar-main,
 .mobile-search-container,
 .mobile-navbar-actions,
-.mobile-bottom-nav {
+.mobile-bottom-nav,
+.mobile-bottom-nav-spacer {
     display: none;
 }
 
 @media (max-width: 600px) {
-    body:not(.admin-body) {
-        padding-bottom: calc(74px + env(safe-area-inset-bottom));
-    }
-
     .navbar-hp {
         top: 20px;
         padding: 8px 0 10px !important;
@@ -3809,6 +3806,11 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
         transform: translateY(1px) scale(0.98);
     }
 
+    .mobile-bottom-nav-spacer.hide-ke-show-block {
+        display: block;
+        height: calc(84px + env(safe-area-inset-bottom));
+    }
+
     .menu-hp-navbar {
         top: 78px !important;
         background: rgba(15, 23, 42, 0.28) !important;
@@ -3849,7 +3851,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     }
 
     .product-detail-info .hide-ke-show-flex {
-        bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+        bottom: 0 !important;
         z-index: 13 !important;
         border-radius: 20px 20px 0 0;
     }

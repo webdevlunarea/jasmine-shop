@@ -3,6 +3,7 @@ $notif = [
     'wishlist' => session()->getFlashdata('notif-wishlist'),
     'cart' => session()->getFlashdata('notif-cart'),
 ];
+$showMobileBottomNav = in_array($title, ['Beranda', 'Semua Produk', 'Artikel']);
 $isAdminNav = session()->get('role') == '1';
 if ($isAdminNav) {
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
@@ -209,20 +210,23 @@ if ($isAdminNav) {
         </script>
     <?php } ?>
 </nav>
-<nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
-    <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
-        <i class="material-icons">home</i>
-        <span>Beranda</span>
-    </a>
-    <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">
-        <i class="material-icons">category</i>
-        <span>Produk</span>
-    </a>
-    <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">
-        <i class="material-icons">article</i>
-        <span>Artikel</span>
-    </a>
-</nav>
+<?php if ($showMobileBottomNav) { ?>
+    <nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
+        <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
+            <i class="material-icons">home</i>
+            <span>Beranda</span>
+        </a>
+        <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">
+            <i class="material-icons">category</i>
+            <span>Produk</span>
+        </a>
+        <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">
+            <i class="material-icons">article</i>
+            <span>Artikel</span>
+        </a>
+    </nav>
+    <div class="mobile-bottom-nav-spacer hide-ke-show-block"></div>
+<?php } ?>
 <div style="height: 94px" class="hide-ke-show-block"></div>
 
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
