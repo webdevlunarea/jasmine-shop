@@ -1,74 +1,96 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
-<div class="konten">
-    <div class="container mb-3">
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+<div class="konten about-page">
+    <div class="container">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">tentang</li>
+                <li class="breadcrumb-item active" aria-current="page">Tentang Lunarea</li>
             </ol>
         </nav>
-        <h1>
-            Sejarah Perusahaan
-        </h1>
-        <h5 class="mb-5">Lunarea Furniture</h5>
-        <div class="baris-ke-kolom-reverse align-items-center justify-content-between">
-            <div style="height: fit-content; flex: 2;">
-                <p>
-                    Lunarea furniture hadir sejak tahun 1989 sebagai produsen sekaligus distributor aneka perabotan rumah yang berpengalaman. Selama lebih dari tiga puluhan tahun yang lalu hingga sekarang, Lunarea Furniture dengan konsisten memproduksi perabotan mulai dari meja, kursi, lemari dan rak dengan kualitas terbaik yang terbuat dari material terbaik yang dikerjakan secara professional oleh tim terbaik kami.
+
+        <section class="about-hero">
+            <div class="about-hero__content">
+                <p class="about-eyebrow">Tentang kami</p>
+                <h1>Furniture keluarga Indonesia sejak 1989.</h1>
+                <p class="about-lead">
+                    Lunarea Furniture hadir sebagai produsen sekaligus distributor perabot rumah yang berpengalaman,
+                    menghadirkan produk fungsional, stylish, dan mudah dijangkau untuk berbagai kebutuhan rumah.
                 </p>
-                <p>
-                    Saat ini kami telah memiliki ratusan distributor dan toko ternama, yang tersebar di seluruh penjuru kota di Indonesia.
-                </p>
-                <p>
-                    Untuk semakin memudahkan aktivitas belanja konsumen, kami melakukan pengembangan dan hadir di berbagai platform marketplace ternama di Indonesia.
-                </p>
-                <p>
-                    Temukan produk furniture kebutuhan Anda dengan harga terbaik dan desain stylish masa kini, di toko terdekat Anda bersama dengan Lunarea furniture.
-                </p>
-                <p class="fw-bold" style="color: var(--hijau)">
-                    <i>Lunarea furniture, always your choice, always your furniture</i>
-                </p>
-            </div>
-            <div class="show-ke-hide align-items-center justify-content-end" style="height: 350px; flex: 1;">
-                <div style="
-                        height: 100%;
-                        width: 100%;
-                        display: grid;
-                        gap: 1em;
-                        grid-template-areas: 'gmbr1 gmbr3' 'gmbr2 gmbr3' 'gmbr2 gmbr4';
-                    ">
-                    <div style="
-                            grid-area: gmbr1;
-                            border-radius: 1em;
-                            overflow: hidden;
-                        ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp3.webp" />
-                    </div>
-                    <div style="
-                            grid-area: gmbr2;
-                            border-radius: 1em;
-                            overflow: hidden;
-                        ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp1.webp" />
-                    </div>
-                    <div style="
-                            grid-area: gmbr3;
-                            border-radius: 1em;
-                            overflow: hidden;
-                        ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp2.webp" />
-                    </div>
-                    <div style="
-                            grid-area: gmbr4;
-                            border-radius: 1em;
-                            overflow: hidden;
-                        ">
-                        <img style="height: 100%; width: 100%; object-fit: cover" src="/img/header/header_comp4.webp" />
-                    </div>
+                <div class="about-actions">
+                    <a href="/all" class="btn btn-primary1">Lihat Produk</a>
+                    <a href="/form" class="btn btn-outline-dark">Hubungi Kami</a>
                 </div>
             </div>
-        </div>
+            <div class="about-hero__visual">
+                <div class="about-gallery">
+                    <img src="/img/header/header_comp3.webp" alt="Produk Lunarea Furniture">
+                    <img src="/img/header/header_comp1.webp" alt="Furniture rumah Lunarea">
+                    <img src="/img/header/header_comp2.webp" alt="Lemari dan rak Lunarea">
+                    <img src="/img/header/header_comp4.webp" alt="Meja dan kursi Lunarea">
+                </div>
+            </div>
+        </section>
+
+        <section class="about-stats">
+            <div>
+                <strong>1989</strong>
+                <span>Mulai hadir</span>
+            </div>
+            <div>
+                <strong>30+</strong>
+                <span>Tahun pengalaman</span>
+            </div>
+            <div>
+                <strong>100+</strong>
+                <span>Distributor & toko</span>
+            </div>
+        </section>
+
+        <section class="about-story">
+            <div>
+                <p class="about-eyebrow">Sejarah perusahaan</p>
+                <h2>Lunarea Furniture</h2>
+            </div>
+            <div class="about-story__text">
+                <p>
+                    Lunarea Furniture hadir sejak tahun 1989 sebagai produsen sekaligus distributor aneka perabotan
+                    rumah yang berpengalaman. Selama lebih dari tiga puluh tahun, Lunarea konsisten memproduksi
+                    perabotan mulai dari meja, kursi, lemari, dan rak dengan kualitas terbaik.
+                </p>
+                <p>
+                    Produk kami dibuat dari material pilihan dan dikerjakan oleh tim yang berpengalaman. Saat ini,
+                    Lunarea telah memiliki ratusan distributor dan toko ternama yang tersebar di berbagai kota di
+                    Indonesia.
+                </p>
+                <p>
+                    Untuk semakin memudahkan aktivitas belanja konsumen, Lunarea juga hadir di berbagai platform
+                    marketplace ternama di Indonesia.
+                </p>
+            </div>
+        </section>
+
+        <section class="about-values">
+            <div class="about-value">
+                <i class="material-icons">verified</i>
+                <h5>Kualitas terjaga</h5>
+                <p>Produk dibuat dengan standar material dan proses produksi yang konsisten.</p>
+            </div>
+            <div class="about-value">
+                <i class="material-icons">home_work</i>
+                <h5>Desain fungsional</h5>
+                <p>Furniture dirancang untuk kebutuhan rumah modern yang praktis dan nyaman.</p>
+            </div>
+            <div class="about-value">
+                <i class="material-icons">local_shipping</i>
+                <h5>Mudah dijangkau</h5>
+                <p>Tersedia melalui toko, distributor, dan marketplace agar lebih mudah ditemukan.</p>
+            </div>
+        </section>
+
+        <section class="about-quote">
+            <p>“Lunarea furniture, always your choice, always your furniture.”</p>
+        </section>
     </div>
 </div>
 <?= $this->endSection(); ?>
