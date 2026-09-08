@@ -1228,8 +1228,9 @@ a {
     left: 0;
     top: 0;
     width: 235px;
-    max-height: none;
-    overflow: visible;
+    max-height: calc(100dvh - 120px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -2671,6 +2672,11 @@ footer > .atas > div {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+body.kategori-dropdown-open {
+    overflow: hidden;
     overscroll-behavior: contain;
 }
 

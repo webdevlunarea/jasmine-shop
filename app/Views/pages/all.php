@@ -1031,9 +1031,12 @@ function positionKategoriDropdown(wrap) {
     const menuWidth = menu.offsetWidth || 235;
     const maxLeft = window.innerWidth - menuWidth - 12;
     const left = Math.max(12, Math.min(rect.left, maxLeft));
+    const top = rect.bottom + gap;
+    const maxHeight = Math.max(120, window.innerHeight - top - 12);
 
     menu.style.left = `${left}px`;
-    menu.style.top = `${rect.bottom + gap}px`;
+    menu.style.top = `${top}px`;
+    menu.style.maxHeight = `${maxHeight}px`;
 }
 
 kategoriDropdownWraps.forEach(wrap => {
@@ -1082,6 +1085,16 @@ containeKategoriScrollElm?.addEventListener('touchmove', (event) => {
         event.preventDefault();
     }
 }, { passive: false });
+
+
+function preventPageScrollWhenKategoriOpen(event) {
+    if (!document.body.classList.contains('kategori-dropdown-open')) return;
+    if (event.target.closest('.kategori-dropdown-menu')) return;
+    event.preventDefault();
+}
+
+document.addEventListener('wheel', preventPageScrollWhenKategoriOpen, { passive: false, capture: true });
+document.addEventListener('touchmove', preventPageScrollWhenKategoriOpen, { passive: false, capture: true });
 
 containeKategoriScrollElm?.addEventListener('scroll', () => {
     if (document.body.classList.contains('kategori-dropdown-open')) {
