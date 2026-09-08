@@ -134,6 +134,7 @@ if ($isAdminNav) {
     <div class="container mobile-navbar-main">
         <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
             <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
+            <span class="mobile-navbar-brand-letter" aria-hidden="true">N</span>
         </a>
         <div class="mobile-navbar-actions">
             <?php if (session()->get('isLogin')) { ?>
@@ -188,13 +189,13 @@ if ($isAdminNav) {
     </div>
     <?php if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('email') != 'tamu') { ?>
         <div class="menu-hp-navbar">
-            <div class="container py-3" style="background-color: white;">
+            <div class="container py-3 menu-account-panel" style="background-color: white;">
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account">Profileku</a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction">Transaksi</a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point">Luna poin</a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher">Voucher</a></li>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar">Keluar</a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account"><i class="material-icons">person_outline</i><span>Profileku</span></a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction"><i class="material-icons">receipt_long</i><span>Transaksi</span></a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point"><i class="material-icons">stars</i><span>Luna poin</span></a></li>
+                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher"><i class="material-icons">confirmation_number</i><span>Voucher</span></a></li>
+                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar"><i class="material-icons">logout</i><span>Keluar</span></a></li>
                 </ul>
             </div>
         </div>
