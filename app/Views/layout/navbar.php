@@ -133,8 +133,8 @@ if ($isAdminNav) {
 <nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
     <div class="container mobile-navbar-main">
         <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
-            <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
-            <span class="mobile-navbar-brand-letter" aria-hidden="true">N</span>
+            <img class="mobile-navbar-brand-full" src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
+            <img class="mobile-navbar-brand-mark" src="<?= base_url('/img/logo icon.png'); ?>" alt="Lunarea">
         </a>
         <div class="mobile-navbar-actions">
             <?php if (session()->get('isLogin')) { ?>

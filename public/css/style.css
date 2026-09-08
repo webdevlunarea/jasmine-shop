@@ -4481,23 +4481,19 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
         text-decoration: none;
     }
 
-    .mobile-navbar-brand img {
+    .mobile-navbar-brand-full {
         display: none;
     }
 
-    .mobile-navbar-brand-letter {
+    .mobile-navbar-brand-mark {
         width: 36px;
         height: 36px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        display: block;
+        object-fit: contain;
         border-radius: 12px;
-        background: linear-gradient(135deg, var(--hijau), #2d7e33);
-        color: #fff;
-        font-size: 1.18rem;
-        font-weight: 800;
-        letter-spacing: -0.04em;
-        box-shadow: 0 8px 18px rgba(45, 126, 51, 0.22);
+        background: #fff;
+        padding: 4px;
+        box-shadow: 0 8px 18px rgba(45, 126, 51, 0.18);
     }
 
     .mobile-navbar-actions {
