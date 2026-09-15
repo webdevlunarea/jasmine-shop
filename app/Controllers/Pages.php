@@ -453,6 +453,68 @@ class Pages extends BaseController
         return in_array((string)($order['email_cus'] ?? ''), $this->emailUjiCoba, true);
     }
 
+    private function syncOrderToLunaSistem(array $order): void
+    {
+        $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
+        $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
+
+        if ($url === '' || $token === '') {
+            log_message('warning', 'Sinkron order ke Luna Sistem dilewati: env LUNA_SYSTEM_WEB_ORDER_URL / LUNA_SYSTEM_WEB_ORDER_TOKEN belum diisi.');
+            return;
+        }
+
+        $items = json_decode($order['items'] ?? '[]', true);
+        if (!is_array($items)) $items = [];
+
+        $dataMid = json_decode($order['data_mid'] ?? '[]', true);
+        if (!is_array($dataMid)) $dataMid = [];
+
+        $payload = [
+            'order_id' => (string)($order['id_midtrans'] ?? ''),
+            'status' => (string)($order['status'] ?? ''),
+            'email_cus' => (string)($order['email_cus'] ?? ''),
+            'nama_pen' => (string)($order['nama_pen'] ?? ''),
+            'hp_pen' => (string)($order['hp_pen'] ?? ''),
+            'alamat_pen' => $order['alamat_pen'] ?? '',
+            'kurir' => (string)($order['kurir'] ?? ''),
+            'note' => (string)($order['note'] ?? ''),
+            'items' => $items,
+            'data_mid' => $dataMid,
+            'transaction_time' => $dataMid['transaction_time'] ?? date('Y-m-d H:i:s'),
+        ];
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'X-Luna-Webhook-Token: ' . $token,
+            ],
+            CURLOPT_TIMEOUT => 20,
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($err || $httpCode < 200 || $httpCode >= 300) {
+            log_message('error', 'Sinkron order {order} ke Luna Sistem gagal. HTTP {code}. Error: {err}. Response: {response}', [
+                'order' => $payload['order_id'],
+                'code' => $httpCode,
+                'err' => $err,
+                'response' => (string)$response,
+            ]);
+            return;
+        }
+
+        log_message('info', 'Sinkron order {order} ke Luna Sistem berhasil.', ['order' => $payload['order_id']]);
+    }
+
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
@@ -4272,6 +4334,9 @@ class Pages extends BaseController
                     }
                 }
                 $this->broadcastOrderUpdate($order_id);
+                if (!$isSandboxOrder && $status == 'Proses' && $dataTransaksiFulDariDatabase) {
+                    $this->syncOrderToLunaSistem($dataTransaksiFulDariDatabase);
+                }
             } else {
                 // $this->pemesananModel->insert([
                 //     'email_cus' => $customField['e'],
