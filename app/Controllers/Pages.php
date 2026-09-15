@@ -388,6 +388,66 @@ class Pages extends BaseController
 
         return true;
     }
+
+    private function kirimEmailStatusPembayaran(array $order, string $status)
+    {
+        $emailCus = (string)($order['email_cus'] ?? '');
+        if (!filter_var($emailCus, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        $orderId = (string)($order['id_midtrans'] ?? '');
+        $nama = (string)($order['nama_pen'] ?? 'Customer');
+        $subjectStatus = $status === 'Proses' ? 'Pembayaran Berhasil' : 'Status Pembayaran ' . $status;
+
+        if ($status === 'Proses') {
+            $pesan = 'Pembayaran kamu sudah berhasil kami terima. Pesanan akan segera kami proses.';
+        } elseif ($status === 'Menunggu Pembayaran') {
+            $pesan = 'Pesanan kamu sudah dibuat dan sedang menunggu pembayaran.';
+        } elseif (in_array($status, ['Kadaluarsa', 'Ditolak', 'Gagal', 'Dibatalkan'], true)) {
+            $pesan = 'Pembayaran pesanan kamu berstatus ' . strtolower($status) . '. Silakan cek halaman pesanan untuk detailnya.';
+        } else {
+            $pesan = 'Status pembayaran pesanan kamu telah berubah menjadi ' . $status . '.';
+        }
+
+        return $this->kirimPesanEmail($emailCus, 'Lunarea Store - ' . $subjectStatus . ' #' . $orderId, '
+            <div style="font-family:Arial,sans-serif;color:#222;line-height:1.6">
+                <h2>Halo ' . esc($nama) . ',</h2>
+                <p>' . esc($pesan) . '</p>
+                <p><b>Kode Pesanan:</b> ' . esc($orderId) . '</p>
+                <p><b>Status:</b> ' . esc($status) . '</p>
+                <p><a href="https://lunareafurniture.com/order/' . rawurlencode($orderId) . '">Lihat detail pesanan</a></p>
+                <p>Terima kasih sudah berbelanja di Lunarea Furniture.</p>
+            </div>
+        ');
+    }
+
+    private function kirimEmailAdminStatusPembayaran(array $order, string $status)
+    {
+        $adminEmail = (string)env('ORDER_ADMIN_EMAIL', 'info@lunareafurniture.com');
+        if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        $orderId = (string)($order['id_midtrans'] ?? '');
+        $nama = (string)($order['nama_pen'] ?? '-');
+        $emailCus = (string)($order['email_cus'] ?? '-');
+        $total = number_format((float)($order['total'] ?? 0), 0, ',', '.');
+
+        return $this->kirimPesanEmail($adminEmail, 'Admin Lunarea - Update Pembayaran #' . $orderId, '
+            <div style="font-family:Arial,sans-serif;color:#222;line-height:1.6">
+                <h2>Update pembayaran masuk</h2>
+                <p>Midtrans mengirim perubahan status pembayaran untuk pesanan berikut:</p>
+                <p><b>Kode Pesanan:</b> ' . esc($orderId) . '</p>
+                <p><b>Status:</b> ' . esc($status) . '</p>
+                <p><b>Customer:</b> ' . esc($nama) . '</p>
+                <p><b>Email Customer:</b> ' . esc($emailCus) . '</p>
+                <p><b>Total:</b> Rp ' . esc($total) . '</p>
+                <p><a href="https://lunareafurniture.com/order/' . rawurlencode($orderId) . '">Buka detail pesanan</a></p>
+            </div>
+        ');
+    }
+
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
@@ -4012,6 +4072,7 @@ class Pages extends BaseController
         if ($order_id_first_char == 'L') {
             $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
             if (isset($dataTransaksi_curr)) {
+                $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
                 $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
                 $dataMid_curr['transaction_status'] = $body['transaction_status'];
                 $this->pemesananModel->where('id_midtrans', $order_id)->set([
@@ -4020,6 +4081,10 @@ class Pages extends BaseController
                 ])->update();
 
                 $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+                if ($dataTransaksiFulDariDatabase && $status !== $oldStatus) {
+                    $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+                    $this->kirimEmailAdminStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+                }
                 if ($status == 'Proses') {
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
                         $this->voucherClaimedModel->where([
