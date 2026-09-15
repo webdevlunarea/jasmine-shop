@@ -78,6 +78,7 @@ $routes->post('/retur/order/(:any)', 'Pages::actionReturOrder/$1', ['filter' => 
 // $routes->post('/addtransaction', 'Pages::addTransaction');
 // $routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
 $routes->post('/updatetransaction', 'Pages::updateTransaction');
+$routes->post('/integrations/luna-return-status', 'Pages::updateReturStatusFromLuna');
 
 // $routes->get('/finish_urlMid/(:any)/(:any)', 'Pages::finishUrlMid/$1/$2');
 // $routes->get('/finish_url/(:any)', 'Pages::finishUrl/$1');

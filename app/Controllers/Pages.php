@@ -589,6 +589,75 @@ class Pages extends BaseController
         ];
     }
 
+    private function kirimWaRetur($target, $message): void
+    {
+        $tokenWa = (string)env('TOKEN_FONNTE', '');
+        $target = preg_replace('/\D+/', '', (string)$target);
+        if ($tokenWa === '' || $target === '') return;
+        if (strpos($target, '0') === 0) $target = '62' . substr($target, 1);
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => [
+                'target' => $target,
+                'message' => $message,
+            ],
+            CURLOPT_HTTPHEADER => ['Authorization: ' . $tokenWa],
+            CURLOPT_TIMEOUT => 15,
+        ]);
+        curl_exec($curl);
+        curl_close($curl);
+    }
+
+    public function updateReturStatusFromLuna()
+    {
+        $token = (string)($this->request->getHeaderLine('X-Luna-Webhook-Token') ?: $this->request->getHeaderLine('X-Webhook-Token'));
+        $expectedToken = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
+        if ($expectedToken === '' || $token !== $expectedToken) {
+            return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Invalid token']);
+        }
+
+        $body = json_decode($this->request->getBody(), true);
+        if (!is_array($body)) $body = [];
+        $orderId = trim((string)($body['order_id'] ?? ''));
+        $returnNumber = trim((string)($body['return_number'] ?? ''));
+        $status = trim((string)($body['status'] ?? ''));
+        $statusLabel = trim((string)($body['status_label'] ?? $status));
+        $note = trim((string)($body['note'] ?? ''));
+
+        if ($orderId === '' || $status === '') {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Payload status retur tidak lengkap']);
+        }
+
+        $order = $this->pemesananModel->getPemesanan($orderId);
+        $return = $this->returPengajuanModel
+            ->where('id_midtrans', $orderId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($return) {
+            $this->returPengajuanModel->update($return['id'], [
+                'status' => $statusLabel,
+                'luna_response' => json_encode($body),
+            ]);
+        }
+
+        if ($order) {
+            $emailBody = '<p>Halo ' . esc($order['nama_pen']) . ',</p>'
+                . '<p>Status retur untuk pesanan <b>' . esc($orderId) . '</b> sudah diperbarui.</p>'
+                . '<p><b>No Retur:</b> ' . esc($returnNumber ?: '-') . '<br><b>Status:</b> ' . esc($statusLabel) . '</p>'
+                . ($note ? '<p><b>Catatan:</b> ' . esc($note) . '</p>' : '')
+                . '<p>Silakan cek halaman transaksi untuk memantau prosesnya.</p>';
+            $this->kirimPesanEmail((string)$order['email_cus'], 'Lunarea Store - Update Retur #' . $orderId, $emailBody);
+            $this->kirimWaRetur($order['hp_pen'] ?? '', "Update retur Lunarea\nPesanan: {$orderId}\nStatus: {$statusLabel}" . ($note ? "\nCatatan: {$note}" : ''));
+        }
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Status retur website diperbarui']);
+    }
+
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
@@ -4017,8 +4086,31 @@ class Pages extends BaseController
         $data = [
             'title' => 'Transaksi Pembayaran',
             'transaksi' => $detailTransaksi,
+            'returMap' => $this->getReturMapForOrders($detailTransaksi),
         ];
         return view('pages/transaction', $data);
+    }
+
+    private function getReturMapForOrders(array $orders): array
+    {
+        $ids = [];
+        foreach ($orders as $order) {
+            if (!empty($order['id_midtrans'])) $ids[] = $order['id_midtrans'];
+        }
+        if (!$ids) return [];
+
+        $rows = $this->returPengajuanModel
+            ->whereIn('id_midtrans', array_unique($ids))
+            ->orderBy('id', 'desc')
+            ->findAll();
+
+        $map = [];
+        foreach ($rows as $row) {
+            if (!isset($map[$row['id_midtrans']])) {
+                $map[$row['id_midtrans']] = $row;
+            }
+        }
+        return $map;
     }
 
     public function returOrder($id_midtrans)
@@ -4159,6 +4251,10 @@ class Pages extends BaseController
             $email,
             'Lunarea Store - Pengajuan Retur #' . $id_midtrans,
             '<p>Halo ' . esc($pemesanan['nama_pen']) . ',</p><p>Pengajuan retur untuk pesanan <b>' . esc($id_midtrans) . '</b> sudah kami terima dengan status: <b>' . esc($localStatus) . '</b>.</p><p>Tim admin akan melakukan review terlebih dahulu.</p>'
+        );
+        $this->kirimWaRetur(
+            $pemesanan['hp_pen'] ?? '',
+            "Pengajuan retur Lunarea sudah diterima.\nPesanan: {$id_midtrans}\nStatus: {$localStatus}\nTim admin akan melakukan review terlebih dahulu."
         );
 
         session()->setFlashdata('msg', 'Pengajuan retur berhasil dikirim. Status: ' . $localStatus);
