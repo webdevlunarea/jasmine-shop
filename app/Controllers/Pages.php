@@ -3242,7 +3242,7 @@ class Pages extends BaseController
             foreach ($keranjang as $ind => $element) {
                 $produknya = $this->barangModel->getBarang($element['id']);
                 $persen = (100 - $produknya['diskon']) / 100;
-                $hasil = round($persen * $produknya['harga']);
+                $hasil = (int)round($persen * $produknya['harga']);
                 $subtotal += $hasil * (int)$element['jumlah'];
                 array_push($produk, array(
                     'id' => $produknya["id"],
@@ -3255,9 +3255,8 @@ class Pages extends BaseController
                 $item = array(
                     'id' => $produknya["id"],
                     'price' => $hasil,
-                    'quantity' => $element['jumlah'],
+                    'quantity' => (int)$element['jumlah'],
                     'name' => substr($produknya["nama"] . " (" . ucfirst($element['varian']) . ")", 0, 50),
-                    'packed' => false
                 );
                 array_push($itemDetails, $item);
 
@@ -3428,6 +3427,7 @@ class Pages extends BaseController
         } else if ($pembayaran == 'card') {
             $biayaAdmin = $gross_amount * 0.029 + 2000;
         }
+        $biayaAdmin = (int)ceil($biayaAdmin);
 
         array_push($itemDetails, array(
             'id' => 'Biaya Admin',
@@ -3436,11 +3436,21 @@ class Pages extends BaseController
             'name' => 'Biaya Admin',
         ));
 
-        $gross_amount += $biayaAdmin;
+        $gross_amount = 0;
+        foreach ($itemDetails as &$item) {
+            $item['id'] = substr((string)($item['id'] ?? ''), 0, 64);
+            $item['price'] = (int)round((float)($item['price'] ?? 0));
+            $item['quantity'] = max(1, (int)($item['quantity'] ?? 1));
+            $item['name'] = substr((string)($item['name'] ?? $item['id']), 0, 50);
+            unset($item['packed']);
+            $gross_amount += $item['price'] * $item['quantity'];
+        }
+        unset($item);
+
         $arrPostField = [
             "transaction_details" => [
                 "order_id" => in_array($email, $this->emailUjiCoba) ? $randomId : $idFix,
-                "gross_amount" => $gross_amount,
+                "gross_amount" => (int)$gross_amount,
             ],
             'customer_details' => array(
                 'email' => $email,
