@@ -448,6 +448,11 @@ class Pages extends BaseController
         ');
     }
 
+    private function isSandboxOrder(array $order): bool
+    {
+        return in_array((string)($order['email_cus'] ?? ''), $this->emailUjiCoba, true);
+    }
+
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
@@ -4073,6 +4078,7 @@ class Pages extends BaseController
             $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
             if (isset($dataTransaksi_curr)) {
                 $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
+                $isSandboxOrder = $this->isSandboxOrder($dataTransaksi_curr);
                 $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
                 $dataMid_curr['transaction_status'] = $body['transaction_status'];
                 $this->pemesananModel->where('id_midtrans', $order_id)->set([
@@ -4083,7 +4089,12 @@ class Pages extends BaseController
                 $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
                 if ($dataTransaksiFulDariDatabase && $status !== $oldStatus) {
                     $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
-                    $this->kirimEmailAdminStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+                    if (!$isSandboxOrder) {
+                        $this->kirimEmailAdminStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+                    }
+                }
+                if ($isSandboxOrder) {
+                    return $this->response->setJSON($arr, false);
                 }
                 if ($status == 'Proses') {
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
@@ -6065,6 +6076,8 @@ class Pages extends BaseController
     {
         $transaksiCus = $this->pemesananModel->getPemesananPage($page);
         $semuaTransaksiCus = $this->pemesananModel->getPemesanan();
+        $transaksiCus = array_values(array_filter($transaksiCus, fn($t) => !$this->isSandboxOrder($t)));
+        $semuaTransaksiCus = array_values(array_filter($semuaTransaksiCus, fn($t) => !$this->isSandboxOrder($t)));
         $transaksiCusNoJSON = [];
         $semuaTransaksiCusFilter = [];
         foreach ($semuaTransaksiCus as $t) {
@@ -6142,6 +6155,10 @@ class Pages extends BaseController
         $dataTransaksi_curr = $this->pemesananModel->getPemesanan($id_midtrans);
         if (!$dataTransaksi_curr) {
             session()->setFlashdata('msg', 'Pesanan tidak ditemukan');
+            return redirect()->to('/listcustomer');
+        }
+        if ($this->isSandboxOrder($dataTransaksi_curr)) {
+            session()->setFlashdata('msg', 'Pesanan sandbox tidak masuk proses admin produksi.');
             return redirect()->to('/listcustomer');
         }
         $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
