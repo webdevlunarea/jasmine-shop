@@ -27,6 +27,7 @@ use App\Models\KonstantaModel;
 use App\Models\RatingModel;
 use App\Models\BannerModel;
 use App\Models\TrackingModel;
+use App\Models\ReturPengajuanModel;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -54,6 +55,7 @@ class Pages extends BaseController
     protected $ratingModel;
     protected $bannerModel;
     protected $trackingModel;
+    protected $returPengajuanModel;
 
     protected $emailUjiCoba;
 
@@ -86,6 +88,7 @@ class Pages extends BaseController
         $this->ratingModel = new RatingModel();
         $this->bannerModel = new BannerModel();
         $this->trackingModel = new TrackingModel();
+        $this->returPengajuanModel = new ReturPengajuanModel();
 
         // ngambil data dari model provinsi,kabupaten, kecamatan, kelurahan
         $this->provinsiModel = new ProvinsiModel();
@@ -521,6 +524,69 @@ class Pages extends BaseController
         }
 
         log_message('info', 'Sinkron order {order} ke Luna Sistem berhasil.', ['order' => $payload['order_id']]);
+    }
+
+    private function syncReturnToLunaSistem(array $order, array $items, string $reason, string $solution, array $evidencePhotos): array
+    {
+        $url = (string)env('LUNA_SYSTEM_WEB_RETURN_URL', '');
+        if ($url === '') {
+            $orderUrl = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
+            $url = $orderUrl ? str_replace('/lunarea-web-order', '/lunarea-web-return', $orderUrl) : '';
+        }
+        $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
+
+        if ($url === '' || $token === '') {
+            return ['success' => false, 'message' => 'Env integrasi retur Luna Sistem belum lengkap.'];
+        }
+
+        $payload = [
+            'order_id' => (string)($order['id_midtrans'] ?? ''),
+            'customer_email' => (string)($order['email_cus'] ?? ''),
+            'customer_name' => (string)($order['nama_pen'] ?? ''),
+            'customer_phone' => (string)($order['hp_pen'] ?? ''),
+            'reason' => $reason,
+            'solution' => $solution,
+            'items' => $items,
+            'evidence_photos' => $evidencePhotos,
+        ];
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'X-Luna-Webhook-Token: ' . $token,
+            ],
+            CURLOPT_TIMEOUT => 20,
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        $decoded = json_decode((string)$response, true);
+        $ok = !$err && $httpCode >= 200 && $httpCode < 300 && is_array($decoded) && !empty($decoded['success']);
+
+        if (!$ok) {
+            log_message('error', 'Sinkron retur {order} ke Luna Sistem gagal. HTTP {code}. Error: {err}. Response: {response}', [
+                'order' => $payload['order_id'],
+                'code' => $httpCode,
+                'err' => $err,
+                'response' => (string)$response,
+            ]);
+        }
+
+        return [
+            'success' => $ok,
+            'http_code' => $httpCode,
+            'message' => $decoded['message'] ?? ($err ?: 'Retur belum tersinkron ke Luna Sistem.'),
+            'response' => $decoded ?: $response,
+        ];
     }
 
     public function index()
@@ -3954,6 +4020,151 @@ class Pages extends BaseController
         ];
         return view('pages/transaction', $data);
     }
+
+    public function returOrder($id_midtrans)
+    {
+        $email = session()->get('email');
+        $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
+        if (!$pemesanan || $pemesanan['email_cus'] !== $email) {
+            session()->setFlashdata('msg', 'Pesanan tidak ditemukan.');
+            return redirect()->to('/transaction');
+        }
+
+        if (!in_array($pemesanan['status'], ['Dikirim', 'Selesai'], true)) {
+            session()->setFlashdata('msg', 'Retur bisa diajukan setelah pesanan dikirim atau selesai.');
+            return redirect()->to('/transaction');
+        }
+
+        $existingReturn = $this->returPengajuanModel
+            ->where('id_midtrans', $id_midtrans)
+            ->where('email_cus', $email)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $items = json_decode($pemesanan['items'] ?? '[]', true);
+        if (!is_array($items)) $items = [];
+
+        return view('pages/returOrder', [
+            'title' => 'Ajukan Retur',
+            'pemesanan' => $pemesanan,
+            'items' => $items,
+            'existingReturn' => $existingReturn,
+            'msg' => session()->getFlashdata('msg'),
+        ]);
+    }
+
+    public function actionReturOrder($id_midtrans)
+    {
+        $email = session()->get('email');
+        $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
+        if (!$pemesanan || $pemesanan['email_cus'] !== $email) {
+            session()->setFlashdata('msg', 'Pesanan tidak ditemukan.');
+            return redirect()->to('/transaction');
+        }
+
+        if (!in_array($pemesanan['status'], ['Dikirim', 'Selesai'], true)) {
+            session()->setFlashdata('msg', 'Retur bisa diajukan setelah pesanan dikirim atau selesai.');
+            return redirect()->to('/transaction');
+        }
+
+        $existingReturn = $this->returPengajuanModel
+            ->where('id_midtrans', $id_midtrans)
+            ->where('email_cus', $email)
+            ->where('status !=', 'Menunggu Sinkron Sistem')
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($existingReturn) {
+            session()->setFlashdata('msg', 'Pengajuan retur untuk pesanan ini sudah masuk. Status: ' . $existingReturn['status']);
+            return redirect()->to('/retur/order/' . $id_midtrans);
+        }
+
+        $reason = trim((string)$this->request->getPost('alasan'));
+        $solution = trim((string)$this->request->getPost('solusi')) ?: 'review_admin';
+        $qtyPost = $this->request->getPost('qty');
+        $itemsOrder = json_decode($pemesanan['items'] ?? '[]', true);
+        if (!is_array($itemsOrder)) $itemsOrder = [];
+        if (!is_array($qtyPost)) $qtyPost = [];
+
+        if (strlen($reason) < 5) {
+            session()->setFlashdata('msg', 'Alasan retur minimal 5 karakter.');
+            return redirect()->to('/retur/order/' . $id_midtrans);
+        }
+
+        $returnItems = [];
+        foreach ($itemsOrder as $index => $item) {
+            $qtyRequested = isset($qtyPost[$index]) ? (int)$qtyPost[$index] : 0;
+            $qtyBought = (int)($item['quantity'] ?? 0);
+            if ($qtyRequested <= 0) continue;
+            if ($qtyRequested > $qtyBought) {
+                session()->setFlashdata('msg', 'Qty retur tidak boleh melebihi qty pembelian.');
+                return redirect()->to('/retur/order/' . $id_midtrans);
+            }
+
+            $returnItems[] = [
+                'id' => (string)($item['id'] ?? ''),
+                'name' => (string)($item['name'] ?? ''),
+                'qty_requested' => $qtyRequested,
+                'quantity' => $qtyRequested,
+                'price' => (int)($item['value'] ?? 0),
+            ];
+        }
+
+        if (count($returnItems) < 1) {
+            session()->setFlashdata('msg', 'Pilih minimal 1 produk yang ingin diretur.');
+            return redirect()->to('/retur/order/' . $id_midtrans);
+        }
+
+        $evidencePhotos = [];
+        $files = $this->request->getFiles();
+        if (isset($files['bukti']) && is_array($files['bukti'])) {
+            $uploadDir = FCPATH . 'uploads/retur';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0775, true);
+            }
+
+            foreach ($files['bukti'] as $file) {
+                if (!$file->isValid() || $file->hasMoved()) continue;
+                if ($file->getSize() > 3 * 1024 * 1024) continue;
+                if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'], true)) continue;
+
+                $newName = $file->getRandomName();
+                $file->move($uploadDir, $newName);
+                $evidencePhotos[] = rtrim(base_url(), '/') . '/uploads/retur/' . $newName;
+                if (count($evidencePhotos) >= 5) break;
+            }
+        }
+
+        if (count($evidencePhotos) < 1) {
+            session()->setFlashdata('msg', 'Upload minimal 1 foto bukti retur.');
+            return redirect()->to('/retur/order/' . $id_midtrans);
+        }
+
+        $syncResult = $this->syncReturnToLunaSistem($pemesanan, $returnItems, $reason, $solution, $evidencePhotos);
+        $localStatus = !empty($syncResult['success']) ? 'Menunggu Review Admin' : 'Menunggu Sinkron Sistem';
+
+        $this->returPengajuanModel->insert([
+            'id_midtrans' => $id_midtrans,
+            'email_cus' => $email,
+            'nama_cus' => $pemesanan['nama_pen'],
+            'hp_cus' => $pemesanan['hp_pen'],
+            'items' => json_encode($returnItems),
+            'alasan' => $reason,
+            'solusi' => $solution,
+            'bukti' => json_encode($evidencePhotos),
+            'status' => $localStatus,
+            'luna_response' => json_encode($syncResult),
+        ]);
+
+        $this->kirimPesanEmail(
+            $email,
+            'Lunarea Store - Pengajuan Retur #' . $id_midtrans,
+            '<p>Halo ' . esc($pemesanan['nama_pen']) . ',</p><p>Pengajuan retur untuk pesanan <b>' . esc($id_midtrans) . '</b> sudah kami terima dengan status: <b>' . esc($localStatus) . '</b>.</p><p>Tim admin akan melakukan review terlebih dahulu.</p>'
+        );
+
+        session()->setFlashdata('msg', 'Pengajuan retur berhasil dikirim. Status: ' . $localStatus);
+        return redirect()->to('/retur/order/' . $id_midtrans);
+    }
+
     public function addTransaction()
     {
         $bodyJson = $this->request->getBody();

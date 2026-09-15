@@ -73,6 +73,8 @@ $routes->post('/voucher/add', 'Pages::voucherAddCode', ['filter' => 'harusLogin'
 $routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusAdmin']);
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
+$routes->get('/retur/order/(:any)', 'Pages::returOrder/$1', ['filter' => 'harusUser']);
+$routes->post('/retur/order/(:any)', 'Pages::actionReturOrder/$1', ['filter' => 'harusUser']);
 // $routes->post('/addtransaction', 'Pages::addTransaction');
 // $routes->get('/afteraddtransaction/(:any)', 'Pages::afterAddTransaction/$1', ['filter' => 'harusUser']);
 $routes->post('/updatetransaction', 'Pages::updateTransaction');

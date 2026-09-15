@@ -168,8 +168,11 @@
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </div>
-                                                <div class="w-100 d-flex flex-column align-items-end">
+                                                <div class="w-100 d-flex flex-column align-items-end gap-1">
                                                     <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
+                                                    <?php if (in_array($item_transaksi['status'], ['Dikirim', 'Selesai'])) { ?>
+                                                        <a href="/retur/order/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-outline-danger">Ajukan Retur</a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                             <a href="/order/<?= $item_transaksi['id_midtrans']; ?>" style="color: var(--hijau)" class="fw-bold link-underline link-underline-opacity-100">Lihat halaman pesanan</a>
