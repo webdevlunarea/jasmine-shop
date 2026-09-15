@@ -64,7 +64,7 @@ class Pages extends BaseController
     protected $kelurahanModel;
     public function __construct()
     {
-        $this->emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com'];
+        $this->emailUjiCoba = ['galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com', 'uuua5021@gmail.com'];
         $this->barangModel = new BarangModel();
         $this->gambarBarangModel = new GambarBarangModel();
         $this->gambarUserModel = new GambarUserModel();
