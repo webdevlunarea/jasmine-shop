@@ -455,6 +455,14 @@ class Pages extends BaseController
 
     private function syncOrderToLunaSistem(array $order): void
     {
+        $enabled = strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) === 'true';
+        if (!$enabled) {
+            log_message('info', 'Sinkron order ke Luna Sistem nonaktif. Order {order} tidak dikirim.', [
+                'order' => (string)($order['id_midtrans'] ?? ''),
+            ]);
+            return;
+        }
+
         $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
         $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
 
