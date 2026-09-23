@@ -35,6 +35,9 @@ class ArtikelModel extends Model
             return $this->orderBy('id', 'desc')->findAll();
         }
         $cur = $this->where(['path' => $judul])->first();
+        if (!$cur) {
+            return null;
+        }
         $prev = $this->where('id_count <', $cur['id_count'])->orderBy('id_count', 'desc')->first();
         $next = $this->where('id_count >', $cur['id_count'])->first();
         return [
