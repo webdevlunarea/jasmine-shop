@@ -625,6 +625,8 @@ class Pages extends BaseController
 
         $dataMid = json_decode($order['data_mid'] ?? '[]', true);
         if (!is_array($dataMid)) $dataMid = [];
+        $customerUser = $this->userModel->getUser((string)($order['email_cus'] ?? ''));
+        $authProvider = (string)($customerUser['auth_provider'] ?? 'email');
 
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
@@ -633,6 +635,7 @@ class Pages extends BaseController
             'customer_email' => (string)($order['email_cus'] ?? ''),
             'customer_name' => (string)($order['nama_pen'] ?? ''),
             'customer_phone' => (string)($order['hp_pen'] ?? ''),
+            'customer_auth_provider' => $authProvider ?: 'email',
             'is_guest' => false,
             'email_cus' => (string)($order['email_cus'] ?? ''),
             'nama_pen' => (string)($order['nama_pen'] ?? ''),
@@ -690,12 +693,16 @@ class Pages extends BaseController
             return ['success' => false, 'message' => 'Env integrasi retur Luna Sistem belum lengkap.'];
         }
 
+        $customerUser = $this->userModel->getUser((string)($order['email_cus'] ?? ''));
+        $authProvider = (string)($customerUser['auth_provider'] ?? 'email');
+
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
             'customer_id' => (string)($order['email_cus'] ?? ''),
             'customer_email' => (string)($order['email_cus'] ?? ''),
             'customer_name' => (string)($order['nama_pen'] ?? ''),
             'customer_phone' => (string)($order['hp_pen'] ?? ''),
+            'customer_auth_provider' => $authProvider ?: 'email',
             'is_guest' => false,
             'reason' => $reason,
             'solution' => $solution,
