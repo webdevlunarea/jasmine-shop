@@ -3701,6 +3701,21 @@ body.kategori-dropdown-open .kategori-wrap:not(.show) .kategori,
 body.kategori-dropdown-open .container-kategori > a.kategori {
     pointer-events: none;
 }
+/* Larger category dropdown tap target for tablet/desktop */
+@media (min-width: 768px) {
+    .kategori-arrow {
+        width: 34px;
+        height: 34px;
+        top: 38px;
+        right: 2px;
+        border-width: 1.5px;
+    }
+
+    .kategori-arrow .material-icons {
+        font-size: 24px;
+    }
+}
+
 
 /* Product detail refresh */
 .product-detail-layout {
