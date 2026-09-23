@@ -25,9 +25,6 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
-$routes->post('/logintamu', 'Pages::actionLoginTamu', ['filter' => 'harusLogout']);
-$routes->post('/logintamu/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3', ['filter' => 'harusLogout']);
-$routes->post('/logintamu/(:any)/(:any)/(:any)/(:any)', 'Pages::actionLoginTamu/$1/$2/$3/$4', ['filter' => 'harusLogout']);
 $routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/keluar/regist', 'Pages::actionLogoutRegist');
@@ -62,7 +59,7 @@ $routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/
 // $routes->post('/actioncheckout', 'Pages::actionCheckout');
 // $routes->post('/actionpay', 'Pages::actionPay');
 // $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
-$routes->post('/actionpaycore', 'Pages::actionPayCore');
+$routes->post('/actionpaycore', 'Pages::actionPayCore', ['filter' => 'harusUser']);
 $routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
 $routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
 $routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusUser']);

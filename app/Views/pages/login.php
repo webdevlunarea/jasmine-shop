@@ -29,6 +29,9 @@
                 </div>
                 <form action="/masuk" method="post" class="auth-form">
                     <?= csrf_field(); ?>
+                    <?php if (!empty($redirect)) { ?>
+                        <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">
+                    <?php } ?>
                     <div class="form-floating auth-field">
                         <input id="login-email" type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= $val['isiEmail']; ?>" autocomplete="email" required>
                         <label for="login-email">Email</label>
@@ -42,11 +45,7 @@
                     </div>
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Masuk">
                 </form>
-                <div class="auth-switch">Belum punya akun? <a href="/signup">Daftar sekarang</a></div>
-                <div class="auth-divider"><span>atau</span></div>
-                <form action="/logintamu" method="post">
-                    <button type="submit" id="btn-masuk-tamu" class="btn btn-outline-dark auth-guest">Masuk sebagai tamu</button>
-                </form>
+                <div class="auth-switch">Belum punya akun? <a href="/signup<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Daftar sekarang</a></div>
             </section>
         </div>
     </div>

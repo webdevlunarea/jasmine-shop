@@ -241,12 +241,12 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <button type="button" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-tamu-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>/checkout')">
-                            <p class="m-0">Beli sekarang</p>
-                        </button>
-                        <button type="button" class="d-flex gap-2 align-items-center btn btn-outline-dark btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
+                            <p class="m-0">Masuk untuk beli</p>
+                        </a>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
                             <i class="material-icons">shopping_cart</i>
-                        </button>
+                        </a>
                     <?php } ?>
                 </div>
                 <div class="hide-ke-show-flex justify-content-center align-items-center p-2 gap-1" style="background-color: white; position:fixed; bottom: 0; left: 0; width: 100vw; z-index: 9; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
@@ -284,12 +284,12 @@
                             <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
                         <?php } ?>
                     <?php } else { ?>
-                        <button style="width: 100%" type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 btn-beli-product-tamu-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>/checkout')">
-                            <p class="m-0">Beli sekarang</p>
-                        </button>
-                        <button type="button" class="d-flex gap-2 align-items-center justify-content-center btn btn-outline-dark btn-beli-product-tamu <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" onclick="triggerToast('Anda akan membeli dengan mode Tamu?', '/logintamu/<?= $produk['id']; ?>/<?= $varian[0]; ?>/<?= (int)$produk['jml_varian'] - 1; ?>')">
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" style="width: 100%" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
+                            <p class="m-0">Masuk untuk beli</p>
+                        </a>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center justify-content-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
                             <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
-                        </button>
+                        </a>
                     <?php } ?>
                 </div>
 
@@ -485,9 +485,7 @@
     const imgProdukPrev = document.querySelectorAll(".img-produk-prev")
     const elmVarian = document.getElementById('varian-group')
     const elmBtnBeli = document.querySelectorAll('.btn-beli-product')
-    const elmBtnBeliTamu = document.querySelectorAll('.btn-beli-product-tamu')
     const elmBtnBeliCheckout = document.querySelectorAll('.btn-beli-product-checkout')
-    const elmBtnBeliTamuCheckout = document.querySelectorAll('.btn-beli-product-tamu-checkout')
     const jmlVarian = "<?= $produk['jml_varian'] ?>";
     const idProduk = "<?= $produk['id'] ?>";
     const stokElm = document.getElementById('stok');
@@ -601,16 +599,6 @@
                 element.setAttribute('disabled', '')
             }
         });
-        elmBtnBeliTamu.forEach(element => {
-            if (stok > 0) {
-                const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + "";
-                element.setAttribute('onclick', "triggerToast('Anda akan membeli dengan mode Tamu?', '" + urlnya + "')");
-                element.classList.remove('disabled')
-            } else {
-                element.removeAttribute('onclick');
-                element.classList.add('disabled')
-            }
-        });
         elmBtnBeliCheckout.forEach(element => {
             if (stok > 0) {
                 element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + '/checkout';
@@ -620,16 +608,6 @@
                 element.parentNode.action = ''
                 element.classList.add('disabled')
                 element.setAttribute('disabled', '')
-            }
-        });
-        elmBtnBeliTamuCheckout.forEach(element => {
-            if (stok > 0) {
-                const urlnya = "/logintamu/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + "/checkout";
-                element.setAttribute('onclick', "triggerToast('Anda akan membeli dengan mode Tamu?', '" + urlnya + "')");
-                element.classList.remove('disabled')
-            } else {
-                element.removeAttribute('onclick');
-                element.classList.add('disabled')
             }
         });
     }

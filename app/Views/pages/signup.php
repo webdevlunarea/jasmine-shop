@@ -29,6 +29,9 @@
                 </div>
                 <form action="/daftar" method="post" class="auth-form">
                     <?= csrf_field(); ?>
+                    <?php if (!empty($redirect)) { ?>
+                        <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">
+                    <?php } ?>
                     <div class="form-floating auth-field">
                         <input id="signup-name" type="text" class="form-control <?= ($val['val_nama']) ? "is-invalid" : ""; ?>" placeholder="Nama Lengkap" name="nama" value="<?= old('nama'); ?>" autocomplete="name" required>
                         <label for="signup-name">Nama lengkap</label>
@@ -56,7 +59,7 @@
                     </label>
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Buat Sekarang">
                 </form>
-                <div class="auth-switch">Sudah punya akun? <a href="/login">Masuk</a></div>
+                <div class="auth-switch">Sudah punya akun? <a href="/login<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Masuk</a></div>
             </section>
         </div>
     </div>

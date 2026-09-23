@@ -483,6 +483,11 @@ class Pages extends BaseController
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
             'status' => (string)($order['status'] ?? ''),
+            'customer_id' => (string)($order['email_cus'] ?? ''),
+            'customer_email' => (string)($order['email_cus'] ?? ''),
+            'customer_name' => (string)($order['nama_pen'] ?? ''),
+            'customer_phone' => (string)($order['hp_pen'] ?? ''),
+            'is_guest' => false,
             'email_cus' => (string)($order['email_cus'] ?? ''),
             'nama_pen' => (string)($order['nama_pen'] ?? ''),
             'hp_pen' => (string)($order['hp_pen'] ?? ''),
@@ -541,9 +546,11 @@ class Pages extends BaseController
 
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
+            'customer_id' => (string)($order['email_cus'] ?? ''),
             'customer_email' => (string)($order['email_cus'] ?? ''),
             'customer_name' => (string)($order['nama_pen'] ?? ''),
             'customer_phone' => (string)($order['hp_pen'] ?? ''),
+            'is_guest' => false,
             'reason' => $reason,
             'solution' => $solution,
             'items' => $items,
@@ -1265,8 +1272,10 @@ class Pages extends BaseController
     }
     public function signup()
     {
+        $redirect = $this->cleanRedirectTarget($this->request->getGet('redirect') ?: session()->getFlashdata('redirect'));
         $data = [
             'title' => 'Daftar',
+            'redirect' => $redirect,
             'val' => [
                 'val_nama' => session()->getFlashdata('val-nama'),
                 'val_email' => session()->getFlashdata('val-email'),
@@ -1277,6 +1286,14 @@ class Pages extends BaseController
             ]
         ];
         return view('pages/signup', $data);
+    }
+    private function cleanRedirectTarget($target): string
+    {
+        $target = trim((string)$target);
+        if ($target === '' || $target[0] !== '/' || strpos($target, '//') === 0 || preg_match('/^https?:\\/\\//i', $target)) {
+            return '';
+        }
+        return $target;
     }
     public function kirimEmail()
     {
@@ -1504,6 +1521,7 @@ class Pages extends BaseController
     }
     public function actionSignup()
     {
+        $redirect = $this->cleanRedirectTarget($this->request->getPost('redirect'));
 
         if (!$this->validate([
             'nama' => [
@@ -1539,6 +1557,7 @@ class Pages extends BaseController
             session()->setFlashdata('val-sandi', $validation->getError('sandi'));
             session()->setFlashdata('val-nohp', $validation->getError('nohp'));
             // session()->setFlashdata('val-alamat', $validation->getError('alamat'));
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/signup')->withInput();
         }
 
@@ -1610,6 +1629,7 @@ class Pages extends BaseController
             'isLogin' => true
         ];
         session()->set($ses_data);
+        if ($redirect) session()->set('redirect_after_verify', $redirect);
         session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
         return redirect()->to('/verify');
     }
@@ -1679,6 +1699,11 @@ class Pages extends BaseController
             'waktu_otp' => '0'
         ])->update();
         session()->set($ses_data);
+        $redirectAfterVerify = $this->cleanRedirectTarget(session()->get('redirect_after_verify'));
+        if ($redirectAfterVerify) {
+            session()->remove('redirect_after_verify');
+            return redirect()->to("/hapuslocalstorage/" . base64_encode($redirectAfterVerify));
+        }
         return redirect()->to('/verify/url/redirect/success');
     }
     public function verifyUrl($code)
@@ -1713,6 +1738,11 @@ class Pages extends BaseController
             'waktu_otp' => '0'
         ])->update();
         session()->set($ses_data);
+        $redirectAfterVerify = $this->cleanRedirectTarget(session()->get('redirect_after_verify'));
+        if ($redirectAfterVerify) {
+            session()->remove('redirect_after_verify');
+            return redirect()->to("/hapuslocalstorage/" . base64_encode($redirectAfterVerify));
+        }
         return redirect()->to('/verify/url/redirect/success');
     }
     public function verifyUrlRedirect($status)
@@ -1748,8 +1778,14 @@ class Pages extends BaseController
     }
     public function login()
     {
+        $redirect = $this->cleanRedirectTarget($this->request->getGet('redirect') ?: session()->getFlashdata('redirect'));
+        if ($redirect) {
+            $existingMsg = session()->getFlashdata('msg');
+            session()->setFlashdata('msg', $existingMsg ?: 'Silakan masuk atau daftar akun untuk melanjutkan pembelian.');
+        }
         $data = [
             'title' => 'Masuk',
+            'redirect' => $redirect,
             'val' => [
                 'msg' => session()->getFlashdata('msg'),
                 'val_email' => session()->getFlashdata('val-email'),
@@ -1766,6 +1802,7 @@ class Pages extends BaseController
     }
     public function actionLogin()
     {
+        $redirect = $this->cleanRedirectTarget($this->request->getPost('redirect'));
         if (!$this->validate([
             'email' => [
                 'rules' => 'required',
@@ -1783,6 +1820,7 @@ class Pages extends BaseController
             $validation = \Config\Services::validation();
             session()->setFlashdata('val-email', $validation->getError('email'));
             session()->setFlashdata('val-sandi', $validation->getError('sandi'));
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login')->withInput();
         }
 
@@ -1838,17 +1876,19 @@ class Pages extends BaseController
                 'foto' => $getPembeli['foto']
             ];
             session()->set($ses_data);
-            return redirect()->to(site_url('/'));
+            return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: '/'));
         }
 
         if (!$getUser) {
             session()->setFlashdata('msg', 'Email tidak terdaftar');
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login');
         }
         $authSandi = password_verify($sandi, $getUser['sandi']);
         if (!$authSandi) {
             session()->setFlashdata('msg', 'Sandi salah');
             session()->setFlashdata('isiEmail', $email);
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login');
         }
         if ($getUser['active'] == '0') {
@@ -1858,6 +1898,7 @@ class Pages extends BaseController
                 'isLogin' => true
             ];
             session()->set($ses_data);
+            if ($redirect) session()->set('redirect_after_verify', $redirect);
             session()->setFlashdata('msg', "Email " . $email . " perlu diverifikasi");
             return redirect()->to('/verify');
         }
@@ -1966,7 +2007,7 @@ class Pages extends BaseController
             ];
             session()->set($ses_data);
         }
-        return redirect()->to("/hapuslocalstorage/" . base64_encode('/'));
+        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: '/'));
     }
     public function actionLoginTamuSalah($id_barang = false, $varian = false, $index_gambar = false)
     {
@@ -1975,60 +2016,12 @@ class Pages extends BaseController
     }
     public function actionLoginTamu($id_barang = false, $varian = false, $index_gambar = false, $redirect = false)
     {
+        session()->setFlashdata('msg', 'Checkout sekarang wajib memakai akun. Silakan masuk atau daftar terlebih dahulu.');
         if ($id_barang) {
-            $ses_data = [
-                'active' => '1',
-                'email' => 'tamu',
-                'role' => 0,
-                'nama' => 'tamu',
-                'tgl_lahir' => null,
-                'alamat' => [],
-                'nohp' => 'tamu',
-                'wishlist' => [],
-                'keranjang' => [
-                    [
-                        'id' => $id_barang,
-                        'jumlah' => 1,
-                        'varian' => $varian,
-                        'index_gambar' => $index_gambar
-                    ]
-                ],
-                'transaksi' => [],
-                'tier' => [
-                    'label' => 'bronze',
-                    'data' => []
-                ],
-                'isLogin' => true,
-                'poin' => [],
-                'foto' => ''
-            ];
-            session()->set($ses_data);
             $getCurItem = $this->barangModel->getBarang($id_barang);
-            session()->setFlashdata('notif-cart', "Produk berhasil masuk keranjang");
-            return redirect()->to($redirect ? '/' . $redirect : '/product/' . $getCurItem['path']);
-        } else {
-            $ses_data = [
-                'active' => '1',
-                'email' => 'tamu',
-                'role' => 0,
-                'nama' => 'tamu',
-                'tgl_lahir' => null,
-                'alamat' => [],
-                'nohp' => 'tamu',
-                'wishlist' => [],
-                'keranjang' => [],
-                'tier' => [
-                    'label' => 'bronze',
-                    'data' => []
-                ],
-                'transaksi' => [],
-                'isLogin' => true,
-                'poin' => [],
-                'foto' => ''
-            ];
-            session()->set($ses_data);
-            return redirect()->to('/');
+            if ($getCurItem) session()->setFlashdata('redirect', '/product/' . $getCurItem['path']);
         }
+        return redirect()->to('/login');
     }
     public function hapusLocalStorage($tujuan)
     {
@@ -2037,7 +2030,7 @@ class Pages extends BaseController
     }
     public function logout()
     {
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca'];
+        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
         session()->remove($ses_data);
     }
     public function actionLogout()
