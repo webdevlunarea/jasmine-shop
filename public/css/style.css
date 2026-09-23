@@ -3733,6 +3733,47 @@ body:not(.admin-body) {
     }
 }
 
+
+/* Category image sticker treatment */
+.kategori img,
+.kategori-wrap > .kategori img {
+    width: 62px;
+    height: 62px;
+    object-fit: contain;
+    padding: 7px;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.78) 52%, rgba(250, 247, 242, 0.94) 100%);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow:
+        0 10px 22px rgba(15, 23, 42, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    filter: saturate(1.05) contrast(1.02);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.kategori:hover img,
+.kategori-wrap.show > .kategori img,
+.kategori-wrap:hover > .kategori img {
+    transform: translateY(-2px) scale(1.04);
+    border-color: color-mix(in srgb, var(--hijau) 22%, #e2e8f0);
+    box-shadow:
+        0 14px 28px rgba(15, 23, 42, 0.13),
+        0 0 0 5px color-mix(in srgb, var(--hijau) 7%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 600px) {
+    .kategori img,
+    .kategori-wrap > .kategori img {
+        width: 50px;
+        height: 50px;
+        padding: 6px;
+        border-radius: 15px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+}
+
 /* Category dropdown bugfix */
 body.kategori-dropdown-open .container-kategori-scroll {
     overflow-x: hidden;
