@@ -2025,7 +2025,9 @@ class Pages extends BaseController
     }
     public function hapusLocalStorage($tujuan)
     {
-        $data = ['tujuan' => base64_decode($tujuan)];
+        $decodedTarget = base64_decode($tujuan, true);
+        $target = $this->cleanRedirectTarget($decodedTarget === false ? '' : $decodedTarget);
+        $data = ['tujuan' => $target ?: '/'];
         return view('action/hapusLocalStorage', $data);
     }
     public function logout()
