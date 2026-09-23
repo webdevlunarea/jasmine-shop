@@ -13,7 +13,9 @@ class UserModel extends Model
         'role',
         'otp',
         'active',
-        'waktu_otp'
+        'waktu_otp',
+        'google_id',
+        'auth_provider'
     ];
 
     public function getUser($email = false)

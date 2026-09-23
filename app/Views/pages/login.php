@@ -27,6 +27,11 @@
                     <h1>Masuk ke akun</h1>
                     <p>Gunakan email dan sandi untuk melanjutkan belanja di Lunarea Furniture.</p>
                 </div>
+                <a class="btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2 mb-3" href="/auth/google<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">
+                    <span style="font-weight:700;color:#4285F4">G</span>
+                    <span>Masuk dengan Google</span>
+                </a>
+                <div class="text-center text-secondary mb-3" style="font-size:12px">atau masuk dengan email</div>
                 <form action="/masuk" method="post" class="auth-form">
                     <?= csrf_field(); ?>
                     <?php if (!empty($redirect)) { ?>

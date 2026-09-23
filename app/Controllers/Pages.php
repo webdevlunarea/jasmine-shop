@@ -1948,6 +1948,237 @@ class Pages extends BaseController
         ];
         return view('pages/login', $data);
     }
+
+    private function googleOAuthConfig(): array
+    {
+        return [
+            'client_id' => trim((string)env('GOOGLE_CLIENT_ID', '')),
+            'client_secret' => trim((string)env('GOOGLE_CLIENT_SECRET', '')),
+            'redirect_uri' => trim((string)env('GOOGLE_REDIRECT_URI', site_url('auth/google/callback'))),
+        ];
+    }
+
+    private function httpJsonRequest(string $url, array $options = []): array
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, $options + [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 20,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        $statusCode = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+
+        $json = json_decode((string)$response, true);
+        return [
+            'ok' => !$error && $statusCode >= 200 && $statusCode < 300 && is_array($json),
+            'status' => $statusCode,
+            'error' => $error,
+            'body' => is_array($json) ? $json : [],
+            'raw' => (string)$response,
+        ];
+    }
+
+    public function googleLogin()
+    {
+        $redirect = $this->cleanRedirectTarget($this->request->getGet('redirect'));
+        $config = $this->googleOAuthConfig();
+        if ($config['client_id'] === '' || $config['client_secret'] === '' || $config['redirect_uri'] === '') {
+            session()->setFlashdata('msg', 'Login Google belum dikonfigurasi.');
+            return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        $state = bin2hex(random_bytes(24));
+        session()->set('google_oauth_state', $state);
+        session()->set('google_oauth_redirect', $redirect);
+
+        $query = http_build_query([
+            'client_id' => $config['client_id'],
+            'redirect_uri' => $config['redirect_uri'],
+            'response_type' => 'code',
+            'scope' => 'openid email profile',
+            'state' => $state,
+            'access_type' => 'online',
+            'prompt' => 'select_account',
+        ]);
+
+        return redirect()->to('https://accounts.google.com/o/oauth2/v2/auth?' . $query);
+    }
+
+    private function createGoogleCustomerIfNeeded(array $googleUser): array
+    {
+        $email = strtolower(trim((string)($googleUser['email'] ?? '')));
+        $name = trim((string)($googleUser['name'] ?? 'Customer Lunarea'));
+        $googleId = (string)($googleUser['sub'] ?? '');
+        $picture = (string)($googleUser['picture'] ?? '/imguser/ZGVmYXVsdA==');
+
+        $user = $this->userModel->getUser($email);
+        if (!$user) {
+            $this->userModel->insert([
+                'email' => $email,
+                'sandi' => password_hash(bin2hex(random_bytes(24)), PASSWORD_DEFAULT),
+                'role' => '0',
+                'otp' => '0',
+                'active' => '1',
+                'waktu_otp' => '0',
+                'google_id' => $googleId,
+                'auth_provider' => 'google',
+            ]);
+            $this->pembeliModel->insert([
+                'nama' => $name ?: $email,
+                'email_user' => $email,
+                'nohp' => '',
+                'alamat' => json_encode([]),
+                'wishlist' => json_encode([]),
+                'keranjang' => json_encode([]),
+                'transaksi' => json_encode([]),
+                'poin' => json_encode([]),
+                'tier' => json_encode(['label' => 'bronze', 'data' => []]),
+                'foto' => $picture ?: '/imguser/ZGVmYXVsdA==',
+            ]);
+
+            $vouchers = $this->voucherModel->where(['active' => true])->findAll();
+            $counter = 0;
+            $waktuCurrYmd = date("Y-m-d", strtotime("+7 Hours"));
+            foreach ($vouchers as $v) {
+                $kadaluarsa = null;
+                $waktuCurr = (string)strtotime("+7 Hours") + (string)$counter;
+                if ($v['durasi']) {
+                    $kadaluarsa = date("Y-m-d", strtotime($v['durasi'], strtotime($waktuCurrYmd)));
+                }
+                if ($v['auto_claimed']) {
+                    $this->voucherClaimedModel->insert([
+                        'id' => $waktuCurr,
+                        'id_voucher' => $v['id'],
+                        'kadaluarsa' => $kadaluarsa,
+                        'email_user' => $email,
+                        'active' => true
+                    ]);
+                }
+                $counter++;
+            }
+            $user = $this->userModel->getUser($email);
+        } else {
+            $this->userModel->where('email', $email)->set([
+                'google_id' => $googleId ?: ($user['google_id'] ?? ''),
+                'auth_provider' => ($user['auth_provider'] ?? 'email') === 'email' ? 'google' : ($user['auth_provider'] ?? 'google'),
+                'active' => '1',
+            ])->update();
+            $pembeli = $this->pembeliModel->getPembeli($email);
+            if (!$pembeli) {
+                $this->pembeliModel->insert([
+                    'nama' => $name ?: $email,
+                    'email_user' => $email,
+                    'nohp' => '',
+                    'alamat' => json_encode([]),
+                    'wishlist' => json_encode([]),
+                    'keranjang' => json_encode([]),
+                    'transaksi' => json_encode([]),
+                    'poin' => json_encode([]),
+                    'tier' => json_encode(['label' => 'bronze', 'data' => []]),
+                    'foto' => $picture ?: '/imguser/ZGVmYXVsdA==',
+                ]);
+            } elseif (!empty($picture) && (($pembeli['foto'] ?? '') === '' || ($pembeli['foto'] ?? '') === '/imguser/ZGVmYXVsdA==')) {
+                $this->pembeliModel->where('email_user', $email)->set(['foto' => $picture])->update();
+            }
+            $user = $this->userModel->getUser($email);
+        }
+
+        return $user ?: [];
+    }
+
+    private function loginUserSession(array $user): bool
+    {
+        if (($user['role'] ?? '') === '0') {
+            $getPembeli = $this->pembeliModel->getPembeli($user['email']);
+            if (!$getPembeli) return false;
+            session()->set([
+                'active' => '1',
+                'email' => $user['email'],
+                'role' => $user['role'],
+                'nama' => $getPembeli['nama'],
+                'tgl_lahir' => $getPembeli['tgl_lahir'],
+                'alamat' => json_decode($getPembeli['alamat'], true) ?: [],
+                'nohp' => $getPembeli['nohp'],
+                'wishlist' => json_decode($getPembeli['wishlist'], true) ?: [],
+                'keranjang' => json_decode($getPembeli['keranjang'], true) ?: [],
+                'transaksi' => json_decode($getPembeli['transaksi'], true) ?: [],
+                'tier' => json_decode($getPembeli['tier'], true) ?: ['label' => 'bronze', 'data' => []],
+                'isLogin' => true,
+                'poin' => json_decode($getPembeli['poin'], true) ?: [],
+                'foto' => $getPembeli['foto']
+            ]);
+        } else {
+            session()->set([
+                'active' => '1',
+                'email' => $user['email'],
+                'role' => $user['role'],
+                'isLogin' => true
+            ]);
+        }
+        return true;
+    }
+
+    public function googleCallback()
+    {
+        $state = (string)$this->request->getGet('state');
+        $code = (string)$this->request->getGet('code');
+        $savedState = (string)session()->get('google_oauth_state');
+        $redirect = $this->cleanRedirectTarget(session()->get('google_oauth_redirect'));
+        session()->remove(['google_oauth_state', 'google_oauth_redirect']);
+
+        if ($state === '' || $code === '' || !hash_equals($savedState, $state)) {
+            session()->setFlashdata('msg', 'Login Google gagal. Silakan coba lagi.');
+            return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        $config = $this->googleOAuthConfig();
+        $tokenResponse = $this->httpJsonRequest('https://oauth2.googleapis.com/token', [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query([
+                'code' => $code,
+                'client_id' => $config['client_id'],
+                'client_secret' => $config['client_secret'],
+                'redirect_uri' => $config['redirect_uri'],
+                'grant_type' => 'authorization_code',
+            ]),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        ]);
+
+        $accessToken = (string)($tokenResponse['body']['access_token'] ?? '');
+        if (!$tokenResponse['ok'] || $accessToken === '') {
+            log_message('error', 'Google token exchange failed. HTTP {status}. Error: {error}. Body: {body}', [
+                'status' => $tokenResponse['status'],
+                'error' => $tokenResponse['error'],
+                'body' => $tokenResponse['raw'],
+            ]);
+            session()->setFlashdata('msg', 'Login Google gagal mengambil token.');
+            return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        $userResponse = $this->httpJsonRequest('https://www.googleapis.com/oauth2/v3/userinfo', [
+            CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $accessToken],
+        ]);
+        $googleUser = $userResponse['body'];
+        $email = strtolower(trim((string)($googleUser['email'] ?? '')));
+        if (!$userResponse['ok'] || $email === '' || empty($googleUser['email_verified'])) {
+            session()->setFlashdata('msg', 'Email Google belum valid atau belum terverifikasi.');
+            return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        $user = $this->createGoogleCustomerIfNeeded($googleUser);
+        if (!$user || !$this->loginUserSession($user)) {
+            session()->setFlashdata('msg', 'Login Google gagal membuat sesi akun.');
+            return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        session()->setFlashdata('msg', 'Berhasil masuk dengan Google.');
+        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: '/'));
+    }
     public function actionLoginSalah()
     {
         session()->setFlashdata('msg', "Maaf, masih dalam masa perbaikan. Akan aktif kembali ketika pukul 07:30 WIB");

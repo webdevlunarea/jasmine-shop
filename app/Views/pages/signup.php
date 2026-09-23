@@ -27,6 +27,11 @@
                     <h1>Buat akun</h1>
                     <p>Isi data di bawah untuk mulai belanja dan mendapatkan akses transaksi member.</p>
                 </div>
+                <a class="btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2 mb-3" href="/auth/google<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">
+                    <span style="font-weight:700;color:#4285F4">G</span>
+                    <span>Daftar dengan Google</span>
+                </a>
+                <div class="text-center text-secondary mb-3" style="font-size:12px">atau daftar dengan email</div>
                 <form action="/daftar" method="post" class="auth-form">
                     <?= csrf_field(); ?>
                     <?php if (!empty($redirect)) { ?>
