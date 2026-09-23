@@ -36,6 +36,59 @@ class KonstantaModel extends Model
         ];
     }
 
+
+    public static function defaultTopPromoTexts()
+    {
+        return [
+            'desktop' => 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
+            'mobile' => 'Harga khusus pembelian pertama plus gratis ongkir',
+        ];
+    }
+
+    public function getTopPromoTexts()
+    {
+        $defaults = self::defaultTopPromoTexts();
+        $row = $this->getKonstantaByLabel('top_promo_text');
+
+        if ($row && !empty($row['value'])) {
+            $decoded = json_decode($row['value'], true);
+            if (is_array($decoded)) {
+                foreach ($defaults as $key => $value) {
+                    if (isset($decoded[$key]) && trim((string) $decoded[$key]) !== '') {
+                        $defaults[$key] = trim((string) $decoded[$key]);
+                    }
+                }
+            }
+        }
+
+        return $defaults;
+    }
+
+    public function saveTopPromoTexts($texts)
+    {
+        $defaults = self::defaultTopPromoTexts();
+        $clean = [];
+
+        foreach ($defaults as $key => $value) {
+            $text = trim((string) ($texts[$key] ?? ''));
+            $clean[$key] = $text !== '' ? mb_substr(strip_tags($text), 0, 160) : $value;
+        }
+
+        $row = $this->getKonstantaByLabel('top_promo_text');
+        $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
+
+        if ($row) {
+            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
+        } else {
+            $this->insert([
+                'label' => 'top_promo_text',
+                'value' => $payload,
+            ]);
+        }
+
+        return $clean;
+    }
+
     public function getThemeWarna()
     {
         $defaults = self::defaultThemeWarna();

@@ -7597,6 +7597,7 @@ class Pages extends BaseController
         $data = [
             'title' => 'Setting Warna',
             'theme' => $this->konstantaModel->getThemeWarna(),
+            'topPromo' => $this->konstantaModel->getTopPromoTexts(),
             'msg' => session()->getFlashdata('msg'),
         ];
 
@@ -7617,7 +7618,11 @@ class Pages extends BaseController
         ];
 
         $this->konstantaModel->saveThemeWarna($colors);
-        session()->setFlashdata('msg', 'Tone warna berhasil disimpan dan sudah aktif untuk semua pengunjung.');
+        $this->konstantaModel->saveTopPromoTexts([
+            'desktop' => $this->request->getVar('topPromoDesktop'),
+            'mobile' => $this->request->getVar('topPromoMobile'),
+        ]);
+        session()->setFlashdata('msg', 'Setting tampilan berhasil disimpan dan sudah aktif untuk semua pengunjung.');
 
         return redirect()->to('/settingwarna');
     }

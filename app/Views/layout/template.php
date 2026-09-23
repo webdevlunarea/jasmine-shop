@@ -234,12 +234,16 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">
     </script>
-    <?php if (!$isAdminLayout) { ?>
+    <?php if (!$isAdminLayout) {
+        $topPromoTexts = model(\App\Models\KonstantaModel::class)->getTopPromoTexts();
+        $topPromoDesktop = $topPromoTexts['desktop'] ?? 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%';
+        $topPromoMobile = $topPromoTexts['mobile'] ?? $topPromoDesktop;
+    ?>
         <div class="teks-atas show-flex-ke-hide">
-            <p class="m-0">Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%</p>
+            <p class="m-0"><?= esc($topPromoDesktop); ?></p>
         </div>
         <div class="teks-atas hide-ke-show-flex">
-            <p class="m-0">Harga khusus pembelian pertama plus gratis ongkir</p>
+            <p class="m-0"><?= esc($topPromoMobile); ?></p>
         </div>
     <?php } ?>
 

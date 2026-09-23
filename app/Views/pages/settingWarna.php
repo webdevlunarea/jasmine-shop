@@ -261,8 +261,8 @@ $fields = [
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
             <div>
                 <h5 class="jdl-section mb-0">Tampilan Website</h5>
-                <h1 class="mb-1">Setting Tone Warna</h1>
-                <p class="text-secondary mb-0">Set warna di sini, lalu semua pengunjung akan melihat tone yang sama.</p>
+                <h1 class="mb-1">Setting Tampilan Website</h1>
+                <p class="text-secondary mb-0">Atur warna dan teks promo atas, lalu semua pengunjung akan melihat tampilan yang sama.</p>
             </div>
             <a href="/" target="_blank" class="btn btn-light d-flex gap-2 align-items-center">
                 <i class="material-icons">storefront</i>
@@ -279,6 +279,18 @@ $fields = [
         <div class="row g-4">
             <div class="col-lg-7">
                 <form action="/settingwarna" method="post" class="d-flex flex-column gap-3">
+                    <div class="color-field">
+                        <label class="form-label mb-1" for="topPromoDesktop">Teks Promo Atas Desktop</label>
+                        <p class="text-secondary small mb-2">Teks berjalan di bar paling atas untuk tampilan desktop/tablet.</p>
+                        <input type="text" class="form-control" id="topPromoDesktop" name="topPromoDesktop" maxlength="160" value="<?= esc($topPromo['desktop'] ?? 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%'); ?>">
+                    </div>
+
+                    <div class="color-field">
+                        <label class="form-label mb-1" for="topPromoMobile">Teks Promo Atas Mobile</label>
+                        <p class="text-secondary small mb-2">Versi pendek supaya tidak terlalu panjang di HP.</p>
+                        <input type="text" class="form-control" id="topPromoMobile" name="topPromoMobile" maxlength="160" value="<?= esc($topPromo['mobile'] ?? 'Harga khusus pembelian pertama plus gratis ongkir'); ?>">
+                    </div>
+
                     <div class="row g-3">
                         <?php foreach ($fields as $name => $field) { ?>
                             <div class="col-md-6">
@@ -297,7 +309,7 @@ $fields = [
                     <div class="d-flex flex-wrap gap-2">
                         <button type="submit" class="btn btn-primary1 d-flex gap-2 align-items-center">
                             <i class="material-icons">save</i>
-                            <span>Simpan Tone Warna</span>
+                            <span>Simpan Tampilan</span>
                         </button>
                         <button type="button" class="btn btn-light" id="reset-japanese">Reset Japanese Default</button>
                     </div>
