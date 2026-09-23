@@ -1245,8 +1245,15 @@ class Pages extends BaseController
             'semuaProduk' => $semuaproduk,
         ];
         if ($subkategori) {
-            $data['metaDeskripsi'] = $meta[$subkategori]['deskripsi'];
-            $data['metaKeyword'] = implode(",", $meta[$subkategori]['keywords']);
+            $metaKategori = $meta[$subkategori] ?? null;
+            if ($metaKategori) {
+                $data['metaDeskripsi'] = $metaKategori['deskripsi'];
+                $data['metaKeyword'] = implode(",", $metaKategori['keywords']);
+            } else {
+                $namaKategori = ucwords(str_replace('-', ' ', (string)$subkategori));
+                $data['metaDeskripsi'] = 'Temukan pilihan produk ' . $namaKategori . ' terbaik dari Lunarea Furniture.';
+                $data['metaKeyword'] = $namaKategori . ', furniture lunarea, lunarea furniture';
+            }
         }
         return view('pages/all', $data);
     }

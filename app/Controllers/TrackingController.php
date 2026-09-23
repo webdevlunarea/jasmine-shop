@@ -44,18 +44,35 @@ class TrackingController extends BaseController
         }
 
         $d = strtotime("+7 Hours");
-        $tanggal = date("Y-m-d H:i:s", $d);
         $ipaddress = $this->getClientIp();
 
-        $this->trackingModel->insert([
-            'waktu' => $tanggal,
-            'ip' => $ipaddress,
-            'path' => $path,
-            'durasi' => $durasi,
-        ]);
+        $tanggal = date("Y-m-d H:i:s", $d);
+        $inserted = false;
+        for ($i = 0; $i < 5; $i++) {
+            $tanggal = date("Y-m-d H:i:s", $d + $i);
+            try {
+                $inserted = (bool)$this->trackingModel->insert([
+                    'waktu' => $tanggal,
+                    'ip' => $ipaddress,
+                    'path' => $path,
+                    'durasi' => $durasi,
+                ]);
+                if ($inserted) {
+                    break;
+                }
+            } catch (\Throwable $e) {
+                if (stripos($e->getMessage(), 'Duplicate entry') === false) {
+                    throw $e;
+                }
+            }
+        }
+
+        if (!$inserted) {
+            log_message('warning', 'Tracking skipped after duplicate timestamp retries for {path}', ['path' => $path]);
+        }
 
         $arr = [
-            'success' => true,
+            'success' => $inserted,
             'waktu' => $tanggal,
             'ip' => $ipaddress,
             'path' => $path,
@@ -123,9 +140,17 @@ class TrackingController extends BaseController
     {
         $bodyJson = $this->request->getBody();
         $body = json_decode($bodyJson, true);
-        $produk = $this->barangModel->getBarang($body['id']);
+        $id = is_array($body) ? ($body['id'] ?? null) : null;
+        if (!$id) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'pesan' => 'ID barang wajib diisi'
+            ], false);
+        }
+
+        $produk = $this->barangModel->getBarang($id);
         if ($produk) {
-            $this->barangModel->where(['id' => $body['id']])->set([
+            $this->barangModel->where(['id' => $id])->set([
                 'tracking_pop' => (int)$produk['tracking_pop'] + 1
             ])->update();
             $arr = [
