@@ -404,6 +404,10 @@ class Pages extends BaseController
         $subjectStatus = $status === 'Proses' ? 'Pembayaran Berhasil' : 'Status Pembayaran ' . $status;
 
         if ($status === 'Proses') {
+            return $this->kirimEmailInvoiceLunasOnce($order);
+        }
+
+        if ($status === 'Proses') {
             $pesan = 'Pembayaran kamu sudah berhasil kami terima. Pesanan akan segera kami proses.';
         } elseif ($status === 'Menunggu Pembayaran') {
             $pesan = 'Pesanan kamu sudah dibuat dan sedang menunggu pembayaran.';
@@ -423,6 +427,148 @@ class Pages extends BaseController
                 <p>Terima kasih sudah berbelanja di Lunarea Furniture.</p>
             </div>
         ');
+    }
+
+    private function rupiah($nominal): string
+    {
+        return 'Rp ' . number_format((float)$nominal, 0, ',', '.');
+    }
+
+    private function parseOrderJson($json, $fallback = []): array
+    {
+        $decoded = json_decode((string)$json, true);
+        return is_array($decoded) ? $decoded : $fallback;
+    }
+
+    private function buildEmailInvoiceLunas(array $order, array $dataMid): string
+    {
+        $orderId = (string)($order['id_midtrans'] ?? '');
+        $nama = (string)($order['nama_pen'] ?? 'Customer');
+        $email = (string)($order['email_cus'] ?? '');
+        $hp = (string)($order['hp_pen'] ?? '');
+        $alamat = (string)($order['alamat_pen'] ?? '');
+        $items = $this->parseOrderJson($order['items'] ?? '[]');
+        $paymentType = strtoupper(str_replace('_', ' ', (string)($dataMid['payment_type'] ?? '-')));
+        $transactionTime = (string)($dataMid['settlement_time'] ?? $dataMid['transaction_time'] ?? date('Y-m-d H:i:s'));
+        $tanggalInvoice = date('d M Y H:i', strtotime($transactionTime)) . ' WIB';
+        $invoiceNo = date('dmY', strtotime($transactionTime)) . '/CBM/' . explode('-', $orderId)[0];
+
+        $subtotal = 0;
+        $itemRows = '';
+        foreach ($items as $item) {
+            $name = (string)($item['name'] ?? 'Produk');
+            $qty = (int)($item['quantity'] ?? 1);
+            $price = (float)($item['value'] ?? $item['price'] ?? 0);
+            $lineTotal = $price * max(1, $qty);
+            $subtotal += $lineTotal;
+            $itemRows .= '
+                <tr>
+                    <td style="padding:12px;border-bottom:1px solid #e5e7eb;color:#111827;">' . esc($name) . '</td>
+                    <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:center;color:#111827;">' . esc((string)$qty) . '</td>
+                    <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:right;color:#111827;">' . esc($this->rupiah($price)) . '</td>
+                    <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:right;color:#111827;font-weight:600;">' . esc($this->rupiah($lineTotal)) . '</td>
+                </tr>';
+        }
+
+        $gross = (float)($dataMid['gross_amount'] ?? $subtotal);
+        $biayaAdmin = 5000;
+        $selisih = $gross - $subtotal - $biayaAdmin;
+        $diskon = $selisih < 0 ? abs($selisih) : 0;
+        $ongkir = $selisih > 0 ? $selisih : 0;
+
+        $rowsTambahan = '';
+        if ($ongkir > 0) {
+            $rowsTambahan .= '<tr><td style="padding:6px 0;color:#4b5563;">Ongkir / biaya layanan</td><td style="padding:6px 0;text-align:right;color:#111827;">' . esc($this->rupiah($ongkir)) . '</td></tr>';
+        }
+        if ($diskon > 0) {
+            $rowsTambahan .= '<tr><td style="padding:6px 0;color:#4b5563;">Diskon / voucher / poin</td><td style="padding:6px 0;text-align:right;color:#16a34a;">- ' . esc($this->rupiah($diskon)) . '</td></tr>';
+        }
+
+        return '
+        <div style="font-family:Arial,sans-serif;background:#f6f7f4;padding:24px;color:#111827;">
+            <div style="max-width:760px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e5e7eb;">
+                <div style="background:#24382f;padding:24px;color:#ffffff;">
+                    <div style="font-size:22px;font-weight:800;letter-spacing:.3px;">Lunarea Furniture</div>
+                    <div style="margin-top:8px;color:#dbe7df;">Invoice Pembayaran</div>
+                </div>
+                <div style="padding:24px;">
+                    <div style="display:inline-block;background:#dcfce7;color:#166534;font-weight:800;padding:8px 14px;border-radius:999px;margin-bottom:16px;">LUNAS</div>
+                    <h2 style="margin:0 0 8px;font-size:24px;color:#111827;">Terima kasih, ' . esc($nama) . '</h2>
+                    <p style="margin:0 0 20px;color:#4b5563;line-height:1.6;">Pembayaran pesanan kamu sudah berhasil kami terima. Berikut invoice resmi dari Lunarea Furniture.</p>
+
+                    <table style="width:100%;border-collapse:collapse;margin:18px 0;background:#f9fafb;border-radius:12px;overflow:hidden;">
+                        <tr><td style="padding:14px;color:#6b7280;">No. Invoice</td><td style="padding:14px;text-align:right;font-weight:700;color:#111827;">' . esc($invoiceNo) . '</td></tr>
+                        <tr><td style="padding:14px;color:#6b7280;">Kode Pesanan</td><td style="padding:14px;text-align:right;font-weight:700;color:#111827;">' . esc($orderId) . '</td></tr>
+                        <tr><td style="padding:14px;color:#6b7280;">Tanggal Pembayaran</td><td style="padding:14px;text-align:right;color:#111827;">' . esc($tanggalInvoice) . '</td></tr>
+                        <tr><td style="padding:14px;color:#6b7280;">Metode Pembayaran</td><td style="padding:14px;text-align:right;color:#111827;">' . esc($paymentType) . '</td></tr>
+                    </table>
+
+                    <div style="margin:22px 0;">
+                        <h3 style="font-size:16px;margin:0 0 10px;color:#111827;">Penerima</h3>
+                        <div style="line-height:1.7;color:#374151;">
+                            <b>' . esc($nama) . '</b><br>
+                            ' . esc($email) . ($hp ? ' · ' . esc($hp) : '') . '<br>
+                            ' . nl2br(esc($alamat)) . '
+                        </div>
+                    </div>
+
+                    <table style="width:100%;border-collapse:collapse;margin-top:18px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                        <thead>
+                            <tr style="background:#f3f4f6;">
+                                <th style="padding:12px;text-align:left;color:#374151;">Produk</th>
+                                <th style="padding:12px;text-align:center;color:#374151;">Qty</th>
+                                <th style="padding:12px;text-align:right;color:#374151;">Harga</th>
+                                <th style="padding:12px;text-align:right;color:#374151;">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>' . $itemRows . '</tbody>
+                    </table>
+
+                    <table style="width:100%;margin-top:18px;border-collapse:collapse;">
+                        <tr><td style="padding:6px 0;color:#4b5563;">Subtotal Produk</td><td style="padding:6px 0;text-align:right;color:#111827;">' . esc($this->rupiah($subtotal)) . '</td></tr>
+                        <tr><td style="padding:6px 0;color:#4b5563;">Biaya Admin</td><td style="padding:6px 0;text-align:right;color:#111827;">' . esc($this->rupiah($biayaAdmin)) . '</td></tr>
+                        ' . $rowsTambahan . '
+                        <tr>
+                            <td style="padding:14px 0 4px;border-top:2px solid #111827;font-size:18px;font-weight:800;color:#111827;">Total Lunas</td>
+                            <td style="padding:14px 0 4px;border-top:2px solid #111827;text-align:right;font-size:18px;font-weight:800;color:#111827;">' . esc($this->rupiah($gross)) . '</td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top:24px;text-align:center;">
+                        <a href="https://lunareafurniture.com/order/' . rawurlencode($orderId) . '" style="display:inline-block;background:#24382f;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;">Lihat Detail Pesanan</a>
+                    </div>
+                    <p style="margin-top:22px;color:#6b7280;font-size:13px;line-height:1.6;">Invoice ini dikirim otomatis setelah pembayaran berhasil. Simpan email ini sebagai bukti pembayaran resmi.</p>
+                </div>
+            </div>
+        </div>';
+    }
+
+    private function kirimEmailInvoiceLunasOnce(array $order): bool
+    {
+        $orderId = (string)($order['id_midtrans'] ?? '');
+        if ($orderId === '') return false;
+
+        $latestOrder = $this->pemesananModel->getPemesanan($orderId) ?: $order;
+        $emailCus = (string)($latestOrder['email_cus'] ?? '');
+        if (!filter_var($emailCus, FILTER_VALIDATE_EMAIL)) return false;
+
+        $dataMid = $this->parseOrderJson($latestOrder['data_mid'] ?? '{}');
+        if (!empty($dataMid['paid_invoice_sent_at'])) return true;
+
+        $sent = $this->kirimPesanEmail(
+            $emailCus,
+            'Invoice Lunas Lunarea Furniture #' . $orderId,
+            $this->buildEmailInvoiceLunas($latestOrder, $dataMid)
+        );
+
+        if ($sent) {
+            $dataMid['paid_invoice_sent_at'] = date('Y-m-d H:i:s', strtotime('+7 Hours'));
+            $this->pemesananModel->where('id_midtrans', $orderId)->set([
+                'data_mid' => json_encode($dataMid),
+            ])->update();
+        }
+
+        return $sent;
     }
 
     private function kirimEmailAdminStatusPembayaran(array $order, string $status)
@@ -3824,6 +3970,9 @@ class Pages extends BaseController
 
         //pengurangan stok produk
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $arrPostField['transaction_details']['order_id'])->first();
+        if ($dataTransaksiFulDariDatabase && $status === 'Proses') {
+            $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+        }
         $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
         foreach ($dataTransaksiFulDariDatabase_items as $item) {
             $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
@@ -6553,6 +6702,7 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Pesanan sandbox tidak masuk proses admin produksi.');
             return redirect()->to('/listcustomer');
         }
+        $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
         $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
         switch ($confirm) {
             case 'cancel':
@@ -6574,6 +6724,10 @@ class Pages extends BaseController
         ])->update();
 
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $id_midtrans)->first();
+        if ($dataTransaksiFulDariDatabase && $status !== $oldStatus) {
+            $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+            $this->kirimEmailAdminStatusPembayaran($dataTransaksiFulDariDatabase, $status);
+        }
         if ($status == 'Proses') {
             if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
                 $this->voucherClaimedModel->where([
