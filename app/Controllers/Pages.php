@@ -7254,9 +7254,13 @@ class Pages extends BaseController
     public function actionCategoryImagesAdmin()
     {
         $images = $this->konstantaModel->getCategoryImages();
-        $uploadDir = FCPATH . 'img/logokategori/custom';
+        $uploadDir = WRITEPATH . 'uploads/category-images';
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
+            @mkdir($uploadDir, 0775, true);
+        }
+        if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+            session()->setFlashdata('msg', 'Folder upload kategori belum bisa ditulis. Pastikan folder writable/uploads bisa ditulis server.');
+            return redirect()->to('/categoryimagesadmin');
         }
 
         foreach ($this->categoryImageOptions() as $key => $label) {
@@ -7278,12 +7282,38 @@ class Pages extends BaseController
             if (!in_array($extension, ['png', 'webp', 'jpg', 'jpeg'], true)) $extension = 'webp';
             $fileName = $key . '-' . date('YmdHis') . '.' . $extension;
             $file->move($uploadDir, $fileName, true);
-            $images[$key] = '/img/logokategori/custom/' . $fileName;
+            $images[$key] = '/category-image/' . $fileName;
         }
 
         $this->konstantaModel->saveCategoryImages($images);
         session()->setFlashdata('msg', 'Gambar kategori berhasil diperbarui.');
         return redirect()->to('/categoryimagesadmin');
+    }
+
+    public function categoryImageFile($fileName)
+    {
+        $fileName = basename((string)$fileName);
+        if (!preg_match('/^[a-z0-9-]+\.(png|webp|jpg|jpeg)$/i', $fileName)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $path = WRITEPATH . 'uploads/category-images/' . $fileName;
+        if (!is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+        ];
+
+        return $this->response
+            ->setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+            ->setContentType($mimeTypes[$extension] ?? 'application/octet-stream')
+            ->setBody(file_get_contents($path));
     }
     public function listProductTable()
     {
