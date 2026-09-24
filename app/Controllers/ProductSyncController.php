@@ -120,16 +120,31 @@ class ProductSyncController extends BaseController
         $slug = $this->clean($product['slug'] ?? '');
         $name = $this->clean($product['name'] ?? '');
 
+        $manualWebsiteId = $this->manualWebsiteProductId($product);
+        if ($manualWebsiteId) {
+            $row = $this->barangModel->where(['id' => $manualWebsiteId])->first();
+            if ($row) {
+                $row['_luna_match_by'] = 'manual_map';
+                return $row;
+            }
+        }
+
         foreach ([$websiteId, $sku, $this->clean($product['id'] ?? '')] as $id) {
             if ($id) {
                 $row = $this->barangModel->where(['id' => $id])->first();
-                if ($row) return $row;
+                if ($row) {
+                    $row['_luna_match_by'] = 'id';
+                    return $row;
+                }
             }
         }
 
         if ($slug) {
             $row = $this->barangModel->where(['path' => $slug])->first();
-            if ($row) return $row;
+            if ($row) {
+                $row['_luna_match_by'] = 'slug';
+                return $row;
+            }
         }
 
         if ($name) {
@@ -144,6 +159,55 @@ class ProductSyncController extends BaseController
         if ($fuzzy) return $fuzzy;
 
         return null;
+    }
+
+    private function manualWebsiteProductId(array $product): ?string
+    {
+        $sku = $this->clean($product['sku'] ?? '');
+        $nameKey = $this->normalizeNameKey($this->clean($product['name'] ?? ''));
+
+        $map = [
+            // Mapping aman satu produk Luna -> satu produk website.
+            'SKU-1773215956903-RSGA' => 'B20240212120041', // RSG A4.4 FULL KUNCI -> RSG A4.4
+            'SKU-1773215937587-MT20' => 'B20240212150717', // MT 205
+            'SKU-1773215938190-MT55' => 'B20240214225454', // MT 550 SAEMAS -> MT 550
+            'SKU-1773215953869-RSG3' => 'B20240212113451', // RSG 3S
+            'SKU-1773215938753-MT55' => 'B20240214225740', // MT 552 SAEMAS -> MT 552
+            'SKU-1773215934040-MRH8' => 'B20241106133158', // MRH 800
+            'SKU-1773215946575-RSD1' => 'B20240301104421', // RSD 10
+            'SKU-1773215948649-RSD8' => 'B20240221092912', // RSD 8
+            'SKU-1773215943379-RSGK' => 'B20240214221123', // RSG K
+            'SKU-1773082013429-ALD8' => 'B20240213111208', // ALD 8113 -> ALD 8113 Andalan
+            'SKU-1773215955028-RSG4' => 'B20240212114312', // RSG 4S
+            'SKU-1773132253853-RSGC' => 'B20240212120745', // RSG C5.5 FULL KUNCI -> RSG C5.5
+            'SKU-1778933299117-SWEET' => 'B20241210121113', // Sweet Package
+            'SKU-1773215941668-RB61' => 'B20240214230935', // RB 6180
+            'SKU-1775870531163-BUNDL' => 'B20241210154615', // Bundling B MT570 + Kursi Saemas
+        ];
+
+        if ($sku && isset($map[$sku])) {
+            return $map[$sku];
+        }
+
+        $nameMap = [
+            'RSGA44FULLKUNCI' => 'B20240212120041',
+            'MT205' => 'B20240212150717',
+            'MT550SAEMAS' => 'B20240214225454',
+            'RSG3S' => 'B20240212113451',
+            'MT552SAEMAS' => 'B20240214225740',
+            'MRH800' => 'B20241106133158',
+            'RSD10' => 'B20240301104421',
+            'RSD8' => 'B20240221092912',
+            'RSGK' => 'B20240214221123',
+            'ALD8113' => 'B20240213111208',
+            'RSG4S' => 'B20240212114312',
+            'RSGC55FULLKUNCI' => 'B20240212120745',
+            'SWEETPACKAGEALD8112KPPUTIHMRS866KOTAKPUTIH' => 'B20241210121113',
+            'RB6180' => 'B20240214230935',
+            'BUNDLINGBMT570KURSISAEMAS' => 'B20241210154615',
+        ];
+
+        return $nameMap[$nameKey] ?? null;
     }
 
     private function findWebsiteProductByNormalizedName(string $name): ?array
