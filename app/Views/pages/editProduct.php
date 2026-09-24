@@ -1,6 +1,5 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<script src="https://cdn.tiny.cloud/1/<?= $tinymce; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <?php
 $namaProduk = $produk['nama'] ?? '';
 $hargaProduk = $produk['harga'] ?? 0;
@@ -21,17 +20,23 @@ $pencarianProduk = $produk['pencarian'] ?? '';
         <div class="admin-form-hero mb-4">
             <div>
                 <p class="admin-form-eyebrow mb-1">Produk</p>
-                <h1 class="mb-1">Edit Produk</h1>
-                <p class="text-muted mb-0">Perbarui data produk dengan panduan field dan live preview agar hasilnya langsung terlihat.</p>
+                <h1 class="mb-1">Edit Foto Produk</h1>
+                <p class="text-muted mb-0">Data utama produk dikunci agar tetap satu jalur dari Luna Sistem. Di website hanya foto produk yang bisa diperbarui.</p>
             </div>
             <a class="btn btn-outline-dark" href="/listproduct">Kembali</a>
+        </div>
+        <?php if (session()->getFlashdata('msg')) { ?>
+            <div class="alert alert-warning py-2"><?= session()->getFlashdata('msg'); ?></div>
+        <?php } ?>
+        <div class="alert alert-info py-2">
+            Nama, harga, stok, varian, kategori, status aktif, berat, dan dimensi wajib diedit dari Luna Sistem. Form ini hanya menyimpan foto agar website tetap ringan dan data tidak bentrok.
         </div>
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data" class="admin-product-form">
             <?= csrf_field(); ?>
             <div class="admin-product-grid">
                 <div class="admin-product-fields">
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>1</span><div><h5>Informasi utama</h5><p>Data yang tampil di kartu produk dan halaman detail.</p></div></div>
+                        <div class="admin-form-section__head"><span>1</span><div><h5>Informasi utama</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="nama">Nama produk</label>
@@ -73,7 +78,7 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>2</span><div><h5>Kategori & varian</h5><p>Ubah varian untuk menyesuaikan jumlah slot gambar.</p></div></div>
+                        <div class="admin-form-section__head"><span>2</span><div><h5>Kategori & varian</h5><p>Terkunci, mengikuti Luna Sistem. Slot foto otomatis mengikuti varian yang sudah tersimpan.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field">
                                 <label class="form-label" for="kategori">Kategori</label>
@@ -100,7 +105,7 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>3</span><div><h5>Link marketplace & video</h5><p>Opsional, isi jika produk tersedia di platform tersebut.</p></div></div>
+                        <div class="admin-form-section__head"><span>3</span><div><h5>Link marketplace & video</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field"><label class="form-label" for="shopee">Link Shopee</label><input id="shopee" type="url" class="form-control" value="<?= esc($produk['shopee'] ?? ''); ?>" name="shopee" placeholder="https://shopee.co.id/..."><small>Link tombol Shopee di halaman detail.</small></div>
                             <div class="admin-field"><label class="form-label" for="tokped">Link Tokopedia</label><input id="tokped" type="url" class="form-control" value="<?= esc($produk['tokped'] ?? ''); ?>" name="tokped" placeholder="https://tokopedia.com/..."><small>Link tombol Tokopedia.</small></div>
@@ -110,7 +115,7 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi & pencarian</h5><p>Preview deskripsi akan tampil di kanan secara langsung.</p></div></div>
+                        <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi & pencarian</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="deskripsi">Deskripsi HTML</label>
@@ -150,7 +155,7 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                         <div id="foto-varian" class="d-flex gap-2"></div>
                     </section>
                     <div class="d-grid gap-2 mt-3">
-                        <button class="btn btn-primary1" type="submit">Simpan Perubahan</button>
+                        <button class="btn btn-primary1" type="submit">Simpan Foto</button>
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
                     </div>
                 </aside>
@@ -172,6 +177,14 @@ $pencarianProduk = $produk['pencarian'] ?? '';
     let varian = Number(ambilVarian) || 1;
     let jmlVarian = Number(ambilJmlvarian) || 1;
     let hasilVarian = jmlVarian + varian - 1;
+
+    document.querySelectorAll('.admin-product-fields input, .admin-product-fields textarea').forEach((field) => {
+        field.readOnly = true;
+        field.required = false;
+        field.classList.add('bg-light');
+        field.setAttribute('tabindex', '-1');
+    });
+    document.getElementById('generateSearchKeyword')?.setAttribute('disabled', 'disabled');
 
     function isiPencarian(e) {
         if (e.srcElement.value != '') {
@@ -228,27 +241,27 @@ $pencarianProduk = $produk['pencarian'] ?? '';
 
     document.querySelectorAll('.admin-product-form input, .admin-product-form textarea').forEach((field) => { field.addEventListener('input', updateAdminProductPreview); field.addEventListener('change', updateAdminProductPreview); });
     document.querySelector('[name="deskripsi_nonhtml"]').addEventListener('input', (e) => e.target.dataset.touched = 'true');
-    document.getElementById('generateSearchKeyword').addEventListener('click', generateSearchKeyword);
+    document.getElementById('generateSearchKeyword')?.addEventListener('click', generateSearchKeyword);
     document.querySelector('.admin-product-form').addEventListener('submit', () => {
         if (window.tinymce) tinymce.triggerSave();
         syncPlainDescription(true);
         if (!document.querySelector('[name="pencarian"]').value.trim()) generateSearchKeyword();
     });
-    tinymce.init({
-        selector: '#deskripsi',
-        height: 320,
-        menubar: false,
-        plugins: ['link', 'lists', 'table', 'code'],
-        toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code',
-        setup: function(editor) {
-            editor.on('input change keyup setcontent', function() {
-                syncPlainDescription();
-                updateAdminProductPreview();
-            });
-        }
-    });
-    elmVarian.addEventListener('input', syncImageInputs);
-    elmJmlvarian.addEventListener('input', syncImageInputs);
+    if (window.tinymce) {
+        tinymce.init({
+            selector: '#deskripsi',
+            height: 320,
+            menubar: false,
+            readonly: true,
+            toolbar: false,
+            setup: function(editor) {
+                editor.on('input change keyup setcontent', function() {
+                    syncPlainDescription();
+                    updateAdminProductPreview();
+                });
+            }
+        });
+    }
 
     function syncImageInputs() {
         const varianArray = (elmVarian.value || '').split(',').map(v => v.trim()).filter(Boolean);

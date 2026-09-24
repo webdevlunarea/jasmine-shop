@@ -8,10 +8,13 @@
                 <a href="/listproducttable" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
                     <p class="mb-0">Eksport</p>
                 </a>
-                <a href="/addproduct" class="btn btn-primary1 d-flex gap-2" style="width: fit-content;"><i class="material-icons">add</i>
-                    <p class="mb-0">Tambah Produk</p>
-                </a>
             </div>
+        </div>
+        <?php if (session()->getFlashdata('msg')) { ?>
+            <div class="alert alert-warning py-2"><?= session()->getFlashdata('msg'); ?></div>
+        <?php } ?>
+        <div class="alert alert-info py-2">
+            Data utama produk seperti nama, harga, stok, varian, kategori, status aktif, berat, dan dimensi dikelola dari Luna Sistem. Admin website hanya untuk foto produk.
         </div>
         <form action="/findproductadmin" method="post">
             <div class="mb-2 d-flex gap-3 align-items-center">
@@ -42,14 +45,13 @@
                         <?php } ?>
                     </div>
                     <div style="flex: 1;" class="d-flex justify-content-center align-items-center">
-                        <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Produk <?= $p['nama']; ?> akan di<?= $p['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activeproduct/<?= $p['id']; ?>')">
+                        <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px;" title="Status produk mengikuti Luna Sistem">
                             <div class="bg-<?= $p['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
                         </div>
                     </div>
                     <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
                         <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
-                        <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
-                        <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
+                        <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>" title="Edit foto produk"><i class="material-icons">add_photo_alternate</i></a>
                     </div>
                 </div>
                 <hr>
@@ -73,14 +75,13 @@
                     <?php } ?>
                     <div class="d-flex mt-2">
                         <div style="flex: 1;" class="d-flex justify-content-center align-items-center">
-                            <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Produk <?= $p['nama']; ?> akan di<?= $p['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activeproduct/<?= $p['id']; ?>')">
+                            <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $p['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px;" title="Status produk mengikuti Luna Sistem">
                                 <div class="bg-<?= $p['active'] ? 'success' : 'danger' ?> rounded-2" style="width: 30px; height: 90%"></div>
                             </div>
                         </div>
                         <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">
                             <a class="btn btn-light d-flex" href="/product/<?= $p['path']; ?>"><i class="material-icons">visibility</i></a>
-                            <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>"><i class="material-icons">edit</i></a>
-                            <button class="btn btn-light d-flex" onclick="triggerToast('Produk <?= $p['nama']; ?> akan dihapus?','/delproduct/<?= $p['id']; ?>')"><i class="material-icons">delete_forever</i></button>
+                            <a class="btn btn-light d-flex" href="/editproduct/<?= $p['id']; ?>" title="Edit foto produk"><i class="material-icons">add_photo_alternate</i></a>
                         </div>
                     </div>
                 </div>

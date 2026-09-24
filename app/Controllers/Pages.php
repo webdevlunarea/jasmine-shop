@@ -7243,15 +7243,14 @@ class Pages extends BaseController
     }
     public function addProduct()
     {
-        $tinymce_key = env('TINYMCE_KEY', 'DefaultValue');
-        $data = [
-            'title' => 'Tambah Produk',
-            'tinymce' => $tinymce_key
-        ];
-        return view('pages/addProduct', $data);
+        session()->setFlashdata('msg', 'Tambah produk sekarang wajib lewat Luna Sistem. Admin website hanya untuk mengelola foto produk.');
+        return redirect()->to('/listproduct');
     }
     public function actionAddProduct()
     {
+        session()->setFlashdata('msg', 'Tambah produk sekarang wajib lewat Luna Sistem. Admin website hanya untuk mengelola foto produk.');
+        return redirect()->to('/listproduct');
+
         $d = strtotime("+7 Hours");
         $tanggal = "B" . date("YmdHis", $d);
         $varian = explode(",", $this->request->getVar('varian'));
@@ -7341,107 +7340,51 @@ class Pages extends BaseController
 
     public function actionEditProduct($id)
     {
-        $varian = explode(",", $this->request->getVar('varian'));
-        // dd(file_get_contents($this->request->getFile("gambar1")));
-        $path = str_replace("- ", "", $this->request->getVar('nama'));
-        $path = str_replace(".", "", $path);
-        $path = str_replace("& ", "", $path);
-        $path = str_replace("+ ", "", $path);
-        $path = str_replace("| ", "", $path);
-        $path = str_replace("[", "", $path);
-        $path = str_replace("]", "", $path);
-        $path = str_replace(" ", "-", $path);
-        $path = strtolower($path);
-
-        if (!empty($_FILES['gambar1']['tmp_name'])) {
-            $hasilVarian = count(explode(",", $this->request->getVar('varian'))) + (int)$this->request->getVar('jml_varian') - 1;
-            $gambarnya = [];
-            $insertGambarBarang = [
-                'id' => $id
-            ];
-            for ($i = 1; $i <= $hasilVarian; $i++) {
-                array_push($gambarnya, file_get_contents($this->request->getFile("gambar" . $i)));
-                $insertGambarBarang["gambar" . $i] = file_get_contents($this->request->getFile("gambar" . $i));
-            }
-
-            $this->barangModel->save([
-                'id'            => $id,
-                'nama'          => $this->request->getVar('nama'),
-                'path'          => $path,
-                'pencarian'     => $this->request->getVar('pencarian'),
-                'gambar'        => $gambarnya[0],
-                'harga'         => $this->request->getVar('harga'),
-                'berat'         => $this->request->getVar('berat'),
-                'stok'          => $this->request->getVar('stok'),
-                'dimensi'       => $this->request->getVar('dimensi'),
-                'deskripsi'     => $this->request->getVar('deskripsi'),
-                'deskripsi_nonhtml'     => $this->request->getVar('deskripsi_nonhtml'),
-                'kategori'      => $this->request->getVar('kategori'),
-                'subkategori'   => $this->request->getVar('subkategori'),
-                'diskon'        => $this->request->getVar('diskon'),
-                'varian'        => json_encode($varian),
-                'jml_varian'    => $this->request->getVar('jml_varian'),
-                'shopee'        => $this->request->getVar('shopee'),
-                'tokped'        => $this->request->getVar('tokped'),
-                'tiktok'        => $this->request->getVar('tiktok'),
-                'youtube'       => $this->request->getVar('youtube'),
-                'terjual_custom' => $this->request->getVar('terjual_custom'),
-            ]);
-            $this->gambarBarangModel->save($insertGambarBarang);
-
-            $getGambarCur = $this->gambarBarangModel->where(['id' => $id])->first();
-            $jumlahGambarCur = 0;
-            foreach ($getGambarCur as $g) {
-                if ($g->isValid()) {
-                    $jumlahGambarCur++;
-                }
-            }
-            if ($jumlahGambarCur > $hasilVarian) {
-                $offset = $jumlahGambarCur - $hasilVarian;
-                $setGambarJadiNull = [];
-                for ($i = 0; $i < $offset; $i++) {
-                    $setGambarJadiNull['gambar' . ($hasilVarian + 1 + $i)] = null;
-                }
-                $this->gambarBarangModel->where(['id' => $id])->set($setGambarJadiNull)->update();
-            }
-        } else {
-            $this->barangModel->save([
-                'id'            => $id,
-                'nama'          => $this->request->getVar('nama'),
-                'path'          => $path,
-                'pencarian'     => $this->request->getVar('pencarian'),
-                'harga'         => $this->request->getVar('harga'),
-                'berat'         => $this->request->getVar('berat'),
-                'stok'          => $this->request->getVar('stok'),
-                'dimensi'       => $this->request->getVar('dimensi'),
-                'deskripsi'     => $this->request->getVar('deskripsi'),
-                'deskripsi_nonhtml'     => $this->request->getVar('deskripsi_nonhtml'),
-                'kategori'      => $this->request->getVar('kategori'),
-                'subkategori'   => $this->request->getVar('subkategori'),
-                'diskon'        => $this->request->getVar('diskon'),
-                'varian'        => json_encode($varian),
-                'jml_varian'    => $this->request->getVar('jml_varian'),
-                'shopee'        => $this->request->getVar('shopee'),
-                'tokped'        => $this->request->getVar('tokped'),
-                'tiktok'        => $this->request->getVar('tiktok'),
-                'youtube'       => $this->request->getVar('youtube'),
-                'terjual_custom' => $this->request->getVar('terjual_custom'),
-            ]);
+        $produk = $this->barangModel->where('id', $id)->first();
+        if (!$produk) {
+            session()->setFlashdata('msg', 'Produk tidak ditemukan.');
+            return redirect()->to('/listproduct');
         }
 
-        session()->setFlashdata('msg', 'Produk telah diupdate');
-        return redirect()->to('/product/' . urlencode($this->request->getVar('nama')));
+        $varian = json_decode($produk['varian'] ?? '[]', true);
+        if (!is_array($varian) || count($varian) < 1) $varian = ['Default'];
+        $hasilVarian = min(50, count($varian) + max((int)($produk['jml_varian'] ?? 1), 1) - 1);
+        $gambarUpdate = ['id' => $id];
+        $barangUpdate = ['id' => $id];
+        $adaGambarBaru = false;
+
+        for ($i = 1; $i <= $hasilVarian; $i++) {
+            $file = $this->request->getFile('gambar' . $i);
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+                $content = file_get_contents($file->getTempName());
+                if ($content !== false) {
+                    $gambarUpdate['gambar' . $i] = $content;
+                    if ($i === 1) $barangUpdate['gambar'] = $content;
+                    $adaGambarBaru = true;
+                }
+            }
+        }
+
+        if ($adaGambarBaru) {
+            $this->barangModel->save($barangUpdate);
+            $existingGambar = $this->gambarBarangModel->where(['id' => $id])->first();
+            if ($existingGambar) $this->gambarBarangModel->save($gambarUpdate);
+            else $this->gambarBarangModel->insert($gambarUpdate);
+            session()->setFlashdata('msg', 'Foto produk berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
+        } else {
+            session()->setFlashdata('msg', 'Tidak ada foto baru yang diupload. Data produk utama tetap mengikuti Luna Sistem.');
+        }
+
+        return redirect()->to('/editproduct/' . $id);
     }
     public function delProduct($id)
     {
-        $this->barangModel->where('id', $id)->delete();
-        $this->gambarBarangModel->where('id', $id)->delete();
+        session()->setFlashdata('msg', 'Hapus produk wajib lewat Luna Sistem agar stok, harga, dan order tetap satu jalur.');
         return redirect()->to('/listproduct');
     }
     public function activeProduct($id)
     {
-        $curActive = $this->barangModel->where(['id' => $id])->first()['active'];
-        $this->barangModel->where(['id' => $id])->set(['active' => !$curActive])->update();
+        session()->setFlashdata('msg', 'Aktif/nonaktif produk wajib lewat Luna Sistem agar website tetap sinkron.');
         return redirect()->to('/listproduct');
     }
     public function invoiceAdmin($id = false)
