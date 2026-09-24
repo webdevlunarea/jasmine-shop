@@ -3773,6 +3773,27 @@ body:not(.admin-body) {
 
 
 /* Category image transparent treatment: no card/background */
+.container-kategori-sticky .kategori,
+.container-kategori-sticky .kategori-wrap > .kategori,
+.container-kategori .kategori,
+.container-kategori .kategori-wrap > .kategori {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.container-kategori-sticky .kategori:hover,
+.container-kategori-sticky .kategori-wrap.show > .kategori,
+.container-kategori-sticky .kategori-wrap:hover > .kategori,
+.container-kategori .kategori:hover,
+.container-kategori .kategori-wrap.show > .kategori,
+.container-kategori .kategori-wrap:hover > .kategori {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
 .kategori img,
 .kategori-wrap > .kategori img {
     width: 62px;
