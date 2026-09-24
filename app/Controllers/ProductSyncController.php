@@ -39,6 +39,7 @@ class ProductSyncController extends BaseController
         $products = $body['products'] ?? [];
         $createMissing = filter_var($body['create_missing'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $dryRun = filter_var($body['dry_run'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $syncIdentity = filter_var($body['sync_identity'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if (!is_array($products) || count($products) === 0) {
             return $this->response->setStatusCode(400)->setJSON([
@@ -73,7 +74,7 @@ class ProductSyncController extends BaseController
                 continue;
             }
 
-            $syncData = $this->buildWebsiteProductData($product, $match);
+            $syncData = $this->buildWebsiteProductData($product, $match, $syncIdentity || !$match);
             if (!$match) {
                 $syncData['id'] = $this->clean($product['sku'] ?? '') ?: ('LUNA-' . time() . random_int(100, 999));
             }
@@ -99,6 +100,7 @@ class ProductSyncController extends BaseController
                 'sku' => $this->clean($product['sku'] ?? ''),
                 'name' => $syncData['nama'] ?? '',
                 'status' => $match ? 'updated' : 'created',
+                'match_by' => $match['_luna_match_by'] ?? ($match ? 'unknown' : 'new_product'),
                 'stock' => $syncData['stok'] ?? '',
                 'price' => $syncData['harga'] ?? 0,
             ];
@@ -132,33 +134,89 @@ class ProductSyncController extends BaseController
 
         if ($name) {
             $row = $this->barangModel->where(['nama' => $name])->first();
-            if ($row) return $row;
+            if ($row) {
+                $row['_luna_match_by'] = 'name_exact';
+                return $row;
+            }
+        }
+
+        $fuzzy = $this->findWebsiteProductByNormalizedName($name);
+        if ($fuzzy) return $fuzzy;
+
+        return null;
+    }
+
+    private function findWebsiteProductByNormalizedName(string $name): ?array
+    {
+        $normalizedName = $this->normalizeNameKey($name);
+        if (strlen($normalizedName) < 4) return null;
+
+        $products = $this->barangModel
+            ->select('id,nama,path,pencarian,harga,berat,stok,dimensi,deskripsi,deskripsi_nonhtml,kategori,subkategori,diskon,varian,jml_varian,shopee,tokped,tiktok,youtube,active,kaca')
+            ->findAll();
+
+        $exactMatches = [];
+        $containsMatches = [];
+
+        foreach ($products as $row) {
+            $websiteName = $this->normalizeNameKey($row['nama'] ?? '');
+            $websitePath = $this->normalizeNameKey(str_replace('-', ' ', $row['path'] ?? ''));
+            $websiteSearch = $this->normalizeNameKey($row['pencarian'] ?? '');
+            $haystack = $websiteName . ' ' . $websitePath . ' ' . $websiteSearch;
+
+            if ($websiteName === $normalizedName || $websitePath === $normalizedName) {
+                $exactMatches[] = $row;
+                continue;
+            }
+
+            if (
+                str_contains($websiteName, $normalizedName) ||
+                str_contains($websitePath, $normalizedName) ||
+                str_contains($websiteSearch, $normalizedName) ||
+                str_contains($haystack, $normalizedName)
+            ) {
+                $containsMatches[] = $row;
+            }
+        }
+
+        if (count($exactMatches) === 1) {
+            $exactMatches[0]['_luna_match_by'] = 'name_normalized_exact';
+            return $exactMatches[0];
+        }
+
+        if (count($containsMatches) === 1) {
+            $containsMatches[0]['_luna_match_by'] = 'name_normalized_contains';
+            return $containsMatches[0];
         }
 
         return null;
     }
 
-    private function buildWebsiteProductData(array $product, ?array $existing): array
+    private function buildWebsiteProductData(array $product, ?array $existing, bool $syncIdentity): array
     {
-        $name = $this->clean($product['name'] ?? ($existing['nama'] ?? ''));
-        $slug = $this->slugify($this->clean($product['slug'] ?? '') ?: $name);
+        $incomingName = $this->clean($product['name'] ?? ($existing['nama'] ?? ''));
+        $name = ($existing && !$syncIdentity) ? ($existing['nama'] ?? $incomingName) : $incomingName;
+        $incomingSlug = $this->slugify($this->clean($product['slug'] ?? '') ?: $incomingName);
+        $slug = ($existing && !$syncIdentity) ? ($existing['path'] ?? $incomingSlug) : $incomingSlug;
         $variants = $this->normalizeVariants($product);
         $variantNames = array_map(fn($variant) => $variant['name'], $variants);
         $stockValues = array_map(fn($variant) => (string)$variant['stock'], $variants);
-        $description = (string)($product['description'] ?? ($existing['deskripsi'] ?? ''));
+        $description = ($existing && !$syncIdentity)
+            ? (string)($existing['deskripsi'] ?? '')
+            : (string)($product['description'] ?? ($existing['deskripsi'] ?? ''));
 
         $data = [
             'nama' => $name ?: ($existing['nama'] ?? ''),
             'path' => $slug ?: ($existing['path'] ?? ''),
-            'pencarian' => $this->clean($product['search'] ?? $product['sku'] ?? $name),
+            'pencarian' => ($existing && !$syncIdentity) ? ($existing['pencarian'] ?? $name) : $this->clean($product['search'] ?? $product['sku'] ?? $name),
             'harga' => (int)round((float)($product['sellingPrice'] ?? $product['price'] ?? ($existing['harga'] ?? 0))),
             'berat' => (string)($product['weight'] ?? ($existing['berat'] ?? '')),
             'stok' => implode(',', $stockValues),
             'dimensi' => $this->formatDimension($product, $existing),
             'deskripsi' => $description,
             'deskripsi_nonhtml' => $this->plainText($description),
-            'kategori' => $this->clean($product['category'] ?? ($existing['kategori'] ?? '')),
-            'subkategori' => $this->clean($product['subCategory'] ?? $product['subcategory'] ?? ($existing['subkategori'] ?? '')),
+            'kategori' => ($existing && !$syncIdentity) ? ($existing['kategori'] ?? '') : $this->clean($product['category'] ?? ($existing['kategori'] ?? '')),
+            'subkategori' => ($existing && !$syncIdentity) ? ($existing['subkategori'] ?? '') : $this->clean($product['subCategory'] ?? $product['subcategory'] ?? ($existing['subkategori'] ?? '')),
             'varian' => json_encode($variantNames),
             'jml_varian' => (int)($product['image_variant_count'] ?? ($existing['jml_varian'] ?? 1)) ?: 1,
             'active' => !empty($product['isActive']) ? '1' : '0',
@@ -277,6 +335,13 @@ class ProductSyncController extends BaseController
     private function plainText(string $html): string
     {
         return trim(preg_replace('/\s+/', ' ', strip_tags($html)) ?? '');
+    }
+
+    private function normalizeNameKey(string $value): string
+    {
+        $value = strtoupper($value);
+        $value = str_replace(['SAEMAS', 'SEAMAS'], 'SAEMAS', $value);
+        return preg_replace('/[^A-Z0-9]+/', '', $value) ?? '';
     }
 
     private function clean($value): string
