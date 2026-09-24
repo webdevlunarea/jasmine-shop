@@ -862,7 +862,8 @@ class Pages extends BaseController
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
             'msg_active' => $msgActive,
             'msg_event' => session()->get('role') == '1' ? false : $msgEvent,
-            'counterEvent' => $counterEvent
+            'counterEvent' => $counterEvent,
+            'categoryImages' => $this->konstantaModel->getCategoryImages()
         ];
         return view('pages/home', $data);
     }
@@ -1412,6 +1413,7 @@ class Pages extends BaseController
             'page' => 1,
             'nama' => false,
             'semuaProduk' => $semuaproduk,
+            'categoryImages' => $this->konstantaModel->getCategoryImages(),
         ];
         if ($subkategori) {
             $metaKategori = $meta[$subkategori] ?? null;
@@ -1442,7 +1444,8 @@ class Pages extends BaseController
             'kategori' => $subkategori,
             'page' => $page,
             'nama' => false,
-            'semuaProduk' => $semuaproduk
+            'semuaProduk' => $semuaproduk,
+            'categoryImages' => $this->konstantaModel->getCategoryImages()
         ];
         return view('pages/all', $data);
     }
@@ -7218,6 +7221,69 @@ class Pages extends BaseController
             'cari' => false
         ];
         return view('pages/listProduct', $data);
+    }
+
+    private function categoryImageOptions()
+    {
+        return [
+            'all' => 'Semua Kategori',
+            'lemari-dewasa' => 'Lemari Dewasa',
+            'lemari-anak' => 'Lemari Anak',
+            'meja-rias' => 'Meja Rias',
+            'meja-belajar' => 'Meja Belajar',
+            'meja-tv' => 'Meja TV',
+            'meja-tulis' => 'Meja Tulis',
+            'meja-komputer' => 'Meja Komputer',
+            'rak-serbaguna' => 'Rak Serbaguna',
+            'rak-sepatu' => 'Rak Sepatu',
+            'rak-besi' => 'Rak Besi',
+            'kursi' => 'Kursi',
+        ];
+    }
+
+    public function categoryImagesAdmin()
+    {
+        return view('pages/categoryImagesAdmin', [
+            'title' => 'Gambar Kategori',
+            'categories' => $this->categoryImageOptions(),
+            'images' => $this->konstantaModel->getCategoryImages(),
+            'msg' => session()->getFlashdata('msg'),
+        ]);
+    }
+
+    public function actionCategoryImagesAdmin()
+    {
+        $images = $this->konstantaModel->getCategoryImages();
+        $uploadDir = FCPATH . 'img/logokategori/custom';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        foreach ($this->categoryImageOptions() as $key => $label) {
+            $file = $this->request->getFile('category_' . $key);
+            if (!$file || !$file->isValid() || $file->hasMoved()) continue;
+
+            $mime = (string)$file->getMimeType();
+            if (!in_array($mime, ['image/png', 'image/webp', 'image/jpeg'], true)) {
+                session()->setFlashdata('msg', 'Format gambar ' . $label . ' harus PNG, WebP, atau JPG.');
+                return redirect()->to('/categoryimagesadmin');
+            }
+
+            if ($file->getSize() > 1024 * 1024 * 2) {
+                session()->setFlashdata('msg', 'Ukuran gambar ' . $label . ' maksimal 2MB.');
+                return redirect()->to('/categoryimagesadmin');
+            }
+
+            $extension = strtolower($file->getExtension() ?: 'webp');
+            if (!in_array($extension, ['png', 'webp', 'jpg', 'jpeg'], true)) $extension = 'webp';
+            $fileName = $key . '-' . date('YmdHis') . '.' . $extension;
+            $file->move($uploadDir, $fileName, true);
+            $images[$key] = '/img/logokategori/custom/' . $fileName;
+        }
+
+        $this->konstantaModel->saveCategoryImages($images);
+        session()->setFlashdata('msg', 'Gambar kategori berhasil diperbarui.');
+        return redirect()->to('/categoryimagesadmin');
     }
     public function listProductTable()
     {

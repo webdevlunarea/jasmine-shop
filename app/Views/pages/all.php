@@ -49,7 +49,7 @@
             <div class="container-kategori">
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all">
-                        <img src="/img/logo icon.png" alt="Semua Kategori" width="50px">
+                        <img src="<?= esc($categoryImages['all'] ?? '/img/logo icon.png'); ?>" alt="Semua Kategori" width="50px">
                         <p>Semua Kategori</p>
                     </a>
                     <button type="button" class="kategori-arrow" aria-label="Buka semua kategori" aria-expanded="false">
@@ -72,7 +72,7 @@
                 </div>
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all/lemari-dewasa">
-                        <img src="/img/logokategori/Lemari_Dewasa.webp" alt="lemari dewasa" width="50px">
+                        <img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="lemari dewasa" width="50px">
                         <p>Lemari Dewasa</p>
                     </a>
                     <button type="button" class="kategori-arrow" aria-label="Buka sub kategori lemari dewasa" aria-expanded="false">
@@ -88,16 +88,16 @@
                     </div>
                 </div>
                 <a class="kategori" href="/all/lemari-anak">
-                    <img src="/img/logokategori/Lemari_Anak.webp" alt="lemari anak" width="50px">
+                    <img src="<?= esc($categoryImages['lemari-anak'] ?? '/img/logokategori/Lemari_Anak.webp'); ?>" alt="lemari anak" width="50px">
                     <p>Lemari Anak</p>
                 </a>
                 <a class="kategori" href="/all/meja-rias">
-                    <img src="/img/logokategori/Meja_Rias.webp" alt="meja rias" width="50px">
+                    <img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="meja rias" width="50px">
                     <p>Meja Rias</p>
                 </a>
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all/meja-belajar">
-                        <img src="/img/logokategori/Meja_Belajar.webp" alt="meja belajar" width="50px">
+                        <img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="meja belajar" width="50px">
                         <p>Meja Belajar</p>
                     </a>
                     <button type="button" class="kategori-arrow" aria-label="Buka sub kategori meja" aria-expanded="false">
@@ -112,20 +112,20 @@
                     </div>
                 </div>
                 <a class="kategori" href="/all/meja-tv">
-                    <img src="/img/logokategori/Meja_TV.webp" alt="meja tv" width="50px">
+                    <img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="meja tv" width="50px">
                     <p>Meja TV</p>
                 </a>
                 <a class="kategori" href="/all/meja-tulis">
-                    <img src="/img/logokategori/Meja_Tulis.webp" alt="meja tulis" width="50px">
+                    <img src="<?= esc($categoryImages['meja-tulis'] ?? '/img/logokategori/Meja_Tulis.webp'); ?>" alt="meja tulis" width="50px">
                     <p>Meja Tulis</p>
                 </a>
                 <a class="kategori" href="/all/meja-komputer">
-                    <img src="/img/logokategori/Meja_Komputer.webp" alt="meja komputer" width="50px">
+                    <img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="meja komputer" width="50px">
                     <p>Meja Komputer</p>
                 </a>
                 <div class="kategori-wrap has-dropdown">
                     <a class="kategori" href="/all/rak-serbaguna">
-                        <img src="/img/logokategori/Rak_Serbaguna.webp" alt="rak serbaguna" width="50px">
+                        <img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="rak serbaguna" width="50px">
                         <p>Rak Serbaguna</p>
                     </a>
                     <button type="button" class="kategori-arrow" aria-label="Buka sub kategori rak" aria-expanded="false">
@@ -138,15 +138,15 @@
                     </div>
                 </div>
                 <a class="kategori" href="/all/rak-sepatu">
-                    <img src="/img/logokategori/Rak_Sepatu.webp" alt="rak sepatu" width="50px">
+                    <img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="rak sepatu" width="50px">
                     <p>Rak Sepatu</p>
                 </a>
                 <a class="kategori" href="/all/rak-besi">
-                    <img src="/img/logokategori/Rak_Besi.webp" alt="rak besi" width="50px">
+                    <img src="<?= esc($categoryImages['rak-besi'] ?? '/img/logokategori/Rak_Besi.webp'); ?>" alt="rak besi" width="50px">
                     <p>Rak Besi</p>
                 </a>
                 <a class="kategori" href="/all/kursi">
-                    <img src="/img/logokategori/Kursi.webp" alt="kursi" width="50px">
+                    <img src="<?= esc($categoryImages['kursi'] ?? '/img/logokategori/Kursi.webp'); ?>" alt="kursi" width="50px">
                     <p>Kursi</p>
                 </a>
             </div>

@@ -45,6 +45,60 @@ class KonstantaModel extends Model
         ];
     }
 
+    public static function defaultCategoryImages()
+    {
+        return [
+            'all' => '/img/logo icon.png',
+            'lemari-dewasa' => '/img/logokategori/Lemari_Dewasa.webp',
+            'lemari-anak' => '/img/logokategori/Lemari_Anak.webp',
+            'meja-rias' => '/img/logokategori/Meja_Rias.webp',
+            'meja-belajar' => '/img/logokategori/Meja_Belajar.webp',
+            'meja-tv' => '/img/logokategori/Meja_TV.webp',
+            'meja-tulis' => '/img/logokategori/Meja_Tulis.webp',
+            'meja-komputer' => '/img/logokategori/Meja_Komputer.webp',
+            'rak-serbaguna' => '/img/logokategori/Rak_Serbaguna.webp',
+            'rak-sepatu' => '/img/logokategori/Rak_Sepatu.webp',
+            'rak-besi' => '/img/logokategori/Rak_Besi.webp',
+            'kursi' => '/img/logokategori/Kursi.webp',
+        ];
+    }
+
+    public function getCategoryImages()
+    {
+        $defaults = self::defaultCategoryImages();
+        $row = $this->getKonstantaByLabel('category_images');
+        if ($row && !empty($row['value'])) {
+            $decoded = json_decode($row['value'], true);
+            if (is_array($decoded)) {
+                foreach ($defaults as $key => $value) {
+                    if (!empty($decoded[$key]) && is_string($decoded[$key])) {
+                        $defaults[$key] = $decoded[$key];
+                    }
+                }
+            }
+        }
+        return $defaults;
+    }
+
+    public function saveCategoryImages($images)
+    {
+        $clean = self::defaultCategoryImages();
+        foreach ($clean as $key => $default) {
+            if (!empty($images[$key]) && is_string($images[$key])) {
+                $clean[$key] = $images[$key];
+            }
+        }
+
+        $row = $this->getKonstantaByLabel('category_images');
+        $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
+        if ($row) {
+            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
+        } else {
+            $this->insert(['label' => 'category_images', 'value' => $payload]);
+        }
+        return $clean;
+    }
+
     public function getTopPromoTexts()
     {
         $defaults = self::defaultTopPromoTexts();

@@ -8,6 +8,10 @@
                 <a href="/listproducttable" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
                     <p class="mb-0">Eksport</p>
                 </a>
+                <a href="/categoryimagesadmin" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
+                    <i class="material-icons">image</i>
+                    <p class="mb-0">Gambar Kategori</p>
+                </a>
             </div>
         </div>
         <?php if (session()->getFlashdata('msg')) { ?>
