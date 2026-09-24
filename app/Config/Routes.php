@@ -235,6 +235,7 @@ $routes->get('/cobaenv', 'Pages::cobaenv');
 
 //API SHEET
 $routes->post('/sheet/updatestok', 'ApiSheet::updateStok', ['filter' => 'corsFilter']);
+$routes->post('/integrations/luna-product-sync', 'ProductSyncController::syncFromLuna', ['filter' => 'corsFilter']);
 
 $routes->get('/cekdouble', 'Pages::cekDouble');
 
