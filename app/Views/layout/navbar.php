@@ -11,6 +11,7 @@ if ($isAdminNav) {
         ['label' => 'Order', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
         ['label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
+        ['label' => 'Gambar Kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
         ['label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
         ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
         ['label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
@@ -228,7 +229,7 @@ if ($isAdminNav) {
     </nav>
     <div class="mobile-bottom-nav-spacer hide-ke-show-block"></div>
 <?php } ?>
-<div style="height: 94px" class="hide-ke-show-block"></div>
+<div class="mobile-navbar-spacer hide-ke-show-block"></div>
 
 <nav class="navbar navbar-expand-lg show-ke-hide mb-2">
     <div class="container">

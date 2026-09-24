@@ -347,18 +347,18 @@ function closeModalVoucherAll(index) {
                         <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
                     </button>
                     <div class="kategori-dropdown-menu">
-                        <a href="/all"><i class="material-symbols-outlined">grid_view</i><span>Semua Produk</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Dewasa</span></a>
-                        <a href="/all/lemari-anak"><i class="material-symbols-outlined">inventory_2</i><span>Lemari Anak</span></a>
-                        <a href="/all/meja-rias"><i class="material-symbols-outlined">styler</i><span>Meja Rias</span></a>
-                        <a href="/all/meja-belajar"><i class="material-symbols-outlined">school</i><span>Meja Belajar</span></a>
-                        <a href="/all/meja-tv"><i class="material-symbols-outlined">tv</i><span>Meja TV</span></a>
-                        <a href="/all/meja-tulis"><i class="material-symbols-outlined">edit_square</i><span>Meja Tulis</span></a>
-                        <a href="/all/meja-komputer"><i class="material-symbols-outlined">desktop_windows</i><span>Meja Komputer</span></a>
-                        <a href="/all/rak-sepatu"><i class="material-symbols-outlined">dresser</i><span>Rak Sepatu</span></a>
-                        <a href="/all/rak-besi"><i class="material-symbols-outlined">shelves</i><span>Rak Besi</span></a>
-                        <a href="/all/rak-serbaguna"><i class="material-symbols-outlined">inventory_2</i><span>Rak Serbaguna</span></a>
-                        <a href="/all/kursi"><i class="material-symbols-outlined">chair</i><span>Kursi</span></a>
+                        <a href="/all"><img src="<?= esc($categoryImages['all'] ?? '/img/logo icon.png'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Semua Produk</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari Dewasa</span></a>
+                        <a href="/all/lemari-anak"><img src="<?= esc($categoryImages['lemari-anak'] ?? '/img/logokategori/Lemari_Anak.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari Anak</span></a>
+                        <a href="/all/meja-rias"><img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Rias</span></a>
+                        <a href="/all/meja-belajar"><img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Belajar</span></a>
+                        <a href="/all/meja-tv"><img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja TV</span></a>
+                        <a href="/all/meja-tulis"><img src="<?= esc($categoryImages['meja-tulis'] ?? '/img/logokategori/Meja_Tulis.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Tulis</span></a>
+                        <a href="/all/meja-komputer"><img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Komputer</span></a>
+                        <a href="/all/rak-sepatu"><img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Sepatu</span></a>
+                        <a href="/all/rak-besi"><img src="<?= esc($categoryImages['rak-besi'] ?? '/img/logokategori/Rak_Besi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Besi</span></a>
+                        <a href="/all/rak-serbaguna"><img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Serbaguna</span></a>
+                        <a href="/all/kursi"><img src="<?= esc($categoryImages['kursi'] ?? '/img/logokategori/Kursi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Kursi</span></a>
                     </div>
                 </div>
                 <div class="kategori-wrap has-dropdown">
@@ -370,12 +370,12 @@ function closeModalVoucherAll(index) {
                         <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
                     </button>
                     <div class="kategori-dropdown-menu">
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">door_front</i><span>Lemari 1 Pintu</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">door_sliding</i><span>Lemari 2 Pintu</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">view_week</i><span>Lemari 3 Pintu</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">view_module</i><span>Lemari 4 Pintu</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">view_comfy</i><span>Lemari 5 Pintu</span></a>
-                        <a href="/all/lemari-dewasa"><i class="material-symbols-outlined">grid_on</i><span>Lemari 6 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 1 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 2 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 3 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 4 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 5 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 6 Pintu</span></a>
                     </div>
                 </div>
                 <a class="kategori" href="/all/lemari-anak">
@@ -395,11 +395,11 @@ function closeModalVoucherAll(index) {
                         <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
                     </button>
                     <div class="kategori-dropdown-menu">
-                        <a href="/all/meja-belajar"><i class="material-symbols-outlined">school</i><span>Meja Belajar</span></a>
-                        <a href="/all/meja-tv"><i class="material-symbols-outlined">tv</i><span>Meja TV</span></a>
-                        <a href="/all/meja-tulis"><i class="material-symbols-outlined">edit_square</i><span>Meja Tulis</span></a>
-                        <a href="/all/meja-komputer"><i class="material-symbols-outlined">desktop_windows</i><span>Meja Komputer</span></a>
-                        <a href="/all/meja-rias"><i class="material-symbols-outlined">styler</i><span>Meja Rias</span></a>
+                        <a href="/all/meja-belajar"><img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Belajar</span></a>
+                        <a href="/all/meja-tv"><img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja TV</span></a>
+                        <a href="/all/meja-tulis"><img src="<?= esc($categoryImages['meja-tulis'] ?? '/img/logokategori/Meja_Tulis.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Tulis</span></a>
+                        <a href="/all/meja-komputer"><img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Komputer</span></a>
+                        <a href="/all/meja-rias"><img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Rias</span></a>
                     </div>
                 </div>
                 <a class="kategori" href="/all/meja-tv">
@@ -423,9 +423,9 @@ function closeModalVoucherAll(index) {
                         <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
                     </button>
                     <div class="kategori-dropdown-menu">
-                        <a href="/all/rak-sepatu"><i class="material-symbols-outlined">dresser</i><span>Rak Sepatu</span></a>
-                        <a href="/all/rak-besi"><i class="material-symbols-outlined">shelves</i><span>Rak Besi</span></a>
-                        <a href="/all/rak-serbaguna"><i class="material-symbols-outlined">inventory_2</i><span>Rak Serbaguna</span></a>
+                        <a href="/all/rak-sepatu"><img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Sepatu</span></a>
+                        <a href="/all/rak-besi"><img src="<?= esc($categoryImages['rak-besi'] ?? '/img/logokategori/Rak_Besi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Besi</span></a>
+                        <a href="/all/rak-serbaguna"><img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Serbaguna</span></a>
                     </div>
                 </div>
                 <a class="kategori" href="/all/rak-sepatu">
