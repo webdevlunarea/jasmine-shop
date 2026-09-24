@@ -622,6 +622,22 @@ class Pages extends BaseController
 
         $items = json_decode($order['items'] ?? '[]', true);
         if (!is_array($items)) $items = [];
+        foreach ($items as $index => $item) {
+            $productId = (string)($item['id'] ?? '');
+            $product = $productId !== '' ? $this->barangModel->where('id', $productId)->first() : null;
+            if (!$product) continue;
+
+            $quantity = max(1, (int)($item['quantity'] ?? 1));
+            $normalPrice = (int)($product['harga'] ?? 0);
+            $finalPrice = (int)($item['price'] ?? $item['value'] ?? $normalPrice);
+            $discountAmount = max(0, ($normalPrice - $finalPrice) * $quantity);
+
+            $items[$index]['price'] = $normalPrice;
+            $items[$index]['value'] = $normalPrice;
+            $items[$index]['discount'] = $discountAmount;
+            $items[$index]['website_final_price'] = $finalPrice;
+            $items[$index]['website_discount_percent'] = (float)($product['diskon'] ?? 0);
+        }
 
         $dataMid = json_decode($order['data_mid'] ?? '[]', true);
         if (!is_array($dataMid)) $dataMid = [];
@@ -7352,6 +7368,10 @@ class Pages extends BaseController
         $gambarUpdate = ['id' => $id];
         $barangUpdate = ['id' => $id];
         $adaGambarBaru = false;
+        $diskon = (float)($this->request->getVar('diskon') ?? ($produk['diskon'] ?? 0));
+        if ($diskon < 0) $diskon = 0;
+        if ($diskon > 100) $diskon = 100;
+        $barangUpdate['diskon'] = $diskon;
 
         for ($i = 1; $i <= $hasilVarian; $i++) {
             $file = $this->request->getFile('gambar' . $i);
@@ -7365,14 +7385,17 @@ class Pages extends BaseController
             }
         }
 
-        if ($adaGambarBaru) {
+        if ($adaGambarBaru || $diskon !== (float)($produk['diskon'] ?? 0)) {
             $this->barangModel->save($barangUpdate);
+        }
+
+        if ($adaGambarBaru) {
             $existingGambar = $this->gambarBarangModel->where(['id' => $id])->first();
             if ($existingGambar) $this->gambarBarangModel->save($gambarUpdate);
             else $this->gambarBarangModel->insert($gambarUpdate);
-            session()->setFlashdata('msg', 'Foto produk berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
+            session()->setFlashdata('msg', 'Foto/promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
         } else {
-            session()->setFlashdata('msg', 'Tidak ada foto baru yang diupload. Data produk utama tetap mengikuti Luna Sistem.');
+            session()->setFlashdata('msg', 'Promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
         }
 
         return redirect()->to('/editproduct/' . $id);

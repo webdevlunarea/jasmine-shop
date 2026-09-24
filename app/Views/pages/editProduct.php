@@ -66,6 +66,18 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                 border: 2px solid #16a34a;
                 box-shadow: 0 10px 30px rgba(22, 163, 74, .08);
             }
+            .website-promo-field {
+                border: 2px solid #f59e0b;
+                border-radius: 14px;
+                padding: 12px;
+                background: #fffbeb;
+            }
+            .website-promo-field .form-control {
+                background: #fff !important;
+                border: 1px solid #f59e0b !important;
+                color: #111827 !important;
+                cursor: text !important;
+            }
         </style>
         <div class="admin-form-hero mb-4">
             <div>
@@ -81,8 +93,8 @@ $pencarianProduk = $produk['pencarian'] ?? '';
         <div class="luna-locked-panel mb-3">
             <i class="material-icons">lock</i>
             <div>
-                <strong>Mode readonly aktif.</strong>
-                <p class="mb-0 text-muted">Nama, harga, stok, varian, kategori, status aktif, berat, dimensi, deskripsi, dan link marketplace wajib diedit dari Luna Sistem. Admin website hanya bisa upload/mengganti foto.</p>
+                <strong>Mode satu jalur aktif.</strong>
+                <p class="mb-0 text-muted">Nama, harga normal, stok, varian, kategori, status aktif, berat, dimensi, deskripsi, dan link marketplace wajib diedit dari Luna Sistem. Admin website hanya bisa upload/mengganti foto dan mengatur diskon promo website.</p>
             </div>
         </div>
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data" class="admin-product-form">
@@ -102,10 +114,10 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                                 <div class="input-group"><span class="input-group-text">Rp</span><input id="harga" type="number" class="form-control" value="<?= esc($hargaProduk); ?>" name="harga" required placeholder="1250000"></div>
                                 <small>Masukkan angka tanpa titik/koma.</small>
                             </div>
-                            <div class="admin-field">
+                            <div class="admin-field website-promo-field">
                                 <label class="form-label" for="diskon">Diskon</label>
                                 <div class="input-group"><input id="diskon" type="number" class="form-control" value="<?= esc($diskonProduk); ?>" name="diskon" step="any" required onchange="isiPencarian(event)"><span class="input-group-text">%</span></div>
-                                <small>Isi 0 kalau tidak ada promo.</small>
+                                <small><b>Bisa diedit di website.</b> Harga normal tetap dari Luna Sistem, diskon ini hanya promo website dan dikirim ke Luna Sistem sebagai diskon transaksi.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="dimensi">Dimensi</label>
@@ -233,6 +245,13 @@ $pencarianProduk = $produk['pencarian'] ?? '';
     let hasilVarian = jmlVarian + varian - 1;
 
     document.querySelectorAll('.admin-product-fields input, .admin-product-fields textarea').forEach((field) => {
+        if (field.name === 'diskon') {
+            field.required = true;
+            field.removeAttribute('readonly');
+            field.removeAttribute('aria-readonly');
+            field.setAttribute('title', 'Diskon promo khusus website');
+            return;
+        }
         field.readOnly = true;
         field.required = false;
         field.setAttribute('aria-readonly', 'true');
@@ -241,12 +260,21 @@ $pencarianProduk = $produk['pencarian'] ?? '';
         field.setAttribute('tabindex', '-1');
     });
     document.querySelectorAll('.admin-product-fields label').forEach((label) => {
-        if (label.querySelector('.readonly-badge')) return;
+        if (label.querySelector('.readonly-badge') || label.getAttribute('for') === 'diskon') return;
         const badge = document.createElement('span');
         badge.className = 'readonly-badge';
         badge.innerHTML = '<i class="material-icons">lock</i> Readonly';
         label.appendChild(badge);
     });
+    const diskonLabel = document.querySelector('label[for="diskon"]');
+    if (diskonLabel && !diskonLabel.querySelector('.readonly-badge')) {
+        const promoBadge = document.createElement('span');
+        promoBadge.className = 'readonly-badge';
+        promoBadge.style.background = '#fef3c7';
+        promoBadge.style.color = '#92400e';
+        promoBadge.innerHTML = '<i class="material-icons">local_offer</i> Promo Website';
+        diskonLabel.appendChild(promoBadge);
+    }
     document.getElementById('generateSearchKeyword')?.setAttribute('disabled', 'disabled');
 
     function isiPencarian(e) {
