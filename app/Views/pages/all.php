@@ -1,5 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<?php $categoryImages = $categoryImages ?? []; ?>
 <div class="konten">
     <div class="container">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -22,7 +23,7 @@
     .container-kategori-sticky {
         position: sticky;
         top: 82px;
-        background-color: white;
+        background: transparent;
         z-index: 5;
     }
 

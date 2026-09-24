@@ -5353,3 +5353,47 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
         padding: 28px 0;
     }
 }
+
+/* Final category cleanup for / and /all */
+.container-kategori-sticky {
+    background: transparent !important;
+    background-color: transparent !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+.container-kategori-scroll,
+.container-kategori {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.container-kategori .kategori,
+.container-kategori .kategori:hover,
+.container-kategori .kategori:focus,
+.container-kategori .kategori-wrap > .kategori,
+.container-kategori .kategori-wrap.show > .kategori,
+.container-kategori .kategori-wrap:hover > .kategori {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.container-kategori .kategori img,
+.container-kategori .kategori-wrap > .kategori img,
+.kategori-dropdown-menu img {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.container-kategori .kategori-arrow,
+.container-kategori .kategori-arrow:hover,
+.container-kategori .kategori-wrap.show .kategori-arrow {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}

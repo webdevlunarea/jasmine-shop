@@ -6685,6 +6685,7 @@ class Pages extends BaseController
             'kategori' => false,
             'semuaProduk' => $semuaproduk,
             'page' => $page,
+            'categoryImages' => $this->konstantaModel->getCategoryImages(),
         ];
         return view('pages/all', $data);
     }
