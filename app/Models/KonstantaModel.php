@@ -66,12 +66,21 @@ class KonstantaModel extends Model
     public function getCategoryImages()
     {
         $defaults = self::defaultCategoryImages();
+
+        foreach ($defaults as $key => $value) {
+            $row = $this->getKonstantaByLabel('category_image_' . $key);
+            if ($row && !empty($row['value']) && is_string($row['value'])) {
+                $defaults[$key] = $row['value'];
+            }
+        }
+
         $row = $this->getKonstantaByLabel('category_images');
         if ($row && !empty($row['value'])) {
             $decoded = json_decode($row['value'], true);
             if (is_array($decoded)) {
                 foreach ($defaults as $key => $value) {
-                    if (!empty($decoded[$key]) && is_string($decoded[$key])) {
+                    $singleRow = $this->getKonstantaByLabel('category_image_' . $key);
+                    if (!$singleRow && !empty($decoded[$key]) && is_string($decoded[$key])) {
                         $defaults[$key] = $decoded[$key];
                     }
                 }
@@ -89,13 +98,16 @@ class KonstantaModel extends Model
             }
         }
 
-        $row = $this->getKonstantaByLabel('category_images');
-        $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
-        if ($row) {
-            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
-        } else {
-            $this->insert(['label' => 'category_images', 'value' => $payload]);
+        foreach ($clean as $key => $value) {
+            $label = 'category_image_' . $key;
+            $row = $this->getKonstantaByLabel($label);
+            if ($row) {
+                $this->where(['id' => $row['id']])->set(['value' => $value])->update();
+            } else {
+                $this->insert(['label' => $label, 'value' => $value]);
+            }
         }
+
         return $clean;
     }
 

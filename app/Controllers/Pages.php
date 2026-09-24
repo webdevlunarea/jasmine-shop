@@ -7263,9 +7263,15 @@ class Pages extends BaseController
             return redirect()->to('/categoryimagesadmin');
         }
 
+        $changed = 0;
+
         foreach ($this->categoryImageOptions() as $key => $label) {
             $file = $this->request->getFile('category_' . $key);
-            if (!$file || !$file->isValid() || $file->hasMoved()) continue;
+            if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) continue;
+            if (!$file->isValid() || $file->hasMoved()) {
+                session()->setFlashdata('msg', 'Upload gambar ' . $label . ' gagal. Coba pilih ulang file gambar.');
+                return redirect()->to('/categoryimagesadmin');
+            }
 
             $mime = (string)$file->getMimeType();
             if (!in_array($mime, ['image/png', 'image/webp', 'image/jpeg'], true)) {
@@ -7281,12 +7287,16 @@ class Pages extends BaseController
             $extension = strtolower($file->getExtension() ?: 'webp');
             if (!in_array($extension, ['png', 'webp', 'jpg', 'jpeg'], true)) $extension = 'webp';
             $fileName = $key . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
-            $file->move($uploadDir, $fileName, true);
+            if (!$file->move($uploadDir, $fileName, true)) {
+                session()->setFlashdata('msg', 'Gambar ' . $label . ' gagal disimpan ke folder upload.');
+                return redirect()->to('/categoryimagesadmin');
+            }
             $images[$key] = '/category-image/' . $fileName;
+            $changed++;
         }
 
         $this->konstantaModel->saveCategoryImages($images);
-        session()->setFlashdata('msg', 'Gambar kategori berhasil diperbarui.');
+        session()->setFlashdata('msg', $changed > 0 ? $changed . ' gambar kategori berhasil diperbarui.' : 'Belum ada gambar baru yang dipilih.');
         return redirect()->to('/categoryimagesadmin');
     }
 
