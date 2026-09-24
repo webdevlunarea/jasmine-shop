@@ -23,7 +23,7 @@
                         <div class="border rounded-4 p-3 h-100 bg-white">
                             <div class="d-flex gap-3 align-items-center mb-3">
                                 <div style="width:76px;height:76px;display:grid;place-items:center;background:transparent;border:1px dashed #d1d5db;border-radius:14px;">
-                                    <img src="<?= esc($images[$key] ?? ''); ?>" alt="<?= esc($label); ?>" style="width:68px;height:68px;object-fit:contain;background:transparent;">
+                                    <img class="category-image-preview" src="<?= esc($images[$key] ?? ''); ?>" alt="<?= esc($label); ?>" style="width:68px;height:68px;object-fit:contain;background:transparent;">
                                 </div>
                                 <div>
                                     <p class="mb-1 fw-bold"><?= esc($label); ?></p>
@@ -31,8 +31,8 @@
                                 </div>
                             </div>
                             <label class="form-label">Ganti gambar</label>
-                            <input type="file" class="form-control" name="category_<?= esc($key); ?>" accept="image/png,image/webp,image/jpeg">
-                            <small class="text-muted">Saran: 300x300 px, background transparan, max 2MB.</small>
+                            <input type="file" class="form-control category-image-input" name="category_<?= esc($key); ?>" accept="image/png,image/webp,image/jpeg">
+                            <small class="text-muted category-image-note">Saran: 300x300 px, background transparan, max 2MB.</small>
                         </div>
                     </div>
                 <?php } ?>
@@ -43,4 +43,30 @@
         </form>
     </div>
 </div>
+<script>
+    document.querySelectorAll('.category-image-input').forEach((input) => {
+        input.addEventListener('change', () => {
+            const file = input.files && input.files[0];
+            const card = input.closest('.col-12');
+            const preview = card ? card.querySelector('.category-image-preview') : null;
+            const note = card ? card.querySelector('.category-image-note') : null;
+            if (!file || !preview) return;
+
+            if (!['image/png', 'image/webp', 'image/jpeg'].includes(file.type)) {
+                input.value = '';
+                if (note) note.textContent = 'Format harus PNG, WebP, atau JPG.';
+                return;
+            }
+
+            if (file.size > 1024 * 1024 * 2) {
+                input.value = '';
+                if (note) note.textContent = 'Ukuran maksimal 2MB.';
+                return;
+            }
+
+            preview.src = URL.createObjectURL(file);
+            if (note) note.textContent = `Preview: ${file.name}. Klik Simpan Gambar Kategori untuk menerapkan.`;
+        });
+    });
+</script>
 <?= $this->endSection(); ?>

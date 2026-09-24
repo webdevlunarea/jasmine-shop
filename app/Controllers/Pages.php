@@ -7280,7 +7280,7 @@ class Pages extends BaseController
 
             $extension = strtolower($file->getExtension() ?: 'webp');
             if (!in_array($extension, ['png', 'webp', 'jpg', 'jpeg'], true)) $extension = 'webp';
-            $fileName = $key . '-' . date('YmdHis') . '.' . $extension;
+            $fileName = $key . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
             $file->move($uploadDir, $fileName, true);
             $images[$key] = '/category-image/' . $fileName;
         }
