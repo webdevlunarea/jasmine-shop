@@ -3858,6 +3858,47 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     }
 }
 
+/* Category transparent final override */
+.container-kategori-sticky,
+.container-kategori-scroll,
+.container-kategori {
+    background: transparent !important;
+}
+
+.container-kategori .kategori,
+.container-kategori .kategori:hover,
+.container-kategori .kategori-wrap > .kategori,
+.container-kategori .kategori-wrap.show > .kategori,
+.container-kategori .kategori-wrap:hover > .kategori {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.container-kategori .kategori img,
+.container-kategori .kategori-wrap > .kategori img,
+.kategori-dropdown-menu img {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.container-kategori .kategori-arrow {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+.container-kategori .kategori-arrow:hover,
+.container-kategori .kategori-wrap.show .kategori-arrow {
+    background: transparent !important;
+    border-color: rgba(36, 59, 107, 0.2) !important;
+}
+
 
 /* Tablet navbar stabilization: keep the desktop navbar usable on 7-10 inch screens */
 @media (min-width: 601px) and (max-width: 991.98px) {
