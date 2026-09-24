@@ -17,6 +17,56 @@ $pencarianProduk = $produk['pencarian'] ?? '';
 ?>
 <div class="konten">
     <div class="container admin-product-editor">
+        <style>
+            .admin-product-fields .form-control[readonly],
+            .admin-product-fields textarea[readonly] {
+                background: #f8fafc !important;
+                border: 1px dashed #cbd5e1;
+                color: #64748b;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+            .admin-product-fields .admin-field {
+                position: relative;
+            }
+            .readonly-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                margin-left: 8px;
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: #eef2ff;
+                color: #4338ca;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .02em;
+                vertical-align: middle;
+            }
+            .readonly-badge .material-icons {
+                font-size: 13px;
+                line-height: 1;
+            }
+            .luna-locked-panel {
+                border: 1px solid #c7d2fe;
+                background: linear-gradient(135deg, #eef2ff, #f8fafc);
+                border-radius: 16px;
+                padding: 14px 16px;
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .luna-locked-panel .material-icons {
+                color: #4f46e5;
+                background: #fff;
+                border-radius: 12px;
+                padding: 8px;
+            }
+            .editable-photo-panel {
+                border: 2px solid #16a34a;
+                box-shadow: 0 10px 30px rgba(22, 163, 74, .08);
+            }
+        </style>
         <div class="admin-form-hero mb-4">
             <div>
                 <p class="admin-form-eyebrow mb-1">Produk</p>
@@ -28,8 +78,12 @@ $pencarianProduk = $produk['pencarian'] ?? '';
         <?php if (session()->getFlashdata('msg')) { ?>
             <div class="alert alert-warning py-2"><?= session()->getFlashdata('msg'); ?></div>
         <?php } ?>
-        <div class="alert alert-info py-2">
-            Nama, harga, stok, varian, kategori, status aktif, berat, dan dimensi wajib diedit dari Luna Sistem. Form ini hanya menyimpan foto agar website tetap ringan dan data tidak bentrok.
+        <div class="luna-locked-panel mb-3">
+            <i class="material-icons">lock</i>
+            <div>
+                <strong>Mode readonly aktif.</strong>
+                <p class="mb-0 text-muted">Nama, harga, stok, varian, kategori, status aktif, berat, dimensi, deskripsi, dan link marketplace wajib diedit dari Luna Sistem. Admin website hanya bisa upload/mengganti foto.</p>
+            </div>
         </div>
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data" class="admin-product-form">
             <?= csrf_field(); ?>
@@ -150,8 +204,8 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                         <div class="admin-preview-variants" id="previewVariants">Varian: -</div>
                         <div class="admin-description-preview" id="previewDescription">Preview deskripsi.</div>
                     </div>
-                    <section class="admin-form-section admin-image-section mt-3">
-                        <div class="admin-form-section__head"><span>5</span><div><h5>Gambar produk</h5><p>Upload gambar baru hanya jika ingin mengganti. Slot mengikuti varian.</p></div></div>
+                    <section class="admin-form-section admin-image-section editable-photo-panel mt-3">
+                        <div class="admin-form-section__head"><span>5</span><div><h5>Gambar produk <span class="badge bg-success">Bisa diedit</span></h5><p>Upload gambar baru hanya jika ingin mengganti. Slot mengikuti varian dari Luna Sistem.</p></div></div>
                         <div id="foto-varian" class="d-flex gap-2"></div>
                     </section>
                     <div class="d-grid gap-2 mt-3">
@@ -181,8 +235,17 @@ $pencarianProduk = $produk['pencarian'] ?? '';
     document.querySelectorAll('.admin-product-fields input, .admin-product-fields textarea').forEach((field) => {
         field.readOnly = true;
         field.required = false;
+        field.setAttribute('aria-readonly', 'true');
+        field.setAttribute('title', 'Readonly: ubah data ini dari Luna Sistem');
         field.classList.add('bg-light');
         field.setAttribute('tabindex', '-1');
+    });
+    document.querySelectorAll('.admin-product-fields label').forEach((label) => {
+        if (label.querySelector('.readonly-badge')) return;
+        const badge = document.createElement('span');
+        badge.className = 'readonly-badge';
+        badge.innerHTML = '<i class="material-icons">lock</i> Readonly';
+        label.appendChild(badge);
     });
     document.getElementById('generateSearchKeyword')?.setAttribute('disabled', 'disabled');
 
