@@ -84,17 +84,21 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
             }
             .variant-image-picker {
                 display: grid;
-                grid-template-columns: 76px minmax(0, 1fr);
                 gap: 12px;
-                align-items: center;
-                padding: 10px;
-                border: 1px solid #e5e7eb;
-                border-radius: 14px;
+                padding: 12px;
+                border: 1px solid #dbeafe;
+                border-radius: 16px;
                 background: #fff;
             }
+            .variant-image-picker__top {
+                display: grid;
+                grid-template-columns: 92px minmax(0, 1fr);
+                gap: 12px;
+                align-items: center;
+            }
             .variant-image-picker__preview {
-                width: 76px;
-                height: 76px;
+                width: 92px;
+                height: 92px;
                 border-radius: 12px;
                 object-fit: cover;
                 background: #f8fafc;
@@ -112,13 +116,74 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                 color: #64748b;
                 font-size: 12px;
             }
+            .variant-image-picker__choice-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+                gap: 8px;
+            }
+            .variant-image-choice {
+                position: relative;
+                display: block;
+                cursor: pointer;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 6px;
+                background: #fff;
+                transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+            }
+            .variant-image-choice:hover {
+                border-color: #93c5fd;
+                box-shadow: 0 8px 18px rgba(37, 99, 235, .12);
+                transform: translateY(-1px);
+            }
+            .variant-image-choice input {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+            .variant-image-choice img {
+                width: 100%;
+                aspect-ratio: 1 / 1;
+                object-fit: cover;
+                border-radius: 9px;
+                background: #f8fafc;
+                display: block;
+            }
+            .variant-image-choice span {
+                display: block;
+                margin-top: 5px;
+                text-align: center;
+                font-size: 11px;
+                font-weight: 700;
+                color: #475569;
+            }
+            .variant-image-choice:has(input:checked) {
+                border-color: #16a34a;
+                box-shadow: 0 0 0 3px rgba(22, 163, 74, .14);
+            }
+            .variant-image-choice:has(input:checked)::after {
+                content: "check";
+                font-family: "Material Icons";
+                position: absolute;
+                right: 4px;
+                top: 4px;
+                width: 22px;
+                height: 22px;
+                display: grid;
+                place-items: center;
+                border-radius: 999px;
+                background: #16a34a;
+                color: #fff;
+                font-size: 16px;
+                line-height: 1;
+            }
             @media (max-width: 575.98px) {
-                .variant-image-picker {
-                    grid-template-columns: 64px minmax(0, 1fr);
+                .variant-image-picker__top {
+                    grid-template-columns: 72px minmax(0, 1fr);
                 }
                 .variant-image-picker__preview {
-                    width: 64px;
-                    height: 64px;
+                    width: 72px;
+                    height: 72px;
                 }
             }
         </style>
@@ -272,20 +337,30 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                                 $selectedImageIndex = isset($variantImageMap[$variantName]) ? (int)$variantImageMap[$variantName] : $defaultImageIndex;
                             ?>
                                 <div class="admin-field">
-                                    <label class="form-label"><?= esc($variantName); ?></label>
+                                    <label class="form-label">Varian: <?= esc($variantName); ?></label>
                                     <div class="variant-image-picker">
                                         <?php
                                             $previewKey = 'gambar' . ($selectedImageIndex + 1);
                                             $previewSrc = !empty($gambar[$previewKey]) ? ('data:image/webp;base64,' . base64_encode($gambar[$previewKey])) : '/img/nopic.jpg';
                                         ?>
-                                        <img class="variant-image-picker__preview" src="<?= $previewSrc; ?>" alt="Preview foto untuk <?= esc($variantName); ?>" data-variant-preview="<?= md5($variantName); ?>">
-                                        <div class="variant-image-picker__meta">
-                                            <select class="form-control variant-image-select" name="variant_image_<?= md5($variantName); ?>" data-preview-target="<?= md5($variantName); ?>" data-variant="<?= esc($variantName); ?>">
-                                                <?php for ($slot = 0; $slot < $imageSlotCount; $slot++) { ?>
-                                                    <option value="<?= $slot; ?>" <?= $slot === $selectedImageIndex ? 'selected' : ''; ?>>Foto <?= $slot + 1; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                            <span class="variant-image-picker__hint">Preview di kiri akan berubah sesuai foto yang dipilih.</span>
+                                        <div class="variant-image-picker__top">
+                                            <img class="variant-image-picker__preview" src="<?= $previewSrc; ?>" alt="Preview foto untuk <?= esc($variantName); ?>" data-variant-preview="<?= md5($variantName); ?>">
+                                            <div class="variant-image-picker__meta">
+                                                <strong>Foto yang tampil untuk varian ini</strong>
+                                                <span class="variant-image-picker__hint">Klik salah satu thumbnail di bawah. Yang centang hijau adalah foto aktif untuk varian <?= esc($variantName); ?>.</span>
+                                            </div>
+                                        </div>
+                                        <div class="variant-image-picker__choice-grid" role="radiogroup" aria-label="Pilih foto untuk varian <?= esc($variantName); ?>">
+                                            <?php for ($slot = 0; $slot < $imageSlotCount; $slot++) {
+                                                $thumbKey = 'gambar' . ($slot + 1);
+                                                $thumbSrc = !empty($gambar[$thumbKey]) ? ('data:image/webp;base64,' . base64_encode($gambar[$thumbKey])) : '/img/nopic.jpg';
+                                            ?>
+                                                <label class="variant-image-choice">
+                                                    <input type="radio" class="variant-image-radio" name="variant_image_<?= md5($variantName); ?>" value="<?= $slot; ?>" data-preview-target="<?= md5($variantName); ?>" data-variant="<?= esc($variantName); ?>" data-image-index="<?= $slot; ?>" <?= $slot === $selectedImageIndex ? 'checked' : ''; ?>>
+                                                    <img src="<?= $thumbSrc; ?>" alt="Foto <?= $slot + 1; ?> untuk opsi varian <?= esc($variantName); ?>" data-image-choice-preview="<?= $slot; ?>">
+                                                    <span>Foto <?= $slot + 1; ?></span>
+                                                </label>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </div>
@@ -473,9 +548,9 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
             cardImg.classList.add('addProduct_Preview');
             const slotCaption = document.createElement('small');
             slotCaption.className = 'd-block text-center text-muted mt-1';
-            const usedBy = [...document.querySelectorAll('.variant-image-select')]
-                .filter(select => Number(select.value) === i - 1)
-                .map(select => select.dataset.variant)
+            const usedBy = [...document.querySelectorAll('.variant-image-radio:checked')]
+                .filter(input => Number(input.value) === i - 1)
+                .map(input => input.dataset.variant)
                 .join(', ');
             slotCaption.textContent = usedBy ? `Foto ${i}: ${usedBy}` : `Foto ${i}`;
             cardlabel.appendChild(cardIlabel); cardAnkvarian.appendChild(cardlabel); cardAnkvarian.appendChild(cardinput); cardVarian.appendChild(cardAnkvarian); cardVarian.appendChild(cardImg); cardVarian.appendChild(slotCaption); elmFotoVarian.appendChild(cardVarian);
@@ -484,24 +559,24 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         const addProduct_previewGambar = document.querySelectorAll('.addProduct_Preview');
         const addProduct_input = document.querySelectorAll('.addProduct_Input');
         const addProduct_previewUtama = document.getElementById('addProduct_PreviewUtama');
-        addProduct_inputGambar.forEach((item, index) => { item.addEventListener('change', () => { const file = addProduct_inputGambar[index].files[0]; if (!file) return; const blobUrl = URL.createObjectURL(file); existingProductImages[index] = blobUrl; addProduct_previewGambar[index].src = blobUrl; addProduct_previewUtama.src = blobUrl; addProduct_previewGambar[index].style.display = 'block'; addProduct_input[index].style.display = 'none'; refreshVariantImagePreviews(); }) })
+        addProduct_inputGambar.forEach((item, index) => { item.addEventListener('change', () => { const file = addProduct_inputGambar[index].files[0]; if (!file) return; const blobUrl = URL.createObjectURL(file); existingProductImages[index] = blobUrl; addProduct_previewGambar[index].src = blobUrl; addProduct_previewUtama.src = blobUrl; document.querySelectorAll(`[data-image-choice-preview="${index}"]`).forEach(img => img.src = blobUrl); addProduct_previewGambar[index].style.display = 'block'; addProduct_input[index].style.display = 'none'; refreshVariantImagePreviews(); inputElement(hasilVarian); }) })
     }
 
     function refreshVariantImagePreviews() {
-        document.querySelectorAll('.variant-image-select').forEach((select) => {
-            const target = select.dataset.previewTarget;
+        document.querySelectorAll('.variant-image-radio:checked').forEach((input) => {
+            const target = input.dataset.previewTarget;
             const preview = document.querySelector(`[data-variant-preview="${target}"]`);
             if (!preview) return;
-            const imageIndex = Number(select.value || 0);
+            const imageIndex = Number(input.value || 0);
             preview.src = existingProductImages[imageIndex] || '/img/nopic.jpg';
-            preview.alt = `Preview ${select.dataset.variant || 'varian'} dari Foto ${imageIndex + 1}`;
+            preview.alt = `Preview ${input.dataset.variant || 'varian'} dari Foto ${imageIndex + 1}`;
         });
     }
 
     syncImageInputs();
     updateAdminProductPreview();
-    document.querySelectorAll('.variant-image-select').forEach((select) => {
-        select.addEventListener('change', () => {
+    document.querySelectorAll('.variant-image-radio').forEach((input) => {
+        input.addEventListener('change', () => {
             refreshVariantImagePreviews();
             inputElement(hasilVarian);
         });
