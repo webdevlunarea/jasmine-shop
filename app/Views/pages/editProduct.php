@@ -82,6 +82,45 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                 color: #111827 !important;
                 cursor: text !important;
             }
+            .variant-image-picker {
+                display: grid;
+                grid-template-columns: 76px minmax(0, 1fr);
+                gap: 12px;
+                align-items: center;
+                padding: 10px;
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                background: #fff;
+            }
+            .variant-image-picker__preview {
+                width: 76px;
+                height: 76px;
+                border-radius: 12px;
+                object-fit: cover;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+            }
+            .variant-image-picker__meta {
+                min-width: 0;
+            }
+            .variant-image-picker__meta .form-control {
+                min-height: 44px;
+            }
+            .variant-image-picker__hint {
+                display: block;
+                margin-top: 6px;
+                color: #64748b;
+                font-size: 12px;
+            }
+            @media (max-width: 575.98px) {
+                .variant-image-picker {
+                    grid-template-columns: 64px minmax(0, 1fr);
+                }
+                .variant-image-picker__preview {
+                    width: 64px;
+                    height: 64px;
+                }
+            }
         </style>
         <div class="admin-form-hero mb-4">
             <div>
@@ -234,12 +273,21 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                             ?>
                                 <div class="admin-field">
                                     <label class="form-label"><?= esc($variantName); ?></label>
-                                    <select class="form-control variant-image-select" name="variant_image_<?= md5($variantName); ?>" data-variant="<?= esc($variantName); ?>">
-                                        <?php for ($slot = 0; $slot < $imageSlotCount; $slot++) { ?>
-                                            <option value="<?= $slot; ?>" <?= $slot === $selectedImageIndex ? 'selected' : ''; ?>>Foto <?= $slot + 1; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <small>Misal varian Putih harus membuka foto produk Putih.</small>
+                                    <div class="variant-image-picker">
+                                        <?php
+                                            $previewKey = 'gambar' . ($selectedImageIndex + 1);
+                                            $previewSrc = !empty($gambar[$previewKey]) ? ('data:image/webp;base64,' . base64_encode($gambar[$previewKey])) : '/img/nopic.jpg';
+                                        ?>
+                                        <img class="variant-image-picker__preview" src="<?= $previewSrc; ?>" alt="Preview foto untuk <?= esc($variantName); ?>" data-variant-preview="<?= md5($variantName); ?>">
+                                        <div class="variant-image-picker__meta">
+                                            <select class="form-control variant-image-select" name="variant_image_<?= md5($variantName); ?>" data-preview-target="<?= md5($variantName); ?>" data-variant="<?= esc($variantName); ?>">
+                                                <?php for ($slot = 0; $slot < $imageSlotCount; $slot++) { ?>
+                                                    <option value="<?= $slot; ?>" <?= $slot === $selectedImageIndex ? 'selected' : ''; ?>>Foto <?= $slot + 1; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <span class="variant-image-picker__hint">Preview di kiri akan berubah sesuai foto yang dipilih.</span>
+                                        </div>
+                                    </div>
                                 </div>
                             <?php } ?>
                         </div>
@@ -436,13 +484,28 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         const addProduct_previewGambar = document.querySelectorAll('.addProduct_Preview');
         const addProduct_input = document.querySelectorAll('.addProduct_Input');
         const addProduct_previewUtama = document.getElementById('addProduct_PreviewUtama');
-        addProduct_inputGambar.forEach((item, index) => { item.addEventListener('change', () => { const file = addProduct_inputGambar[index].files[0]; if (!file) return; const blobUrl = URL.createObjectURL(file); addProduct_previewGambar[index].src = blobUrl; addProduct_previewUtama.src = blobUrl; addProduct_previewGambar[index].style.display = 'block'; addProduct_input[index].style.display = 'none'; }) })
+        addProduct_inputGambar.forEach((item, index) => { item.addEventListener('change', () => { const file = addProduct_inputGambar[index].files[0]; if (!file) return; const blobUrl = URL.createObjectURL(file); existingProductImages[index] = blobUrl; addProduct_previewGambar[index].src = blobUrl; addProduct_previewUtama.src = blobUrl; addProduct_previewGambar[index].style.display = 'block'; addProduct_input[index].style.display = 'none'; refreshVariantImagePreviews(); }) })
+    }
+
+    function refreshVariantImagePreviews() {
+        document.querySelectorAll('.variant-image-select').forEach((select) => {
+            const target = select.dataset.previewTarget;
+            const preview = document.querySelector(`[data-variant-preview="${target}"]`);
+            if (!preview) return;
+            const imageIndex = Number(select.value || 0);
+            preview.src = existingProductImages[imageIndex] || '/img/nopic.jpg';
+            preview.alt = `Preview ${select.dataset.variant || 'varian'} dari Foto ${imageIndex + 1}`;
+        });
     }
 
     syncImageInputs();
     updateAdminProductPreview();
     document.querySelectorAll('.variant-image-select').forEach((select) => {
-        select.addEventListener('change', () => inputElement(hasilVarian));
+        select.addEventListener('change', () => {
+            refreshVariantImagePreviews();
+            inputElement(hasilVarian);
+        });
     });
+    refreshVariantImagePreviews();
 </script>
 <?= $this->endSection(); ?>
