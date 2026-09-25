@@ -1,12 +1,34 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
 <style>
-    .account-page { padding: 1rem 0 2rem; }
+    .account-page {
+        display: block;
+        position: relative;
+        z-index: 0;
+        clear: both;
+        min-height: auto;
+        padding: 1rem 0 clamp(46px, 6vw, 86px);
+        overflow: visible;
+    }
+    .account-page > .container {
+        position: relative;
+        z-index: 1;
+    }
+    .account-page + footer.footer-transparent {
+        clear: both;
+        position: relative;
+        z-index: 1;
+        margin-top: 0;
+    }
     .account-hero { background: linear-gradient(135deg, rgba(36,56,47,.97), rgba(45,194,107,.86)); color: #fff; border-radius: 24px; padding: 22px; overflow: hidden; position: relative; }
     .account-hero:after { content: ""; position: absolute; right: -70px; top: -70px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255,255,255,.14); }
     .account-avatar { width: 92px; height: 92px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255,255,255,.55); background: #fff; }
     .account-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.16); color: #fff; font-size: .82rem; font-weight: 700; }
-    .account-card { background: #fff; border: 1px solid rgba(17,24,39,.08); border-radius: 20px; padding: 16px; box-shadow: 0 10px 28px rgba(17,24,39,.06); height: 100%; }
+    .account-card { background: #fff; border: 1px solid rgba(17,24,39,.08); border-radius: 20px; padding: 16px; box-shadow: 0 10px 28px rgba(17,24,39,.06); }
+    .account-page .row > [class*="col-"] > .account-card,
+    .account-page .row > [class*="col-"] > .account-stat {
+        height: 100%;
+    }
     .account-card-soft { background: #f7fbf8; border-color: rgba(45,194,107,.18); }
     .account-stat { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; transition: .18s ease; }
     .account-stat:hover { transform: translateY(-2px); color: inherit; }
@@ -29,7 +51,7 @@
     .account-form-photo { position: relative; width: fit-content; margin: 0 auto; }
     .account-form-photo img { width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(17,24,39,.08); }
     @media (max-width: 991.98px) { .account-menu { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 575.98px) { .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } }
+    @media (max-width: 575.98px) { .account-page { padding-top: .75rem; padding-bottom: 58px; } .account-page + footer.footer-transparent { margin-top: 0; } .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } }
 </style>
 <?php
 $email = session()->get('email');
