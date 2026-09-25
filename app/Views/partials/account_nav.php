@@ -18,7 +18,8 @@ $accountMenu = [
         padding: 1rem 0 clamp(46px, 6vw, 86px);
         overflow: visible;
     }
-    .account-shell + footer.footer-transparent { clear: both; position: relative; z-index: 1; margin-top: 0; }
+    .account-shell ~ footer.footer-transparent,
+    body:has(.account-shell) footer.footer-transparent { clear: both; position: relative; z-index: 1; margin-top: 0 !important; }
     .account-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 18px; align-items: start; }
     .account-side-card, .account-content-card { background: #fff; border: 1px solid rgba(17,24,39,.08); border-radius: 20px; box-shadow: 0 10px 28px rgba(17,24,39,.06); }
     .account-side-card { padding: 12px; position: sticky; top: 86px; }
@@ -44,7 +45,8 @@ $accountMenu = [
     }
     @media (max-width: 575.98px) {
         .account-shell { padding-top: .75rem; padding-bottom: 58px; }
-        .account-shell + footer.footer-transparent { margin-top: 0; }
+        .account-shell ~ footer.footer-transparent,
+        body:has(.account-shell) footer.footer-transparent { margin-top: 0 !important; }
     }
 </style>
 <div class="account-mobile-tabs" aria-label="Menu akun">

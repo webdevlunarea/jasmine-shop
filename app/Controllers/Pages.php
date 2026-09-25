@@ -109,6 +109,25 @@ class Pages extends BaseController
         return $code;
     }
 
+    protected function normalizeProductDimensions($dimensionText): array
+    {
+        preg_match_all('/\d+(?:[,.]\d+)?/', (string)$dimensionText, $matches);
+        $values = array_map(
+            static fn($value) => (float)str_replace(',', '.', $value),
+            $matches[0] ?? []
+        );
+        $values = array_values(array_filter($values, static fn($value) => $value > 0));
+
+        return [
+            'length' => $values[0] ?? 1.0,
+            'width' => $values[1] ?? 1.0,
+            'height' => $values[2] ?? 1.0,
+            'values' => $values,
+            'is_complete' => count($values) >= 3,
+            'raw' => (string)$dimensionText,
+        ];
+    }
+
     protected function applyThemeWarnaToEmailHtml($html)
     {
         $theme = $this->konstantaModel->getThemeWarna();
@@ -3229,18 +3248,18 @@ class Pages extends BaseController
                     $persen = (100 - $produknya['diskon']) / 100;
                     $hasil = round($persen * $produknya['harga']);
                     $subtotal += $hasil * $element['jumlah'];
-                    $dimensi = explode("X", $produknya['dimensi']);
-                    array_push($dimensiSemua, $produknya['dimensi']);
+                    $dimensi = $this->normalizeProductDimensions($produknya['dimensi'] ?? '');
+                    array_push($dimensiSemua, $dimensi['raw']);
                     $berat += $produknya['berat'] * $element['jumlah'];
-                    $beratHitung += ceil((float)$dimensi[0] * (float)$dimensi[1] * (float)$dimensi[2] / 3500) * $element['jumlah']; //kg
+                    $beratHitung += ceil($dimensi['length'] * $dimensi['width'] * $dimensi['height'] / 3500) * $element['jumlah']; //kg
 
                     array_push($produkJson, array(
                         'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
                         // 'description' => $produknya['deskripsi'],
                         'value' => $hasil,
-                        'length' => (float)$dimensi[0],
-                        'width' => (float)$dimensi[1],
-                        'height' => (float)$dimensi[2],
+                        'length' => $dimensi['length'],
+                        'width' => $dimensi['width'],
+                        'height' => $dimensi['height'],
                         'weight' => (float)$produknya['berat'],
                         'quantity' => (int)$element['jumlah'],
                     ));
@@ -6480,7 +6499,12 @@ class Pages extends BaseController
         $produksekategori = $this->barangModel->where(['active' => '1', 'subkategori' => $produk['subkategori']])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
         $gambarnya = $this->gambarBarangModel->getGambar($produk['id']);
         $varian = json_decode($produk['varian'], true);
-        $dimensi = explode("X", $produk['dimensi']);
+        $dimensiNormalized = $this->normalizeProductDimensions($produk['dimensi'] ?? '');
+        $dimensi = [
+            $dimensiNormalized['length'],
+            $dimensiNormalized['width'],
+            $dimensiNormalized['height'],
+        ];
 
         $this->barangModel->where(['id' => $produk['id']])->set([
             'tracking_pop' => (int)$produk['tracking_pop'] + 1

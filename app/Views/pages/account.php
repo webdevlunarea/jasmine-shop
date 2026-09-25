@@ -14,11 +14,12 @@
         position: relative;
         z-index: 1;
     }
-    .account-page + footer.footer-transparent {
+    .account-page ~ footer.footer-transparent,
+    body:has(.account-page) footer.footer-transparent {
         clear: both;
         position: relative;
         z-index: 1;
-        margin-top: 0;
+        margin-top: 0 !important;
     }
     .account-hero { background: linear-gradient(135deg, rgba(36,56,47,.97), rgba(45,194,107,.86)); color: #fff; border-radius: 24px; padding: 22px; overflow: hidden; position: relative; }
     .account-hero:after { content: ""; position: absolute; right: -70px; top: -70px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255,255,255,.14); }
@@ -51,7 +52,7 @@
     .account-form-photo { position: relative; width: fit-content; margin: 0 auto; }
     .account-form-photo img { width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(17,24,39,.08); }
     @media (max-width: 991.98px) { .account-menu { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 575.98px) { .account-page { padding-top: .75rem; padding-bottom: 58px; } .account-page + footer.footer-transparent { margin-top: 0; } .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } }
+    @media (max-width: 575.98px) { .account-page { padding-top: .75rem; padding-bottom: 78px; } .account-page ~ footer.footer-transparent, body:has(.account-page) footer.footer-transparent { margin-top: 0 !important; } .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } }
 </style>
 <?php
 $email = session()->get('email');
