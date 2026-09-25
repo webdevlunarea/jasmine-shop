@@ -6245,10 +6245,76 @@ class Pages extends BaseController
         $tgl_lahir = session()->get("tgl_lahir");
         $foto = session()->get("foto");
         $email = session()->get("email");
-        $getCurPembeli = $this->pembeliModel->getPembeli($email);
+        $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
+        $getCurUser = $this->userModel->getUser($email) ?: [];
         $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
-        $waktuBatas = strtotime($getCurPembeli['batas_tgl_lahir']);
+        $waktuBatas = !empty($getCurPembeli['batas_tgl_lahir']) ? strtotime($getCurPembeli['batas_tgl_lahir']) : 0;
         $waktuSelisih = $waktuBatas - $waktuCurr;
+        $formatTanggal = function ($tanggal) {
+            if (!$tanggal || strpos($tanggal, '-') === false) return null;
+            $parts = explode('-', $tanggal);
+            if (count($parts) !== 3) return null;
+            return $parts[2] . '/' . $parts[1] . '/' . $parts[0];
+        };
+        $decodeArray = function ($value) {
+            if (is_array($value)) return $value;
+            $decoded = json_decode((string)$value, true);
+            return is_array($decoded) ? $decoded : [];
+        };
+
+        $orders = [];
+        $returns = [];
+        $activeOrders = 0;
+        $pendingPayment = null;
+        $latestOrders = [];
+        $latestReturn = null;
+        if ($email && $email !== 'tamu' && session()->get('role') == '0') {
+            $orders = $this->pemesananModel
+                ->where('email_cus', $email)
+                ->orderBy('id', 'desc')
+                ->findAll(6);
+            $latestOrders = array_slice($orders, 0, 3);
+            foreach ($orders as $order) {
+                if (in_array($order['status'] ?? '', ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening', 'Proses', 'Dikirim'], true)) {
+                    $activeOrders++;
+                }
+                if (!$pendingPayment && in_array($order['status'] ?? '', ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) {
+                    $pendingPayment = $order;
+                }
+            }
+            $returns = $this->returPengajuanModel
+                ->where('email_cus', $email)
+                ->orderBy('id', 'desc')
+                ->findAll(5);
+            $latestReturn = $returns[0] ?? null;
+        }
+
+        $voucherCount = 0;
+        if ($email && $email !== 'tamu') {
+            $voucherCount = count($this->voucherClaimedModel->getVoucherEmail($email));
+        }
+
+        $poin = 0;
+        $poinSession = session()->get("poin");
+        if (is_array($poinSession)) {
+            $today = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+            foreach ($poinSession as $p) {
+                if (!empty($p['active']) && !empty($p['kadaluarsa']) && $today <= strtotime($p['kadaluarsa'])) {
+                    $poin += (int)($p['nominal'] ?? 0);
+                }
+            }
+        }
+
+        $wishlistCount = count($decodeArray($getCurPembeli['wishlist'] ?? session()->get('wishlist')));
+        $cartCount = count($decodeArray($getCurPembeli['keranjang'] ?? session()->get('keranjang')));
+        $profileFields = [
+            !empty($nama),
+            !empty($email),
+            !empty($nohp),
+            !empty($tgl_lahir),
+            !empty($foto) && $foto !== '/imguser/ZGVmYXVsdA==',
+        ];
+        $profileCompletion = (int)round((count(array_filter($profileFields)) / count($profileFields)) * 100);
 
         $data = [
             'title' => 'Akun Saya',
@@ -6256,7 +6322,19 @@ class Pages extends BaseController
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
             'foto' => $foto,
-            'batas_tgl_lahir' => $getCurPembeli['batas_tgl_lahir'] ? explode('-', $getCurPembeli['batas_tgl_lahir'])[2] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[1] . '/' . explode('-', $getCurPembeli['batas_tgl_lahir'])[0] : null,
+            'auth_provider' => $getCurUser['auth_provider'] ?? (!empty($getCurUser['google_id']) ? 'google' : 'email'),
+            'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
+            'profileCompletion' => $profileCompletion,
+            'activeOrders' => $activeOrders,
+            'pendingPayment' => $pendingPayment,
+            'latestOrders' => $latestOrders,
+            'returnCount' => count($returns),
+            'latestReturn' => $latestReturn,
+            'voucherCount' => $voucherCount,
+            'poinTotal' => $poin,
+            'wishlistCount' => $wishlistCount,
+            'cartCount' => $cartCount,
+            'batas_tgl_lahir' => $formatTanggal($getCurPembeli['batas_tgl_lahir'] ?? null),
             'kurang_dari' => $waktuSelisih >= 0 ? true : false,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
