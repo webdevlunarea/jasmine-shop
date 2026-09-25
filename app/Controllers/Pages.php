@@ -847,10 +847,16 @@ class Pages extends BaseController
             $counterEvent += count($msgEvent['voucherNoClaimed']);
             $counterEvent += count($msgEvent['codeRedeem']);
         } else {
+            if (session()->get('isLogin') && session()->get('email') && session()->get('email') !== 'tamu' && session()->get('role') !== '1') {
+                $msgEvent['voucherNoClaimed'] = [];
+                $msgEvent['voucherClaimed'] = [];
+                $msgEvent['codeRedeem'] = [];
+            } else {
             $msgEvent['voucherNoClaimed'] = $this->voucherModel->getVoucher();
             $msgEvent['voucherClaimed'] = [];
             $msgEvent['codeRedeem'] = [];
             $counterEvent += count($msgEvent['voucherNoClaimed']);
+            }
         }
         if ($msgActive) $counterEvent++;
         $data = [
@@ -1788,12 +1794,12 @@ class Pages extends BaseController
             if ($v['durasi']) {
                 $kadaluarsa = date("Y-m-d", strtotime($v['durasi'], strtotime($waktuCurrYmd)));
             }
-            if ($v['auto_claimed']) {
-                $this->voucherClaimedModel->insert([
-                    'id' => $waktuCurr,
-                    'id_voucher' => $v['id'],
-                    'kadaluarsa' => $kadaluarsa,
-                    'email_user' => $this->request->getVar('email'),
+                if ($v['auto_claimed']) {
+                    $this->voucherClaimedModel->insert([
+                        'id' => $this->nextVoucherClaimedId($counter),
+                        'id_voucher' => $v['id'],
+                        'kadaluarsa' => $kadaluarsa,
+                        'email_user' => $this->request->getVar('email'),
                     'active' => true
                 ]);
             }
@@ -2078,7 +2084,7 @@ class Pages extends BaseController
                 }
                 if ($v['auto_claimed']) {
                     $this->voucherClaimedModel->insert([
-                        'id' => $waktuCurr,
+                        'id' => $this->nextVoucherClaimedId($counter),
                         'id_voucher' => $v['id'],
                         'kadaluarsa' => $kadaluarsa,
                         'email_user' => $email,
@@ -2149,6 +2155,99 @@ class Pages extends BaseController
         return true;
     }
 
+    private function nextVoucherClaimedId(int $offset = 0): string
+    {
+        $id = (int)strtotime('+7 Hours') + $offset;
+        while ($this->voucherClaimedModel->find((string)$id)) {
+            $id++;
+        }
+        return (string)$id;
+    }
+
+    private function claimMissingAutoVouchersForEmail(string $email): void
+    {
+        $email = strtolower(trim($email));
+        if ($email === '' || $email === 'tamu') return;
+
+        $claimedRows = $this->voucherClaimedModel->where(['email_user' => $email])->findAll();
+        $claimedVoucherIds = array_map('strval', array_column($claimedRows, 'id_voucher'));
+        $autoVouchers = $this->voucherModel->where(['active' => true, 'auto_claimed' => true])->findAll();
+        $counter = 0;
+        $waktuCurrYmd = date('Y-m-d', strtotime('+7 Hours'));
+
+        foreach ($autoVouchers as $voucher) {
+            if (in_array((string)$voucher['id'], $claimedVoucherIds, true)) continue;
+            if (!$this->voucherModel->getVoucher($voucher['id'])) continue;
+
+            $kadaluarsa = null;
+            if (!empty($voucher['durasi'])) {
+                $kadaluarsa = date('Y-m-d', strtotime($voucher['durasi'], strtotime($waktuCurrYmd)));
+            }
+
+            $this->voucherClaimedModel->insert([
+                'id' => $this->nextVoucherClaimedId($counter),
+                'id_voucher' => $voucher['id'],
+                'kadaluarsa' => $kadaluarsa,
+                'email_user' => $email,
+                'active' => true,
+            ]);
+            $claimedVoucherIds[] = (string)$voucher['id'];
+            $counter++;
+        }
+    }
+
+    private function buildVoucherNotificationForEmail(string $email): array
+    {
+        $email = strtolower(trim($email));
+        $this->claimMissingAutoVouchersForEmail($email);
+
+        $voucherClaimed = $this->voucherClaimedModel->getVoucherEmail($email);
+        $waktuCurr = strtotime('+7 Hours');
+        $waktuCurrYmd = strtotime(date('Y-m-d', $waktuCurr));
+        $adaYgExpire = [];
+
+        foreach ($voucherClaimed as $ind => $voucher) {
+            if (!empty($voucher['kadaluarsa']) && $waktuCurrYmd > strtotime($voucher['kadaluarsa'])) {
+                $adaYgExpire[] = ['id' => $voucher['id'], 'index' => $ind];
+            }
+        }
+
+        foreach ($adaYgExpire as $expired) {
+            unset($voucherClaimed[(int)$expired['index']]);
+            $this->voucherClaimedModel->where(['id' => $expired['id']])->delete();
+        }
+
+        $voucherFilter = [];
+        foreach ($this->voucherModel->getVoucher() as $voucher) {
+            $codes = json_decode($voucher['code'] ?? '[]', true);
+            if (!is_array($codes)) $codes = [];
+            foreach ($codes as $index => $codeRow) {
+                if (($codeRow['email_user'] ?? '') !== $email) continue;
+                $dataVoucher = $voucher;
+                $dataVoucher['index'] = $index;
+                $dataVoucher['code'] = $codes;
+                $voucherFilter[] = $dataVoucher;
+            }
+        }
+
+        return [
+            'voucherClaimed' => array_values($voucherClaimed),
+            'voucherNoClaimed' => $voucherFilter,
+            'codeRedeem' => $this->voucherRedeemModel->getVoucher(),
+        ];
+    }
+
+    private function prepareLoginVoucherNotification(string $email): void
+    {
+        $notifVoucher = $this->buildVoucherNotificationForEmail($email);
+        session()->setFlashdata('msg_event', $notifVoucher);
+        if (count($notifVoucher['voucherClaimed']) > 0) {
+            session()->set('voucher', $notifVoucher['voucherClaimed'][0]['id']);
+        } else {
+            session()->remove('voucher');
+        }
+    }
+
     public function googleCallback()
     {
         $state = (string)$this->request->getGet('state');
@@ -2200,6 +2299,10 @@ class Pages extends BaseController
         if (!$user || !$this->loginUserSession($user)) {
             session()->setFlashdata('msg', 'Login Google gagal membuat sesi akun.');
             return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
+        }
+
+        if (($user['role'] ?? '') === '0') {
+            $this->prepareLoginVoucherNotification((string)$user['email']);
         }
 
         session()->setFlashdata('msg', 'Berhasil masuk dengan Google.');
@@ -2314,6 +2417,7 @@ class Pages extends BaseController
         }
 
         //munculin notif ada voucher/promo
+        $this->claimMissingAutoVouchersForEmail($email);
         $voucherClaimed = $this->voucherClaimedModel->getVoucherEmail($email);
         $waktuCurr = strtotime("+7 Hours");
         $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
@@ -2437,6 +2541,7 @@ class Pages extends BaseController
     {
         $decodedTarget = base64_decode($tujuan, true);
         $target = $this->cleanRedirectTarget($decodedTarget === false ? '' : $decodedTarget);
+        session()->keepFlashdata(['msg', 'msg_event', 'msg_active']);
         $data = ['tujuan' => $target ?: '/'];
         return view('action/hapusLocalStorage', $data);
     }
@@ -2792,7 +2897,25 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
             return redirect()->to('/voucher');
         }
-        $code = json_decode($voucher['code'], true);
+
+        $alreadyClaimed = $this->voucherClaimedModel
+            ->where(['email_user' => $email, 'id_voucher' => $id_voucher, 'active' => true])
+            ->first();
+        if ($alreadyClaimed) {
+            session()->setFlashdata('msg', 'Voucher ini sudah ada di akun Kamu');
+            return redirect()->to('/voucher');
+        }
+
+        $code = json_decode($voucher['code'] ?? '[]', true);
+        if (!is_array($code)) $code = [];
+        if (!isset($code[$ind_user])) {
+            session()->setFlashdata('msg', 'Voucher tidak tersedia untuk akun Kamu');
+            return redirect()->to('/voucher');
+        }
+        if (($code[$ind_user]['email_user'] ?? '') !== $email) {
+            session()->setFlashdata('msg', 'Voucher tidak tersedia untuk akun Kamu');
+            return redirect()->to('/voucher');
+        }
         if (isset($code[$ind_user]['code'])) {
             if ($codeVar != $code[$ind_user]['code']) {
                 session()->setFlashdata('msg', 'Code salah');
@@ -2818,7 +2941,7 @@ class Pages extends BaseController
         }
         $this->voucherModel->where(['id' => $id_voucher])->set($dataYgDiupdate)->update();
         $this->voucherClaimedModel->insert([
-            'id' => $waktuCurr,
+            'id' => $this->nextVoucherClaimedId(),
             'id_voucher' => $id_voucher,
             'kadaluarsa' => $kadaluarsa,
             'email_user' => $email,
@@ -2942,7 +3065,7 @@ class Pages extends BaseController
                             $kadaluarsa = date("Y-m-d", strtotime($voucherBeneran['durasi'], strtotime($waktuCurrYmd)));
                         }
                         $this->voucherClaimedModel->insert([
-                            'id' => $waktuCurr,
+                            'id' => $this->nextVoucherClaimedId(),
                             'id_voucher' => 2,
                             'kadaluarsa' => $kadaluarsa,
                             'email_user' => $p['email_user'],
