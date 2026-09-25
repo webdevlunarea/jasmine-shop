@@ -31,6 +31,7 @@ class VoucherClaimedModel extends Model
                 ->select('voucher.jadwal')
                 ->select('voucher.max_potongan')
                 ->select('voucher.tidak_gabung_voucher_baru')
+                ->select('voucher.active AS voucher_active')
                 ->where(['email_user' => session()->get('email'), 'voucher_claimed.active' => true])
                 ->findAll();
         }
@@ -47,6 +48,7 @@ class VoucherClaimedModel extends Model
             ->select('voucher.jadwal')
             ->select('voucher.max_potongan')
             ->select('voucher.tidak_gabung_voucher_baru')
+            ->select('voucher.active AS voucher_active')
             ->where(['voucher_claimed.id' => $id, 'voucher_claimed.active' => true])
             ->first();
     }
@@ -66,6 +68,7 @@ class VoucherClaimedModel extends Model
                 ->select('voucher.jadwal')
                 ->select('voucher.max_potongan')
                 ->select('voucher.tidak_gabung_voucher_baru')
+                ->select('voucher.active AS voucher_active')
                 ->where(['email_user' => $email, 'voucher_claimed.active' => true])
                 ->findAll();
         }
@@ -82,6 +85,7 @@ class VoucherClaimedModel extends Model
             ->select('voucher.jadwal')
             ->select('voucher.max_potongan')
             ->select('voucher.tidak_gabung_voucher_baru')
+            ->select('voucher.active AS voucher_active')
             ->where(['voucher_claimed.id' => $id, 'voucher_claimed.active' => true])
             ->first();
     }

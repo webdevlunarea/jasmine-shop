@@ -2218,23 +2218,7 @@ class Pages extends BaseController
     private function buildVoucherNotificationForEmail(string $email): array
     {
         $email = strtolower(trim($email));
-        $this->claimMissingAutoVouchersForEmail($email);
-
-        $voucherClaimed = $this->voucherClaimedModel->getVoucherEmail($email);
-        $waktuCurr = strtotime('+7 Hours');
-        $waktuCurrYmd = strtotime(date('Y-m-d', $waktuCurr));
-        $adaYgExpire = [];
-
-        foreach ($voucherClaimed as $ind => $voucher) {
-            if (!empty($voucher['kadaluarsa']) && $waktuCurrYmd > strtotime($voucher['kadaluarsa'])) {
-                $adaYgExpire[] = ['id' => $voucher['id'], 'index' => $ind];
-            }
-        }
-
-        foreach ($adaYgExpire as $expired) {
-            unset($voucherClaimed[(int)$expired['index']]);
-            $this->voucherClaimedModel->where(['id' => $expired['id']])->delete();
-        }
+        $voucherClaimed = $this->getUsableClaimedVouchersForEmail($email);
 
         $voucherFilter = [];
         foreach ($this->voucherModel->getVoucher() as $voucher) {
@@ -2436,34 +2420,12 @@ class Pages extends BaseController
         }
 
         //munculin notif ada voucher/promo
-        $this->claimMissingAutoVouchersForEmail($email);
-        $voucherClaimed = $this->voucherClaimedModel->getVoucherEmail($email);
-        $waktuCurr = strtotime("+7 Hours");
-        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-        $adaYgExpire = [];
-        foreach ($voucherClaimed as $ind_v => $v) {
-            if ($v['kadaluarsa']) {
-                $waktuExpire = strtotime($v['kadaluarsa']);
-                if ($waktuCurrYmd > $waktuExpire) {
-                    array_push($adaYgExpire, [
-                        'id' => $v['id'],
-                        'index' => $ind_v
-                    ]);
-                }
-            }
-        }
-        $voucherClaimedBaru = [];
-        if (count($adaYgExpire) > 0) {
-            foreach ($adaYgExpire as $a) {
-                unset($voucherClaimed[(int)$a['index']]);
-                $this->voucherClaimedModel->where(['id' => $a['id']])->delete();
-            }
-        }
-        $voucherClaimedBaru = array_values($voucherClaimed);
+        $voucherClaimedBaru = $this->getUsableClaimedVouchersForEmail($email);
         $voucher = $this->voucherModel->getVoucher();
         $voucherFilter = [];
         foreach ($voucher as  $v) {
-            $code = json_decode($v['code'], true);
+            $code = json_decode($v['code'] ?? '[]', true);
+            if (!is_array($code)) $code = [];
             foreach ($code as $ind_c => $c) {
                 $data_v = $v;
                 $data_v['index'] = $ind_c;
@@ -2881,22 +2843,16 @@ class Pages extends BaseController
             }
         }
 
-        //baca dari voucher yg udah di claim
-        $voucherClaimed = $this->voucherClaimedModel->getVoucher();
-        $waktuCurr = strtotime("+7 Hours");
-        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-        $adaYgExpire = false;
+        //baca dari voucher yg udah di claim dan masih bisa dipakai
+        $voucherClaimed = $this->getUsableClaimedVouchersForEmail((string)session()->get('email'));
         $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
         foreach ($voucherClaimed as $ind_v => $v) {
             if ($v['kadaluarsa']) {
-                $waktuExpire = strtotime($v['kadaluarsa']);
                 $voucherClaimed[$ind_v]['kadaluarsa'] = explode('-', $v['kadaluarsa'])[2] . ' ' . $bulan[(int)explode('-', $v['kadaluarsa'])[1] - 1] . ' ' . explode('-', $v['kadaluarsa'])[0];
-                if ($waktuCurrYmd > $waktuExpire) $adaYgExpire = true;
             } else {
                 $voucherClaimed[$ind_v]['kadaluarsa'] = 'Tak terhingga';
             }
         }
-        if ($adaYgExpire) return $this->actionLogout();
         $data = [
             'title' => 'Voucher',
             'voucher' => $voucherFilter,
@@ -3211,6 +3167,48 @@ class Pages extends BaseController
         return $tanggalHariIni >= $tanggalMulai && $tanggalHariIni <= $tanggalSelesai;
     }
 
+    private function voucherClaimedMasihBisaDipakai($voucherDetail, bool $cleanup = true): bool
+    {
+        if (!$voucherDetail) return false;
+
+        if (isset($voucherDetail['voucher_active']) && (string)$voucherDetail['voucher_active'] !== '1') {
+            if ($cleanup && !empty($voucherDetail['id'])) {
+                $this->voucherClaimedModel->where(['id' => $voucherDetail['id']])->delete();
+            }
+            return false;
+        }
+
+        if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
+            if ($cleanup && !empty($voucherDetail['id'])) {
+                $this->voucherClaimedModel->where(['id' => $voucherDetail['id']])->delete();
+            }
+            return false;
+        }
+
+        if (!empty($voucherDetail['kadaluarsa'])) {
+            $today = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+            if ($today > strtotime($voucherDetail['kadaluarsa'])) {
+                if ($cleanup && !empty($voucherDetail['id'])) {
+                    $this->voucherClaimedModel->where(['id' => $voucherDetail['id']])->delete();
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function getUsableClaimedVouchersForEmail(string $email): array
+    {
+        $email = strtolower(trim($email));
+        if ($email === '' || $email === 'tamu') return [];
+
+        $this->claimMissingAutoVouchersForEmail($email);
+        $claimed = $this->voucherClaimedModel->getVoucherEmail($email);
+
+        return array_values(array_filter($claimed, fn($voucher) => $this->voucherClaimedMasihBisaDipakai($voucher)));
+    }
+
     public function checkout()
     {
         $keranjang = session()->get('keranjang');
@@ -3422,7 +3420,7 @@ class Pages extends BaseController
         //         }
         //     }
         // }
-        $voucher = $this->voucherClaimedModel->getVoucher();
+        $voucher = $email !== 'tamu' ? $this->getUsableClaimedVouchersForEmail((string)$email) : [];
         $diskonVoucher = 0;
         $voucherSelected = false;
         if (session()->get('voucher')) {
@@ -3439,29 +3437,10 @@ class Pages extends BaseController
                 return redirect()->to('/checkout');
             }
 
-            if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
-                session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+            if (!$this->voucherClaimedMasihBisaDipakai($voucherDetail)) {
+                session()->setFlashdata('msg', 'Voucher sudah tidak tersedia atau sudah melewati periode promo');
                 session()->remove('voucher');
                 return redirect()->to('/checkout');
-            }
-
-            //cek apakah lebih dari 250k
-            if ($voucherDetail['id_voucher'] == '5') {
-                if ($subtotal < 250000) {
-                    session()->setFlashdata('msg', 'Voucher tidak memenuhi syarat');
-                    session()->remove('voucher');
-                    return redirect()->to('/checkout');
-                }
-            }
-
-            //cek kadaluarsa
-            $waktuCurr = strtotime("+7 Hours");
-            $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-            if ($voucherDetail['kadaluarsa']) {
-                $waktuExpire = strtotime($voucherDetail['kadaluarsa']);
-                if ($waktuCurrYmd > $waktuExpire) {
-                    return $this->actionLogout();
-                }
             }
 
             $diskonVoucher = $this->hitungDiskonVoucher($voucherDetail, $total);
@@ -3709,8 +3688,8 @@ class Pages extends BaseController
             return redirect()->to('/checkout');
         }
 
-        if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
-            session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+        if (!$this->voucherClaimedMasihBisaDipakai($voucherDetail)) {
+            session()->setFlashdata('msg', 'Voucher sudah tidak tersedia atau sudah melewati periode promo');
             session()->remove('voucher');
             return redirect()->to('/checkout');
         }
@@ -4039,9 +4018,9 @@ class Pages extends BaseController
                 return redirect()->to('/checkout');
             }
 
-            if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
+            if (!$this->voucherClaimedMasihBisaDipakai($voucherDetail)) {
                 session()->remove('voucher');
-                session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+                session()->setFlashdata('msg', 'Voucher sudah tidak tersedia atau sudah melewati periode promo');
                 return redirect()->to('/checkout');
             }
 
@@ -6310,7 +6289,7 @@ class Pages extends BaseController
 
         $voucherCount = 0;
         if ($email && $email !== 'tamu') {
-            $voucherCount = count($this->voucherClaimedModel->getVoucherEmail($email));
+            $voucherCount = count($this->getUsableClaimedVouchersForEmail((string)$email));
         }
 
         $poin = 0;
