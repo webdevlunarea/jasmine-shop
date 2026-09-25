@@ -26,7 +26,6 @@
     .account-avatar { width: 92px; height: 92px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255,255,255,.55); background: #fff; }
     .account-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.16); color: #fff; font-size: .82rem; font-weight: 700; }
     .account-card { background: #fff; border: 1px solid rgba(17,24,39,.08); border-radius: 20px; padding: 16px; box-shadow: 0 10px 28px rgba(17,24,39,.06); }
-    .account-page .row > [class*="col-"] > .account-card,
     .account-page .row > [class*="col-"] > .account-stat {
         height: 100%;
     }
@@ -42,6 +41,9 @@
     .account-menu .material-icons { font-size: 28px; color: var(--hijau); }
     .account-order { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(17,24,39,.08); }
     .account-order:last-child { border-bottom: 0; }
+    .account-main-grid { align-items: flex-start; margin-bottom: clamp(42px, 7vw, 96px); }
+    .account-main-grid > [class*="col-"] { min-width: 0; }
+    .account-help-card { margin-bottom: 0 !important; }
     .status-pill { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px; font-size: .78rem; font-weight: 800; background: #eef7f1; color: #166534; }
     .status-pill.pending { background: #fff7ed; color: #c2410c; }
     .status-pill.danger { background: #fef2f2; color: #b91c1c; }
@@ -52,7 +54,7 @@
     .account-form-photo { position: relative; width: fit-content; margin: 0 auto; }
     .account-form-photo img { width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(17,24,39,.08); }
     @media (max-width: 991.98px) { .account-menu { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 575.98px) { .account-page { padding-top: .75rem; padding-bottom: 78px; } .account-page ~ footer.footer-transparent, body:has(.account-page) footer.footer-transparent { margin-top: 0 !important; } .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } }
+    @media (max-width: 575.98px) { .account-page { padding-top: .75rem; padding-bottom: 88px; } .account-page ~ footer.footer-transparent, body:has(.account-page) footer.footer-transparent { margin-top: 0 !important; } .account-hero { border-radius: 18px; padding: 18px; } .account-avatar { width: 76px; height: 76px; } .account-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-order { align-items: flex-start; flex-direction: column; } .account-card { border-radius: 16px; } .account-main-grid { margin-bottom: 84px; } }
 </style>
 <?php
 $email = session()->get('email');
@@ -130,7 +132,7 @@ $statusClass = function ($status) {
             </div>
         <?php } ?>
 
-        <div class="row g-3">
+        <div class="row g-3 account-main-grid">
             <div class="col-lg-7">
                 <?php if ($role == '0') { ?>
                     <div class="account-card mb-3">
@@ -161,7 +163,7 @@ $statusClass = function ($status) {
                         <?php } ?>
                     </div>
 
-                    <div class="account-card mb-3">
+                    <div class="account-card account-help-card">
                         <h5 class="fw-bold mb-2">Retur & bantuan pesanan</h5>
                         <?php if (!empty($latestReturn)) { ?>
                             <p class="mb-1"><b>Retur terakhir:</b> #<?= esc($latestReturn['id_midtrans']); ?></p>
