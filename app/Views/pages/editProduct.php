@@ -14,6 +14,10 @@ $jmlVarianProduk = $produk['jml_varian'] ?? 1;
 $deskripsiProduk = $produk['deskripsi'] ?? '';
 $deskripsiNonhtmlProduk = $produk['deskripsi_nonhtml'] ?? '';
 $pencarianProduk = $produk['pencarian'] ?? '';
+$variantList = json_decode($produk['varian'] ?? '[]', true);
+if (!is_array($variantList) || count($variantList) < 1) $variantList = ['Default'];
+$imageSlotCount = min(50, count($variantList) + max((int)$jmlVarianProduk, 1) - 1);
+$variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
 ?>
 <div class="konten">
     <div class="container admin-product-editor">
@@ -220,6 +224,26 @@ $pencarianProduk = $produk['pencarian'] ?? '';
                         <div class="admin-form-section__head"><span>5</span><div><h5>Gambar produk <span class="badge bg-success">Bisa diedit</span></h5><p>Upload gambar baru hanya jika ingin mengganti. Slot mengikuti varian dari Luna Sistem.</p></div></div>
                         <div id="foto-varian" class="d-flex gap-2"></div>
                     </section>
+                    <section class="admin-form-section mt-3">
+                        <div class="admin-form-section__head"><span>6</span><div><h5>Relasi foto ke varian</h5><p>Pilih foto utama yang akan tampil ketika pembeli memilih varian tertentu.</p></div></div>
+                        <div class="admin-field-grid">
+                            <?php foreach ($variantList as $variantName) {
+                                $defaultImageIndex = array_search($variantName, $variantList, true);
+                                $defaultImageIndex = $defaultImageIndex === 0 ? 0 : ((int)$jmlVarianProduk + (int)$defaultImageIndex - 1);
+                                $selectedImageIndex = isset($variantImageMap[$variantName]) ? (int)$variantImageMap[$variantName] : $defaultImageIndex;
+                            ?>
+                                <div class="admin-field">
+                                    <label class="form-label"><?= esc($variantName); ?></label>
+                                    <select class="form-control variant-image-select" name="variant_image_<?= md5($variantName); ?>" data-variant="<?= esc($variantName); ?>">
+                                        <?php for ($slot = 0; $slot < $imageSlotCount; $slot++) { ?>
+                                            <option value="<?= $slot; ?>" <?= $slot === $selectedImageIndex ? 'selected' : ''; ?>>Foto <?= $slot + 1; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <small>Misal varian Putih harus membuka foto produk Putih.</small>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </section>
                     <div class="d-grid gap-2 mt-3">
                         <button class="btn btn-primary1" type="submit">Simpan Foto</button>
                         <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
@@ -243,6 +267,15 @@ $pencarianProduk = $produk['pencarian'] ?? '';
     let varian = Number(ambilVarian) || 1;
     let jmlVarian = Number(ambilJmlvarian) || 1;
     let hasilVarian = jmlVarian + varian - 1;
+    const existingProductImages = <?= json_encode((function () use ($gambar, $imageSlotCount) {
+        $items = [];
+        for ($i = 1; $i <= $imageSlotCount; $i++) {
+            $key = 'gambar' . $i;
+            $items[$i - 1] = !empty($gambar[$key]) ? ('data:image/webp;base64,' . base64_encode($gambar[$key])) : '/img/nopic.jpg';
+        }
+        return $items;
+    })(), JSON_UNESCAPED_SLASHES); ?>;
+    const existingVariants = <?= json_encode($variantList, JSON_UNESCAPED_UNICODE); ?>;
 
     document.querySelectorAll('.admin-product-fields input, .admin-product-fields textarea').forEach((field) => {
         if (field.name === 'diskon') {
@@ -387,10 +420,17 @@ $pencarianProduk = $produk['pencarian'] ?? '';
             cardinput.setAttribute('name', 'gambar' + i);
             cardinput.setAttribute('accept', 'image/*');
             const cardImg = document.createElement('img');
-            cardImg.src = '/img/nopic.jpg';
+            cardImg.src = existingProductImages[i - 1] || '/img/nopic.jpg';
             cardImg.setAttribute('id', 'addProduct_PreviewGambar' + i);
             cardImg.classList.add('addProduct_Preview');
-            cardlabel.appendChild(cardIlabel); cardAnkvarian.appendChild(cardlabel); cardAnkvarian.appendChild(cardinput); cardVarian.appendChild(cardAnkvarian); cardVarian.appendChild(cardImg); elmFotoVarian.appendChild(cardVarian);
+            const slotCaption = document.createElement('small');
+            slotCaption.className = 'd-block text-center text-muted mt-1';
+            const usedBy = [...document.querySelectorAll('.variant-image-select')]
+                .filter(select => Number(select.value) === i - 1)
+                .map(select => select.dataset.variant)
+                .join(', ');
+            slotCaption.textContent = usedBy ? `Foto ${i}: ${usedBy}` : `Foto ${i}`;
+            cardlabel.appendChild(cardIlabel); cardAnkvarian.appendChild(cardlabel); cardAnkvarian.appendChild(cardinput); cardVarian.appendChild(cardAnkvarian); cardVarian.appendChild(cardImg); cardVarian.appendChild(slotCaption); elmFotoVarian.appendChild(cardVarian);
         }
         const addProduct_inputGambar = document.querySelectorAll('.input-gambar');
         const addProduct_previewGambar = document.querySelectorAll('.addProduct_Preview');
@@ -401,5 +441,8 @@ $pencarianProduk = $produk['pencarian'] ?? '';
 
     syncImageInputs();
     updateAdminProductPreview();
+    document.querySelectorAll('.variant-image-select').forEach((select) => {
+        select.addEventListener('change', () => inputElement(hasilVarian));
+    });
 </script>
 <?= $this->endSection(); ?>

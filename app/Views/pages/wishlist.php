@@ -22,13 +22,11 @@
                         <!-- <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt=""> -->
                         <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                             <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
-                            <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
+                            <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['wishlist_gambar'] ?? $p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                         </div>
                         <div>
                             <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                            <?php foreach (json_decode($p['varian'], true) as $v) { ?>
-                                <p class="mb-0 varian"><?= $v ?></p>
-                            <?php } ?>
+                            <p class="mb-1 varian"><b>Varian dipilih:</b> <?= esc($p['wishlist_varian'] ?? '-'); ?></p>
                             <?php if ($p['diskon']) { ?>
                                 <span class="d-flex gap-1 align-items-center">
                                     <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey; width:fit-content;">
@@ -45,7 +43,7 @@
                             <?php } else { ?>
                                 <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                             <?php } ?>
-                            <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
+                            <span class="d-block small text-secondary mt-2">Klik untuk lihat / ubah varian.</span>
                         </div>
                     </a>
                 <?php } ?>

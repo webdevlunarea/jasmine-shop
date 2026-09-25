@@ -111,6 +111,39 @@ class KonstantaModel extends Model
         return $clean;
     }
 
+    public function getProductVariantImageMap($productId)
+    {
+        $row = $this->getKonstantaByLabel('product_variant_image_map_' . $productId);
+        if (!$row || empty($row['value'])) return [];
+        $decoded = json_decode($row['value'], true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    public function saveProductVariantImageMap($productId, array $map)
+    {
+        $clean = [];
+        foreach ($map as $variant => $imageIndex) {
+            $variant = trim((string) $variant);
+            $imageIndex = max(0, (int) $imageIndex);
+            if ($variant !== '') $clean[$variant] = $imageIndex;
+        }
+
+        $label = 'product_variant_image_map_' . $productId;
+        $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
+        $row = $this->getKonstantaByLabel($label);
+
+        if ($row) {
+            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
+        } else {
+            $this->insert([
+                'label' => $label,
+                'value' => $payload,
+            ]);
+        }
+
+        return $clean;
+    }
+
     public function getTopPromoTexts()
     {
         $defaults = self::defaultTopPromoTexts();

@@ -1,5 +1,11 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
+<?php
+$variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
+$wishlistKeys = is_array($wishlistKeys ?? null) ? $wishlistKeys : [];
+$wishlistKeyFor = static fn($id, $variant) => (string)$id . '|' . mb_strtolower(trim((string)$variant));
+$initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? ''), $wishlistKeys, true);
+?>
 <div class="konten">
     <div class="container">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -224,13 +230,19 @@
                                         <i class="material-icons">shopping_cart</i>
                                     </button>
                                 </form>
-                                <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post">
-                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite</i></button>
+                                <?php if ($initialWishlistActive) { ?>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Hapus varian dari wishlist"><i class="material-icons">favorite</i></button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post">
-                                        <button type="submit" class="btn btn-outline-dark"><i class="material-icons">favorite_border</i></button>
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Tambah varian ke wishlist"><i class="material-icons">favorite_border</i></button>
                                     </form>
                                 <?php } ?>
                             <?php } else { ?>
@@ -263,14 +275,20 @@
                                         <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
                                     </button>
                                 </form>
-                                <?php if (in_array($produk['id'], session()->get('wishlist'))) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post">
+                                <?php if ($initialWishlistActive) { ?>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
                                         <button type="submit" class="btn btn-outline-dark">
                                             <i class="material-icons" style="font-size: 20px;">favorite</i>
                                         </button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post">
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
                                         <button type="submit" class="btn btn-outline-dark">
                                             <i class="material-icons" style="font-size: 20px;">favorite_border</i>
                                         </button>
@@ -490,6 +508,59 @@
     const idProduk = "<?= $produk['id'] ?>";
     const stokElm = document.getElementById('stok');
     const stokValue = '<?= $stok; ?>'.split(",");
+    const variantImageMap = <?= json_encode($variantImageMap, JSON_UNESCAPED_UNICODE); ?>;
+    const wishlistKeys = new Set(<?= json_encode($wishlistKeys, JSON_UNESCAPED_UNICODE); ?>);
+    const varianArray = <?= json_encode(array_values($varian), JSON_UNESCAPED_UNICODE); ?>;
+
+    function wishlistKeyFor(variant) {
+        return idProduk + '|' + String(variant || '').trim().toLowerCase();
+    }
+
+    function getImageIndexForVariantIndex(variantIndex) {
+        const variantName = varianArray[Number(variantIndex)] || varianArray[0] || '';
+        if (Object.prototype.hasOwnProperty.call(variantImageMap, variantName)) {
+            const mapped = Number(variantImageMap[variantName]);
+            if (!Number.isNaN(mapped) && mapped >= 0) return mapped;
+        }
+        if (Number(variantIndex) === 0) return 0;
+        return Number(jmlVarian) + Number(variantIndex) - 1;
+    }
+
+    function setWishlistState(variantIndex, imageIndex) {
+        const variantName = varianArray[Number(variantIndex)] || varianArray[0] || '';
+        const exists = wishlistKeys.has(wishlistKeyFor(variantName));
+        document.querySelectorAll('.product-wishlist-form').forEach((form) => {
+            form.action = exists ? form.dataset.delAction : form.dataset.addAction;
+            form.querySelector('.wishlist-varian').value = variantName;
+            form.querySelector('.wishlist-index-gambar').value = imageIndex;
+            const icon = form.querySelector('.material-icons');
+            if (icon) icon.textContent = exists ? 'favorite' : 'favorite_border';
+            const button = form.querySelector('button');
+            if (button) button.setAttribute('aria-label', exists ? 'Hapus varian dari wishlist' : 'Tambah varian ke wishlist');
+        });
+    }
+
+    function selectVariantByIndex(variantIndex, shouldScroll = true) {
+        const imageIndex = getImageIndexForVariantIndex(variantIndex);
+        imgProdukSelect.forEach(e => e.classList.remove("selected"));
+        if (imgProdukSelect[imageIndex]) imgProdukSelect[imageIndex].classList.add("selected");
+        elmVarianSelect.forEach(e => e.checked = false);
+        if (elmVarianSelect[variantIndex]) elmVarianSelect[variantIndex].checked = true;
+
+        const selectedStock = Number(stokValue[Number(variantIndex)] || 0);
+        stokElm.innerHTML = selectedStock > 0 ? 'Stok : ' + stokValue[Number(variantIndex)] : 'Stok habis';
+        setUrlElmBeli(selectedStock, imageIndex);
+        setWishlistState(variantIndex, imageIndex);
+
+        if (!shouldScroll || !imgProdukPrev[imageIndex]) return;
+        if (window.innerWidth <= 600) {
+            const position = Math.floor(imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth);
+            const direction = imageIndex - position;
+            imgProdukBesar.scrollBy({ left: imgProdukBesar.clientWidth * direction, behavior: "smooth" });
+        } else {
+            imgProdukBesar.scrollTo({ left: imgProdukPrev[imageIndex].clientWidth * imageIndex, behavior: "smooth" });
+        }
+    }
 
     imgProdukBesar.onscroll = (e) => {
         console.log("scrollLeft: " + imgProdukBesar.scrollLeft)
@@ -501,19 +572,11 @@
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
                 element.classList.add("selected");
                 elmVarianSelect.forEach(e => e.checked = false);
-                if (index >= Number(jmlVarian)) {
-                    elmVarianSelect[index - Number(jmlVarian) + 1].checked = true
-                    console.log(`index elmVarianSelect: ${index - Number(jmlVarian) - 1}`)
-
-                    stokElm.innerHTML = 'Stok : ' + stokValue[index - Number(jmlVarian) + 1];
-                    setUrlElmBeli(Number(stokValue[index - Number(jmlVarian) + 1]))
-                } else {
-                    elmVarianSelect[0].checked = true
-                    console.log(`index elmVarianSelect: 0`)
-
-                    stokElm.innerHTML = 'Stok : ' + stokValue[0];
-                    setUrlElmBeli(Number(stokValue[0]))
-                }
+                let variantIndex = 0;
+                varianArray.forEach((variantName, vIndex) => {
+                    if (getImageIndexForVariantIndex(vIndex) === index) variantIndex = vIndex;
+                });
+                selectVariantByIndex(variantIndex, false);
 
                 if (window.innerWidth <= 600) {
                     //scroll
@@ -544,53 +607,18 @@
         });
     }
     elmVarian.addEventListener("change", (e) => {
-        imgProdukSelect.forEach(e => e.classList.remove("selected"));
-        let indexGambar = 0;
-        if (e.target.value == '0') {
-            imgProdukSelect[0].classList.add("selected")
-        } else {
-            indexGambar = Number(e.target.value) + Number(jmlVarian) - 1
-            imgProdukSelect[Number(e.target.value) + Number(jmlVarian) - 1].classList.add("selected")
-        }
-
-        //scroll
-        if (window.innerWidth <= 600) {
-            let position = Math.floor(
-                imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth
-            );
-            let direction = indexGambar - position;
-            const scrollAmount = imgProdukBesar.clientWidth * direction;
-            imgProdukBesar.scrollBy({
-                left: scrollAmount,
-                behavior: "smooth",
-            });
-        } else {
-            const targetPosition = imgProdukPrev[indexGambar].clientWidth * indexGambar;
-            imgProdukBesar.scrollTo({
-                left: targetPosition,
-                behavior: "smooth",
-            });
-        }
-        stokElm.innerHTML = 'Stok : ' + stokValue[Number(e.target.value)]
-        setUrlElmBeli(Number(stokValue[Number(e.target.value)]))
+        selectVariantByIndex(Number(e.target.value), true);
     });
 
-    function setUrlElmBeli(stok) {
+    function setUrlElmBeli(stok, selectedImageIndex = null) {
         let elmSelected;
         elmVarianSelect.forEach((e) => {
             if (e.checked) elmSelected = e.value
         })
-        const varians = "<?php
-                            foreach ($varian as $i => $v) {
-                                echo $v;
-                                if ($i < (count($varian) - 1)) echo ",";
-                            }
-                            ?>";
-        const varianArray = varians.split(",")
-        const indexGambar = Number(jmlVarian) + Number(elmSelected) - 1;
+        const indexGambar = selectedImageIndex !== null ? Number(selectedImageIndex) : getImageIndexForVariantIndex(elmSelected);
         elmBtnBeli.forEach(element => {
             if (stok > 0) {
-                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + '';
+                element.parentNode.action = "/addcart/" + idProduk + "/" + encodeURIComponent(varianArray[Number(elmSelected)]) + "/" + indexGambar + '';
                 element.classList.remove('disabled')
                 element.removeAttribute('disabled')
             } else {
@@ -601,7 +629,7 @@
         });
         elmBtnBeliCheckout.forEach(element => {
             if (stok > 0) {
-                element.parentNode.action = "/addcart/" + idProduk + "/" + varianArray[Number(elmSelected)] + "/" + indexGambar + '/checkout';
+                element.parentNode.action = "/addcart/" + idProduk + "/" + encodeURIComponent(varianArray[Number(elmSelected)]) + "/" + indexGambar + '/checkout';
                 element.classList.remove('disabled')
                 element.removeAttribute('disabled')
             } else {
@@ -611,6 +639,6 @@
             }
         });
     }
-    // setUrlElmBeli()
+    selectVariantByIndex(0, false);
 </script>
 <?= $this->endSection(); ?>

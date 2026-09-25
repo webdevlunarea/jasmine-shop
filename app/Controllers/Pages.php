@@ -2543,24 +2543,95 @@ class Pages extends BaseController
         session()->setFlashdata('msg', 'Kamu telah keluar');
         return redirect()->to('/signup');
     }
+    private function normalizeWishlistItem($item): array
+    {
+        if (is_array($item)) {
+            return [
+                'id' => (string)($item['id'] ?? ''),
+                'varian' => isset($item['varian']) ? (string)$item['varian'] : '',
+                'index_gambar' => max(0, (int)($item['index_gambar'] ?? 0)),
+            ];
+        }
+
+        return [
+            'id' => (string)$item,
+            'varian' => '',
+            'index_gambar' => 0,
+        ];
+    }
+
+    private function wishlistKey($item): string
+    {
+        $item = $this->normalizeWishlistItem($item);
+        return $item['id'] . '|' . mb_strtolower(trim($item['varian']));
+    }
+
+    private function normalizeWishlistItems($wishlist): array
+    {
+        if (!is_array($wishlist)) $wishlist = [];
+        $clean = [];
+        $seen = [];
+        foreach ($wishlist as $item) {
+            $normalized = $this->normalizeWishlistItem($item);
+            if ($normalized['id'] === '') continue;
+            $key = $this->wishlistKey($normalized);
+            if (isset($seen[$key])) continue;
+            $seen[$key] = true;
+            $clean[] = $normalized;
+        }
+        return $clean;
+    }
+
+    private function defaultProductVariantImageIndex(array $produk, string $variant): int
+    {
+        $variants = json_decode($produk['varian'] ?? '[]', true);
+        if (!is_array($variants) || count($variants) < 1) return 0;
+        $variantIndex = array_search($variant, $variants);
+        if ($variantIndex === false) $variantIndex = 0;
+        if ((int)$variantIndex === 0) return 0;
+        return max(0, (int)($produk['jml_varian'] ?? 1) + (int)$variantIndex - 1);
+    }
+
+    private function productVariantImageIndex(array $produk, string $variant): int
+    {
+        $map = $this->konstantaModel->getProductVariantImageMap($produk['id']);
+        if (isset($map[$variant])) return max(0, (int)$map[$variant]);
+        return $this->defaultProductVariantImageIndex($produk, $variant);
+    }
+
     public function wishlist()
     {
-        $wishlist = session()->get('wishlist');
+        $wishlist = $this->normalizeWishlistItems(session()->get('wishlist'));
         $produk = [];
         if (count($wishlist) > 0) {
             $ketemuProdukTdkAda = [];
             foreach ($wishlist as $w) {
-                $produknya = $this->barangModel->getBarang($w);
-                if ($produknya) array_push($produk, $produknya);
-                else array_push($ketemuProdukTdkAda, $w);
+                $produknya = $this->barangModel->getBarang($w['id']);
+                if ($produknya) {
+                    $variants = json_decode($produknya['varian'] ?? '[]', true);
+                    if (!is_array($variants) || count($variants) < 1) $variants = ['Default'];
+                    if ($w['varian'] === '' || !in_array($w['varian'], $variants, true)) {
+                        $w['varian'] = $variants[0];
+                    }
+                    $w['index_gambar'] = $w['index_gambar'] > 0 ? $w['index_gambar'] : $this->productVariantImageIndex($produknya, $w['varian']);
+                    $gambarnya = $this->gambarBarangModel->getGambar($w['id']);
+                    $gambarKey = 'gambar' . ($w['index_gambar'] + 1);
+                    $produknya['wishlist_varian'] = $w['varian'];
+                    $produknya['wishlist_index_gambar'] = $w['index_gambar'];
+                    $produknya['wishlist_gambar'] = $gambarnya[$gambarKey] ?? ($produknya['gambar'] ?? null);
+                    array_push($produk, $produknya);
+                } else {
+                    array_push($ketemuProdukTdkAda, $w);
+                }
             }
 
             if (count($ketemuProdukTdkAda) > 0) {
                 foreach ($ketemuProdukTdkAda as $ketemu) {
-                    if (($key = array_search($ketemu, $wishlist)) !== false) {
+                    if (($key = array_search($this->wishlistKey($ketemu), array_map(fn($item) => $this->wishlistKey($item), $wishlist), true)) !== false) {
                         unset($wishlist[$key]);
                     }
                 }
+                $wishlist = array_values($wishlist);
 
                 session()->set(['wishlist' => $wishlist]);
                 $email = session()->get('email');
@@ -2576,40 +2647,69 @@ class Pages extends BaseController
     }
     public function addWishlist($id)
     {
-        $wishlist = session()->get('wishlist');
+        $wishlist = $this->normalizeWishlistItems(session()->get('wishlist'));
         $email = session()->get('email');
-        array_push($wishlist, $id);
-        session()->set(['wishlist' => $wishlist]);
-
-        if ($email != 'tamu')
-            $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
-
         $produknya = $this->barangModel->getBarang($id);
-        session()->setFlashdata('notif-wishlist', "Produk berhasil masuk wishlist");
+        if (!$produknya) return redirect()->to('/all');
+        $variants = json_decode($produknya['varian'] ?? '[]', true);
+        if (!is_array($variants) || count($variants) < 1) $variants = ['Default'];
+        $varian = trim((string)($this->request->getPost('varian') ?? $variants[0]));
+        if (!in_array($varian, $variants, true)) $varian = $variants[0];
+        $indexGambar = (int)($this->request->getPost('index_gambar') ?? $this->productVariantImageIndex($produknya, $varian));
+        $item = [
+            'id' => (string)$id,
+            'varian' => $varian,
+            'index_gambar' => max(0, $indexGambar),
+        ];
+        $keys = array_map(fn($w) => $this->wishlistKey($w), $wishlist);
+        if (!in_array($this->wishlistKey($item), $keys, true)) {
+            array_push($wishlist, $item);
+            session()->set(['wishlist' => $wishlist]);
+
+            if ($email != 'tamu')
+                $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
+        }
+
+        session()->setFlashdata('notif-wishlist', "Produk varian " . $varian . " berhasil masuk wishlist");
         return redirect()->to('/product/' . $produknya['path']);
     }
     public function delWishlist($id)
     {
-        $wishlist = session()->get('wishlist');
+        $wishlist = $this->normalizeWishlistItems(session()->get('wishlist'));
         $email = session()->get('email');
-        if (($key = array_search($id, $wishlist)) !== false) {
-            unset($wishlist[$key]);
+        $varian = trim((string)($this->request->getPost('varian') ?? ''));
+        if ($varian !== '') {
+            $targetKey = $this->wishlistKey(['id' => $id, 'varian' => $varian]);
+            foreach ($wishlist as $key => $item) {
+                if ($this->wishlistKey($item) === $targetKey) unset($wishlist[$key]);
+            }
+        } else {
+            foreach ($wishlist as $key => $item) {
+                if ((string)$item['id'] === (string)$id) unset($wishlist[$key]);
+            }
         }
+        $wishlist = array_values($wishlist);
         session()->set(['wishlist' => $wishlist]);
 
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['wishlist' => json_encode($wishlist)])->update();
-        return redirect()->to('/wishlist');
+        $back = $this->request->getPost('redirect');
+        return $back ? redirect()->to($back) : redirect()->to('/wishlist');
     }
 
     public function wishlistToCart()
     {
-        $wishlist = session()->get('wishlist');
+        $wishlist = $this->normalizeWishlistItems(session()->get('wishlist'));
         $keranjang = session()->get('keranjang');
         $email = session()->get('email');
-        foreach ($wishlist as $id_barang) {
+        foreach ($wishlist as $wishlistItem) {
+            $id_barang = $wishlistItem['id'];
             $produknya = $this->barangModel->getBarang($id_barang);
-            $varian = json_decode($produknya['varian'], true)[0];
+            if (!$produknya) continue;
+            $variants = json_decode($produknya['varian'] ?? '[]', true);
+            if (!is_array($variants) || count($variants) < 1) $variants = ['Default'];
+            $varian = in_array($wishlistItem['varian'], $variants, true) ? $wishlistItem['varian'] : $variants[0];
+            $indexGambar = $wishlistItem['index_gambar'] > 0 ? $wishlistItem['index_gambar'] : $this->productVariantImageIndex($produknya, $varian);
             $ketemu = false;
             foreach ($keranjang as $index => $element) {
                 if ($element['id'] == $id_barang && $element['varian'] == $varian) {
@@ -2622,7 +2722,7 @@ class Pages extends BaseController
                     'id' => $id_barang,
                     'jumlah' => 1,
                     'varian' => $varian,
-                    'index_gambar' => 0
+                    'index_gambar' => $indexGambar
                 );
                 array_push($keranjang, $keranjangBaru);
             }
@@ -6508,6 +6608,14 @@ class Pages extends BaseController
             $userRating = $this->ratingModel->getByUser($produk['id'], $emailCus);
             $bolehRating = $this->cekPembeliProduk($emailCus, $produk['nama']);
         }
+        $variantImageMap = $this->konstantaModel->getProductVariantImageMap($produk['id']);
+        $wishlistItems = $this->normalizeWishlistItems(session()->get('wishlist'));
+        $wishlistKeys = [];
+        foreach ($wishlistItems as $wishlistItem) {
+            if ((string)$wishlistItem['id'] === (string)$produk['id']) {
+                $wishlistKeys[] = $this->wishlistKey($wishlistItem);
+            }
+        }
 
         $data = [
             'title' => $produk['nama'],
@@ -6523,7 +6631,9 @@ class Pages extends BaseController
             'ratingList' => $ratingList,
             'ratingStats' => $ratingStats,
             'userRating' => $userRating,
-            'bolehRating' => $bolehRating
+            'bolehRating' => $bolehRating,
+            'variantImageMap' => $variantImageMap,
+            'wishlistKeys' => $wishlistKeys
         ];
         return view('pages/product', $data);
     }
@@ -7729,6 +7839,7 @@ class Pages extends BaseController
             'produk'    => $produk,
             'gambar'    => $gambar,
             'varian'    => implode(',', $varian),
+            'variantImageMap' => $this->konstantaModel->getProductVariantImageMap($id),
             'tinymce'   => env('TINYMCE_KEY', 'DefaultValue')
         ];
         return view('pages/editProduct', $data);
@@ -7752,6 +7863,15 @@ class Pages extends BaseController
         if ($diskon < 0) $diskon = 0;
         if ($diskon > 100) $diskon = 100;
         $barangUpdate['diskon'] = $diskon;
+        $variantImageMap = [];
+        foreach ($varian as $variantName) {
+            $postedIndex = $this->request->getPost('variant_image_' . md5($variantName));
+            if ($postedIndex === null) {
+                $postedIndex = $this->defaultProductVariantImageIndex($produk, $variantName);
+            }
+            $variantImageMap[$variantName] = max(0, min($hasilVarian - 1, (int)$postedIndex));
+        }
+        $this->konstantaModel->saveProductVariantImageMap($id, $variantImageMap);
 
         for ($i = 1; $i <= $hasilVarian; $i++) {
             $file = $this->request->getFile('gambar' . $i);
@@ -7773,9 +7893,9 @@ class Pages extends BaseController
             $existingGambar = $this->gambarBarangModel->where(['id' => $id])->first();
             if ($existingGambar) $this->gambarBarangModel->save($gambarUpdate);
             else $this->gambarBarangModel->insert($gambarUpdate);
-            session()->setFlashdata('msg', 'Foto/promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
+            session()->setFlashdata('msg', 'Foto, relasi foto-varian, dan promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
         } else {
-            session()->setFlashdata('msg', 'Promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
+            session()->setFlashdata('msg', 'Relasi foto-varian dan promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
         }
 
         return redirect()->to('/editproduct/' . $id);
