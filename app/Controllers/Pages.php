@@ -2963,16 +2963,45 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Code redeem tidak ditemukan');
             return redirect()->to('/voucher');
         }
-        $emailUser = json_decode($redeemData['email_user'], true);
-        if (in_array($email, $emailUser)) {
+        $emailUser = json_decode($redeemData['email_user'] ?? '[]', true);
+        if (!is_array($emailUser)) {
+            $emailUser = [];
+        }
+        if (in_array($email, $emailUser, true)) {
             session()->setFlashdata('msg', 'Code redeem sudah digunakan');
             return redirect()->to('/voucher');
         }
+
+        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
+        if (!$voucherBeneran) {
+            session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+            return redirect()->to('/voucher');
+        }
+
+        $alreadyClaimed = $this->voucherClaimedModel->where([
+            'email_user' => $email,
+            'id_voucher' => $redeemData['id_voucher'],
+            'active' => true
+        ])->first();
+        if ($alreadyClaimed) {
+            session()->setFlashdata('msg', 'Voucher sudah tersedia di akun Kamu');
+            return redirect()->to('/voucher');
+        }
+
+        $codeVoucherBeneran = json_decode($voucherBeneran['code'] ?? '[]', true);
+        if (!is_array($codeVoucherBeneran)) {
+            $codeVoucherBeneran = [];
+        }
+        foreach ($codeVoucherBeneran as $row) {
+            if (($row['email_user'] ?? '') === $email) {
+                session()->setFlashdata('msg', 'Voucher sudah tersedia di akun Kamu');
+                return redirect()->to('/voucher');
+            }
+        }
+
         array_push($emailUser, $email);
         $this->voucherRedeemModel->where(['code' => $code])->set(['email_user' => json_encode($emailUser)])->update();
 
-        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
-        $codeVoucherBeneran = json_decode($voucherBeneran['code'], true);
         array_push($codeVoucherBeneran, ['email_user' => $email]);
         $this->voucherModel->where(['id' => $redeemData['id_voucher']])->set(['code' => json_encode($codeVoucherBeneran)])->update();
 
@@ -2992,30 +3021,51 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Code redeem tidak ditemukan');
             return redirect()->to('/checkout');
         }
-        $emailUser = json_decode($redeemData['email_user'], true);
-        if (in_array($email, $emailUser)) {
+        $emailUser = json_decode($redeemData['email_user'] ?? '[]', true);
+        if (!is_array($emailUser)) {
+            $emailUser = [];
+        }
+        if (in_array($email, $emailUser, true)) {
             session()->setFlashdata('msg', 'Code redeem sudah digunakan');
             return redirect()->to('/checkout');
         }
+
+        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
+        if (!$voucherBeneran) {
+            session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
+            return redirect()->to('/checkout');
+        }
+
+        $alreadyClaimed = $this->voucherClaimedModel->where([
+            'email_user' => $email,
+            'id_voucher' => $redeemData['id_voucher'],
+            'active' => true
+        ])->first();
+        if ($alreadyClaimed) {
+            session()->set('voucher', $alreadyClaimed['id']);
+            session()->setFlashdata('msg', 'Voucher sudah tersedia di akun Kamu');
+            return redirect()->to('/checkout');
+        }
+
         array_push($emailUser, $email);
         $this->voucherRedeemModel->where(['code' => $code])->set(['email_user' => json_encode($emailUser)])->update();
 
-        $voucherBeneran = $this->voucherModel->getVoucher($redeemData['id_voucher']);
         $waktuCurr = strtotime("+7 Hours");
         $waktuCurrYmd = date("Y-m-d", $waktuCurr);
         $kadaluarsa = null;
         if ($voucherBeneran['durasi']) {
             $kadaluarsa = date("Y-m-d", strtotime($voucherBeneran['durasi'], strtotime($waktuCurrYmd)));
         }
+        $claimedId = $this->nextVoucherClaimedId();
         $this->voucherClaimedModel->insert([
-            'id' => $waktuCurr,
+            'id' => $claimedId,
             'id_voucher' => $redeemData['id_voucher'],
             'kadaluarsa' => $kadaluarsa,
             'email_user' => $email,
             'active' => true
         ]);
 
-        session()->set('voucher', $waktuCurr);
+        session()->set('voucher', $claimedId);
         return redirect()->to('/checkout');
     }
     public function voucherAddCode($email, $id_voucher, $pakai_code = false)
@@ -3364,6 +3414,12 @@ class Pages extends BaseController
                 return redirect()->to('/checkout');
             }
 
+            if (($voucherDetail['email_user'] ?? '') !== $email) {
+                session()->remove('voucher');
+                session()->setFlashdata('msg', 'Voucher tidak tersedia untuk akun Kamu');
+                return redirect()->to('/checkout');
+            }
+
             if (!$this->voucherMasihDalamPeriode($voucherDetail)) {
                 session()->setFlashdata('msg', 'Voucher hanya berlaku sesuai periode promo');
                 session()->remove('voucher');
@@ -3615,7 +3671,8 @@ class Pages extends BaseController
 
     public function useVoucher($id_voucher)
     {
-        if (session()->get('email') == 'tamu') {
+        $email = session()->get('email');
+        if ($email == 'tamu') {
             session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
             return redirect()->to('/checkout');
         }
@@ -3623,6 +3680,12 @@ class Pages extends BaseController
         $voucherDetail = $this->voucherClaimedModel->getVoucher($id_voucher);
         if (!$voucherDetail) {
             session()->setFlashdata('msg', 'Voucher tidak ditemukan');
+            session()->remove('voucher');
+            return redirect()->to('/checkout');
+        }
+
+        if (($voucherDetail['email_user'] ?? '') !== $email) {
+            session()->setFlashdata('msg', 'Voucher tidak tersedia untuk akun Kamu');
             session()->remove('voucher');
             return redirect()->to('/checkout');
         }
@@ -3948,6 +4011,12 @@ class Pages extends BaseController
             if (!$voucherDetail) {
                 session()->remove('voucher');
                 session()->setFlashdata('msg', 'Voucher tidak ditemukan');
+                return redirect()->to('/checkout');
+            }
+
+            if (($voucherDetail['email_user'] ?? '') !== $email) {
+                session()->remove('voucher');
+                session()->setFlashdata('msg', 'Voucher tidak tersedia untuk akun Kamu');
                 return redirect()->to('/checkout');
             }
 
