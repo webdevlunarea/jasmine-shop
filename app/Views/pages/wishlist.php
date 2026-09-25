@@ -1,7 +1,11 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten account-shell">
     <div class="container">
+        <?php $activeAccountMenu = 'wishlist'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <p class="mb-0">Wishlist (<?= count($wishlist); ?>)</p>
             <form action="/wishlisttocart" method="post">
@@ -49,6 +53,8 @@
         <?php } else { ?>
             <h5 class="text-center">Oops, keranjangmu masih kosong!</h5>
         <?php } ?>
+            </main>
+        </div>
     </div>
 </div>
 <script>

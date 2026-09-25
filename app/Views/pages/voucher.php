@@ -13,8 +13,20 @@
         max-height: 100px;
         transition: 0.3s;
     }
+
+    #modal-redeem {
+        z-index: 40 !important;
+    }
+
+    @media (max-width: 575.98px) {
+        .voucher-heading {
+            align-items: flex-start !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
 </style>
-<div id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+<div id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 40; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
     <div style="background-color: white;" class="p-4 rounded-3">
         <h5 class="m-0">Redeem Voucher</h5>
         <p class="m-0 text-secondary mb-1">Masukan code redeem Kamu</p>
@@ -27,27 +39,15 @@
         </form>
     </div>
 </div>
-<div class="konten">
+<div class="konten account-shell">
     <div class="container">
-        <div class="baris-ke-kolom-reverse">
-            <div style="width: 30%;" class="show-ke-hide">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><a class="list" href="/account">Profileku</a></li>
-                    <?php if (session()->get('role') == '0') { ?>
-                        <li class="list-group-item"><a class="list" href="/transaction">Transaksi</a></li>
-                        <li class="list-group-item"><a class="list" href="/point">Luna poin</a></li>
-                        <li class="list-group-item"><b>Voucher</b></li>
-                    <?php } ?>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a></li>
-                </ul>
-            </div>
-            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
-                <a class="btn btn-outline-danger" style="width: fit-content;" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a>
-            </div> -->
-            <div class="w-100">
+        <?php $activeAccountMenu = 'voucher'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
                 <div class="p-2">
                     <div>
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="voucher-heading d-flex justify-content-between align-items-center">
                             <div>
                                 <h3 class="m-0">Klaim Voucher Kamu</h3>
                                 <p class="m-0">Berikut beberapa voucher yang sedang aktif</p>
@@ -117,7 +117,7 @@
                         <?php } ?>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 </div>

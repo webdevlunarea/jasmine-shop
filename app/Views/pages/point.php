@@ -1,23 +1,11 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten account-shell">
     <div class="container">
-        <div class="baris-ke-kolom-reverse">
-            <div style="width: 30%;" class="show-ke-hide">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><a class="list" href="/account">Profileku</a></li>
-                    <?php if (session()->get('role') == '0') { ?>
-                        <li class="list-group-item"><a class="list" href="/transaction">Transaksi</a></li>
-                        <li class="list-group-item"><b>Luna Poin</b></li>
-                        <li class="list-group-item"><a class="list" href="/voucher">Voucher</a></li>
-                    <?php } ?>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a></li>
-                </ul>
-            </div>
-            <!-- <div class="hide-ke-show-flex w-100 justify-content-center border-top pt-3 mt-2">
-                <a class="btn btn-outline-danger" style="width: fit-content;" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a>
-            </div> -->
-            <div class="w-100">
+        <?php $activeAccountMenu = 'point'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
                 <div class="p-2">
                     <h3 class="mb-3">Luna Points Rewards</h3>
                     <div class="d-flex justify-content-between align-items-center">
@@ -126,7 +114,7 @@
                         <?php } ?>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 </div>

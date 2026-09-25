@@ -25,23 +25,12 @@ $decodeArray = function ($json) {
 };
 $flashMsg = session()->getFlashdata('msg');
 ?>
-<div class="konten">
+<div class="konten account-shell">
     <div class="container">
-        <div class="baris-ke-kolom-reverse">
-            <div style="width: 30%;" class="show-ke-hide">
-                <ul class="list-group list-group-flush">
-                    <?php if (session()->get('email') != 'tamu') { ?>
-                        <li class="list-group-item"><a class="list" href="/account">Profilku</a></li>
-                    <?php } ?>
-                    <?php if (session()->get('role') == '0') { ?>
-                        <li class="list-group-item"><b>Transaksi</b></li>
-                        <li class="list-group-item"><a class="list" href="/point">Luna poin</a></li>
-                        <li class="list-group-item"><a class="list" href="/voucher">Voucher</a></li>
-                    <?php } ?>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar</a></li>
-                </ul>
-            </div>
-            <div style="flex: 1;">
+        <?php $activeAccountMenu = 'transaction'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
                 <div class="p-2">
                     <h3>Transaksi Pembayaran</h3>
                     <?php if ($flashMsg) { ?>
@@ -272,7 +261,7 @@ $flashMsg = session()->getFlashdata('msg');
                         } ?>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 </div>
