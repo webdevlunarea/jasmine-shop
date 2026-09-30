@@ -7256,33 +7256,32 @@ class Pages extends BaseController
     }
     public function listCustomer($page = 1, $status = 'all')
     {
-        $transaksiCus = $this->pemesananModel->getPemesananPage($page);
+        $page = max(1, (int)$page);
+        $perPage = 20;
+        $allowedStatus = [
+            'all' => null,
+            'Proses' => 'Proses',
+            'Menunggu-Pembayaran' => 'Menunggu Pembayaran',
+            'Menunggu-Pembayaran-Rekening' => 'Menunggu Pembayaran Rekening',
+            'Kadaluarsa' => 'Kadaluarsa',
+            'Ditolak' => 'Ditolak',
+            'Dibatalkan' => 'Dibatalkan',
+            'Dikirim' => 'Dikirim',
+            'Selesai' => 'Selesai',
+        ];
+        if (!array_key_exists((string)$status, $allowedStatus)) $status = 'all';
+
         $semuaTransaksiCus = $this->pemesananModel->getPemesanan();
-        $transaksiCus = array_values(array_filter($transaksiCus, fn($t) => !$this->isSandboxOrder($t)));
         $semuaTransaksiCus = array_values(array_filter($semuaTransaksiCus, fn($t) => !$this->isSandboxOrder($t)));
+        $semuaTransaksiCusFilter = array_values(array_filter($semuaTransaksiCus, function ($t) use ($allowedStatus, $status) {
+            $targetStatus = $allowedStatus[(string)$status] ?? null;
+            return $targetStatus === null || (string)($t['status'] ?? '') === $targetStatus;
+        }));
+        $totalFiltered = count($semuaTransaksiCusFilter);
+        $maxPage = max(1, (int)ceil($totalFiltered / $perPage));
+        $page = min($page, $maxPage);
+        $transaksiCus = array_slice($semuaTransaksiCusFilter, ($page - 1) * $perPage, $perPage);
         $transaksiCusNoJSON = [];
-        $semuaTransaksiCusFilter = [];
-        foreach ($semuaTransaksiCus as $t) {
-            if ($status == 'Proses') {
-                if ($t['status'] == 'Proses') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Menunggu-Pembayaran') {
-                if ($t['status'] == 'Menunggu Pembayaran') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Menunggu-Pembayaran-Rekening') {
-                if ($t['status'] == 'Menunggu Pembayaran Rekening') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Kadaluarsa') {
-                if ($t['status'] == 'Kadaluarsa') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Ditolak') {
-                if ($t['status'] == 'Ditolak') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Dibatalkan') {
-                if ($t['status'] == 'Dibatalkan') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Dikirim') {
-                if ($t['status'] == 'Dikirim') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'Selesai') {
-                if ($t['status'] == 'Selesai') array_push($semuaTransaksiCusFilter, $t);
-            } else if ($status == 'all') {
-                array_push($semuaTransaksiCusFilter, $t);
-            }
-        }
         foreach ($transaksiCus as $transaksi) {
             $arr = [
                 'id' => $transaksi['id'],
@@ -7292,32 +7291,14 @@ class Pages extends BaseController
                 'alamat_pen' => $transaksi['alamat_pen'],
                 'resi' => $transaksi['resi'],
                 'id_midtrans' => $transaksi['id_midtrans'],
-                'items' => json_decode($transaksi['items'], true),
+                'items' => json_decode($transaksi['items'], true) ?: [],
                 'status' => $transaksi['status'],
                 'kurir' => $transaksi['kurir'],
-                'data_mid' => json_decode($transaksi['data_mid'], true),
+                'data_mid' => json_decode($transaksi['data_mid'], true) ?: [],
                 'note' => $transaksi['note'],
                 'bukti_bayar' => $transaksi['bukti_bayar'] ? '/imgbuktibayar/' . $transaksi['id_midtrans'] : false,
             ];
-            if ($status == 'Proses') {
-                if ($transaksi['status'] == 'Proses') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Menunggu-Pembayaran') {
-                if ($transaksi['status'] == 'Menunggu Pembayaran') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Menunggu-Pembayaran-Rekening') {
-                if ($transaksi['status'] == 'Menunggu Pembayaran Rekening') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Kadaluarsa') {
-                if ($transaksi['status'] == 'Kadaluarsa') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Ditolak') {
-                if ($transaksi['status'] == 'Ditolak') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Dibatalkan') {
-                if ($transaksi['status'] == 'Dibatalkan') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Dikirim') {
-                if ($transaksi['status'] == 'Dikirim') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'Selesai') {
-                if ($transaksi['status'] == 'Selesai') array_push($transaksiCusNoJSON, $arr);
-            } else if ($status == 'all') {
-                array_push($transaksiCusNoJSON, $arr);
-            }
+            array_push($transaksiCusNoJSON, $arr);
         }
         $transaksiJson = json_encode($transaksiCusNoJSON);
         $ws_url = env('WS_URL', 'DefaultValue');
@@ -7328,6 +7309,9 @@ class Pages extends BaseController
             'transaksiJson' => $transaksiJson,
             'page' => $page,
             'status' => $status,
+            'perPage' => $perPage,
+            'totalFiltered' => $totalFiltered,
+            'totalAllOrders' => count($semuaTransaksiCus),
             'wsUrl' => $ws_url
         ];
         return view('pages/listCustomer', $data);

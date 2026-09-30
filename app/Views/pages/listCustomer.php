@@ -39,13 +39,17 @@
 </div>
 <div class="konten">
     <div class="container">
-        <div class="d-flex mb-2 justify-content-between">
-            <h3 class="">List Customer</h3>
-            <div class="form-floating">
-                <select class="form-select" aria-label="Default select example" onchange="pilihStatus(event)">
+        <div class="customer-admin-hero mb-3">
+            <div>
+                <span class="customer-admin-badge"><i class="material-icons" style="font-size:16px;">receipt_long</i>Order customer</span>
+                <h3 class="mb-1 fw-bold">List Customer</h3>
+                <p class="mb-0 text-secondary">Pantau pesanan, pembayaran, resi, invoice, dan form gudang dari satu halaman.</p>
+            </div>
+            <div class="form-floating customer-filter">
+                <select class="form-select" aria-label="Filter status pesanan" onchange="pilihStatus(event)">
                     <option <?= $status == 'all' ? 'selected' : ''; ?> value="all">Semua</option>
                     <option <?= $status == 'Menunggu-Pembayaran' ? 'selected' : ''; ?> value="Menunggu-Pembayaran">Menunggu Pembayaran</option>
-                    <option <?= $status == 'Menunggu-Pembayaran-Rekening' ? 'selected' : ''; ?> value="Menunggu-Pembayaran Rekening">Menunggu Pembayaran Rekening</option>
+                    <option <?= $status == 'Menunggu-Pembayaran-Rekening' ? 'selected' : ''; ?> value="Menunggu-Pembayaran-Rekening">Menunggu Pembayaran Rekening</option>
                     <option <?= $status == 'Kadaluarsa' ? 'selected' : ''; ?> value="Kadaluarsa">Kadaluarsa</option>
                     <option <?= $status == 'Proses' ? 'selected' : ''; ?> value="Proses">Proses</option>
                     <option <?= $status == 'Dikirim' ? 'selected' : ''; ?> value="Dikirim">Dikirim</option>
@@ -57,6 +61,148 @@
             </div>
         </div>
         <style>
+            .customer-admin-hero {
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                align-items: center;
+                border: 1px solid #e3efe8;
+                border-radius: 24px;
+                padding: 1.2rem;
+                background: linear-gradient(135deg, #f3fff7 0%, #fff 55%, #eef8f2 100%);
+                box-shadow: 0 16px 40px rgba(26, 83, 54, .08);
+            }
+
+            .customer-admin-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: .35rem;
+                background: #e9f8ee;
+                color: #207247;
+                border: 1px solid #caead5;
+                border-radius: 999px;
+                padding: .35rem .7rem;
+                font-size: .78rem;
+                font-weight: 700;
+                margin-bottom: .45rem;
+            }
+
+            .customer-filter {
+                min-width: 260px;
+            }
+
+            .customer-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: .75rem;
+                margin-bottom: 1rem;
+            }
+
+            .customer-stat-card {
+                border: 1px solid #e5eee8;
+                border-radius: 18px;
+                padding: .9rem 1rem;
+                background: #fff;
+                box-shadow: 0 10px 28px rgba(15, 23, 42, .05);
+            }
+
+            .customer-stat-card small {
+                color: #64748b;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .03em;
+            }
+
+            .customer-stat-card h4 {
+                margin: .2rem 0 0;
+                font-weight: 800;
+            }
+
+            .customer-table-head {
+                background: #f8faf9;
+                border: 1px solid #e5eee8;
+                border-radius: 16px;
+                padding: .75rem 1.1rem;
+            }
+
+            .container-list-customer {
+                display: flex;
+                flex-direction: column;
+                gap: .75rem;
+            }
+
+            .list-customer {
+                border: 1px solid #e5eee8 !important;
+                border-radius: 18px !important;
+                background: #fff;
+                box-shadow: 0 12px 30px rgba(15, 23, 42, .055);
+                transition: .18s ease;
+                overflow: hidden;
+            }
+
+            .list-customer:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 18px 38px rgba(15, 23, 42, .08);
+            }
+
+            .list-customer.need-confirm {
+                border-color: #f59e0b !important;
+                box-shadow: 0 14px 34px rgba(245, 158, 11, .16);
+            }
+
+            .list-customer-detail {
+                border-top: 1px solid #e5eee8;
+                background: #fbfefc;
+                padding-top: 1rem;
+            }
+
+            .customer-empty-state {
+                border: 1px dashed #cbd5e1;
+                border-radius: 20px;
+                background: #fff;
+                padding: 2rem;
+                text-align: center;
+                color: #64748b;
+            }
+
+            .customer-pagination-wrap {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: .55rem;
+                margin-top: 1rem;
+            }
+
+            .customer-pagination-wrap .pagination {
+                flex-wrap: wrap;
+                gap: .35rem;
+            }
+
+            .customer-pagination-wrap .page-link {
+                min-width: 40px;
+                min-height: 40px;
+                border-radius: 12px !important;
+                border: 1px solid #dbe7df;
+                color: #1f3b2e;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                box-shadow: 0 6px 14px rgba(15, 23, 42, .04);
+            }
+
+            .customer-pagination-wrap .page-item.active .page-link {
+                background: var(--hijau);
+                border-color: var(--hijau);
+                color: #fff;
+            }
+
+            .customer-pagination-wrap .page-item.disabled .page-link {
+                background: #f8fafc;
+                color: #94a3b8;
+                box-shadow: none;
+            }
+
             .btn-reload {
                 color: black;
                 text-decoration: underline;
@@ -65,9 +211,36 @@
             .btn-reload:hover {
                 color: white;
             }
+
+            @media (max-width: 767px) {
+                .customer-admin-hero {
+                    flex-direction: column;
+                    align-items: stretch;
+                    border-radius: 18px;
+                    padding: 1rem;
+                }
+
+                .customer-filter {
+                    min-width: 100%;
+                }
+            }
         </style>
+        <div class="customer-stats">
+            <div class="customer-stat-card">
+                <small>Total filter</small>
+                <h4><?= number_format($totalFiltered ?? count($semuaTransaksiCus), 0, ',', '.'); ?></h4>
+            </div>
+            <div class="customer-stat-card">
+                <small>Ditampilkan</small>
+                <h4><?= count($transaksiCus); ?></h4>
+            </div>
+            <div class="customer-stat-card">
+                <small>Halaman</small>
+                <h4><?= (int)$page; ?></h4>
+            </div>
+        </div>
         <p id="btn-reload" class="d-none bg-warning px-2 py-1">Terdeteksi terjadi perubahan data! <a href="/listcustomer" class="btn-reload">Reload sekarang!</a></p>
-        <div class="mb-2 show-flex-ke-hide" style="padding-inline: 2em;">
+        <div class="mb-2 show-flex-ke-hide customer-table-head">
             <div style="flex: 4;">
                 <p class="mb-0 fw-bold text-black-50">Basic Info</p>
             </div>
@@ -82,6 +255,13 @@
             </div>
         </div>
         <div class="container-list-customer mb-2">
+            <?php if (count($transaksiCus) === 0) { ?>
+                <div class="customer-empty-state">
+                    <i class="material-icons mb-2" style="font-size: 42px; opacity: .45;">inbox</i>
+                    <h5 class="fw-bold mb-1">Tidak ada pesanan pada filter ini</h5>
+                    <p class="mb-0">Coba pilih status lain atau kembali ke filter Semua.</p>
+                </div>
+            <?php } ?>
             <?php foreach ($transaksiCus as $t_ind => $t) { ?>
                 <div class="list-customer <?= ($t['status'] == 'Menunggu Pembayaran Rekening' && $t['bukti_bayar'] != '') ? 'need-confirm' : ''; ?>" onclick="bukaList('<?= $t_ind; ?>')">
                     <div>
@@ -176,7 +356,7 @@
                                 <i class="material-icons" style="font-size: 13px;">open_in_new</i>
                             </a>
                             <div style="flex: 3;" class="d-flex justify-content-center align-items-start">
-                                <p class="mb-0 fw-bold"><?= date("d/m/Y H:i:s", strtotime($t['data_mid']['transaction_time'])); ?></p>
+                                <p class="mb-0 fw-bold"><?= !empty($t['data_mid']['transaction_time']) ? date("d/m/Y H:i:s", strtotime($t['data_mid']['transaction_time'])) : '-'; ?></p>
                             </div>
                         </div>
                         <div style="gap: 3px; width: fit-content; border-top: 1px solid var(--hijau); padding-top: 10px;" class="w-100 show-flex-ke-hide justify-content-center">
@@ -228,13 +408,13 @@
                                 <div class="d-flex w-100 align-items-start">
                                     <p style="flex: 3;" class="mb-0">Biaya Ongkir dan Admin</p>
                                     <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp
-                                        <?= number_format(($t['data_mid']['gross_amount'] - $totalHargaBarang), 0, ",", "."); ?>
+                                        <?= number_format(((float)($t['data_mid']['gross_amount'] ?? 0) - $totalHargaBarang), 0, ",", "."); ?>
                                     </p>
                                 </div>
                                 <div class="d-flex w-100 align-items-start">
                                     <p style="flex: 3;" class="mb-0">Total Keseluruhan</p>
                                     <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp
-                                        <?= number_format($t['data_mid']['gross_amount'], 0, ",", "."); ?>
+                                        <?= number_format((float)($t['data_mid']['gross_amount'] ?? 0), 0, ",", "."); ?>
                                     </p>
                                 </div>
                             </div>
@@ -242,36 +422,39 @@
                                 <p class="mb-0 fw-bold">Metode Pembayaran</p>
                                 <p class="mb-0">
                                     <?php
-                                    switch ($t['data_mid']['payment_type']) {
+                                    $paymentType = $t['data_mid']['payment_type'] ?? '';
+                                    switch ($paymentType) {
                                         case 'credit_card':
-                                            echo "Credit Card<br>" . strtoupper($t['data_mid']['bank']) . " " . ucfirst($t['data_mid']['card_type']);
+                                            echo "Credit Card<br>" . strtoupper($t['data_mid']['bank'] ?? '-') . " " . ucfirst($t['data_mid']['card_type'] ?? '-');
                                             break;
                                         case 'echannel':
-                                            switch ($t['data_mid']['biller_code']) {
+                                            switch ($t['data_mid']['biller_code'] ?? '') {
                                                 case '70012':
-                                                    echo "Mandiri Bill<br>" . "Biller Code: " . $t['data_mid']['biller_code'] . "<br>Bill Key: " . $t['data_mid']['bill_key'];
+                                                    echo "Mandiri Bill<br>" . "Biller Code: " . ($t['data_mid']['biller_code'] ?? '-') . "<br>Bill Key: " . ($t['data_mid']['bill_key'] ?? '-');
                                                     break;
                                                 default:
-                                                    echo "EChannel<br>" . "Biller Code: " . $t['data_mid']['biller_code'] . "<br>Bill Key: " . $t['data_mid']['bill_key'];
+                                                    echo "EChannel<br>" . "Biller Code: " . ($t['data_mid']['biller_code'] ?? '-') . "<br>Bill Key: " . ($t['data_mid']['bill_key'] ?? '-');
                                                     break;
                                             }
                                             break;
                                         case 'bank_transfer':
-                                            if (isset($t['data_mid']['va_numbers']))
-                                                echo strtoupper($t['data_mid']['va_numbers'][0]['bank']) . " " . $t['data_mid']['va_numbers'][0]['va_number'];
+                                            if (!empty($t['data_mid']['va_numbers'][0]))
+                                                echo strtoupper($t['data_mid']['va_numbers'][0]['bank'] ?? '-') . " " . ($t['data_mid']['va_numbers'][0]['va_number'] ?? '-');
                                             else if (isset($t['data_mid']['permata_va_number']))
                                                 echo "Bank Permata VA<br>" . $t['data_mid']['permata_va_number'];
                                             else if (isset($t['data_mid']['bca_va_number']))
                                                 echo "BCA VA<br>" . $t['data_mid']['bca_va_number'];
+                                            else
+                                                echo "Bank Transfer";
                                             break;
                                         case 'gopay':
-                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            echo 'Qris<br><a href="/qris/' . ($t['data_mid']['order_id'] ?? $t['id_midtrans']) . '-' . ($t['data_mid']['gross_amount'] ?? 0) . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                             break;
                                         case 'qris':
-                                            echo 'Qris<br><a href="/qris/' . $t['data_mid']['order_id'] . '-' . $t['data_mid']['gross_amount'] . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
+                                            echo 'Qris<br><a href="/qris/' . ($t['data_mid']['order_id'] ?? $t['id_midtrans']) . '-' . ($t['data_mid']['gross_amount'] ?? 0) . '" style="color: var(--hijau); cursor:pointer;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover fw-bold">Lihar barcode</a>';
                                             break;
                                         default:
-                                            echo $t['data_mid']['payment_type'];
+                                            echo $paymentType ?: '-';
                                             break;
                                     }
                                     ?></p>
@@ -293,28 +476,45 @@
             <?php } ?>
         </div>
 
-        <?php if (count($semuaTransaksiCus) > count($transaksiCus)) { ?>
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                    <?php if ((int)$page > 1) { ?>
-                        <li class="page-item">
-                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page - 1); ?>/<?= $status; ?>" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
+        <?php if (($totalFiltered ?? count($semuaTransaksiCus)) > ($perPage ?? 20)) { ?>
+            <?php
+                $currentPage = max(1, (int)$page);
+                $perPageValue = max(1, (int)($perPage ?? 20));
+                $totalRows = (int)($totalFiltered ?? count($semuaTransaksiCus));
+                $totalPages = max(1, (int)ceil($totalRows / $perPageValue));
+                $currentPage = min($currentPage, $totalPages);
+                $pages = [1, $totalPages];
+                for ($x = $currentPage - 2; $x <= $currentPage + 2; $x++) {
+                    if ($x >= 1 && $x <= $totalPages) $pages[] = $x;
+                }
+                $pages = array_values(array_unique($pages));
+                sort($pages);
+                $lastPrintedPage = 0;
+            ?>
+            <nav class="customer-pagination-wrap" aria-label="Navigasi halaman order customer">
+                <div class="small text-secondary">
+                    Halaman <strong><?= $currentPage; ?></strong> dari <strong><?= $totalPages; ?></strong> · <?= number_format($totalRows, 0, ',', '.'); ?> pesanan
+                </div>
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item <?= $currentPage <= 1 ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="<?= $currentPage <= 1 ? '#' : '/listcustomer/' . ($currentPage - 1) . '/' . $status; ?>" aria-label="Halaman sebelumnya">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <?php foreach ($pages as $pageNumber) { ?>
+                        <?php if ($lastPrintedPage && $pageNumber > $lastPrintedPage + 1) { ?>
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        <?php } ?>
+                        <li class="page-item <?= $pageNumber === $currentPage ? 'active' : ''; ?>">
+                            <a class="page-link" href="/listcustomer/<?= $pageNumber; ?>/<?= $status; ?>" aria-label="Halaman <?= $pageNumber; ?>"><?= $pageNumber; ?></a>
                         </li>
-                    <?php }
-                    $hitungGrupMax = ceil(count($semuaTransaksiCus) / 20);
-                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
-                    ?>
-                        <li class="page-item"><a class="page-link text-dark" href="/listcustomer/<?= $x; ?>/<?= $status; ?>"><?= $x; ?></a></li>
+                        <?php $lastPrintedPage = $pageNumber; ?>
                     <?php } ?>
-                    <?php if ((int)$page < $hitungGrupMax) { ?>
-                        <li class="page-item">
-                            <a class="page-link text-dark" href="/listcustomer/<?= ((int)$page + 1); ?>/<?= $status; ?>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    <?php } ?>
+                    <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="<?= $currentPage >= $totalPages ? '#' : '/listcustomer/' . ($currentPage + 1) . '/' . $status; ?>" aria-label="Halaman berikutnya">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         <?php } ?>
@@ -426,7 +626,7 @@
 
     function pilihStatus(e) {
         console.log(e.target.value)
-        window.location.href = '/listcustomer/' + '<?= $page; ?>' + '/' + e.target.value
+        window.location.href = '/listcustomer/1/' + e.target.value
     }
 </script>
 <script>
