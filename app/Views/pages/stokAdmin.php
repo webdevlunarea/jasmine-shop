@@ -67,12 +67,25 @@
                         style="overflow: auto; max-height: 40svh; position: absolute; z-index: 3"></div>
                 </div>
             </div>
-            <div>
-                <button onclick="sinkronisasi(event)" class="btn btn-outline-dark">Sinkron</button>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <button onclick="sinkronisasi(event)" class="btn btn-outline-dark">Info Sync</button>
+                <?php if (empty($stockManagedByLuna)) { ?>
                 <button onclick="openTambal()" class="btn btn-primary1">Tambah</button>
+                <?php } ?>
             </div>
         </div>
         <hr>
+        <?php if (!empty($stockManagedByLuna)) { ?>
+        <div class="alert alert-info border-0 shadow-sm" role="alert">
+            <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+                <div>
+                    <strong>Stok website dikunci dari admin.</strong><br>
+                    <span class="small">Sumber stok, harga, dan varian sekarang wajib dari <b>Luna Sistem / MyLuna</b>. Halaman ini hanya untuk monitoring riwayat mutasi sinkronisasi.</span>
+                </div>
+                <span class="badge bg-success align-self-start align-self-md-center">Source of truth: MyLuna</span>
+            </div>
+        </div>
+        <?php } ?>
         <?php if ($idProduk != 'all') { ?>
         <div class="d-flex">
             <?php foreach ($stokVarian as $s) { ?>
@@ -120,9 +133,11 @@
                         <div style="flex: 1;" class="m-0"><?= $s['keterangan']; ?></div>
                         <div style="flex: 0.6;" class="m-0"><?= $s['stok_akhir']; ?></div>
                         <div style="flex: 0.4;" class="m-0 d-flex justify-content-center align-items-center">
-                            <?php if (!$s['nama_admin']) { ?>
+                            <?php if (!$s['nama_admin'] && empty($stockManagedByLuna)) { ?>
                             <button type="button" onclick="openKofirm(<?= $ind_s; ?>)" class="btn btn-primary1 p-2"><i
                                     class="material-icons" style="font-size: 12px;">border_color</i></button>
+                            <?php } elseif (!$s['nama_admin']) { ?>
+                            <span class="badge bg-secondary">Dikunci</span>
                             <?php } ?>
                         </div>
                     </div>
@@ -180,10 +195,7 @@ const modalAddElm = document.getElementById('modal-add');
 const containerCariBarangElm = document.getElementById('container-cari-barang')
 
 function openTambal() {
-    formElm.action = `/stokadmin/${url}`
-    btnFormElm.innerHTML = 'Tambahkan'
-    modalAddElm.classList.remove('d-none')
-    modalAddElm.classList.add('d-flex')
+    window.alert('Stok website sudah wajib diperbarui dari Luna Sistem. Silakan ubah stok dari MyLuna, lalu jalankan sync produk ke website.');
 }
 
 function openKofirm(index) {
@@ -236,9 +248,10 @@ function sinkronisasi(e) {
         try {
             const res = await fetch('/benerinstokluna');
             const resJson = await res.json();
-            e.target.innerHTML = 'Sinkron'
-            window.alert('Sinkronisasi stok berhasil dilakukan')
+            e.target.innerHTML = 'Info Sync'
+            window.alert(resJson.message || 'Stok website mengikuti Luna Sistem. Jalankan sync dari MyLuna untuk memperbarui data.')
         } catch (error) {
+            e.target.innerHTML = 'Info Sync'
             console.log(error)
         }
     }

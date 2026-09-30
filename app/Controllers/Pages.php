@@ -8889,15 +8889,13 @@ class Pages extends BaseController
             $stok[$ind_s]['tanggal'] = date('d/m/Y H:i:s', strtotime($s['tanggal']));
         }
         $produk['varian'] = json_decode($produk['varian'], true);
+        if (!is_array($produk['varian'])) $produk['varian'] = [];
+        $stokProdukSaatIni = explode(',', (string)($produk['stok'] ?? ''));
         $stokVarian = [];
-        foreach ($produk['varian'] as $v) {
-            $stokTerakhir = $this->stokModel->orderBy('tanggal', 'desc')->where([
-                'id_barang' => $produk['id'],
-                'varian' => $v
-            ])->first();
+        foreach ($produk['varian'] as $indexVarian => $v) {
             array_push($stokVarian, [
                 'nama' => $v,
-                'stok' => $stokTerakhir ? $stokTerakhir['stok_akhir'] : 0
+                'stok' => (int)($stokProdukSaatIni[$indexVarian] ?? 0)
             ]);
         }
         $data = [
@@ -8913,13 +8911,17 @@ class Pages extends BaseController
             'countAllStok' => $countAllStok,
             'pag' => $pag,
             'idProduk' => $idProduk,
-            'emailtambah' => in_array(session()->get('email'), ['adminlunarea@gmail.com', 'galih8.4.2001@gmail.com']) 
+            'emailtambah' => false,
+            'stockManagedByLuna' => true,
         ];
         // dd($data);
         return view('pages/stokAdmin', $data);
     }
     public function addStokAdmin($url)
     {
+        session()->setFlashdata('msg', 'Stok website wajib diperbarui dari Luna Sistem. Mutasi manual di admin website sudah dikunci agar stok tidak bentrok.');
+        return redirect()->to(base64_decode($url));
+
         $lastData = $this->stokModel->orderBy('id', 'desc')->where(['id_barang' => $this->request->getVar('id_barang'), 'varian' => $this->request->getVar('varian')])->first();
         if (!$lastData) $currentStok = 0;
         else $currentStok = $lastData['stok_akhir'];
@@ -8953,6 +8955,9 @@ class Pages extends BaseController
     }
     public function accStokAdmin($id, $url)
     {
+        session()->setFlashdata('msg', 'Konfirmasi mutasi manual dikunci. Perubahan stok sekarang mengikuti sync dari Luna Sistem.');
+        return redirect()->to(base64_decode($url));
+
         $lastData = $this->stokModel->orderBy('id', 'desc')->where(['id_barang' => $this->request->getVar('id_barang'), 'varian' => $this->request->getVar('varian')])->first();
         if (!$lastData) $currentStok = 0;
         else $currentStok = $lastData['stok_akhir'];
@@ -8980,27 +8985,9 @@ class Pages extends BaseController
     }
     public function benerinStokLuna()
     {
-        $allProduk = $this->barangModel->findAll();
-        // $produknya = [];
-        foreach ($allProduk as $p) {
-            $varian = json_decode($p['varian'], true);
-            $stokBaru = '';
-            foreach ($varian as $ind_v => $v) {
-                $stokTerakhir = $this->stokModel->orderBy('tanggal', 'desc')->where([
-                    'id_barang' => $p['id'],
-                    'varian' => $v
-                ])->first();
-                $stokBaru .=  ($ind_v == 0 ? '' : ',') . ($stokTerakhir ? (string)$stokTerakhir['stok_akhir'] : '0');
-            }
-            // array_push($produknya, [
-            //     'nama' => $p['nama'],
-            //     'varian' => $varian,
-            //     'stokbaru' => $stokBaru
-            // ]);
-            $this->barangModel->where(['id' => $p['id']])->set(['stok' => $stokBaru])->update();
-        }
         return $this->response->setJSON([
-            'success' => true
+            'success' => true,
+            'message' => 'Stok website sekarang mengikuti data dari Luna Sistem. Jalankan sync dari MyLuna untuk memperbarui stok, harga, dan varian.'
         ], false);
     }
     public function cobaWs()
