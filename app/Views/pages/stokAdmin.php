@@ -164,6 +164,44 @@
     font-weight: 700;
 }
 
+.stok-pagination-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .55rem;
+    margin-top: 1rem;
+}
+
+.stok-pagination-wrap .pagination {
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+.stok-pagination-wrap .page-link {
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 12px !important;
+    border: 1px solid #dbe7df;
+    color: #1f3b2e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+}
+
+.stok-pagination-wrap .page-item.active .page-link {
+    background: var(--hijau);
+    border-color: var(--hijau);
+    color: #fff;
+}
+
+.stok-pagination-wrap .page-item.disabled .page-link {
+    background: #f8fafc;
+    color: #94a3b8;
+    box-shadow: none;
+}
+
 .item-list-produk {
     text-decoration: none;
     color: black;
@@ -303,33 +341,43 @@
             </div>
         </div>
         <?php if ($countAllStok > 20) { ?>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <?php if ((int)$pag > 1) { ?>
-                <li class="page-item">
-                    <a class="page-link text-dark"
-                        href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . ((int)$pag - 1); ?>"
-                        aria-label="Previous">
+        <?php
+            $currentPage = max(1, (int)$pag);
+            $totalPages = max(1, (int)ceil($countAllStok / 20));
+            $currentPage = min($currentPage, $totalPages);
+            $basePageUrl = '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']);
+            $pages = [1, $totalPages];
+            for ($x = $currentPage - 2; $x <= $currentPage + 2; $x++) {
+                if ($x >= 1 && $x <= $totalPages) $pages[] = $x;
+            }
+            $pages = array_values(array_unique($pages));
+            sort($pages);
+            $lastPrintedPage = 0;
+        ?>
+        <nav class="stok-pagination-wrap" aria-label="Navigasi halaman mutasi stok">
+            <div class="small text-secondary">
+                Halaman <strong><?= $currentPage; ?></strong> dari <strong><?= $totalPages; ?></strong> · <?= number_format($countAllStok, 0, ',', '.'); ?> mutasi
+            </div>
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="<?= $currentPage <= 1 ? '#' : $basePageUrl . '/' . ($currentPage - 1); ?>" aria-label="Halaman sebelumnya">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
-                <?php }
-                    $hitungGrupMax = ceil($countAllStok / 20);
-                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
-                    ?>
-                <li class="page-item"><a class="page-link <?= $x == $pag ? "aktif" : "" ?>"
-                        href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . $x; ?>"><?= $x; ?></a>
-                </li>
+                <?php foreach ($pages as $pageNumber) { ?>
+                    <?php if ($lastPrintedPage && $pageNumber > $lastPrintedPage + 1) { ?>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <?php } ?>
+                    <li class="page-item <?= $pageNumber === $currentPage ? 'active' : ''; ?>">
+                        <a class="page-link" href="<?= $basePageUrl . '/' . $pageNumber; ?>" aria-label="Halaman <?= $pageNumber; ?>"><?= $pageNumber; ?></a>
+                    </li>
+                    <?php $lastPrintedPage = $pageNumber; ?>
                 <?php } ?>
-                <?php if ((int)$pag < $hitungGrupMax) { ?>
-                <li class="page-item">
-                    <a class="page-link text-dark"
-                        href="<?= '/stokadmin/' . ($idProduk == 'all' ? 'all' : $produk['id']) . '/' . ((int)$pag + 1); ?>"
-                        aria-label="Next">
+                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="<?= $currentPage >= $totalPages ? '#' : $basePageUrl . '/' . ($currentPage + 1); ?>" aria-label="Halaman berikutnya">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
-                <?php } ?>
             </ul>
         </nav>
         <?php } ?>

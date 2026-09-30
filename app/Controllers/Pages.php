@@ -8845,6 +8845,7 @@ class Pages extends BaseController
 
     public function stokAdmin($idProduk = false, $pag = 1)
     {
+        $pag = max(1, (int)$pag);
         $offset = ($pag - 1) * 20;
         if ($idProduk != 'all') {
             $produk = $this->barangModel->getBarangAdmin($idProduk);
