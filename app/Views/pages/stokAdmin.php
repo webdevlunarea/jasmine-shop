@@ -41,6 +41,129 @@
     </div>
 </div>
 <style>
+.stok-hero {
+    background: linear-gradient(135deg, #f3fff7 0%, #ffffff 52%, #eef8f2 100%);
+    border: 1px solid #e3efe8;
+    border-radius: 24px;
+    padding: 1.2rem;
+    box-shadow: 0 16px 40px rgba(26, 83, 54, 0.08);
+}
+
+.stok-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    background: #e9f8ee;
+    color: #207247;
+    border: 1px solid #caead5;
+    border-radius: 999px;
+    padding: .35rem .7rem;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.stok-search-wrap {
+    position: relative;
+    max-width: 620px;
+}
+
+.stok-search-wrap .form-select {
+    min-height: 46px;
+    border-radius: 14px;
+    border-color: #d9e7de;
+    box-shadow: 0 6px 20px rgba(20, 75, 48, 0.05);
+}
+
+.stok-sync-card {
+    border: 1px solid #d7eadf;
+    background: #f6fffa;
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+.stok-varian-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: .85rem;
+}
+
+.stok-varian-card {
+    border: 1px solid #e5eee8;
+    background: #fff;
+    border-radius: 18px;
+    padding: .95rem;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(26, 83, 54, 0.06);
+}
+
+.stok-varian-card p {
+    min-height: 2.4em;
+}
+
+.stok-table-card {
+    border: 1px solid #e5eee8;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+
+.stok-table-head,
+.stok-table-row {
+    display: grid;
+    grid-template-columns: 1.05fr 1.1fr .7fr .55fr .55fr 1.25fr .65fr .55fr;
+    gap: .75rem;
+    align-items: center;
+    min-width: 980px;
+}
+
+.stok-table-head {
+    background: #f8faf9;
+    color: #475569;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    padding: .85rem 1rem;
+    border-bottom: 1px solid #e5eee8;
+}
+
+.stok-table-row {
+    padding: .9rem 1rem;
+    border-bottom: 1px solid #eef3ef;
+}
+
+.stok-table-row:last-child {
+    border-bottom: 0;
+}
+
+.stok-table-row:hover {
+    background: #fbfefc;
+}
+
+.stok-qty {
+    display: inline-flex;
+    min-width: 54px;
+    justify-content: center;
+    border-radius: 999px;
+    padding: .28rem .55rem;
+    font-weight: 800;
+    background: #f1f5f9;
+}
+
+.stok-action-lock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    border-radius: 999px;
+    padding: .25rem .6rem;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: .75rem;
+    font-weight: 700;
+}
+
 .item-list-produk {
     text-decoration: none;
     color: black;
@@ -54,96 +177,127 @@
     color: white;
     transition: 0.1s;
 }
+
+@media (max-width: 767px) {
+    .stok-hero {
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    .stok-hero h3 {
+        font-size: 1.25rem;
+    }
+
+    .stok-table-card {
+        border-radius: 16px;
+    }
+}
 </style>
 <div class="konten">
     <div class="container">
-        <div class="d-flex gap-3 justify-content-between align-items-center">
-            <div style="flex: 1">
-                <h3 class="mb-1">Mutasi <?= $idProduk == 'all' ? 'Semua Produk' : explode(' - ', $produk['nama'])[1]; ?>
-                </h3>
-                <input placeholder="Cari produk" type="text" class="form-select w-100" oninput="handleInput(event)">
-                <div style="position: relative;" class="w-100">
+        <div class="stok-hero mb-4">
+            <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-lg-center">
+                <div style="flex: 1">
+                    <div class="stok-badge mb-2">
+                        <i class="material-icons" style="font-size: 16px;">verified</i>
+                        Monitoring Stok MyLuna
+                    </div>
+                    <h3 class="mb-1 fw-bold">Mutasi <?= $idProduk == 'all' ? 'Semua Produk' : explode(' - ', $produk['nama'])[1]; ?>
+                    </h3>
+                    <p class="text-secondary mb-3">Cari produk dan pantau riwayat sinkronisasi stok website. Perubahan stok dilakukan dari Luna Sistem.</p>
+                    <div class="stok-search-wrap">
+                        <input placeholder="Cari produk berdasarkan nama..." type="text" class="form-select w-100" oninput="handleInput(event)">
+                    </div>
+                    <div style="position: relative;" class="w-100">
                     <div id="container-cari-barang" class="d-none flex-column gap-1 border rounded w-100 bg-light"
                         style="overflow: auto; max-height: 40svh; position: absolute; z-index: 3"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="d-flex gap-2 flex-wrap justify-content-end">
-                <button onclick="sinkronisasi(event)" class="btn btn-outline-dark">Info Sync</button>
+                <div class="d-flex gap-2 flex-wrap justify-content-lg-end">
+                    <button onclick="sinkronisasi(event)" class="btn btn-outline-dark px-3 py-2 rounded-pill">
+                        <i class="material-icons align-middle" style="font-size: 18px;">sync</i>
+                        Info Sync
+                    </button>
                 <?php if (empty($stockManagedByLuna)) { ?>
-                <button onclick="openTambal()" class="btn btn-primary1">Tambah</button>
+                    <button onclick="openTambal()" class="btn btn-primary1 px-3 py-2 rounded-pill">Tambah</button>
                 <?php } ?>
+                </div>
             </div>
         </div>
-        <hr>
         <?php if (!empty($stockManagedByLuna)) { ?>
-        <div class="alert alert-info border-0 shadow-sm" role="alert">
+        <div class="stok-sync-card mb-4" role="alert">
             <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
-                <div>
-                    <strong>Stok website dikunci dari admin.</strong><br>
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;background:#ddf7e7;color:#207247;flex:0 0 42px;">
+                        <i class="material-icons">lock</i>
+                    </div>
+                    <div>
+                    <strong>Stok website dikunci dari admin website.</strong><br>
                     <span class="small">Sumber stok, harga, dan varian sekarang wajib dari <b>Luna Sistem / MyLuna</b>. Halaman ini hanya untuk monitoring riwayat mutasi sinkronisasi.</span>
+                    </div>
                 </div>
-                <span class="badge bg-success align-self-start align-self-md-center">Source of truth: MyLuna</span>
+                <span class="badge bg-success align-self-start align-self-md-center rounded-pill px-3 py-2">Source of truth: MyLuna</span>
             </div>
         </div>
         <?php } ?>
         <?php if ($idProduk != 'all') { ?>
-        <div class="d-flex">
+        <div class="stok-varian-grid mb-4">
             <?php foreach ($stokVarian as $s) { ?>
-            <div style="flex: 1;" class="d-flex flex-column justify-content-center align-items-center">
+            <div class="stok-varian-card">
                 <p class="mb-1 text-secondary"><?= $s['nama']; ?></p>
-                <h3><?= $s['stok']; ?></h3>
+                <h3 class="mb-0 fw-bold"><?= $s['stok']; ?></h3>
+                <small class="text-secondary">stok website</small>
             </div>
             <?php } ?>
         </div>
-        <hr>
         <?php } ?>
         <?php if ($msg) { ?>
         <div class="alert alert-danger" role="alert">
             <?= $msg; ?>
         </div>
         <?php } ?>
-        <div style="overflow-x: auto;" class="mb-3">
-            <div style="min-width: 900px;">
-                <div class="d-flex w-100 fw-bold gap-2 mb-2">
-                    <div style="flex: 1;" class="m-0">Tanggal</div>
-                    <div style="flex: 1;" class="m-0">Nama</div>
-                    <div style="flex: 0.7;" class="m-0">Varian</div>
-                    <div style="flex: 0.4;" class="m-0">Jumlah</div>
-                    <div style="flex: 0.5;" class="m-0">PJ</div>
-                    <div style="flex: 1;" class="m-0">Keterangan</div>
-                    <div style="flex: 0.6;" class="m-0">Stok Akhir</div>
-                    <div style="flex: 0.4;" class="m-0">Action</div>
+        <div class="stok-table-card mb-3">
+            <div style="overflow-x: auto;">
+                <div class="stok-table-head">
+                    <div>Tanggal</div>
+                    <div>Nama</div>
+                    <div>Varian</div>
+                    <div>Jumlah</div>
+                    <div>PJ</div>
+                    <div>Keterangan</div>
+                    <div>Stok Akhir</div>
+                    <div>Action</div>
                 </div>
                 <div class="d-flex flex-column gap-2">
                     <?php if (count($stok) > 0) { ?>
                     <?php foreach ($stok as $ind_s => $s) { ?>
-                    <div class="d-flex w-100 gap-2">
-                        <div style="flex: 1;" class="m-0"><?= $s['tanggal']; ?></div>
-                        <div style="flex: 1;" class="m-0"><?= $s['nama']; ?></div>
-                        <div style="flex: 0.7;" class="m-0"><?= $s['varian']; ?></div>
-                        <div style="flex: 0.4; color: <?= $s['jumlah'] < 0 ? 'red' : 'var(--hijau)'; ?>" class="m-0">
-                            <?= $s['jumlah'] < 0 ? '' : '+'; ?><?= $s['jumlah']; ?></div>
+                    <div class="stok-table-row">
+                        <div class="m-0 small text-secondary"><?= $s['tanggal']; ?></div>
+                        <div class="m-0 fw-semibold"><?= $s['nama']; ?></div>
+                        <div class="m-0"><span class="badge bg-light text-dark border rounded-pill"><?= $s['varian']; ?></span></div>
+                        <div class="m-0" style="color: <?= $s['jumlah'] < 0 ? '#dc2626' : '#16834a'; ?>">
+                            <span class="stok-qty"><?= $s['jumlah'] < 0 ? '' : '+'; ?><?= $s['jumlah']; ?></span></div>
                         <?php if ($s['nama_admin']) { ?>
-                        <div style="flex: 0.5;" class="m-0"><?= explode(' ', $s['nama_admin'])[0]; ?>
+                        <div class="m-0"><?= explode(' ', $s['nama_admin'])[0]; ?>
                             <?= count(explode(' ', $s['nama_admin'])) > 1 ? substr(explode(' ', $s['nama_admin'])[1], 0, 1) : ''; ?>
                         </div>
                         <?php } else { ?>
-                        <div style="flex: 0.5;" class="m-0 text-sm text-secondary"><i>Butuh konfirm</i></div>
+                        <div class="m-0 text-sm text-secondary"><i>Butuh konfirm</i></div>
                         <?php } ?>
-                        <div style="flex: 1;" class="m-0"><?= $s['keterangan']; ?></div>
-                        <div style="flex: 0.6;" class="m-0"><?= $s['stok_akhir']; ?></div>
-                        <div style="flex: 0.4;" class="m-0 d-flex justify-content-center align-items-center">
+                        <div class="m-0 small"><?= $s['keterangan']; ?></div>
+                        <div class="m-0 fw-bold"><?= $s['stok_akhir']; ?></div>
+                        <div class="m-0 d-flex justify-content-center align-items-center">
                             <?php if (!$s['nama_admin'] && empty($stockManagedByLuna)) { ?>
                             <button type="button" onclick="openKofirm(<?= $ind_s; ?>)" class="btn btn-primary1 p-2"><i
                                     class="material-icons" style="font-size: 12px;">border_color</i></button>
                             <?php } elseif (!$s['nama_admin']) { ?>
-                            <span class="badge bg-secondary">Dikunci</span>
+                            <span class="stok-action-lock">Dikunci</span>
                             <?php } ?>
                         </div>
                     </div>
                     <?php } ?>
                     <?php } else { ?>
-                    <p class="text-center text-sm text-secondary"><i>Belum ada data mutasi</i></p>
+                    <div class="py-5 text-center text-sm text-secondary"><i>Belum ada data mutasi</i></div>
                     <?php } ?>
                 </div>
             </div>
