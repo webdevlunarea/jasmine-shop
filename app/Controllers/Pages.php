@@ -4809,7 +4809,7 @@ class Pages extends BaseController
             } else {
                 $parsedTracking = $this->parsePublicTrackingKeyword($keyword);
                 $awb = $parsedTracking['awb'];
-                $courierCode = $manualCourier !== '' ? $manualCourier : $parsedTracking['courier'];
+                $courierCode = $parsedTracking['courier'] !== '' ? $parsedTracking['courier'] : $manualCourier;
             }
 
             if ($awb === '' || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
@@ -4850,9 +4850,14 @@ class Pages extends BaseController
             }
         }
 
+        $normalizedAwb = $this->normalizeTrackingAwb($awb);
+        if ($courier === '' && preg_match('/^CM[0-9]{8,}$/', $normalizedAwb)) {
+            $courier = 'jne';
+        }
+
         return [
             'courier' => $courier,
-            'awb' => $this->normalizeTrackingAwb($awb),
+            'awb' => $normalizedAwb,
         ];
     }
 
