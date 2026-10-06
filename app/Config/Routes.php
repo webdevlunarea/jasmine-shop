@@ -15,6 +15,7 @@ $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 $routes->get('/faq', 'Pages::faq');
+$routes->match(['get', 'post'], '/lacak-pengiriman', 'Pages::lacakPengiriman');
 $routes->get('/form', 'Pages::form');
 $routes->get('/formthanks', 'Pages::formThanks');
 $routes->post('/actionform', 'Pages::actionForm');

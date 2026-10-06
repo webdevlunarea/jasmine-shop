@@ -4785,6 +4785,160 @@ class Pages extends BaseController
         ];
         return view('pages/tracking', $data);
     }
+    public function lacakPengiriman()
+    {
+        $keyword = trim((string)($this->request->getVar('keyword') ?? ''));
+        $manualCourier = trim((string)($this->request->getVar('courier') ?? ''));
+        $order = null;
+        $tracking = null;
+        $error = null;
+        $courierCode = $manualCourier;
+        $awb = $keyword;
+
+        if ($keyword !== '') {
+            $order = $this->pemesananModel->findForPublicTracking($keyword);
+            if ($order) {
+                $awb = trim((string)($order['resi'] ?? ''));
+                $courierCode = $manualCourier !== '' ? $manualCourier : $this->resolveCourierCode((string)($order['kurir'] ?? ''));
+            } else {
+                $courierCode = $manualCourier;
+            }
+
+            if ($awb === '' || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
+                $error = 'Nomor resi untuk pesanan ini belum tersedia. Silakan cek kembali setelah admin mengirimkan resi.';
+            } elseif ($courierCode === '') {
+                $error = 'Kurir belum terbaca otomatis. Pilih kurir terlebih dahulu untuk melacak nomor resi ini.';
+            } else {
+                $tracking = $this->fetchBinderByteTracking($courierCode, $awb);
+                if (!$tracking['success']) {
+                    $error = $tracking['message'];
+                }
+            }
+        }
+
+        return view('pages/lacakPengiriman', [
+            'title' => 'Lacak Pengiriman',
+            'keyword' => $keyword,
+            'courier' => $courierCode,
+            'order' => $order,
+            'tracking' => $tracking,
+            'error' => $error,
+            'couriers' => $this->trackingCourierOptions(),
+        ]);
+    }
+
+    private function trackingCourierOptions()
+    {
+        return [
+            'jne' => 'JNE',
+            'jnt' => 'J&T Express',
+            'sicepat' => 'SiCepat',
+            'anteraja' => 'AnterAja',
+            'tiki' => 'TIKI',
+            'pos' => 'POS Indonesia',
+            'wahana' => 'Wahana',
+            'ninja' => 'Ninja Xpress',
+            'lion' => 'Lion Parcel',
+            'indah' => 'Indah Cargo',
+            'sap' => 'SAP Express',
+            'ide' => 'ID Express',
+            'spx' => 'Shopee Express',
+        ];
+    }
+
+    private function resolveCourierCode($courierText)
+    {
+        $text = strtolower(trim($courierText));
+        $text = str_replace(['&amp;', '&'], ['and', 'and'], $text);
+        $map = [
+            'sicepat' => 'sicepat',
+            'si cepat' => 'sicepat',
+            'anteraja' => 'anteraja',
+            'anter aja' => 'anteraja',
+            'j&t' => 'jnt',
+            'jnt' => 'jnt',
+            'j and t' => 'jnt',
+            'jne' => 'jne',
+            'tiki' => 'tiki',
+            'pos' => 'pos',
+            'wahana' => 'wahana',
+            'ninja' => 'ninja',
+            'lion' => 'lion',
+            'indah' => 'indah',
+            'dakota' => 'dakota',
+            'sap' => 'sap',
+            'id express' => 'ide',
+            'idexpress' => 'ide',
+            'shopee' => 'spx',
+            'spx' => 'spx',
+        ];
+
+        foreach ($map as $needle => $code) {
+            if (strpos($text, $needle) !== false) return $code;
+        }
+
+        return '';
+    }
+
+    private function fetchBinderByteTracking($courier, $awb)
+    {
+        $apiKey = getenv('BINDERBYTE_API_KEY') ?: env('BINDERBYTE_API_KEY');
+        if (!$apiKey) {
+            return [
+                'success' => false,
+                'message' => 'API key tracking belum dikonfigurasi. Tambahkan BINDERBYTE_API_KEY di environment server.',
+            ];
+        }
+
+        $url = 'https://api.binderbyte.com/v1/track?api_key=' . rawurlencode($apiKey) . '&courier=' . rawurlencode($courier) . '&awb=' . rawurlencode($awb);
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 20,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($err) {
+            return [
+                'success' => false,
+                'message' => 'Koneksi ke API tracking gagal: ' . $err,
+            ];
+        }
+
+        $decoded = json_decode((string)$response, true);
+        if (!is_array($decoded)) {
+            return [
+                'success' => false,
+                'message' => 'Response API tracking belum valid.',
+            ];
+        }
+
+        if ($httpCode >= 400 || (isset($decoded['status']) && (int)$decoded['status'] !== 200)) {
+            return [
+                'success' => false,
+                'message' => $decoded['message'] ?? 'Resi belum ditemukan di provider tracking.',
+                'raw' => $decoded,
+            ];
+        }
+
+        $data = $decoded['data'] ?? [];
+        return [
+            'success' => true,
+            'provider' => 'BinderByte',
+            'summary' => $data['summary'] ?? [],
+            'detail' => $data['detail'] ?? [],
+            'history' => $data['history'] ?? [],
+            'raw' => $decoded,
+        ];
+    }
     public function transaction()
     {
         $email = session()->get("email");

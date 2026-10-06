@@ -37,6 +37,18 @@ class PemesananModel extends Model
     {
         return $this->where(['email_cus' => $emailCus])->orderBy('id', 'desc')->findAll();
     }
+    public function findForPublicTracking($keyword)
+    {
+        $keyword = trim((string)$keyword);
+        if ($keyword === '') return null;
+
+        return $this->groupStart()
+            ->where('id_midtrans', $keyword)
+            ->orWhere('resi', $keyword)
+            ->groupEnd()
+            ->orderBy('id', 'desc')
+            ->first();
+    }
     public function getPemesananPage($page)
     {
         // $hitungPag = floor($page / 20);

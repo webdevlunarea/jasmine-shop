@@ -55,6 +55,7 @@
                         </li>
                         <li><a href="/kebijakan-privasi">Kebijakan Privasi</a></li>
                         <li><a href="/syarat-dan-ketentuan">Syarat & Ketentuan</a></li>
+                        <li><a href="/lacak-pengiriman">Lacak Pengiriman</a></li>
                         <li><a href="/faq">FAQ</a></li>
                         <li><a href="/contact">Hubungi Kami</a></li>
                     </ul>
