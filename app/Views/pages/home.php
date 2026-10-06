@@ -443,6 +443,71 @@ function closeModalVoucherAll(index) {
             </div>
         </div>
     </div>
+    <?php if (!empty($flashSaleProducts)) { ?>
+    <section class="container my-4 flash-sale-section" aria-labelledby="flash-sale-title">
+        <div class="flash-sale-shell">
+            <div class="flash-sale-head">
+                <div class="flash-sale-title-wrap">
+                    <span class="flash-sale-kicker"><i class="material-icons" aria-hidden="true">bolt</i> Promo kilat</span>
+                    <h2 id="flash-sale-title" class="flash-sale-title">Flash Sale Lunarea</h2>
+                    <p>Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.</p>
+                </div>
+                <div class="flash-sale-action">
+                    <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" aria-live="polite">
+                        <span class="flash-countdown-label">Berakhir dalam</span>
+                        <div class="flash-countdown-time" aria-label="Hitung mundur flash sale">
+                            <span data-unit="hours">00</span><b>:</b><span data-unit="minutes">00</span><b>:</b><span data-unit="seconds">00</span>
+                        </div>
+                    </div>
+                    <a href="/all" class="flash-sale-see-all">Lihat Semua <i class="material-icons" aria-hidden="true">chevron_right</i></a>
+                </div>
+            </div>
+            <div class="flash-sale-products-wrap">
+                <button class="flash-sale-nav flash-sale-nav--prev" type="button" aria-label="Geser flash sale ke kiri" data-flash-prev>
+                    <i class="material-icons" aria-hidden="true">chevron_left</i>
+                </button>
+                <div class="flash-sale-products" data-flash-products>
+                    <?php foreach ($flashSaleProducts as $p) {
+                        $discount = max(0, (int)($p['diskon'] ?? 0));
+                        $price = (float)($p['harga'] ?? 0);
+                        $salePrice = round(((100 - $discount) / 100) * $price);
+                        $stockRaw = (string)($p['stok'] ?? '0');
+                        $stockParts = array_filter(array_map('trim', explode(',', $stockRaw)), static fn($v) => $v !== '');
+                        $totalStock = 0;
+                        foreach ($stockParts as $stockValue) {
+                            $totalStock += max(0, (int)$stockValue);
+                        }
+                        $soldDisplay = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? (int)$p['terjual_custom'] : (int)($p['terjual'] ?? 0);
+                        $progress = $soldDisplay > 0 ? min(88, max(12, round(($soldDisplay / max(1, $soldDisplay + $totalStock)) * 100))) : ($totalStock <= 5 ? 18 : 35);
+                        $stockText = $totalStock <= 0 ? 'Hampir habis' : ($totalStock <= 5 ? 'Stok Terbatas' : 'Cepat Habis');
+                    ?>
+                    <a class="flash-sale-card" href="/product/<?= esc($p['path']); ?>" aria-label="<?= esc($p['nama']); ?> diskon <?= $discount; ?> persen">
+                        <div class="flash-sale-image">
+                            <span class="flash-sale-badge">-<?= $discount; ?>%</span>
+                            <img class="flash-sale-watermark" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
+                            <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy">
+                        </div>
+                        <div class="flash-sale-info">
+                            <h3><?= esc($p['nama']); ?></h3>
+                            <div class="flash-sale-price">
+                                <span>Rp <?= number_format($salePrice, 0, ",", "."); ?></span>
+                                <del>Rp <?= number_format($price, 0, ",", "."); ?></del>
+                            </div>
+                            <div class="flash-sale-stock" aria-label="<?= esc($stockText); ?>">
+                                <span><?= esc($stockText); ?></span>
+                                <div class="flash-sale-stock-bar"><i style="width: <?= $progress; ?>%"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                    <?php } ?>
+                </div>
+                <button class="flash-sale-nav flash-sale-nav--next" type="button" aria-label="Geser flash sale ke kanan" data-flash-next>
+                    <i class="material-icons" aria-hidden="true">chevron_right</i>
+                </button>
+            </div>
+        </div>
+    </section>
+    <?php } ?>
     <div class="container my-3">
         <?php
         $window_width = "<script type='text/javascript'>document.write(window.innerWidth);</script>";
@@ -640,6 +705,48 @@ containeKategoriScrollElm?.addEventListener('scroll', () => {
     if (document.body.classList.contains('kategori-dropdown-open')) {
         containeKategoriScrollElm.scrollLeft = containeKategoriScrollElm.dataset.lockScrollLeft || containeKategoriScrollElm.scrollLeft;
     }
+});
+
+document.querySelectorAll('[data-flash-countdown]').forEach((timer) => {
+    const endMs = Number(timer.dataset.end || 0) * 1000;
+    const hoursEl = timer.querySelector('[data-unit="hours"]');
+    const minutesEl = timer.querySelector('[data-unit="minutes"]');
+    const secondsEl = timer.querySelector('[data-unit="seconds"]');
+    const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
+
+    function renderFlashCountdown() {
+        const diff = Math.max(0, endMs - Date.now());
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hoursEl) hoursEl.textContent = pad(hours);
+        if (minutesEl) minutesEl.textContent = pad(minutes);
+        if (secondsEl) secondsEl.textContent = pad(seconds);
+    }
+
+    renderFlashCountdown();
+    setInterval(renderFlashCountdown, 1000);
+});
+
+document.querySelectorAll('.flash-sale-products-wrap').forEach((wrap) => {
+    const scroller = wrap.querySelector('[data-flash-products]');
+    const prev = wrap.querySelector('[data-flash-prev]');
+    const next = wrap.querySelector('[data-flash-next]');
+
+    if (!scroller) return;
+
+    const move = (direction) => {
+        const amount = Math.max(260, Math.floor(scroller.clientWidth * 0.8));
+        scroller.scrollBy({
+            left: direction * amount,
+            behavior: 'smooth'
+        });
+    };
+
+    prev?.addEventListener('click', () => move(-1));
+    next?.addEventListener('click', () => move(1));
 });
 </script>
 <?= $this->endSection(); ?>

@@ -857,6 +857,11 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangLimit();
         $produkBaru = $this->barangModel->getBarangPopuler();
+        $flashSaleProducts = $this->barangModel->getBarangFlashSale(12);
+        $flashSaleEnd = strtotime('today 23:59:59');
+        if ($flashSaleEnd <= time()) {
+            $flashSaleEnd = strtotime('tomorrow 23:59:59');
+        }
         $banner = $this->getHomeBanner();
         $msgEvent = session()->getFlashdata('msg_event');
         $msgActive = session()->getFlashdata('msg_active');
@@ -882,6 +887,8 @@ class Pages extends BaseController
             'title' => 'Beranda',
             'produk' => $produk,
             'produkBaru' => $produkBaru,
+            'flashSaleProducts' => $flashSaleProducts,
+            'flashSaleEnd' => $flashSaleEnd,
             'banner' => $banner,
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',

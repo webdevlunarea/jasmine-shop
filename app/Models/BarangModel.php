@@ -68,6 +68,14 @@ class BarangModel extends Model
     {
         return $this->where(['active' => '1'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
     }
+    public function getBarangFlashSale(int $limit = 12)
+    {
+        return $this->where(['active' => '1'])
+            ->where('diskon >', 0)
+            ->orderBy('diskon', 'desc')
+            ->orderBy('tracking_pop', 'desc')
+            ->findAll($limit, 0);
+    }
     public function getBarangPage($page)
     {
         // $hitungPag = floor($page / 20);
