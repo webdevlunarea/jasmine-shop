@@ -149,6 +149,8 @@ $routes->post('/editresi', 'Pages::editResi');
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct/(:any)', 'Pages::listProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/category-image/(:segment)', 'Pages::categoryImageFile/$1');
+$routes->get('/flashsaleadmin', 'Pages::flashSaleAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/flashsaleadmin', 'Pages::actionFlashSaleAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/categoryimagesadmin', 'Pages::categoryImagesAdmin', ['filter' => 'harusAdmin']);
 $routes->post('/categoryimagesadmin', 'Pages::actionCategoryImagesAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);

@@ -857,10 +857,18 @@ class Pages extends BaseController
     {
         $produk = $this->barangModel->getBarangLimit();
         $produkBaru = $this->barangModel->getBarangPopuler();
-        $flashSaleProducts = $this->barangModel->getBarangFlashSale(12);
-        $flashSaleEnd = strtotime('today 23:59:59');
+        $flashSaleSettings = $this->konstantaModel->getFlashSaleSettings();
+        $flashSaleProducts = [];
+        if (!empty($flashSaleSettings['enabled'])) {
+            $flashSaleProducts = $this->barangModel->getBarangFlashSale(
+                (int)$flashSaleSettings['limit'],
+                (array)$flashSaleSettings['product_ids'],
+                $flashSaleSettings['mode'] === 'manual'
+            );
+        }
+        $flashSaleEnd = strtotime('today ' . $flashSaleSettings['end_time'] . ':59');
         if ($flashSaleEnd <= time()) {
-            $flashSaleEnd = strtotime('tomorrow 23:59:59');
+            $flashSaleEnd = strtotime('tomorrow ' . $flashSaleSettings['end_time'] . ':59');
         }
         $banner = $this->getHomeBanner();
         $msgEvent = session()->getFlashdata('msg_event');
@@ -889,6 +897,7 @@ class Pages extends BaseController
             'produkBaru' => $produkBaru,
             'flashSaleProducts' => $flashSaleProducts,
             'flashSaleEnd' => $flashSaleEnd,
+            'flashSaleSettings' => $flashSaleSettings,
             'banner' => $banner,
             'metaKeyword' => 'lunarea furniture,toko furniture,
             lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
@@ -7642,6 +7651,39 @@ class Pages extends BaseController
             'images' => $this->konstantaModel->getCategoryImages(),
             'msg' => session()->getFlashdata('msg'),
         ]);
+    }
+
+    public function flashSaleAdmin()
+    {
+        return view('pages/flashSaleAdmin', [
+            'title' => 'Flash Sale',
+            'settings' => $this->konstantaModel->getFlashSaleSettings(),
+            'products' => $this->barangModel->getBarangFlashSaleCandidates(250),
+            'msg' => session()->getFlashdata('msg'),
+        ]);
+    }
+
+    public function actionFlashSaleAdmin()
+    {
+        $settings = [
+            'enabled' => $this->request->getPost('enabled'),
+            'mode' => $this->request->getPost('mode'),
+            'title' => $this->request->getPost('title'),
+            'subtitle' => $this->request->getPost('subtitle'),
+            'kicker' => $this->request->getPost('kicker'),
+            'end_time' => $this->request->getPost('end_time'),
+            'limit' => $this->request->getPost('limit'),
+            'product_ids' => $this->request->getPost('product_ids') ?? [],
+        ];
+
+        $saved = $this->konstantaModel->saveFlashSaleSettings($settings);
+        $msg = 'Pengaturan Flash Sale berhasil disimpan.';
+        if ($saved['mode'] === 'manual' && empty($saved['product_ids'])) {
+            $msg .= ' Mode manual aktif, tapi belum ada produk dipilih sehingga section Flash Sale akan kosong.';
+        }
+        session()->setFlashdata('msg', $msg);
+
+        return redirect()->to('/flashsaleadmin');
     }
 
     public function actionCategoryImagesAdmin()

@@ -68,12 +68,37 @@ class BarangModel extends Model
     {
         return $this->where(['active' => '1'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
     }
-    public function getBarangFlashSale(int $limit = 12)
+    public function getBarangFlashSale(int $limit = 12, array $productIds = [], bool $manual = false)
     {
+        $limit = min(24, max(4, $limit));
+        $productIds = array_values(array_unique(array_filter(array_map('trim', $productIds))));
+
+        if ($manual && !empty($productIds)) {
+            $rows = $this->where(['active' => '1'])
+                ->where('diskon >', 0)
+                ->whereIn('id', $productIds)
+                ->findAll($limit, 0);
+
+            $positions = array_flip($productIds);
+            usort($rows, static function ($a, $b) use ($positions) {
+                return ($positions[$a['id']] ?? 9999) <=> ($positions[$b['id']] ?? 9999);
+            });
+
+            return $rows;
+        }
+
         return $this->where(['active' => '1'])
             ->where('diskon >', 0)
             ->orderBy('diskon', 'desc')
             ->orderBy('tracking_pop', 'desc')
+            ->findAll($limit, 0);
+    }
+    public function getBarangFlashSaleCandidates(int $limit = 200)
+    {
+        return $this->where(['active' => '1'])
+            ->where('diskon >', 0)
+            ->orderBy('diskon', 'desc')
+            ->orderBy('nama', 'asc')
             ->findAll($limit, 0);
     }
     public function getBarangPage($page)

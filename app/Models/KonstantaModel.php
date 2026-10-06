@@ -45,6 +45,20 @@ class KonstantaModel extends Model
         ];
     }
 
+    public static function defaultFlashSaleSettings()
+    {
+        return [
+            'enabled' => true,
+            'mode' => 'auto',
+            'title' => 'Flash Sale Lunarea',
+            'subtitle' => 'Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.',
+            'kicker' => 'Promo kilat',
+            'end_time' => '23:59',
+            'limit' => 12,
+            'product_ids' => [],
+        ];
+    }
+
     public static function defaultCategoryImages()
     {
         return [
@@ -181,6 +195,63 @@ class KonstantaModel extends Model
         } else {
             $this->insert([
                 'label' => 'top_promo_text',
+                'value' => $payload,
+            ]);
+        }
+
+        return $clean;
+    }
+
+    public function getFlashSaleSettings()
+    {
+        $defaults = self::defaultFlashSaleSettings();
+        $row = $this->getKonstantaByLabel('flash_sale_settings');
+
+        if ($row && !empty($row['value'])) {
+            $decoded = json_decode($row['value'], true);
+            if (is_array($decoded)) {
+                $defaults = array_merge($defaults, array_intersect_key($decoded, $defaults));
+            }
+        }
+
+        $defaults['enabled'] = filter_var($defaults['enabled'], FILTER_VALIDATE_BOOLEAN);
+        $defaults['mode'] = in_array($defaults['mode'], ['auto', 'manual'], true) ? $defaults['mode'] : 'auto';
+        $defaults['title'] = trim((string)$defaults['title']) !== '' ? trim((string)$defaults['title']) : 'Flash Sale Lunarea';
+        $defaults['subtitle'] = trim((string)$defaults['subtitle']) !== '' ? trim((string)$defaults['subtitle']) : self::defaultFlashSaleSettings()['subtitle'];
+        $defaults['kicker'] = trim((string)$defaults['kicker']) !== '' ? trim((string)$defaults['kicker']) : 'Promo kilat';
+        $defaults['end_time'] = preg_match('/^\d{2}:\d{2}$/', (string)$defaults['end_time']) ? $defaults['end_time'] : '23:59';
+        $defaults['limit'] = min(24, max(4, (int)$defaults['limit']));
+        $defaults['product_ids'] = array_values(array_unique(array_filter(array_map('trim', (array)$defaults['product_ids']))));
+
+        return $defaults;
+    }
+
+    public function saveFlashSaleSettings(array $settings)
+    {
+        $defaults = self::defaultFlashSaleSettings();
+        $clean = [
+            'enabled' => isset($settings['enabled']),
+            'mode' => (($settings['mode'] ?? 'auto') === 'manual') ? 'manual' : 'auto',
+            'title' => mb_substr(trim(strip_tags((string)($settings['title'] ?? $defaults['title']))), 0, 80),
+            'subtitle' => mb_substr(trim(strip_tags((string)($settings['subtitle'] ?? $defaults['subtitle']))), 0, 180),
+            'kicker' => mb_substr(trim(strip_tags((string)($settings['kicker'] ?? $defaults['kicker']))), 0, 40),
+            'end_time' => preg_match('/^\d{2}:\d{2}$/', (string)($settings['end_time'] ?? '')) ? $settings['end_time'] : $defaults['end_time'],
+            'limit' => min(24, max(4, (int)($settings['limit'] ?? $defaults['limit']))),
+            'product_ids' => array_values(array_unique(array_filter(array_map('trim', (array)($settings['product_ids'] ?? []))))),
+        ];
+
+        if ($clean['title'] === '') $clean['title'] = $defaults['title'];
+        if ($clean['subtitle'] === '') $clean['subtitle'] = $defaults['subtitle'];
+        if ($clean['kicker'] === '') $clean['kicker'] = $defaults['kicker'];
+
+        $row = $this->getKonstantaByLabel('flash_sale_settings');
+        $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
+
+        if ($row) {
+            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
+        } else {
+            $this->insert([
+                'label' => 'flash_sale_settings',
                 'value' => $payload,
             ]);
         }

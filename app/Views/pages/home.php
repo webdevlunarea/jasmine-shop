@@ -448,9 +448,9 @@ function closeModalVoucherAll(index) {
         <div class="flash-sale-shell">
             <div class="flash-sale-head">
                 <div class="flash-sale-title-wrap">
-                    <span class="flash-sale-kicker"><i class="material-icons" aria-hidden="true">bolt</i> Promo kilat</span>
-                    <h2 id="flash-sale-title" class="flash-sale-title">Flash Sale Lunarea</h2>
-                    <p>Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.</p>
+                    <span class="flash-sale-kicker"><i class="material-icons" aria-hidden="true">bolt</i> <?= esc($flashSaleSettings['kicker'] ?? 'Promo kilat'); ?></span>
+                    <h2 id="flash-sale-title" class="flash-sale-title"><?= esc($flashSaleSettings['title'] ?? 'Flash Sale Lunarea'); ?></h2>
+                    <p><?= esc($flashSaleSettings['subtitle'] ?? 'Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.'); ?></p>
                 </div>
                 <div class="flash-sale-action">
                     <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" aria-live="polite">
