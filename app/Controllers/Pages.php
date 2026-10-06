@@ -4888,7 +4888,7 @@ class Pages extends BaseController
 
     private function fetchBinderByteTracking($courier, $awb)
     {
-        $apiKey = getenv('BINDERBYTE_API_KEY') ?: env('BINDERBYTE_API_KEY');
+        $apiKey = $this->getBinderByteApiKey();
         if (!$apiKey) {
             return [
                 'success' => false,
@@ -4928,9 +4928,15 @@ class Pages extends BaseController
         }
 
         if ($httpCode >= 400 || (isset($decoded['status']) && (int)$decoded['status'] !== 200)) {
+            $providerMessage = trim((string)($decoded['message'] ?? ''));
+            $message = $providerMessage !== '' ? $providerMessage : 'Resi belum ditemukan di provider tracking.';
+            if (stripos($message, 'data not found') !== false || stripos($message, 'not found') !== false) {
+                $message = 'Data belum ditemukan di BinderByte. Pastikan kurir sudah benar, nomor resi tidak salah ketik, dan resi sudah aktif/terinput di sistem kurir. Untuk JNE gunakan kurir JNE, lalu coba lagi beberapa saat setelah paket diproses kurir.';
+            }
+
             return [
                 'success' => false,
-                'message' => $decoded['message'] ?? 'Resi belum ditemukan di provider tracking.',
+                'message' => $message,
                 'raw' => $decoded,
             ];
         }
@@ -4944,6 +4950,25 @@ class Pages extends BaseController
             'history' => $data['history'] ?? [],
             'raw' => $decoded,
         ];
+    }
+
+    private function getBinderByteApiKey()
+    {
+        $keys = [
+            'BINDERBYTE_API_KEY',
+            'binderbyte.apiKey',
+            'api_key_binderbyte',
+            'BINDERBYTE_KEY',
+        ];
+
+        foreach ($keys as $key) {
+            $value = getenv($key) ?: env($key);
+            if (!empty($value)) {
+                return trim((string)$value);
+            }
+        }
+
+        return '';
     }
     public function transaction()
     {
