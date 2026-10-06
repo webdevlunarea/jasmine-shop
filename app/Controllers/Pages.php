@@ -4922,7 +4922,7 @@ class Pages extends BaseController
         if (!$apiKey) {
             return [
                 'success' => false,
-                'message' => 'API key tracking belum dikonfigurasi. Tambahkan BINDERBYTE_API_KEY di environment server.',
+                'message' => 'Layanan lacak pengiriman sedang dalam penyesuaian. Silakan coba kembali beberapa saat lagi atau hubungi admin Lunarea.',
             ];
         }
 
@@ -4946,7 +4946,7 @@ class Pages extends BaseController
         if ($err) {
             return [
                 'success' => false,
-                'message' => 'Koneksi ke API tracking gagal: ' . $err,
+                'message' => 'Layanan lacak pengiriman sedang sibuk. Silakan coba kembali beberapa saat lagi.',
             ];
         }
 
@@ -4954,15 +4954,15 @@ class Pages extends BaseController
         if (!is_array($decoded)) {
             return [
                 'success' => false,
-                'message' => 'Response API tracking belum valid.',
+                'message' => 'Informasi pengiriman belum tersedia saat ini. Silakan coba kembali beberapa saat lagi.',
             ];
         }
 
         if ($httpCode >= 400 || (isset($decoded['status']) && (int)$decoded['status'] !== 200)) {
             $providerMessage = trim((string)($decoded['message'] ?? ''));
-            $message = $providerMessage !== '' ? $providerMessage : 'Resi belum ditemukan di provider tracking.';
+            $message = $providerMessage !== '' ? $providerMessage : 'Pengiriman belum bisa dilacak saat ini. Pastikan nomor resi sudah benar, lalu coba kembali beberapa saat lagi.';
             if (stripos($message, 'data not found') !== false || stripos($message, 'not found') !== false) {
-                $message = 'Data belum ditemukan di BinderByte. Pastikan kurir sudah benar, nomor resi tidak salah ketik, dan resi sudah aktif/terinput di sistem kurir. Untuk JNE gunakan kurir JNE, lalu coba lagi beberapa saat setelah paket diproses kurir.';
+                $message = 'Pengiriman belum bisa dilacak saat ini. Pastikan nomor resi sudah benar, lalu coba kembali beberapa saat lagi. Jika masih belum muncul, silakan hubungi admin Lunarea untuk dibantu pengecekan.';
             }
 
             return [

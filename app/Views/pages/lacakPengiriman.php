@@ -41,7 +41,7 @@ if (!empty($order['nama_pen'])) {
     <div class="container tracking-result-wrap">
         <?php if ($hasSearched && !empty($error)) { ?>
             <div class="alert alert-warning tracking-alert">
-                <strong>Tracking belum berhasil.</strong><br>
+                <strong>Pengiriman belum ditemukan.</strong><br>
                 <?= esc($error); ?>
             </div>
         <?php } ?>
@@ -72,7 +72,7 @@ if (!empty($order['nama_pen'])) {
                 <div>
                     <p class="tracking-status-label">Status terakhir</p>
                     <h3><?= esc($summary['status'] ?? 'Dalam proses'); ?></h3>
-                    <p class="mb-0 text-secondary"><?= esc($summary['desc'] ?? 'Data diperbarui dari API kurir.'); ?></p>
+                    <p class="mb-0 text-secondary"><?= esc($summary['desc'] ?? 'Data diperbarui dari layanan pengiriman.'); ?></p>
                 </div>
                 <div class="tracking-summary-grid">
                     <div>
@@ -112,9 +112,9 @@ if (!empty($order['nama_pen'])) {
                 <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
                     <div>
                         <h5 class="fw-bold mb-1">Riwayat pengiriman</h5>
-                        <p class="text-secondary mb-0">Data langsung dari provider tracking.</p>
+                        <p class="text-secondary mb-0">Riwayat akan muncul setelah pengiriman terdeteksi.</p>
                     </div>
-                    <span class="tracking-provider">API <?= esc($tracking['provider'] ?? 'Tracking'); ?></span>
+                    <span class="tracking-provider">Lacak Pengiriman</span>
                 </div>
 
                 <?php if (empty($history)) { ?>
