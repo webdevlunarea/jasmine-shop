@@ -126,7 +126,7 @@ $statusClass = function ($status) {
                     <a href="/wishlist"><i class="material-icons">favorite_border</i><span>Wishlist</span></a>
                     <a href="/cart"><i class="material-icons">shopping_cart</i><span>Keranjang (<?= (int)$cartCount; ?>)</span></a>
                     <a href="/transaction"><i class="material-icons">assignment_return</i><span>Retur & Komplain</span></a>
-                    <a href="/checkout"><i class="material-icons">local_shipping</i><span>Alamat Checkout</span></a>
+                    <a href="/cart"><i class="material-icons">local_shipping</i><span>Checkout dari Keranjang</span></a>
                     <a href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>"><i class="material-icons">logout</i><span>Keluar</span></a>
                 </div>
             </div>

@@ -3327,14 +3327,15 @@ class Pages extends BaseController
 
     public function checkout()
     {
-        $keranjang = session()->get('keranjang');
+        $keranjang = session()->get('keranjang') ?: [];
         $email = session()->get('email');
-        $alamat = session()->get('alamat');
+        $alamat = session()->get('alamat') ?: [];
         $nama = session()->get('nama');
         $nohp = session()->get('nohp');
         $produk = [];
         $jumlah = [];
         $produkJson = [];
+        $total = 0;
         $subtotal = 0;
         $berat = 0;
         $beratHitung = 0;
@@ -3413,6 +3414,11 @@ class Pages extends BaseController
             if ($email != 'tamu')
                 $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjangBaru)])->update();
             return redirect()->to('/checkout');
+        }
+
+        if (empty($produk)) {
+            session()->setFlashdata('msg', 'Keranjang masih kosong. Silakan pilih produk terlebih dahulu sebelum checkout.');
+            return redirect()->to('/cart');
         }
 
         $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
@@ -3569,7 +3575,7 @@ class Pages extends BaseController
         $waktuCurr = strtotime("+7 Hours");
         $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
         $adaYgExpire = false;
-        foreach ($poinSession as $p) {
+        foreach (($poinSession ?: []) as $p) {
             $waktuExpire = strtotime($p['kadaluarsa']);
             if ($waktuCurrYmd <= $waktuExpire) {
                 if ($p['active']) {
