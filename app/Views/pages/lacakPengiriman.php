@@ -23,12 +23,12 @@ if (!empty($order['nama_pen'])) {
                 <form action="/lacak-pengiriman" method="post" class="tracking-form">
                     <label class="form-label fw-bold">Nomor invoice / nomor resi</label>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="keyword" value="<?= esc($keyword ?? ''); ?>" placeholder="Contoh: ORDER-ID / JP1234567890" required>
+                        <input type="text" class="form-control" name="keyword" value="<?= esc($keyword ?? ''); ?>" placeholder="Contoh: ORDER-ID / JNE CM123456789" required>
                         <button class="btn btn-primary1" type="submit">Lacak</button>
                     </div>
-                    <label class="form-label small text-secondary">Kurir opsional, dipakai kalau mencari langsung dengan nomor resi.</label>
+                    <label class="form-label small text-secondary">Kurir opsional. Kalau dikosongkan, sistem bisa membaca format seperti “JNE NOMOR_RESI”.</label>
                     <select class="form-select" name="courier">
-                        <option value="">Deteksi dari data pesanan</option>
+                        <option value="">Deteksi otomatis / dari data pesanan</option>
                         <?php foreach ($couriers as $code => $label) { ?>
                             <option value="<?= esc($code); ?>" <?= ($courier ?? '') === $code ? 'selected' : ''; ?>><?= esc($label); ?></option>
                         <?php } ?>

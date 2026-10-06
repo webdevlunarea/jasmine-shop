@@ -4807,13 +4807,15 @@ class Pages extends BaseController
                 $awb = trim((string)($order['resi'] ?? ''));
                 $courierCode = $manualCourier !== '' ? $manualCourier : $this->resolveCourierCode((string)($order['kurir'] ?? ''));
             } else {
-                $courierCode = $manualCourier;
+                $parsedTracking = $this->parsePublicTrackingKeyword($keyword);
+                $awb = $parsedTracking['awb'];
+                $courierCode = $manualCourier !== '' ? $manualCourier : $parsedTracking['courier'];
             }
 
             if ($awb === '' || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
                 $error = 'Nomor resi untuk pesanan ini belum tersedia. Silakan cek kembali setelah admin mengirimkan resi.';
             } elseif ($courierCode === '') {
-                $error = 'Kurir belum terbaca otomatis. Pilih kurir terlebih dahulu untuk melacak nomor resi ini.';
+                $error = 'Kurir belum terbaca otomatis. Pilih kurir terlebih dahulu atau tulis dengan format "JNE NOMOR_RESI", contoh: JNE CM123456789.';
             } else {
                 $tracking = $this->fetchBinderByteTracking($courierCode, $awb);
                 if (!$tracking['success']) {
@@ -4831,6 +4833,34 @@ class Pages extends BaseController
             'error' => $error,
             'couriers' => $this->trackingCourierOptions(),
         ]);
+    }
+
+    private function parsePublicTrackingKeyword($keyword)
+    {
+        $raw = trim((string)$keyword);
+        $normalized = preg_replace('/\s+/', ' ', $raw);
+        $courier = '';
+        $awb = $normalized;
+
+        if (preg_match('/^([a-zA-Z0-9&.\- ]{2,20})\s+([a-zA-Z0-9][a-zA-Z0-9\- ]{4,})$/', $normalized, $matches)) {
+            $candidateCourier = $this->resolveCourierCode($matches[1]);
+            if ($candidateCourier !== '') {
+                $courier = $candidateCourier;
+                $awb = trim($matches[2]);
+            }
+        }
+
+        return [
+            'courier' => $courier,
+            'awb' => $this->normalizeTrackingAwb($awb),
+        ];
+    }
+
+    private function normalizeTrackingAwb($awb)
+    {
+        $awb = strtoupper(trim((string)$awb));
+        $awb = preg_replace('/[^A-Z0-9]/', '', $awb);
+        return $awb ?: '';
     }
 
     private function trackingCourierOptions()
@@ -4896,7 +4926,8 @@ class Pages extends BaseController
             ];
         }
 
-        $url = 'https://api.binderbyte.com/v1/track?api_key=' . rawurlencode($apiKey) . '&courier=' . rawurlencode($courier) . '&awb=' . rawurlencode($awb);
+        $baseUrl = rtrim($this->getBinderByteBaseUrl(), '/');
+        $url = $baseUrl . '/v1/track?api_key=' . rawurlencode($apiKey) . '&courier=' . rawurlencode($courier) . '&awb=' . rawurlencode($this->normalizeTrackingAwb($awb));
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -4969,6 +5000,13 @@ class Pages extends BaseController
         }
 
         return '';
+    }
+
+    private function getBinderByteBaseUrl()
+    {
+        $value = getenv('BINDERBYTE_BASE_URL') ?: env('BINDERBYTE_BASE_URL');
+        $value = trim((string)$value);
+        return $value !== '' ? $value : 'https://api.binderbyte.com';
     }
     public function transaction()
     {
