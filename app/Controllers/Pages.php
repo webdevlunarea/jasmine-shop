@@ -6441,46 +6441,64 @@ class Pages extends BaseController
 
     public function editAccount()
     {
-        $email = session()->get("email");
+        $email = (string)session()->get("email");
         $role = session()->get("role");
-        $sandi = $this->request->getVar('sandi');
-        $nama = $this->request->getVar('nama');
-        $nohp = $this->request->getVar('nohp');
-        $tgl_lahir = $this->request->getVar('tgl_lahir');
-        $foto = $this->request->getFile('foto')->isValid() ? file_get_contents($this->request->getFile('foto')) : false;
-        $getCurPembeli = $this->pembeliModel->getPembeli($email);
+        $sandi = (string)$this->request->getVar('sandi');
+        $nama = (string)$this->request->getVar('nama');
+        $nohp = (string)$this->request->getVar('nohp');
+        $tgl_lahir = (string)$this->request->getVar('tgl_lahir');
+        $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
 
-        if ($tgl_lahir != $getCurPembeli['tgl_lahir']) {
-            if ($getCurPembeli['batas_tgl_lahir']) {
-                $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
-                $waktuBatas = strtotime($getCurPembeli['batas_tgl_lahir']);
-                $waktuSelisih = $waktuBatas - $waktuCurr;
-                if ($waktuSelisih >= 0) {
-                    session()->setFlashdata('msg', 'Tanggal lahir belum dapat diubah');
-                    return redirect()->to('/account');
-                }
+        $uploadedPhoto = $this->request->getFile('foto');
+        $foto = false;
+        if ($uploadedPhoto && $uploadedPhoto->isValid() && !$uploadedPhoto->hasMoved()) {
+            $allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
+            $mime = (string)$uploadedPhoto->getMimeType();
+            if (!in_array($mime, $allowedMime, true)) {
+                session()->setFlashdata('msg', 'Foto profil harus berupa JPG, PNG, atau WebP.');
+                return redirect()->to('/account');
+            }
+            if ((int)$uploadedPhoto->getSize() > 2 * 1024 * 1024) {
+                session()->setFlashdata('msg', 'Ukuran foto profil maksimal 2MB.');
+                return redirect()->to('/account');
+            }
+            $foto = file_get_contents($uploadedPhoto->getTempName());
+        }
+
+        if (($tgl_lahir !== (string)($getCurPembeli['tgl_lahir'] ?? '')) && !empty($getCurPembeli['batas_tgl_lahir'])) {
+            $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+            $waktuBatas = strtotime($getCurPembeli['batas_tgl_lahir']);
+            $waktuSelisih = $waktuBatas - $waktuCurr;
+            if ($waktuSelisih >= 0) {
+                session()->setFlashdata('msg', 'Tanggal lahir belum dapat diubah');
+                return redirect()->to('/account');
             }
         }
 
-        if ($sandi != '') {
+        if ($sandi !== '') {
             $this->userModel->where('email', $email)->set([
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
             ])->update();
         }
         if ($role == '0') {
+            $currentFoto = (string)(session()->get('foto') ?: ($getCurPembeli['foto'] ?? '/imguser/ZGVmYXVsdA=='));
+            $localFotoPath = '/imguser/' . base64_encode($email);
+            $finalFoto = $foto ? $localFotoPath : $currentFoto;
+
             $this->pembeliModel->where('email_user', $email)->set([
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
                 'batas_tgl_lahir' => date("Y-m-d", strtotime('+1 year')),
-                'foto' => $foto ? '/imguser/' . base64_encode($email) : session()->get('foto')
+                'foto' => $finalFoto
             ])->update();
 
             if ($foto) {
-                if (session()->get('foto') != '/imguser/ZGVmYXVsdA==') {
+                $existingImage = $this->gambarUserModel->getGambar($email);
+                if ($existingImage) {
                     $this->gambarUserModel->where(['email_user' => $email])->set(['gambar' => $foto])->update();
                 } else {
-                    $this->gambarUserModel->where(['email_user' => $email])->insert(['email_user' => $email, 'gambar' => $foto]);
+                    $this->gambarUserModel->insert(['email_user' => $email, 'gambar' => $foto]);
                 }
             }
 
@@ -6488,7 +6506,7 @@ class Pages extends BaseController
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
-                'foto' => $foto ? '/imguser/' . base64_encode($email) : session()->get('foto')
+                'foto' => $finalFoto
             ]);
         }
 
