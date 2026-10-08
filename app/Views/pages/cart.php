@@ -1,89 +1,130 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
-    <div class="container baris-ke-kolom">
-        <div style="flex: 1;">
-            <?php
-            $subtotal = 0;
-            if (!empty($keranjang)) { ?>
-                <?php foreach ($produk as $index => $p) { ?>
-                    <div class="card-cart baris-ke-kolom justify-content-between">
-                        <a href="/product/<?= $p['path']; ?>" class="d-flex gap-4 text-dark" style="height: 100%;">
-                            <img src="data:image/webp;base64,<?= base64_encode($gambar[$index]); ?>" alt="<?= $p['nama']; ?>">
-                            <div>
-                                <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>"><?= $p['nama']; ?></p>
-                                <p class="mb-0 <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>">Varian : <?= $keranjang[$index]['varian'] ?></p>
-                                <?php
-                                if ($p['diskon']) {
-                                    $persen = (100 - $p['diskon']) / 100;
-                                    $hasil = round($persen * $p['harga']);
-                                } else {
-                                    $hasil = $p['harga'];
-                                }
-                                ?>
-                                <?php if (in_array($index, $indStokHabis)) { ?>
-                                    <p class="mb-0 text-danger"><b>Stok kurang</b></p>
-                                <?php } else { ?>
-                                    <?php if ($p['diskon']) { ?>
-                                        <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp
-                                            <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                        <p class="mb-0 harga" style="display: inline;">Rp <?= number_format($hasil, 0, ",", "."); ?></p>
-                                    <?php } else { ?>
-                                        <p class="mb-0 harga">Rp <?= number_format($hasil, 0, ",", "."); ?></p>
-                                    <?php } ?>
-                                <?php } ?>
+<?php
+$subtotal = 0;
+$itemCount = !empty($keranjang) ? count($keranjang) : 0;
+$hasStockIssue = count($indStokHabis ?? []) > 0;
+?>
+<div class="konten cart-page-shell">
+    <div class="container">
+        <?php if (!empty($msg)) { ?>
+            <div class="cart-alert mb-3">
+                <i class="material-icons" aria-hidden="true">info</i>
+                <span><?= esc($msg); ?></span>
+            </div>
+        <?php } ?>
 
-                            </div>
-                        </a>
-                        <div>
-                            <p class="border-bottom text-secondary text-end mb-0">Total</p>
-                            <p class="fw-bold mb-2 text-end">Rp
-                                <?php
-                                $subtotal += $hasil * $jumlah[$index];
-                                // session()->set(['subtotal' => $subtotal]);
-                                echo number_format(($hasil * $jumlah[$index]), 0, ",", ".");
-                                ?>
-                            </p>
-                            <div class="d-flex gap-3 justify-content-end">
-                                <form action="/delcart/<?= $index; ?>" method="post">
-                                    <button type="submit" class="btn btn-light"><i class="material-icons">delete</i></button>
-                                </form>
-                                <div class="input-group jumlah">
-                                    <form action="/redcart/<?= $index; ?>" method="post">
-                                        <button type="submit" class="input-group-text">-</button>
+        <div class="cart-page-heading">
+            <div>
+                <p class="cart-eyebrow mb-1">Keranjang Belanja</p>
+                <h3 class="mb-1">Produk pilihan kamu</h3>
+                <p class="text-secondary mb-0">Periksa varian, jumlah, dan stok sebelum lanjut ke checkout.</p>
+            </div>
+            <a href="/all" class="btn btn-outline-success cart-continue-btn">
+                <i class="material-icons" aria-hidden="true">add_shopping_cart</i>
+                Tambah Produk
+            </a>
+        </div>
+
+        <div class="cart-layout">
+            <section class="cart-items-panel">
+                <?php if (!empty($keranjang)) { ?>
+                    <?php foreach ($produk as $index => $p) { ?>
+                        <?php
+                        $isStockIssue = in_array($index, $indStokHabis ?? [], true);
+                        $discount = (int)($p['diskon'] ?? 0);
+                        $basePrice = (int)($p['harga'] ?? 0);
+                        $finalPrice = $discount > 0 ? (int)round(((100 - $discount) / 100) * $basePrice) : $basePrice;
+                        $lineTotal = $finalPrice * (int)$jumlah[$index];
+                        $subtotal += $lineTotal;
+                        ?>
+                        <article class="card-cart <?= $isStockIssue ? 'is-warning' : ''; ?>">
+                            <a href="/product/<?= esc($p['path'], 'url'); ?>" class="cart-product-link">
+                                <span class="cart-product-img-wrap">
+                                    <img src="data:image/webp;base64,<?= base64_encode($gambar[$index]); ?>" alt="<?= esc($p['nama']); ?>">
+                                    <?php if ($discount > 0) { ?>
+                                        <span class="cart-discount-badge">-<?= $discount; ?>%</span>
+                                    <?php } ?>
+                                </span>
+                                <span class="cart-product-info">
+                                    <strong class="cart-product-name <?= $isStockIssue ? 'text-danger' : ''; ?>"><?= esc($p['nama']); ?></strong>
+                                    <span class="cart-variant <?= $isStockIssue ? 'text-danger' : ''; ?>">Varian: <?= esc($keranjang[$index]['varian']); ?></span>
+                                    <?php if ($isStockIssue) { ?>
+                                        <span class="cart-stock-warning"><i class="material-icons" aria-hidden="true">warning</i> Stok tidak mencukupi</span>
+                                    <?php } else { ?>
+                                        <span class="cart-price-row">
+                                            <?php if ($discount > 0) { ?>
+                                                <span class="cart-price-before">Rp <?= number_format($basePrice, 0, ',', '.'); ?></span>
+                                            <?php } ?>
+                                            <span class="cart-price-now">Rp <?= number_format($finalPrice, 0, ',', '.'); ?></span>
+                                        </span>
+                                    <?php } ?>
+                                </span>
+                            </a>
+
+                            <div class="cart-item-actions">
+                                <div class="cart-line-total">
+                                    <span>Total</span>
+                                    <strong>Rp <?= number_format($lineTotal, 0, ',', '.'); ?></strong>
+                                </div>
+                                <div class="cart-action-row">
+                                    <form action="/delcart/<?= $index; ?>" method="post">
+                                        <button type="submit" class="cart-delete-btn" aria-label="Hapus <?= esc($p['nama']); ?> dari keranjang">
+                                            <i class="material-icons" aria-hidden="true">delete</i>
+                                        </button>
                                     </form>
-                                    <input disabled type="number" class="form-control text-center <?= in_array($index, $indStokHabis) ? "text-danger" : ""; ?>" value="<?= $jumlah[$index]; ?>">
-                                    <form action="/addcart/<?= $p['id']; ?>/<?= $keranjang[$index]['varian'] ?>/<?= $keranjang[$index]['index_gambar'] ?>" method="post">
-                                        <button type="submit" class="input-group-text">+</button>
-                                    </form>
+                                    <div class="cart-qty-control">
+                                        <form action="/redcart/<?= $index; ?>" method="post">
+                                            <button type="submit" aria-label="Kurangi jumlah">−</button>
+                                        </form>
+                                        <input disabled type="number" class="<?= $isStockIssue ? 'text-danger' : ''; ?>" value="<?= (int)$jumlah[$index]; ?>" aria-label="Jumlah produk">
+                                        <form action="/addcart/<?= esc($p['id'], 'url'); ?>/<?= rawurlencode($keranjang[$index]['varian']); ?>/<?= (int)$keranjang[$index]['index_gambar']; ?>" method="post">
+                                            <button type="submit" aria-label="Tambah jumlah">+</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </article>
+                    <?php } ?>
+                <?php } else { ?>
+                    <div class="cart-empty-state">
+                        <i class="material-icons" aria-hidden="true">shopping_cart</i>
+                        <h5>Keranjangmu masih kosong</h5>
+                        <p class="text-secondary mb-3">Yuk pilih furniture favorit dan simpan di keranjang sebelum checkout.</p>
+                        <a href="/all" class="btn btn-primary1">Mulai Belanja</a>
                     </div>
                 <?php } ?>
-            <?php } else { ?>
-                <div>
-                    <p class="text-center">Oops, keranjangmu masih kosong!
-                        Sepertinya belum nentuin produk favoritmu ya.</p>
+            </section>
+
+            <aside class="cart-total">
+                <div class="cart-summary-header">
+                    <span class="cart-summary-icon"><i class="material-icons" aria-hidden="true">receipt_long</i></span>
+                    <div>
+                        <h5 class="mb-0">Ringkasan</h5>
+                        <p class="text-secondary mb-0"><?= (int)$itemCount; ?> item di keranjang</p>
+                    </div>
                 </div>
-            <?php } ?>
-        </div>
-        <div class="cart-total">
-            <h5>Total Keranjang</h5>
-            <div class="d-flex justify-content-between border-bottom">
-                <p class="my-2">Subtotal:</p>
-                <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
-            </div>
-            <div class="d-flex justify-content-between border-bottom">
-                <p class="my-2">Total Berat:</p>
-                <p class="my-2"><b><?= $berat; ?> kg</b></p>
-            </div>
-            <?php if ($adaPesananPending) { ?>
-                <a class="btn btn-outline-danger mt-2" href="/order/<?= $adaPesananPending['id_midtrans']; ?>">Selesaikan pesananmu dulu!</a>
-            <?php } else { ?>
-                <a class="btn btn-primary1 mt-2 <?= !empty($keranjang) ? "" : "disabled"; ?><?= count($indStokHabis) > 0 ? "disabled" : ""; ?>" href="/checkout">Proses
-                    Checkout</a>
-            <?php } ?>
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <strong>Rp <?= number_format($subtotal, 0, ',', '.'); ?></strong>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Total berat</span>
+                    <strong><?= number_format((float)$berat, 0, ',', '.'); ?> kg</strong>
+                </div>
+                <?php if ($hasStockIssue) { ?>
+                    <div class="cart-summary-warning">
+                        <i class="material-icons" aria-hidden="true">error_outline</i>
+                        Ada item dengan stok kurang. Sesuaikan jumlah atau hapus item tersebut dulu.
+                    </div>
+                <?php } ?>
+                <?php if ($adaPesananPending) { ?>
+                    <a class="btn btn-outline-danger w-100 mt-3" href="/order/<?= esc($adaPesananPending['id_midtrans'], 'url'); ?>">Selesaikan pesanan aktif</a>
+                <?php } else { ?>
+                    <a class="btn btn-primary1 w-100 mt-3 <?= !empty($keranjang) && !$hasStockIssue ? '' : 'disabled'; ?>" href="/checkout">Lanjut Checkout</a>
+                <?php } ?>
+                <p class="cart-summary-note mb-0 mt-3">Ongkir dan voucher akan dihitung di halaman checkout.</p>
+            </aside>
         </div>
     </div>
 </div>
