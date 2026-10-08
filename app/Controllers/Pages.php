@@ -96,6 +96,111 @@ class Pages extends BaseController
         $this->kecamatanModel = new KecamatanModel();
         $this->kelurahanModel = new KelurahanModel();
     }
+
+    protected function normalizeLunaPointBatches($points): array
+    {
+        if (is_string($points)) {
+            $decoded = json_decode($points, true);
+            $points = is_array($decoded) ? $decoded : [];
+        }
+        if (!is_array($points)) return [];
+
+        $normalized = [];
+        foreach ($points as $point) {
+            if (!is_array($point)) continue;
+            $nominal = max(0, (int)($point['nominal'] ?? 0));
+            if ($nominal <= 0) continue;
+
+            $expiredAt = $point['kadaluarsa'] ?? null;
+            if (empty($expiredAt) || strtotime((string)$expiredAt) === false) {
+                $expiredAt = date('Y-m-d', strtotime('+1 year', strtotime(date('Y-m-d', strtotime('+7 Hours')))));
+            }
+
+            $normalized[] = [
+                'kadaluarsa' => date('Y-m-d', strtotime((string)$expiredAt)),
+                'nominal' => $nominal,
+                'active' => !empty($point['active']),
+            ];
+        }
+
+        usort($normalized, static function ($a, $b) {
+            return strcmp($a['kadaluarsa'], $b['kadaluarsa']);
+        });
+
+        return array_values($normalized);
+    }
+
+    protected function syncLunaPointExpiry(?string $email, $points = null, bool $write = true): array
+    {
+        if ($points === null) {
+            $points = session()->get('poin') ?: [];
+            if ((!$points || !is_array($points)) && $email && $email !== 'tamu') {
+                $pembeli = $this->pembeliModel->getPembeli($email);
+                $points = $pembeli ? ($pembeli['poin'] ?? '[]') : [];
+            }
+        }
+
+        $points = $this->normalizeLunaPointBatches($points);
+        $today = strtotime(date('Y-m-d', strtotime('+7 Hours')));
+        $todayYmd = date('Y-m-d', $today);
+        $activePoints = [];
+        $expiredPoints = [];
+        $activeBalance = 0;
+        $nextExpiry = null;
+
+        foreach ($points as $point) {
+            $expires = strtotime($point['kadaluarsa']);
+            if (!empty($point['active']) && $expires !== false && $today <= $expires) {
+                $activeBalance += (int)$point['nominal'];
+                $activePoints[] = $point;
+                if ($nextExpiry === null || strtotime($point['kadaluarsa']) < strtotime($nextExpiry)) {
+                    $nextExpiry = $point['kadaluarsa'];
+                }
+                continue;
+            }
+
+            if (!empty($point['active']) && $expires !== false && $today > $expires) {
+                $expiredPoints[] = $point;
+                if ($email && $email !== 'tamu') {
+                    $this->pointHistoryModel->insert([
+                        'id' => (string)strtotime('+7 Hours') . rand(100, 999),
+                        'label' => 'Poin kedaluwarsa',
+                        'nominal' => ((int)$point['nominal']) * -1,
+                        'keterangan' => 'Masa berlaku poin telah berakhir',
+                        'tanggal' => $point['kadaluarsa'],
+                        'email_user' => $email,
+                    ]);
+                }
+            }
+        }
+
+        if ($write && count($expiredPoints) > 0 && $email && $email !== 'tamu') {
+            $this->pembeliModel->where(['email_user' => $email])->set(['poin' => json_encode($activePoints)])->update();
+            session()->set('poin', $activePoints);
+        }
+
+        return [
+            'points' => $activePoints,
+            'expired' => $expiredPoints,
+            'active_balance' => $activeBalance,
+            'next_expiry' => $nextExpiry,
+            'today' => $todayYmd,
+        ];
+    }
+
+    protected function lunaTierMeta($tierLabel): array
+    {
+        $tiers = [
+            'bronze' => ['label' => 'Bronze', 'min' => 0, 'next' => 10000000, 'color' => '#9a5a2f'],
+            'silver' => ['label' => 'Silver', 'min' => 10000000, 'next' => 50000000, 'color' => '#8a94a6'],
+            'gold' => ['label' => 'Gold', 'min' => 50000000, 'next' => 100000000, 'color' => '#d6a800'],
+            'platinum' => ['label' => 'Platinum', 'min' => 100000000, 'next' => null, 'color' => '#2f80ed'],
+        ];
+
+        $key = strtolower((string)$tierLabel);
+        return $tiers[$key] ?? $tiers['bronze'];
+    }
+
     public function generateRandomCode()
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -3570,22 +3675,8 @@ class Pages extends BaseController
         }
 
         //hitung point
-        $poinSession = session()->get("poin");
-        $poin = 0;
-        $waktuCurr = strtotime("+7 Hours");
-        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-        $adaYgExpire = false;
-        foreach (($poinSession ?: []) as $p) {
-            $waktuExpire = strtotime($p['kadaluarsa']);
-            if ($waktuCurrYmd <= $waktuExpire) {
-                if ($p['active']) {
-                    $poin += (int)$p['nominal'];
-                }
-            } else {
-                $adaYgExpire = true;
-            }
-        }
-        if ($adaYgExpire) return $this->actionLogout();
+        $pointSummary = $this->syncLunaPointExpiry($email, session()->get("poin"));
+        $poin = (int)$pointSummary['active_balance'];
         if ($poin > ($total - $diskonVoucher - $potonganPreorder)) {
             $poin = $total - $diskonVoucher - $potonganPreorder;
         }
@@ -4179,22 +4270,19 @@ class Pages extends BaseController
         }
 
         //point
-        $poinSession = session()->get('poin');
+        $pointSummary = $this->syncLunaPointExpiry($email, session()->get('poin'));
+        $poinSession = $pointSummary['points'];
         $usepoin = session()->get('usepoin');
-        $poin = 0;
-        foreach ($poinSession as $p) {
-            if ($p['active']) {
-                $poin += (int)$p['nominal'];
-            }
-        }
+        $poin = (int)$pointSummary['active_balance'];
         if ($poin > ($total - $diskonVoucher - $potonganPreorder)) {
             $poin = $total - $diskonVoucher - $potonganPreorder;
         }
-        if ($usepoin) {
+        $poinDipakai = ($usepoin && $poin > 0) ? $poin : 0;
+        if ($poinDipakai > 0) {
             //add poin di itemdetails
             array_push($itemDetails, [
                 'id' => 'Luna Point',
-                'price' => -$poin,
+                'price' => -$poinDipakai,
                 'quantity' => 1,
                 'name' => 'Luna Point',
             ]);
@@ -4205,9 +4293,9 @@ class Pages extends BaseController
             $poinIndexAkhirHapus = null;
             foreach ($poinSession as $ind_p => $p) {
                 $poinCounter += (int)$p['nominal'];
-                if ($poinCounter >= $poin) {
+                if ($poinCounter >= $poinDipakai) {
                     $poinSblm = $poinCounter - (int)$p['nominal'];
-                    $penambahnya = $poin - $poinSblm;
+                    $penambahnya = $poinDipakai - $poinSblm;
                     $sisa = (int)$p['nominal'] - $penambahnya;
                     $poinSession[$ind_p]['nominal'] = $sisa;
                     if ($sisa == 0) {
@@ -4218,7 +4306,7 @@ class Pages extends BaseController
                     array_push($poinArrIndexTerpakai, $ind_p);
                 }
             }
-            if ($poinIndexAkhirHapus != null) {
+            if ($poinIndexAkhirHapus !== null) {
                 $poinSession[$poinIndexAkhirHapus]['active'] = false;
             }
             foreach ($poinArrIndexTerpakai as $p) {
@@ -4264,7 +4352,7 @@ class Pages extends BaseController
         // ]);
         $customField = '';
 
-        $gross_amount = $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0);
+        $gross_amount = $total - $diskonVoucher - $potonganPreorder - $poinDipakai + ($gantiKaca ? $totalkaca : 0);
         $biayaAdmin = 0;
         $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
         if (in_array($pembayaran, $banks)) {
@@ -4523,7 +4611,7 @@ class Pages extends BaseController
             'diskonVoucher' => $data['diskonVoucher'],
             'idVoucher' => $voucher ? $voucher['id_voucher'] : 0,
             'cashback' => $cashback,
-            'pakai_poin' => $poin
+            'pakai_poin' => $poinDipakai
         ];
         $this->pemesananModel->insert($insertDataPemesanan);
 
@@ -5442,7 +5530,8 @@ class Pages extends BaseController
                         $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
                         $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
 
-                        $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
+                        $durasiPoin = $voucherSelected['durasi_poin'] ?: '+1 year';
+                        $kadaluarsa = date("Y-m-d", strtotime($durasiPoin, strtotime($waktuCurrYmd)));
                         $dataPoinNew = [
                             'kadaluarsa' => $kadaluarsa,
                             'nominal' => $cashback,
@@ -5452,7 +5541,7 @@ class Pages extends BaseController
                         $this->pointHistoryModel->insert([
                             'id' => $waktuCurr,
                             'label' => $voucherSelected['nama'],
-                            'nominal' => $voucherSelected['nominal'],
+                            'nominal' => $cashback,
                             'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
                             'tanggal' => $waktuCurrYmd,
                             'email_user' => $emailCus
@@ -5464,7 +5553,7 @@ class Pages extends BaseController
                         $this->pointHistoryModel->insert([
                             'id' => $waktuCurr,
                             'label' => 'Pembelian',
-                            'nominal' => $dataTransaksiFulDariDatabase['pakai_poin'],
+                            'nominal' => ((int)$dataTransaksiFulDariDatabase['pakai_poin']) * -1,
                             'keterangan' => 'Pembelian dengan id pemesanan ' . $order_id,
                             'tanggal' => $waktuCurrYmd,
                             'email_user' => $emailCus
@@ -6452,23 +6541,10 @@ class Pages extends BaseController
     public function point()
     {
         $tgl_lahir = session()->get('tgl_lahir');
-        $poinSession = session()->get("poin");
+        $email = session()->get('email');
+        $pointSummary = $this->syncLunaPointExpiry($email, session()->get("poin"));
         $tier = session()->get("tier");
-        $poin = 0;
-        $waktuCurr = strtotime("+7 Hours");
-        $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-        $adaYgExpire = false;
-        foreach ($poinSession as $ind_p => $p) {
-            $waktuExpire = strtotime($p['kadaluarsa']);
-            if ($waktuCurrYmd <= $waktuExpire) {
-                if ($p['active']) {
-                    $poin += (int)$p['nominal'];
-                }
-            } else {
-                $adaYgExpire = true;
-            }
-        }
-        if ($adaYgExpire) return $this->actionLogout();
+        $poin = (int)$pointSummary['active_balance'];
 
         $bonus = [
             'bronze' => [
@@ -6533,7 +6609,9 @@ class Pages extends BaseController
             'title' => 'Luna Reward',
             'poin' => $poin,
             'tier' => $tier,
-            'bonus' => $bonus
+            'bonus' => $bonus,
+            'pointSummary' => $pointSummary,
+            'tierMeta' => $this->lunaTierMeta($tier['label'] ?? 'bronze'),
         ];
         return view('pages/point', $data);
     }
@@ -7634,7 +7712,8 @@ class Pages extends BaseController
                     $voucherSelected = $this->voucherModel->getVoucher($dataTransaksiFulDariDatabase['idVoucher']);
                     $cashback = (int)$dataTransaksiFulDariDatabase['cashback'];
 
-                    $kadaluarsa = date("Y-m-d", strtotime($voucherSelected['durasi_poin'], strtotime($waktuCurrYmd)));
+                    $durasiPoin = $voucherSelected['durasi_poin'] ?: '+1 year';
+                    $kadaluarsa = date("Y-m-d", strtotime($durasiPoin, strtotime($waktuCurrYmd)));
                     $dataPoinNew = [
                         'kadaluarsa' => $kadaluarsa,
                         'nominal' => $cashback,
@@ -7644,7 +7723,7 @@ class Pages extends BaseController
                     $this->pointHistoryModel->insert([
                         'id' => $waktuCurr,
                         'label' => $voucherSelected['nama'],
-                        'nominal' => $voucherSelected['nominal'],
+                        'nominal' => $cashback,
                         'keterangan' => 'Cashback voucher ' . strtolower($voucherSelected['nama']),
                         'tanggal' => $waktuCurrYmd,
                         'email_user' => $emailCus
@@ -7656,7 +7735,7 @@ class Pages extends BaseController
                     $this->pointHistoryModel->insert([
                         'id' => $waktuCurr,
                         'label' => 'Pembelian',
-                        'nominal' => $dataTransaksiFulDariDatabase['pakai_poin'],
+                        'nominal' => ((int)$dataTransaksiFulDariDatabase['pakai_poin']) * -1,
                         'keterangan' => 'Pembelian dengan id pemesanan ' . $id_midtrans,
                         'tanggal' => $waktuCurrYmd,
                         'email_user' => $emailCus

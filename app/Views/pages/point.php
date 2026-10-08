@@ -1,119 +1,104 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<?php
+$activeAccountMenu = 'point';
+$balance = (int)($poin ?? 0);
+$tierLabel = strtolower($tier['label'] ?? 'bronze');
+$tierName = $tierMeta['label'] ?? ucwords($tierLabel);
+$tierMin = (int)($tierMeta['min'] ?? 0);
+$tierNext = $tierMeta['next'] ?? null;
+$tierSpend = array_reduce(($tier['data'] ?? []), static fn($carry, $row) => $carry + (int)($row['nominal'] ?? 0), 0);
+$progress = $tierNext ? max(0, min(100, (($tierSpend - $tierMin) / max(1, ((int)$tierNext - $tierMin))) * 100)) : 100;
+$nextExpiry = $pointSummary['next_expiry'] ?? null;
+$expiredCount = count($pointSummary['expired'] ?? []);
+$formatTanggal = static function ($date) {
+    if (!$date) return 'Belum ada';
+    $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    $parts = explode('-', $date);
+    if (count($parts) !== 3) return $date;
+    return $parts[2] . ' ' . $bulan[((int)$parts[1]) - 1] . ' ' . $parts[0];
+};
+?>
 <div class="konten account-shell">
     <div class="container">
-        <?php $activeAccountMenu = 'point'; ?>
-        <div class="account-layout">
+        <div class="account-layout luna-point-page">
             <?= $this->include('partials/account_nav'); ?>
             <main class="account-content-card">
-                <div class="p-2">
-                    <h3 class="mb-3">Luna Points Rewards</h3>
-                    <div class="d-flex justify-content-between align-items-center">
+                <section class="luna-point-hero">
+                    <div>
+                        <p class="luna-eyebrow mb-1">Luna Rewards</p>
+                        <h3 class="mb-2">Luna Point</h3>
+                        <p class="text-secondary mb-0">Gunakan poin untuk mengurangi total pembayaran saat checkout.</p>
+                    </div>
+                    <div class="luna-point-balance">
+                        <span>Saldo aktif</span>
+                        <strong><?= number_format($balance, 0, ',', '.'); ?></strong>
+                        <small>1 poin = Rp1</small>
+                    </div>
+                </section>
+
+                <?php if ($expiredCount > 0) { ?>
+                    <div class="luna-point-notice mt-3">
+                        <i class="material-icons" aria-hidden="true">info</i>
+                        <span><?= $expiredCount; ?> saldo poin yang sudah melewati masa berlaku sudah dirapikan otomatis.</span>
+                    </div>
+                <?php } ?>
+
+                <section class="luna-point-grid mt-3">
+                    <div class="luna-point-panel">
+                        <div class="d-flex justify-content-between gap-2 align-items-start mb-3">
+                            <div>
+                                <p class="text-secondary mb-1">Status member</p>
+                                <h4 class="mb-0"><?= esc($tierName); ?> User</h4>
+                            </div>
+                            <span class="luna-tier-badge luna-tier-<?= esc($tierLabel); ?>"><?= esc($tierName); ?></span>
+                        </div>
+                        <div class="luna-tier-track" aria-label="Progress tier">
+                            <span style="width: <?= $progress; ?>%;"></span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 luna-tier-caption">
+                            <span><?= number_format($tierMin, 0, ',', '.'); ?></span>
+                            <span><?= $tierNext ? number_format((int)$tierNext, 0, ',', '.') : 'Tier tertinggi'; ?></span>
+                        </div>
+                        <p class="text-secondary small mt-3 mb-0">
+                            <?= $tierNext ? 'Total belanja tier saat ini: Rp ' . number_format($tierSpend, 0, ',', '.') . '.' : 'Kamu sudah berada di tier tertinggi Luna Rewards.'; ?>
+                        </p>
+                    </div>
+
+                    <div class="luna-point-panel">
+                        <p class="text-secondary mb-1">Poin terdekat kedaluwarsa</p>
+                        <h4 class="mb-1"><?= esc($formatTanggal($nextExpiry)); ?></h4>
+                        <p class="text-secondary small mb-3">Poin dipakai otomatis dari masa berlaku terdekat lebih dulu.</p>
+                        <a href="/point/history" class="btn btn-primary1 w-100 d-flex justify-content-center align-items-center gap-1">
+                            Lihat riwayat <i class="material-icons" aria-hidden="true">chevron_right</i>
+                        </a>
+                    </div>
+                </section>
+
+                <hr class="my-4">
+
+                <section>
+                    <div class="d-flex justify-content-between align-items-end gap-2 mb-3">
                         <div>
-                            <p class="text-secondary m-0">Kamu sebagai</p>
-                            <h3 class="m-0"><?= strtoupper($tier['label']); ?> USER</h3>
-                            <a href="/point/history" style="color: var(--hijau);" class="d-flex align-items-center">POINT HISTORY <i class="material-icons">keyboard_arrow_right</i></a>
-                        </div>
-                        <div class="baris-ke-kolom gap-1 align-items-end justify-content-end">
-                            <h3 class="m-0"><?= number_format($poin, 0, ",", "."); ?></h3>
-                            <h5 class="m-0" style="color: rgb(182, 182, 182);">Points</h5>
+                            <p class="luna-eyebrow mb-1">Benefit</p>
+                            <h5 class="jdl-section mb-0">Bonus sesuai tier</h5>
                         </div>
                     </div>
-                    <hr>
-                    <div class="d-flex justify-content-center">
-                        <div class="d-flex flex-column align-items-center">
-                            <div class="d-flex justify-content-center w-100 mb-3">
-                                <div class="tier-point <?= $poin >= 0 ? 'aktif' : ''; ?>"></div>
-                            </div>
-                            <div class="rounded p-3 mb-2" style="box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
-                                <div class="tier small bronze <?= ($poin >= 0 && $poin < 10000000) ? 'aktif' : ''; ?>">
-                                    <i class="material-icons">star</i>
-                                </div>
-                            </div>
-                            <p class="m-0 fw-bold">Bronze</p>
-                            <p class="m-0 text-secondary text-center" style="font-size: small;">0 Total<br>Belanja</p>
-                        </div>
-                        <div class="tier-split">
-                            <div style="width: 70px; height: 12px; position: absolute;">
-                                <div class="progres-tier">
-                                    <div style="width: <?= $poin < 10000000 ? ($poin / 10000000) * 100 . '%' : '100%'; ?>;" class="bar"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column align-items-center">
-                            <div class="d-flex justify-content-center w-100 mb-3">
-                                <div class="tier-point <?= $poin >= 10000000 ? 'aktif' : ''; ?>"></div>
-                            </div>
-                            <div class="rounded p-3 mb-2" style="box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
-                                <div class="tier small silver <?= ($poin >= 10000000 && $poin < 50000000) ? 'aktif' : ''; ?>">
-                                    <i class="material-icons">star</i>
-                                </div>
-                            </div>
-                            <p class="m-0 fw-bold">Silver</p>
-                            <p class="m-0 text-secondary text-center" style="font-size: small;">10JT Total<br>Belanja</p>
-                        </div>
-                        <div class="tier-split">
-                            <div style="width: 70px; height: 12px; position: absolute;">
-                                <div class="progres-tier">
-                                    <div style="width: <?= $poin < 50000000 ? ($poin >= 10000000 ? (($poin - 10000000) / 40000000) * 100 . '%' : '0%') : '100%'; ?>;" class="bar"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column align-items-center">
-                            <div class="d-flex justify-content-center w-100 mb-3">
-                                <div class="tier-point <?= $poin >= 50000000 ? 'aktif' : ''; ?>"></div>
-                            </div>
-                            <div class="rounded p-3 mb-2" style="box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
-                                <div class="tier small gold <?= ($poin >= 50000000 && $poin < 100000000) ? 'aktif' : ''; ?>">
-                                    <i class="material-icons">star</i>
-                                </div>
-                            </div>
-                            <p class="m-0 fw-bold">Gold</p>
-                            <p class="m-0 text-secondary text-center" style="font-size: small;">50JT Total<br>Belanja</p>
-                        </div>
-                        <div class="tier-split">
-                            <div style="width: 70px; height: 12px; position: absolute;">
-                                <div class="progres-tier">
-                                    <div style="width: <?= $poin < 100000000 ? ($poin >= 50000000 ? (($poin - 50000000) / 50000000) * 100 . '%' : '0%') : '100%'; ?>;" class="bar"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column align-items-center">
-                            <div class="d-flex justify-content-center w-100 mb-3">
-                                <div class="tier-point <?= $poin >= 100000000 ? 'aktif' : ''; ?>"></div>
-                            </div>
-                            <div class="rounded p-3 mb-2" style="box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
-                                <div class="tier small platinum <?= $poin >= 100000000 ? 'aktif' : ''; ?>">
-                                    <i class="material-icons">star</i>
-                                </div>
-                            </div>
-                            <p class="m-0 fw-bold">Platinum</p>
-                            <p class="m-0 text-secondary text-center" style="font-size: small;">100JT Total<br>Belanja</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <h5 class="jdl-section mb-3">Klaim bonus Kamu</h5>
-                    <div class="d-flex flex-column gap-1">
-                        <?php foreach ($bonus[$tier['label']] as $ind_b => $b) { ?>
-                            <div class="py-4 px-5 rounded-1" style="box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                                <div class="d-flex gap-3" <?= isset($b['ket_nonaktif']) ? 'style="filter:saturate(0.3) opacity(0.2);"' : ''; ?>>
-                                    <?php if ($b['nominal']) { ?>
-                                        <div style="width: 70px;" class="show-ke-hide">
-                                            <h1 class="m-0" style="color: var(--hijau);"><?= $b['nominal']; ?></h1>
-                                        </div>
+                    <div class="luna-benefit-list">
+                        <?php foreach (($bonus[$tier['label']] ?? []) as $b) { ?>
+                            <div class="luna-benefit-item <?= isset($b['ket_nonaktif']) ? 'is-locked' : ''; ?>">
+                                <div class="luna-benefit-icon"><?= $b['nominal'] ? esc($b['nominal']) : '<i class="material-icons">redeem</i>'; ?></div>
+                                <div>
+                                    <h6 class="mb-1"><?= esc($b['nama']); ?></h6>
+                                    <p class="mb-0 text-secondary"><?= esc($b['keterangan']); ?></p>
+                                    <?php if (isset($b['ket_nonaktif'])) { ?>
+                                        <small class="text-danger d-block mt-1">*<?= esc($b['ket_nonaktif']); ?></small>
                                     <?php } ?>
-                                    <div>
-                                        <h5 class="m-0"><?= $b['nama']; ?></h5>
-                                        <p class="m-0 text-secondary"><?= $b['keterangan']; ?></p>
-                                    </div>
                                 </div>
-                                <?php if (isset($b['ket_nonaktif'])) { ?>
-                                    <p class="mt-1 mb-0 text-danger">*<?= $b['ket_nonaktif']; ?></p>
-                                <?php } ?>
                             </div>
                         <?php } ?>
                     </div>
-                </div>
+                </section>
             </main>
         </div>
     </div>

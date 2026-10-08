@@ -18,6 +18,9 @@ class PointHistoryModel extends Model
 
     public function getHistoryCus($email = false)
     {
-        return $this->where(['email_user' => $email])->findAll();
+        return $this->where(['email_user' => $email])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc')
+            ->findAll();
     }
 }

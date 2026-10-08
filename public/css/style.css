@@ -5986,3 +5986,178 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
         font-size: .86rem;
     }
 }
+
+/* Luna Point professional UI */
+.luna-point-page .account-content-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
+}
+
+.luna-eyebrow {
+    color: var(--hijau);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.luna-point-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 18px;
+    padding: 22px;
+    border-radius: 22px;
+    background: radial-gradient(circle at 12% 10%, rgba(27, 133, 75, .16), transparent 32%), linear-gradient(135deg, #f6fbf7, #ffffff);
+    border: 1px solid rgba(27, 133, 75, .12);
+}
+
+.luna-point-balance {
+    min-width: 220px;
+    padding: 18px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--hijau), #0f6b3a);
+    box-shadow: 0 14px 30px rgba(27, 133, 75, .22);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.luna-point-balance span,
+.luna-point-balance small { opacity: .86; }
+.luna-point-balance strong { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1; }
+
+.luna-point-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #fff8e5;
+    color: #875900;
+    border: 1px solid rgba(180, 120, 0, .15);
+}
+
+.luna-point-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
+    gap: 16px;
+}
+
+.luna-point-panel,
+.luna-benefit-item,
+.luna-history-item,
+.luna-empty-state {
+    border: 1px solid rgba(17, 24, 39, .08);
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(17, 24, 39, .055);
+}
+
+.luna-point-panel {
+    border-radius: 20px;
+    padding: 18px;
+}
+
+.luna-tier-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: .78rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--hijau);
+}
+.luna-tier-bronze { background: #9a5a2f; }
+.luna-tier-silver { background: #8a94a6; }
+.luna-tier-gold { background: #d6a800; color: #2b2100; }
+.luna-tier-platinum { background: #2f80ed; }
+
+.luna-tier-track {
+    height: 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf3ef;
+}
+.luna-tier-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--hijau), #6bcf8c);
+}
+.luna-tier-caption { font-size: .78rem; color: #6b7280; }
+
+.luna-benefit-list,
+.luna-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.luna-benefit-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px;
+    border-radius: 18px;
+}
+.luna-benefit-item.is-locked { opacity: .62; }
+.luna-benefit-icon,
+.luna-history-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: var(--hijau);
+    background: var(--hijaumuda);
+    font-weight: 800;
+}
+
+.luna-history-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 18px;
+}
+.luna-history-main { min-width: 0; flex: 1; }
+.luna-history-amount {
+    white-space: nowrap;
+    font-weight: 800;
+    color: var(--hijau);
+}
+.luna-history-item.is-minus .luna-history-icon {
+    color: #b42318;
+    background: #fff0ee;
+}
+.luna-history-item.is-minus .luna-history-amount { color: #b42318; }
+
+.luna-empty-state {
+    border-radius: 20px;
+    padding: 34px 18px;
+    text-align: center;
+}
+.luna-empty-state .material-icons {
+    color: var(--hijau);
+    font-size: 44px;
+}
+
+@media (max-width: 768px) {
+    .luna-point-hero { flex-direction: column; padding: 18px; }
+    .luna-point-balance { min-width: 0; align-items: flex-start; }
+    .luna-point-grid { grid-template-columns: 1fr; }
+    .luna-history-item { align-items: flex-start; }
+    .luna-history-amount { font-size: .9rem; }
+}
+
+@media (max-width: 480px) {
+    .luna-benefit-item,
+    .luna-history-item { padding: 12px; gap: 10px; }
+    .luna-benefit-icon,
+    .luna-history-icon { width: 36px; height: 36px; flex-basis: 36px; border-radius: 12px; }
+    .luna-history-item { flex-wrap: wrap; }
+    .luna-history-amount { margin-left: 46px; width: calc(100% - 46px); }
+}
