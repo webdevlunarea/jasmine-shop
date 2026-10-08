@@ -4498,83 +4498,16 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 }
 
 .footer-contact-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 10px 0 8px;
-    max-width: 260px;
+    margin: 8px 0 2px;
 }
 
-.footer-contact-row {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 9px;
-    width: fit-content !important;
-    min-height: 34px !important;
-    padding: 2px 0;
-    color: #64748b !important;
-    text-decoration: none !important;
-    transition: color 0.18s ease, transform 0.18s ease;
+.footer-contact-link {
+    width: fit-content;
+    min-height: 32px;
 }
 
-.footer-contact-row:hover {
-    color: var(--hijau) !important;
-    transform: translateX(2px);
-}
-
-.footer-contact-row__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 28px;
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    background: rgba(var(--theme-primary-rgb), 0.08);
-    transition: background-color 0.18s ease;
-}
-
-.footer-contact-row:hover .footer-contact-row__icon {
-    background: rgba(var(--theme-primary-rgb), 0.14);
-}
-
-.footer-contact-row__icon .material-icons {
-    color: var(--hijau);
-    font-size: 16px !important;
-}
-
-.footer-contact-row__icon--warning {
-    background: rgba(245, 158, 11, 0.12);
-}
-
-.footer-contact-row__icon--warning .material-icons {
-    color: #b45309;
-}
-
-.footer-contact-row__body {
-    display: grid;
-    gap: 1px;
-}
-
-.footer-contact-row__title {
-    display: block;
-    color: #64748b;
-    font-size: 0.78rem;
-    font-weight: 600;
-    line-height: 1.1;
-}
-
-.footer-contact-row__action {
-    display: block;
-    color: #334155;
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.footer-contact-row:hover .footer-contact-row__title,
-.footer-contact-row:hover .footer-contact-row__action {
-    color: var(--hijau);
+.footer-contact-link .material-icons {
+    font-size: 14px;
 }
 
 .contact-channel-card__label {
