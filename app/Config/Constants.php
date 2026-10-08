@@ -44,6 +44,20 @@ defined('DECADE') || define('DECADE', 315_360_000);
 
 /*
  | --------------------------------------------------------------------------
+ | Lunarea Contact Channels
+ | --------------------------------------------------------------------------
+ |
+ | Keep public contact numbers centralized so CS and after-sales/complaint
+ | channels stay consistent across footer, contact page, checkout notices,
+ | and policy pages.
+ */
+defined('LUNAREA_CS_WHATSAPP_DISPLAY') || define('LUNAREA_CS_WHATSAPP_DISPLAY', '+62 811-2938-160');
+defined('LUNAREA_CS_WHATSAPP_E164') || define('LUNAREA_CS_WHATSAPP_E164', '628112938160');
+defined('LUNAREA_RETURN_WHATSAPP_DISPLAY') || define('LUNAREA_RETURN_WHATSAPP_DISPLAY', '+62 815-1997-7949');
+defined('LUNAREA_RETURN_WHATSAPP_E164') || define('LUNAREA_RETURN_WHATSAPP_E164', '6281519977949');
+
+/*
+ | --------------------------------------------------------------------------
  | Exit Status Codes
  | --------------------------------------------------------------------------
  |

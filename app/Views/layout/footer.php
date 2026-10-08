@@ -105,10 +105,28 @@
                     <p class="mb-1" style="color: #555">
                         Sabtu | 08.00 - 14.00 WIB
                     </p>
-                    <a href="https://api.whatsapp.com/send?phone=628112938160&text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
-                        <i class="material-icons" style="font-size: 14px;">phone</i>
-                        <p class="m-0">08112938160</p>
-                    </a>
+                    <div class="footer-contact-list">
+                        <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." class="footer-contact-card" aria-label="Chat WhatsApp Customer Service Lunarea">
+                            <span class="footer-contact-card__icon">
+                                <i class="material-icons">support_agent</i>
+                            </span>
+                            <span>
+                                <span class="footer-contact-card__label">Customer Service</span>
+                                <strong><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></strong>
+                                <small>Info produk, pesanan, dan pembayaran</small>
+                            </span>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." class="footer-contact-card" aria-label="Chat WhatsApp Retur dan Komplain Lunarea">
+                            <span class="footer-contact-card__icon footer-contact-card__icon--warning">
+                                <i class="material-icons">assignment_return</i>
+                            </span>
+                            <span>
+                                <span class="footer-contact-card__label">Retur / Komplain</span>
+                                <strong><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></strong>
+                                <small>Kendala barang, retur, dan after-sales</small>
+                            </span>
+                        </a>
+                    </div>
                     <a href="mailto:cs@lunareafurniture.com" class="mb-1 d-flex gap-2 align-items-center" style="color: #555">
                         <i class="material-icons" style="font-size: 14px;">email</i>
                         <p class="m-0">cs@lunareafurniture.com</p>

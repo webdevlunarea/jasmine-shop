@@ -411,7 +411,7 @@
                         </div>
                         <p id="peringatan-lokasi" class="my-2 text-secondary" style="display: none;">*Untuk alamat
                             pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a
-                                href="https://wa.me/+628112938160" style="color: var(--hijau);"
+                                href="https://wa.me/<?= LUNAREA_CS_WHATSAPP_E164; ?>" style="color: var(--hijau);"
                                 class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer
                                 Service kami</a> setelah Anda melakukan pemesanan</p>
                     </div>
@@ -844,7 +844,7 @@ provElm.addEventListener("change", (e) => {
     if (!provJawaMaduraBali.includes(valuenya[1])) {
         document.getElementById("peringatan-lokasi").style.display = "block";
         triggerToast(
-            'Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://api.whatsapp.com/send?phone=628112938160&text=Hai%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan'
+            'Untuk alamat pengiriman di luar pulau Jawa, Madura, Bali, dimohon untuk menghubungi <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Hai%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....." style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer Service kami</a> setelah Anda melakukan pemesanan'
         );
     } else {
         document.getElementById("peringatan-lokasi").style.display = "none";

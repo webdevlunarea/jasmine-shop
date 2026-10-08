@@ -260,14 +260,15 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
                     <p class="m-0">Hi, Teman Luna!👋</p>
                     <p class="m-0" style="cursor: pointer;" onclick="closeGreetingCard()">x</p>
                 </div>
-                <p class="m-0">Kalau kamu butuh bantuan,<br>hubungi kami via WhatsApp ya!</p>
+                <p class="m-0">Kalau kamu butuh bantuan,<br>hubungi CS Lunarea via WhatsApp ya!</p>
             </div>
             <div style="height: 30px;"></div>
         </div>
         <div class="d-flex flex-column gap-2">
             <a class="btn-circle" href="/form"><i class="material-icons">insert_comment</i></a>
             <a class="btn-circle hijau" id="btn-wa"
-                href="https://api.whatsapp.com/send?phone=628112938160&text=Hallo%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture.....">
+                href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Hallo%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....."
+                aria-label="Chat Customer Service Lunarea">
                 <i class="material-icons text-light">phone</i>
             </a>
         </div>

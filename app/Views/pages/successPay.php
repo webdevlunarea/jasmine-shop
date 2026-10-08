@@ -10,7 +10,7 @@
                     <a href="/order/<?= $id_pesanan; ?>" class="btn btn-primary1 me-3 mb-2">
                         <p id="counter" class="d-inline m-0">5 |</p> Pergi ke halaman detail pesanan
                     </a>
-                    <a href="https://wa.me/628112938160?text=Halo%20,%20saya%20mengalami%20masalah%20dengan%20pembayaran%20saya.%20Bisakah%20Anda%20bantu%20saya?" class="btn btn-dark mb-2">Butuh Bantuan?</a>
+                    <a href="https://wa.me/<?= LUNAREA_CS_WHATSAPP_E164; ?>?text=Halo%20CS%20*Lunarea*%2C%20saya%20mengalami%20masalah%20dengan%20pembayaran%20saya.%20Bisakah%20Anda%20bantu%20saya?" class="btn btn-dark mb-2">Butuh Bantuan?</a>
                 </div>
             </div>
         </div>

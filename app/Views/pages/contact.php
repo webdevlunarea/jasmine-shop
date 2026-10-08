@@ -21,21 +21,34 @@
                     FAQ</a>
             </div>
             <div class="mt-3">
-                <p class="fw-bold mb-1">Layanan Pelanggan Lunarea</p>
-                <div class="d-flex gap-2">
-                    <div>
-                        <p class="m-0">Telephone</p>
-                        <p class="m-0">Email</p>
-                    </div>
-                    <div>
-                        <a href="https://api.whatsapp.com/send?phone=628112938160&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....."
-                            style="text-decoration: none; color: black">
-                            <p class="m-0">: 08112938160</p>
-                        </a>
-                        <a href="mailto:cs@lunareafurniture.com" style="text-decoration: none; color: black">
-                            <p class=" m-0">: cs@lunareafurniture.com</p>
-                        </a>
-                    </div>
+                <p class="fw-bold mb-2">Layanan Pelanggan Lunarea</p>
+                <div class="contact-channel-grid">
+                    <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....."
+                        class="contact-channel-card">
+                        <span class="contact-channel-card__icon"><i class="material-icons">support_agent</i></span>
+                        <span>
+                            <span class="contact-channel-card__label">Customer Service</span>
+                            <strong><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></strong>
+                            <small>Untuk info produk, pesanan, pembayaran, dan bantuan umum.</small>
+                        </span>
+                    </a>
+                    <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....."
+                        class="contact-channel-card">
+                        <span class="contact-channel-card__icon contact-channel-card__icon--warning"><i class="material-icons">assignment_return</i></span>
+                        <span>
+                            <span class="contact-channel-card__label">Retur / Komplain</span>
+                            <strong><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></strong>
+                            <small>Untuk kendala barang, retur, klaim, dan after-sales.</small>
+                        </span>
+                    </a>
+                    <a href="mailto:cs@lunareafurniture.com" class="contact-channel-card">
+                        <span class="contact-channel-card__icon"><i class="material-icons">email</i></span>
+                        <span>
+                            <span class="contact-channel-card__label">Email</span>
+                            <strong>cs@lunareafurniture.com</strong>
+                            <small>Alternatif jika ingin mengirim detail secara tertulis.</small>
+                        </span>
+                    </a>
                 </div>
                 <a class="m-0" style="text-decoration: none; color: black">
                     <p class=" m-0">Senin sampai Sabtu di jam kerja</p>

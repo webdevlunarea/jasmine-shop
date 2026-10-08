@@ -42,8 +42,9 @@
             informasi promosi terbaru yang sedang kami adakan.</p>
 
         <h5>Informasi Service</h5>
-        <p>Pengguna dapat mengakses informasi seputar layanan yang diberikan oleh Lunarea Furniture melalui <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>
-            atau WA chat (08112938160), informasi ini dapat berubah sewaktu- waktu sesuai dengan kebijakan Perusahaan yang berlaku.</p>
+        <p>Pengguna dapat mengakses informasi seputar layanan yang diberikan oleh Lunarea Furniture melalui <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>,
+            WA Customer Service (<a style="color: var(--hijau);" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan....."><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></a>),
+            atau WA Retur / Komplain (<a style="color: var(--hijau);" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....."><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></a>), informasi ini dapat berubah sewaktu-waktu sesuai dengan kebijakan Perusahaan yang berlaku.</p>
 
         <hr class="my-4">
 
