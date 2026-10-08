@@ -154,7 +154,7 @@
                         <p class="mb-0">WhatsApp CS</p>
                     </td>
                     <td>
-                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan....." style="color: var(--hijau);"><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></a></p>
+                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan....." style="color: var(--hijau);">Chat Customer Service</a></p>
                     </td>
                 </tr>
                 <tr>
@@ -162,7 +162,7 @@
                         <p class="mb-0">WhatsApp Retur / Komplain</p>
                     </td>
                     <td>
-                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." style="color: var(--hijau);"><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></a></p>
+                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." style="color: var(--hijau);">Ajukan Retur / Komplain</a></p>
                     </td>
                 </tr>
             </tbody>

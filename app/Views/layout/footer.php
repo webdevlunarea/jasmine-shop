@@ -112,7 +112,7 @@
                             </span>
                             <span class="footer-contact-row__body">
                                 <span class="footer-contact-row__title">CS / Pembelian</span>
-                                <span class="footer-contact-row__number"><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></span>
+                                <span class="footer-contact-row__action">Chat Customer Service</span>
                             </span>
                         </a>
                         <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." class="footer-contact-row" aria-label="Chat WhatsApp Retur dan Komplain Lunarea">
@@ -121,7 +121,7 @@
                             </span>
                             <span class="footer-contact-row__body">
                                 <span class="footer-contact-row__title">Retur / Komplain</span>
-                                <span class="footer-contact-row__number"><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></span>
+                                <span class="footer-contact-row__action">Ajukan Bantuan Pesanan</span>
                             </span>
                         </a>
                     </div>

@@ -4564,7 +4564,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     line-height: 1.1;
 }
 
-.footer-contact-row__number {
+.footer-contact-row__action {
     display: block;
     color: #334155;
     font-size: 0.9rem;
@@ -4573,7 +4573,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 }
 
 .footer-contact-row:hover .footer-contact-row__title,
-.footer-contact-row:hover .footer-contact-row__number {
+.footer-contact-row:hover .footer-contact-row__action {
     color: var(--hijau);
 }
 

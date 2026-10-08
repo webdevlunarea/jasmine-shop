@@ -28,7 +28,7 @@
                         <span class="contact-channel-card__icon"><i class="material-icons">support_agent</i></span>
                         <span>
                             <span class="contact-channel-card__label">Customer Service</span>
-                            <strong><?= LUNAREA_CS_WHATSAPP_DISPLAY; ?></strong>
+                            <strong>Chat Customer Service</strong>
                             <small>Untuk info produk, pesanan, pembayaran, dan bantuan umum.</small>
                         </span>
                     </a>
@@ -37,7 +37,7 @@
                         <span class="contact-channel-card__icon contact-channel-card__icon--warning"><i class="material-icons">assignment_return</i></span>
                         <span>
                             <span class="contact-channel-card__label">Retur / Komplain</span>
-                            <strong><?= LUNAREA_RETURN_WHATSAPP_DISPLAY; ?></strong>
+                            <strong>Ajukan Bantuan Pesanan</strong>
                             <small>Untuk kendala barang, retur, klaim, dan after-sales.</small>
                         </span>
                     </a>
