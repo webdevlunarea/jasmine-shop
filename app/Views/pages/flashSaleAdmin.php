@@ -114,6 +114,8 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                         Bersihkan pilihan
                     </button>
                 </div>
+                <div class="flash-selected-summary mb-3" id="flash-selected-summary"></div>
+                <div class="flash-hidden-selected-alert mb-3" id="flash-hidden-selected-alert"></div>
 
                 <div class="flash-product-list" id="flash-product-list">
                     <?php if (empty($products)) { ?>
@@ -127,7 +129,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                         $salePrice = round(((100 - $discount) / 100) * $price);
                         $stockRaw = (string)($p['stok'] ?? '0');
                     ?>
-                        <label class="flash-product-option" data-search="<?= esc(strtolower($p['nama'] . ' ' . $id)); ?>">
+                        <label class="flash-product-option" data-search="<?= esc(strtolower($p['nama'] . ' ' . $id)); ?>" data-id="<?= esc($id); ?>" data-name="<?= esc($p['nama']); ?>">
                             <input type="checkbox" name="product_ids[]" value="<?= esc($id); ?>" <?= isset($selectedIds[$id]) ? 'checked' : ''; ?>>
                             <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= esc($p['nama']); ?>">
                             <span class="flash-product-option__body">
@@ -294,6 +296,76 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
 
     .flash-selected-tools small {
         color: #66737f;
+    }
+
+    .flash-selected-summary {
+        display: none;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 12px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px dashed rgba(36, 59, 107, .18);
+    }
+
+    .flash-selected-summary.is-active {
+        display: flex;
+    }
+
+    .flash-selected-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        max-width: 100%;
+        padding: 6px 8px 6px 6px;
+        border-radius: 999px;
+        background: var(--hijaumuda);
+        color: #14212b;
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .flash-selected-chip img {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        object-fit: cover;
+        background: #fff;
+    }
+
+    .flash-selected-chip span {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .flash-selected-chip button {
+        width: 22px;
+        height: 22px;
+        border: 0;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(36, 59, 107, .10);
+        color: var(--hijau);
+        line-height: 1;
+    }
+
+    .flash-hidden-selected-alert {
+        display: none;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: #fff7e6;
+        color: #8a5b00;
+        border: 1px solid rgba(217, 140, 154, .35);
+        font-size: .86rem;
+        font-weight: 700;
+    }
+
+    .flash-hidden-selected-alert.is-active {
+        display: block;
     }
 
     .flash-product-option {
@@ -463,15 +535,81 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
     const flashLimitInput = document.getElementById('flash-limit-input');
     const flashLimitHelp = document.getElementById('flash-limit-help');
     const flashClearSelected = document.getElementById('flash-clear-selected');
+    const flashSelectedSummary = document.getElementById('flash-selected-summary');
+    const flashHiddenSelectedAlert = document.getElementById('flash-hidden-selected-alert');
+
+    function setManualModeFromChecklist() {
+        if (flashModeSelect && flashModeSelect.value !== 'manual') {
+            flashModeSelect.value = 'manual';
+        }
+        syncFlashLimitMode();
+    }
+
+    function renderSelectedSummary() {
+        if (!flashSelectedSummary) return;
+
+        const selectedItems = Array.from(flashProductOptions).filter((item) => item.querySelector('input')?.checked);
+        flashSelectedSummary.innerHTML = '';
+        flashSelectedSummary.classList.toggle('is-active', selectedItems.length > 0);
+
+        selectedItems.forEach((item) => {
+            const chip = document.createElement('span');
+            chip.className = 'flash-selected-chip';
+
+            const img = item.querySelector('img')?.cloneNode();
+            if (img) chip.appendChild(img);
+
+            const text = document.createElement('span');
+            text.textContent = item.dataset.name || item.dataset.id || 'Produk';
+            chip.appendChild(text);
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.innerHTML = '&times;';
+            remove.setAttribute('aria-label', 'Hapus ' + text.textContent);
+            remove.addEventListener('click', () => {
+                const input = item.querySelector('input');
+                if (input) input.checked = false;
+                updateFlashSelectedCount();
+            });
+            chip.appendChild(remove);
+
+            flashSelectedSummary.appendChild(chip);
+        });
+    }
+
+    function renderHiddenSelectedWarning() {
+        if (!flashHiddenSelectedAlert) return;
+        const keyword = flashProductSearch?.value.trim().toLowerCase() || '';
+        const hiddenChecked = Array.from(flashProductOptions).filter((item) => {
+            const checked = item.querySelector('input')?.checked;
+            const visibleBySearch = keyword === '' || item.dataset.search.includes(keyword);
+            return checked && !visibleBySearch;
+        }).length;
+
+        flashHiddenSelectedAlert.classList.toggle('is-active', hiddenChecked > 0);
+        flashHiddenSelectedAlert.textContent = hiddenChecked > 0
+            ? `${hiddenChecked} produk terpilih sedang tersembunyi karena pencarian. Cek ringkasan produk terpilih di atas sebelum simpan.`
+            : '';
+    }
 
     function updateFlashSelectedCount() {
-        const checked = document.querySelectorAll('.flash-product-option input:checked').length;
+        const checkedItems = document.querySelectorAll('.flash-product-option input:checked');
+        const checked = checkedItems.length;
         if (flashSelectedCount) flashSelectedCount.textContent = checked;
         if (flashSelectedCountTop) flashSelectedCountTop.textContent = checked;
 
         if (flashModeSelect?.value === 'manual' && flashLimitInput) {
             flashLimitInput.value = Math.min(24, checked);
         }
+
+        flashProductOptions.forEach((item) => {
+            const isChecked = item.querySelector('input')?.checked;
+            item.style.order = isChecked ? '-1' : '0';
+        });
+
+        renderSelectedSummary();
+        renderHiddenSelectedWarning();
     }
 
     function syncFlashLimitMode() {
@@ -490,10 +628,13 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
         flashProductOptions.forEach((item) => {
             item.style.display = item.dataset.search.includes(keyword) ? 'grid' : 'none';
         });
+        renderHiddenSelectedWarning();
     });
 
     flashProductOptions.forEach((item) => {
-        item.querySelector('input')?.addEventListener('change', updateFlashSelectedCount);
+        item.querySelector('input')?.addEventListener('change', () => {
+            setManualModeFromChecklist();
+        });
     });
 
     flashModeSelect?.addEventListener('change', syncFlashLimitMode);

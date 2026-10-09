@@ -220,7 +220,7 @@ class KonstantaModel extends Model
         $defaults['subtitle'] = trim((string)$defaults['subtitle']) !== '' ? trim((string)$defaults['subtitle']) : self::defaultFlashSaleSettings()['subtitle'];
         $defaults['kicker'] = trim((string)$defaults['kicker']) !== '' ? trim((string)$defaults['kicker']) : 'Promo kilat';
         $defaults['end_time'] = preg_match('/^\d{2}:\d{2}$/', (string)$defaults['end_time']) ? $defaults['end_time'] : '23:59';
-        $defaults['product_ids'] = array_values(array_unique(array_filter(array_map('trim', (array)$defaults['product_ids']))));
+        $defaults['product_ids'] = array_slice(array_values(array_unique(array_filter(array_map('trim', (array)$defaults['product_ids'])))), 0, 24);
         $defaults['limit'] = $defaults['mode'] === 'manual'
             ? min(24, count($defaults['product_ids']))
             : min(24, max(4, (int)$defaults['limit']));
@@ -232,7 +232,7 @@ class KonstantaModel extends Model
     {
         $defaults = self::defaultFlashSaleSettings();
         $mode = (($settings['mode'] ?? 'auto') === 'manual') ? 'manual' : 'auto';
-        $productIds = array_values(array_unique(array_filter(array_map('trim', (array)($settings['product_ids'] ?? [])))));
+        $productIds = array_slice(array_values(array_unique(array_filter(array_map('trim', (array)($settings['product_ids'] ?? []))))), 0, 24);
         $limit = min(24, max(4, (int)($settings['limit'] ?? $defaults['limit'])));
         if ($mode === 'manual') {
             $limit = min(24, count($productIds));
