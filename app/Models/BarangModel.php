@@ -78,6 +78,7 @@ class BarangModel extends Model
                 return [];
             }
 
+            $limit = min(24, count($productIds));
             $rows = $this->where(['active' => '1'])
                 ->where('diskon >', 0)
                 ->whereIn('id', $productIds)

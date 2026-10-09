@@ -7998,6 +7998,8 @@ class Pages extends BaseController
         $msg = 'Pengaturan Flash Sale berhasil disimpan.';
         if ($saved['mode'] === 'manual' && empty($saved['product_ids'])) {
             $msg .= ' Mode manual aktif, tapi belum ada produk dipilih sehingga section Flash Sale akan kosong.';
+        } elseif ($saved['mode'] === 'manual') {
+            $msg .= ' Mode manual aktif dengan ' . count($saved['product_ids']) . ' produk pilihan.';
         }
         session()->setFlashdata('msg', $msg);
 

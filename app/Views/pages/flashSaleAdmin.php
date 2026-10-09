@@ -59,8 +59,8 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Jumlah tampil</label>
-                        <input type="number" class="form-control" name="limit" min="4" max="24" value="<?= (int)($settings['limit'] ?? 12); ?>">
-                        <small class="text-secondary">Minimal 4, maksimal 24 produk.</small>
+                        <input type="number" class="form-control" name="limit" id="flash-limit-input" min="4" max="24" value="<?= (int)($settings['limit'] ?? 12); ?>" <?= $isManualMode ? 'readonly' : ''; ?>>
+                        <small class="text-secondary" id="flash-limit-help"><?= $isManualMode ? 'Mode manual: jumlah tampil mengikuti jumlah produk yang dicentang.' : 'Mode otomatis: minimal 4, maksimal 24 produk.'; ?></small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Mode produk</label>
@@ -103,6 +103,16 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-white"><i class="material-icons">search</i></span>
                     <input type="search" class="form-control" id="flash-product-search" placeholder="Cari nama / ID produk">
+                </div>
+
+                <div class="flash-selected-tools mb-3">
+                    <div>
+                        <strong><span id="flash-selected-count-top">0</span> produk dipilih</strong>
+                        <small>Untuk mode manual, jumlah produk homepage akan sama dengan checklist ini.</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="flash-clear-selected">
+                        Bersihkan pilihan
+                    </button>
                 </div>
 
                 <div class="flash-product-list" id="flash-product-list">
@@ -152,7 +162,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-3 gap-2 flex-wrap">
-                    <small class="text-secondary"><span id="flash-selected-count">0</span> produk dipilih.</small>
+                    <small class="text-secondary"><span id="flash-selected-count">0</span> produk dipilih. Pastikan mode produk = Manual kalau ingin memakai pilihan ini.</small>
                     <button type="submit" class="btn btn-primary1 d-flex align-items-center gap-2">
                         <i class="material-icons">save</i>
                         <span>Simpan Flash Sale</span>
@@ -260,6 +270,30 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
         max-height: 620px;
         overflow: auto;
         padding-right: 4px;
+    }
+
+    .flash-selected-tools {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 16px;
+        background: var(--hijaumuda);
+        border: 1px solid var(--hijaumuda2);
+    }
+
+    .flash-selected-tools div {
+        display: grid;
+        gap: 2px;
+    }
+
+    .flash-selected-tools strong {
+        color: var(--hijau);
+    }
+
+    .flash-selected-tools small {
+        color: #66737f;
     }
 
     .flash-product-option {
@@ -408,6 +442,11 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
             height: 50px;
         }
 
+        .flash-selected-tools {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
         .flash-admin-sync,
         .flash-home-preview__items {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -418,11 +457,32 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
 <script>
     const flashProductSearch = document.getElementById('flash-product-search');
     const flashSelectedCount = document.getElementById('flash-selected-count');
+    const flashSelectedCountTop = document.getElementById('flash-selected-count-top');
     const flashProductOptions = document.querySelectorAll('.flash-product-option');
+    const flashModeSelect = document.getElementById('flash-mode-select');
+    const flashLimitInput = document.getElementById('flash-limit-input');
+    const flashLimitHelp = document.getElementById('flash-limit-help');
+    const flashClearSelected = document.getElementById('flash-clear-selected');
 
     function updateFlashSelectedCount() {
         const checked = document.querySelectorAll('.flash-product-option input:checked').length;
         if (flashSelectedCount) flashSelectedCount.textContent = checked;
+        if (flashSelectedCountTop) flashSelectedCountTop.textContent = checked;
+
+        if (flashModeSelect?.value === 'manual' && flashLimitInput) {
+            flashLimitInput.value = Math.min(24, checked);
+        }
+    }
+
+    function syncFlashLimitMode() {
+        const isManual = flashModeSelect?.value === 'manual';
+        if (flashLimitInput) flashLimitInput.readOnly = !!isManual;
+        if (flashLimitHelp) {
+            flashLimitHelp.textContent = isManual
+                ? 'Mode manual: jumlah tampil mengikuti jumlah produk yang dicentang.'
+                : 'Mode otomatis: minimal 4, maksimal 24 produk.';
+        }
+        updateFlashSelectedCount();
     }
 
     flashProductSearch?.addEventListener('input', () => {
@@ -436,6 +496,15 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
         item.querySelector('input')?.addEventListener('change', updateFlashSelectedCount);
     });
 
-    updateFlashSelectedCount();
+    flashModeSelect?.addEventListener('change', syncFlashLimitMode);
+    flashClearSelected?.addEventListener('click', () => {
+        flashProductOptions.forEach((item) => {
+            const input = item.querySelector('input');
+            if (input) input.checked = false;
+        });
+        updateFlashSelectedCount();
+    });
+
+    syncFlashLimitMode();
 </script>
 <?= $this->endSection(); ?>
