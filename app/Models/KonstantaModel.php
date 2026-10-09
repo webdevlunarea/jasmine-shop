@@ -205,7 +205,9 @@ class KonstantaModel extends Model
     public function getFlashSaleSettings()
     {
         $defaults = self::defaultFlashSaleSettings();
-        $row = $this->getKonstantaByLabel('flash_sale_settings');
+        $row = $this->where(['label' => 'flash_sale_settings'])
+            ->orderBy('id', 'DESC')
+            ->first();
 
         if ($row && !empty($row['value'])) {
             $decoded = json_decode($row['value'], true);
@@ -253,11 +255,12 @@ class KonstantaModel extends Model
         if ($clean['subtitle'] === '') $clean['subtitle'] = $defaults['subtitle'];
         if ($clean['kicker'] === '') $clean['kicker'] = $defaults['kicker'];
 
-        $row = $this->getKonstantaByLabel('flash_sale_settings');
         $payload = json_encode($clean, JSON_UNESCAPED_UNICODE);
+        $rows = $this->where(['label' => 'flash_sale_settings'])->findAll();
 
-        if ($row) {
-            $this->where(['id' => $row['id']])->set(['value' => $payload])->update();
+        if (!empty($rows)) {
+            $ids = array_column($rows, 'id');
+            $this->whereIn('id', $ids)->set(['value' => $payload])->update();
         } else {
             $this->insert([
                 'label' => 'flash_sale_settings',

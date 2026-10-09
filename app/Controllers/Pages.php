@@ -8001,6 +8001,7 @@ class Pages extends BaseController
         } elseif ($saved['mode'] === 'manual') {
             $msg .= ' Mode manual aktif dengan ' . count($saved['product_ids']) . ' produk pilihan.';
         }
+        $msg .= ' Teks aktif: "' . $saved['kicker'] . ' / ' . $saved['title'] . '".';
         session()->setFlashdata('msg', $msg);
 
         return redirect()->to('/flashsaleadmin');

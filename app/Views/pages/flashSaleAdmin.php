@@ -89,6 +89,12 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                             <strong><?= count($previewProducts); ?> produk</strong>
                         </div>
                     </div>
+                    <div class="flash-text-preview mt-3">
+                        <small>Teks yang sedang aktif di homepage</small>
+                        <strong><?= esc($settings['kicker'] ?? 'Promo kilat'); ?></strong>
+                        <h4><?= esc($settings['title'] ?? 'Flash Sale Lunarea'); ?></h4>
+                        <p><?= esc($settings['subtitle'] ?? 'Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.'); ?></p>
+                    </div>
                 </div>
             </section>
 
@@ -264,6 +270,42 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
     .flash-admin-sync strong {
         color: var(--hijau);
         font-size: .95rem;
+    }
+
+    .flash-text-preview {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid rgba(36, 59, 107, .08);
+    }
+
+    .flash-text-preview small {
+        color: #66737f;
+        font-weight: 700;
+    }
+
+    .flash-text-preview strong {
+        width: fit-content;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: var(--hijau);
+        color: #fff;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .flash-text-preview h4 {
+        margin: 4px 0 0;
+        color: #14212b;
+        font-weight: 900;
+    }
+
+    .flash-text-preview p {
+        margin: 0;
+        color: #66737f;
     }
 
     .flash-product-list {
