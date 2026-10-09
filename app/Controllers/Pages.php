@@ -7962,10 +7962,21 @@ class Pages extends BaseController
 
     public function flashSaleAdmin()
     {
+        $settings = $this->konstantaModel->getFlashSaleSettings();
+        $previewProducts = [];
+        if (!empty($settings['enabled'])) {
+            $previewProducts = $this->barangModel->getBarangFlashSale(
+                (int)$settings['limit'],
+                (array)$settings['product_ids'],
+                $settings['mode'] === 'manual'
+            );
+        }
+
         return view('pages/flashSaleAdmin', [
             'title' => 'Flash Sale',
-            'settings' => $this->konstantaModel->getFlashSaleSettings(),
+            'settings' => $settings,
             'products' => $this->barangModel->getBarangFlashSaleCandidates(250),
+            'previewProducts' => $previewProducts,
             'msg' => session()->getFlashdata('msg'),
         ]);
     }

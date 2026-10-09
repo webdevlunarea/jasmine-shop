@@ -5611,25 +5611,17 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 
 .flash-sale-shell {
     position: relative;
-    overflow: hidden;
-    border-radius: 28px;
-    padding: clamp(16px, 2vw, 24px);
-    background:
-        radial-gradient(circle at 12% 0%, rgba(255, 255, 255, .82), transparent 32%),
-        linear-gradient(135deg, var(--hijaumuda) 0%, #fff 44%, var(--hijaumuda1) 100%);
+    overflow: visible;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
     color: var(--hijau);
-    border: 1px solid var(--hijaumuda2);
-    box-shadow: 0 18px 42px rgba(36, 59, 107, .10);
+    border: 0;
+    box-shadow: none;
 }
 
 .flash-sale-shell::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-        linear-gradient(90deg, rgba(36, 59, 107, .035), transparent 28%, rgba(36, 59, 107, .025)),
-        radial-gradient(circle at 92% 14%, rgba(36, 59, 107, .10), transparent 23%);
+    display: none;
 }
 
 .flash-sale-head,
@@ -5644,6 +5636,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     align-items: center;
     gap: 18px;
     margin-bottom: 18px;
+    padding: 0 2px;
 }
 
 .flash-sale-kicker {
@@ -5760,7 +5753,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    padding: 2px 2px 8px;
+    padding: 2px 2px 12px;
 }
 
 .flash-sale-products::-webkit-scrollbar {
@@ -5934,8 +5927,8 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 
 @media (max-width: 768px) {
     .flash-sale-shell {
-        border-radius: 22px;
-        padding: 14px;
+        border-radius: 0;
+        padding: 0;
     }
 
     .flash-sale-head {

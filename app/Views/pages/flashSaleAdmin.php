@@ -2,6 +2,8 @@
 <?= $this->section('content'); ?>
 <?php
 $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
+$previewProducts = $previewProducts ?? [];
+$isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
 ?>
 <div class="konten">
     <div class="container">
@@ -72,7 +74,21 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
 
                 <div class="flash-admin-preview mt-4">
                     <span><i class="material-icons">bolt</i> Preview alur</span>
-                    <p class="mb-0">Homepage akan menampilkan produk aktif yang masih punya diskon. Harga asli tetap dari sistem, website hanya mengatur promo display.</p>
+                    <p class="mb-0">Homepage mengikuti setting di admin ini. Harga, diskon, stok, dan status aktif tetap dari data produk/sistem.</p>
+                    <div class="flash-admin-sync mt-3">
+                        <div>
+                            <small>Status</small>
+                            <strong><?= !empty($settings['enabled']) ? 'Aktif' : 'Nonaktif'; ?></strong>
+                        </div>
+                        <div>
+                            <small>Mode</small>
+                            <strong><?= $isManualMode ? 'Manual' : 'Otomatis'; ?></strong>
+                        </div>
+                        <div>
+                            <small>Tampil</small>
+                            <strong><?= count($previewProducts); ?> produk</strong>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -110,6 +126,28 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
                                 <em>Rp <?= number_format($salePrice, 0, ",", "."); ?> <del>Rp <?= number_format($price, 0, ",", "."); ?></del></em>
                             </span>
                         </label>
+                    <?php } ?>
+                </div>
+
+                <div class="flash-home-preview mt-3">
+                    <div class="flash-home-preview__head">
+                        <div>
+                            <strong>Produk yang tampil di homepage sekarang</strong>
+                            <small><?= $isManualMode ? 'Sesuai pilihan manual dan urutan checklist.' : 'Otomatis dari diskon terbesar.'; ?></small>
+                        </div>
+                        <span><?= count($previewProducts); ?> item</span>
+                    </div>
+                    <?php if (empty($previewProducts)) { ?>
+                        <p class="text-secondary mb-0 small">Belum ada produk yang akan tampil. Untuk mode manual, pilih minimal satu produk diskon. Untuk mode otomatis, pastikan produk aktif memiliki diskon.</p>
+                    <?php } else { ?>
+                        <div class="flash-home-preview__items">
+                            <?php foreach (array_slice($previewProducts, 0, 8) as $preview) { ?>
+                                <a href="/product/<?= esc($preview['path']); ?>" target="_blank" class="flash-home-preview__item">
+                                    <img src="data:image/webp;base64,<?= base64_encode($preview['gambar']); ?>" alt="<?= esc($preview['nama']); ?>">
+                                    <span><?= esc($preview['nama']); ?></span>
+                                </a>
+                            <?php } ?>
+                        </div>
                     <?php } ?>
                 </div>
 
@@ -191,6 +229,31 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
         font-weight: 800;
     }
 
+    .flash-admin-sync {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .flash-admin-sync div {
+        display: grid;
+        gap: 2px;
+        padding: 10px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(36, 59, 107, .08);
+    }
+
+    .flash-admin-sync small {
+        color: #66737f;
+        font-weight: 700;
+    }
+
+    .flash-admin-sync strong {
+        color: var(--hijau);
+        font-size: .95rem;
+    }
+
     .flash-product-list {
         display: grid;
         gap: 10px;
@@ -259,6 +322,71 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
         margin-left: 4px;
     }
 
+    .flash-home-preview {
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(36, 59, 107, .10);
+        background: linear-gradient(180deg, #fff, #fbfdfb);
+    }
+
+    .flash-home-preview__head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .flash-home-preview__head div {
+        display: grid;
+        gap: 2px;
+    }
+
+    .flash-home-preview__head strong {
+        color: #14212b;
+    }
+
+    .flash-home-preview__head small {
+        color: #66737f;
+    }
+
+    .flash-home-preview__head span {
+        border-radius: 999px;
+        background: var(--hijaumuda);
+        color: var(--hijau);
+        padding: 5px 10px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .flash-home-preview__items {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .flash-home-preview__item {
+        display: grid;
+        gap: 7px;
+        color: #14212b;
+        text-decoration: none;
+        font-size: .78rem;
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .flash-home-preview__item:hover {
+        color: var(--hijau);
+    }
+
+    .flash-home-preview__item img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 12px;
+        background: var(--hijaumuda);
+    }
+
     @media (max-width: 991.98px) {
         .flash-admin-grid {
             grid-template-columns: 1fr;
@@ -278,6 +406,11 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
         .flash-product-option img {
             width: 50px;
             height: 50px;
+        }
+
+        .flash-admin-sync,
+        .flash-home-preview__items {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 </style>

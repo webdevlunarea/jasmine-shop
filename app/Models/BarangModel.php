@@ -73,7 +73,11 @@ class BarangModel extends Model
         $limit = min(24, max(4, $limit));
         $productIds = array_values(array_unique(array_filter(array_map('trim', $productIds))));
 
-        if ($manual && !empty($productIds)) {
+        if ($manual) {
+            if (empty($productIds)) {
+                return [];
+            }
+
             $rows = $this->where(['active' => '1'])
                 ->where('diskon >', 0)
                 ->whereIn('id', $productIds)
