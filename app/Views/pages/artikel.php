@@ -239,7 +239,10 @@
         <h5 class="jdl-section">Produk Terkait</h5>
         <!-- <h1 class="mb-1">Mencari produk terkait artikel diatas</h1> -->
         <div class="card-group1 no-scroll">
-            <?php foreach ($produkTerkait as $p) { ?>
+            <?php foreach ($produkTerkait as $p) {
+                $variants = json_decode($p['varian'] ?? '[]', true);
+                $variants = is_array($variants) ? $variants : [];
+            ?>
                 <a class="card1" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
@@ -250,7 +253,7 @@
                     </div>
                     <div>
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                        <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                        <?php foreach ($variants as $v) { ?>
                             <p class="mb-0 varian"><?= $v ?></p>
                         <?php } ?>
                         <!-- <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p> -->

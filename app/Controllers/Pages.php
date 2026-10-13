@@ -7983,6 +7983,14 @@ class Pages extends BaseController
 
     public function actionFlashSaleAdmin()
     {
+        $postedProductIds = $this->request->getPost('product_ids') ?? [];
+        $orderedProductIds = trim((string)($this->request->getPost('selected_product_ids_order') ?? ''));
+        if ($orderedProductIds !== '') {
+            $ordered = array_filter(array_map('trim', explode(',', $orderedProductIds)), static fn($id) => $id !== '');
+            $checkedLookup = array_flip(array_map('strval', (array)$postedProductIds));
+            $postedProductIds = array_values(array_filter($ordered, static fn($id) => isset($checkedLookup[(string)$id])));
+        }
+
         $settings = [
             'enabled' => $this->request->getPost('enabled'),
             'mode' => $this->request->getPost('mode'),
@@ -7991,7 +7999,7 @@ class Pages extends BaseController
             'kicker' => $this->request->getPost('kicker'),
             'end_time' => $this->request->getPost('end_time'),
             'limit' => $this->request->getPost('limit'),
-            'product_ids' => $this->request->getPost('product_ids') ?? [],
+            'product_ids' => $postedProductIds,
         ];
 
         $saved = $this->konstantaModel->saveFlashSaleSettings($settings);

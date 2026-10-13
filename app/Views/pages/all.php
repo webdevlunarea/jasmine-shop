@@ -171,7 +171,10 @@
         <p class="m-0 text-center">Barang tidak ditemukan</p>
         <?php } else { ?>
         <div class="card-group1 no-scroll mb-3">
-            <?php foreach ($produk as $p) { ?>
+            <?php foreach ($produk as $p) {
+                $variants = json_decode($p['varian'] ?? '[]', true);
+                $variants = is_array($variants) ? $variants : [];
+            ?>
             <a class="card1" href="/product/<?= $p['path']; ?>">
                 <?php if ($p['diskon']) { ?>
                 <p class="diskon my-3">-<?= (int)$p['diskon']; ?>%</p>
@@ -193,7 +196,7 @@
                     <h5 class="mb-0"><?= $p['nama']; ?></h5>
                     <div class="container-varian my-2 pb-1">
                         <div>
-                            <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                            <?php foreach ($variants as $v) { ?>
                             <p class="mb-0 varian"><?= $v ?></p>
                             <?php } ?>
                         </div>

@@ -24,6 +24,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
         <?php } ?>
 
         <form action="/flashsaleadmin" method="post" class="flash-admin-grid">
+            <input type="hidden" name="selected_product_ids_order" id="flash-selected-order" value="<?= esc(implode(',', array_keys($selectedIds))); ?>">
             <section class="flash-admin-panel">
                 <div class="flash-admin-panel__head">
                     <div>
@@ -59,7 +60,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Jumlah tampil</label>
-                        <input type="number" class="form-control" name="limit" id="flash-limit-input" min="4" max="24" value="<?= (int)($settings['limit'] ?? 12); ?>" <?= $isManualMode ? 'readonly' : ''; ?>>
+                        <input type="number" class="form-control" name="limit" id="flash-limit-input" min="<?= $isManualMode ? '0' : '4'; ?>" max="24" value="<?= (int)($settings['limit'] ?? 12); ?>" <?= $isManualMode ? 'readonly' : ''; ?>>
                         <small class="text-secondary" id="flash-limit-help"><?= $isManualMode ? 'Mode manual: jumlah tampil mengikuti jumlah produk yang dicentang.' : 'Mode otomatis: minimal 4, maksimal 24 produk.'; ?></small>
                     </div>
                     <div class="col-md-6">
@@ -579,6 +580,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
     const flashClearSelected = document.getElementById('flash-clear-selected');
     const flashSelectedSummary = document.getElementById('flash-selected-summary');
     const flashHiddenSelectedAlert = document.getElementById('flash-hidden-selected-alert');
+    const flashSelectedOrderInput = document.getElementById('flash-selected-order');
 
     function setManualModeFromChecklist() {
         if (flashModeSelect && flashModeSelect.value !== 'manual') {
@@ -638,11 +640,17 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
     function updateFlashSelectedCount() {
         const checkedItems = document.querySelectorAll('.flash-product-option input:checked');
         const checked = checkedItems.length;
+        if (flashSelectedOrderInput) {
+            flashSelectedOrderInput.value = Array.from(checkedItems).map((input) => input.value).join(',');
+        }
         if (flashSelectedCount) flashSelectedCount.textContent = checked;
         if (flashSelectedCountTop) flashSelectedCountTop.textContent = checked;
 
         if (flashModeSelect?.value === 'manual' && flashLimitInput) {
+            flashLimitInput.min = '0';
             flashLimitInput.value = Math.min(24, checked);
+        } else if (flashLimitInput) {
+            flashLimitInput.min = '4';
         }
 
         flashProductOptions.forEach((item) => {

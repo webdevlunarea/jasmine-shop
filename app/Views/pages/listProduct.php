@@ -34,7 +34,11 @@
                 <div style="flex: 1;" class="d-flex justify-content-center align-items-center">Active</div>
                 <div style="flex: 2" class="d-flex gap-1 justify-content-end align-items-center">Action</div>
             </div>
-            <?php foreach ($produk as $ind_p => $p) { ?>
+            <?php foreach ($produk as $ind_p => $p) {
+                $variants = json_decode($p['varian'] ?? '[]', true);
+                $variants = is_array($variants) ? $variants : [];
+                $stockParts = explode(',', (string)($p['stok'] ?? ''));
+            ?>
                 <div class="w-100 gap-2 d-flex">
                     <div style="flex: 1" class="d-flex align-items-center">
                         <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" style="aspect-ratio: 1/1; width: 50px; border-radius: 10px">
@@ -44,8 +48,8 @@
                         <p class="m-0 text-secondary"><?= $p['id']; ?></p>
                     </div>
                     <div style="flex: 2" class="d-flex flex-column justify-content-center">
-                        <?php foreach (json_decode($p['varian'], true) as $ind_v => $v) { ?>
-                            <p class="m-0"><?= $v; ?> : <?= isset(explode(',', $p['stok'])[$ind_v]) ? explode(',', $p['stok'])[$ind_v] : $p['stok']; ?></p>
+                        <?php foreach ($variants as $ind_v => $v) { ?>
+                            <p class="m-0"><?= $v; ?> : <?= isset($stockParts[$ind_v]) ? $stockParts[$ind_v] : ($p['stok'] ?? '0'); ?></p>
                         <?php } ?>
                     </div>
                     <div style="flex: 1;" class="d-flex justify-content-center align-items-center">
@@ -62,7 +66,11 @@
             <?php } ?>
         </div>
         <div class="hide-ke-show-flex flex-column">
-            <?php foreach ($produk as $ind_p => $p) { ?>
+            <?php foreach ($produk as $ind_p => $p) {
+                $variants = json_decode($p['varian'] ?? '[]', true);
+                $variants = is_array($variants) ? $variants : [];
+                $stockParts = explode(',', (string)($p['stok'] ?? ''));
+            ?>
                 <div class="w-100">
                     <div class="d-flex gap-3 mb-2">
                         <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" style="aspect-ratio: 1/1; width: 50px; border-radius: 10px">
@@ -71,10 +79,10 @@
                             <p class="mt-0 mb-2 text-secondary"><?= $p['id']; ?></p>
                         </div>
                     </div>
-                    <?php foreach (json_decode($p['varian'], true) as $ind_v => $v) { ?>
+                    <?php foreach ($variants as $ind_v => $v) { ?>
                         <div class="d-flex">
                             <p class="m-0 w-50"><?= $v; ?></p>
-                            <p class="m-0 w-50 text-end"><?= isset(explode(',', $p['stok'])[$ind_v]) ? explode(',', $p['stok'])[$ind_v] : $p['stok']; ?></p>
+                            <p class="m-0 w-50 text-end"><?= isset($stockParts[$ind_v]) ? $stockParts[$ind_v] : ($p['stok'] ?? '0'); ?></p>
                         </div>
                     <?php } ?>
                     <div class="d-flex mt-2">

@@ -515,7 +515,10 @@ function closeModalVoucherAll(index) {
         <h5 class="jdl-section">Rekomendasi</h5>
         <h1 class="mb-1">Produk Terpopuler</h1>
         <div class="card-group1 no-scroll">
-            <?php foreach ($produkBaru as $p) { ?>
+            <?php foreach ($produkBaru as $p) {
+                $variants = json_decode($p['varian'] ?? '[]', true);
+                $variants = is_array($variants) ? $variants : [];
+            ?>
             <a class="card1" href="/product/<?= $p['path']; ?>">
                 <?php if ($p['diskon']) { ?>
                 <p class="diskon my-3">-<?= (int)$p['diskon']; ?>%</p>
@@ -537,7 +540,7 @@ function closeModalVoucherAll(index) {
                     <h5 class="mb-0"><?= $p['nama']; ?></h5>
                     <div class="container-varian my-2 pb-1">
                         <div>
-                            <?php foreach (json_decode($p['varian'], true) as $v) { ?>
+                            <?php foreach ($variants as $v) { ?>
                             <p class="mb-0 varian"><?= $v ?></p>
                             <?php } ?>
                         </div>

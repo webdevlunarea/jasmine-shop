@@ -116,7 +116,10 @@ $flashMsg = session()->getFlashdata('msg');
                                             <p><?= $item_transaksi['hp_pen']; ?></p>
                                             <p class="mb-0"><b>Items</b></p>
                                             <div class="w-100 mb-2">
-                                                <?php foreach (json_decode($item_transaksi['items'], true) as $item) { ?>
+                                                <?php
+                                                $transactionItems = json_decode($item_transaksi['items'] ?? '[]', true);
+                                                $transactionItems = is_array($transactionItems) ? $transactionItems : [];
+                                                foreach ($transactionItems as $item) { ?>
                                                     <div class="w-100 d-flex">
                                                         <div style="flex: 2;">
                                                             <p class="mb-0"><?= $item['name']; ?></p>
