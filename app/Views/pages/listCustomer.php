@@ -428,6 +428,17 @@
                                     </p>
                                 </div>
                                 <?php if (!empty($t['shipment'])) { ?>
+                                <?php $shippingPricing = json_decode((string)($t['shipment']['shipping_pricing'] ?? ''), true); ?>
+                                <?php if (is_array($shippingPricing) && (int)($shippingPricing['subsidy_amount'] ?? 0) > 0) { ?>
+                                <div class="d-flex w-100 align-items-start small text-secondary">
+                                    <p style="flex: 3;" class="mb-0">Tarif ekspedisi asli (internal)</p>
+                                    <p style="flex: 1;" class="mb-0 text-end">Rp <?= number_format((int)$shippingPricing['original_cost'], 0, ',', '.'); ?></p>
+                                </div>
+                                <div class="d-flex w-100 align-items-start small text-secondary">
+                                    <p style="flex: 3;" class="mb-0">Subsidi ditanggung toko (internal)</p>
+                                    <p style="flex: 1;" class="mb-0 text-end">Rp <?= number_format((int)$shippingPricing['subsidy_amount'], 0, ',', '.'); ?></p>
+                                </div>
+                                <?php } ?>
                                 <div class="d-flex w-100 align-items-start">
                                     <p style="flex: 3;" class="mb-0">Ongkir</p>
                                     <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp <?= number_format((int)$t['shipment']['shipping_cost'], 0, ',', '.'); ?></p>

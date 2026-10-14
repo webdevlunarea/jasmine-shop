@@ -77,6 +77,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                 </div>
 
                 <form action="/shippingadmin" method="post" class="shipping-form-stack">
+                    <?= csrf_field(); ?>
                     <input type="hidden" name="action" value="settings">
 
                     <label class="shipping-admin-toggle">
@@ -161,6 +162,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                 </div>
 
                 <form action="/shippingadmin" method="post" class="shipping-coverage-form mb-3">
+                    <?= csrf_field(); ?>
                     <input type="hidden" name="action" value="add_coverage">
                     <div>
                         <label class="form-label fw-bold">Provinsi</label>
@@ -213,6 +215,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                                 </span>
                                 <?php if (!empty($coverage['is_active'])) { ?>
                                     <form action="/shippingadmin/coverage/<?= (int)$coverage['id']; ?>/deactivate" method="post">
+                                        <?= csrf_field(); ?>
                                         <button class="btn btn-sm btn-outline-danger" type="submit">Nonaktifkan</button>
                                     </form>
                                 <?php } ?>
@@ -222,6 +225,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                 </div>
             </section>
         </div>
+        <?= $this->include('pages/partials/shippingSubsidySettings'); ?>
     </div>
 </div>
 

@@ -21,6 +21,7 @@ class OrderShipmentModel extends Model
         'service_code',
         'service_name',
         'shipping_cost',
+        'shipping_pricing',
         'etd',
         'tracking_number',
         'shipping_status',

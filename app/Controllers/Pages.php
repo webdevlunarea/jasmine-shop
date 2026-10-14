@@ -780,6 +780,8 @@ class Pages extends BaseController
         if (!is_array($dataMid)) $dataMid = [];
         $customerUser = $this->userModel->getUser((string)($order['email_cus'] ?? ''));
         $authProvider = (string)($customerUser['auth_provider'] ?? 'email');
+        $shipment = \Config\Database::connect()->tableExists('order_shipments')
+            ? $this->orderShipmentModel->getByOrderId((string)($order['id_midtrans'] ?? '')) : null;
 
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
@@ -799,6 +801,7 @@ class Pages extends BaseController
             'items' => $items,
             'data_mid' => $dataMid,
             'transaction_time' => $dataMid['transaction_time'] ?? date('Y-m-d H:i:s'),
+            'shipping_pricing' => $this->shippingPricingForLuna($shipment),
         ];
 
         $curl = curl_init();
@@ -821,7 +824,8 @@ class Pages extends BaseController
         curl_close($curl);
 
         $syncBody = json_decode((string)$response, true);
-        if ($err || $httpCode < 200 || $httpCode >= 300 || empty($syncBody['success']) || !empty($syncBody['data']['skipped'])) {
+        if ($err || $httpCode < 200 || $httpCode >= 300 || empty($syncBody['success']) || !empty($syncBody['data']['skipped'])
+            || (($payload['shipping_pricing']['subsidy_amount'] ?? 0) > 0 && empty($syncBody['data']['shipping_pricing_recorded']))) {
             log_message('error', 'Sinkron order {order} ke Luna Sistem gagal. HTTP {code}. Error: {err}. Response: {response}', [
                 'order' => $payload['order_id'],
                 'code' => $httpCode,
@@ -4795,7 +4799,7 @@ class Pages extends BaseController
         $this->pemesananModel->insert($insertDataPemesanan);
 
         if ($shippingQuote) {
-            $this->orderShipmentModel->insert([
+            $shipmentData = [
                 'id_midtrans' => $arrPostField['transaction_details']['order_id'],
                 'shipping_quote_token' => $shippingQuoteToken,
                 'shipping_method_code' => $shippingQuote['shipping_method_code'] ?? '',
@@ -4808,7 +4812,12 @@ class Pages extends BaseController
                 'etd' => $shippingQuote['etd'] ?? null,
                 'tracking_number' => null,
                 'shipping_status' => 'Menunggu pengiriman',
-            ]);
+            ];
+            if (\App\Services\Shipping\ShippingSubsidyPolicy::storageReady(\Config\Database::connect())) {
+                $pricing = \App\Services\Shipping\ShippingSubsidyPolicy::snapshot($shippingQuote);
+                if ($pricing) $shipmentData['shipping_pricing'] = json_encode($pricing);
+            }
+            $this->orderShipmentModel->insert($shipmentData);
             $this->shippingQuoteModel->markUsed($shippingQuoteToken);
         }
 
@@ -5091,6 +5100,7 @@ class Pages extends BaseController
             $order = $this->pemesananModel->findForPublicTracking($keyword);
             if ($order) {
                 $shipment = $this->orderShipmentModel->getByOrderId((string)$order['id_midtrans']);
+                if (is_array($shipment)) unset($shipment['shipping_pricing']);
                 $awb = trim((string)($shipment['tracking_number'] ?? $order['resi'] ?? ''));
                 $courierText = (string)($shipment['courier_name'] ?? $shipment['courier_code'] ?? $order['kurir'] ?? '');
                 $courierCode = $manualCourier !== '' ? $manualCourier : $this->resolveCourierCode($courierText);
@@ -5345,7 +5355,7 @@ class Pages extends BaseController
         return view('pages/transaction', $data);
     }
 
-    private function getShipmentMapForOrders(array $orders): array
+    private function getShipmentMapForOrders(array $orders, bool $includeAccounting = false): array
     {
         if (!\Config\Database::connect()->tableExists('order_shipments')) return [];
         $ids = [];
@@ -5361,6 +5371,7 @@ class Pages extends BaseController
 
         $map = [];
         foreach ($rows as $row) {
+            if (!$includeAccounting) unset($row['shipping_pricing']);
             if (!isset($map[$row['id_midtrans']])) {
                 $map[$row['id_midtrans']] = $row;
             }
@@ -6224,6 +6235,7 @@ class Pages extends BaseController
     {
         $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
         $shipment = $pemesanan ? $this->orderShipmentModel->getByOrderId((string)$id_midtrans) : null;
+        if (is_array($shipment) && (string)session('role') !== '1') unset($shipment['shipping_pricing']);
         $carapembayaran = [
             'bca' => [
                 [
@@ -7850,6 +7862,7 @@ class Pages extends BaseController
     }
     public function listCustomer($page = 1, $status = 'all')
     {
+        if (!session('isLogin') || (string)session('role') !== '1') return redirect()->to('/login');
         $page = max(1, (int)$page);
         $perPage = 20;
         $allowedStatus = [
@@ -7875,7 +7888,7 @@ class Pages extends BaseController
         $maxPage = max(1, (int)ceil($totalFiltered / $perPage));
         $page = min($page, $maxPage);
         $transaksiCus = array_slice($semuaTransaksiCusFilter, ($page - 1) * $perPage, $perPage);
-        $shipmentMap = $this->getShipmentMapForOrders($transaksiCus);
+        $shipmentMap = $this->getShipmentMapForOrders($transaksiCus, true);
         $transaksiCusNoJSON = [];
         foreach ($transaksiCus as $transaksi) {
             $arr = [
@@ -8230,11 +8243,14 @@ class Pages extends BaseController
                     'shipping_status' => (string)($shipment['shipping_status'] ?? ($order['status'] === 'Selesai' ? 'Terkirim' : 'Dalam Pengiriman')),
                     'shipping_method_code' => (string)($shipment['shipping_method_code'] ?? 'legacy'),
                     'shipping_cost' => $shipment ? (int)$shipment['shipping_cost'] : null,
+                    'shipping_pricing' => $this->shippingPricingForLuna($shipment),
                 ],
                 'timeout' => 8, 'connect_timeout' => 3, 'http_errors' => false,
             ]);
             $body = json_decode((string)$response->getBody(), true);
-            $ok = $response->getStatusCode() >= 200 && $response->getStatusCode() < 300 && !empty($body['success']) && !empty($body['data']['shipping_updated']);
+            $pricing = $this->shippingPricingForLuna($shipment);
+            $ok = $response->getStatusCode() >= 200 && $response->getStatusCode() < 300 && !empty($body['success']) && !empty($body['data']['shipping_updated'])
+                && (($pricing['subsidy_amount'] ?? 0) === 0 || !empty($body['data']['shipping_pricing_recorded']));
             if (!$ok) log_message('warning', 'MyLuna shipping sync not acknowledged for order {order}; HTTP {code}', ['order' => $order['id_midtrans'], 'code' => $response->getStatusCode()]);
             return $ok;
         } catch (\Throwable $e) {
@@ -8242,6 +8258,13 @@ class Pages extends BaseController
             return false;
         }
     }
+    private function shippingPricingForLuna(?array $shipment): ?array
+    {
+        $pricing = json_decode((string)($shipment['shipping_pricing'] ?? ''), true);
+        if (!is_array($pricing)) return null;
+        return array_intersect_key($pricing, array_flip(['original_cost', 'subsidy_amount', 'payable_cost', 'currency']));
+    }
+
     public function listProduct($page = 1)
     {
         $produk = $this->barangModel->getBarangPageAdmin($page);
@@ -8764,6 +8787,7 @@ class Pages extends BaseController
 
     public function shippingAdmin()
     {
+        if (!session('isLogin') || (string)session('role') !== '1') return redirect()->to('/login');
         $internal = $this->shippingMethodModel->getByCode('internal_delivery');
         $rajaongkir = $this->shippingMethodModel->getByCode('rajaongkir_domestic');
         $coverages = [];
@@ -8789,6 +8813,7 @@ class Pages extends BaseController
             'internal' => $internal,
             'rajaongkir' => $rajaongkir,
             'rajaSettings' => json_decode((string)($rajaongkir['settings'] ?? '{}'), true) ?: [],
+            'subsidyStorageReady' => \App\Services\Shipping\ShippingSubsidyPolicy::storageReady(\Config\Database::connect()),
             'coverages' => $coverages,
             'provinsi' => $this->provinsiModel->findAll(),
         ]);
@@ -8796,6 +8821,7 @@ class Pages extends BaseController
 
     public function actionShippingAdmin()
     {
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
         $action = (string)$this->request->getVar('action');
 
         if ($action === 'settings') {
@@ -8815,9 +8841,7 @@ class Pages extends BaseController
                     $originId = '';
                 }
 
-                $this->shippingMethodModel->update($rajaongkir['id'], [
-                    'is_active' => $this->request->getVar('rajaongkir_active') ? 1 : 0,
-                    'settings' => json_encode([
+                \App\Services\Shipping\ShippingMethodSettingsStore::merge((int)$rajaongkir['id'], [
                         'origin_id' => $originId,
                         'origin_label' => trim((string)$this->request->getVar('rajaongkir_origin_label')),
                         'origin_provinsi' => trim((string)$this->request->getVar('rajaongkir_origin_provinsi')) ?: 'Jawa Tengah',
@@ -8826,19 +8850,18 @@ class Pages extends BaseController
                         'origin_postal_code' => trim((string)$this->request->getVar('rajaongkir_origin_postal_code')),
                         'couriers' => $couriers ?: ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'],
                         'quote_only' => true,
-                    ]),
-                ]);
+                ], $this->request->getVar('rajaongkir_active') ? 1 : 0);
             }
 
             session()->setFlashdata('msg', 'Pengaturan pengiriman berhasil disimpan.');
-            return redirect()->to('/shippingadmin');
+            return redirect()->to('/shippingadmin')->withCookies();
         }
 
         if ($action === 'add_coverage') {
             $internal = $this->shippingMethodModel->getByCode('internal_delivery');
             if (!$internal) {
                 session()->setFlashdata('msg', 'Metode Jasa Kirim Toko belum tersedia.');
-                return redirect()->to('/shippingadmin');
+                return redirect()->to('/shippingadmin')->withCookies();
             }
 
             $provinsiId = (int)$this->request->getVar('provinsi_id');
@@ -8847,7 +8870,7 @@ class Pages extends BaseController
 
             if ($provinsiId <= 0 || $kabupatenId <= 0 || $kecamatanId <= 0) {
                 session()->setFlashdata('msg', 'Pilih provinsi, kota, dan kecamatan terlebih dahulu.');
-                return redirect()->to('/shippingadmin');
+                return redirect()->to('/shippingadmin')->withCookies();
             }
 
             $existing = $this->shippingInternalCoverageModel
@@ -8874,18 +8897,19 @@ class Pages extends BaseController
             }
 
             session()->setFlashdata('msg', 'Coverage Jasa Kirim Toko berhasil disimpan.');
-            return redirect()->to('/shippingadmin');
+            return redirect()->to('/shippingadmin')->withCookies();
         }
 
         session()->setFlashdata('msg', 'Aksi pengiriman tidak dikenal.');
-        return redirect()->to('/shippingadmin');
+        return redirect()->to('/shippingadmin')->withCookies();
     }
 
     public function deactivateShippingCoverage($id)
     {
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
         $this->shippingInternalCoverageModel->deactivateCoverage((int)$id, (int)(session()->get('id') ?? 0) ?: null);
         session()->setFlashdata('msg', 'Coverage berhasil dinonaktifkan.');
-        return redirect()->to('/shippingadmin');
+        return redirect()->to('/shippingadmin')->withCookies();
     }
 
     public function settingWarna()

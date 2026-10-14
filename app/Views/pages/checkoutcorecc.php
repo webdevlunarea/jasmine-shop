@@ -820,7 +820,7 @@ async function loadShippingQuotes() {
         container.innerHTML = quotes.map((q, idx) => {
             const escapeShippingText = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
             const courierCode = String(q.courier_code || '').toLowerCase();
-            const courierLabels = { jne: 'JNE', tiki: 'TIKI', jnt: 'J&T', jntcargo: 'J&T Cargo', sicepat: 'SiCepat', pos: 'POS', sentral: 'Sentral Cargo' };
+            const courierLabels = { jne: 'JNE', tiki: 'TIKI', jnt: 'J&T', jntcargo: 'J&T Cargo', sicepat: 'SiCepat', pos: 'POS', sentral: 'Sentral Cargo', internal: 'Jasa Kirim Toko' };
             const label = escapeShippingText(courierLabels[courierCode] || (courierCode ? courierCode.toUpperCase() : (q.courier_name || 'Pengiriman')));
             const service = q.service_code || q.service_name;
             const desc = service ? `<small class="text-secondary d-block">${escapeShippingText(service)}</small>` : '';
