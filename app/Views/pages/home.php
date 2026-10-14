@@ -617,6 +617,7 @@ btnGeserKategoriElm.forEach(btn => {
 })
 
 const kategoriDropdownWraps = document.querySelectorAll('.kategori-wrap.has-dropdown');
+window.addEventListener('buyer-navigation-open', () => closeKategoriDropdowns());
 
 function syncKategoriDropdownState() {
     document.body.classList.toggle('kategori-dropdown-open', document.querySelector('.kategori-wrap.show') !== null);
@@ -636,11 +637,24 @@ function positionKategoriDropdown(wrap) {
     const menu = wrap.querySelector('.kategori-dropdown-menu');
     const rect = wrap.getBoundingClientRect();
     const gap = 6;
-    const menuWidth = menu.offsetWidth || 235;
-    const maxLeft = window.innerWidth - menuWidth - 12;
-    const left = Math.max(12, Math.min(rect.left, maxLeft));
-    const top = rect.bottom + gap;
-    const maxHeight = Math.max(120, window.innerHeight - top - 12);
+    const viewport = window.visualViewport;
+    const viewportTop = viewport?.offsetTop || 0;
+    const viewportBottom = viewportTop + (viewport?.height || window.innerHeight);
+    const mobileHeader = document.querySelector('.buyer-mobile-header');
+    const headerBottom = mobileHeader && getComputedStyle(mobileHeader).display !== 'none'
+        ? mobileHeader.getBoundingClientRect().bottom : viewportTop;
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+    const bottomLimit = bottomNav && getComputedStyle(bottomNav).display !== 'none'
+        ? Math.min(viewportBottom, bottomNav.getBoundingClientRect().top) - 12 : viewportBottom - 12;
+    const topLimit = Math.max(viewportTop + 12, headerBottom + gap);
+    const menuWidth = Math.min(menu.offsetWidth || 235, window.innerWidth - 24);
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - menuWidth - 12));
+    const naturalHeight = Math.min(menu.scrollHeight, 320);
+    const spaceBelow = bottomLimit - rect.bottom - gap;
+    const spaceAbove = rect.top - gap - topLimit;
+    const placeAbove = spaceBelow < Math.min(naturalHeight, 160) && spaceAbove > spaceBelow;
+    const maxHeight = Math.max(0, Math.min(naturalHeight, placeAbove ? spaceAbove : spaceBelow));
+    const top = placeAbove ? rect.top - gap - maxHeight : Math.max(topLimit, rect.bottom + gap);
 
     menu.style.left = `${left}px`;
     menu.style.top = `${top}px`;

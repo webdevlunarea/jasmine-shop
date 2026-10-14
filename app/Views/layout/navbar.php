@@ -82,22 +82,6 @@ if ($isAdminNav) {
 }
 ?>
 <style>
-    .menu-hp-navbar {
-        position: fixed;
-        left: 0;
-        top: 101px;
-        background-color: rgba(0, 0, 0, 0.2);
-        width: 100vw;
-        height: 0svh;
-        overflow: hidden;
-        transition: 0.3s;
-    }
-
-    #akun-icon:checked~.menu-hp-navbar {
-        height: 100svh;
-        transition: 0.3s;
-    }
-
     .menu-hp-navbar-admin {
         position: fixed;
         top: 70px;
@@ -133,7 +117,7 @@ if ($isAdminNav) {
         <p class="m-0 fw-bold"><?= $notif['wishlist'] ? $notif['wishlist'] : ''; ?><?= $notif['cart'] ? $notif['cart'] : ''; ?></p>
     </div>
 </div>
-<nav class="navbar-hp hide-ke-show-block py-2" id="navbar-hp">
+<nav class="navbar-hp buyer-mobile-header hide-ke-show-block py-2" id="navbar-hp">
     <div class="container mobile-navbar-main">
         <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
             <img class="mobile-navbar-brand-full" src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
@@ -155,10 +139,10 @@ if ($isAdminNav) {
                         <?php } ?>
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
+                        <a href="/transaction" class="btn" aria-label="Transaksi"><i class="material-icons" aria-hidden="true">receipt_long</i></a>
                         <a href="/keluar" class="btn" aria-label="Keluar"><i class="material-icons">exit_to_app</i></a>
                     <?php } else { ?>
-                        <input type="checkbox" id="akun-icon" class="d-none">
-                        <label for="akun-icon" class="btn" aria-label="Menu akun"><i class="material-icons">person_outline</i></label>
+                        <button type="button" id="buyer-account-toggle" class="btn" aria-label="Menu akun" aria-controls="buyer-account-menu" aria-expanded="false"><i class="material-icons" aria-hidden="true">person_outline</i></button>
                     <?php } ?>
                 <?php } else { ?>
                     <div class="mobile-admin-menu-wrap">
@@ -187,35 +171,42 @@ if ($isAdminNav) {
     <div class="container mobile-search-container">
         <form class="d-flex w-100 search-box" role="search">
             <div class="input-group">
-                <input required type="text" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Search" aria-describedby="button-addon2">
-                <button class="btn btn-dark" type="submit"><i id="btn-search" class="material-icons">search</i></button>
+                <input required type="text" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk">
+                <button class="btn btn-dark" type="submit" aria-label="Cari produk"><i class="material-icons" aria-hidden="true">search</i></button>
             </div>
         </form>
     </div>
-    <?php if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('email') != 'tamu') { ?>
-        <div class="menu-hp-navbar">
-            <div class="container py-3 menu-account-panel" style="background-color: white;">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><a class="list <?= $title == 'Akun Saya' ? "fw-bold" : ""; ?>" href="/account"><i class="material-icons">person_outline</i><span>Profileku</span></a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Transaksi Pembayaran' ? "fw-bold" : ""; ?>" href="/transaction"><i class="material-icons">receipt_long</i><span>Transaksi</span></a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Luna Reward' ? "fw-bold" : ""; ?>" href="/point"><i class="material-icons">stars</i><span>Luna poin</span></a></li>
-                    <li class="list-group-item"><a class="list <?= $title == 'Voucher' ? "fw-bold" : ""; ?>" href="/voucher"><i class="material-icons">confirmation_number</i><span>Voucher</span></a></li>
-                    <li class="list-group-item"><a class="btn btn-outline-danger" href="/keluar"><i class="material-icons">logout</i><span>Keluar</span></a></li>
-                </ul>
-            </div>
-        </div>
-        <script>
-            const menuHpNavbarElm = document.querySelector('.menu-hp-navbar');
-            const akunIconElm = document.getElementById('akun-icon')
-            menuHpNavbarElm.addEventListener('click', (e) => {
-                akunIconElm.checked = false
-            })
-            menuHpNavbarElm.children[0].addEventListener('click', (e) => {
-                e.stopPropagation();
-            })
-        </script>
-    <?php } ?>
 </nav>
+<?php if (session()->get('isLogin') && session()->get('role') == 0 && session()->get('email') != 'tamu') {
+    $buyerPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+    $buyerLinks = [
+        ['url' => '/account', 'label' => 'Profilku', 'icon' => 'person_outline'],
+        ['url' => '/transaction', 'label' => 'Transaksi', 'icon' => 'receipt_long'],
+        ['url' => '/point', 'label' => 'Luna Poin', 'icon' => 'stars'],
+        ['url' => '/voucher', 'label' => 'Voucher', 'icon' => 'confirmation_number'],
+        ['url' => '/wishlist', 'label' => 'Wishlist', 'icon' => 'favorite_border'],
+        ['url' => '/cart', 'label' => 'Keranjang', 'icon' => 'shopping_cart'],
+        ['url' => '/lacak-pengiriman', 'label' => 'Lacak Pengiriman', 'icon' => 'local_shipping'],
+    ];
+?>
+<div id="buyer-account-menu" role="dialog" aria-modal="true" aria-labelledby="buyer-account-title" hidden>
+    <div class="buyer-account-panel">
+        <div class="buyer-account-panel__heading">
+            <h5 id="buyer-account-title">Akun Saya</h5>
+            <button type="button" class="buyer-account-close" data-buyer-menu-close aria-label="Tutup menu akun"><i class="material-icons" aria-hidden="true">close</i></button>
+        </div>
+        <nav class="buyer-account-links" aria-label="Menu pembeli">
+            <?php foreach ($buyerLinks as $link) { ?>
+                <a href="<?= esc($link['url']); ?>" <?= $buyerPath === trim($link['url'], '/') ? 'aria-current="page"' : ''; ?>>
+                    <i class="material-icons" aria-hidden="true"><?= esc($link['icon']); ?></i><span><?= esc($link['label']); ?></span>
+                </a>
+            <?php } ?>
+            <a class="text-danger" href="/keluar"><i class="material-icons" aria-hidden="true">logout</i><span>Keluar</span></a>
+        </nav>
+    </div>
+</div>
+<?php } ?>
+
 <?php if ($showMobileBottomNav) { ?>
     <nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
         <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
@@ -235,7 +226,7 @@ if ($isAdminNav) {
 <?php } ?>
 <div class="mobile-navbar-spacer hide-ke-show-block"></div>
 
-<nav class="navbar navbar-expand-lg show-ke-hide mb-2">
+<nav class="navbar buyer-desktop-header navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
         <a class="navbar-brand" href="/" style="font-weight: bold;">
             <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" height="17em" alt="Logo Lunarea">
@@ -261,8 +252,8 @@ if ($isAdminNav) {
             <?php if (!str_contains(strtolower($title), 'artikel')) { ?>
                 <form class="d-flex search-box" role="search">
                     <div class="input-group">
-                        <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                        <button class="btn btn-light" type="submit"><i id="btn-search" class="material-icons">search</i></button>
+                        <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Cari produk">
+                        <button class="btn btn-light" type="submit" aria-label="Cari produk"><i class="material-icons" aria-hidden="true">search</i></button>
                     </div>
                 </form>
             <?php } ?>
@@ -303,7 +294,7 @@ if ($isAdminNav) {
         </div>
     </div>
 </nav>
-<div style="height: 107px" class="show-ke-hide"></div>
+<div class="buyer-desktop-spacer show-ke-hide"></div>
 <?php if ($notif['wishlist'] || $notif['cart']) { ?>
     <script>
         const notifElm = document.querySelector('.notif');

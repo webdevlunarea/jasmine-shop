@@ -49,18 +49,18 @@ $accountMenu = [
         body:has(.account-shell) footer.footer-transparent { margin-top: 0 !important; }
     }
 </style>
-<div class="account-mobile-tabs" aria-label="Menu akun">
+<nav class="account-mobile-tabs" aria-label="Menu akun mobile">
     <?php foreach ($accountMenu as $item) { ?>
-        <a class="<?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>">
+        <a class="<?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>" <?= $activeAccountMenu === $item['key'] ? 'aria-current="page"' : ''; ?>>
             <i class="material-icons"><?= esc($item['icon']); ?></i><span><?= esc($item['label']); ?></span>
         </a>
     <?php } ?>
-</div>
+</nav>
 <aside class="account-side-card">
     <div class="account-side-title">Akun Saya</div>
     <nav class="account-nav-list" aria-label="Menu akun">
         <?php foreach ($accountMenu as $item) { ?>
-            <a class="account-nav-item <?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>">
+            <a class="account-nav-item <?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>" <?= $activeAccountMenu === $item['key'] ? 'aria-current="page"' : ''; ?>>
                 <i class="material-icons"><?= esc($item['icon']); ?></i><span><?= esc($item['label']); ?></span>
             </a>
         <?php } ?>

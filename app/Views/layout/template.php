@@ -124,6 +124,8 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 
     <link rel="stylesheet" href="/css/style.css?v=<?= time(); ?>">
     <link rel="stylesheet" href="/css/commerce-responsive.css?v=<?= filemtime(FCPATH . 'css/commerce-responsive.css'); ?>">
+    <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
+    <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,
     * {
@@ -396,12 +398,14 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     }
 
     const searchBox = document.querySelectorAll(".search-box");
-    const searchBoxInput = document.querySelectorAll('.search-input');
-    searchBox.forEach((elm, ind) => {
+
+    searchBox.forEach((elm) => {
         elm.addEventListener('submit', (e) => {
             e.preventDefault()
-            const isinya = searchBoxInput[ind].value.replace(/\s+/g, '-')
-            window.location.href = "/find/" + isinya
+            const query = elm.querySelector('.search-input').value.trim();
+            if (!query) return;
+            const isinya = query.replace(/\s+/g, '-');
+            window.location.href = "/find/" + encodeURIComponent(isinya);
         })
     })
 
