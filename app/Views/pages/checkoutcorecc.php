@@ -314,14 +314,15 @@
                     </div>
                     <div class="py-3 border-bottom">
                         <h5 class="mb-2">Informasi Penerima</h5>
+                        <?= $this->include('pages/partials/checkoutAddressBook'); ?>
                         <div class="form-floating mb-1">
                             <input type="text" class="form-control" placeholder="Email" name="nama" required
-                                value="<?= $user['nama']; ?>">
+                                value="<?= esc($user['nama']); ?>">
                             <label for="floatingInput">Nama Lengkap</label>
                         </div>
                         <div class="form-floating mb-1">
                             <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required
-                                value="<?= $user['nohp']; ?>">
+                                value="<?= esc($user['nohp']); ?>">
                             <label for="floatingInput">No. HP</label>
                         </div>
                         <div class="form-alamat d-flex mb-1 gap-1">
@@ -396,7 +397,7 @@
                         </div>
                         <div class="form-alamat form-floating mb-1">
                             <input type="text" class="form-control" placeholder="Email" name="alamat_add" required
-                                value="<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>">
+                                value="<?= esc($user['alamat'] ? $user['alamat']['add'] : ''); ?>">
                             <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
                             <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
                         </div>
@@ -405,7 +406,7 @@
                                 <div class="form-floating mb-1">
                                     <textarea type="text" class="form-control" placeholder="Email" name="alamat"
                                         required
-                                        style="height: fit-content;"><?= $user['alamat'] ? $user['alamat']['alamat'] : ''; ?></textarea>
+                                        style="height: fit-content;"><?= esc($user['alamat'] ? $user['alamat']['alamat'] : ''); ?></textarea>
                                     <label for="floatingInput">Alamat Lengkap</label>
                                 </div>
                             </fieldset>
@@ -625,10 +626,10 @@
                                 <i class="material-icons">scale</i>
                                 <b>Detail berat untuk ongkir</b>
                             </span>
-                            <small><?= number_format(((int)($shippingWeightGrams ?? 1000)) / 1000, 2, ',', '.'); ?> kg dikirim ke RajaOngkir</small>
+                            <small><?= number_format(((int)($shippingWeightGrams ?? 1000)) / 1000, 2, ',', '.'); ?> kg untuk estimasi ongkir</small>
                         </summary>
                         <div class="shipping-audit-body">
-                            <p class="text-secondary small mb-2">Data ini membantu audit jika ongkir terlihat tidak wajar. Perhitungan ongkir baru memakai berat aktual produk dari Luna Sistem, lalu dikirim ke RajaOngkir dalam gram.</p>
+                            <p class="text-secondary small mb-2">Estimasi ongkir menggunakan total berat produk sesuai jumlah pesanan. Periksa rincian berat dan dimensi produk di bawah ini.</p>
                             <?php foreach (($shippingWeightDetails ?? []) as $weightItem) { ?>
                                 <div class="shipping-weight-row">
                                     <div>
@@ -817,9 +818,13 @@ async function loadShippingQuotes() {
 
         helper.innerHTML = 'Pilih salah satu metode pengiriman. Pilihan termurah tampil di atas.';
         container.innerHTML = quotes.map((q, idx) => {
-            const label = `${q.courier_name || 'Pengiriman'} ${q.service_name || q.service_code || ''}`.trim();
-            const desc = q.description ? `<small class="text-secondary d-block">${q.description}</small>` : '';
-            const etd = q.etd ? `<small class="text-secondary d-block">Estimasi: ${q.etd}</small>` : '';
+            const escapeShippingText = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+            const courierCode = String(q.courier_code || '').toLowerCase();
+            const courierLabels = { jne: 'JNE', tiki: 'TIKI', jnt: 'J&T', jntcargo: 'J&T Cargo', sicepat: 'SiCepat', pos: 'POS', sentral: 'Sentral Cargo' };
+            const label = escapeShippingText(courierLabels[courierCode] || (courierCode ? courierCode.toUpperCase() : (q.courier_name || 'Pengiriman')));
+            const service = q.service_code || q.service_name;
+            const desc = service ? `<small class="text-secondary d-block">${escapeShippingText(service)}</small>` : '';
+            const etd = q.etd ? `<small class="text-secondary d-block">Estimasi: ${escapeShippingText(q.etd)}</small>` : '';
             const badge = idx === 0 ? '<em>Termurah</em>' : '';
             return `<label class="shipping-option-card">
                 <span class="shipping-option-main"><input type="radio" name="shipping_option_radio" value="${q.token}" data-cost="${q.cost}" ${idx === 0 ? 'checked' : ''}> <span><b>${label}</b>${desc}${etd}</span></span>
@@ -844,18 +849,13 @@ async function loadShippingQuotes() {
         refreshCheckoutButtonState();
     }
 }
-let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['desa'] . "-" . $user['alamat']['kodepos'] : ''; ?>"
-];
-let isiAlamat = ["<?= $user['alamat'] ? $user['alamat']['add'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['desa'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['kec'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['kab'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['prov'] : ''; ?>",
-    "<?= $user['alamat'] ? $user['alamat']['kodepos'] : ''; ?>"
-]
+let prov_kab_kec_desa = <?= json_encode([
+    !empty($user['alamat']) ? $user['alamat']['prov_id'] . '-' . $user['alamat']['prov'] : '',
+    !empty($user['alamat']) ? $user['alamat']['kab_id'] . '-' . $user['alamat']['kab'] : '',
+    !empty($user['alamat']) ? $user['alamat']['kec_id'] . '-' . $user['alamat']['kec'] : '',
+    !empty($user['alamat']) ? $user['alamat']['desa'] . '-' . $user['alamat']['kodepos'] : '',
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+let isiAlamat = <?= json_encode(array_map(static fn($key) => $user['alamat'][$key] ?? '', ['add', 'desa', 'kec', 'kab', 'prov', 'kodepos']), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 let isEditAlamat = <?= $user['alamat'] ? 'false' : 'true'; ?>;
 
 function titleCase(str) {

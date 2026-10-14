@@ -2662,6 +2662,7 @@ class Pages extends BaseController
     }
     public function logout()
     {
+        session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient']);
         $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
         session()->remove($ses_data);
     }
@@ -3447,9 +3448,40 @@ class Pages extends BaseController
     {
         $keranjang = session()->get('keranjang') ?: [];
         $email = session()->get('email');
+        $addressBook = [];
+        $addressBookAvailable = false;
+        try {
+            $addressBookAvailable = \Config\Database::connect()->tableExists('customer_addresses');
+            if ($addressBookAvailable) {
+                $addressBook = (new \App\Models\CustomerAddressModel())->forCustomer((string)$email);
+                $selectedAddress = null;
+                foreach ($addressBook as $entry) {
+                    if (session('checkout_address_owner') === $email && (int)session('checkout_address_id') === (int)$entry['id']) {
+                        $selectedAddress = $entry;
+                        break;
+                    }
+                }
+                if (!$selectedAddress && $addressBook) $selectedAddress = $addressBook[0];
+                if ($selectedAddress) {
+                    $savedAddress = json_decode($selectedAddress['address_data'], true);
+                    if (is_array($savedAddress)) {
+                        session()->set([
+                            'alamat' => $savedAddress,
+                            'checkout_address_id' => (int)$selectedAddress['id'],
+                            'checkout_address_owner' => $email,
+                            'checkout_recipient' => ['nama' => $selectedAddress['recipient_name'], 'nohp' => $selectedAddress['recipient_phone']],
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $addressBookAvailable = false;
+            log_message('error', 'Checkout address book unavailable: ' . get_class($e));
+        }
         $alamat = session()->get('alamat') ?: [];
-        $nama = session()->get('nama');
-        $nohp = session()->get('nohp');
+        $recipient = session('checkout_address_owner') === $email ? (session('checkout_recipient') ?: []) : [];
+        $nama = $recipient['nama'] ?? session()->get('nama');
+        $nohp = $recipient['nohp'] ?? session()->get('nohp');
         $produk = [];
         $jumlah = [];
         $produkJson = [];
@@ -3724,6 +3756,8 @@ class Pages extends BaseController
 
         $data = [
             'title' => 'Check Out',
+            'addressBook' => $addressBook,
+            'addressBookAvailable' => $addressBookAvailable,
             'produk' => $produk,
             'produkJson' => json_encode($produkJson),
             'alamatJson' => json_encode($alamat),
