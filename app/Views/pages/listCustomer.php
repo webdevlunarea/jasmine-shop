@@ -3,17 +3,28 @@
 <div id="container-edit-resi" style="z-index: 100;">
     <div class="bg-white p-4 rounded" style="box-shadow: 0 0 10px rgba(0,0,0,0.4);">
         <div class="d-flex justify-content-between align-items-start">
-            <h3>Edit resi</h3>
+            <h3 id="shipping-editor-title">Pengiriman Pesanan</h3>
             <div class="d-flex gap-2">
                 <a class="btn d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simpan" onclick="acteditresi()"><i class="material-icons" style="font-size:large">check</i></a>
                 <a class="btn d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Batal" onclick="closeeditresi()"><i class="material-icons" style="font-size:large">close</i></a>
             </div>
         </div>
-        <div class="mb-1">
+        <p id="shipping-save-feedback" class="small" role="status"></p>
+        <div id="internal-shipping-fields" class="mb-2" hidden>
+            <label class="form-label" for="internal-shipping-status">Status Jasa Kirim Toko</label>
+            <select id="internal-shipping-status" class="form-select">
+                <option value="Disiapkan">Disiapkan</option>
+                <option value="Dalam Pengiriman">Dalam Pengiriman</option>
+                <option value="Gagal Kirim">Gagal Kirim</option>
+                <option value="Terkirim">Terkirim</option>
+            </select>
+            <small class="text-secondary">Dikirim oleh tim Lunarea tanpa nomor resi eksternal.</small>
+        </div>
+        <div class="mb-1" id="external-shipping-courier">
             <label class="form-label">Kurir</label>
             <input type="text" class="form-control" id="floatingInput1" placeholder="KURIR Jenis-Layanan" name="kurir" value="Lunarea - Darat">
         </div>
-        <div class="m-0">
+        <div class="m-0" id="external-shipping-awb">
             <label class="form-label">Resi</label>
             <input type="text" class="form-control" id="floatingInput" placeholder="XXXXXXXXXXXX" name="resi">
         </div>
@@ -28,9 +39,11 @@
         </div>
         <div class="d-flex gap-1 mt-2 justify-content-center align-items-center">
             <form class="isi-bukti-bayar" action="" method="post">
+                <?= csrf_field(); ?>
                 <button type="submit" class="btn btn-primary1">Konfirmasi Pesanan</button>
             </form>
             <form class="isi-bukti-bayar" action="" method="post">
+                <?= csrf_field(); ?>
                 <button type="submit" class="btn btn-danger">Gagalkan Pesanan</button>
             </form>
             <button type="button" onclick="closeBuktiBayar()" class="btn btn-outline-dark">Tutup</button>
@@ -39,6 +52,9 @@
 </div>
 <div class="konten">
     <div class="container">
+        <?php if ($orderFeedback = session()->getFlashdata('msg')) { ?>
+            <div class="alert alert-info" role="status"><?= esc($orderFeedback); ?></div>
+        <?php } ?>
         <div class="customer-admin-hero mb-3">
             <div>
                 <span class="customer-admin-badge"><i class="material-icons" style="font-size:16px;">receipt_long</i>Order customer</span>
@@ -313,7 +329,7 @@
                                                                                             default:
                                                                                                 echo "disabled";
                                                                                                 break;
-                                                                                        } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
+                                                                                        } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pengiriman" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
                                     <a class="btn btn-success hide-ke-show-flex btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
                                     <a class="btn btn-success hide-ke-show-flex btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
                                     <?php if ($t['status'] == 'Menunggu Pembayaran Rekening' || $t['bukti_bayar']) { ?>
@@ -371,7 +387,7 @@
                                                                             default:
                                                                                 echo "disabled";
                                                                                 break;
-                                                                        } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit resi" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
+                                                                        } ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pengiriman" onclick="editresi('<?= $t['id_midtrans']; ?>', '<?= $t_ind; ?>')"><i class="material-icons" style="font-size:large">mode_edit</i></a>
                             <a class="btn btn-success show-flex-ke-hide" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Invoice" href="/invoice/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">description</i></a>
                             <a class="btn btn-success show-flex-ke-hide" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Form Gudang" href="/pdf/<?= $t['id_midtrans']; ?>"><i class="material-icons" style="font-size:large">file_download</i></a>
                             <?php if ($t['status'] == 'Menunggu Pembayaran Rekening' || $t['bukti_bayar']) { ?>
@@ -406,11 +422,17 @@
                                         <?= number_format($totalHargaBarang, 0, ",", "."); ?></p>
                                 </div>
                                 <div class="d-flex w-100 align-items-start">
-                                    <p style="flex: 3;" class="mb-0">Biaya Ongkir dan Admin</p>
+                                    <p style="flex: 3;" class="mb-0"><?= !empty($t['shipment']) ? 'Biaya / penyesuaian lainnya' : 'Biaya / potongan di luar rincian'; ?></p>
                                     <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp
-                                        <?= number_format(((float)($t['data_mid']['gross_amount'] ?? 0) - $totalHargaBarang), 0, ",", "."); ?>
+                                        <?= number_format(((float)($t['data_mid']['gross_amount'] ?? 0) - $totalHargaBarang - (int)($t['shipment']['shipping_cost'] ?? 0)), 0, ",", "."); ?>
                                     </p>
                                 </div>
+                                <?php if (!empty($t['shipment'])) { ?>
+                                <div class="d-flex w-100 align-items-start">
+                                    <p style="flex: 3;" class="mb-0">Ongkir</p>
+                                    <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp <?= number_format((int)$t['shipment']['shipping_cost'], 0, ',', '.'); ?></p>
+                                </div>
+                                <?php } ?>
                                 <div class="d-flex w-100 align-items-start">
                                     <p style="flex: 3;" class="mb-0">Total Keseluruhan</p>
                                     <p style="flex: 1;" class="mb-0 text-end fw-bold">Rp
@@ -459,16 +481,19 @@
                                     }
                                     ?></p>
                             <?php } ?>
-                            <p class="fw-bold mb-0 resi">Nomor resi : <?= $t['resi']; ?> (<?= $t['kurir']; ?>)
+                            <p class="fw-bold mb-0 resi"><?= ($t['shipment']['shipping_method_code'] ?? '') === 'internal_delivery' ? 'Jasa Kirim Toko — tanpa resi eksternal' : 'Nomor resi: ' . esc($t['resi']) . ' (' . esc($t['kurir']) . ')'; ?>
                             </p>
+                            <?php if (in_array($t['status'], ['Dikirim', 'Selesai'], true) || ($t['shipment']['shipping_status'] ?? '') === 'Disiapkan') { ?>
+                                <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="retryShippingSync(<?= (int)$t_ind; ?>)">Sinkron ulang pengiriman ke MyLuna</button>
+                            <?php } ?>
                         </div>
                         <div class="w-100 d-flex flex-column align-items-start pd-2" style="max-width: 400px;">
                             <p class="fw-bold mb-0">Informasi Penerima</p>
-                            <p class="mb-0"><?= $t['nama_pen']; ?></p>
-                            <p class="mb-0"><?= $t['alamat_pen']; ?></p>
-                            <p class="mb-0"><?= $t['hp_pen']; ?></p>
+                            <p class="mb-0"><?= esc($t['nama_pen']); ?></p>
+                            <p class="mb-0"><?= esc($t['alamat_pen']); ?></p>
+                            <p class="mb-0"><?= esc($t['hp_pen']); ?></p>
                             <?php if ($t['note'] != '') { ?>
-                                <p class="mb-0 fw-bold">Note : <?= $t['note']; ?></p>
+                                <p class="mb-0 fw-bold">Note : <?= esc($t['note']); ?></p>
                             <?php } ?>
                         </div>
                     </div>
@@ -535,6 +560,9 @@
     console.log(transaksiJson)
     var idMidSelected;
     var indexItemSelected;
+    let shippingSaving = false;
+    let shippingSaved = false;
+    let shippingCsrf = <?= json_encode(csrf_hash()); ?>;
 
     // <p class="isi-bukti-bayar mb-2">Id Pesanan : L15535320</p>
     // <div class="d-flex justify-content-center">
@@ -586,41 +614,66 @@
 
     function editresi(id_mid, index_item) {
         containerEditResiElm.style.display = 'flex'
-        console.log(id_mid)
         idMidSelected = id_mid
         indexItemSelected = index_item
-        resiInputElm.value = ''
-        kurirInputElm.value = ''
+        const order = transaksiJson[index_item];
+        const internal = order.shipment?.shipping_method_code === 'internal_delivery';
+        document.getElementById('internal-shipping-fields').hidden = !internal;
+        document.getElementById('external-shipping-courier').hidden = internal;
+        document.getElementById('external-shipping-awb').hidden = internal;
+        document.getElementById('shipping-editor-title').textContent = internal ? 'Jasa Kirim Toko' : 'Pengiriman Ekspedisi';
+        document.getElementById('shipping-save-feedback').textContent = '';
+        document.getElementById('internal-shipping-status').value = ['Disiapkan', 'Dalam Pengiriman', 'Gagal Kirim', 'Terkirim'].includes(order.shipment?.shipping_status) ? order.shipment.shipping_status : 'Disiapkan';
+        resiInputElm.value = order.shipment?.tracking_number || (String(order.resi || '').toLowerCase().includes('menunggu') ? '' : order.resi || '');
+        kurirInputElm.value = order.kurir || '';
+        kurirInputElm.readOnly = !!order.shipment && !internal;
     }
 
-    function acteditresi() {
+    async function acteditresi(retrySync = false) {
+        if (shippingSaving) return;
+        const feedback = document.getElementById('shipping-save-feedback');
         const bodynya = {
             resi: resiInputElm.value,
             kurir: kurirInputElm.value,
             idMid: idMidSelected,
-            data: transaksiJson[indexItemSelected]
+            retry_sync: retrySync === true,
+            shipping_status: document.getElementById('internal-shipping-status').value,
+            [<?= json_encode(csrf_token()); ?>]: shippingCsrf
         }
-        async function fetchEditResi() {
-            const res = await fetch("editresi", {
+        shippingSaving = true;
+        feedback.textContent = 'Menyimpan pengiriman…';
+        try {
+            const res = await fetch('/editresi', {
                 method: 'post',
                 headers: {
-                    "Content-type": "application/json"
+                    'Content-type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(bodynya)
             });
-            const resJson = await res.json()
-            if (resJson.success) {
-                arrBadgeElm[indexItemSelected].innerHTML = resJson.status;
-                arrBadgeElm[indexItemSelected].classList.remove("text-bg-warning");
-                arrBadgeElm[indexItemSelected].classList.add("text-bg-info");
-                arrResiElm[indexItemSelected].innerHTML = "Nomor resi : " + resJson.resi;
+            const resJson = await res.json();
+            if (resJson.csrf_hash) {
+                shippingCsrf = resJson.csrf_hash;
+                document.querySelectorAll('input[name="<?= esc(csrf_token(), 'attr'); ?>"]').forEach(input => { input.value = shippingCsrf; });
             }
+            if (!res.ok || !resJson.success) throw new Error(resJson.message || 'Pengiriman belum tersimpan. Muat ulang lalu coba lagi.');
+            feedback.textContent = resJson.message + ' Tutup dialog untuk memperbarui daftar.';
+            shippingSaved = true;
+        } catch (error) {
+            feedback.textContent = error.message || 'Koneksi terganggu. Muat ulang dan periksa status pesanan sebelum mencoba lagi.';
+        } finally {
+            shippingSaving = false;
         }
-        fetchEditResi()
-        closeeditresi()
+    }
+
+    function retryShippingSync(index) {
+        if (shippingSaving) return;
+        editresi(transaksiJson[index].id_midtrans, index);
+        acteditresi(true);
     }
 
     function closeeditresi() {
+        if (shippingSaving) return;
+        if (shippingSaved) { window.location.reload(); return; }
         containerEditResiElm.style.display = 'none'
     }
 

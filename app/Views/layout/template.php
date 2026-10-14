@@ -226,6 +226,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
             <div class="confirm-dialog__actions">
                 <button type="button" class="btn btn-light confirm-dialog__cancel" onclick="hapusToast()">Batal</button>
                 <form action="" method="post">
+                    <?= csrf_field(); ?>
                     <button type="submit" class="btn btn-primary1 confirm-dialog__ok">Lanjutkan</button>
                 </form>
             </div>
@@ -355,12 +356,18 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     const toastOkBtnElm = document.querySelector(".confirm-dialog__ok")
     const toastCancelBtnElm = document.querySelector(".confirm-dialog__cancel")
 
-    function triggerToast(text, linkAction) {
+    function triggerToast(text, linkAction, onConfirm) {
+        const hasCallback = typeof onConfirm === 'function';
+        toastOkElm.onsubmit = hasCallback ? function(event) {
+            event.preventDefault();
+            hapusToast();
+            onConfirm();
+        } : null;
         toastElm.classList.add("show")
         toastTitleElm.innerHTML = 'Konfirmasi tindakan'
         toastTeksElm.innerHTML = text
-        toastOkElm.action = linkAction
-        if (!linkAction) {
+        toastOkElm.action = linkAction || ''
+        if (!linkAction && !hasCallback) {
             toastOkElm.classList.add('d-none');
             toastOkElm.setAttribute('disabled', '');
             toastTitleElm.innerHTML = 'Informasi'
@@ -375,6 +382,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 
     function hapusToast() {
         toastElm.classList.remove("show")
+        toastOkElm.onsubmit = null;
     }
 
     function bukaDropdown(id) {

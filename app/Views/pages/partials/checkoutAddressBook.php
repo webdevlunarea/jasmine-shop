@@ -92,7 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('address-save').addEventListener('click', () => postAddress('save'));
     document.getElementById('address-default').addEventListener('click', () => postAddress('default'));
     document.getElementById('address-delete').addEventListener('click', () => {
-        if (window.confirm('Hapus alamat tersimpan ini? Alamat pada pesanan sebelumnya tetap tersimpan.')) postAddress('delete');
+        if (!editingId || submitting) return;
+        const addressId = editingId;
+        triggerToast('Alamat ini akan dihapus dari daftar alamat tersimpan. Alamat pada pesanan sebelumnya tetap tersimpan.', null, () => postAddress('delete', addressId));
+        document.querySelector('.confirm-dialog__content h5').textContent = 'Hapus alamat tersimpan?';
+        document.querySelector('.confirm-dialog__ok').textContent = 'Hapus Alamat';
     });
 });
 </script>

@@ -739,14 +739,14 @@ class Pages extends BaseController
         return in_array((string)($order['email_cus'] ?? ''), $this->emailUjiCoba, true);
     }
 
-    private function syncOrderToLunaSistem(array $order): void
+    private function syncOrderToLunaSistem(array $order): bool
     {
         $enabled = strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) === 'true';
         if (!$enabled) {
             log_message('info', 'Sinkron order ke Luna Sistem nonaktif. Order {order} tidak dikirim.', [
                 'order' => (string)($order['id_midtrans'] ?? ''),
             ]);
-            return;
+            return false;
         }
 
         $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
@@ -754,7 +754,7 @@ class Pages extends BaseController
 
         if ($url === '' || $token === '') {
             log_message('warning', 'Sinkron order ke Luna Sistem dilewati: env LUNA_SYSTEM_WEB_ORDER_URL / LUNA_SYSTEM_WEB_ORDER_TOKEN belum diisi.');
-            return;
+            return false;
         }
 
         $items = json_decode($order['items'] ?? '[]', true);
@@ -820,17 +820,19 @@ class Pages extends BaseController
         $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        if ($err || $httpCode < 200 || $httpCode >= 300) {
+        $syncBody = json_decode((string)$response, true);
+        if ($err || $httpCode < 200 || $httpCode >= 300 || empty($syncBody['success']) || !empty($syncBody['data']['skipped'])) {
             log_message('error', 'Sinkron order {order} ke Luna Sistem gagal. HTTP {code}. Error: {err}. Response: {response}', [
                 'order' => $payload['order_id'],
                 'code' => $httpCode,
                 'err' => $err,
                 'response' => (string)$response,
             ]);
-            return;
+            return false;
         }
 
         log_message('info', 'Sinkron order {order} ke Luna Sistem berhasil.', ['order' => $payload['order_id']]);
+        return true;
     }
 
     private function syncReturnToLunaSistem(array $order, array $items, string $reason, string $solution, array $evidencePhotos): array
@@ -5105,14 +5107,14 @@ class Pages extends BaseController
                     'summary' => [
                         'status' => $shipment['shipping_status'] ?? 'Diproses',
                         'desc' => 'Pengiriman ditangani langsung oleh tim Lunarea.',
-                        'awb' => 'Internal',
+                        'awb' => 'Tanpa resi eksternal',
                         'courier' => 'Jasa Kirim Toko',
                         'service' => 'Gratis',
                         'date' => $shipment['updated_at'] ?? date('Y-m-d H:i:s'),
                     ],
                     'detail' => [
                         'origin' => 'Lunarea Furniture',
-                        'destination' => $order['alamat_pen'] ?? '-',
+                        'destination' => 'Alamat tujuan pesanan',
                     ],
                     'history' => [[
                         'date' => $shipment['updated_at'] ?? date('Y-m-d H:i:s'),
@@ -5345,6 +5347,7 @@ class Pages extends BaseController
 
     private function getShipmentMapForOrders(array $orders): array
     {
+        if (!\Config\Database::connect()->tableExists('order_shipments')) return [];
         $ids = [];
         foreach ($orders as $order) {
             if (!empty($order['id_midtrans'])) $ids[] = $order['id_midtrans'];
@@ -7872,6 +7875,7 @@ class Pages extends BaseController
         $maxPage = max(1, (int)ceil($totalFiltered / $perPage));
         $page = min($page, $maxPage);
         $transaksiCus = array_slice($semuaTransaksiCusFilter, ($page - 1) * $perPage, $perPage);
+        $shipmentMap = $this->getShipmentMapForOrders($transaksiCus);
         $transaksiCusNoJSON = [];
         foreach ($transaksiCus as $transaksi) {
             $arr = [
@@ -7888,6 +7892,7 @@ class Pages extends BaseController
                 'data_mid' => json_decode($transaksi['data_mid'], true) ?: [],
                 'note' => $transaksi['note'],
                 'bukti_bayar' => $transaksi['bukti_bayar'] ? '/imgbuktibayar/' . $transaksi['id_midtrans'] : false,
+                'shipment' => $shipmentMap[$transaksi['id_midtrans']] ?? null,
             ];
             array_push($transaksiCusNoJSON, $arr);
         }
@@ -7909,16 +7914,20 @@ class Pages extends BaseController
     }
     public function payOrderConfirm($id_midtrans, $confirm)
     {
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
         $dataTransaksi_curr = $this->pemesananModel->getPemesanan($id_midtrans);
         if (!$dataTransaksi_curr) {
             session()->setFlashdata('msg', 'Pesanan tidak ditemukan');
-            return redirect()->to('/listcustomer');
+            return redirect()->to('/listcustomer')->withCookies();
         }
         if ($this->isSandboxOrder($dataTransaksi_curr)) {
             session()->setFlashdata('msg', 'Pesanan sandbox tidak masuk proses admin produksi.');
-            return redirect()->to('/listcustomer');
+            return redirect()->to('/listcustomer')->withCookies();
         }
         $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
+        if ($oldStatus !== 'Menunggu Pembayaran Rekening') {
+            return redirect()->to('/listcustomer')->withCookies()->with('msg', 'Pesanan ini sudah diproses. Konfirmasi tidak diulang.');
+        }
         $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
         switch ($confirm) {
             case 'cancel':
@@ -7931,13 +7940,16 @@ class Pages extends BaseController
                 break;
             default:
                 session()->setFlashdata('msg', 'Konfirmasi salah');
-                return redirect()->to('/listcustomer');
+                return redirect()->to('/listcustomer')->withCookies();
                 break;
         }
-        $this->pemesananModel->where('id_midtrans', $id_midtrans)->set([
+        $this->pemesananModel->where('id_midtrans', $id_midtrans)->where('status', $oldStatus)->set([
             'status' => $status,
             'data_mid' => json_encode($dataMid_curr),
         ])->update();
+        if (\Config\Database::connect()->affectedRows() !== 1) {
+            return redirect()->to('/listcustomer')->withCookies()->with('msg', 'Pesanan sudah diperbarui oleh proses lain. Muat ulang daftar pesanan.');
+        }
 
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $id_midtrans)->first();
         if ($dataTransaksiFulDariDatabase && $status !== $oldStatus) {
@@ -8104,8 +8116,12 @@ class Pages extends BaseController
             }
         }
 
+        if ($status === 'Proses') {
+            $lunaSynced = $this->syncOrderToLunaSistem($dataTransaksiFulDariDatabase);
+            session()->setFlashdata('msg', $lunaSynced ? 'Pembayaran dikonfirmasi dan order tersinkron ke MyLuna.' : 'Pembayaran dikonfirmasi. Sinkronisasi order ke MyLuna belum berhasil atau belum diaktifkan; periksa integrasi sebelum memproses stok.');
+        }
         $this->broadcastOrderUpdate($id_midtrans);
-        return redirect()->to('/listcustomer');
+        return redirect()->to('/listcustomer')->withCookies();
     }
     public function pdf($id_mid)
     {
@@ -8134,40 +8150,97 @@ class Pages extends BaseController
     }
     public function orderDone($id_midtrans)
     {
-        $this->pemesananModel->where(['id_midtrans' => $id_midtrans])->set(['status' => 'Selesai'])->update();
-        return redirect()->to('/listcustomer');
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
+        try {
+            $order = $this->pemesananModel->getPemesanan($id_midtrans);
+            if (!$order || $this->isSandboxOrder($order)) throw new \DomainException('Pesanan produksi tidak ditemukan.');
+            $result = (new \App\Services\Shipping\OrderShippingManager())->update((string)$id_midtrans, [], true);
+            $synced = $this->syncShippingToLunaSistem($result['order'], $result['shipment']);
+            $this->broadcastOrderUpdate($id_midtrans);
+            return redirect()->to('/listcustomer')->withCookies()->with('msg', $synced ? 'Pesanan selesai dan pengiriman tersinkron.' : 'Pesanan selesai. Sinkronisasi pengiriman ke MyLuna belum berhasil atau belum diaktifkan.');
+        } catch (\DomainException $e) {
+            return redirect()->to('/listcustomer')->withCookies()->with('msg', $e->getMessage());
+        } catch (\Throwable $e) {
+            log_message('error', 'Order completion failed: ' . get_class($e));
+            return redirect()->to('/listcustomer')->withCookies()->with('msg', 'Status pesanan belum tersimpan. Silakan coba lagi.');
+        }
     }
     public function editResi()
     {
-        $bodyJson = $this->request->getBody();
-        $body = json_decode($bodyJson, true);
-        $this->pemesananModel->where('id_midtrans', $body['idMid'])->set([
-            'resi' => $body['resi'],
-            'kurir' => $body['kurir'],
-            'status' => 'Dikirim',
-        ])->update();
-
-        $list_item = "";
-        foreach ($body['data']['items'] as $item) {
-            $list_item = $list_item . "<p>" . $item['quantity'] . " " . $item['name'] . "</p>";
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
+        try {
+            $body = $this->request->getJSON(true);
+            if (!is_array($body)) throw new \DomainException('Data pengiriman tidak valid.');
+            $id = trim((string)($body['idMid'] ?? ''));
+            $order = $this->pemesananModel->getPemesanan($id);
+            if (!$id || !$order || $this->isSandboxOrder($order)) throw new \DomainException('Pesanan produksi tidak ditemukan.');
+            if (($body['retry_sync'] ?? false) === true) {
+                if (!in_array($order['status'], ['Proses', 'Dikirim', 'Selesai'], true)) throw new \DomainException('Pesanan belum masuk tahap pengiriman.');
+                $shipment = \Config\Database::connect()->tableExists('order_shipments') ? $this->orderShipmentModel->getByOrderId($id) : null;
+                $result = ['order' => $order, 'shipment' => $shipment, 'changed' => false];
+            } else {
+                $result = (new \App\Services\Shipping\OrderShippingManager())->update($id, $body);
+            }
+            $saved = $result['order'];
+            $synced = $this->syncShippingToLunaSistem($saved, $result['shipment']);
+            if ($result['changed'] && $saved['status'] === 'Dikirim') {
+                try {
+                    $this->kirimPesanEmail($saved['email_cus'], 'Lunarea Store - Pembaruan pengiriman pesanan',
+                        '<p>Pesanan <b>' . esc($id) . '</b></p><p>Pengiriman: ' . esc($saved['kurir']) . '</p>'
+                        . ($saved['resi'] !== '' ? '<p>Nomor resi: ' . esc($saved['resi']) . '</p>' : '<p>Pengiriman ditangani tim Lunarea tanpa resi eksternal.</p>')
+                        . '<p>Status: ' . esc($result['shipment']['shipping_status'] ?? $saved['status']) . '</p>');
+                } catch (\Throwable $e) { log_message('error', 'Shipping email failed: ' . get_class($e)); }
+            }
+            $this->broadcastOrderUpdate($id);
+            return $this->response->setJSON([
+                'success' => true, 'status' => $saved['status'], 'resi' => $saved['resi'], 'luna_synced' => $synced,
+                'message' => $synced ? 'Pengiriman tersimpan dan tersinkron.' : 'Pengiriman tersimpan. Sinkronisasi ke MyLuna belum berhasil atau belum diaktifkan; simpan ulang untuk mencoba lagi.',
+                'csrf_hash' => csrf_hash(),
+            ]);
+        } catch (\DomainException $e) {
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => $e->getMessage(), 'csrf_hash' => csrf_hash()]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin shipping update failed: ' . get_class($e));
+            return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Pengiriman belum tersimpan. Muat ulang lalu coba lagi.', 'csrf_hash' => csrf_hash()]);
         }
+    }
 
-        $this->kirimPesanEmail($body['data']['email_cus'], 'Lunarea Store - Pesananmu sudah dikirim', "<p>Berikut nomor resi pada pesanan " . $body['data']['id_midtrans'] . "</p>
-        <h1>" . $body['resi'] . '</h1>
-        <p style="margin-bottom: 10px">' . $body['data']['kurir'] . '</p>
-        <span style="margin-bottom: 10px>-------------------------------------------------</span>       
-        <p style="margin-bottom: 10px"><b>Informasi terkait pesanan</b></p>
-        <p>Nama : ' . $body['data']['nama_cus'] . '</p>
-        <p>Email : ' . $body['data']['email_cus'] . '</p>
-        <p style="margin-bottom: 10px">Kode Pesanan : ' . $body['data']['id_midtrans'] . '</p>
-        <p>Item Pesanan :</p>' . $list_item);
+    private function guardOrderAdminRequest()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post' || !session('isLogin') || (string)session('role') !== '1') {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Akses admin diperlukan.']);
+        }
+        \Config\Services::security()->verify($this->request);
+        return null;
+    }
 
-        $arr = [
-            'success' => true,
-            'status' => 'Dikirim',
-            'resi' => $body['resi']
-        ];
-        return $this->response->setJSON($arr, false);
+    private function syncShippingToLunaSistem(array $order, ?array $shipment): bool
+    {
+        if (strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) !== 'true') return false;
+        $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
+        $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
+        if (!$url || !$token) return false;
+        try {
+            $response = \Config\Services::curlrequest()->post($url, [
+                'headers' => ['X-Luna-Webhook-Token' => $token, 'Accept' => 'application/json'],
+                'json' => [
+                    'event_type' => 'shipping_update', 'order_id' => (string)$order['id_midtrans'],
+                    'status' => (string)$order['status'], 'courier' => (string)$order['kurir'],
+                    'tracking_number' => (string)$order['resi'],
+                    'shipping_status' => (string)($shipment['shipping_status'] ?? ($order['status'] === 'Selesai' ? 'Terkirim' : 'Dalam Pengiriman')),
+                    'shipping_method_code' => (string)($shipment['shipping_method_code'] ?? 'legacy'),
+                    'shipping_cost' => $shipment ? (int)$shipment['shipping_cost'] : null,
+                ],
+                'timeout' => 8, 'connect_timeout' => 3, 'http_errors' => false,
+            ]);
+            $body = json_decode((string)$response->getBody(), true);
+            $ok = $response->getStatusCode() >= 200 && $response->getStatusCode() < 300 && !empty($body['success']) && !empty($body['data']['shipping_updated']);
+            if (!$ok) log_message('warning', 'MyLuna shipping sync not acknowledged for order {order}; HTTP {code}', ['order' => $order['id_midtrans'], 'code' => $response->getStatusCode()]);
+            return $ok;
+        } catch (\Throwable $e) {
+            log_message('error', 'MyLuna shipping sync failed: ' . get_class($e));
+            return false;
+        }
     }
     public function listProduct($page = 1)
     {

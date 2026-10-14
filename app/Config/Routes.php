@@ -151,7 +151,7 @@ $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin'])
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
-$routes->post('/editresi', 'Pages::editResi');
+$routes->post('/editresi', 'Pages::editResi', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct/(:any)', 'Pages::listProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/category-image/(:segment)', 'Pages::categoryImageFile/$1');
