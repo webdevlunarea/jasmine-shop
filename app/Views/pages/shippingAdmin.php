@@ -9,8 +9,7 @@ foreach ($coverages as $coverage) {
 }
 $totalCoverage = count($coverages);
 $couriers = $rajaSettings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
-$defaultOriginId = '399'; // Kota Semarang, Jawa Tengah
-$originId = trim((string)($rajaSettings['origin_id'] ?? '')) ?: $defaultOriginId;
+$originId = trim((string)($rajaSettings['origin_id'] ?? ''));
 $originLabel = trim((string)($rajaSettings['origin_label'] ?? '')) ?: 'Kota Semarang, Jawa Tengah';
 ?>
 
@@ -95,14 +94,15 @@ $originLabel = trim((string)($rajaSettings['origin_label'] ?? '')) ?: 'Kota Sema
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
                             <div>
                                 <strong>Origin Semarang</strong>
-                                <p class="text-secondary small mb-0">Default sudah disiapkan untuk Kota Semarang, Jawa Tengah.</p>
+                                <p class="text-secondary small mb-0">Gunakan ID dari RajaOngkir Search Domestic Destination. Jika kosong, sistem mencari dari label origin.</p>
                             </div>
-                            <span class="badge text-bg-success">ID <?= esc($defaultOriginId); ?></span>
+                            <span class="badge text-bg-success"><?= $originId !== '' ? 'ID ' . esc($originId) : 'Auto Search'; ?></span>
                         </div>
                         <div class="row g-2">
                             <div class="col-md-5">
                                 <label class="form-label fw-bold">Origin ID RajaOngkir</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_id" value="<?= esc($originId); ?>" placeholder="399">
+                                <input type="text" class="form-control" name="rajaongkir_origin_id" value="<?= esc($originId); ?>" placeholder="Opsional, ID valid dari RajaOngkir">
+                                <small class="text-secondary">Jangan isi dengan ID kota/provinsi lama. Kosongkan jika belum yakin.</small>
                             </div>
                             <div class="col-md-7">
                                 <label class="form-label fw-bold">Label Origin</label>

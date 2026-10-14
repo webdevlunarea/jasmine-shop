@@ -26,11 +26,10 @@ class RajaOngkirRateProvider
         }
 
         $settings = json_decode((string)($method['settings'] ?? '{}'), true);
-        $originId = trim((string)($settings['origin_id'] ?? '')) ?: '399';
         $destinationId = trim((string)($address['rajaongkir_destination_id'] ?? ''));
         $couriers = $settings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
 
-        if ($originId === '' || $weightGrams <= 0) {
+        if ($weightGrams <= 0) {
             return [];
         }
 
@@ -47,7 +46,9 @@ class RajaOngkirRateProvider
                 $destinationId = $this->searchDestinationId($client, $apiKey, $address);
             }
 
-            if ($destinationId === '') {
+            $originId = $this->resolveOriginId($client, $apiKey, $settings);
+
+            if ($originId === '' || $destinationId === '') {
                 return [];
             }
 
@@ -97,11 +98,33 @@ class RajaOngkirRateProvider
                 ];
             }
 
+            usort($quotes, static fn($a, $b) => ((int)$a['cost']) <=> ((int)$b['cost']));
+
             return $quotes;
         } catch (\Throwable $e) {
             log_message('error', 'RajaOngkir quote error: ' . $e->getMessage());
             return [];
         }
+    }
+
+    protected function resolveOriginId($client, string $apiKey, array $settings): string
+    {
+        $originId = trim((string)($settings['origin_id'] ?? ''));
+        $numericOrigin = preg_replace('/\D+/', '', $originId);
+
+        if ($originId !== '' && strlen($numericOrigin) >= 4) {
+            return $originId;
+        }
+
+        $originLabel = trim((string)($settings['origin_label'] ?? 'Kota Semarang Jawa Tengah'));
+        $originAddress = [
+            'kodepos' => trim((string)($settings['origin_postal_code'] ?? $settings['origin_zip'] ?? '')),
+            'kelurahan_label' => trim((string)($settings['origin_kelurahan'] ?? '')),
+            'kecamatan_label' => trim((string)($settings['origin_kecamatan'] ?? '')),
+            'kabupaten_label' => $originLabel ?: 'Kota Semarang Jawa Tengah',
+        ];
+
+        return $this->searchDestinationId($client, $apiKey, $originAddress);
     }
 
     protected function searchDestinationId($client, string $apiKey, array $address): string

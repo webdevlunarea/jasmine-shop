@@ -8700,10 +8700,15 @@ class Pages extends BaseController
 
             if ($rajaongkir) {
                 $couriers = array_values(array_filter(array_map('trim', explode(',', (string)$this->request->getVar('rajaongkir_couriers')))));
+                $originId = trim((string)$this->request->getVar('rajaongkir_origin_id'));
+                if ($originId !== '' && strlen(preg_replace('/\D+/', '', $originId)) < 4) {
+                    $originId = '';
+                }
+
                 $this->shippingMethodModel->update($rajaongkir['id'], [
                     'is_active' => $this->request->getVar('rajaongkir_active') ? 1 : 0,
                     'settings' => json_encode([
-                        'origin_id' => trim((string)$this->request->getVar('rajaongkir_origin_id')),
+                        'origin_id' => $originId,
                         'origin_label' => trim((string)$this->request->getVar('rajaongkir_origin_label')),
                         'couriers' => $couriers ?: ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'],
                         'quote_only' => true,

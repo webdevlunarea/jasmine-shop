@@ -34,6 +34,8 @@ class ShippingService
             $quotes[] = $this->persistQuote($email, $quote, $address, $weightGrams, $cartHash, $addressHash);
         }
 
+        usort($quotes, static fn($a, $b) => ((int)($a['cost'] ?? 0)) <=> ((int)($b['cost'] ?? 0)));
+
         return $quotes;
     }
 
