@@ -5046,6 +5046,7 @@ class Pages extends BaseController
         $keyword = trim((string)($this->request->getVar('keyword') ?? ''));
         $manualCourier = trim((string)($this->request->getVar('courier') ?? ''));
         $order = null;
+        $shipment = null;
         $tracking = null;
         $error = null;
         $courierCode = $manualCourier;
@@ -5054,15 +5055,39 @@ class Pages extends BaseController
         if ($keyword !== '') {
             $order = $this->pemesananModel->findForPublicTracking($keyword);
             if ($order) {
-                $awb = trim((string)($order['resi'] ?? ''));
-                $courierCode = $manualCourier !== '' ? $manualCourier : $this->resolveCourierCode((string)($order['kurir'] ?? ''));
+                $shipment = $this->orderShipmentModel->getByOrderId((string)$order['id_midtrans']);
+                $awb = trim((string)($shipment['tracking_number'] ?? $order['resi'] ?? ''));
+                $courierText = (string)($shipment['courier_name'] ?? $shipment['courier_code'] ?? $order['kurir'] ?? '');
+                $courierCode = $manualCourier !== '' ? $manualCourier : $this->resolveCourierCode($courierText);
             } else {
                 $parsedTracking = $this->parsePublicTrackingKeyword($keyword);
                 $awb = $parsedTracking['awb'];
                 $courierCode = $parsedTracking['courier'] !== '' ? $parsedTracking['courier'] : $manualCourier;
             }
 
-            if ($awb === '' || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
+            if ($shipment && ($shipment['shipping_method_code'] ?? '') === 'internal_delivery') {
+                $tracking = [
+                    'success' => true,
+                    'provider' => 'Jasa Kirim Toko',
+                    'summary' => [
+                        'status' => $shipment['shipping_status'] ?? 'Diproses',
+                        'desc' => 'Pengiriman ditangani langsung oleh tim Lunarea.',
+                        'awb' => 'Internal',
+                        'courier' => 'Jasa Kirim Toko',
+                        'service' => 'Gratis',
+                        'date' => $shipment['updated_at'] ?? date('Y-m-d H:i:s'),
+                    ],
+                    'detail' => [
+                        'origin' => 'Lunarea Furniture',
+                        'destination' => $order['alamat_pen'] ?? '-',
+                    ],
+                    'history' => [[
+                        'date' => $shipment['updated_at'] ?? date('Y-m-d H:i:s'),
+                        'desc' => $shipment['shipping_status'] ?? 'Diproses',
+                        'location' => 'Lunarea Furniture',
+                    ]],
+                ];
+            } elseif ($awb === '' || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
                 $error = 'Nomor resi untuk pesanan ini belum tersedia. Silakan cek kembali setelah admin mengirimkan resi.';
             } elseif ($courierCode === '') {
                 $error = 'Kurir belum terbaca otomatis. Pilih kurir terlebih dahulu atau tulis dengan format "JNE NOMOR_RESI", contoh: JNE CM123456789.';
@@ -5079,6 +5104,7 @@ class Pages extends BaseController
             'keyword' => $keyword,
             'courier' => $courierCode,
             'order' => $order,
+            'shipment' => $shipment,
             'tracking' => $tracking,
             'error' => $error,
             'couriers' => $this->trackingCourierOptions(),
@@ -5279,8 +5305,31 @@ class Pages extends BaseController
             'title' => 'Transaksi Pembayaran',
             'transaksi' => $detailTransaksi,
             'returMap' => $this->getReturMapForOrders($detailTransaksi),
+            'shipmentMap' => $this->getShipmentMapForOrders($detailTransaksi),
         ];
         return view('pages/transaction', $data);
+    }
+
+    private function getShipmentMapForOrders(array $orders): array
+    {
+        $ids = [];
+        foreach ($orders as $order) {
+            if (!empty($order['id_midtrans'])) $ids[] = $order['id_midtrans'];
+        }
+        if (!$ids) return [];
+
+        $rows = $this->orderShipmentModel
+            ->whereIn('id_midtrans', array_unique($ids))
+            ->orderBy('id', 'desc')
+            ->findAll();
+
+        $map = [];
+        foreach ($rows as $row) {
+            if (!isset($map[$row['id_midtrans']])) {
+                $map[$row['id_midtrans']] = $row;
+            }
+        }
+        return $map;
     }
 
     private function getReturMapForOrders(array $orders): array
@@ -6138,6 +6187,7 @@ class Pages extends BaseController
     public function order($id_midtrans = false)
     {
         $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
+        $shipment = $pemesanan ? $this->orderShipmentModel->getByOrderId((string)$id_midtrans) : null;
         $carapembayaran = [
             'bca' => [
                 [
@@ -6394,6 +6444,7 @@ class Pages extends BaseController
                         'waktu' => $waktu,
                         'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'shipment' => $shipment,
                         'wsUrl' => $ws_url
                     ];
                     return view('pages/orderProgress', $data);
@@ -6420,6 +6471,7 @@ class Pages extends BaseController
                         'waktu' => $waktu,
                         'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'shipment' => $shipment,
                         'wsUrl' => $ws_url
                     ];
                     return view('pages/orderProgress', $data);
@@ -6477,6 +6529,7 @@ class Pages extends BaseController
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
                         'caraPembayaran' => $carapembayaran[$bank],
+                        'shipment' => $shipment,
                     ];
                     return view('pages/orderShipping', $data);
                     break;
@@ -6533,6 +6586,7 @@ class Pages extends BaseController
                         'va_number' => $va_number,
                         'biller_code' => $biller_code,
                         'caraPembayaran' => $carapembayaran[$bank],
+                        'shipment' => $shipment,
                     ];
                     return view('pages/orderShipping', $data);
                     break;
@@ -6587,6 +6641,7 @@ class Pages extends BaseController
                         'items' => $items,
                         'caraPembayaran' => $carapembayaran[$bank],
                         'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'shipment' => $shipment,
                     ];
                     return view('pages/orderExpire', $data);
                     break;
@@ -6644,7 +6699,8 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'items' => $items,
                         'caraPembayaran' => $carapembayaran[$bank],
-                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire)
+                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'shipment' => $shipment,
                     ];
                     return view('pages/orderExpire', $data);
                     break;

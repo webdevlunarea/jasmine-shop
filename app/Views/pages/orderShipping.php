@@ -1,5 +1,24 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
+<?php
+$shipment = $shipment ?? null;
+$isInternalDelivery = $shipment && (($shipment['shipping_method_code'] ?? '') === 'internal_delivery');
+$shippingName = 'Belum dipilih';
+if ($shipment) {
+    $shippingName = $isInternalDelivery
+        ? 'Jasa Kirim Toko'
+        : trim(implode(' - ', array_filter([
+            $shipment['courier_name'] ?? $shipment['courier_code'] ?? '',
+            $shipment['service_name'] ?? $shipment['service_code'] ?? '',
+        ])));
+    $shippingName = $shippingName ?: 'Ekspedisi';
+} elseif (($kurir ?? '') !== 'kosong') {
+    $shippingName = (string)$kurir;
+}
+$trackingNumber = trim((string)($shipment['tracking_number'] ?? $pemesanan['resi'] ?? ''));
+$shippingStatus = $shipment['shipping_status'] ?? (($kurir ?? '') === 'kosong' ? 'Sedang diproses' : 'Dikirim');
+$shippingCost = $shipment ? (int)($shipment['shipping_cost'] ?? 0) : null;
+?>
 <div class="konten">
     <div class="container">
         <div class="d-flex justify-content-center align-items-center gap-2 my-5">
@@ -80,25 +99,43 @@
             </div>
             <div class="limapuluh-ke-seratus">
                 <p class="fw-bold mb-2">Pengiriman</p>
-                <div class="flex-grow-1 mb-4">
-                    <?php if ($kurir == 'kosong') { ?>
+                <div class="shipping-detail-panel flex-grow-1 mb-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
                         <div>
-                            <p class="m-0">Barang masih kami proses untuk pengiriman</p>
-                            <p class="m-0 text-secondary">*Jika pemesanan lebih dari jam 12:00 akan kami proses di esok harinya</p>
+                            <span class="shipping-pill"><i class="material-icons">local_shipping</i><?= esc($isInternalDelivery ? 'Internal' : 'Ekspedisi'); ?></span>
+                            <h5 class="m-0 mt-2"><?= esc($shippingName); ?></h5>
+                            <p class="m-0 text-secondary"><?= esc($shippingStatus); ?></p>
+                            <?php if (!empty($shipment['etd'])) { ?>
+                                <p class="m-0 text-secondary">Estimasi <?= esc($shipment['etd']); ?></p>
+                            <?php } ?>
+                        </div>
+                        <div class="text-end">
+                            <p class="m-0 text-secondary">Ongkir</p>
+                            <h5 class="mb-0"><?= $shippingCost === null ? '-' : 'Rp ' . number_format($shippingCost, 0, ",", "."); ?></h5>
+                        </div>
+                    </div>
+
+                    <?php if ($trackingNumber !== '' && strtolower($trackingNumber) !== 'kosong' && stripos($trackingNumber, 'menunggu') === false) { ?>
+                        <div class="shipping-resi-row">
+                            <div>
+                                <p class="m-0 text-secondary">Nomor Resi</p>
+                                <h6 class="mb-0"><?= esc($trackingNumber); ?></h6>
+                            </div>
+                            <a href="/lacak-pengiriman?keyword=<?= urlencode($pemesanan['id_midtrans']); ?>" class="btn btn-primary1">Lacak Pengiriman</a>
+                        </div>
+                    <?php } elseif ($isInternalDelivery) { ?>
+                        <div class="shipping-resi-row">
+                            <div>
+                                <p class="m-0 text-secondary">Catatan</p>
+                                <h6 class="mb-0">Dikirim langsung oleh tim Lunarea</h6>
+                            </div>
+                            <a href="/lacak-pengiriman?keyword=<?= urlencode($pemesanan['id_midtrans']); ?>" class="btn btn-outline-success">Lihat Status</a>
                         </div>
                     <?php } else { ?>
-                        <div class="d-flex justify-content-between">
-                            <div class="flex-grow-1">
-                                <img src="/img/kurir/<?= strtolower(explode(" ", $kurir)[0]); ?>.webp" class="mb-1" style="height:40px"></img>
-                                <h5 class="m-0"><?= explode("-", $kurir)[0]; ?></h5>
-                                <p class="m-0"><?= explode("-", $kurir)[1]; ?></p>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="m-0">Resi</p>
-                                <h5 class="mb-1"><?= $pemesanan['resi']; ?></h5>
-                                <?php if (strtolower(explode(" ", $kurir)[0]) == 'indah') { ?>
-                                    <a href="https://indahonline.com/tracking/cek-resi" class="btn btn-primary1">Tracking</a>
-                                <?php } ?>
+                        <div class="shipping-resi-row">
+                            <div>
+                                <p class="m-0 text-secondary">Status resi</p>
+                                <h6 class="mb-0">Resi akan tampil setelah admin memperbarui pengiriman.</h6>
                             </div>
                         </div>
                     <?php } ?>
@@ -111,4 +148,51 @@
         </div>
     </div>
 </div>
+<style>
+    .shipping-detail-panel {
+        border: 1px solid var(--hijaumuda2);
+        border-radius: 22px;
+        padding: 18px;
+        background: linear-gradient(135deg, #fff 0%, var(--hijaumuda) 100%);
+        box-shadow: 0 12px 28px rgba(36, 59, 107, .06);
+    }
+
+    .shipping-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--hijau);
+        color: #fff;
+        font-weight: 800;
+        font-size: .78rem;
+    }
+
+    .shipping-pill .material-icons {
+        font-size: 16px;
+    }
+
+    .shipping-resi-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--hijaumuda2);
+    }
+
+    @media (max-width: 575.98px) {
+        .shipping-detail-panel {
+            padding: 14px;
+            border-radius: 18px;
+        }
+
+        .shipping-resi-row .btn {
+            width: 100%;
+        }
+    }
+</style>
 <?= $this->endSection(); ?>

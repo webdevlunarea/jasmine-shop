@@ -23,6 +23,23 @@ $decodeArray = function ($json) {
     $decoded = json_decode((string)$json, true);
     return is_array($decoded) ? $decoded : [];
 };
+$shippingLabel = function (?array $shipment, array $order): string {
+    if ($shipment) {
+        if (($shipment['shipping_method_code'] ?? '') === 'internal_delivery') return 'Jasa Kirim Toko';
+        $parts = array_filter([
+            $shipment['courier_name'] ?? $shipment['courier_code'] ?? '',
+            $shipment['service_name'] ?? $shipment['service_code'] ?? '',
+        ]);
+        return $parts ? implode(' - ', $parts) : 'Ekspedisi';
+    }
+    return trim((string)($order['kurir'] ?? '')) ?: 'Belum dipilih';
+};
+$shippingStatusLabel = function (?array $shipment, array $order): string {
+    if ($shipment && !empty($shipment['shipping_status'])) return (string)$shipment['shipping_status'];
+    if (($order['status'] ?? '') === 'Proses') return 'Sedang diproses';
+    if (($order['status'] ?? '') === 'Dikirim') return 'Dikirim';
+    return '-';
+};
 $flashMsg = session()->getFlashdata('msg');
 ?>
 <div class="konten account-shell">
@@ -40,6 +57,9 @@ $flashMsg = session()->getFlashdata('msg');
                         <?php if (count($transaksi) > 0) {
                             foreach ($transaksi as $index_transaksi => $item_transaksi) { ?>
                                 <?php
+                                $dataMid = json_decode($item_transaksi['data_mid'] ?? '{}', true);
+                                $dataMid = is_array($dataMid) ? $dataMid : [];
+                                $shipment = $shipmentMap[$item_transaksi['id_midtrans']] ?? null;
                                 $returAktif = $returMap[$item_transaksi['id_midtrans']] ?? null;
                                 $returItems = $returAktif ? $decodeArray($returAktif['items'] ?? '[]') : [];
                                 $returBukti = $returAktif ? $decodeArray($returAktif['bukti'] ?? '[]') : [];
@@ -51,10 +71,17 @@ $flashMsg = session()->getFlashdata('msg');
                                             <div class="d-flex justify-content-between" style="width: 100%;">
                                                 <div>
                                                     <h5 class="mb-0">Rp
-                                                        <?= number_format((int)json_decode($item_transaksi['data_mid'], true)['gross_amount'], 0, ",", "."); ?>
+                                                        <?= number_format((int)($dataMid['gross_amount'] ?? 0), 0, ",", "."); ?>
                                                     </h5>
                                                     <p class="mb-1" style="font-size: 12px;">ID Pesanan:
                                                         <?= $item_transaksi['id_midtrans']; ?></p>
+                                                    <p class="mb-1 text-secondary" style="font-size: 12px;">
+                                                        <i class="material-icons align-middle" style="font-size:14px;">local_shipping</i>
+                                                        <?= esc($shippingLabel($shipment, $item_transaksi)); ?>
+                                                        <?php if ($shipment) { ?>
+                                                            · Ongkir Rp <?= number_format((int)($shipment['shipping_cost'] ?? 0), 0, ",", "."); ?>
+                                                        <?php } ?>
+                                                    </p>
                                                     <span class="badge rounded-pill <?php
                                                                                     switch ($item_transaksi['status']) {
                                                                                         case 'Menunggu Pembayaran':
@@ -91,12 +118,11 @@ $flashMsg = session()->getFlashdata('msg');
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-end">
                                                     <p class="mb-0 text-secondary" style="font-size: 12px;">
-                                                        <?= date("d/m/Y H:i:s", strtotime(json_decode($item_transaksi['data_mid'], true)['transaction_time'])); ?></p>
+                                                        <?= !empty($dataMid['transaction_time']) ? date("d/m/Y H:i:s", strtotime($dataMid['transaction_time'])) : '-'; ?></p>
                                                     <?php if ($item_transaksi['status'] == "Menunggu Pembayaran" || $item_transaksi['status'] == "Menunggu Pembayaran Rekening") { ?>
                                                         <p class="mb-0 text-secondary" style="font-size: 12px;">Kadaluarsa pada <?php
-                                                                                                                                $dataMid = json_decode($item_transaksi['data_mid'], true);
-                                                                                                                                $d = strtotime($dataMid['transaction_time']);
-                                                                                                                                if ($dataMid['payment_type'] == 'gopay' || $dataMid['payment_type'] == 'qris')
+                                                                                                                                $d = strtotime($dataMid['transaction_time'] ?? 'now');
+                                                                                                                                if (($dataMid['payment_type'] ?? '') == 'gopay' || ($dataMid['payment_type'] ?? '') == 'qris')
                                                                                                                                     $enddate = strtotime("+15 minutes", $d);
                                                                                                                                 else
                                                                                                                                     $enddate = strtotime("+1 hour", $d);
@@ -114,6 +140,32 @@ $flashMsg = session()->getFlashdata('msg');
                                             <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
                                             <p class="mb-0"><?= $item_transaksi['alamat_pen']; ?></p>
                                             <p><?= $item_transaksi['hp_pen']; ?></p>
+                                            <div class="border rounded p-3 mb-3" style="background: linear-gradient(135deg, #fff, var(--hijaumuda)); border-color: var(--hijaumuda2) !important;">
+                                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                                    <div>
+                                                        <p class="fw-bold mb-1"><i class="material-icons align-middle" style="font-size:18px;color:var(--hijau);">local_shipping</i> Pengiriman</p>
+                                                        <h6 class="mb-1"><?= esc($shippingLabel($shipment, $item_transaksi)); ?></h6>
+                                                        <p class="mb-0 text-secondary small">Status: <?= esc($shippingStatusLabel($shipment, $item_transaksi)); ?></p>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <p class="mb-1 small text-secondary">Ongkir</p>
+                                                        <strong><?= $shipment ? 'Rp ' . number_format((int)($shipment['shipping_cost'] ?? 0), 0, ",", ".") : '-'; ?></strong>
+                                                        <?php if (!empty($shipment['etd'])) { ?>
+                                                            <p class="mb-0 small text-secondary">Estimasi <?= esc($shipment['etd']); ?></p>
+                                                        <?php } ?>
+                                                    </div>
+                                                </div>
+                                                <?php
+                                                $trackingNumber = trim((string)($shipment['tracking_number'] ?? $item_transaksi['resi'] ?? ''));
+                                                if ($trackingNumber !== '' && strtolower($trackingNumber) !== 'kosong') { ?>
+                                                    <div class="mt-2 d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                                        <span class="small">Resi: <b><?= esc($trackingNumber); ?></b></span>
+                                                        <a class="btn btn-sm btn-outline-success" href="/lacak-pengiriman?keyword=<?= urlencode($item_transaksi['id_midtrans']); ?>">Lacak pengiriman</a>
+                                                    </div>
+                                                <?php } elseif ($shipment && ($shipment['shipping_method_code'] ?? '') === 'internal_delivery') { ?>
+                                                    <div class="mt-2 small text-secondary">Pengiriman ini ditangani langsung oleh tim Lunarea, tanpa nomor resi eksternal.</div>
+                                                <?php } ?>
+                                            </div>
                                             <p class="mb-0"><b>Items</b></p>
                                             <div class="w-100 mb-2">
                                                 <?php
@@ -187,15 +239,13 @@ $flashMsg = session()->getFlashdata('msg');
                                                     <?php } else if ($item_transaksi['status'] == "Kadaluarsa" || $item_transaksi['status'] == "Ditolak" || $item_transaksi['status'] == "Gagal" || $item_transaksi['status'] == "Refund" || $item_transaksi['status'] == "Dibatalkan") { ?>
 
                                                     <?php } else { ?>
-                                                        <p class="mb-0"><b>Nomor Resi : </b><?= $item_transaksi['resi']; ?>
+                                                        <p class="mb-0"><b>Nomor Resi : </b><?= esc($shipment['tracking_number'] ?? $item_transaksi['resi']); ?>
                                                             <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                                <a class="btn" onclick="copyresi('<?= $item_transaksi['resi'] ?>')"><i class="material-icons">content_copy</i></a>
+                                                                <a class="btn" onclick='copyresi(<?= json_encode((string)($shipment['tracking_number'] ?? $item_transaksi['resi'] ?? '')); ?>)'><i class="material-icons">content_copy</i></a>
                                                             <?php } ?>
                                                         </p>
                                                         <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                            <!-- <a class="btn btn-primary1" href="/tracking/<?= $item_transaksi['kurir'] == 'dakota' ? "da" : "ro" ?>/<?= $item_transaksi['resi'] ?>">Tracking
-                                                                Nomor Resi</a> -->
-                                                            <a class="btn btn-primary1" href="https://indahonline.com/tracking/cek-resi" target="_blank">Tracking</a>
+                                                            <a class="btn btn-primary1" href="/lacak-pengiriman?keyword=<?= urlencode($item_transaksi['id_midtrans']); ?>">Tracking</a>
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </div>

@@ -5,6 +5,15 @@ $hasSearched = trim((string)($keyword ?? '')) !== '';
 $summary = $tracking['summary'] ?? [];
 $detail = $tracking['detail'] ?? [];
 $history = $tracking['history'] ?? [];
+$shipment = $shipment ?? null;
+$shipmentCourier = $shipment
+    ? ((($shipment['shipping_method_code'] ?? '') === 'internal_delivery') ? 'Jasa Kirim Toko' : trim(implode(' - ', array_filter([
+        $shipment['courier_name'] ?? $shipment['courier_code'] ?? '',
+        $shipment['service_name'] ?? $shipment['service_code'] ?? '',
+    ]))))
+    : '';
+$shipmentCourier = $shipmentCourier ?: ($order['kurir'] ?? '-');
+$shipmentAwb = trim((string)($shipment['tracking_number'] ?? $order['resi'] ?? ''));
 $receiver = '';
 if (!empty($order['nama_pen'])) {
     $parts = preg_split('/\s+/', trim($order['nama_pen']));
@@ -58,11 +67,11 @@ if (!empty($order['nama_pen'])) {
                 </div>
                 <div>
                     <p class="text-secondary mb-1">Kurir</p>
-                    <strong><?= esc($order['kurir'] ?: '-'); ?></strong>
+                    <strong><?= esc($shipmentCourier ?: '-'); ?></strong>
                 </div>
                 <div>
                     <p class="text-secondary mb-1">Resi</p>
-                    <strong><?= esc($order['resi'] ?: '-'); ?></strong>
+                    <strong><?= esc($shipmentAwb !== '' ? $shipmentAwb : (($shipment['shipping_method_code'] ?? '') === 'internal_delivery' ? 'Internal' : '-')); ?></strong>
                 </div>
             </section>
         <?php } ?>
@@ -81,7 +90,7 @@ if (!empty($order['nama_pen'])) {
                     </div>
                     <div>
                         <span>Ekspedisi</span>
-                        <strong><?= esc($summary['courier'] ?? ($order['kurir'] ?? '-')); ?></strong>
+                        <strong><?= esc($summary['courier'] ?? $shipmentCourier ?? '-'); ?></strong>
                     </div>
                     <div>
                         <span>Layanan</span>
@@ -114,7 +123,7 @@ if (!empty($order['nama_pen'])) {
                         <h5 class="fw-bold mb-1">Riwayat pengiriman</h5>
                         <p class="text-secondary mb-0">Riwayat akan muncul setelah pengiriman terdeteksi.</p>
                     </div>
-                    <span class="tracking-provider">Lacak Pengiriman</span>
+                    <span class="tracking-provider"><?= esc($tracking['provider'] ?? 'Lacak Pengiriman'); ?></span>
                 </div>
 
                 <?php if (empty($history)) { ?>
