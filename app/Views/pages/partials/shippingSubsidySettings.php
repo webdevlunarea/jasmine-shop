@@ -1,7 +1,12 @@
 <?php
 try { $subsidy = \App\Services\Shipping\ShippingSubsidyPolicy::normalize($rajaSettings['subsidy'] ?? []); }
 catch (\DomainException $e) { $subsidy = \App\Services\Shipping\ShippingSubsidyPolicy::normalize([]); }
-$subsidyCouriers = array_values(array_unique(array_merge($couriers, $subsidy['couriers'])));
+$configuredCouriers = $rajaSettings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
+if (!is_array($configuredCouriers)) {
+    $configuredCouriers = preg_split('/[:,]/', (string)$configuredCouriers);
+}
+$configuredCouriers = array_values(array_filter(array_map(static fn($code) => strtolower(trim((string)$code)), $configuredCouriers)));
+$subsidyCouriers = array_values(array_unique(array_merge($configuredCouriers, $subsidy['couriers'])));
 $percentageDisplay = number_format($subsidy['percentage_bps'] / 100, 2, '.', '');
 ?>
 <section class="shipping-admin-panel mt-3">
