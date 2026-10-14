@@ -210,15 +210,15 @@ if ($isAdminNav) {
 <?php if ($showMobileBottomNav) { ?>
     <nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
         <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
-            <i class="material-icons">home</i>
+            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
             <span>Beranda</span>
         </a>
         <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">
-            <i class="material-icons">category</i>
+            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
             <span>Produk</span>
         </a>
         <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">
-            <i class="material-icons">article</i>
+            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
             <span>Artikel</span>
         </a>
     </nav>

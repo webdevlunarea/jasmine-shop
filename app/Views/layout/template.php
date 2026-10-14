@@ -243,12 +243,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
         $topPromoDesktop = $topPromoTexts['desktop'] ?? 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%';
         $topPromoMobile = $topPromoTexts['mobile'] ?? $topPromoDesktop;
     ?>
-        <div class="teks-atas show-flex-ke-hide">
-            <p class="m-0"><?= esc($topPromoDesktop); ?></p>
-        </div>
-        <div class="teks-atas hide-ke-show-flex">
-            <p class="m-0"><?= esc($topPromoMobile); ?></p>
-        </div>
+        <?= view('partials/buyer_promo', ['desktopText' => $topPromoDesktop, 'mobileText' => $topPromoMobile], ['saveData' => false]); ?>
     <?php } ?>
 
     <?= $this->include('layout/navbar'); ?>

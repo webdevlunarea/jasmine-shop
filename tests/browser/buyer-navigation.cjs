@@ -18,14 +18,14 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
  const navigate=async state=>{await call('Page.navigate',{url:'file:///'+path.join(dir,state+'.html').replaceAll('\\','/')});await pause()};
  try{
  await call('Page.enable');await call('Runtime.enable');await call('Network.enable');await call('Network.setBlockedURLs',{urls:['http://*','https://*']});
- for(const state of ['member','guest','anonymous']){
+ for(const state of ['member','guest','anonymous','member-long-promo']){
   await navigate(state);
   for(const width of [320,360,390,430,600,601,768,820,991,992,1024,1440]){
    await resize(width);
-   const a=JSON.parse(await evaluate(`JSON.stringify((()=>{const h=document.querySelector('.buyer-mobile-header'),d=document.querySelector('.buyer-desktop-header'),r=(innerWidth<992?h:d).getBoundingClientRect();return {scroll:document.documentElement.scrollWidth,mobile:getComputedStyle(h).display!=='none',desktop:getComputedStyle(d).display!=='none',header:r.bottom,content:document.querySelector('main').getBoundingClientRect().top}})())`));
-   assert.ok(a.scroll<=width+1,`${state}/${width}: horizontal overflow ${a.scroll}`);assert.equal(a.mobile,width<992);assert.equal(a.desktop,width>=992);assert.ok(a.content>=a.header,`${state}/${width}: content overlaps header`);count++;
+   const a=JSON.parse(await evaluate(`JSON.stringify((()=>{const h=document.querySelector('.buyer-mobile-header'),d=document.querySelector('.buyer-desktop-header'),r=(innerWidth<992?h:d).getBoundingClientRect();return {scroll:document.documentElement.scrollWidth,mobile:getComputedStyle(h).display!=='none',desktop:getComputedStyle(d).display!=='none',headerTop:r.top,promoBottom:Math.max(...[...document.querySelectorAll('.buyer-promo-banner')].filter(e=>getComputedStyle(e).display!=='none').map(e=>e.getBoundingClientRect().bottom)),promoCount:[...document.querySelectorAll('.buyer-promo-banner')].filter(e=>getComputedStyle(e).display!=='none').length,icons:document.querySelectorAll('.mobile-bottom-nav .buyer-nav-icon').length,header:r.bottom,content:document.querySelector('main').getBoundingClientRect().top}})())`));
+   assert.ok(a.scroll<=width+1,`${state}/${width}: horizontal overflow ${a.scroll}`);assert.equal(a.mobile,width<992);assert.equal(a.desktop,width>=992);assert.ok(a.content>=a.header,`${state}/${width}: content overlaps header`);assert.equal(a.promoCount,1);assert.equal(a.icons,3);assert.ok(a.headerTop>=a.promoBottom-1,`${state}/${width}: promo covers navigation (${a.promoBottom} > ${a.headerTop})`);count++;
    if(width<992){const visible=await evaluate(`(()=>{const t=document.querySelector('.account-mobile-tabs'),a=t.querySelector('[aria-current="page"]'),r=t.getBoundingClientRect(),v=a.getBoundingClientRect();return v.left>=r.left-1&&v.right<=r.right+1})()`);assert.equal(visible,true,`${state}/${width}: active account tab should be visible`)}
-   if(state!=='member'||width>=992)continue;
+   if(!state.startsWith('member')||width>=992)continue;
    await toggle();assert.equal(await evaluate(`!document.getElementById('buyer-account-menu').hidden && document.getElementById('buyer-account-toggle').getAttribute('aria-expanded')==='true' && document.documentElement.classList.contains('buyer-menu-open') && document.activeElement.hasAttribute('data-buyer-menu-close')`),true);
    await key('Tab',8);assert.equal(await evaluate(`document.activeElement.getAttribute('href')`),'/keluar');await key('Tab');assert.equal(await evaluate(`document.activeElement.hasAttribute('data-buyer-menu-close')`),true);
    await key('Escape');assert.equal(await evaluate(`document.getElementById('buyer-account-menu').hidden && !document.documentElement.classList.contains('buyer-menu-open') && document.activeElement.id==='buyer-account-toggle'`),true);
@@ -37,6 +37,11 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
  const p=JSON.parse(await evaluate(`JSON.stringify((()=>{const p=document.querySelector('.buyer-account-panel'),r=p.getBoundingClientRect();return {top:r.top,bottom:r.bottom,scrollable:p.scrollHeight>p.clientHeight}})())`));
  assert.ok(p.top>=0&&p.bottom<=375&&p.scrollable,'Landscape panel must fit and scroll');await resize(1024);assert.equal(await evaluate(`document.getElementById('buyer-account-menu').hidden && !document.documentElement.classList.contains('buyer-menu-open')`),true);
  await resize(390,844);await toggle();const shot=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(dir,'member-menu-mobile.png'),Buffer.from(shot.data,'base64'));
+ await key('Escape');const navigationShot=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(dir,'member-navigation-mobile.png'),Buffer.from(navigationShot.data,'base64'));
+ // A configured promo can change height without a viewport resize.
+ await evaluate(`document.querySelectorAll('.buyer-promo-banner p').forEach(p=>{p.textContent='Harga khusus pembelian pertama dan gratis ongkir hingga 100%. '.repeat(4)})`);await pause();
+ assert.equal(await evaluate(`(()=>{const p=[...document.querySelectorAll('.buyer-promo-banner')].find(e=>getComputedStyle(e).display!=='none').getBoundingClientRect(),h=document.querySelector('.buyer-mobile-header').getBoundingClientRect();return h.top>=p.bottom-1&&document.querySelector('main').getBoundingClientRect().top>=h.bottom})()`),true,'Promo height changes must update navbar and spacer');count++;
+
  for(const page of ['categories-home','categories-all']){
   assert.ok(fs.existsSync(path.join(dir,page+'.html')), 'Generate category fixtures with BuyerNavigationViewTest first');
   await navigate(page);

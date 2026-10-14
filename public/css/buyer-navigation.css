@@ -1,4 +1,20 @@
 /* Buyer navigation only; admin navigation and checkout calculations are untouched. */
+:root:has(.buyer-promo-banner) { --buyer-promo-height: 44px; }
+.teks-atas.buyer-promo-banner {
+    display: flex;
+    position: fixed;
+    inset: 0 0 auto;
+    width: 100%;
+    height: auto !important;
+    min-height: 30px;
+    padding: calc(6px + env(safe-area-inset-top)) 16px 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    z-index: 12;
+}
+.buyer-promo-banner p { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.teks-atas.buyer-promo-banner--mobile { display: none; }
+.buyer-nav-icon { display: block; width: 22px; height: 22px; flex: 0 0 auto; }
 #buyer-account-menu[hidden] { display: none !important; }
 #buyer-account-menu {
     position: fixed;
@@ -32,20 +48,22 @@
 html.buyer-menu-open, html.buyer-menu-open body { overflow: hidden; overscroll-behavior: none; }
 .buyer-mobile-header :focus-visible, #buyer-account-menu :focus-visible, .account-mobile-tabs a:focus-visible { outline: 2px solid var(--hijau); outline-offset: 3px; }
 .buyer-desktop-spacer { height: var(--buyer-header-bottom, 107px) !important; }
-.buyer-desktop-header { width: 100%; left: 0; }
+.buyer-desktop-header { width: 100%; left: 0; top: var(--buyer-promo-height, 0px) !important; }
 body:has(.buyer-mobile-header) .container-kategori-sticky { top: var(--buyer-header-bottom, 116px) !important; }
 body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bottom, 86px); }
 .kategori-dropdown-menu { max-width: calc(100vw - 24px); overscroll-behavior: contain; }
 
 @media (max-width: 991.98px) {
+    .teks-atas.buyer-promo-banner--desktop { display: none; }
+    .teks-atas.buyer-promo-banner--mobile { display: flex; }
     .buyer-desktop-header, .buyer-desktop-spacer { display: none !important; }
     .buyer-mobile-header {
         display: block !important;
         position: fixed;
-        top: 0 !important;
+        top: var(--buyer-promo-height, 0px) !important;
         left: 0;
         width: 100%;
-        padding: calc(8px + env(safe-area-inset-top)) 0 8px !important;
+        padding: 8px 0 !important;
         background: rgba(255, 255, 255, .98) !important;
         border-bottom: 1px solid var(--bs-border-color, #e5e7eb);
         z-index: 11;

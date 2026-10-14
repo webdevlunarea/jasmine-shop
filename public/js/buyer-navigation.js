@@ -4,6 +4,7 @@
     if (!header) return; // The admin layout uses its own navigation.
 
     const desktopHeader = document.querySelector('.buyer-desktop-header');
+    const promoBanners = document.querySelectorAll('.buyer-promo-banner');
     const mobile = window.matchMedia('(max-width: 991.98px)');
     const toggle = document.getElementById('buyer-account-toggle');
     const menu = document.getElementById('buyer-account-menu');
@@ -20,6 +21,13 @@
     }
 
     function syncHeader() {
+        let promoBottom = 0;
+        promoBanners.forEach(banner => {
+            if (getComputedStyle(banner).display !== 'none') {
+                promoBottom = Math.max(promoBottom, banner.getBoundingClientRect().bottom);
+            }
+        });
+        root.style.setProperty('--buyer-promo-height', `${Math.ceil(promoBottom)}px`);
         const visibleHeader = mobile.matches ? header : desktopHeader;
         if (!visibleHeader) return;
         const bottom = Math.ceil(visibleHeader.getBoundingClientRect().bottom);
@@ -67,6 +75,7 @@
         const observer = new ResizeObserver(syncHeader);
         observer.observe(header);
         if (desktopHeader) observer.observe(desktopHeader);
+        promoBanners.forEach(banner => observer.observe(banner));
     }
     syncHeader();
 

@@ -24,6 +24,7 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
             $this->assertStringContainsString('buyer-mobile-header', $html);
             $this->assertStringContainsString('mobile-navbar-spacer', $html);
             $this->assertStringNotContainsString('id="akun-icon"', $html);
+            $this->assertSame(3, substr_count($html, '<svg class="buyer-nav-icon"'));
             if ($loggedIn && $email !== 'tamu') {
                 $this->assertSame(1, substr_count($html, 'id="buyer-account-toggle"'));
                 $this->assertStringContainsString('aria-controls="buyer-account-menu"', $html);
@@ -63,6 +64,14 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
         $this->assertStringContainsString('href="/voucher" aria-current="page"', $html);
     }
 
+    public function testPromoBannerEscapesConfiguredTextAndUsesMobileFallback(): void
+    {
+        $html = view('partials/buyer_promo', ['desktopText' => 'Promo <script>test</script>'], ['saveData' => false]);
+        $this->assertSame(2, substr_count($html, '&lt;script&gt;test&lt;/script&gt;'));
+        $this->assertStringNotContainsString('<script>', $html);
+        $this->assertStringContainsString('buyer-promo-banner--mobile', $html);
+    }
+
     private function writeBrowserFixture(string $state, string $html): void
     {
         $directory = WRITEPATH . 'cache/buyer-navigation-review';
@@ -74,13 +83,20 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
             $styles .= '<link rel="stylesheet" href="' . $publicUrl . '/css/' . $file . '">';
         }
         $tabs = view('partials/account_nav', ['activeAccountMenu' => 'voucher'], ['saveData' => false]);
+        $promo = $state === 'admin' ? '' : view('partials/buyer_promo', [
+            'desktopText' => 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
+            'mobileText' => 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
+        ], ['saveData' => false]);
         $page = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             . $styles . '<style>:root{--hijau:#207e44;--hijaumuda:#edfaf1}.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style>'
-            . '<script defer src="' . $publicUrl . '/js/buyer-navigation.js"></script></head><body>' . $html
+            . '<script defer src="' . $publicUrl . '/js/buyer-navigation.js"></script></head><body>' . $promo . $html
             . '<main class="konten account-shell"><div class="container"><div class="account-layout">' . $tabs
             . '<section class="account-content-card"><h1>Voucher saya</h1><p>Konten pembeli untuk pengujian navigasi.</p><div style="height:1200px"></div></section></div></div></main></body></html>';
         file_put_contents($directory . '/' . $state . '.html', $page);
         if ($state === 'member') {
+            file_put_contents($directory . '/member-long-promo.html', str_replace(
+                'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
+                str_repeat('Harga khusus pembelian pertama dan gratis ongkir hingga 100%. ', 4), $page));
             foreach (['home', 'all'] as $name) {
                 $source = file_get_contents(APPPATH . 'Views/pages/' . $name . '.php');
                 $start = strpos($source, 'const kategoriDropdownWraps =');
