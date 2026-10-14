@@ -735,8 +735,6 @@ window.selectedShippingCost = 0;
 let email = "<?= session()->get('email') ?>";
 let nama = "<?= session()->get('nama') ?>";
 let nohp = "<?= session()->get('nohp') ?>";
-const beratTotal = Number("<?= $beratAkhir; ?>");
-const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
 function formatRupiah(value) {
     return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
 }

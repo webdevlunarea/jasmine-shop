@@ -3455,9 +3455,6 @@ class Pages extends BaseController
         $produkJson = [];
         $total = 0;
         $subtotal = 0;
-        $berat = 0;
-        $beratHitung = 0;
-        $dimensiSemua = [];
         $shippingWeightDetails = [];
         $paket = [];
         $paketFilter = [];
@@ -3483,9 +3480,6 @@ class Pages extends BaseController
                     $hasil = round($persen * $produknya['harga']);
                     $subtotal += $hasil * $element['jumlah'];
                     $dimensi = $this->normalizeProductDimensions($produknya['dimensi'] ?? '');
-                    array_push($dimensiSemua, $dimensi['raw']);
-                    $berat += $produknya['berat'] * $element['jumlah'];
-                    $beratHitung += ceil($dimensi['length'] * $dimensi['width'] * $dimensi['height'] / 3500) * $element['jumlah']; //kg
                     $shippingWeightDetails[] = [
                         'name' => $produknya['nama'],
                         'variant' => $element['varian'],
@@ -3548,7 +3542,6 @@ class Pages extends BaseController
             return redirect()->to('/cart');
         }
 
-        $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
         $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang);
 
        
@@ -3735,10 +3728,8 @@ class Pages extends BaseController
             'produkJson' => json_encode($produkJson),
             'alamatJson' => json_encode($alamat),
             'jumlah' => $jumlah,
-            'beratAkhir' => $beratAkhir, //kilogram
             'shippingWeightGrams' => $shippingWeightGrams,
             'shippingWeightDetails' => $shippingWeightDetails,
-            'dimensiSemua' => implode("-", $dimensiSemua),
             'user' => $user,
             'total' => $total,
             'subtotal' => $subtotal,
