@@ -3458,6 +3458,7 @@ class Pages extends BaseController
         $berat = 0;
         $beratHitung = 0;
         $dimensiSemua = [];
+        $shippingWeightDetails = [];
         $paket = [];
         $paketFilter = [];
         $indElementNotFound = [];
@@ -3485,6 +3486,14 @@ class Pages extends BaseController
                     array_push($dimensiSemua, $dimensi['raw']);
                     $berat += $produknya['berat'] * $element['jumlah'];
                     $beratHitung += ceil($dimensi['length'] * $dimensi['width'] * $dimensi['height'] / 3500) * $element['jumlah']; //kg
+                    $shippingWeightDetails[] = [
+                        'name' => $produknya['nama'],
+                        'variant' => $element['varian'],
+                        'quantity' => (int)$element['jumlah'],
+                        'weight_kg' => (float)str_replace(',', '.', (string)($produknya['berat'] ?? 0)),
+                        'total_weight_kg' => max(0, (float)str_replace(',', '.', (string)($produknya['berat'] ?? 0))) * (int)$element['jumlah'],
+                        'dimension' => $dimensi['raw'],
+                    ];
 
                     array_push($produkJson, array(
                         'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
@@ -3540,6 +3549,7 @@ class Pages extends BaseController
         }
 
         $beratAkhir = $berat > $beratHitung ? $berat : $beratHitung;
+        $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang);
 
        
         // $curl = curl_init();
@@ -3726,6 +3736,8 @@ class Pages extends BaseController
             'alamatJson' => json_encode($alamat),
             'jumlah' => $jumlah,
             'beratAkhir' => $beratAkhir, //kilogram
+            'shippingWeightGrams' => $shippingWeightGrams,
+            'shippingWeightDetails' => $shippingWeightDetails,
             'dimensiSemua' => implode("-", $dimensiSemua),
             'user' => $user,
             'total' => $total,

@@ -619,6 +619,27 @@
                         </a>
                     </div>
                     <?php } ?>
+                    <details class="checkout-shipping-audit my-3">
+                        <summary class="shipping-audit-toggle">
+                            <span>
+                                <i class="material-icons">scale</i>
+                                <b>Detail berat untuk ongkir</b>
+                            </span>
+                            <small><?= number_format(((int)($shippingWeightGrams ?? 1000)) / 1000, 2, ',', '.'); ?> kg dikirim ke RajaOngkir</small>
+                        </summary>
+                        <div class="shipping-audit-body">
+                            <p class="text-secondary small mb-2">Data ini membantu audit jika ongkir terlihat tidak wajar. Perhitungan ongkir baru memakai berat aktual produk dari Luna Sistem, lalu dikirim ke RajaOngkir dalam gram.</p>
+                            <?php foreach (($shippingWeightDetails ?? []) as $weightItem) { ?>
+                                <div class="shipping-weight-row">
+                                    <div>
+                                        <strong><?= esc($weightItem['name']); ?></strong>
+                                        <small><?= esc($weightItem['variant']); ?> · Qty <?= (int)$weightItem['quantity']; ?> · Dimensi <?= esc($weightItem['dimension']); ?> cm</small>
+                                    </div>
+                                    <span><?= number_format((float)$weightItem['weight_kg'], 2, ',', '.'); ?> kg x <?= (int)$weightItem['quantity']; ?> = <b><?= number_format((float)$weightItem['total_weight_kg'], 2, ',', '.'); ?> kg</b></span>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </details>
                     <div class="border-bottom py-2">
                         <div class="d-flex justify-content-between align-items-start gap-3">
                             <div>
@@ -627,7 +648,7 @@
                             </div>
                             <button class="btn btn-sm btn-outline-success" type="button" onclick="loadShippingQuotes()">Cek Ongkir</button>
                         </div>
-                        <div id="shipping-options" class="d-flex flex-column gap-2 mt-2"></div>
+                        <div id="shipping-options" class="shipping-options-list mt-2"></div>
                     </div>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Ongkir:</p>
@@ -650,7 +671,7 @@
                                     Privasi</a> yang berlaku</label>
                         </p>
                     </div>
-                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button"
+                    <button id="btn-checkout" class="btn btn-primary1 disabled" type="button" disabled
                         onclick="openMetode()">Bayar</button>
                 </div>
             </div>
@@ -674,6 +695,14 @@ function closeRedeem() {
 const modalMetodeBayarElm = document.getElementById('modal-metode-bayar');
 
 function openMetode() {
+    const tokenInput = document.getElementById('shipping_quote_token');
+    const helper = document.getElementById('shipping-helper');
+    if (!tokenInput || !tokenInput.value) {
+        if (helper) helper.innerHTML = 'Pilih metode pengiriman terlebih dahulu sebelum melanjutkan pembayaran.';
+        const shippingBox = document.getElementById('shipping-options');
+        if (shippingBox) shippingBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
     modalMetodeBayarElm.classList.remove('d-none')
     modalMetodeBayarElm.classList.add('d-flex')
 }
@@ -717,6 +746,7 @@ function updateCheckoutShippingTotal(cost) {
     const shippingCostLabel = document.getElementById('shipping-cost-label');
     if (shippingCostLabel) shippingCostLabel.innerHTML = formatRupiah(window.selectedShippingCost);
     if (totalElm) totalElm.innerHTML = formatRupiah(checkoutBaseTotal + window.selectedShippingCost);
+    refreshCheckoutButtonState();
 
     const selectedPayment = document.querySelector('input[name="pembayaran"]:checked');
     if (selectedPayment) {
@@ -734,6 +764,7 @@ function resetShippingSelection() {
     if (container) container.innerHTML = '';
     if (helper) helper.innerHTML = 'Alamat berubah. Klik cek ongkir untuk memperbarui pilihan pengiriman.';
     updateCheckoutShippingTotal(0);
+    refreshCheckoutButtonState();
 }
 
 function selectedAddressPayload() {
@@ -786,14 +817,15 @@ async function loadShippingQuotes() {
             return;
         }
 
-        helper.innerHTML = 'Pilih salah satu metode pengiriman.';
+        helper.innerHTML = 'Pilih salah satu metode pengiriman. Pilihan termurah tampil di atas.';
         container.innerHTML = quotes.map((q, idx) => {
             const label = `${q.courier_name || 'Pengiriman'} ${q.service_name || q.service_code || ''}`.trim();
             const desc = q.description ? `<small class="text-secondary d-block">${q.description}</small>` : '';
             const etd = q.etd ? `<small class="text-secondary d-block">Estimasi: ${q.etd}</small>` : '';
-            return `<label class="border rounded px-3 py-2 d-flex justify-content-between gap-3 align-items-start" style="cursor:pointer;">
-                <span><input type="radio" name="shipping_option_radio" value="${q.token}" data-cost="${q.cost}" ${idx === 0 ? 'checked' : ''}> <span class="fw-bold">${label}</span>${desc}${etd}</span>
-                <span class="fw-bold" style="color: var(--hijau);">${formatRupiah(q.cost)}</span>
+            const badge = idx === 0 ? '<em>Termurah</em>' : '';
+            return `<label class="shipping-option-card">
+                <span class="shipping-option-main"><input type="radio" name="shipping_option_radio" value="${q.token}" data-cost="${q.cost}" ${idx === 0 ? 'checked' : ''}> <span><b>${label}</b>${desc}${etd}</span></span>
+                <span class="shipping-option-price">${badge}${formatRupiah(q.cost)}</span>
             </label>`;
         }).join('');
 
@@ -811,6 +843,7 @@ async function loadShippingQuotes() {
     } catch (error) {
         console.error(error);
         helper.innerHTML = 'Pengiriman belum bisa dihitung otomatis. Silakan coba lagi atau hubungi admin.';
+        refreshCheckoutButtonState();
     }
 }
 let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>",
@@ -836,6 +869,33 @@ function titleCase(str) {
 }
 
 const btnCheckoutElm = document.getElementById('btn-checkout')
+
+function isShippingSelected() {
+    const tokenInput = document.getElementById('shipping_quote_token');
+    return !!(tokenInput && tokenInput.value);
+}
+
+function isBasicCheckoutFormValid() {
+    if (email == 'tamu') {
+        return inputEmailPemElm.value != '' && inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '';
+    }
+
+    return inputNamaElm.value != '' && inputNohpElm.value != '' && checkboxElm.checked && provElm.value != '' && kotaElm.value != '' && kecElm.value != '' && kodeElm.value != '' && inputAlamatAddElm.value != '';
+}
+
+function refreshCheckoutButtonState() {
+    if (!btnCheckoutElm) return;
+    const isReady = isBasicCheckoutFormValid() && isShippingSelected();
+    btnCheckoutElm.classList.toggle('disabled', !isReady);
+    btnCheckoutElm.disabled = !isReady;
+    btnCheckoutElm.title = isReady ? '' : 'Lengkapi data dan pilih pengiriman terlebih dahulu.';
+}
+
+document.querySelectorAll('#form-checkout input, #form-checkout select, #form-checkout textarea').forEach((field) => {
+    field.addEventListener('input', () => setTimeout(refreshCheckoutButtonState, 0));
+    field.addEventListener('change', () => setTimeout(refreshCheckoutButtonState, 0));
+});
+refreshCheckoutButtonState();
 
 async function getKota(idprov) {
     kotaElm.innerHTML = '<option value="">Loading kota…</option>';
@@ -1106,4 +1166,167 @@ inputNohpElm.addEventListener("input", (e) => {
 })
 </script>
 <?php } ?>
+<style>
+    .checkout-shipping-audit {
+        border: 1px solid rgba(32, 126, 68, .14);
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(237, 250, 241, .9), #fff);
+        overflow: hidden;
+    }
+
+    .shipping-audit-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .shipping-audit-toggle::-webkit-details-marker {
+        display: none;
+    }
+
+    .shipping-audit-toggle span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #20303d;
+    }
+
+    .shipping-audit-toggle .material-icons {
+        color: var(--hijau);
+        font-size: 20px;
+    }
+
+    .shipping-audit-toggle small {
+        color: var(--hijau);
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .shipping-audit-body {
+        border-top: 1px solid rgba(32, 126, 68, .12);
+        padding: 12px 14px;
+        display: grid;
+        gap: 8px;
+    }
+
+    .shipping-weight-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, .06);
+    }
+
+    .shipping-weight-row strong,
+    .shipping-weight-row small {
+        display: block;
+    }
+
+    .shipping-weight-row small {
+        color: #66737f;
+        margin-top: 2px;
+    }
+
+    .shipping-weight-row span {
+        text-align: right;
+        white-space: nowrap;
+        color: #20303d;
+    }
+
+    .shipping-options-list {
+        display: grid;
+        gap: 8px;
+        max-height: 260px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .shipping-option-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid rgba(32, 126, 68, .16);
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+    .shipping-option-card:hover,
+    .shipping-option-card:has(input:checked) {
+        border-color: var(--hijau);
+        box-shadow: 0 8px 20px rgba(32, 126, 68, .08);
+        background: rgba(237, 250, 241, .8);
+    }
+
+    .shipping-option-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .shipping-option-main b {
+        display: block;
+        line-height: 1.2;
+    }
+
+    .shipping-option-main small {
+        font-size: 11px;
+        line-height: 1.25;
+    }
+
+    .shipping-option-price {
+        display: grid;
+        justify-items: end;
+        gap: 2px;
+        color: var(--hijau);
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .shipping-option-price em {
+        font-style: normal;
+        font-size: 10px;
+        color: #fff;
+        background: var(--hijau);
+        border-radius: 999px;
+        padding: 2px 7px;
+    }
+
+    #btn-checkout:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        pointer-events: auto;
+    }
+
+    @media (max-width: 575.98px) {
+        .shipping-audit-toggle,
+        .shipping-weight-row,
+        .shipping-option-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .shipping-audit-toggle small,
+        .shipping-weight-row span,
+        .shipping-option-price {
+            text-align: left;
+            justify-items: start;
+            white-space: normal;
+        }
+
+        .shipping-options-list {
+            max-height: 320px;
+        }
+    }
+</style>
 <?= $this->endSection(); ?>
