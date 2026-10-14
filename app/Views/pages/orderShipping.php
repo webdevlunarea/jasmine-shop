@@ -19,20 +19,20 @@ $trackingNumber = trim((string)($shipment['tracking_number'] ?? $pemesanan['resi
 $shippingStatus = $shipment['shipping_status'] ?? (($kurir ?? '') === 'kosong' ? 'Sedang diproses' : 'Dikirim');
 $shippingCost = $shipment ? (int)($shipment['shipping_cost'] ?? 0) : null;
 ?>
-<div class="konten">
+<div class="konten order-page-shell">
     <div class="container">
-        <div class="d-flex justify-content-center align-items-center gap-2 my-5">
+        <div class="d-flex justify-content-center align-items-center gap-2 my-5 order-steps">
             <div style="background-color: var(--hijau); padding: 1em; border-radius: 2em;"><i class="material-icons text-light">access_time</i></div>
-            <div style="color: var(--hijau)">--------</div>
+            <div class="order-step-connector" style="color: var(--hijau)">--------</div>
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div style="background-color: var(--hijau); padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
                 <p class="m-0 text-center fw-bold" style="line-height: 20px; color: var(--hijau)"><?= $kurir == 'kosong' ? 'Diproses' : 'Dikirim'; ?></p>
             </div>
-            <div style="color: gray">--------</div>
+            <div class="order-step-connector" style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
         </div>
     </div>
-    <div class="py-1 text-light w-100 text-center mb-5" style="background-color: var(--hijau);">ID
+    <div class="py-1 text-light w-100 text-center mb-5 order-reference" style="background-color: var(--hijau);">ID
         Pesanan :
         <b><?= $pemesanan['id_midtrans']; ?></b>
     </div>
@@ -40,7 +40,7 @@ $shippingCost = $shipment ? (int)($shipment['shipping_cost'] ?? 0) : null;
         <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom">
             <div class="limapuluh-ke-seratus">
-                <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex justify-content-between mb-3 order-payment-summary">
                     <div class="flex-grow-1">
                         <p class="m-0">Metode Pembayaran</p>
                         <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
@@ -142,7 +142,7 @@ $shippingCost = $shipment ? (int)($shipment['shipping_cost'] ?? 0) : null;
                 </div>
                 <div>
                     <p class="m-0 fw-bold">Alamat</p>
-                    <p class="m-0"><?= $pemesanan['alamat_pen']; ?></h5>
+                    <p class="m-0"><?= esc($pemesanan['alamat_pen']); ?></p>
                 </div>
             </div>
         </div>

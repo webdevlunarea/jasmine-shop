@@ -42,7 +42,7 @@ $shippingStatusLabel = function (?array $shipment, array $order): string {
 };
 $flashMsg = session()->getFlashdata('msg');
 ?>
-<div class="konten account-shell">
+<div class="konten account-shell transaction-page-shell">
     <div class="container">
         <?php $activeAccountMenu = 'transaction'; ?>
         <div class="account-layout">
@@ -172,7 +172,7 @@ $flashMsg = session()->getFlashdata('msg');
                                                 $transactionItems = json_decode($item_transaksi['items'] ?? '[]', true);
                                                 $transactionItems = is_array($transactionItems) ? $transactionItems : [];
                                                 foreach ($transactionItems as $item) { ?>
-                                                    <div class="w-100 d-flex">
+                                                    <div class="w-100 d-flex transaction-product-row">
                                                         <div style="flex: 2;">
                                                             <p class="mb-0"><?= $item['name']; ?></p>
                                                         </div>

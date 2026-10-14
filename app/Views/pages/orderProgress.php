@@ -17,20 +17,20 @@
         transition: 0.2s;
     }
 </style>
-<div class="konten">
+<div class="konten order-page-shell">
     <div class="container">
-        <div class="d-flex justify-content-center align-items-center gap-2 my-5">
+        <div class="d-flex justify-content-center align-items-center gap-2 my-5 order-steps">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div style="background-color: var(--hijau); padding: 1em; border-radius: 2em;"><i class="material-icons text-light">access_time</i></div>
                 <p class="m-0 text-center fw-bold" style="line-height: 20px; color: var(--hijau)">Menunggu<br>Pembayaran</p>
             </div>
-            <div style="color: gray">--------</div>
+            <div class="order-step-connector" style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
-            <div style="color: gray">--------</div>
+            <div class="order-step-connector" style="color: gray">--------</div>
             <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
         </div>
     </div>
-    <div class="py-1 text-light w-100 text-center mb-5" style="background-color: var(--hijau);">ID
+    <div class="py-1 text-light w-100 text-center mb-5 order-reference" style="background-color: var(--hijau);">ID
         Pesanan :
         <b><?= $pemesanan['id_midtrans']; ?></b>
     </div>
@@ -38,7 +38,7 @@
         <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
         <div class="baris-ke-kolom mb-3">
             <div class="limapuluh-ke-seratus">
-                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 0.5em 2em;">
+                <div class="order-payment-summary" style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 0.5em 2em;">
                     <div>
                         <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
                             <p class="m-0"><?= $dataMid['payment_type'] == 'rekening' ? 'Nomor Rekening' : 'Nomor Virtual Account'; ?></p>

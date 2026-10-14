@@ -4,7 +4,7 @@
 .btn-use-point {
     display: flex;
     justify-content: space-between;
-    gap: 10em;
+    gap: 1rem;
     color: black;
     width: 100%;
     border: 1px solid var(--hijau);
@@ -57,7 +57,7 @@
         </form>
     </div>
 </div>
-<div class="konten">
+<div class="konten checkout-page-shell">
     <div class="container">
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
             <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
@@ -293,8 +293,8 @@
                     </div>
                 </div>
             </div>
-            <div class="baris-ke-kolom gap-5 mt-3">
-                <div class="w-100">
+            <div class="checkout-layout mt-3">
+                <div class="checkout-recipient-column">
                     <?php if ($msg) { ?>
                     <div class="alert alert-danger" role="alert">
                         <?= $msg; ?>
@@ -425,7 +425,7 @@
                     </div>
                 </div>
 
-                <div style="width: 100%; max-width: 400px;">
+                <div class="checkout-summary">
                     <?php if (session()->get('email') != 'tamu') { ?>
                     <div onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
                         <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
@@ -539,7 +539,7 @@
                                     class="material-icons">edit</i></a>
                         </div>
                         <hr class="mb-1 mt-1">
-                        <table class="table table-borderless m-0">
+                        <table class="table table-borderless m-0 checkout-products-table">
                             <tbody>
                                 <?php foreach ($produk as $index => $p) { ?>
                                 <tr>
@@ -552,7 +552,7 @@
                                         <p class="mb-0"><?= $jumlah[$index]; ?></p>
                                     </td>
                                     <td class="text-end">
-                                        <p class="mb-0" style="text-wrap: nowrap;">Rp
+                                        <p class="mb-0 checkout-product-price">Rp
                                             <?php
                                                 if ($p['diskon']) {
                                                     $persen = (100 - $p['diskon']) / 100;
@@ -569,20 +569,20 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="d-flex justify-content-between border-bottom border-top mt-3" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom border-top mt-3 checkout-total-row">
                         <p class="my-2">Subtotal:</p>
                         <p class="my-2"><b>Rp <?= number_format($subtotal, 0, ",", "."); ?></b></p>
                     </div>
                     <?php if ($diskonVoucher > 0) { ?>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Diskon Voucher:</p>
                         <p class="my-2"><b>- Rp <?= number_format($diskonVoucher, 0, ",", "."); ?></b></p>
                     </div>
                     <?php } ?>
                     <?php if ($totalkaca > 0) { ?>
                     <a href="/gantikaca/<?= $gantiKaca ? 'false' : 'true' ?>"
-                        class="d-flex justify-content-between border-bottom"
-                        style="gap: 10em; color: <?= $gantiKaca ? 'var(--hijau)' : 'gray'; ?>;">
+                        class="d-flex justify-content-between border-bottom checkout-total-row"
+                        style="color: <?= $gantiKaca ? 'var(--hijau)' : 'gray'; ?>;">
                         <div class="d-flex gap-2 align-items-center">
                             <i class="material-icons"><?= $gantiKaca ? 'check_box' : 'check_box_outline_blank'; ?></i>
                             <p class="my-2">Proteksi Kaca:</p>
@@ -590,12 +590,12 @@
                         <p class="my-2"><b>Rp <?= number_format($totalkaca, 0, ",", "."); ?></b></p>
                     </a>
                     <?php } ?>
-                    <!-- <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <!-- <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Biaya Admin:</p>
                         <p class="my-2"><b>Rp 5.000</b></p>
                     </div> -->
                     <?php if ($potonganPreorder > 0) { ?>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Potongan Preorder:</p>
                         <p class="my-2"><b id="total-semua">- Rp
                                 <?= number_format($potonganPreorder, 0, ",", "."); ?></b>
@@ -603,7 +603,7 @@
                     </div>
                     <?php } ?>
                     <?php if ($poin > 0) { ?>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <a href="/point/<?= $usepoin ? 'cancel' : 'use'; ?>"
                             class="btn-use-point <?= $usepoin ? 'use' : ''; ?>">
                             <?php if ($usepoin) { ?>
@@ -642,7 +642,7 @@
                         </div>
                     </details>
                     <div class="border-bottom py-2">
-                        <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="d-flex justify-content-between align-items-start gap-3 shipping-request-header">
                             <div>
                                 <p class="my-1 fw-bold">Pengiriman:</p>
                                 <p class="m-0 text-secondary" id="shipping-helper" style="font-size: small;">Lengkapi alamat untuk melihat pilihan pengiriman.</p>
@@ -651,11 +651,11 @@
                         </div>
                         <div id="shipping-options" class="shipping-options-list mt-2"></div>
                     </div>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Ongkir:</p>
                         <p class="my-2"><b id="shipping-cost-label">Rp 0</b></p>
                     </div>
-                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Total:</p>
                         <p class="my-2" style="color: var(--hijau);"><b id="checkout-grand-total">Rp
                                 <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0), 0, ",", "."); ?></b>

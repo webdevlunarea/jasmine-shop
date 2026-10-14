@@ -123,6 +123,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <script defer src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="/css/style.css?v=<?= time(); ?>">
+    <link rel="stylesheet" href="/css/commerce-responsive.css?v=<?= filemtime(FCPATH . 'css/commerce-responsive.css'); ?>">
     <style id="global-theme-tone">
     :root,
     * {
