@@ -26,7 +26,7 @@ class RajaOngkirRateProvider
         }
 
         $settings = json_decode((string)($method['settings'] ?? '{}'), true);
-        $originId = trim((string)($settings['origin_id'] ?? ''));
+        $originId = trim((string)($settings['origin_id'] ?? '')) ?: '399';
         $destinationId = trim((string)($address['rajaongkir_destination_id'] ?? ''));
         $couriers = $settings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
 
