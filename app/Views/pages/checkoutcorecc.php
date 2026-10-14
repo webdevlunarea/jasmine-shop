@@ -717,6 +717,13 @@ function updateCheckoutShippingTotal(cost) {
     const shippingCostLabel = document.getElementById('shipping-cost-label');
     if (shippingCostLabel) shippingCostLabel.innerHTML = formatRupiah(window.selectedShippingCost);
     if (totalElm) totalElm.innerHTML = formatRupiah(checkoutBaseTotal + window.selectedShippingCost);
+
+    const selectedPayment = document.querySelector('input[name="pembayaran"]:checked');
+    if (selectedPayment) {
+        selectedPayment.dispatchEvent(new Event('change', {
+            bubbles: true
+        }));
+    }
 }
 
 function resetShippingSelection() {

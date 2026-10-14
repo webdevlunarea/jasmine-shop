@@ -4110,8 +4110,7 @@ class Pages extends BaseController
 
     protected function calculateCartShippingWeightGrams(array $keranjang): int
     {
-        $actualKg = 0;
-        $volumeKg = 0;
+        $actualKg = 0.0;
 
         foreach ($keranjang as $element) {
             $produknya = $this->barangModel->getBarang($element['id'] ?? '');
@@ -4120,14 +4119,11 @@ class Pages extends BaseController
             }
 
             $qty = max(1, (int)($element['jumlah'] ?? 1));
-            $dimensi = $this->normalizeProductDimensions($produknya['dimensi'] ?? '');
-            $actualKg += ((float)($produknya['berat'] ?? 0)) * $qty;
-            $volumeKg += ceil($dimensi['length'] * $dimensi['width'] * $dimensi['height'] / 3500) * $qty;
+            $weightKg = (float)str_replace(',', '.', (string)($produknya['berat'] ?? 0));
+            $actualKg += max(0, $weightKg) * $qty;
         }
 
-        $chargeableKg = max($actualKg, $volumeKg, 1);
-
-        return (int)ceil($chargeableKg * 1000);
+        return max(1000, (int)ceil($actualKg * 1000));
     }
 
     public function getPaket($asal, $tujuan, $berat, $kurir)
