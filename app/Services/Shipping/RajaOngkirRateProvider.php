@@ -49,8 +49,11 @@ class RajaOngkirRateProvider
             $originId = $this->resolveOriginId($client, $apiKey, $settings);
 
             if ($originId === '' || $destinationId === '') {
+                log_message('warning', 'RajaOngkir quote skipped: origin_id or destination_id is empty. origin=' . $originId . ' destination=' . $destinationId);
                 return [];
             }
+
+            log_message('info', 'RajaOngkir quote request origin=' . $originId . ' destination=' . $destinationId . ' weight=' . max(1, $weightGrams) . ' courier=' . $courier);
 
             $response = $client->post('https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost', [
                 'headers' => [
@@ -116,12 +119,25 @@ class RajaOngkirRateProvider
             return $originId;
         }
 
+        $originKecamatan = trim((string)($settings['origin_kecamatan'] ?? ''));
+        $originKelurahan = trim((string)($settings['origin_kelurahan'] ?? ''));
+        $originPostalCode = trim((string)($settings['origin_postal_code'] ?? $settings['origin_zip'] ?? ''));
+
+        // Hindari auto-search origin yang terlalu umum seperti "Kota Semarang".
+        // RajaOngkir memakai ID destination level kecamatan/kelurahan; jika origin terlalu umum,
+        // hasil pertama API bisa salah dan tarif checkout terlihat sangat mahal.
+        if ($originKecamatan === '' && $originPostalCode === '') {
+            log_message('warning', 'RajaOngkir origin belum spesifik. Isi Origin ID RajaOngkir atau kecamatan/kodepos origin di admin.');
+            return '';
+        }
+
         $originLabel = trim((string)($settings['origin_label'] ?? 'Kota Semarang Jawa Tengah'));
         $originAddress = [
-            'kodepos' => trim((string)($settings['origin_postal_code'] ?? $settings['origin_zip'] ?? '')),
-            'kelurahan_label' => trim((string)($settings['origin_kelurahan'] ?? '')),
-            'kecamatan_label' => trim((string)($settings['origin_kecamatan'] ?? '')),
+            'kodepos' => $originPostalCode,
+            'kelurahan_label' => $originKelurahan,
+            'kecamatan_label' => $originKecamatan,
             'kabupaten_label' => $originLabel ?: 'Kota Semarang Jawa Tengah',
+            'provinsi_label' => trim((string)($settings['origin_provinsi'] ?? 'Jawa Tengah')),
         ];
 
         return $this->searchDestinationId($client, $apiKey, $originAddress);
@@ -129,25 +145,46 @@ class RajaOngkirRateProvider
 
     protected function searchDestinationId($client, string $apiKey, array $address): string
     {
-        $searchParts = [
-            trim((string)($address['kodepos'] ?? '')),
-            trim((string)($address['kelurahan_label'] ?? '')),
-            trim((string)($address['kecamatan_label'] ?? '')),
-            trim((string)($address['kabupaten_label'] ?? '')),
-        ];
+        $kodepos = trim((string)($address['kodepos'] ?? ''));
+        $kelurahan = trim((string)($address['kelurahan_label'] ?? ''));
+        $kecamatan = trim((string)($address['kecamatan_label'] ?? ''));
+        $kabupaten = trim((string)($address['kabupaten_label'] ?? ''));
+        $provinsi = trim((string)($address['provinsi_label'] ?? ''));
 
-        $searchParts = array_values(array_filter($searchParts));
         $queries = [];
 
-        if (!empty($address['kodepos'])) {
-            $queries[] = (string)$address['kodepos'];
+        if ($kelurahan !== '' && $kecamatan !== '') {
+            $queries[] = $kelurahan . ' ' . $kecamatan;
         }
 
-        if (!empty($searchParts)) {
-            $queries[] = implode(' ', array_slice($searchParts, 0, 3));
+        if ($kecamatan !== '' && $kabupaten !== '') {
+            $queries[] = $kecamatan . ' ' . $kabupaten;
         }
 
-        foreach (array_unique($queries) as $query) {
+        if ($kodepos !== '') {
+            $queries[] = $kodepos;
+        }
+
+        if ($kecamatan !== '') {
+            $queries[] = $kecamatan;
+        }
+
+        if ($kabupaten !== '' && ($kecamatan !== '' || $kodepos !== '')) {
+            $queries[] = $kabupaten;
+        }
+
+        $queries = array_values(array_unique(array_filter($queries)));
+        if (empty($queries)) {
+            return '';
+        }
+
+        $bestId = '';
+        $bestScore = 0;
+        $bestLabel = '';
+        $needsSpecificMatch = ($kecamatan !== '' || $kodepos !== '');
+        $minimumScore = $needsSpecificMatch ? 3 : 2;
+
+        foreach ($queries as $query) {
             try {
                 $response = $client->get('https://rajaongkir.komerce.id/api/v1/destination/domestic-destination', [
                     'headers' => [
@@ -169,25 +206,101 @@ class RajaOngkirRateProvider
                     continue;
                 }
 
-                $kecamatan = strtolower(trim((string)($address['kecamatan_label'] ?? '')));
-                $kodepos = trim((string)($address['kodepos'] ?? ''));
-
                 foreach ($payload['data'] as $row) {
-                    $rowDistrict = strtolower(trim((string)($row['district_name'] ?? '')));
-                    $rowSubdistrict = strtolower(trim((string)($row['subdistrict_name'] ?? '')));
-                    $rowZip = trim((string)($row['zip_code'] ?? ''));
+                    $score = $this->scoreDestinationRow($row, [
+                        'kodepos' => $kodepos,
+                        'kelurahan_label' => $kelurahan,
+                        'kecamatan_label' => $kecamatan,
+                        'kabupaten_label' => $kabupaten,
+                        'provinsi_label' => $provinsi,
+                    ]);
 
-                    if (($kodepos !== '' && $rowZip === $kodepos) || ($kecamatan !== '' && ($rowDistrict === $kecamatan || $rowSubdistrict === $kecamatan))) {
-                        return (string)($row['id'] ?? '');
+                    if ($score > $bestScore) {
+                        $bestScore = $score;
+                        $bestId = (string)($row['id'] ?? '');
+                        $bestLabel = (string)($row['label'] ?? (($row['district_name'] ?? '') . ', ' . ($row['city_name'] ?? '')));
                     }
                 }
-
-                return (string)($payload['data'][0]['id'] ?? '');
             } catch (\Throwable $e) {
                 log_message('error', 'RajaOngkir destination search error: ' . $e->getMessage());
             }
         }
 
+        if ($bestId !== '' && $bestScore >= $minimumScore) {
+            log_message('info', 'RajaOngkir destination matched id=' . $bestId . ' score=' . $bestScore . ' label=' . $bestLabel);
+            return $bestId;
+        }
+
+        log_message('warning', 'RajaOngkir destination match failed. score=' . $bestScore . ' kecamatan=' . $kecamatan . ' kodepos=' . $kodepos . ' kabupaten=' . $kabupaten);
         return '';
     }
+
+    protected function scoreDestinationRow(array $row, array $address): int
+    {
+        $score = 0;
+        $kodepos = trim((string)($address['kodepos'] ?? ''));
+        $kelurahan = $this->normalizeLocationName((string)($address['kelurahan_label'] ?? ''));
+        $kecamatan = $this->normalizeLocationName((string)($address['kecamatan_label'] ?? ''));
+        $kabupaten = $this->normalizeLocationName((string)($address['kabupaten_label'] ?? ''));
+        $provinsi = $this->normalizeLocationName((string)($address['provinsi_label'] ?? ''));
+
+        $rowZip = trim((string)($row['zip_code'] ?? ''));
+        $rowSubdistrict = $this->normalizeLocationName((string)($row['subdistrict_name'] ?? ''));
+        $rowDistrict = $this->normalizeLocationName((string)($row['district_name'] ?? ''));
+        $rowCity = $this->normalizeLocationName((string)($row['city_name'] ?? ''));
+        $rowProvince = $this->normalizeLocationName((string)($row['province_name'] ?? ''));
+        $rowLabel = $this->normalizeLocationName((string)($row['label'] ?? ''));
+
+        if ($kodepos !== '' && $rowZip === $kodepos) {
+            $score += 4;
+        }
+
+        if ($kecamatan !== '') {
+            if ($rowDistrict === $kecamatan || $rowSubdistrict === $kecamatan) {
+                $score += 5;
+            } elseif ($this->containsEither($rowDistrict, $kecamatan) || $this->containsEither($rowSubdistrict, $kecamatan) || $this->containsEither($rowLabel, $kecamatan)) {
+                $score += 3;
+            }
+        }
+
+        if ($kelurahan !== '') {
+            if ($rowSubdistrict === $kelurahan) {
+                $score += 3;
+            } elseif ($this->containsEither($rowSubdistrict, $kelurahan) || $this->containsEither($rowLabel, $kelurahan)) {
+                $score += 1;
+            }
+        }
+
+        if ($kabupaten !== '') {
+            if ($rowCity === $kabupaten) {
+                $score += 2;
+            } elseif ($this->containsEither($rowCity, $kabupaten) || $this->containsEither($rowLabel, $kabupaten)) {
+                $score += 1;
+            }
+        }
+
+        if ($provinsi !== '' && ($rowProvince === $provinsi || $this->containsEither($rowProvince, $provinsi) || $this->containsEither($rowLabel, $provinsi))) {
+            $score += 1;
+        }
+
+        return $score;
+    }
+
+    protected function normalizeLocationName(string $value): string
+    {
+        $value = strtolower(trim($value));
+        $value = str_replace(['kabupaten', 'kab.', 'kab ', 'kota', 'kec.', 'kecamatan', 'kel.', 'kelurahan'], '', $value);
+        $value = preg_replace('/[^a-z0-9]+/i', ' ', $value) ?? '';
+        return trim(preg_replace('/\s+/', ' ', $value) ?? '');
+    }
+
+    protected function containsEither(string $haystack, string $needle): bool
+    {
+        if ($haystack === '' || $needle === '') {
+            return false;
+        }
+
+        return str_contains($haystack, $needle) || str_contains($needle, $haystack);
+    }
 }
+

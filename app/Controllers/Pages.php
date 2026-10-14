@@ -8710,6 +8710,10 @@ class Pages extends BaseController
                     'settings' => json_encode([
                         'origin_id' => $originId,
                         'origin_label' => trim((string)$this->request->getVar('rajaongkir_origin_label')),
+                        'origin_provinsi' => trim((string)$this->request->getVar('rajaongkir_origin_provinsi')) ?: 'Jawa Tengah',
+                        'origin_kecamatan' => trim((string)$this->request->getVar('rajaongkir_origin_kecamatan')),
+                        'origin_kelurahan' => trim((string)$this->request->getVar('rajaongkir_origin_kelurahan')),
+                        'origin_postal_code' => trim((string)$this->request->getVar('rajaongkir_origin_postal_code')),
                         'couriers' => $couriers ?: ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'],
                         'quote_only' => true,
                     ]),

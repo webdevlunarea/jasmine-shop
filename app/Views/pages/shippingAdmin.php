@@ -11,6 +11,11 @@ $totalCoverage = count($coverages);
 $couriers = $rajaSettings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
 $originId = trim((string)($rajaSettings['origin_id'] ?? ''));
 $originLabel = trim((string)($rajaSettings['origin_label'] ?? '')) ?: 'Kota Semarang, Jawa Tengah';
+$originProvinsi = trim((string)($rajaSettings['origin_provinsi'] ?? '')) ?: 'Jawa Tengah';
+$originKecamatan = trim((string)($rajaSettings['origin_kecamatan'] ?? ''));
+$originKelurahan = trim((string)($rajaSettings['origin_kelurahan'] ?? ''));
+$originPostalCode = trim((string)($rajaSettings['origin_postal_code'] ?? $rajaSettings['origin_zip'] ?? ''));
+$originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode !== '';
 ?>
 
 <div class="konten">
@@ -57,7 +62,7 @@ $originLabel = trim((string)($rajaSettings['origin_label'] ?? '')) ?: 'Kota Sema
                 <span class="summary-icon origin"><i class="material-icons">my_location</i></span>
                 <div>
                     <small>Origin</small>
-                    <strong><?= esc($originLabel); ?> · ID <?= esc($originId); ?></strong>
+                    <strong><?= $originReady ? esc($originLabel) : 'Belum lengkap'; ?></strong>
                 </div>
             </div>
         </div>
@@ -94,19 +99,36 @@ $originLabel = trim((string)($rajaSettings['origin_label'] ?? '')) ?: 'Kota Sema
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
                             <div>
                                 <strong>Origin Semarang</strong>
-                                <p class="text-secondary small mb-0">Gunakan ID dari RajaOngkir Search Domestic Destination. Jika kosong, sistem mencari dari label origin.</p>
+                                <p class="text-secondary small mb-0">Isi Origin ID RajaOngkir yang valid, atau isi kecamatan/kodepos origin agar pencarian tidak salah titik.</p>
                             </div>
-                            <span class="badge text-bg-success"><?= $originId !== '' ? 'ID ' . esc($originId) : 'Auto Search'; ?></span>
+                            <span class="badge <?= $originReady ? 'text-bg-success' : 'text-bg-warning'; ?>"><?= $originId !== '' ? 'ID ' . esc($originId) : ($originReady ? 'Auto Search Spesifik' : 'Perlu Dilengkapi'); ?></span>
                         </div>
                         <div class="row g-2">
                             <div class="col-md-5">
                                 <label class="form-label fw-bold">Origin ID RajaOngkir</label>
                                 <input type="text" class="form-control" name="rajaongkir_origin_id" value="<?= esc($originId); ?>" placeholder="Opsional, ID valid dari RajaOngkir">
-                                <small class="text-secondary">Jangan isi dengan ID kota/provinsi lama. Kosongkan jika belum yakin.</small>
+                                <small class="text-secondary">Paling aman pakai ID dari Search Domestic Destination RajaOngkir.</small>
                             </div>
                             <div class="col-md-7">
                                 <label class="form-label fw-bold">Label Origin</label>
                                 <input type="text" class="form-control" name="rajaongkir_origin_label" value="<?= esc($originLabel); ?>" placeholder="Kota Semarang, Jawa Tengah">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Provinsi Origin</label>
+                                <input type="text" class="form-control" name="rajaongkir_origin_provinsi" value="<?= esc($originProvinsi); ?>" placeholder="Jawa Tengah">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Kecamatan Origin</label>
+                                <input type="text" class="form-control" name="rajaongkir_origin_kecamatan" value="<?= esc($originKecamatan); ?>" placeholder="Contoh: Tembalang">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Kode Pos Origin</label>
+                                <input type="text" class="form-control" name="rajaongkir_origin_postal_code" value="<?= esc($originPostalCode); ?>" placeholder="Contoh: 50275">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Kelurahan Origin <span class="text-secondary fw-normal">(opsional)</span></label>
+                                <input type="text" class="form-control" name="rajaongkir_origin_kelurahan" value="<?= esc($originKelurahan); ?>" placeholder="Isi jika ingin pencarian RajaOngkir lebih presisi">
+                                <small class="text-secondary">Jika Origin ID kosong dan kecamatan/kodepos juga kosong, RajaOngkir tidak dipanggil agar tarif tidak salah rute.</small>
                             </div>
                         </div>
                     </div>

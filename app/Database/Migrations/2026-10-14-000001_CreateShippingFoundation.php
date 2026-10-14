@@ -158,6 +158,10 @@ class CreateShippingFoundation extends Migration
                     'settings' => json_encode([
                         'origin_id' => '',
                         'origin_label' => 'Kota Semarang, Jawa Tengah',
+                        'origin_provinsi' => 'Jawa Tengah',
+                        'origin_kecamatan' => '',
+                        'origin_kelurahan' => '',
+                        'origin_postal_code' => '',
                         'couriers' => ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'],
                         'quote_only' => true,
                     ]),
