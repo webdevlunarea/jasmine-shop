@@ -60,6 +60,7 @@
 <div class="konten">
     <div class="container">
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
+            <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
             <div id="modal-metode-bayar" class="d-none p-2 justify-content-center align-items-center"
                 style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
                 <div style="background-color: white; max-width: 400px;" class="p-4 rounded-3">
@@ -195,7 +196,7 @@
                                 (async () => {
                                     const bodyFetchBiayaaAdmin = {
                                         bank: pembayaranSelected,
-                                        nominal: <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?>
+                                        nominal: <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?> + Number(window.selectedShippingCost || 0)
                                     }
 
                                     try {
@@ -618,9 +619,23 @@
                         </a>
                     </div>
                     <?php } ?>
+                    <div class="border-bottom py-2">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                                <p class="my-1 fw-bold">Pengiriman:</p>
+                                <p class="m-0 text-secondary" id="shipping-helper" style="font-size: small;">Lengkapi alamat untuk melihat pilihan pengiriman.</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success" type="button" onclick="loadShippingQuotes()">Cek Ongkir</button>
+                        </div>
+                        <div id="shipping-options" class="d-flex flex-column gap-2 mt-2"></div>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
+                        <p class="my-2">Ongkir:</p>
+                        <p class="my-2"><b id="shipping-cost-label">Rp 0</b></p>
+                    </div>
                     <div class="d-flex justify-content-between border-bottom" style="gap: 10em;">
                         <p class="my-2">Total:</p>
-                        <p class="my-2" style="color: var(--hijau);"><b id="total-semua">Rp
+                        <p class="my-2" style="color: var(--hijau);"><b id="checkout-grand-total">Rp
                                 <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0), 0, ",", "."); ?></b>
                         </p>
                     </div>
@@ -684,13 +699,113 @@ const kotaElm = document.querySelector('select[name="kota"]');
 const kecElm = document.querySelector('select[name="kecamatan"]');
 const kodeElm = document.querySelector('select[name="kodepos"]');
 // const costElm = document.getElementById("total-pengiriman");
-const totalElm = document.getElementById("total-semua");
-const subtotal = "<?= $subtotal; ?>";
+const totalElm = document.getElementById("checkout-grand-total") || document.getElementById("total-semua");
+const subtotal = Number("<?= $subtotal; ?>");
+const checkoutBaseTotal = Number("<?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?>");
+window.selectedShippingCost = 0;
 let email = "<?= session()->get('email') ?>";
 let nama = "<?= session()->get('nama') ?>";
 let nohp = "<?= session()->get('nohp') ?>";
 const beratTotal = Number("<?= $beratAkhir; ?>");
 const dimensiSemua = "<?= $dimensiSemua; ?>".split("-");
+function formatRupiah(value) {
+    return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+}
+
+function updateCheckoutShippingTotal(cost) {
+    window.selectedShippingCost = Number(cost || 0);
+    const shippingCostLabel = document.getElementById('shipping-cost-label');
+    if (shippingCostLabel) shippingCostLabel.innerHTML = formatRupiah(window.selectedShippingCost);
+    if (totalElm) totalElm.innerHTML = formatRupiah(checkoutBaseTotal + window.selectedShippingCost);
+}
+
+function resetShippingSelection() {
+    const tokenInput = document.getElementById('shipping_quote_token');
+    const helper = document.getElementById('shipping-helper');
+    const container = document.getElementById('shipping-options');
+    if (tokenInput) tokenInput.value = '';
+    if (container) container.innerHTML = '';
+    if (helper) helper.innerHTML = 'Alamat berubah. Klik cek ongkir untuk memperbarui pilihan pengiriman.';
+    updateCheckoutShippingTotal(0);
+}
+
+function selectedAddressPayload() {
+    const splitValue = (value) => {
+        const parts = String(value || '').split('-');
+        return { id: parts[0] || '', label: parts.slice(1).join('-') || '' };
+    };
+    const prov = splitValue(provElm.value);
+    const kab = splitValue(kotaElm.value);
+    const kec = splitValue(kecElm.value);
+    const kel = splitValue(kodeElm.value);
+    return {
+        provinsi_id: prov.id,
+        kabupaten_id: kab.id,
+        kecamatan_id: kec.id,
+        kelurahan_id: kel.id,
+        kodepos: kel.label
+    };
+}
+
+async function loadShippingQuotes() {
+    const helper = document.getElementById('shipping-helper');
+    const container = document.getElementById('shipping-options');
+    const tokenInput = document.getElementById('shipping_quote_token');
+    if (!container || !helper || !tokenInput) return;
+
+    tokenInput.value = '';
+    updateCheckoutShippingTotal(0);
+    container.innerHTML = '';
+
+    const payload = selectedAddressPayload();
+    if (!payload.provinsi_id || !payload.kabupaten_id || !payload.kecamatan_id) {
+        helper.innerHTML = 'Alamat belum lengkap. Pilih provinsi, kota, kecamatan, dan desa terlebih dahulu.';
+        return;
+    }
+
+    helper.innerHTML = 'Mengambil pilihan pengiriman...';
+    try {
+        const res = await fetch('/shipping/quote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.message || 'Gagal mengambil ongkir');
+
+        const quotes = json.data?.quotes || [];
+        if (quotes.length === 0) {
+            helper.innerHTML = json.data?.message || 'Ongkir perlu dikonfirmasi admin.';
+            return;
+        }
+
+        helper.innerHTML = 'Pilih salah satu metode pengiriman.';
+        container.innerHTML = quotes.map((q, idx) => {
+            const label = `${q.courier_name || 'Pengiriman'} ${q.service_name || q.service_code || ''}`.trim();
+            const desc = q.description ? `<small class="text-secondary d-block">${q.description}</small>` : '';
+            const etd = q.etd ? `<small class="text-secondary d-block">Estimasi: ${q.etd}</small>` : '';
+            return `<label class="border rounded px-3 py-2 d-flex justify-content-between gap-3 align-items-start" style="cursor:pointer;">
+                <span><input type="radio" name="shipping_option_radio" value="${q.token}" data-cost="${q.cost}" ${idx === 0 ? 'checked' : ''}> <span class="fw-bold">${label}</span>${desc}${etd}</span>
+                <span class="fw-bold" style="color: var(--hijau);">${formatRupiah(q.cost)}</span>
+            </label>`;
+        }).join('');
+
+        const radios = container.querySelectorAll('input[name="shipping_option_radio"]');
+        radios.forEach((radio) => {
+            radio.addEventListener('change', function() {
+                tokenInput.value = this.value;
+                updateCheckoutShippingTotal(Number(this.dataset.cost || 0));
+            });
+        });
+        if (radios[0]) {
+            tokenInput.value = radios[0].value;
+            updateCheckoutShippingTotal(Number(radios[0].dataset.cost || 0));
+        }
+    } catch (error) {
+        console.error(error);
+        helper.innerHTML = 'Pengiriman belum bisa dihitung otomatis. Silakan coba lagi atau hubungi admin.';
+    }
+}
 let prov_kab_kec_desa = ["<?= $user['alamat'] ? $user['alamat']['prov_id'] . "-" . $user['alamat']['prov'] : ''; ?>",
     "<?= $user['alamat'] ? $user['alamat']['kab_id'] . "-" . $user['alamat']['kab'] : ''; ?>",
     "<?= $user['alamat'] ? $user['alamat']['kec_id'] . "-" . $user['alamat']['kec'] : ''; ?>",
@@ -823,6 +938,7 @@ function generateAlamat(isi, posisi) {
 }
 
 provElm.addEventListener("change", (e) => {
+    resetShippingSelection();
     generateAlamat(e.target.value.split("-")[1], 5);
     kotaElm.innerHTML = '<option value="">Loading..</option>'
     kecElm.innerHTML = '<option value="">-- Pilih kecamatan --</option>';
@@ -852,6 +968,7 @@ provElm.addEventListener("change", (e) => {
     btnCheckoutElm.classList.add('disabled');
 })
 kotaElm.addEventListener("change", (e) => {
+    resetShippingSelection();
     generateAlamat(e.target.value.split("-")[1], 4);
     kecElm.innerHTML = '<option value="">Loading..</option>'
     kodeElm.innerHTML = '<option value="">-- Pilih Desa --</option>';
@@ -869,6 +986,7 @@ kotaElm.addEventListener("change", (e) => {
     btnCheckoutElm.classList.add('disabled');
 })
 kecElm.addEventListener("change", (e) => {
+    resetShippingSelection();
     const namaKec = e.target.value.split("-")[1];
     generateAlamat(namaKec, 3);
     kodeElm.innerHTML = '<option value="">Loading..</option>';
@@ -881,6 +999,7 @@ kecElm.addEventListener("change", (e) => {
     btnCheckoutElm.classList.add('disabled');
 });
 kodeElm.addEventListener("change", (e) => {
+    resetShippingSelection();
     generateAlamat(e.target.value.split("-")[0], 2);
     generateAlamat(e.target.value.split("-")[1], 6);
     // kodeElm.innerHTML = '<option value="-1">Loading..</option>'

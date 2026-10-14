@@ -13,6 +13,7 @@ if ($isAdminNav) {
         ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
         ['label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'match' => ['flashsaleadmin']],
         ['label' => 'Gambar Kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
+        ['label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
         ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
         ['label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
@@ -170,6 +171,7 @@ if ($isAdminNav) {
                             <a href="/listcustomer">List Customer</a>
                             <a href="/listproduct">List Products</a>
                             <a href="/flashsaleadmin">Flash Sale</a>
+                            <a href="/shippingadmin">Pengiriman</a>
                             <a href="/article">Artikel</a>
                             <a href="/manageratingterjual">Rating &amp; Terjual</a>
                             <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>

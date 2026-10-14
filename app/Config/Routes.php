@@ -50,6 +50,7 @@ $routes->post('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser'])
 // $routes->get('/tracking/(:any)/(:any)', 'Pages::tracking/$1/$2', ['filter' => 'harusUser']);
 
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
+$routes->post('/shipping/quote', 'Pages::shippingQuote', ['filter' => 'harusUser']);
 $routes->get('/gantikaca/(:any)', 'Pages::gantiKaca/$1', ['filter' => 'harusUser']);
 $routes->post('/getadminfee', 'Pages::getBiayaAdminMidtrans');
 $routes->post('/getalamat', 'Pages::getAllSelectAlamat');
@@ -131,6 +132,9 @@ $routes->get('/trafficadmin', 'Pages::trafficAdmin', ['filter' => 'harusAdmin'])
 $routes->get('/trafficadmin/(:num)', 'Pages::trafficAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/settingwarna', 'Pages::settingWarna', ['filter' => 'harusAdmin']);
 $routes->post('/settingwarna', 'Pages::actionSettingWarna', ['filter' => 'harusAdmin']);
+$routes->get('/shippingadmin', 'Pages::shippingAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/shippingadmin', 'Pages::actionShippingAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/shippingadmin/coverage/(:num)/deactivate', 'Pages::deactivateShippingCoverage/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
 $routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);

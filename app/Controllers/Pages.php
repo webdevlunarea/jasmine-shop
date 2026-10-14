@@ -28,6 +28,11 @@ use App\Models\RatingModel;
 use App\Models\BannerModel;
 use App\Models\TrackingModel;
 use App\Models\ReturPengajuanModel;
+use App\Models\OrderShipmentModel;
+use App\Models\ShippingInternalCoverageModel;
+use App\Models\ShippingMethodModel;
+use App\Models\ShippingQuoteModel;
+use App\Services\Shipping\ShippingService;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -56,6 +61,10 @@ class Pages extends BaseController
     protected $bannerModel;
     protected $trackingModel;
     protected $returPengajuanModel;
+    protected $shippingMethodModel;
+    protected $shippingInternalCoverageModel;
+    protected $shippingQuoteModel;
+    protected $orderShipmentModel;
 
     protected $emailUjiCoba;
 
@@ -89,6 +98,10 @@ class Pages extends BaseController
         $this->bannerModel = new BannerModel();
         $this->trackingModel = new TrackingModel();
         $this->returPengajuanModel = new ReturPengajuanModel();
+        $this->shippingMethodModel = new ShippingMethodModel();
+        $this->shippingInternalCoverageModel = new ShippingInternalCoverageModel();
+        $this->shippingQuoteModel = new ShippingQuoteModel();
+        $this->orderShipmentModel = new OrderShipmentModel();
 
         // ngambil data dari model provinsi,kabupaten, kecamatan, kelurahan
         $this->provinsiModel = new ProvinsiModel();
@@ -4027,6 +4040,96 @@ class Pages extends BaseController
         return $this->response->setJSON($kode, false);
     }
 
+    public function shippingQuote()
+    {
+        $email = session()->get('email');
+        if (!$email || $email === 'tamu') {
+            return $this->response->setStatusCode(401)->setJSON([
+                'success' => false,
+                'message' => 'Silakan login terlebih dahulu.',
+            ]);
+        }
+
+        $keranjang = session()->get('keranjang') ?: [];
+        if (empty($keranjang)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Keranjang masih kosong.',
+            ]);
+        }
+
+        $payload = $this->request->getJSON(true) ?: $this->request->getPost();
+        $address = $this->normalizeShippingAddressPayload($payload);
+
+        if ((int)$address['provinsi_id'] <= 0 || (int)$address['kabupaten_id'] <= 0 || (int)$address['kecamatan_id'] <= 0) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => 'Alamat pengiriman belum lengkap.',
+            ]);
+        }
+
+        $weightGrams = $this->calculateCartShippingWeightGrams($keranjang);
+        $service = new ShippingService();
+        $quotes = $service->getQuotes($email, $keranjang, $address, $weightGrams);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => [
+                'weight_grams' => $weightGrams,
+                'quotes' => $quotes,
+                'message' => empty($quotes) ? 'Belum ada pilihan pengiriman otomatis untuk alamat ini. Silakan hubungi admin untuk konfirmasi ongkir.' : null,
+            ],
+        ]);
+    }
+
+    protected function normalizeShippingAddressPayload(array $payload): array
+    {
+        $provinsiId = (int)($payload['provinsi_id'] ?? $payload['provinsi'] ?? 0);
+        $kabupatenId = (int)($payload['kabupaten_id'] ?? $payload['kabupaten'] ?? 0);
+        $kecamatanId = (int)($payload['kecamatan_id'] ?? $payload['kecamatan'] ?? 0);
+        $kelurahanId = (int)($payload['kelurahan_id'] ?? $payload['kelurahan'] ?? 0);
+
+        $provinsi = $provinsiId > 0 ? $this->provinsiModel->where('id', $provinsiId)->first() : null;
+        $kabupaten = $kabupatenId > 0 ? $this->kabupatenModel->where('id', $kabupatenId)->first() : null;
+        $kecamatan = $kecamatanId > 0 ? $this->kecamatanModel->where('id', $kecamatanId)->first() : null;
+        $kelurahan = $kelurahanId > 0 ? $this->kelurahanModel->where('id', $kelurahanId)->first() : null;
+
+        return [
+            'provinsi_id' => $provinsiId,
+            'kabupaten_id' => $kabupatenId,
+            'kecamatan_id' => $kecamatanId,
+            'kelurahan_id' => $kelurahanId,
+            'kodepos' => (string)($payload['kodepos'] ?? ($kelurahan['kodepos'] ?? '')),
+            'provinsi_label' => (string)($provinsi['label'] ?? ''),
+            'kabupaten_label' => (string)($kabupaten['label'] ?? ''),
+            'kecamatan_label' => (string)($kecamatan['label'] ?? ''),
+            'kelurahan_label' => (string)($kelurahan['label'] ?? ''),
+            'rajaongkir_destination_id' => (string)($payload['rajaongkir_destination_id'] ?? ''),
+        ];
+    }
+
+    protected function calculateCartShippingWeightGrams(array $keranjang): int
+    {
+        $actualKg = 0;
+        $volumeKg = 0;
+
+        foreach ($keranjang as $element) {
+            $produknya = $this->barangModel->getBarang($element['id'] ?? '');
+            if (!$produknya) {
+                continue;
+            }
+
+            $qty = max(1, (int)($element['jumlah'] ?? 1));
+            $dimensi = $this->normalizeProductDimensions($produknya['dimensi'] ?? '');
+            $actualKg += ((float)($produknya['berat'] ?? 0)) * $qty;
+            $volumeKg += ceil($dimensi['length'] * $dimensi['width'] * $dimensi['height'] / 3500) * $qty;
+        }
+
+        $chargeableKg = max($actualKg, $volumeKg, 1);
+
+        return (int)ceil($chargeableKg * 1000);
+    }
+
     public function getPaket($asal, $tujuan, $berat, $kurir)
     {
         $curl = curl_init();
@@ -4143,6 +4246,7 @@ class Pages extends BaseController
         $note = $this->request->getVar('note');
         $keranjang = session()->get('keranjang');
         $tokencc = $this->request->getVar('tokencc');
+        $shippingQuoteToken = trim((string)$this->request->getVar('shipping_quote_token'));
 
         // if ($email == 'galih8.4.2001@gmail.com') {
         //     return $this->response->setJSON($this->request->getVar(), false);
@@ -4160,6 +4264,16 @@ class Pages extends BaseController
             "add" => $alamatAdd,
             "alamat" => $alamatLengkap,
         ];
+
+        try {
+            $shippingSelectionRequired = $this->shippingMethodModel->where('is_active', 1)->countAllResults() > 0;
+        } catch (\Throwable $e) {
+            $shippingSelectionRequired = false;
+        }
+        if ($shippingSelectionRequired && $shippingQuoteToken === '') {
+            session()->setFlashdata('msg', 'Silakan pilih metode pengiriman terlebih dahulu.');
+            return redirect()->to('/checkout')->withInput();
+        }
 
         $cariUser = $this->pembeliModel->getPembeli($email);
         if ($cariUser) {
@@ -4329,6 +4443,34 @@ class Pages extends BaseController
             ]);
         }
 
+        $shippingQuote = null;
+        $shippingCost = 0;
+        if ($shippingQuoteToken !== '') {
+            $shippingAddress = $this->normalizeShippingAddressPayload([
+                'provinsi_id' => explode("-", $prov)[0] ?? 0,
+                'kabupaten_id' => explode("-", $kab)[0] ?? 0,
+                'kecamatan_id' => explode("-", $kec)[0] ?? 0,
+                'kelurahan_id' => explode("-", $kode)[0] ?? 0,
+                'kodepos' => explode("-", $kode)[1] ?? '',
+            ]);
+            $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang ?: []);
+            $shippingService = new ShippingService();
+            $shippingQuote = $shippingService->validateQuoteToken($shippingQuoteToken, $email, $keranjang ?: [], $shippingAddress, $shippingWeightGrams);
+
+            if (!$shippingQuote) {
+                session()->setFlashdata('msg', 'Pilihan pengiriman sudah tidak berlaku. Silakan pilih ulang pengiriman.');
+                return redirect()->to('/checkout');
+            }
+
+            $shippingCost = max(0, (int)($shippingQuote['cost'] ?? 0));
+            array_push($itemDetails, [
+                'id' => 'Ongkir',
+                'price' => $shippingCost,
+                'quantity' => 1,
+                'name' => substr('Ongkir ' . ($shippingQuote['courier_name'] ?? 'Pengiriman'), 0, 50),
+            ]);
+        }
+
         $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
         if (in_array($email, $this->emailUjiCoba))
             $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
@@ -4352,7 +4494,7 @@ class Pages extends BaseController
         // ]);
         $customField = '';
 
-        $gross_amount = $total - $diskonVoucher - $potonganPreorder - $poinDipakai + ($gantiKaca ? $totalkaca : 0);
+        $gross_amount = $total - $diskonVoucher - $potonganPreorder - $poinDipakai + ($gantiKaca ? $totalkaca : 0) + $shippingCost;
         $biayaAdmin = 0;
         $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
         if (in_array($pembayaran, $banks)) {
@@ -4603,7 +4745,9 @@ class Pages extends BaseController
             'alamat_pen' => $alamatLengkap,
             'resi' => 'Menunggu pengiriman',
             'items' => json_encode($produk),
-            'kurir' => 'kosong',
+            'kurir' => $shippingQuote
+                ? trim(($shippingQuote['courier_name'] ?? 'Pengiriman') . ' - ' . ($shippingQuote['service_name'] ?? $shippingQuote['service_code'] ?? '') . ' - Rp ' . number_format($shippingCost, 0, ',', '.'))
+                : 'kosong',
             'id_midtrans' => $arrPostField['transaction_details']['order_id'],
             'status' => $status,
             'data_mid' => json_encode($hasilMidtrans),
@@ -4614,6 +4758,24 @@ class Pages extends BaseController
             'pakai_poin' => $poinDipakai
         ];
         $this->pemesananModel->insert($insertDataPemesanan);
+
+        if ($shippingQuote) {
+            $this->orderShipmentModel->insert([
+                'id_midtrans' => $arrPostField['transaction_details']['order_id'],
+                'shipping_quote_token' => $shippingQuoteToken,
+                'shipping_method_code' => $shippingQuote['shipping_method_code'] ?? '',
+                'provider' => $shippingQuote['provider'] ?? '',
+                'courier_code' => $shippingQuote['courier_code'] ?? null,
+                'courier_name' => $shippingQuote['courier_name'] ?? null,
+                'service_code' => $shippingQuote['service_code'] ?? null,
+                'service_name' => $shippingQuote['service_name'] ?? null,
+                'shipping_cost' => $shippingCost,
+                'etd' => $shippingQuote['etd'] ?? null,
+                'tracking_number' => null,
+                'shipping_status' => 'Menunggu pengiriman',
+            ]);
+            $this->shippingQuoteModel->markUsed($shippingQuoteToken);
+        }
 
         if ($insertDataPemesanan['idVoucher'] > 0) {
             $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
@@ -8436,6 +8598,123 @@ class Pages extends BaseController
         ];
 
         return view('pages/trafficAdmin', $data);
+    }
+
+    public function shippingAdmin()
+    {
+        $internal = $this->shippingMethodModel->getByCode('internal_delivery');
+        $rajaongkir = $this->shippingMethodModel->getByCode('rajaongkir_domestic');
+        $coverages = [];
+
+        if ($internal) {
+            $coverages = $this->shippingInternalCoverageModel
+                ->where('shipping_method_id', $internal['id'])
+                ->orderBy('is_active', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->findAll();
+
+            foreach ($coverages as &$coverage) {
+                $coverage['provinsi_label'] = $this->provinsiModel->where('id', $coverage['provinsi_id'])->first()['label'] ?? '-';
+                $coverage['kabupaten_label'] = $this->kabupatenModel->where('id', $coverage['kabupaten_id'])->first()['label'] ?? '-';
+                $coverage['kecamatan_label'] = $this->kecamatanModel->where('id', $coverage['kecamatan_id'])->first()['label'] ?? '-';
+            }
+            unset($coverage);
+        }
+
+        return view('pages/shippingAdmin', [
+            'title' => 'Pengiriman',
+            'msg' => session()->getFlashdata('msg'),
+            'internal' => $internal,
+            'rajaongkir' => $rajaongkir,
+            'rajaSettings' => json_decode((string)($rajaongkir['settings'] ?? '{}'), true) ?: [],
+            'coverages' => $coverages,
+            'provinsi' => $this->provinsiModel->findAll(),
+        ]);
+    }
+
+    public function actionShippingAdmin()
+    {
+        $action = (string)$this->request->getVar('action');
+
+        if ($action === 'settings') {
+            $internal = $this->shippingMethodModel->getByCode('internal_delivery');
+            $rajaongkir = $this->shippingMethodModel->getByCode('rajaongkir_domestic');
+
+            if ($internal) {
+                $this->shippingMethodModel->update($internal['id'], [
+                    'is_active' => $this->request->getVar('internal_active') ? 1 : 0,
+                ]);
+            }
+
+            if ($rajaongkir) {
+                $couriers = array_values(array_filter(array_map('trim', explode(',', (string)$this->request->getVar('rajaongkir_couriers')))));
+                $this->shippingMethodModel->update($rajaongkir['id'], [
+                    'is_active' => $this->request->getVar('rajaongkir_active') ? 1 : 0,
+                    'settings' => json_encode([
+                        'origin_id' => trim((string)$this->request->getVar('rajaongkir_origin_id')),
+                        'origin_label' => trim((string)$this->request->getVar('rajaongkir_origin_label')),
+                        'couriers' => $couriers ?: ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'],
+                        'quote_only' => true,
+                    ]),
+                ]);
+            }
+
+            session()->setFlashdata('msg', 'Pengaturan pengiriman berhasil disimpan.');
+            return redirect()->to('/shippingadmin');
+        }
+
+        if ($action === 'add_coverage') {
+            $internal = $this->shippingMethodModel->getByCode('internal_delivery');
+            if (!$internal) {
+                session()->setFlashdata('msg', 'Metode Jasa Kirim Toko belum tersedia.');
+                return redirect()->to('/shippingadmin');
+            }
+
+            $provinsiId = (int)$this->request->getVar('provinsi_id');
+            $kabupatenId = (int)$this->request->getVar('kabupaten_id');
+            $kecamatanId = (int)$this->request->getVar('kecamatan_id');
+
+            if ($provinsiId <= 0 || $kabupatenId <= 0 || $kecamatanId <= 0) {
+                session()->setFlashdata('msg', 'Pilih provinsi, kota, dan kecamatan terlebih dahulu.');
+                return redirect()->to('/shippingadmin');
+            }
+
+            $existing = $this->shippingInternalCoverageModel
+                ->where('shipping_method_id', $internal['id'])
+                ->where('kecamatan_id', $kecamatanId)
+                ->first();
+
+            if ($existing) {
+                $this->shippingInternalCoverageModel->update($existing['id'], [
+                    'provinsi_id' => $provinsiId,
+                    'kabupaten_id' => $kabupatenId,
+                    'is_active' => 1,
+                    'updated_by' => (int)(session()->get('id') ?? 0) ?: null,
+                ]);
+            } else {
+                $this->shippingInternalCoverageModel->insert([
+                    'shipping_method_id' => $internal['id'],
+                    'provinsi_id' => $provinsiId,
+                    'kabupaten_id' => $kabupatenId,
+                    'kecamatan_id' => $kecamatanId,
+                    'is_active' => 1,
+                    'created_by' => (int)(session()->get('id') ?? 0) ?: null,
+                ]);
+            }
+
+            session()->setFlashdata('msg', 'Coverage Jasa Kirim Toko berhasil disimpan.');
+            return redirect()->to('/shippingadmin');
+        }
+
+        session()->setFlashdata('msg', 'Aksi pengiriman tidak dikenal.');
+        return redirect()->to('/shippingadmin');
+    }
+
+    public function deactivateShippingCoverage($id)
+    {
+        $this->shippingInternalCoverageModel->deactivateCoverage((int)$id, (int)(session()->get('id') ?? 0) ?: null);
+        session()->setFlashdata('msg', 'Coverage berhasil dinonaktifkan.');
+        return redirect()->to('/shippingadmin');
     }
 
     public function settingWarna()
