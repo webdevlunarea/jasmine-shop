@@ -526,33 +526,7 @@ function closeModalVoucherAll(index) {
             <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">Lihat Semua Produk</a>
         </div>
     </div>
-    <div style="background-color: #c6f1c9; color: #2d7e33;" class="py-5 mt-5">
-        <div class="container baris-ke-kolom gap-5">
-            <div style="flex: 1" class="d-flex justify-content-start gap-4">
-                <img src="../img/logo ongkir.webp" alt="" style="width: 70px; height: 40px">
-                <div>
-                    <p class="fw-bold mb-1">Gratis ongkir 100%</p>
-                    <p>Pengiriman di pulau Jawa, Madura, dan Bali tanpa minimum pembelian</p>
-                </div>
-            </div>
-            <div style="flex: 1" class="d-flex justify-content-start gap-4">
-                <img src="../img/logo diskon.webp" alt="" style="width: 70px; height: 70px">
-                <div>
-                    <p class="fw-bold mb-1">Spesial offer discount 5%</p>
-                    <!-- <p>Untuk setiap pembelian pertama yang telah terdaftar sebagai member di akun Lunarea Furniture</p> -->
-                    <p>Hanya untuk member Lunarea di setiap pembelian pertama</p>
-                </div>
-            </div>
-            <div style="flex: 1" class="d-flex justify-content-start gap-4">
-                <img src="../img/logo location.webp" alt="" style="width: 70px; height: 60px">
-                <div>
-                    <p class="fw-bold mb-1">Pengiriman ke seluruh Indonesia</p>
-                    <!-- <p>Menggunakan jasa ekspedisi terpercaya untuk mengantarkan produk sampai ke alamat tujuan</p> -->
-                    <p>Dengan jasa ekspedisi terpercaya yang mengantarkan ke alamat tujuan</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?= $this->include('partials/home_benefits'); ?>
 </div>
 <script>
 const containeKategoriScrollElm = document.querySelector('.container-kategori-scroll');
