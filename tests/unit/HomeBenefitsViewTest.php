@@ -22,10 +22,12 @@ final class HomeBenefitsViewTest extends CIUnitTestCase
             if (!is_dir($directory)) mkdir($directory, 0775, true);
             $url = 'file:///' . str_replace('\\', '/', rtrim(FCPATH, '\\/'));
             $styles = '';
-            foreach (['bootstrap.min.css', 'style.css', 'storefront-catalog.css', 'buyer-navigation.css'] as $css) $styles .= '<link rel="stylesheet" href="' . $url . '/css/' . $css . '">';
-            foreach (['default' => \App\Models\KonstantaModel::defaultThemeWarna(), 'sand' => ['primary' => '#2F2D20', 'primaryHover' => '#232217', 'soft' => '#F7F2ED', 'soft2' => '#DFCBB9']] as $name => $theme) {
-                $variables = ':root,*{--theme-primary:' . $theme['primary'] . ';--theme-primary-hover:' . $theme['primaryHover'] . ';--theme-soft:' . $theme['soft'] . ';--theme-soft-2:' . $theme['soft2'] . ';}';
-                file_put_contents($directory . '/' . $name . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $variables . '</style></head><body>' . $html . '</body></html>');
+            foreach (['bootstrap.min.css', 'style.css', 'storefront-catalog.css', 'buyer-navigation.css', 'buyer-footer.css'] as $css) $styles .= '<link rel="stylesheet" href="' . $url . '/css/' . $css . '">';
+            $footer = view('layout/buyer_footer', ['footerVariant' => 'full'], ['saveData' => false]);
+            $footer = str_replace('src="/img/', 'src="' . $url . '/img/', $footer);
+            foreach (['default' => \App\Models\KonstantaModel::defaultThemeWarna(), 'sand' => ['primary' => '#2F2D20', 'primaryHover' => '#232217', 'soft' => '#F7F2ED', 'soft2' => '#DFCBB9', 'background' => '#FEFEFF']] as $name => $theme) {
+                $variables = ':root,*{--theme-primary:' . $theme['primary'] . ';--theme-primary-hover:' . $theme['primaryHover'] . ';--theme-soft:' . $theme['soft'] . ';--theme-soft-2:' . $theme['soft2'] . ';--theme-background:' . $theme['background'] . ';}';
+                file_put_contents($directory . '/' . $name . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $variables . '</style></head><body class="buyer-layout"><div class="buyer-page-content"><main>' . $html . '</main></div>' . $footer . '</body></html>');
             }
         }
     }
