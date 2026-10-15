@@ -2,35 +2,14 @@
 <?= $this->section('content'); ?>
 <div class="konten auth-page">
     <div class="container">
-        <nav aria-label="breadcrumb" class="auth-breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Daftar</li>
-            </ol>
-        </nav>
         <div class="auth-shell auth-shell--signup">
-            <aside class="auth-visual show-ke-hide">
-                <img src="/img/Login.webp" alt="Lunarea Furniture">
-                <div class="auth-visual__overlay">
-                    <span>Akun Lunarea</span>
-                    <h2>Simpan wishlist, voucher, dan riwayat pesanan dalam satu akun.</h2>
-                    <p>Daftar sekali, lalu checkout produk favorit jadi lebih cepat dan pesanan lebih mudah dipantau.</p>
-                    <div class="auth-visual__points" aria-label="Keunggulan daftar akun Lunarea">
-                        <div><i class="material-icons" aria-hidden="true">redeem</i><span>Benefit member</span></div>
-                        <div><i class="material-icons" aria-hidden="true">favorite</i><span>Wishlist produk</span></div>
-                        <div><i class="material-icons" aria-hidden="true">support_agent</i><span>Bantuan pesanan</span></div>
-                    </div>
-                </div>
-            </aside>
             <section class="auth-panel">
-                <a href="/" class="auth-logo"><img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea"></a>
                 <?php if ($val['msg']) { ?>
                     <div class="alert alert-success auth-alert" role="alert"><?= $val['msg']; ?></div>
                 <?php } ?>
                 <div class="auth-heading">
-                    <p class="auth-eyebrow">Akun baru</p>
                     <h1>Buat akun</h1>
-                    <p>Buat akun untuk checkout lebih cepat, mendapatkan voucher, dan mengelola transaksi dengan mudah.</p>
+                    <p>Daftar untuk mulai belanja bersama Lunarea.</p>
                 </div>
                 <a class="auth-google-btn" href="/auth/google<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>" aria-label="Daftar dengan Google">
                     <svg class="auth-google-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -47,37 +26,33 @@
                     <?php if (!empty($redirect)) { ?>
                         <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">
                     <?php } ?>
-                    <div class="form-floating auth-field">
-                        <input id="signup-name" type="text" class="form-control <?= ($val['val_nama']) ? "is-invalid" : ""; ?>" placeholder="Nama Lengkap" name="nama" value="<?= old('nama'); ?>" autocomplete="name" required>
+                    <div class="auth-field">
                         <label for="signup-name">Nama lengkap</label>
+                        <input id="signup-name" type="text" class="form-control <?= ($val['val_nama']) ? "is-invalid" : ""; ?>" placeholder="Nama Lengkap" name="nama" value="<?= old('nama'); ?>" autocomplete="name" required>
                         <div class="invalid-feedback"><?= $val['val_nama']; ?></div>
                     </div>
-                    <div class="form-floating auth-field">
-                        <input id="signup-email" type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= old('email'); ?>" autocomplete="email" required>
+                    <div class="auth-field">
                         <label for="signup-email">Email</label>
+                        <input id="signup-email" type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= old('email'); ?>" autocomplete="email" required>
                         <div class="invalid-feedback"><?= $val['val_email']; ?></div>
                     </div>
-                    <div class="form-floating auth-field">
-                        <input id="signup-password" type="password" class="form-control <?= ($val['val_sandi']) ? "is-invalid" : ""; ?>" placeholder="Password" name="sandi" value="<?= old('sandi'); ?>" autocomplete="new-password" required>
+                    <div class="auth-field">
                         <label for="signup-password">Sandi</label>
-                        <button class="auth-password-toggle" type="button" data-target="signup-password" aria-label="Tampilkan sandi"><i class="material-icons">visibility</i></button>
+                        <input id="signup-password" type="password" class="form-control <?= ($val['val_sandi']) ? "is-invalid" : ""; ?>" placeholder="Buat sandi" name="sandi" autocomplete="new-password" required>
+                        <button class="auth-password-toggle" type="button" data-target="signup-password" aria-label="Tampilkan sandi" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="auth-eye-slash d-none" d="m3 3 18 18"/></svg></button>
                         <div class="invalid-feedback"><?= $val['val_sandi']; ?></div>
                     </div>
-                    <div class="form-floating auth-field">
-                        <input id="signup-phone" type="tel" inputmode="numeric" class="form-control <?= ($val['val_nohp']) ? "is-invalid" : ""; ?>" placeholder="NoHP" name="nohp" value="<?= old('nohp'); ?>" autocomplete="tel" required>
+                    <div class="auth-field">
                         <label for="signup-phone">No handphone</label>
+                        <input id="signup-phone" type="tel" inputmode="numeric" class="form-control <?= ($val['val_nohp']) ? "is-invalid" : ""; ?>" placeholder="08xxxxxxxxxx" name="nohp" value="<?= old('nohp'); ?>" autocomplete="tel" required>
                         <div class="invalid-feedback"><?= $val['val_nohp']; ?></div>
                     </div>
                     <label class="auth-consent" for="syarat">
                         <input type="checkbox" id="syarat" required>
                         <span>Saya menyetujui <a href="/syarat-dan-ketentuan">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi">Kebijakan Privasi</a>.</span>
                     </label>
-                    <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Buat Sekarang">
+                    <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Buat akun">
                 </form>
-                <div class="auth-trust-note">
-                    <i class="material-icons" aria-hidden="true">lock</i>
-                    <span>Login Google memakai autentikasi resmi Google. Satu email tetap jadi satu akun Lunarea.</span>
-                </div>
                 <div class="auth-switch">Sudah punya akun? <a href="/login<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Masuk</a></div>
             </section>
         </div>
@@ -106,7 +81,9 @@
             const input = document.getElementById(button.dataset.target);
             const show = input.type === 'password';
             input.type = show ? 'text' : 'password';
-            button.querySelector('.material-icons').textContent = show ? 'visibility_off' : 'visibility';
+            button.setAttribute('aria-pressed', String(show));
+            button.setAttribute('aria-label', show ? 'Sembunyikan sandi' : 'Tampilkan sandi');
+            button.querySelector('.auth-eye-slash').classList.toggle('d-none', !show);
         });
     });
 </script>

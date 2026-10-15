@@ -128,6 +128,9 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/storefront-catalog.css?v=<?= filemtime(FCPATH . 'css/storefront-catalog.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-footer.css?v=<?= filemtime(FCPATH . 'css/buyer-footer.css'); ?>">
+    <?php if (in_array($title, ['Masuk', 'Daftar'], true)) { ?>
+    <link rel="stylesheet" href="/css/buyer-auth.css?v=<?= filemtime(FCPATH . 'css/buyer-auth.css'); ?>">
+    <?php } ?>
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,
@@ -212,9 +215,12 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">
 </head>
 
-<?php $isAdminLayout = session()->get('role') == '1'; ?>
+<?php
+$isAdminLayout = session()->get('role') == '1';
+$isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
+?>
 
-<body class="<?= $isAdminLayout ? 'admin-body' : ''; ?>">
+<body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-auth-body' : ''); ?>">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
@@ -241,7 +247,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">
     </script>
-    <?php if (!$isAdminLayout) {
+    <?php if (!$isAdminLayout && !$isAuthPage) {
         $topPromoTexts = model(\App\Models\KonstantaModel::class)->getTopPromoTexts();
         $topPromoDesktop = $topPromoTexts['desktop'] ?? 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%';
         $topPromoMobile = $topPromoTexts['mobile'] ?? $topPromoDesktop;
@@ -252,7 +258,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?= $this->include('layout/navbar'); ?>
 
     <!-- tombol form dan wa -->
-    <?php if (!$isAdminLayout) { ?>
+    <?php if (!$isAdminLayout && !$isAuthPage) { ?>
     <div
         class="container-melayang d-flex gap-2 align-items-end <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
         <div id="container-greeting-card" class="d-none">

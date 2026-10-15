@@ -29,14 +29,14 @@ body:not(.admin-body) .store-product-card > .product-card-body { width: 100%; ma
 body:not(.admin-body) .store-product-card .product-card-heading,
 body:not(.admin-body) .store-product-card .product-card-pricing { display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 4px; }
 body:not(.admin-body) .store-product-card:hover .product-card-body { transform: none; }
-body:not(.admin-body) .store-product-card h5 { order: 0; margin: 0; color: #292929; font-size: .9rem; line-height: 1.5; font-weight: 600; letter-spacing: -.015em; overflow: visible; overflow-wrap: anywhere; white-space: normal; }
+body:not(.admin-body) .store-product-card h5 { order: 0; margin: 0; color: #292929; font-size: .8125rem; line-height: 1.5; font-weight: 500; letter-spacing: -.01em; overflow: visible; overflow-wrap: anywhere; white-space: normal; }
 body:not(.admin-body) .store-product-card .container-varian { order: 1; width: 100%; margin: 0 !important; padding: 0 !important; overflow: visible; }
 body:not(.admin-body) .store-product-card .container-varian > div { display: flex; width: 100%; flex-wrap: wrap; gap: 2px 7px; }
 body:not(.admin-body) .store-product-card .varian { order: 1; max-width: 100%; margin: 0 !important; padding: 0; background: transparent; border: 0; border-radius: 0; color: #666; font-size: .75rem; font-weight: 400; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; }
 body:not(.admin-body) .store-product-card .container-varian .varian + .varian::before { content: '·'; margin-right: 7px; }
-body:not(.admin-body) .store-product-card .harga { order: 2; display: block !important; margin-top: 0 !important; color: var(--theme-primary, var(--hijau)); font-size: 1.125rem; line-height: 1.4; font-weight: 700; letter-spacing: -.025em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+body:not(.admin-body) .store-product-card .harga { order: 2; display: block !important; margin-top: 0 !important; color: var(--theme-primary, var(--hijau)); font-size: 1rem; line-height: 1.4; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 body:not(.admin-body) .store-product-card .product-card-price-meta { order: 3; display: flex; align-items: center; flex-wrap: wrap; gap: 8px !important; max-width: 100%; }
-body:not(.admin-body) .store-product-card .diskon-coret { margin: 0; color: #767676; font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+body:not(.admin-body) .store-product-card .diskon-coret { margin: 0; color: #767676; font-size: .75rem !important; line-height: 1.5; overflow-wrap: anywhere; }
 body:not(.admin-body) .store-product-card .diskon-bwh { display: inline-block; position: static; margin: 0; padding: 2px 5px; border-radius: 3px; background: var(--theme-soft-1, var(--hijaumuda1)); color: var(--theme-primary, var(--hijau)); font-size: .75rem; font-weight: 600; line-height: 1.4; }
 body:not(.admin-body) .store-product-card .terjual-badge { display: block; position: absolute; right: 8px; bottom: 8px; z-index: 2; max-width: calc(100% - 16px); margin: 0; padding: 3px 7px; background: var(--theme-background, #fff); color: var(--theme-primary, var(--hijau)); border: 1px solid var(--theme-soft-2, #e7d7c9); border-radius: 4px; box-shadow: none; backdrop-filter: none; font-size: .6875rem; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; pointer-events: none; }
 body:not(.admin-body) .store-product-card .product-card-body > .small { order: 5; font-size: .75rem; line-height: 1.5; }
@@ -55,8 +55,8 @@ body:not(.admin-body) .flash-sale-badge { box-shadow: none; border-radius: 5px; 
     body:not(.admin-body) .card-group1.no-scroll:has(> .store-product-card) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 12px; padding-inline: 0; }
     body:not(.admin-body) .store-product-card { gap: 10px; }
     body:not(.admin-body) .store-product-card > .product-card-body { gap: 8px; }
-    body:not(.admin-body) .store-product-card h5 { font-size: .8125rem; line-height: 1.5; }
-    body:not(.admin-body) .store-product-card .harga { font-size: .9375rem; }
+    body:not(.admin-body) .store-product-card h5 { font-size: .78125rem; line-height: 1.5; }
+    body:not(.admin-body) .store-product-card .harga { font-size: .875rem; }
 }
 @media (prefers-reduced-motion: reduce) { .store-product-card, .store-product-card * { transition: none !important; } }
 
