@@ -38,7 +38,7 @@
                         <div class="flash-sale-image">
                             <span class="flash-sale-badge">-<?= $discount; ?>%</span>
                             <img class="flash-sale-watermark" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                            <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy" decoding="async">
+                            <img src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy" decoding="async">
                         </div>
                         <div class="flash-sale-info">
                             <h3 title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h3>

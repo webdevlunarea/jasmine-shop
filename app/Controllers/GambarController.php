@@ -33,9 +33,10 @@ class GambarController extends BaseController
 
     public function tampilGambarBarang($idBarang)
     {
-        $gambar = $this->barangModel->getBarangAdmin($idBarang)['gambar'];
-        $this->response->setHeader('Content-Type', 'image/webp');
-        echo $gambar;
+        $product = $this->barangModel->select('gambar')->where('id', $idBarang)->first();
+        return \App\Services\PublicCatalogImage::respond(
+            $this->response, $product['gambar'] ?? null, $this->request->getHeaderLine('If-None-Match')
+        );
     }
 
     // public function tampilGambarVarian($idBarang, $urutan)
@@ -145,13 +146,10 @@ class GambarController extends BaseController
     }
     public function tampilGambarBanner($idBanner)
     {
-        $banner = $this->bannerModel->where(['id' => $idBanner])->first();
-        if (!$banner) {
-            return $this->response->setStatusCode(404, 'Banner not found.');
-        }
-        $info = getimagesizefromstring($banner['gambar']);
-        $this->response->setHeader('Content-Type', $info['mime'] ?? 'image/webp');
-        echo $banner['gambar'];
+        $banner = $this->bannerModel->select('gambar')->where('id', $idBanner)->first();
+        return \App\Services\PublicCatalogImage::respond(
+            $this->response, $banner['gambar'] ?? null, $this->request->getHeaderLine('If-None-Match')
+        );
     }
     public function tampilGambarBuktiBayar($idMidtrans)
     {

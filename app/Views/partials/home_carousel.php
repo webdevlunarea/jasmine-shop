@@ -21,7 +21,7 @@
                             <?php if ($b['link']) { ?>
                                 <a href="<?= esc($b['link']); ?>">
                             <?php } ?>
-                            <img <?= $ind_b > 0 ? 'loading="lazy"' : ''; ?> src="/imgbanner/<?= $b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: $b['id']; ?>" class="home-hero-image" decoding="async"
+                            <img <?= $ind_b > 0 ? 'loading="lazy"' : 'fetchpriority="high"'; ?> src="/imgbanner/<?= $b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: $b['id']; ?>" class="home-hero-image" decoding="async"
                                 alt="<?= esc($b['alt'] ?: $b['judul']); ?>">
                             <?php if ($b['link']) { ?>
                                 </a>
@@ -33,7 +33,7 @@
                     <?php for ($i = 1; $i <= 5; $i++) { ?>
                         <div class="carousel-item <?= $i == 1 ? 'active' : ''; ?>">
                             <div class="home-hero-media">
-                            <img <?= $i > 1 ? 'loading="lazy"' : ''; ?> src="/img/benner/<?= $i; ?>.webp?v=<?= date('Ymd'); ?>" class="home-hero-image" decoding="async"
+                            <img <?= $i > 1 ? 'loading="lazy"' : 'fetchpriority="high"'; ?> src="/img/benner/<?= $i; ?>.webp?v=<?= filemtime(FCPATH . 'img/benner/' . $i . '.webp'); ?>" class="home-hero-image" decoding="async"
                                 alt="Lunarea Furniture Banner <?= $i; ?>">
                             </div>
                         </div>

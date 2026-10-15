@@ -8,7 +8,7 @@ final class HomeFlashSaleViewTest extends CIUnitTestCase
     public function testFlashSaleRetainsAdminSettingsPriceAndProductOrder(string $state, int $count): void
     {
         $products = []; $image = file_get_contents(FCPATH . 'img/logokategori/Lemari_Dewasa.webp');
-        for ($i=0;$i<$count;$i++) $products[] = ['path'=>'produk-' . (50-$i), 'nama'=>$i%2?'Rak minimalis':'Lemari penyimpanan dengan nama produk sangat panjang untuk keluarga dan ruang tamu', 'diskon'=>20, 'harga'=>1250000, 'stok'=>['0','2,1','12,4'][$i%3], 'gambar'=>$image];
+        for ($i=0;$i<$count;$i++) $products[] = ['id'=>50-$i,'path'=>'produk-' . (50-$i), 'nama'=>$i%2?'Rak minimalis':'Lemari penyimpanan dengan nama produk sangat panjang untuk keluarga dan ruang tamu', 'diskon'=>20, 'harga'=>1250000, 'stok'=>['0','2,1','12,4'][$i%3], 'gambar'=>$image];
         $settings = ['kicker'=>'Pilihan <Lunarea>', 'title'=>$state==='long'?str_repeat('Flash Sale koleksi pilihan ',5):'Flash Sale Lunarea', 'subtitle'=>'Harga spesial produk pilihan & promo toko.'];
         $end = $state==='expired'?0:time()+3723;
         $html = view('partials/home_flash_sale', ['flashSaleProducts'=>$products,'flashSaleSettings'=>$settings,'flashSaleEnd'=>$end], ['saveData'=>false]);

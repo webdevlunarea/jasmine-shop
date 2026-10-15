@@ -449,7 +449,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                 <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
                     <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
-                        <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
+                        <img class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= $p['nama']; ?>">
                         <?php
                         $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
                         if ($terjualTampil > 0) {

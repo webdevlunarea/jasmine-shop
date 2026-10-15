@@ -28,7 +28,7 @@ final class HomeProductSectionsTest extends CIUnitTestCase
     {
         $image = file_get_contents(FCPATH . 'img/logokategori/Lemari_Dewasa.webp');
         $products = [];
-        for ($id=1;$id<=10;$id++) $products[] = ['path'=>'lemari-' . $id,'nama'=>$id%2?'Lemari penyimpanan keluarga dengan nama cukup panjang':'Rak minimalis','gambar'=>$image,'varian'=>$id%3?'["Putih","Natural","Cokelat"]':'[]','diskon'=>$id%2?20:0,'harga'=>1250000,'rate'=>5,'terjual'=>12];
+        for ($id=1;$id<=10;$id++) $products[] = ['id'=>$id,'path'=>'lemari-' . $id,'nama'=>$id%2?'Lemari penyimpanan keluarga dengan nama cukup panjang':'Rak minimalis','gambar'=>$image,'varian'=>$id%3?'["Putih","Natural","Cokelat"]':'[]','diskon'=>$id%2?20:0,'harga'=>1250000,'rate'=>5,'terjual'=>12];
         $html = '';
         foreach (['popular'=>'Produk Terpopuler','latest'=>'Produk Terbaru'] as $id=>$title) $html .= view('partials/home_product_section',['sectionId'=>'home-' . $id . '-products','sectionTitle'=>$title,'sectionProducts'=>$products],['saveData'=>false]);
         $dom = new DOMDocument(); @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); $xp = new DOMXPath($dom);
