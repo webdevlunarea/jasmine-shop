@@ -102,8 +102,10 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
         $html=view('partials/auth_recaptcha', ['captchaConfig'=>$config], ['saveData'=>false]);
         $this->assertStringContainsString('data-sitekey="unit-public-key"', $html);
         $this->assertStringNotContainsString($config->secretKey, $html);
-        $this->assertStringContainsString('data-size="compact"', $html);
-        $this->assertStringContainsString('data-expired-callback', $html);
+        $this->assertStringContainsString("slot.clientWidth >= 304 ? 'normal' : 'compact'", $html);
+        $this->assertStringContainsString("'expired-callback': window.lunareaCaptchaExpired", $html);
+        $this->assertStringContainsString('render=explicit', $html);
+        $this->assertStringNotContainsString('transform: scale', $html);
         $this->assertStringContainsString('aria-live="polite"', $html);
         $config->enabled=false;
         $this->assertStringNotContainsString('api.js', view('partials/auth_recaptcha', ['captchaConfig'=>$config], ['saveData'=>false]));
@@ -141,7 +143,7 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
         foreach (['actionLogin','actionSignup'] as $method) {
             $start=strpos($source, 'public function '.$method.'()');
             $guard=strpos($source, 'RecaptchaVerifier', $start);
-            $validation=strpos($source, '$this->validate(', $start);
+            $validation=strpos($source, $method === 'actionLogin' ? '$this->validateData(' : '$this->validate(', $start);
             $this->assertLessThan($validation, $guard);
         }
         $routes=file_get_contents(APPPATH.'Config/Routes.php');

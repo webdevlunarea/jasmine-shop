@@ -22,7 +22,7 @@ Tidak perlu SQL, migration, package, perubahan Midtrans, MyLuna, atau Ilena. Tid
 - POST /masuk dan /daftar: CAPTCHA server-side sebelum validasi dan efek bisnis, plus CSRF khusus kedua route. Tidak mengaktifkan CSRF global/AJAX lain.
 - Google OAuth tetap menggunakan alur existing; CAPTCHA ini bukan perlindungan Google OAuth, OTP resend, form kontak atau login tamu.
 - Token dikirim langsung ke SiteVerify melalui backend TLS dengan timeout. Google memberlakukan token sekali pakai, berlaku dua menit. Tidak mencatat token, sandi, atau secret di log.
-- Widget compact pada form existing; button menunggu token, reset ketika expired/error. Validasi frontend bukan otoritas.
+- Widget horizontal dipusatkan pada form existing, memakai ukuran compact resmi hanya bila lebar tersedia kurang dari 304px; button menunggu token, reset ketika expired/error. Validasi frontend bukan otoritas.
 - CAPTCHA mengurangi bot, bukan jaminan bebas spam. Rate limit, pembatasan OTP, dan monitoring tetap diperlukan.
 - Periksa kuota/billing aktual akun Google. Tidak mengasumsikan penggunaan tanpa batas; error kuota menolak verifikasi.
 
@@ -39,6 +39,6 @@ Tidak perlu SQL, migration, package, perubahan Midtrans, MyLuna, atau Ilena. Tid
 Set `recaptcha.enabled = false` melalui prosedur konfigurasi server untuk mematikan CAPTCHA secara eksplisit. CSRF kedua route tetap aktif. Tidak ada perubahan database untuk di-rollback.
 
 ## Temuan tambahan
-Audit menemukan cabang login legacy yang melewati verifikasi sandi. CAPTCHA tidak mengatasi kelemahan itu; perlu perbaikan autentikasi terpisah sebelum menyatakan login aman secara menyeluruh.
+Cabang login legacy yang melewati verifikasi sandi telah dihapus pada perbaikan lanjutan. Login email membaca credential dari POST saja, memverifikasi hash sandi sebelum membentuk sesi, dan meregenerasi session ID setelah sandi valid. Pesan gagal memakai teks umum. Ini bukan pengganti rate limiting maupun audit autentikasi menyeluruh.
 
 Referensi: https://developers.google.com/recaptcha/docs/display dan https://docs.cloud.google.com/recaptcha/docs/verify

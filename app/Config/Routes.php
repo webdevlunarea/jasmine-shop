@@ -152,6 +152,7 @@ $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'har
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editresi', 'Pages::editResi', ['filter' => 'harusAdmin']);
+$routes->post('/syncorder/(:segment)', 'Pages::syncPaidOrderToLuna/$1', ['filter' => 'harusAdmin']);
 $routes->post('/shippingadmin/subsidy', 'ShippingSubsidyAdmin::save', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct/(:any)', 'Pages::listProduct/$1', ['filter' => 'harusAdmin']);

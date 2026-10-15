@@ -27,22 +27,22 @@ final class OrderShippingManagerTest extends CIUnitTestCase
 
     public function testExternalShipmentUpdatesBothRecordsAndKeepsCost(): void
     {
-        $result = $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123']);
+        $result = $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
         $this->assertSame('Dikirim', $result['order']['status']);
         $saved = $this->connection->table('order_shipments')->get()->getRowArray();
         $this->assertSame('TEST123', $saved['tracking_number']);
         $this->assertSame(12345, (int)$saved['shipping_cost']);
-        $this->assertFalse($this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123'])['changed']);
+        $this->assertFalse($this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman'])['changed']);
     }
 
-    public function testInternalDeliveryNeedsNoAwbAndCompletesBothRecords(): void
+    public function testInternalDeliveryRequiresAndPreservesAdminAwb(): void
     {
         $this->connection->table('order_shipments')->update(['shipping_method_code' => 'internal_delivery', 'shipping_cost' => 0]);
-        $result = $this->manager->update('LTEST', ['shipping_status' => 'Disiapkan']);
+        $result = $this->manager->update('LTEST', ['shipping_status' => 'Disiapkan', 'resi' => 'TOKO-227']);
         $this->assertSame('Proses', $result['order']['status']);
-        $result = $this->manager->update('LTEST', ['shipping_status' => 'Dalam Pengiriman', 'resi' => 'FORGED']);
-        $this->assertSame('', $result['order']['resi']);
-        $this->assertNull($result['shipment']['tracking_number']);
+        $result = $this->manager->update('LTEST', ['shipping_status' => 'Dalam Pengiriman', 'resi' => 'TOKO-227']);
+        $this->assertSame('TOKO-227', $result['order']['resi']);
+        $this->assertSame('TOKO-227', $result['shipment']['tracking_number']);
         $result = $this->manager->update('LTEST', [], true);
         $this->assertSame('Selesai', $result['order']['status']);
         $this->assertSame('Terkirim', $result['shipment']['shipping_status']);
@@ -52,7 +52,7 @@ final class OrderShippingManagerTest extends CIUnitTestCase
     {
         $this->connection->table('pemesanan')->update(['status' => 'Menunggu Pembayaran']);
         $this->expectException(\DomainException::class);
-        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123']);
+        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
     }
 
     public function testMissingAwbDoesNotMutateOrder(): void
@@ -69,17 +69,17 @@ final class OrderShippingManagerTest extends CIUnitTestCase
 
     public function testCannotRegressCompletedOrders(): void
     {
-        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123']);
+        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
         $this->manager->update('LTEST', [], true);
         $this->expectException(\DomainException::class);
-        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123']);
+        $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
     }
 
     public function testLegacyOrderWorksWithoutShipmentTable(): void
     {
         $this->connection->query('DROP TABLE order_shipments');
         $this->connection->resetDataCache();
-        $result = $this->manager->update('LTEST', ['kurir' => 'TIKI', 'resi' => 'TEST999']);
+        $result = $this->manager->update('LTEST', ['kurir' => 'TIKI', 'resi' => 'TEST999', 'shipping_status' => 'Dalam Pengiriman']);
         $this->assertSame('Dikirim', $result['order']['status']);
         $this->assertNull($result['shipment']);
     }
@@ -87,6 +87,20 @@ final class OrderShippingManagerTest extends CIUnitTestCase
     public function testQuotedCourierCannotBeSilentlyChanged(): void
     {
         $this->expectException(\DomainException::class);
-        $this->manager->update('LTEST', ['kurir' => 'TIKI', 'resi' => 'TEST999']);
+        $this->manager->update('LTEST', ['kurir' => 'TIKI', 'resi' => 'TEST999', 'shipping_status' => 'Dalam Pengiriman']);
     }
+    public function testSavingExternalAwbIsPreparationNotDispatch(): void
+    {
+        $result=$this->manager->update('LTEST',['kurir'=>'JNE','resi'=>'TEST227']);
+        $this->assertSame('Proses',$result['order']['status']);
+        $this->assertSame('Disiapkan',$result['shipment']['shipping_status']);
+        $this->assertSame('TEST227',$result['shipment']['tracking_number']);
+    }
+    public function testInternalAwbIsMandatoryBeforePreparing(): void
+    {
+        $this->connection->table('order_shipments')->update(['shipping_method_code'=>'internal_delivery','shipping_cost'=>0]);
+        $this->expectException(\DomainException::class);
+        $this->manager->update('LTEST',['shipping_status'=>'Disiapkan','resi'=>'']);
+    }
+
 }

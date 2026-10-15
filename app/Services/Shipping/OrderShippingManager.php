@@ -30,36 +30,28 @@ class OrderShippingManager
             $courier = trim((string)($input['kurir'] ?? $order['kurir'] ?? ''));
             $awb = trim((string)($input['resi'] ?? $order['resi'] ?? ''));
             if ($complete) {
+                // Legacy completed shipments remain readable; this path does not import new sales.
                 if (!in_array($current, ['Dikirim', 'Selesai'], true)) throw new \DomainException('Pesanan belum dikirim.');
                 $next = 'Selesai';
                 $shippingStatus = 'Terkirim';
-            } elseif ($internal) {
-                $shippingStatus = trim((string)($input['shipping_status'] ?? 'Dalam Pengiriman'));
-                if (!in_array($shippingStatus, ['Disiapkan', 'Dalam Pengiriman', 'Gagal Kirim', 'Terkirim'], true)) {
-                    throw new \DomainException('Status pengiriman toko tidak valid.');
-                }
-                if ($shippingStatus === 'Terkirim' && !in_array($current, ['Dikirim', 'Selesai'], true)) {
-                    throw new \DomainException('Tandai barang dalam pengiriman sebelum mengonfirmasi diterima.');
-                }
-                if ($shippingStatus === 'Gagal Kirim' && $current !== 'Dikirim') throw new \DomainException('Pesanan belum dikirim.');
-                if ($shippingStatus === 'Disiapkan' && $current !== 'Proses') throw new \DomainException('Pesanan sudah keluar dari tahap persiapan.');
-                $next = $shippingStatus === 'Terkirim' ? 'Selesai' : ($shippingStatus === 'Disiapkan' ? 'Proses' : 'Dikirim');
-                $courier = 'Jasa Kirim Toko';
-                $awb = '';
             } else {
-                if ($shipment && $courier !== trim((string)$order['kurir'])) {
+                if ($internal) $courier = 'Jasa Kirim Toko';
+                elseif ($shipment && $courier !== trim((string)$order['kurir'])) {
                     throw new \DomainException('Kurir mengikuti pilihan checkout. Perubahan kurir memerlukan pemeriksaan terpisah.');
                 }
-                if ($courier === '' || strlen($courier) > 255 || $awb === '' || strlen($awb) > 120
-                    || preg_match('/[<>\x00-\x1F\x7F]/', $courier . $awb)
-                    || stripos($awb, 'menunggu') !== false || strtolower($awb) === 'kosong') {
-                    throw new \DomainException('Isi nama kurir dan nomor resi yang valid.');
+                if (!\App\Services\Integrations\LunaOrderSync::validTracking($awb) || $courier === '' || strlen($courier) > 255
+                    || preg_match('/[<>\x00-\x1F\x7F]/', $courier)) {
+                    throw new \DomainException($internal ? 'Isi nomor resi internal toko yang valid.' : 'Isi nama kurir dan nomor resi yang valid.');
                 }
-                $next = 'Dikirim';
-                $shippingStatus = 'Dalam Pengiriman';
+                $shippingStatus = trim((string)($input['shipping_status'] ?? ($current === 'Proses' ? 'Disiapkan' : 'Dalam Pengiriman')));
+                if (!in_array($shippingStatus, ['Disiapkan', 'Dalam Pengiriman', 'Gagal Kirim', 'Terkirim'], true)) throw new \DomainException('Status pengiriman tidak valid.');
+                if ($shippingStatus === 'Disiapkan' && $current !== 'Proses') throw new \DomainException('Pesanan sudah keluar dari tahap persiapan.');
+                if ($shippingStatus === 'Gagal Kirim' && $current !== 'Dikirim') throw new \DomainException('Pesanan belum dikirim.');
+                if ($shippingStatus === 'Terkirim' && !in_array($current, ['Dikirim', 'Selesai'], true)) throw new \DomainException('Tandai barang dalam pengiriman sebelum mengonfirmasi diterima.');
+                $next = $shippingStatus === 'Disiapkan' ? 'Proses' : ($shippingStatus === 'Terkirim' ? 'Selesai' : 'Dikirim');
             }
             if ($current === 'Selesai' && $next !== 'Selesai') throw new \DomainException('Pesanan selesai tidak boleh dikembalikan ke pengiriman.');
-            if ($internal) { $courier = 'Jasa Kirim Toko'; $awb = ''; }
+            if ($internal) $courier = 'Jasa Kirim Toko';
             $changes = ['status' => $next, 'resi' => $awb, 'kurir' => $courier];
             $changed = $next !== $current || $awb !== (string)$order['resi'] || $courier !== (string)$order['kurir']
                 || ($shipment && $shippingStatus !== (string)$shipment['shipping_status']);
@@ -67,11 +59,11 @@ class OrderShippingManager
             if ($shipment) {
                 // Quoted courier/service/cost stay immutable. Only fulfillment fields change.
                 $this->db->table('order_shipments')->where('id', $shipment['id'])->update([
-                    'tracking_number' => $internal ? null : $awb,
+                    'tracking_number' => $awb,
                     'shipping_status' => $shippingStatus,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-                $shipment = array_merge($shipment, ['tracking_number' => $internal ? null : $awb, 'shipping_status' => $shippingStatus]);
+                $shipment = array_merge($shipment, ['tracking_number' => $awb, 'shipping_status' => $shippingStatus]);
             }
             if (!$this->db->transStatus()) throw new \RuntimeException('Shipping transaction failed');
             $this->db->transCommit();

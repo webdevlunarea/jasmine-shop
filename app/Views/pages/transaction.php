@@ -163,7 +163,7 @@ $flashMsg = session()->getFlashdata('msg');
                                                         <a class="btn btn-sm btn-outline-success" href="/lacak-pengiriman?keyword=<?= urlencode($item_transaksi['id_midtrans']); ?>">Lacak pengiriman</a>
                                                     </div>
                                                 <?php } elseif ($shipment && ($shipment['shipping_method_code'] ?? '') === 'internal_delivery') { ?>
-                                                    <div class="mt-2 small text-secondary">Pengiriman ini ditangani langsung oleh tim Lunarea, tanpa nomor resi eksternal.</div>
+                                                    <div class="mt-2 small text-secondary">Pengiriman oleh tim Lunarea. Resi toko: <?= esc($shipment['tracking_number'] ?? 'Belum tersedia'); ?></div>
                                                 <?php } ?>
                                             </div>
                                             <p class="mb-0"><b>Items</b></p>

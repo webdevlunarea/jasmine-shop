@@ -11,22 +11,22 @@
         </div>
         <p id="shipping-save-feedback" class="small" role="status"></p>
         <div id="internal-shipping-fields" class="mb-2" hidden>
-            <label class="form-label" for="internal-shipping-status">Status Jasa Kirim Toko</label>
+            <label class="form-label" for="internal-shipping-status">Tahap pengiriman</label>
             <select id="internal-shipping-status" class="form-select">
                 <option value="Disiapkan">Disiapkan</option>
                 <option value="Dalam Pengiriman">Dalam Pengiriman</option>
                 <option value="Gagal Kirim">Gagal Kirim</option>
                 <option value="Terkirim">Terkirim</option>
             </select>
-            <small class="text-secondary">Dikirim oleh tim Lunarea tanpa nomor resi eksternal.</small>
+            <small class="text-secondary">Simpan resi pada tahap Disiapkan. Pilih Dalam Pengiriman hanya saat barang benar-benar dikirim.</small>
         </div>
         <div class="mb-1" id="external-shipping-courier">
             <label class="form-label">Kurir</label>
             <input type="text" class="form-control" id="floatingInput1" placeholder="KURIR Jenis-Layanan" name="kurir" value="Lunarea - Darat">
         </div>
         <div class="m-0" id="external-shipping-awb">
-            <label class="form-label">Resi</label>
-            <input type="text" class="form-control" id="floatingInput" placeholder="XXXXXXXXXXXX" name="resi">
+            <label class="form-label" id="awb-label" for="floatingInput">Nomor resi (wajib)</label>
+            <input type="text" class="form-control" id="floatingInput" placeholder="XXXXXXXXXXXX" name="resi" maxlength="120" required>
         </div>
     </div>
 </div>
@@ -492,8 +492,14 @@
                                     }
                                     ?></p>
                             <?php } ?>
-                            <p class="fw-bold mb-0 resi"><?= ($t['shipment']['shipping_method_code'] ?? '') === 'internal_delivery' ? 'Jasa Kirim Toko — tanpa resi eksternal' : 'Nomor resi: ' . esc($t['resi']) . ' (' . esc($t['kurir']) . ')'; ?>
-                            </p>
+                            <p class="fw-bold mb-0 resi"><?= esc(($t['shipment']['shipping_method_code'] ?? '') === 'internal_delivery' ? 'Resi toko: ' . $t['resi'] : 'Nomor resi: ' . $t['resi'] . ' (' . $t['kurir'] . ')'); ?></p>
+                            <?php if ($t['status'] === 'Proses') { ?>
+                                <form class="order-sync-form mt-2" method="post" action="/syncorder/<?= rawurlencode($t['id_midtrans']); ?>">
+                                    <?= csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-success" <?= \App\Services\Integrations\LunaOrderSync::validTracking($t['resi'] ?? null) ? '' : 'disabled'; ?>>Kirim pesanan ke MyLuna</button>
+                                    <p class="small text-secondary mt-1 mb-0">Resi wajib diisi. Pengiriman ulang nomor pesanan yang sama tidak membuat pesanan baru.</p>
+                                </form>
+                            <?php } ?>
                             <?php if (in_array($t['status'], ['Dikirim', 'Selesai'], true) || ($t['shipment']['shipping_status'] ?? '') === 'Disiapkan') { ?>
                                 <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="retryShippingSync(<?= (int)$t_ind; ?>)">Sinkron ulang pengiriman ke MyLuna</button>
                             <?php } ?>
@@ -529,7 +535,7 @@
             ?>
             <nav class="customer-pagination-wrap" aria-label="Navigasi halaman order customer">
                 <div class="small text-secondary">
-                    Halaman <strong><?= $currentPage; ?></strong> dari <strong><?= $totalPages; ?></strong> · <?= number_format($totalRows, 0, ',', '.'); ?> pesanan
+                    Halaman <strong><?= $currentPage; ?></strong> dari <strong><?= $totalPages; ?></strong> Â· <?= number_format($totalRows, 0, ',', '.'); ?> pesanan
                 </div>
                 <ul class="pagination justify-content-center mb-0">
                     <li class="page-item <?= $currentPage <= 1 ? 'disabled' : ''; ?>">
@@ -573,6 +579,15 @@
     var indexItemSelected;
     let shippingSaving = false;
     let shippingSaved = false;
+    document.querySelectorAll('.order-sync-form').forEach(form => {
+        form.addEventListener('submit', event => {
+            if (form.dataset.sending === 'true') { event.preventDefault(); return; }
+            form.dataset.sending = 'true';
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true;
+            button.textContent = 'Mengirim ke MyLuna...';
+        });
+    });
     let shippingCsrf = <?= json_encode(csrf_hash()); ?>;
 
     // <p class="isi-bukti-bayar mb-2">Id Pesanan : L15535320</p>
@@ -629,12 +644,13 @@
         indexItemSelected = index_item
         const order = transaksiJson[index_item];
         const internal = order.shipment?.shipping_method_code === 'internal_delivery';
-        document.getElementById('internal-shipping-fields').hidden = !internal;
+        document.getElementById('internal-shipping-fields').hidden = false;
         document.getElementById('external-shipping-courier').hidden = internal;
-        document.getElementById('external-shipping-awb').hidden = internal;
+        document.getElementById('external-shipping-awb').hidden = false;
+        document.getElementById('awb-label').textContent = internal ? 'Nomor resi internal toko (wajib)' : 'Nomor resi ekspedisi (wajib)';
         document.getElementById('shipping-editor-title').textContent = internal ? 'Jasa Kirim Toko' : 'Pengiriman Ekspedisi';
         document.getElementById('shipping-save-feedback').textContent = '';
-        document.getElementById('internal-shipping-status').value = ['Disiapkan', 'Dalam Pengiriman', 'Gagal Kirim', 'Terkirim'].includes(order.shipment?.shipping_status) ? order.shipment.shipping_status : 'Disiapkan';
+        document.getElementById('internal-shipping-status').value = ['Disiapkan', 'Dalam Pengiriman', 'Gagal Kirim', 'Terkirim'].includes(order.shipment?.shipping_status) ? order.shipment.shipping_status : (order.status === 'Proses' ? 'Disiapkan' : (order.status === 'Selesai' ? 'Terkirim' : 'Dalam Pengiriman'));
         resiInputElm.value = order.shipment?.tracking_number || (String(order.resi || '').toLowerCase().includes('menunggu') ? '' : order.resi || '');
         kurirInputElm.value = order.kurir || '';
         kurirInputElm.readOnly = !!order.shipment && !internal;
@@ -643,6 +659,7 @@
     async function acteditresi(retrySync = false) {
         if (shippingSaving) return;
         const feedback = document.getElementById('shipping-save-feedback');
+        if (!retrySync && !resiInputElm.value.trim()) { feedback.textContent = 'Isi nomor resi pengiriman terlebih dahulu.'; resiInputElm.focus(); return; }
         const bodynya = {
             resi: resiInputElm.value,
             kurir: kurirInputElm.value,

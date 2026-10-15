@@ -32,5 +32,14 @@
 @media (max-width: 575.98px) { .buyer-auth-body .auth-page { padding-block: 28px 20px; } .buyer-auth-body .auth-page > .container { padding-inline: 20px; } }
 @media (prefers-reduced-motion: reduce) { .buyer-auth-body .auth-page * { transition: none !important; } }
 
-.buyer-auth-body .auth-captcha { min-width: 0; display: grid; justify-items: start; gap: 8px; }
-.buyer-auth-body .auth-captcha-status, .buyer-auth-body .auth-captcha noscript p { margin: 0; font-size: .8125rem; line-height: 1.6; color: #626262; overflow-wrap: anywhere; }
+/* Keep the security widget balanced with the existing form, without an extra card. */
+.buyer-auth-body .auth-form { grid-template-columns: minmax(0, 1fr); }
+.buyer-auth-body .auth-captcha { width: 100%; min-width: 0; display: grid; justify-items: center; gap: 8px; margin-block: 2px 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.buyer-auth-body .auth-captcha-slot { display: grid; place-items: center; width: 100%; min-width: 0; min-height: 78px; }
+.buyer-auth-body .auth-captcha-slot[data-size="compact"] { min-height: 144px; }
+.buyer-auth-body .auth-captcha-slot > .g-recaptcha { justify-self: center; line-height: 0; }
+.buyer-auth-body .auth-captcha-status, .buyer-auth-body .auth-captcha noscript p { margin: 0; min-height: 20px; max-width: 34ch; font-size: .75rem; line-height: 1.65; text-align: center; color: #626262; overflow-wrap: anywhere; }
+.buyer-auth-body .auth-captcha-status:empty { display: none; }
+.buyer-auth-body .auth-captcha[data-state="verified"] .auth-captcha-status { color: var(--theme-primary, #2f2d20); }
+.buyer-auth-body .auth-captcha[data-state="error"] .auth-captcha-status { color: var(--bs-danger, #b42318); }
+@media (max-width: 343.98px) { .buyer-auth-body .auth-captcha-slot { min-height: 144px; } }
