@@ -62,7 +62,8 @@ final class BuyerFooterTest extends CIUnitTestCase
     public function testTemplateOnlyRendersBuyerFooterOutsideAdminLayout(): void
     {
         $source = file_get_contents(APPPATH . 'Views/layout/template.php');
-        $this->assertMatchesRegularExpression('~if \(!\$isAdminLayout\) \{ \?>\s*<\?php \$buyerFooter =.*?view\(\x27layout/buyer_footer\x27.*?<\?php \} \?>~s', $source);
+        $this->assertMatchesRegularExpression('~if \(!\$isAdminLayout\) \{ \?>\s*</div>\s*<\?php \$buyerFooter =.*?view\(\x27layout/buyer_footer\x27.*?<\?php \} \?>~s', $source);
+        $this->assertMatchesRegularExpression('~if \(!\$isAdminLayout\) \{ \?>\s*<div class="buyer-page-content">~', $source);
         if (getenv('BUYER_FOOTER_ARTIFACTS') !== '1') return;
         $directory = WRITEPATH . 'cache/buyer-footer-review';
         if (!is_dir($directory)) mkdir($directory, 0775, true);
@@ -77,10 +78,10 @@ final class BuyerFooterTest extends CIUnitTestCase
             $footer = view('layout/buyer_footer', ['footerVariant' => $config['variant'], 'footerPayment' => $config['payment']], ['saveData' => false]);
             $nav = view('layout/navbar', ['title' => $title], ['saveData' => false]);
             foreach (['short' => 50, 'long' => 1200] as $length => $height) {
-                $html = $nav . '<main class="konten container"><h1>' . $title . '</h1><div style="height:' . $height . 'px">Konten halaman uji</div></main>' . $footer;
+                $html = $nav . '<div class="buyer-page-content"><main class="konten container"><h1>' . $title . '</h1><div style="height:' . $height . 'px">Konten halaman uji</div></main></div>' . $footer;
                 $html = str_replace('src="/img/', 'src="' . $url . '/img/', $html);
                 $html = preg_replace('~src="https?://[^\"]*/img/~', 'src="' . $url . '/img/', $html);
-                file_put_contents($directory . '/' . $name . '-' . $length . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $tokens . '.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style><script defer src="' . $url . '/js/buyer-navigation.js"></script></head><body>' . $html . '</body></html>');
+                file_put_contents($directory . '/' . $name . '-' . $length . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $tokens . '.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style><script defer src="' . $url . '/js/buyer-navigation.js"></script></head><body class="buyer-layout">' . $html . '</body></html>');
             }
         }
     }

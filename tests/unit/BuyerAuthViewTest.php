@@ -71,10 +71,10 @@ final class BuyerAuthViewTest extends CIUnitTestCase
         session()->set(['isLogin' => false, 'role' => null, 'email' => null]);
         $nav = view('layout/navbar', ['title' => $page === 'login' ? 'Masuk' : 'Daftar'], ['saveData' => false]);
         $footer = view('layout/buyer_footer', ['footerVariant' => 'minimal', 'footerPayment' => false], ['saveData' => false]);
-        $content = preg_replace('~src="https?://[^\"]*/img/~', 'src="' . $url . '/img/', $nav . $html . $footer);
+        $content = preg_replace('~src="https?://[^\"]*/img/~', 'src="' . $url . '/img/', $nav . '<div class="buyer-page-content">' . $html . '</div>' . $footer);
         $content = str_replace('src="/img/', 'src="' . $url . '/img/', $content);
         $theme = \App\Models\KonstantaModel::defaultThemeWarna();
         $tokens = ':root,*{--theme-primary:' . $theme['primary'] . ';--theme-primary-hover:' . $theme['primaryHover'] . ';--theme-background:' . $theme['background'] . ';--theme-soft:' . $theme['soft'] . ';--theme-soft-2:' . $theme['soft2'] . ';}';
-        file_put_contents($dir . '/' . $page . ($errors ? '-errors' : '') . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $tokens . '</style><script defer src="' . $url . '/js/buyer-navigation.js"></script></head><body class="buyer-auth-body">' . $content . '</body></html>');
+        file_put_contents($dir . '/' . $page . ($errors ? '-errors' : '') . '.html', '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' . $styles . '<style>' . $tokens . '</style><script defer src="' . $url . '/js/buyer-navigation.js"></script></head><body class="buyer-layout buyer-auth-body">' . $content . '</body></html>');
     }
 }

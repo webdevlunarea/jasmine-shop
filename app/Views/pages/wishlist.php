@@ -23,8 +23,8 @@
                         </div>
                         <div class="product-card-body">
                     <div class="product-card-heading">
-                                <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                                <p class="mb-1 varian"><b>Varian dipilih:</b> <?= esc($p['wishlist_varian'] ?? '-'); ?></p>
+                                <h5 class="mb-0" title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h5>
+                                <p class="mb-1 varian" title="<?= esc('Varian dipilih: ' . ($p['wishlist_varian'] ?? '-'), 'attr'); ?>"><b>Varian dipilih:</b> <?= esc($p['wishlist_varian'] ?? '-'); ?></p>
                     </div>
                     <div class="product-card-pricing">
                                 <?php if ($p['diskon']) { ?>

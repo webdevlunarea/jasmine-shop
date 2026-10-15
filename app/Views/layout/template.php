@@ -131,6 +131,9 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?php if (in_array($title, ['Masuk', 'Daftar'], true)) { ?>
     <link rel="stylesheet" href="/css/buyer-auth.css?v=<?= filemtime(FCPATH . 'css/buyer-auth.css'); ?>">
     <?php } ?>
+    <?php if ($title === 'Tentang') { ?>
+    <link rel="stylesheet" href="/css/buyer-about.css?v=<?= filemtime(FCPATH . 'css/buyer-about.css'); ?>">
+    <?php } ?>
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,
@@ -220,7 +223,7 @@ $isAdminLayout = session()->get('role') == '1';
 $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
 ?>
 
-<body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-auth-body' : ''); ?>">
+<body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-layout buyer-auth-body' : 'buyer-layout'); ?>">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
@@ -283,13 +286,17 @@ $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
     </div>
     <?php } ?>
 
-    <?= $this->renderSection('content'); ?>
     <?php if (!$isAdminLayout) { ?>
+    <div class="buyer-page-content">
+    <?php } ?>
+    <?= $this->renderSection('content'); ?>
+    <?php if (isset($geser_container_melayang)) { ?>
+    <div class="hide-ke-show-block" style="height: 53px; width: 100%"></div>
+    <?php } ?>
+    <?php if (!$isAdminLayout) { ?>
+    </div>
         <?php $buyerFooter = \App\Libraries\BuyerFooter::resolve(service('uri')->getPath(), (string) parse_url(base_url(), PHP_URL_PATH)); ?>
         <?= view('layout/buyer_footer', ['footerVariant' => $buyerFooter['variant'], 'footerPayment' => $buyerFooter['payment']], ['saveData' => false]); ?>
-    <?php } ?>
-    <?php if (isset($geser_container_melayang)) { ?>
-    <div class="hide-ke-show-block" style="height: 53px; width: 100vw"></div>
     <?php } ?>
     <?php if (session()->get('role') != '1') { ?>
     <script>

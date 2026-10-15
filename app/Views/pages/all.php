@@ -191,14 +191,8 @@
                 </div>
                 <div class="product-card-body">
                     <div class="product-card-heading">
-                        <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                        <div class="container-varian my-2 pb-1">
-                            <div>
-                                <?php foreach ($variants as $v) { ?>
-                                <p class="mb-0 varian"><?= $v ?></p>
-                                <?php } ?>
-                            </div>
-                        </div>
+                        <h5 class="mb-0" title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h5>
+                        <?= view('partials/product_card_variants', ['cardVariants' => $variants], ['saveData' => false]); ?>
                     </div>
                     <div class="product-card-pricing">
                         <?php if ($p['diskon']) { ?>

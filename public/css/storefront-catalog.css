@@ -28,8 +28,14 @@ body:not(.admin-body) .store-product-card:hover .img-card1 { transform: none; op
 body:not(.admin-body) .store-product-card > .product-card-body { width: 100%; margin: 0; display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding-inline: 2px; transform: none; }
 body:not(.admin-body) .store-product-card .product-card-heading,
 body:not(.admin-body) .store-product-card .product-card-pricing { display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 4px; }
+/* Reserve equal title and variant rows so prices line up across a grid row. */
+body:not(.admin-body) .store-product-card .product-card-heading > .varian { width: 100%; height: 1.6em; min-height: 1.6em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body:not(.admin-body) .store-product-card .product-card-heading > .product-card-variants { display: flex; align-items: center; gap: 6px; }
+body:not(.admin-body) .store-product-card .product-card-variant-preview { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body:not(.admin-body) .store-product-card .product-card-variant-count { flex: 0 0 auto; white-space: nowrap; color: var(--theme-primary, var(--hijau)); }
+body:not(.admin-body) .store-product-card .product-card-pricing { min-height: 3.25rem; }
 body:not(.admin-body) .store-product-card:hover .product-card-body { transform: none; }
-body:not(.admin-body) .store-product-card h5 { order: 0; margin: 0; color: #292929; font-size: .8125rem; line-height: 1.5; font-weight: 500; letter-spacing: -.01em; overflow: visible; overflow-wrap: anywhere; white-space: normal; }
+body:not(.admin-body) .store-product-card h5 { order: 0; margin: 0; color: #292929; font-size: .8125rem; line-height: 1.5; font-weight: 500; letter-spacing: -.01em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; height: 3em; overflow: hidden; overflow-wrap: anywhere; white-space: normal; }
 body:not(.admin-body) .store-product-card .container-varian { order: 1; width: 100%; margin: 0 !important; padding: 0 !important; overflow: visible; }
 body:not(.admin-body) .store-product-card .container-varian > div { display: flex; width: 100%; flex-wrap: wrap; gap: 2px 7px; }
 body:not(.admin-body) .store-product-card .varian { order: 1; max-width: 100%; margin: 0 !important; padding: 0; background: transparent; border: 0; border-radius: 0; color: #666; font-size: .75rem; font-weight: 400; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; }

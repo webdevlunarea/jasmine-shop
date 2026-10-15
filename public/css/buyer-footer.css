@@ -1,3 +1,11 @@
+/* Fill short pages without positioning the footer over content. Mobile nav space
+   continues to come from buyer-navigation.css body padding. */
+body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; }
+.buyer-layout > .buyer-page-content { display: flow-root; flex: 1 0 auto; min-width: 0; width: 100%; }
+.buyer-layout > .buyer-page-content > .konten { min-height: 0; }
+.buyer-layout > footer, .buyer-layout > .buyer-desktop-header, .buyer-layout > .mobile-navbar-spacer { flex-shrink: 0; }
+@media print { body.buyer-layout { display: block; min-height: 0; } .buyer-layout > footer { display: none !important; } }
+
 /* Scoped footer variants: regular document flow, never fixed over customer content. */
 .buyer-footer { position: static; clear: both; width: 100%; margin-top: 32px; padding-block: 24px; border-top: 1px solid var(--theme-soft-2); background: var(--theme-soft); color: var(--theme-primary-hover); }
 .buyer-footer p { margin: 0; overflow-wrap: anywhere; }

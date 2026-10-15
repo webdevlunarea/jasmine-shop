@@ -38,10 +38,19 @@ final class StorefrontCatalogViewTest extends CIUnitTestCase
                 $text = preg_replace('/\s+/', ' ', strip_tags($card));
                 $this->assertStringContainsString($discount ? '1.000.000' : '1.250.000', $text);
                 if ($discount) $this->assertStringContainsString('1.250.000', $text);
-                if (in_array($page, ['home', 'all', 'artikel'], true)) foreach ($variants as $variant) $this->assertStringContainsString($variant, $card);
+                if (in_array($page, ['home', 'all', 'artikel'], true)) foreach ($variants as $variant) $this->assertStringContainsString($variant, html_entity_decode($card, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
                 if ($page === 'wishlist') $this->assertStringContainsString('Varian dipilih:</b> Putih Kombinasi Kayu Natural', $card);
                 if (in_array($page, ['home', 'all', 'product'], true)) $this->assertStringContainsString('1,2rb+ Terjual', $text);
-                $html .= '<section class="container my-5"><h5 class="jdl-section mb-1">' . $page . ' / ' . ($discount ? 'Diskon' : 'Harga normal') . '</h5><div class="card-group1 no-scroll">' . str_repeat($card, 3) . '</div></section>';
+                $fixtureCards = $card;
+                // Deliberately mix short names and different variant counts in one row.
+                foreach ([['Meja', ['Putih']], ['Rak serbaguna dengan nama yang sangat panjang untuk pemeriksaan tata letak', []]] as [$name, $choices]) {
+                    $p['nama'] = $name;
+                    $p['varian'] = json_encode($choices);
+                    $variants = $choices;
+                    ob_start();
+                    try { include $fragment; $fixtureCards .= ob_get_contents(); } finally { ob_end_clean(); }
+                }
+                $html .= '<section class="container my-5"><h5 class="jdl-section mb-1">' . $page . ' / ' . ($discount ? 'Diskon' : 'Harga normal') . '</h5><div class="card-group1 no-scroll">' . $fixtureCards . '</div></section>';
             }
         }
         if (getenv('CATALOG_ARTIFACTS') === '1') {

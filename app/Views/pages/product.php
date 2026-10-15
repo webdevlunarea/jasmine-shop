@@ -473,7 +473,8 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     </div>
                     <div class="product-card-body">
                     <div class="product-card-heading">
-                            <h5 class="mb-0"><?= $p['nama']; ?></h5>
+                            <h5 class="mb-0" title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h5>
+                            <?= view('partials/product_card_variants', ['cardVariants' => json_decode($p['varian'] ?? '[]', true)], ['saveData' => false]); ?>
                     </div>
                     <div class="product-card-pricing">
                             <?php if ($p['diskon']) { ?>
