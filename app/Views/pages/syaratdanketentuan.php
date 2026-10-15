@@ -1,31 +1,31 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
-    <div class="container">
-        <h3 class="mb-1">Syarat & Ketentuan</h3>
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Syarat & Ketentuan</li>
-            </ol>
-        </nav>
+<main class="konten buyer-help-page buyer-policy-page">
+    <div class="container buyer-help-container">
+        <?= view('partials/buyer_help_nav', ['activeHelp' => 'terms'], ['saveData' => false]); ?>
+        <header class="buyer-help-heading">
+            <p class="buyer-help-eyebrow">Bantuan & informasi</p>
+            <h1>Syarat & ketentuan</h1>
+            <p>Ketentuan penggunaan website dan layanan Lunarea Furniture.</p>
+        </header>
+        <article class="buyer-help-content">
 
-        <h5>Pendahuluan</h5>
+<h2>Pendahuluan</h2>
         <p>Perjanjian penggunaan website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> selaku pengelola (disebut sebagai “Kami”)
             dengan pengguna dijelaskan pada halaman ini. Seluruh pengguna wajib untuk mengikuti syarat &
             ketentuan yang telah ditentukan. Kami memiliki hak untuk mengubah atau menambahkan suatu pasal
             sesuai dengan keperluan website.</p>
 
-        <h5>Penggunaan Website</h5>
+        <h2>Penggunaan Website</h2>
         <p>Situs website <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a> memuat informasi yang meliputi: produk, kebijakan privasi, FAQ,
             serta syarat & ketentuan.</p>
 
-        <h5>Profil Perusahaan</h5>
+        <h2>Profil Perusahaan</h2>
         <p>Informasi yang terdapat dalam profil Perusahaan, serta kegiatan Perusahaan dapat berubah dan atau
             ditambahkan sesuai dengan kebutuhan Perusahaan di kemudian hari.
         </p>
 
-        <h5>Informasi Produk dan Inspirasi</h5>
+        <h2>Informasi Produk dan Inspirasi</h2>
         <p>Semua informasi yang menyangkut tentang harga, gambar, deskripsi, dan spesifikasi dapat berubah dalam kurun
             waktu tertentu. Harga yang digunakan pada website ini berlaku untuk semua wilayah jangkauan dari produk Lunarea
             furniture, dengan transaksi jual-beli dilakukan pada website ini. produk yang ditampilkan di website berlaku
@@ -36,22 +36,22 @@
         <p>Customer service kami selalu bersedia dengan terbuka dan senang hati untuk melakukan pelayanan kepada pelanggan pada
             hari senin-jumat pukul 08.00-16.00 WIB hingga sabtu pukul 08.00-14.00 WIB (kecuali hari minggu dan libur nasional).</p>
 
-        <h5>Informasi Promosi</h5>
+        <h2>Informasi Promosi</h2>
         <p>Pengguna dapat melihat informasi promosi yang berlangsung secara berkala atau dalam waktu tertentu yang dapat berubah
             sewaktu-waktu. Pengguna disarankan untuk berlangganan email atau WhatsApp untuk selanjutnya kami akan mengirimkan
             informasi promosi terbaru yang sedang kami adakan.</p>
 
-        <h5>Informasi Service</h5>
+        <h2>Informasi Service</h2>
         <p>Pengguna dapat mengakses informasi seputar layanan yang diberikan oleh Lunarea Furniture melalui <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://lunareafurniture.com">lunareafurniture.com</a>,
             WA Customer Service (<a style="color: var(--hijau);" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan.....">Chat Customer Service</a>),
             atau WA Retur / Komplain (<a style="color: var(--hijau);" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya.....">Ajukan Retur / Komplain</a>), informasi ini dapat berubah sewaktu-waktu sesuai dengan kebijakan Perusahaan yang berlaku.</p>
 
         <hr class="my-4">
 
-        <h5 class="jdl-section mb-3">Luna Point</h5>
-        <h5>Pendahuluan</h5>
+        <h2 class="jdl-section mb-3">Luna Point</h2>
+        <h2>Pendahuluan</h2>
         <p>Syarat & ketentuan ini mengikat Lunarea Furniture yang akan disebut sebagai <b>"Perusahaan"</b> dan <b>Pelanggan</b>. Istilah yang dikapitalisasi dalam syarat & ketentuan ini memiliki arti/ makna tertentu seperti yang akan dijabarkan lebih detail pada bagian <b>“Definisi”</b>.</p>
-        <h5>Jasa</h5>
+        <h2>Jasa</h2>
         <ol>
             <li>Luna Reward merupakan sistem yang ditujukan sebagai bentuk loyalitas kepada pengguna Lunarea Furniture yang memungkinkan pengguna melihat dan mengelola poin yang dimiliki untuk dipergunakan pada layanan Perusahaan.</li>
             <li>Pelanggan akan mendapatkan Luna Point Reward dengan melakukan transaksi pembelian di platform Perusahaan.
@@ -64,7 +64,7 @@
             </li>
 
         </ol>
-        <h5>Poin</h5>
+        <h2>Poin</h2>
         <ol>
             <li>1 (satu) Luna Point Rewards bernilai Rp. 1 (satu rupiah). Setiap Luna Point Reward yang didapat berlaku selama periode yang telah ditentukan berdasarkan pada program Perusahaan.
             </li>
@@ -73,7 +73,7 @@
             <li>Perusahaan berhak menyesuaikan penilaian Luna Point Rewards.</li>
         </ol>
 
-        <h5>Akun Lunarea Point Rewards</h5>
+        <h2>Akun Lunarea Point Rewards</h2>
         <ol>
             <li>Perusahaan akan mengumpulkan dan memproses informasi pribadi pelanggan seperti nama, email, nomor telepon, dan tanggal lahir untuk setiap pembukaan serta pendaftaran akun.
             </li>
@@ -103,7 +103,7 @@
             <li>Dengan memiliki akun di website Perusahaan, mengartikan bahwa pelanggan menyetujui segala syarat & ketentuan berlaku dan bersedia bertanggung jawab atas kerugian yang timbul karena penggunaan Akun tersebut. Dalam hal Ini Perusahaan melakukan tindakan yang dianggap perlu untuk melaksanakan ketentuan Luna Point yang sebagaimana telah diatur dalamnya.
             </li>
         </ol>
-        <h5>Penggunaan</h5>
+        <h2>Penggunaan</h2>
         <ol>
             <li>Situs website Perusahaan dan produk, teknologi, serta proses yang tertuang dalam situs ini, dimiliki sepenuhnya oleh Perusahaan atau pihak ketiga yang diberikan hak oleh Perusahaan. Kecuali untuk penggunaan yang secara tegas melanggar peraturan di dalamnya. Perusahaan tidak memberikan hak kepada Pelanggan terkait segala informasi, data dan konten yang terkandung didalamnya.
             </li>
@@ -111,7 +111,7 @@
             </li>
             <li>Pelanggan dilarang membuat tauran, screenshot, atau data crawling ke situs Perusahaan tanpa mendapatkan izin terlebih dahulu.</li>
         </ol>
-        <h5>Kebijakan Penggunaan Data</h5>
+        <h2>Kebijakan Penggunaan Data</h2>
         <ol>
             <li>Perusahaan akan mencatat dan menyimpan informasi dan data pribadi pada Akun Pelanggan yang telah terdaftar di Lunarea Rewards . Segala informasi dan data ini akan digunakan untuk memberikan layanan prima dari Perusahaan pada Pelanggan.
             </li>
@@ -122,7 +122,7 @@
             <li>Sehubungan dengan poin nomor tiga, Perusahaan dapat mengungkapkan data Pelanggan kepada perusahaan grup tempat Perusahaan tergabung di dalamnya, penyedia produk, perusahaan lain yang menjadi mitra dalam kaitannya dengan pelaksanaan Luna Point Rewards, dan pihak ketiga mana pun yang memiliki kontrak pemrosesan data dengan Perusahaan.</li>
         </ol>
 
-        <h5>Umum</h5>
+        <h2>Umum</h2>
         <ol>
             <li>Dengan mengakses dan menggunakan situs serta layanan Perusahaan, menyatakan bahwa Pelanggan telah membaca, mengetahui, serta menyetujui syarat & ketentuan ini.
             </li>
@@ -139,7 +139,7 @@
             <li>Syarat & Ketentuan ini dibuat dalam Bahasa Indonesia dan Bahasa Inggris. Untuk setiap ketidaksesuaian isi dan pemahaman dari setiap versi, versi bahasa Indonesia yang akan berlaku.
             </li>
         </ol>
-        <h5>Definisi</h5>
+        <h2>Definisi</h2>
         <ol>
             <li><b>Akun</b> adalah profile pengguna yang didapatkan setelah Pelanggan melakukan pendaftaran di website Perusahaan dan digunakan untuk melakukan transaksi perbelanjaan di website tersebut.
             </li>
@@ -164,13 +164,14 @@
 
         <?php if (count($voucher) > 0) { ?>
             <hr class="my-4">
-            <h5 class="jdl-section mb-3" id="voucher">Voucher</h5>
+            <h2 class="jdl-section mb-3" id="voucher">Voucher</h2>
             <?php foreach ($voucher as $v) { ?>
-                <h5><?= $v['nama']; ?></h5>
+                <h3><?= $v['nama']; ?></h3>
                 <?php echo $v['syarat_ketentuan']; ?>
             <?php } ?>
         <?php } ?>
+        </article>
     </div>
 
-</div>
+</main>
 <?= $this->endSection(); ?>

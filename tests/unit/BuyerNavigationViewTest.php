@@ -22,6 +22,13 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
             $this->assertStringNotContainsString('buyer-mobile-header', $html);
         } else {
             $this->assertStringContainsString('buyer-mobile-header', $html);
+            $domDesktop = new DOMDocument();
+            @$domDesktop->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+            $desktop = new DOMXPath($domDesktop);
+            $this->assertSame(1, $desktop->query('//nav[contains(@class,"buyer-desktop-header")]//img[contains(@class,"buyer-desktop-logo") and contains(@src,".png") and @width="180" and @height="19"]')->length);
+            $this->assertSame(1, $desktop->query('//*[@id="navbarSupportedContent"]/div[contains(@class,"buyer-desktop-actions")]')->length);
+            $this->assertSame(0, $desktop->query('//nav[contains(@class,"buyer-desktop-header")]//a[contains(@class,"btn") and not(@aria-label)]')->length);
+
             $this->assertStringContainsString('mobile-navbar-spacer', $html);
             $this->assertStringContainsString('aria-controls="buyer-mobile-search" aria-expanded="false"', $html);
             $this->assertStringContainsString('id="buyer-mobile-search" hidden', $html);
@@ -91,8 +98,10 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
             'desktopText' => 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
             'mobileText' => 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%',
         ], ['saveData' => false]);
+        $theme = \App\Models\KonstantaModel::defaultThemeWarna();
+        $tokens = ':root,*{--theme-primary:' . $theme['primary'] . ';--theme-primary-hover:' . $theme['primaryHover'] . ';--theme-background:' . $theme['background'] . ';--theme-soft:' . $theme['soft'] . ';--theme-soft-2:' . $theme['soft2'] . ';--hijau:' . $theme['primary'] . ';--hijaumuda:' . $theme['soft'] . ';}';
         $page = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-            . $styles . '<style>:root{--hijau:#207e44;--hijaumuda:#edfaf1}.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style>'
+            . $styles . '<style>' . $tokens . '.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style>'
             . '<script defer src="' . $publicUrl . '/js/buyer-navigation.js"></script></head><body class="buyer-layout">' . $promo . $html
             . '<main class="konten account-shell"><div class="container"><div class="account-layout">' . $tabs
             . '<section class="account-content-card"><h1>Voucher saya</h1><p>Konten pembeli untuk pengujian navigasi.</p><div style="height:1200px"></div></section></div></div></main></body></html>';

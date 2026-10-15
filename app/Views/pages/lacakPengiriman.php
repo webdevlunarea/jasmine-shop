@@ -20,23 +20,25 @@ if (!empty($order['nama_pen'])) {
     $receiver = $parts[0] . (count($parts) > 1 ? ' ' . mb_substr(end($parts), 0, 1) . '.' : '');
 }
 ?>
-<div class="konten tracking-page">
+<main class="konten buyer-help-page tracking-page">
+    <div class="container buyer-help-container"><?= view('partials/buyer_help_nav', ['activeHelp' => 'tracking'], ['saveData' => false]); ?></div>
     <section class="tracking-hero">
         <div class="container">
             <div class="tracking-hero-card">
                 <div class="tracking-hero-copy">
-                    <span class="tracking-badge"><i class="material-icons">local_shipping</i> Real-time tracking</span>
-                    <h1>Lacak Pengiriman</h1>
+                    <p class="buyer-help-eyebrow">Bantuan pengiriman</p>
+                    <h1>Lacak pengiriman</h1>
                     <p>Cek posisi paket Lunarea memakai nomor invoice atau nomor resi. Bisa dipakai member maupun non-member.</p>
                 </div>
                 <form action="/lacak-pengiriman" method="post" class="tracking-form">
-                    <label class="form-label fw-bold">Nomor invoice / nomor resi</label>
+                    <label class="form-label" for="tracking-keyword">Nomor invoice / nomor resi</label>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="keyword" value="<?= esc($keyword ?? ''); ?>" placeholder="Contoh: ORDER-ID / JNE CM123456789" required>
+                        <input id="tracking-keyword" aria-describedby="tracking-hint" type="text" class="form-control" name="keyword" value="<?= esc($keyword ?? ''); ?>" placeholder="Contoh: ORDER-ID / JNE CM123456789" required>
                         <button class="btn btn-primary1" type="submit">Lacak</button>
                     </div>
-                    <label class="form-label small text-secondary">Kurir opsional. Kalau dikosongkan, sistem bisa membaca format seperti “JNE NOMOR_RESI”.</label>
-                    <select class="form-select" name="courier">
+                    <p class="tracking-hint" id="tracking-hint">Untuk nomor resi, pilih kurir atau tulis nama kurir sebelum resi, misalnya JNE NOMOR_RESI.</p>
+                    <label class="form-label" for="tracking-courier">Kurir <span class="text-secondary">(opsional)</span></label>
+                    <select id="tracking-courier" class="form-select" name="courier">
                         <option value="">Deteksi otomatis / dari data pesanan</option>
                         <?php foreach ($couriers as $code => $label) { ?>
                             <option value="<?= esc($code); ?>" <?= ($courier ?? '') === $code ? 'selected' : ''; ?>><?= esc($label); ?></option>
@@ -49,7 +51,7 @@ if (!empty($order['nama_pen'])) {
 
     <div class="container tracking-result-wrap">
         <?php if ($hasSearched && !empty($error)) { ?>
-            <div class="alert alert-warning tracking-alert">
+            <div class="alert alert-warning tracking-alert" role="status">
                 <strong>Pengiriman belum ditemukan.</strong><br>
                 <?= esc($error); ?>
             </div>
@@ -109,7 +111,7 @@ if (!empty($order['nama_pen'])) {
                         <span>Dari</span>
                         <strong><?= esc($detail['origin'] ?? '-'); ?></strong>
                     </div>
-                    <i class="material-icons">arrow_forward</i>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg>
                     <div>
                         <span>Tujuan</span>
                         <strong><?= esc($detail['destination'] ?? '-'); ?></strong>
@@ -123,7 +125,7 @@ if (!empty($order['nama_pen'])) {
                         <h5 class="fw-bold mb-1">Riwayat pengiriman</h5>
                         <p class="text-secondary mb-0">Riwayat akan muncul setelah pengiriman terdeteksi.</p>
                     </div>
-                    <span class="tracking-provider"><?= esc($tracking['provider'] ?? 'Lacak Pengiriman'); ?></span>
+
                 </div>
 
                 <?php if (empty($history)) { ?>
@@ -146,266 +148,12 @@ if (!empty($order['nama_pen'])) {
             </section>
         <?php } elseif (!$hasSearched) { ?>
             <section class="tracking-empty">
-                <i class="material-icons">search</i>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
                 <h5 class="fw-bold">Masukkan nomor invoice atau resi</h5>
                 <p class="text-secondary mb-0">Kalau memakai nomor invoice, kurir dan resi akan dicari otomatis dari data pesanan.</p>
             </section>
         <?php } ?>
     </div>
-</div>
+</main>
 
-<style>
-    .tracking-page {
-        background: linear-gradient(180deg, var(--hijaumuda) 0%, #fff 320px);
-    }
-
-    .tracking-hero {
-        padding: 26px 0 18px;
-    }
-
-    .tracking-hero-card {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
-        gap: 22px;
-        align-items: center;
-        border: 1px solid var(--hijaumuda2);
-        border-radius: 28px;
-        padding: clamp(18px, 3vw, 32px);
-        background: radial-gradient(circle at 8% 0%, #fff 0%, transparent 35%), linear-gradient(135deg, #fff, var(--hijaumuda1));
-        box-shadow: 0 18px 42px rgba(36, 59, 107, .10);
-    }
-
-    .tracking-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        background: var(--hijau);
-        color: #fff;
-        font-weight: 800;
-        font-size: .78rem;
-        text-transform: uppercase;
-        letter-spacing: .06em;
-    }
-
-    .tracking-badge .material-icons {
-        font-size: 16px;
-    }
-
-    .tracking-hero-copy h1 {
-        margin: 12px 0 8px;
-        color: var(--hijau);
-        font-weight: 900;
-        letter-spacing: -.04em;
-        font-size: clamp(2rem, 5vw, 3.2rem);
-    }
-
-    .tracking-hero-copy p {
-        max-width: 560px;
-        color: #66737f;
-        font-size: 1rem;
-        line-height: 1.65;
-    }
-
-    .tracking-form {
-        padding: 16px;
-        border-radius: 22px;
-        background: #fff;
-        border: 1px solid rgba(36, 59, 107, .10);
-    }
-
-    .tracking-result-wrap {
-        display: grid;
-        gap: 16px;
-        padding-bottom: 42px;
-    }
-
-    .tracking-alert,
-    .tracking-order-card,
-    .tracking-summary,
-    .tracking-route,
-    .tracking-timeline-card,
-    .tracking-empty {
-        border-radius: 22px;
-        border: 1px solid rgba(36, 59, 107, .10);
-        box-shadow: 0 12px 28px rgba(36, 59, 107, .06);
-    }
-
-    .tracking-order-card {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-        padding: 18px;
-        background: #fff;
-    }
-
-    .tracking-summary {
-        display: grid;
-        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-        gap: 18px;
-        padding: 20px;
-        background: #fff;
-    }
-
-    .tracking-status-label,
-    .tracking-summary-grid span,
-    .tracking-route span {
-        color: #66737f;
-        margin-bottom: 4px;
-        display: block;
-    }
-
-    .tracking-summary h3 {
-        color: var(--hijau);
-        font-weight: 900;
-        margin-bottom: 4px;
-    }
-
-    .tracking-summary-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .tracking-summary-grid div,
-    .tracking-route div {
-        padding: 12px;
-        border-radius: 16px;
-        background: var(--hijaumuda);
-    }
-
-    .tracking-route {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 12px;
-        padding: 16px;
-        background: #fff;
-    }
-
-    .tracking-route .material-icons {
-        color: var(--hijau);
-    }
-
-    .tracking-timeline-card {
-        padding: 20px;
-        background: #fff;
-    }
-
-    .tracking-provider {
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: var(--hijaumuda);
-        color: var(--hijau);
-        font-weight: 800;
-        font-size: .8rem;
-    }
-
-    .tracking-timeline-item {
-        position: relative;
-        display: grid;
-        grid-template-columns: 20px 100px minmax(0, 1fr);
-        gap: 12px;
-        padding: 0 0 18px;
-    }
-
-    .tracking-timeline-item::before {
-        content: "";
-        position: absolute;
-        left: 9px;
-        top: 20px;
-        bottom: 0;
-        width: 2px;
-        background: var(--hijaumuda2);
-    }
-
-    .tracking-timeline-item:last-child::before {
-        display: none;
-    }
-
-    .tracking-dot {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--hijaumuda2);
-        border: 4px solid #fff;
-        box-shadow: 0 0 0 1px var(--hijaumuda2);
-        z-index: 1;
-    }
-
-    .tracking-timeline-item.active .tracking-dot {
-        background: var(--hijau);
-        box-shadow: 0 0 0 4px var(--hijaumuda1);
-    }
-
-    .tracking-time strong {
-        display: block;
-        color: var(--hijau);
-    }
-
-    .tracking-time span,
-    .tracking-note span {
-        color: #66737f;
-        font-size: .85rem;
-    }
-
-    .tracking-note {
-        padding: 12px;
-        border-radius: 16px;
-        background: var(--hijaumuda);
-    }
-
-    .tracking-empty {
-        text-align: center;
-        padding: 34px 18px;
-        background: #fff;
-    }
-
-    .tracking-empty .material-icons {
-        color: var(--hijau);
-        font-size: 40px;
-    }
-
-    @media (max-width: 991.98px) {
-        .tracking-hero-card,
-        .tracking-summary {
-            grid-template-columns: 1fr;
-        }
-
-        .tracking-order-card {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 575.98px) {
-        .tracking-hero-card {
-            border-radius: 22px;
-            padding: 16px;
-        }
-
-        .tracking-order-card,
-        .tracking-summary-grid,
-        .tracking-route {
-            grid-template-columns: 1fr;
-        }
-
-        .tracking-route .material-icons {
-            transform: rotate(90deg);
-            margin: auto;
-        }
-
-        .tracking-timeline-item {
-            grid-template-columns: 20px minmax(0, 1fr);
-        }
-
-        .tracking-time {
-            grid-column: 2;
-        }
-
-        .tracking-note {
-            grid-column: 2;
-        }
-    }
-</style>
 <?= $this->endSection(); ?>

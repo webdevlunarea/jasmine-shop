@@ -230,8 +230,8 @@ if ($isAdminNav) {
 
 <nav class="navbar buyer-desktop-header navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
-        <a class="navbar-brand" href="/" style="font-weight: bold;">
-            <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" height="17em" alt="Logo Lunarea">
+        <a class="navbar-brand buyer-desktop-brand" href="/" aria-label="Lunarea Furniture — Beranda">
+            <img src="<?= base_url('/img/Logo Lunarea Bg Terang.png'); ?>" class="buyer-desktop-logo" width="180" height="19" alt="Lunarea Furniture" decoding="async">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -254,29 +254,30 @@ if ($isAdminNav) {
             <?php if (!str_contains(strtolower($title), 'artikel')) { ?>
                 <form class="d-flex search-box" role="search">
                     <div class="input-group">
-                        <input required type="text" class="form-control search-input" placeholder="Search" aria-label="Cari produk">
-                        <button class="btn btn-light" type="submit" aria-label="Cari produk"><i class="material-icons" aria-hidden="true">search</i></button>
+                        <input required type="text" class="form-control search-input" placeholder="Cari produk" aria-label="Cari produk">
+                        <button class="btn btn-light" type="submit" aria-label="Cari produk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
                     </div>
                 </form>
             <?php } ?>
+            <div class="buyer-desktop-actions">
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Wishlist">
-                        <i class="material-icons">favorite_border</i>
+                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Wishlist" aria-label="Wishlist">
+                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
                         <?php if ($title != 'Wishlist') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
                     </a>
-                    <a href="/cart" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keranjang">
-                        <i class="material-icons">shopping_cart</i>
+                    <a href="/cart" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keranjang" aria-label="Keranjang">
+                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
                         <?php if ($title != 'Keranjang') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
-                        <a href="/keluar" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout"><i class="material-icons">exit_to_app</i></a>
+                        <a href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
                     <?php } else { ?>
-                        <a href="/account" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
+                        <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                     <?php } ?>
                 <?php } else { ?>
                     <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a> -->
@@ -288,11 +289,12 @@ if ($isAdminNav) {
                     <a href="/article" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Artikel"><i class="material-icons">article</i></a>
                     <a href="/manageratingterjual" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rating & Terjual"><i class="material-icons">star_rate</i></a>
                     <a href="/stokadmin/all/1" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stok"><i class="material-icons">unarchive</i></a>
-                    <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun"><i class="material-icons">person_outline</i></a>
+                    <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" style="padding-right: 0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Login"><i class="material-icons">person_outline</i></a>
+                <a href="/login" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Login" aria-label="Login"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
             <?php } ?>
+            </div>
         </div>
     </div>
 </nav>

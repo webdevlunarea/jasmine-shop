@@ -1,18 +1,16 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
-    <div class="container">
-        <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    Kebijakan Privasi
-                </li>
-            </ol>
-        </nav>
-        <h1>Kebijakan Privasi</h1>
-        <h5 class="mb-4" style="color: var(--hijau)">Lunarea Furniture</h5>
-        <p>
+<main class="konten buyer-help-page buyer-policy-page">
+    <div class="container buyer-help-container">
+        <?= view('partials/buyer_help_nav', ['activeHelp' => 'privacy'], ['saveData' => false]); ?>
+        <header class="buyer-help-heading">
+            <p class="buyer-help-eyebrow">Bantuan & informasi</p>
+            <h1>Kebijakan privasi</h1>
+            <p>Informasi mengenai data pribadi serta kebijakan layanan Lunarea Furniture.</p>
+        </header>
+        <article class="buyer-help-content">
+
+<p>
             Lunarea Furniture selalu mengedepankan kepercayaan yang telah
             pelanggan berikan dengan cara menjaga dan melindungi informasi
             serta data pribadi pelanggan sebagai pengguna situs website
@@ -40,7 +38,7 @@
             kebijakan privasi. Maka dari itu, dimohon kepada pelanggan untuk
             membaca dan menelaah kebijakan privasi ini dengan seksama.
         </p>
-        <h5 class="jdl-section mt-5">Informasi Yang Kami Butuhkan</h5>
+        <h2 class="jdl-section mt-5">Informasi Yang Kami Butuhkan</h2>
         <p>
             Saat pengunjung situs Lunarea Furniture melakukan registrasi
             akun, maka berikut ini adalah informasi yang akan Kami dapatkan:
@@ -105,7 +103,7 @@
             internal dalam Perusahaan Kami untuk melayani Anda sebagai
             konsumen dengan lebih baik.
         </p>
-        <h5 class="jdl-section mt-5">Promosi</h5>
+        <h2 class="jdl-section mt-5">Promosi</h2>
         <p>
             Setelah terjadi pembelian barang dan berlangganan newsletter
             dari situs Lunarea Furniture, maka Anda akan terus mendapatkan
@@ -117,7 +115,7 @@
             atau email promosi yang Kami berikan secara khusus kepada Anda
             sebagai pelanggan.
         </p>
-        <h5 class="jdl-section mt-5">Pembaruan Kebijakan Privasi</h5>
+        <h2 class="jdl-section mt-5">Pembaruan Kebijakan Privasi</h2>
         <p>
             Kebijakan privasi ini akan mengalami pembaharuan secara berkala
             pada kurun waktu tertentu sebagai upaya pengembangan serta
@@ -128,7 +126,7 @@
             untuk semua informasi tentang Anda dan akun Anda yang telah ada
             di website Kami.
         </p>
-        <h5 class="jdl-section mt-5">Kontak Kami</h5>
+        <h2 class="jdl-section mt-5">Kontak Kami</h2>
         <p>
             Secara terbuka dan senang hati, Kami menerima segala kritik dan
             saran yang membangun dari para pelanggan sebagai bentuk
@@ -167,7 +165,7 @@
                 </tr>
             </tbody>
         </table>
-        <h5 class="jdl-section mt-5">Produk & Layanan Kami</h5>
+        <h2 class="jdl-section mt-5">Produk & Layanan Kami</h2>
         <p>
             Lunarea Furniture menyediakan berbagai macam furniture mulai
             dari lemari dewasa, lemari anak, meja rias, meja belajar, meja
@@ -199,8 +197,8 @@
             yang Kami kirimkan melalui email atau WhatsApp Anda.
         </p>
 
-        <h5 class="jdl-section mt-5">Sistem Pengiriman & Pengembalian</h5>
-        <h5 class="mb-2 mt-4">Kebijakan Pengiriman</h5>
+        <h2 class="jdl-section mt-5">Sistem Pengiriman & Pengembalian</h2>
+        <h2 class="mb-2 mt-4">Kebijakan Pengiriman</h2>
         <p>
             Website Kami dapat melayani pengiriman pesanan ke seluruh
             Indonesia. Pesanan bisa dikirim setelah adanya konfirmasi
@@ -216,7 +214,7 @@
             Ketentuan tarif biaya pengiriman mengikuti kebijakan masing -
             masing pihak logistik selaku mitra Kami.
         </p>
-        <h5 class="mb-2 mt-4">Waktu Pengiriman</h5>
+        <h2 class="mb-2 mt-4">Waktu Pengiriman</h2>
         <p>
             Pengaturan waktu pengiriman produk pesanan Anda akan disesuaikan
             dengan lokasi tujuan Anda. Jika lokasi tujuan berada di wilayah
@@ -239,7 +237,7 @@
             sempurna. Jika ada kerusakkan atau produk tidak sesuai dengan
             pesanan pelanggan, Kami mohon agar Anda menolak produk tersebut.
         </p>
-        <h5 class="mb-2 mt-4">Status Pengiriman</h5>
+        <h2 class="mb-2 mt-4">Status Pengiriman</h2>
         <p>
             Kami akan memberitahukan status dan nomor resi pengiriman
             pesanan sehingga Anda dapat mengetahui informasi terkini dari
@@ -248,7 +246,7 @@
             setelah melakukan pelunasan pembayaran, maka Anda bisa
             menghubungi customer service Kami.
         </p>
-        <h5 class="mb-2 mt-4">Pengembalian</h5>
+        <h2 class="mb-2 mt-4">Pengembalian</h2>
         <p>
             Apabila terdapat kerusakan pada bagian komponen/aksesoris harap
             untuk melakukan pengiriman barang kembali agar Kami dapat segera
@@ -260,6 +258,7 @@
             komponen/aksesoris yang rusak, biaya kirim akan dibebankan
             kepada Anda selaku pelanggan.
         </p>
+        </article>
     </div>
-</div>
+</main>
 <?= $this->endSection(); ?>

@@ -1,0 +1,79 @@
+/* Customer help and policy pages: shared editorial layout, no dashboard changes. */
+.buyer-layout .buyer-help-page { padding-block: 28px 48px; min-width: 0; background: transparent; }
+.buyer-layout .buyer-help-container, .buyer-layout .tracking-page > section > .container, .buyer-layout .tracking-result-wrap { max-width: 960px; }
+.buyer-layout .buyer-help-nav { display: flex; gap: 24px; overflow-x: auto; white-space: nowrap; max-width: 100%; margin-bottom: 32px; border-bottom: 1px solid var(--theme-soft-2); scrollbar-width: none; }
+.buyer-layout .buyer-help-nav::-webkit-scrollbar { display: none; }
+.buyer-layout .buyer-help-nav a { display: inline-flex; align-items: center; flex: 0 0 auto; min-height: 44px; padding-block: 10px; border-bottom: 2px solid transparent; color: #626262; text-decoration: none; font-size: .8125rem; }
+.buyer-layout .buyer-help-nav a[aria-current], .buyer-layout .buyer-help-nav a:hover { color: var(--theme-primary); border-bottom-color: var(--theme-primary); }
+.buyer-layout .buyer-help-heading { max-width: 720px; margin-bottom: 32px; }
+.buyer-layout .buyer-help-eyebrow { margin: 0 0 10px; font-size: .75rem; color: #737373; }
+.buyer-layout .buyer-help-page h1 { margin: 0 0 12px; font-family: 'Montserrat','Plus Jakarta Sans',sans-serif; font-size: clamp(1.4rem,1.1rem + 1vw,2rem); line-height: 1.4; font-weight: 600; letter-spacing: -.025em; color: var(--theme-primary); }
+.buyer-layout .buyer-help-page :is(p,li,td) { font-size: .875rem; line-height: 1.85; }
+.buyer-layout .buyer-help-page :is(h1,h2,h3,h5,p,li,td,strong) { overflow-wrap: anywhere; }
+.buyer-layout .buyer-help-heading > p:last-child, .buyer-layout .tracking-hero-copy > p:last-child { color: #626262; margin-bottom: 0; }
+.buyer-layout .buyer-help-content { max-width: 760px; }
+.buyer-layout .buyer-help-content h2 { margin: 32px 0 12px; font-size: 1.0625rem; line-height: 1.55; font-weight: 600; color: var(--theme-primary); scroll-margin-top: calc(var(--buyer-header-bottom,100px) + 24px); }
+.buyer-layout .buyer-help-content h3 { margin: 24px 0 12px; font-size: 1rem; line-height: 1.6; font-weight: 600; }
+.buyer-layout .buyer-help-content > h2:first-child { margin-top: 0; }
+.buyer-layout .buyer-help-content :is(ul,ol) { padding-left: 1.4rem; }
+.buyer-layout .buyer-help-content li { margin-block: 6px; padding-left: 4px; }
+.buyer-layout .buyer-help-content table { width: 100%; max-width: 100%; table-layout: fixed; }
+.buyer-layout .buyer-help-content td { padding: 5px 8px; vertical-align: top; }
+.buyer-layout .buyer-help-content td:first-child { width: 40px; }
+.buyer-layout .buyer-help-content a { color: var(--theme-primary); text-underline-offset: 3px; }
+.buyer-layout .buyer-help-page :is(a,button,input,select):focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
+.buyer-layout .buyer-faq-page .buyer-help-content { max-width: none; }
+.buyer-layout .buyer-faq-page .accordion-item { border: 0; border-bottom: 1px solid var(--theme-soft-2); border-radius: 0; background: transparent; }
+.buyer-layout .buyer-faq-page .accordion-header { margin: 0; }
+.buyer-layout .buyer-faq-page .accordion-button { min-height: 64px; gap: 16px; padding: 18px 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--theme-primary); font-size: .9375rem; font-weight: 500 !important; line-height: 1.6; }
+.buyer-layout .buyer-faq-page .accordion-button::after { flex-shrink: 0; width: 16px; height: 16px; background-image: linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor); background-repeat: no-repeat; background-position: center; background-size: 12px 1px,1px 12px; transform: none; }
+.buyer-layout .buyer-faq-page .accordion-button:not(.collapsed)::after { background-size: 12px 1px,1px 0; }
+.buyer-layout .buyer-faq-page .accordion-body { max-width: 760px; padding: 0 0 24px; }
+.buyer-layout .buyer-faq-page .accordion-body .fw-bold { font-weight: 600 !important; }
+.buyer-layout .buyer-faq-page .accordion-collapse { scroll-margin-top: calc(var(--buyer-header-bottom,100px) + 80px); }
+.buyer-layout .tracking-hero { padding: 0 0 32px; }
+.buyer-layout .tracking-hero-card { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); align-items: start; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--theme-soft-2); }
+.buyer-layout .tracking-hero-card > *, .buyer-layout .tracking-summary > *, .buyer-layout .tracking-order-card > * { min-width: 0; }
+.buyer-layout .tracking-form { padding: 0; }
+.buyer-layout .tracking-form .form-label { margin-bottom: 8px; font-size: .8125rem; font-weight: 500; }
+.buyer-layout .tracking-form :is(.form-control,.form-select) { min-height: 48px; font-size: 1rem; border-color: var(--theme-soft-2); background-color: #fff; box-shadow: none; border-radius: 6px; }
+.buyer-layout .tracking-form .input-group { flex-wrap: nowrap; }
+.buyer-layout .tracking-form .input-group .form-control { min-width: 0; border-radius: 6px 0 0 6px; }
+.buyer-layout .tracking-form .btn { flex-shrink: 0; min-width: 72px; min-height: 48px; font-size: .875rem; border-radius: 0 6px 6px 0; box-shadow: none; }
+.buyer-layout .tracking-hint { color: #737373; font-size: .75rem !important; line-height: 1.65 !important; margin: 8px 0 20px; }
+.buyer-layout .tracking-result-wrap { display: grid; gap: 24px; }
+.buyer-layout .tracking-alert { margin: 0; border-radius: 6px; font-size: .875rem; }
+.buyer-layout :is(.tracking-order-card,.tracking-summary,.tracking-route,.tracking-timeline-card) { padding: 0 0 24px; border-bottom: 1px solid var(--theme-soft-2); }
+.buyer-layout .tracking-order-card { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 32px; }
+.buyer-layout .tracking-order-card :is(h5,strong) { font-size: .875rem; font-weight: 600 !important; }
+.buyer-layout .tracking-summary { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 32px; }
+.buyer-layout .tracking-summary h3 { font-size: 1.4rem; font-weight: 600; color: var(--theme-primary); }
+.buyer-layout .tracking-summary-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.buyer-layout :is(.tracking-summary-grid,.tracking-route) span { display: block; color: #737373; font-size: .75rem; margin-bottom: 6px; }
+.buyer-layout :is(.tracking-summary-grid,.tracking-route) strong { display: block; font-size: .875rem; font-weight: 500; }
+.buyer-layout .tracking-route { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 24px; align-items: center; }
+.buyer-layout .tracking-route svg { width: 20px; height: 20px; color: var(--theme-primary); }
+.buyer-layout .tracking-status-label { color: #737373; margin-bottom: 8px; }
+.buyer-layout .tracking-timeline-card h5 { font-size: 1rem; font-weight: 600 !important; }
+.buyer-layout .tracking-timeline-item { position: relative; display: grid; grid-template-columns: 12px 96px minmax(0,1fr); gap: 20px; padding-bottom: 28px; }
+.buyer-layout .tracking-timeline-item::before { content: ''; position: absolute; left: 5px; top: 12px; bottom: 0; width: 1px; background: var(--theme-soft-2); }
+.buyer-layout .tracking-timeline-item:last-child::before { display: none; }
+.buyer-layout .tracking-dot { margin-top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--theme-soft-2); z-index: 1; }
+.buyer-layout .tracking-timeline-item.active .tracking-dot { background: var(--theme-primary); }
+.buyer-layout .tracking-time strong { display: block; color: var(--theme-primary); font-size: .875rem; }
+.buyer-layout .tracking-time span, .buyer-layout .tracking-note span { font-size: .75rem; color: #737373; }
+.buyer-layout .tracking-empty { padding: 32px 20px; background: var(--theme-soft); border-radius: 6px; text-align: center; }
+.buyer-layout .tracking-empty > svg { width: 28px; height: 28px; color: var(--theme-primary); margin-bottom: 12px; }
+.buyer-layout .tracking-empty h5 { font-size: 1rem; font-weight: 600 !important; }
+@media (max-width: 767.98px) {
+    .buyer-layout .buyer-help-page { padding-block: 20px 32px; }
+    .buyer-layout .buyer-help-nav { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 16px; margin-bottom: 24px; white-space: normal; }
+    .buyer-layout .buyer-help-nav a { white-space: normal; }
+    .buyer-layout .buyer-help-heading { margin-bottom: 24px; }
+    .buyer-layout .tracking-hero-card, .buyer-layout .tracking-summary { grid-template-columns: minmax(0,1fr); gap: 24px; }
+    .buyer-layout .tracking-timeline-item { grid-template-columns: 12px minmax(0,1fr); gap: 8px 16px; }
+    .buyer-layout .tracking-note { grid-column: 2; }
+    .buyer-layout .tracking-route { gap: 16px; }
+}
+@media (max-width: 399.98px) { .buyer-layout .tracking-order-card { grid-template-columns: minmax(0,1fr); } }
+@media (prefers-reduced-motion: reduce) { .buyer-layout .buyer-help-page .collapsing { transition: none; } }

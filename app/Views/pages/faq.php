@@ -1,23 +1,20 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
-    <div class="container">
-        <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    FAQ
-                </li>
-            </ol>
-        </nav>
-        <h1 class="text-center">Frequently Asked Questions</h1>
-        <h5 class="mb-4 text-center" style="color: var(--hijau)">Lunarea Furniture</h5>
-        <div class="accordion accordion-flush" id="accordionFlushExample">
+<main class="konten buyer-help-page buyer-faq-page">
+    <div class="container buyer-help-container">
+        <?= view('partials/buyer_help_nav', ['activeHelp' => 'faq'], ['saveData' => false]); ?>
+        <header class="buyer-help-heading">
+            <p class="buyer-help-eyebrow">Bantuan & informasi</p>
+            <h1>Pertanyaan yang sering ditanyakan</h1>
+            <p>Temukan informasi tentang produk, pembelian, pengiriman, dan Luna Poin.</p>
+        </header>
+        <article class="buyer-help-content">
+
+<div class="accordion accordion-flush" id="accordionFlushExample">
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse1" aria-expanded="false" aria-controls="flush-collapse1">
-                        PRODUK
-                    </button>
+                        Produk</button>
                 </h2>
                 <div id="flush-collapse1" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -38,8 +35,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse2" aria-expanded="false" aria-controls="flush-collapse2">
-                        PERAWATAN
-                    </button>
+                        Perawatan</button>
                 </h2>
                 <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -60,8 +56,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse3" aria-expanded="false" aria-controls="flush-collapse3">
-                        PEMBELIAN
-                    </button>
+                        Pembelian</button>
                 </h2>
                 <div id="flush-collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -143,8 +138,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse4" aria-expanded="false" aria-controls="flush-collapse4">
-                        PEMBAYARAN
-                    </button>
+                        Pembayaran</button>
                 </h2>
                 <div id="flush-collapse4" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -160,8 +154,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse5" aria-expanded="false" aria-controls="flush-collapse5">
-                        PENGIRIMAN
-                    </button>
+                        Pengiriman</button>
                 </h2>
                 <div id="flush-collapse5" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -197,8 +190,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse6" aria-expanded="false" aria-controls="flush-collapse6">
-                        PENERIMAAN BARANG & PROSEDUR KOMPLAIN
-                    </button>
+                        Penerimaan barang & prosedur komplain</button>
                 </h2>
                 <div id="flush-collapse6" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -226,8 +218,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse7" aria-expanded="false" aria-controls="flush-collapse7">
-                        PERAKITAN
-                    </button>
+                        Perakitan</button>
                 </h2>
                 <div id="flush-collapse7" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -241,8 +232,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse8" aria-expanded="false" aria-controls="flush-collapse8">
-                        LUNA POINT
-                    </button>
+                        Luna point</button>
                 </h2>
                 <div id="flush-collapse8" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
@@ -313,23 +303,24 @@
                             <li>
                                 <p class="m-0">Pada bagian Tentang Point, Anda bisa mendapatkan informasi masa aktif poin di bawah tab akan kadaluarsa.</p>
                             </li>
+                        </ol>
                 </div>
             </div>
         </div>
     </div>
-</div>
+        </article>
+    </div>
+</main>
 
 <script>
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var a = url.searchParams.get("a");
-    const accordionItemElm = document.querySelectorAll('.accordion-item');
-    if (a) {
-        const accordionItemSelected = accordionItemElm[Number(a) - 1];
-        console.log(accordionItemSelected.children[0].children)
-        accordionItemSelected.children[0].children[0].setAttribute('aria-expanded', 'true');
-        accordionItemSelected.children[0].children[0].classList.remove('collapsed');
-        accordionItemSelected.children[1].classList.remove('collapse');
+    // Keep existing FAQ links (?a=6#flush-collapse6), ignoring invalid indices.
+    const faqIndex = Number(new URL(window.location.href).searchParams.get('a'));
+    const faqItems = document.querySelectorAll('.buyer-faq-page .accordion-item');
+    if (Number.isInteger(faqIndex) && faqIndex >= 1 && faqIndex <= faqItems.length) {
+        const item = faqItems[faqIndex - 1];
+        item.querySelector('.accordion-button').setAttribute('aria-expanded', 'true');
+        item.querySelector('.accordion-button').classList.remove('collapsed');
+        item.querySelector('.accordion-collapse').classList.add('show');
     }
 </script>
 <?= $this->endSection(); ?>
