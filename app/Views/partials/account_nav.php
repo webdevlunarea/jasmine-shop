@@ -8,51 +8,19 @@ $accountMenu = [
     ['key' => 'wishlist', 'label' => 'Wishlist', 'url' => '/wishlist', 'icon' => 'favorite_border'],
     ['key' => 'cart', 'label' => 'Keranjang', 'url' => '/cart', 'icon' => 'shopping_cart'],
 ];
+$accountIconPaths = [
+    'account' => 'M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+    'transaction' => 'M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6',
+    'point' => 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z',
+    'voucher' => 'M3 5h18v5a2 2 0 0 0 0 4v5H3v-5a2 2 0 0 0 0-4V5ZM15 5v3M15 11v2M15 16v3',
+    'wishlist' => 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z',
+    'cart' => 'M3 3h2l3 12h10l3-9H6M10 20h.01M18 20h.01',
+];
 ?>
-<style>
-    .account-shell {
-        display: block;
-        position: relative;
-        clear: both;
-        min-height: auto;
-        padding: 1rem 0 clamp(46px, 6vw, 86px);
-        overflow: visible;
-    }
-    .account-shell ~ footer.footer-transparent,
-    body:has(.account-shell) footer.footer-transparent { clear: both; position: relative; z-index: 1; margin-top: 0 !important; }
-    .account-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 18px; align-items: start; }
-    .account-side-card, .account-content-card { background: #fff; border: 1px solid rgba(17,24,39,.08); border-radius: 20px; box-shadow: 0 10px 28px rgba(17,24,39,.06); }
-    .account-side-card { padding: 12px; position: sticky; top: 86px; }
-    .account-content-card { padding: 18px; min-width: 0; overflow-x: auto; }
-    .account-content-card .accordion-button { min-height: 48px; }
-    .account-content-card .card-group1 { width: 100%; }
-    .account-side-title { padding: 10px 12px; font-weight: 800; color: #111827; }
-    .account-nav-list { display: grid; gap: 6px; }
-    .account-nav-item { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px 12px; border-radius: 14px; color: #374151; text-decoration: none; font-weight: 650; }
-    .account-nav-item:hover, .account-nav-item.active { background: var(--hijaumuda); color: var(--hijau); }
-    .account-nav-item .material-icons { font-size: 21px; }
-    .account-nav-logout { margin-top: 8px; border-top: 1px solid rgba(17,24,39,.08); padding-top: 10px; }
-    .account-mobile-tabs { display: none; gap: 8px; overflow-x: auto; padding: 2px 0 12px; margin-bottom: 4px; scrollbar-width: none; }
-    .account-mobile-tabs::-webkit-scrollbar { display: none; }
-    .account-mobile-tabs a { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 9px 12px; border: 1px solid rgba(17,24,39,.09); border-radius: 999px; background: #fff; color: #374151; text-decoration: none; font-weight: 700; }
-    .account-mobile-tabs a.active { background: var(--hijau); color: #fff; border-color: var(--hijau); }
-    .account-mobile-tabs .material-icons { font-size: 19px; }
-    @media (max-width: 991.98px) {
-        .account-layout { grid-template-columns: 1fr; gap: 12px; }
-        .account-side-card { display: none; }
-        .account-mobile-tabs { display: flex; }
-        .account-content-card { border-radius: 16px; padding: 14px; }
-    }
-    @media (max-width: 575.98px) {
-        .account-shell { padding-top: .75rem; padding-bottom: 58px; }
-        .account-shell ~ footer.footer-transparent,
-        body:has(.account-shell) footer.footer-transparent { margin-top: 0 !important; }
-    }
-</style>
 <nav class="account-mobile-tabs" aria-label="Menu akun mobile">
     <?php foreach ($accountMenu as $item) { ?>
         <a class="<?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>" <?= $activeAccountMenu === $item['key'] ? 'aria-current="page"' : ''; ?>>
-            <i class="material-icons"><?= esc($item['icon']); ?></i><span><?= esc($item['label']); ?></span>
+            <svg class="account-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="<?= esc($accountIconPaths[$item['key']], 'attr'); ?>"/></svg><span><?= esc($item['label']); ?></span>
         </a>
     <?php } ?>
 </nav>
@@ -61,7 +29,7 @@ $accountMenu = [
     <nav class="account-nav-list" aria-label="Menu akun">
         <?php foreach ($accountMenu as $item) { ?>
             <a class="account-nav-item <?= $activeAccountMenu === $item['key'] ? 'active' : ''; ?>" href="<?= esc($item['url']); ?>" <?= $activeAccountMenu === $item['key'] ? 'aria-current="page"' : ''; ?>>
-                <i class="material-icons"><?= esc($item['icon']); ?></i><span><?= esc($item['label']); ?></span>
+                <svg class="account-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="<?= esc($accountIconPaths[$item['key']], 'attr'); ?>"/></svg><span><?= esc($item['label']); ?></span>
             </a>
         <?php } ?>
     </nav>

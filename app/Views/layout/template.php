@@ -134,6 +134,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?php if ($title === 'Tentang') { ?>
     <link rel="stylesheet" href="/css/buyer-about.css?v=<?= filemtime(FCPATH . 'css/buyer-about.css'); ?>">
     <?php } ?>
+    <link rel="stylesheet" href="/css/buyer-account.css?v=<?= filemtime(FCPATH . 'css/buyer-account.css'); ?>">
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,

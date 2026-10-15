@@ -21,8 +21,8 @@ $getType = static function ($row) {
             <main class="account-content-card">
                 <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-3">
                     <div>
-                        <p class="luna-eyebrow mb-1">Mutasi Poin</p>
-                        <h3 class="m-0">Riwayat Luna Point</h3>
+
+                        <h1 class="m-0">Riwayat Luna Poin</h1>
                         <p class="text-secondary mb-0">Semua poin masuk, poin dipakai, dan poin kedaluwarsa tercatat di sini.</p>
                     </div>
                     <a href="/point" class="btn btn-outline-success btn-sm d-flex align-items-center gap-1">

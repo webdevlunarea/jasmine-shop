@@ -83,7 +83,7 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
         $publicUrl = 'file:///' . str_replace('\\', '/', rtrim(FCPATH, '\\/'));
         $html = preg_replace('~src="https?://[^\"]*/img/~', 'src="' . $publicUrl . '/img/', $html);
         $styles = '';
-        foreach (['bootstrap.min.css', 'style.css', 'commerce-responsive.css', 'buyer-navigation.css'] as $file) {
+        foreach (['bootstrap.min.css', 'style.css', 'commerce-responsive.css', 'buyer-navigation.css', 'buyer-account.css'] as $file) {
             $styles .= '<link rel="stylesheet" href="' . $publicUrl . '/css/' . $file . '">';
         }
         $tabs = view('partials/account_nav', ['activeAccountMenu' => 'voucher'], ['saveData' => false]);
@@ -93,7 +93,7 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
         ], ['saveData' => false]);
         $page = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             . $styles . '<style>:root{--hijau:#207e44;--hijaumuda:#edfaf1}.material-icons{font-size:0!important}.material-icons::after{content:"●";font-size:20px}</style>'
-            . '<script defer src="' . $publicUrl . '/js/buyer-navigation.js"></script></head><body>' . $promo . $html
+            . '<script defer src="' . $publicUrl . '/js/buyer-navigation.js"></script></head><body class="buyer-layout">' . $promo . $html
             . '<main class="konten account-shell"><div class="container"><div class="account-layout">' . $tabs
             . '<section class="account-content-card"><h1>Voucher saya</h1><p>Konten pembeli untuk pengujian navigasi.</p><div style="height:1200px"></div></section></div></div></main></body></html>';
         file_put_contents($directory . '/' . $state . '.html', $page);

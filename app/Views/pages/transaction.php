@@ -49,7 +49,7 @@ $flashMsg = session()->getFlashdata('msg');
             <?= $this->include('partials/account_nav'); ?>
             <main class="account-content-card">
                 <div class="p-2">
-                    <h3>Transaksi Pembayaran</h3>
+                    <header class="account-page-heading"><h1>Transaksi</h1><p class="text-secondary">Pantau pembayaran, pengiriman, dan bantuan pesanan Anda.</p></header>
                     <?php if ($flashMsg) { ?>
                         <div class="alert alert-info"><?= esc($flashMsg); ?></div>
                     <?php } ?>
@@ -140,7 +140,7 @@ $flashMsg = session()->getFlashdata('msg');
                                             <p class="mb-0"><?= $item_transaksi['nama_pen']; ?></p>
                                             <p class="mb-0"><?= $item_transaksi['alamat_pen']; ?></p>
                                             <p><?= $item_transaksi['hp_pen']; ?></p>
-                                            <div class="border rounded p-3 mb-3" style="background: linear-gradient(135deg, #fff, var(--hijaumuda)); border-color: var(--hijaumuda2) !important;">
+                                            <div class="account-shipping-summary p-3 mb-3">
                                                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                                                     <div>
                                                         <p class="fw-bold mb-1"><i class="material-icons align-middle" style="font-size:18px;color:var(--hijau);">local_shipping</i> Pengiriman</p>
@@ -307,7 +307,7 @@ $flashMsg = session()->getFlashdata('msg');
                             <?php }
                         } else {
                             if (session()->get('email') != 'tamu') { ?>
-                                <p>Opss, belum ada transaksi</p>
+                                <div class="account-empty-state"><h5>Belum ada transaksi</h5><p class="text-secondary">Pesanan Anda akan tampil di sini setelah checkout.</p><a href="/all" class="btn btn-primary1">Jelajahi Produk</a></div>
                             <?php } else { ?>
                                 <p>Riwayat transaksi dapat berfungsi ketika Anda login sebagai member</p>
                         <?php }

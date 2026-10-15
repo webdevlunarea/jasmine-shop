@@ -7,6 +7,11 @@ $hasStockIssue = count($indStokHabis ?? []) > 0;
 ?>
 <div class="konten cart-page-shell">
     <div class="container">
+        <?php $activeAccountMenu = 'cart'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
+
         <?php if (!empty($msg)) { ?>
             <div class="cart-alert mb-3">
                 <i class="material-icons" aria-hidden="true">info</i>
@@ -16,8 +21,8 @@ $hasStockIssue = count($indStokHabis ?? []) > 0;
 
         <div class="cart-page-heading">
             <div>
-                <p class="cart-eyebrow mb-1">Keranjang Belanja</p>
-                <h3 class="mb-1">Produk pilihan kamu</h3>
+
+                <h1 class="mb-1">Keranjang</h1>
                 <p class="text-secondary mb-0">Periksa varian, jumlah, dan stok sebelum lanjut ke checkout.</p>
             </div>
             <a href="/all" class="btn btn-outline-success cart-continue-btn">
@@ -126,6 +131,9 @@ $hasStockIssue = count($indStokHabis ?? []) > 0;
                 <p class="cart-summary-note mb-0 mt-3">Ongkir dan voucher akan dihitung di halaman checkout.</p>
             </aside>
         </div>
+            </main>
+        </div>
+
     </div>
 </div>
 <script>

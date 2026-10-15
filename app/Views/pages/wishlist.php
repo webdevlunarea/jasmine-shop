@@ -6,10 +6,10 @@
         <div class="account-layout">
             <?= $this->include('partials/account_nav'); ?>
             <main class="account-content-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="mb-0">Wishlist (<?= count($wishlist); ?>)</p>
+        <div class="account-page-heading d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <h1 class="mb-0">Wishlist <span class="account-heading-count">(<?= count($wishlist); ?>)</span></h1>
             <form action="/wishlisttocart" method="post">
-                <button type="submit" class="btn btn-outline-dark">Beli Semua</button>
+                <button type="submit" class="btn btn-outline-dark" title="Tambahkan semua produk wishlist ke keranjang" <?= count($wishlist) === 0 ? 'disabled' : ''; ?>>Tambah semua</button>
             </form>
         </div>
         <?php if (count($wishlist) > 0) { ?>
@@ -50,7 +50,7 @@
                 <?php } ?>
             </div>
         <?php } else { ?>
-            <h5 class="text-center">Oops, keranjangmu masih kosong!</h5>
+            <div class="account-empty-state"><h5>Wishlist Anda masih kosong.</h5><p class="text-secondary">Simpan produk yang Anda sukai agar mudah ditemukan kembali.</p><a href="/all" class="btn btn-primary1">Jelajahi Produk</a></div>
         <?php } ?>
             </main>
         </div>

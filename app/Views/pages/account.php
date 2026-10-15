@@ -81,6 +81,12 @@ $statusClass = function ($status) {
 ?>
 <div class="konten account-page">
     <div class="container">
+        <?php if ($role == '0') { $activeAccountMenu = 'account'; ?>
+        <div class="account-layout">
+            <?= $this->include('partials/account_nav'); ?>
+            <main class="account-content-card">
+        <?php } ?>
+
         <?php if ($msg) { ?>
             <div class="alert alert-success" role="alert"><?= esc($msg); ?></div>
         <?php } ?>
@@ -95,7 +101,7 @@ $statusClass = function ($status) {
                         <span class="account-badge"><i class="material-icons" style="font-size:18px;">verified_user</i><?= session()->get('active') ? 'Akun aktif' : 'Perlu aktivasi' ?></span>
                         <span class="account-badge"><i class="material-icons" style="font-size:18px;"><?= $is_google_account ? 'account_circle' : 'mail_outline' ?></i><?= $is_google_account ? 'Login Google' : 'Login Email' ?></span>
                     </div>
-                    <h3 class="mb-1">Halo, <?= esc($nama ?: 'Customer Lunarea'); ?></h3>
+                    <h1 class="mb-1">Halo, <?= esc($nama ?: 'Customer Lunarea'); ?></h1>
                     <p class="mb-3" style="opacity:.9;"><?= esc($email); ?></p>
                     <div class="d-flex justify-content-between small fw-bold mb-1"><span>Kelengkapan profil</span><span><?= (int)$profileCompletion; ?>%</span></div>
                     <div class="profile-progress"><div style="width: <?= (int)$profileCompletion; ?>%;"></div></div>
@@ -117,19 +123,7 @@ $statusClass = function ($status) {
                 <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/wishlist"><span class="account-stat-icon"><i class="material-icons">favorite_border</i></span><span><h6><?= (int)$wishlistCount; ?></h6><p>Wishlist</p></span></a></div>
             </div>
 
-            <div class="account-card mb-3">
-                <h5 class="mb-3 fw-bold">Menu akun</h5>
-                <div class="account-menu">
-                    <a href="/transaction"><i class="material-icons">receipt_long</i><span>Transaksi</span></a>
-                    <a href="/voucher"><i class="material-icons">local_offer</i><span>Voucher</span></a>
-                    <a href="/point"><i class="material-icons">stars</i><span>Luna Poin</span></a>
-                    <a href="/wishlist"><i class="material-icons">favorite_border</i><span>Wishlist</span></a>
-                    <a href="/cart"><i class="material-icons">shopping_cart</i><span>Keranjang (<?= (int)$cartCount; ?>)</span></a>
-                    <a href="/transaction"><i class="material-icons">assignment_return</i><span>Retur & Komplain</span></a>
-                    <a href="/cart"><i class="material-icons">local_shipping</i><span>Checkout dari Keranjang</span></a>
-                    <a href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>"><i class="material-icons">logout</i><span>Keluar</span></a>
-                </div>
-            </div>
+
         <?php } ?>
 
         <div class="row g-3 account-main-grid">
@@ -197,16 +191,16 @@ $statusClass = function ($status) {
                             </div>
                             <?php if ($role == '0') { ?>
                                 <div class="col-12">
-                                    <label class="form-label">Nama Lengkap</label>
-                                    <input name="nama" type="text" class="form-control" placeholder="Nama Lengkap" value="<?= esc($nama); ?>" required autocomplete="name">
+                                    <label class="form-label" for="profile-name">Nama lengkap</label>
+                                    <input id="profile-name" name="nama" type="text" class="form-control" placeholder="Nama Lengkap" value="<?= esc($nama); ?>" required autocomplete="name">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Nomor Handphone</label>
-                                    <input name="nohp" type="tel" class="form-control" placeholder="No HP" value="<?= esc($nohp); ?>" required autocomplete="tel">
+                                    <label class="form-label" for="profile-phone">Nomor handphone</label>
+                                    <input id="profile-phone" name="nohp" type="tel" class="form-control" placeholder="No HP" value="<?= esc($nohp); ?>" required autocomplete="tel">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Tanggal Lahir</label>
-                                    <input name="tgl_lahir" type="date" class="form-control" value="<?= esc($tgl_lahir); ?>" required>
+                                    <label class="form-label" for="profile-birthday">Tanggal lahir</label>
+                                    <input id="profile-birthday" name="tgl_lahir" type="date" class="form-control" value="<?= esc($tgl_lahir); ?>" required>
                                     <?php if ($kurang_dari && $batas_tgl_lahir) { ?>
                                         <p class="m-0 text-secondary small">*tanggal lahir dapat diubah kembali setelah tanggal <?= esc($batas_tgl_lahir); ?></p>
                                     <?php } ?>
@@ -223,6 +217,12 @@ $statusClass = function ($status) {
                 </div>
             </div>
         </div>
+        <?php if ($role == '0') { ?>
+                <a class="account-signout-link" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar dari akun</a>
+            </main>
+        </div>
+        <?php } ?>
+
     </div>
 </div>
 <script>

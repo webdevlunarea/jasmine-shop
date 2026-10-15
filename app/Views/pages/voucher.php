@@ -26,12 +26,13 @@
         }
     }
 </style>
-<div id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 40; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+<div role="dialog" aria-modal="true" aria-labelledby="redeem-title" id="modal-redeem" class="d-none justify-content-center align-items-center" style="z-index: 40; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
     <div style="background-color: white;" class="p-4 rounded-3">
-        <h5 class="m-0">Redeem Voucher</h5>
-        <p class="m-0 text-secondary mb-1">Masukan code redeem Kamu</p>
+        <h5 class="m-0" id="redeem-title">Masukkan kode voucher</h5>
+        <p class="m-0 text-secondary mb-1">Klaim voucher menggunakan kode yang Anda miliki.</p>
         <form action="/voucher/redeem" method="post">
-            <input type="text" name="code" class="form-control mb-2 w-100">
+            <label class="form-label mt-3" for="redeem-code">Kode voucher</label>
+            <input id="redeem-code" type="text" name="code" autocomplete="off" required class="form-control mb-2 w-100">
             <div class="d-flex justify-content-end gap-1">
                 <button onclick="closeRedeem()" type="button" class="btn btn-outline-dark">Batal</button>
                 <button type="submit" class="btn btn-primary1">Ok</button>
@@ -49,11 +50,11 @@
                     <div>
                         <div class="voucher-heading d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="m-0">Klaim Voucher Kamu</h3>
-                                <p class="m-0">Berikut beberapa voucher yang sedang aktif</p>
+                                <h1 class="m-0">Voucher</h1>
+                                <p class="m-0">Kelola voucher Anda dan gunakan saat checkout.</p>
                             </div>
                             <div>
-                                <button onclick="openRedeem()" class="btn btn-primary1">Redeem voucher</button>
+                                <button onclick="openRedeem()" class="btn btn-primary1">Masukkan kode</button>
                             </div>
                         </div>
                         <?php if ($msg) { ?>
@@ -124,14 +125,33 @@
 <script>
     const modalRedeemElm = document.getElementById('modal-redeem');
 
+    let redeemReturnFocus = null;
+    let redeemPreviousOverflow = '';
+
     function openRedeem() {
+        redeemReturnFocus = document.activeElement;
+        redeemPreviousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
         modalRedeemElm.classList.remove('d-none')
-        modalRedeemElm.classList.add('d-flex')
+        modalRedeemElm.classList.add('d-flex');
+        document.getElementById('redeem-code').focus();
     }
 
     function closeRedeem() {
         modalRedeemElm.classList.add('d-none')
-        modalRedeemElm.classList.remove('d-flex')
+        modalRedeemElm.classList.remove('d-flex');
+        document.body.style.overflow = redeemPreviousOverflow;
+        if (redeemReturnFocus) redeemReturnFocus.focus();
     }
+    modalRedeemElm.addEventListener('click', (event) => { if (event.target === modalRedeemElm) closeRedeem(); });
+    modalRedeemElm.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') { event.preventDefault(); closeRedeem(); }
+        if (event.key === 'Tab') {
+            const controls = Array.from(modalRedeemElm.querySelectorAll('input, button, a[href]')).filter(el => !el.disabled);
+            const first = controls[0], last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    });
 </script>
 <?= $this->endSection(); ?>

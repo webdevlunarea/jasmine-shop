@@ -26,8 +26,8 @@ $formatTanggal = static function ($date) {
             <main class="account-content-card">
                 <section class="luna-point-hero">
                     <div>
-                        <p class="luna-eyebrow mb-1">Luna Rewards</p>
-                        <h3 class="mb-2">Luna Point</h3>
+
+                        <h1 class="mb-2">Luna Poin</h1>
                         <p class="text-secondary mb-0">Gunakan poin untuk mengurangi total pembayaran saat checkout.</p>
                     </div>
                     <div class="luna-point-balance">
