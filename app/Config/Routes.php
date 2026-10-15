@@ -22,10 +22,10 @@ $routes->post('/actionform', 'Pages::actionForm');
 
 $routes->get('/sendwa', 'Pages::sendwa');
 $routes->get('/signup', 'Pages::signup', ['filter' => 'harusLogout']);
-$routes->post('/daftar', 'Pages::actionSignup', ['filter' => 'harusLogout']);
+$routes->post('/daftar', 'Pages::actionSignup', ['filter' => ['harusLogout', 'csrf']]);
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
-$routes->post('/masuk', 'Pages::actionLogin', ['filter' => 'harusLogout']);
+$routes->post('/masuk', 'Pages::actionLogin', ['filter' => ['harusLogout', 'csrf']]);
 $routes->get('/auth/google', 'Pages::googleLogin');
 $routes->get('/auth/google/callback', 'Pages::googleCallback');
 $routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');

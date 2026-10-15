@@ -31,3 +31,6 @@
 .buyer-auth-body .auth-google-btn:focus-visible, .buyer-auth-body .auth-password-toggle:focus-visible, .buyer-auth-body .auth-submit:focus-visible, .buyer-auth-body .auth-switch a:focus-visible, .buyer-auth-body .auth-consent a:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
 @media (max-width: 575.98px) { .buyer-auth-body .auth-page { padding-block: 28px 20px; } .buyer-auth-body .auth-page > .container { padding-inline: 20px; } }
 @media (prefers-reduced-motion: reduce) { .buyer-auth-body .auth-page * { transition: none !important; } }
+
+.buyer-auth-body .auth-captcha { min-width: 0; display: grid; justify-items: start; gap: 8px; }
+.buyer-auth-body .auth-captcha-status, .buyer-auth-body .auth-captcha noscript p { margin: 0; font-size: .8125rem; line-height: 1.6; color: #626262; overflow-wrap: anywhere; }

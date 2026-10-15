@@ -51,6 +51,7 @@
                         <input type="checkbox" id="syarat" required>
                         <span>Saya menyetujui <a href="/syarat-dan-ketentuan">Syarat & Ketentuan</a> serta <a href="/kebijakan-privasi">Kebijakan Privasi</a>.</span>
                     </label>
+                    <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Buat akun">
                 </form>
                 <div class="auth-switch">Sudah punya akun? <a href="/login<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Masuk</a></div>
@@ -66,8 +67,10 @@
     const inputNohpElm = document.querySelector('input[name="nohp"]');
     const inputSandiElm = document.querySelector('input[name="sandi"]');
 
+    document.addEventListener('lunarea:captcha', syncSignupButton);
+
     function syncSignupButton() {
-        buttonSubmit.disabled = !(inputEmailElm.value.trim() && inputNamaElm.value.trim() && inputNohpElm.value.trim() && inputSandiElm.value.trim() && checkboxElm.checked);
+        buttonSubmit.disabled = !((!document.querySelector('.auth-captcha') || window.lunareaCaptchaReady === true) && inputEmailElm.value.trim() && inputNamaElm.value.trim() && inputNohpElm.value.trim() && inputSandiElm.value.trim() && checkboxElm.checked);
     }
 
     [checkboxElm, inputEmailElm, inputNamaElm, inputNohpElm, inputSandiElm].forEach((el) => {

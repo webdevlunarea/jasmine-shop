@@ -1876,6 +1876,12 @@ class Pages extends BaseController
     }
     public function actionSignup()
     {
+        if ($captchaError = (new \App\Services\Auth\RecaptchaVerifier())->error($this->request->getPost('g-recaptcha-response'))) {
+            session()->setFlashdata('msg', $captchaError);
+            $target = $this->cleanRedirectTarget($this->request->getPost('redirect'));
+            if ($target) session()->setFlashdata('redirect', $target);
+            return redirect()->to('/signup');
+        }
         $redirect = $this->cleanRedirectTarget($this->request->getPost('redirect'));
 
         if (!$this->validate([
@@ -2469,6 +2475,12 @@ class Pages extends BaseController
     }
     public function actionLogin()
     {
+        if ($captchaError = (new \App\Services\Auth\RecaptchaVerifier())->error($this->request->getPost('g-recaptcha-response'))) {
+            session()->setFlashdata('msg', $captchaError);
+            $target = $this->cleanRedirectTarget($this->request->getPost('redirect'));
+            if ($target) session()->setFlashdata('redirect', $target);
+            return redirect()->to('/login');
+        }
         $redirect = $this->cleanRedirectTarget($this->request->getPost('redirect'));
         if (!$this->validate([
             'email' => [

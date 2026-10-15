@@ -37,6 +37,7 @@
                         <button class="auth-password-toggle" type="button" data-target="login-password" aria-label="Tampilkan sandi" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="auth-eye-slash d-none" d="m3 3 18 18"/></svg></button>
                         <div class="invalid-feedback"><?= $val['val_sandi']; ?></div>
                     </div>
+                    <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Masuk">
                 </form>
                 <div class="auth-switch">Belum punya akun? <a href="/signup<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Daftar sekarang</a></div>
@@ -49,8 +50,10 @@
     const passInputElm = document.querySelector('input[name="sandi"]');
     const btnMasukElm = document.querySelector('.auth-submit');
 
+    document.addEventListener('lunarea:captcha', syncLoginButton);
+
     function syncLoginButton() {
-        btnMasukElm.disabled = !(emailInputElm.value.trim() && passInputElm.value.trim());
+        btnMasukElm.disabled = !((!document.querySelector('.auth-captcha') || window.lunareaCaptchaReady === true) && emailInputElm.value.trim() && passInputElm.value.trim());
     }
 
     emailInputElm.addEventListener('input', syncLoginButton);
