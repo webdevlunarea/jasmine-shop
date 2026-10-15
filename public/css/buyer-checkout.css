@@ -1,0 +1,130 @@
+/* Checkout-only presentation. Pricing and eligibility remain in the existing flow. */
+.checkout-page-shell {
+    --checkout-line: color-mix(in srgb, var(--theme-primary) 14%, transparent);
+    --checkout-muted: color-mix(in srgb, var(--theme-primary) 70%, var(--theme-background));
+    color: var(--theme-primary); padding-block: 28px 52px;
+}
+.checkout-page-shell > .container { max-width: 1160px; }
+.checkout-page-heading { margin-bottom: 30px; }
+.checkout-back-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; color: var(--checkout-muted); font-size: .8125rem; text-decoration: none; }
+.checkout-page-heading h1 { font-family: inherit; font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.25; margin: 12px 0; color: var(--theme-primary); }
+.checkout-page-heading > p { margin: 0; color: var(--checkout-muted); font-size: .875rem; line-height: 1.7; }
+.checkout-page-shell .checkout-layout { grid-template-columns: minmax(0, 1fr) minmax(320px, 390px); gap: 32px; margin-top: 0 !important; }
+.checkout-page-shell .checkout-recipient-column { display: grid; gap: 18px; }
+.checkout-page-shell .checkout-section { padding: 24px; border: 1px solid var(--checkout-line); border-radius: 14px; background: var(--theme-background); min-width: 0; }
+.checkout-page-shell .checkout-section-title, #modal-metode-bayar .checkout-section-title, #modal-redeem .checkout-section-title { font-family: inherit; font-size: 1rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.5; color: var(--theme-primary); margin: 0 0 18px; }
+.checkout-page-shell .checkout-section-title span { font-weight: 400; font-size: .8125rem; color: var(--checkout-muted); }
+.checkout-page-shell .checkout-customer p { font-size: .875rem; overflow-wrap: anywhere; }
+.checkout-page-shell .form-floating { margin-bottom: 12px !important; }
+.checkout-page-shell .form-alamat.d-flex { gap: 12px !important; margin-bottom: 0 !important; }
+.checkout-page-shell .form-control, .checkout-page-shell .form-select { min-height: 56px; border: 1px solid var(--checkout-line); border-radius: 8px; background-color: var(--theme-background); color: var(--theme-primary); font-size: .9375rem; box-shadow: none; }
+.checkout-page-shell .form-floating > label { color: var(--checkout-muted); font-size: .875rem; }
+.checkout-page-shell .form-floating > label::after { background-color: var(--theme-background) !important; }
+.checkout-page-shell .form-control:focus, .checkout-page-shell .form-select:focus { border-color: var(--theme-primary); box-shadow: 0 0 0 3px var(--theme-soft); }
+.checkout-page-shell .checkout-note .form-floating { margin-bottom: 0 !important; }
+.checkout-page-shell .text-secondary { color: var(--checkout-muted) !important; }
+.checkout-page-shell .btn { border-radius: 8px; font-size: .8125rem; font-weight: 500; min-height: 44px; display: inline-flex; justify-content: center; align-items: center; }
+.checkout-page-shell .btn-outline-success { color: var(--theme-primary); border-color: var(--checkout-line); background: transparent; }
+.checkout-page-shell .btn-outline-success:hover { background: var(--theme-soft); border-color: var(--theme-primary); }
+.checkout-page-shell :is(button, a, summary, input):focus-visible, #modal-metode-bayar :is(button,label,input):focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
+.checkout-page-shell #checkout-address-book { padding-bottom: 18px; margin-bottom: 20px !important; border-bottom: 1px solid var(--checkout-line); }
+.checkout-page-shell #checkout-address-book .form-label { font-size: .8125rem; }
+.checkout-page-shell #checkout-address-book .form-select { min-height: 46px; }
+.checkout-page-shell #address-save-panel { padding: 14px; border-radius: 8px; background: var(--theme-soft); }
+.checkout-page-shell #address-save-panel .form-control { min-height: 44px; }
+.checkout-page-shell .checkout-summary { padding: 24px; background: var(--theme-soft); border: 1px solid var(--checkout-line); border-radius: 14px; min-width: 0; }
+.checkout-page-shell .tmb-input-redeem { width: 100%; align-items: center; min-height: 44px; border: 1px solid var(--checkout-line); background: transparent; color: var(--theme-primary); border-radius: 8px; font: inherit; font-size: .8125rem; margin-bottom: 10px !important; text-align: left; }
+.checkout-page-shell .tmb-input-redeem:hover { background: var(--theme-background); }
+.checkout-page-shell .tombol-pilih-kurir { padding: 12px 14px; min-height: 48px; border: 1px solid var(--checkout-line); border-radius: 8px; background: var(--theme-background); color: var(--theme-primary); gap: 12px; }
+.checkout-page-shell .tombol-pilih-kurir h5 { font-size: .875rem; line-height: 1.5; }
+.checkout-page-shell .container-pilih-voucher.buka { max-height: 260px; overflow-y: auto; }
+.checkout-page-shell .container-pilih-voucher .item-voucher { border-radius: 8px; margin-top: 8px; background: var(--theme-background); border-color: var(--checkout-line); }
+.checkout-page-shell .container-pilih-voucher .item-voucher h5 { font-size: .875rem; }
+.checkout-page-shell .container-pilih-voucher .item-voucher.active { background: var(--theme-soft-2); color: var(--theme-primary); }
+.checkout-page-shell .container-pilih-voucher .item-voucher.active h5 { color: inherit; }
+.checkout-page-shell .checkout-cart-preview { margin-top: 22px; }
+.checkout-page-shell .checkout-cart-title { font-family: inherit; font-size: .875rem; font-weight: 600; margin: 0; }
+.checkout-page-shell .go-cart { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; }
+.checkout-page-shell .checkout-cart-preview hr { border-color: var(--checkout-line); opacity: 1; }
+.checkout-page-shell .checkout-products-table { font-size: .8125rem; color: var(--theme-primary); --bs-table-bg: transparent; --bs-table-color: var(--theme-primary); }
+.checkout-page-shell .checkout-products-table td { padding: 12px 0; vertical-align: top; }
+.checkout-page-shell .checkout-products-table td:nth-child(2) { padding-inline: 6px; }
+.checkout-page-shell .checkout-item-name { font-weight: 500; line-height: 1.55; }
+.checkout-page-shell .checkout-item-variant { font-size: .75rem; line-height: 1.5; margin-top: 4px !important; }
+.checkout-page-shell .checkout-product-price { font-weight: 500; font-variant-numeric: tabular-nums; }
+.checkout-page-shell .checkout-total-row { border-color: var(--checkout-line) !important; padding-block: 3px; font-size: .8125rem; gap: 14px; }
+.checkout-page-shell .checkout-total-row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.checkout-page-shell .checkout-total-row a { text-decoration: none; }
+.checkout-page-shell .btn-use-point { color: var(--theme-primary); border-color: var(--checkout-line); padding: 0 10px; border-radius: 8px; min-height: 44px; align-items: center; }
+.checkout-page-shell .checkout-final-total { margin-top: 12px; padding-block: 12px; font-weight: 600; border-bottom: 1px solid var(--checkout-line); }
+.checkout-page-shell .checkout-final-total #checkout-grand-total { font-size: 1.125rem; letter-spacing: -.025em; }
+.checkout-page-shell .checkout-consent { margin-top: 20px; font-size: .75rem; line-height: 1.8; }
+.checkout-page-shell .checkout-consent p { display: flex; gap: 10px; align-items: flex-start; }
+.checkout-page-shell #checkbox-syarat { margin: 5px 0 0 !important; flex: 0 0 18px; width: 18px; height: 18px; accent-color: var(--theme-primary); }
+.checkout-page-shell .checkout-consent label { cursor: pointer; }
+.checkout-page-shell #btn-checkout { width: 100%; min-height: 48px; background: var(--theme-primary); border-color: var(--theme-primary); color: #fff; }
+.checkout-page-shell #btn-checkout:disabled { opacity: .55; cursor: not-allowed; pointer-events: auto; }
+.checkout-page-shell .checkout-submit-note { font-size: .75rem; color: var(--checkout-muted); line-height: 1.65; text-align: center; margin: 12px 0 0; }
+.checkout-page-shell .shipping-request-header { align-items: center !important; }
+.checkout-page-shell .shipping-request-header .checkout-section-title { margin-bottom: 6px; }
+.checkout-page-shell .shipping-request-header .btn { flex-shrink: 0; }
+.checkout-page-shell #shipping-helper { font-size: .8125rem !important; line-height: 1.6; }
+.checkout-page-shell .shipping-options-list { max-height: 300px; display: grid; gap: 8px; padding: 2px; scrollbar-width: thin; }
+.checkout-page-shell .shipping-option-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; margin: 0; padding: 14px; min-height: 64px; border: 1px solid var(--checkout-line); border-radius: 8px; background: var(--theme-background); box-shadow: none; cursor: pointer; }
+.checkout-page-shell .shipping-option-card:hover, .checkout-page-shell .shipping-option-card:has(input:checked) { background: var(--theme-soft); border-color: var(--theme-primary); box-shadow: none; }
+.checkout-page-shell .shipping-option-card:focus-within { outline: 2px solid var(--theme-primary); outline-offset: 1px; }
+.checkout-page-shell .shipping-option-main { gap: 10px; align-items: flex-start; }
+.checkout-page-shell .shipping-option-main input { accent-color: var(--theme-primary); width: 18px; height: 18px; }
+.checkout-page-shell .shipping-option-main b { font-size: .875rem; font-weight: 600; line-height: 1.4; }
+.checkout-page-shell .shipping-option-main small { font-size: .75rem; line-height: 1.5; }
+.checkout-page-shell .shipping-option-price { font-size: .875rem; font-weight: 600; text-align: right; justify-items: end; white-space: normal; color: var(--theme-primary); }
+.checkout-page-shell .shipping-option-price em { font-size: .6875rem; font-weight: 500; background: var(--theme-primary); }
+.checkout-page-shell .checkout-shipping-audit { background: none; border: 0; border-top: 1px solid var(--checkout-line); border-radius: 0; margin-bottom: 0 !important; }
+.checkout-page-shell .shipping-audit-toggle { padding: 16px 0 0; flex-wrap: wrap; }
+.checkout-page-shell .shipping-audit-toggle span { color: var(--theme-primary); font-size: .8125rem; }
+.checkout-page-shell .shipping-audit-toggle small { color: var(--checkout-muted); font-size: .75rem; white-space: normal; }
+.checkout-page-shell .shipping-audit-toggle b { font-weight: 500; }
+.checkout-page-shell .shipping-audit-toggle::after { content: '+'; margin-left: auto; }
+.checkout-page-shell .checkout-shipping-audit[open] .shipping-audit-toggle::after { content: '\2212'; }
+.checkout-page-shell .shipping-audit-body { padding: 16px 0 0; border: 0; }
+.checkout-page-shell .shipping-weight-row { padding: 12px 0; border-color: var(--checkout-line); gap: 12px; }
+.checkout-page-shell .shipping-weight-row strong { font-size: .8125rem; font-weight: 500; }
+.checkout-page-shell .shipping-weight-row :is(small,span) { font-size: .75rem; line-height: 1.6; }
+body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) { z-index: 1120 !important; background: rgb(0 0 0 / 42%) !important; }
+body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) > div { background: var(--theme-background) !important; border-radius: 16px !important; color: var(--theme-primary); box-shadow: 0 20px 70px rgb(0 0 0 / 16%); }
+body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) .btn { min-height: 44px; border-radius: 8px; }
+body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) :is(input,select) { font-size: 16px; }
+body:has(.checkout-page-shell) .checkout-dialog-close { width: 44px; height: 44px; border: 0; background: transparent; color: inherit; font-size: 1.75rem; line-height: 1; border-radius: 8px; flex-shrink: 0; }
+body:has(.checkout-page-shell) #modal-metode-bayar table { width: 100%; font-size: .8125rem; }
+body:has(.checkout-page-shell) #modal-metode-bayar td:last-child { padding-left: 12px !important; text-align: right; }
+body:has(.checkout-page-shell) #modal-metode-bayar .container-pembayaran input { display: block; position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+body:has(.checkout-page-shell) #modal-metode-bayar .item-logo-pembayaran { border: 1px solid var(--checkout-line, var(--theme-soft-2)); border-radius: 8px; background: var(--theme-background); }
+body:has(.checkout-page-shell) #modal-metode-bayar .container-pembayaran input:checked + label { border-color: var(--theme-primary); background: var(--theme-soft); }
+body:has(.checkout-page-shell) #modal-metode-bayar .container-pembayaran input:focus-visible + label { outline: 2px solid var(--theme-primary); outline-offset: 2px; }
+html.checkout-dialog-open, html.checkout-dialog-open body { overflow: hidden; }
+@media (max-width: 991.98px) {
+    .checkout-page-shell .checkout-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .checkout-page-shell .checkout-summary { width: 100%; max-width: none; }
+}
+@media (max-width: 575.98px) {
+    .checkout-page-shell { padding-block: 16px 32px; }
+    .checkout-page-heading { margin-bottom: 22px; }
+    .checkout-page-shell .checkout-section, .checkout-page-shell .checkout-summary { padding: 18px 16px; border-radius: 12px; }
+    .checkout-page-shell .checkout-recipient-column { gap: 14px; }
+    .checkout-page-shell .form-alamat.d-flex { gap: 0 !important; }
+    .checkout-page-shell .form-control, .checkout-page-shell .form-select { font-size: 16px; }
+    .checkout-page-shell .shipping-options-list { max-height: 270px; }
+    .checkout-page-shell .shipping-option-card { gap: 8px; padding: 12px; }
+    .checkout-page-shell .shipping-option-price { max-width: 106px; font-size: .8125rem; }
+    .checkout-page-shell .shipping-audit-toggle { gap: 8px; }
+}
+
+.checkout-page-shell .checkout-icon { display: block; width: 20px; height: 20px; flex: 0 0 20px; }
+.checkout-page-shell .tmb-input-redeem { gap: 10px !important; justify-content: flex-start; }
+.checkout-page-shell .tombol-pilih-kurir > .checkout-icon { transition: transform .2s; }
+.checkout-page-shell .tombol-pilih-kurir.show > .checkout-icon { transform: rotate(90deg); }
+.checkout-page-shell .shipping-audit-toggle .checkout-icon { width: 18px; height: 18px; flex-basis: 18px; }
+@media (prefers-reduced-motion: reduce) { .checkout-page-shell .tombol-pilih-kurir > .checkout-icon { transition: none; } }
+
+.checkout-page-shell .go-cart { color: var(--theme-primary); }
+.checkout-page-shell .btn-primary1, body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) .btn-primary1 { box-shadow: none; }

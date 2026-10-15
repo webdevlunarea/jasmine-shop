@@ -126,4 +126,56 @@
     }
     syncHeader();
 
+
+    // Preserve logout/storage cleanup until the customer explicitly confirms.
+    const logoutDialog = document.createElement('dialog');
+    logoutDialog.className = 'buyer-logout-dialog';
+    logoutDialog.setAttribute('aria-labelledby', 'buyer-logout-title');
+    logoutDialog.setAttribute('aria-describedby', 'buyer-logout-description');
+    logoutDialog.innerHTML = `
+        <h2 id="buyer-logout-title">Yakin ingin keluar dari akun?</h2>
+        <p id="buyer-logout-description">Anda perlu masuk kembali untuk mengakses akun Anda.</p>
+        <div class="buyer-logout-actions">
+            <button type="button" data-logout-cancel autofocus>Batal</button>
+            <button type="button" data-logout-confirm>Keluar</button>
+        </div>`;
+    document.body.append(logoutDialog);
+    let logoutUrl = null;
+    let logoutTrigger = null;
+    document.addEventListener('click', event => {
+        const link = event.target.closest('a[data-buyer-logout]');
+        if (!link) return;
+        event.preventDefault();
+        if (logoutDialog.open) return;
+        const target = new URL(link.href, location.href);
+        if (target.origin !== location.origin) return;
+        logoutTrigger = link;
+        logoutUrl = target.href;
+        closeMenu(false);
+        closeSearch();
+        logoutDialog.showModal();
+    });
+    logoutDialog.querySelector('[data-logout-cancel]').addEventListener('click', () => logoutDialog.close());
+    logoutDialog.addEventListener('click', event => {
+        if (event.target !== logoutDialog) return;
+        const bounds = logoutDialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right ||
+            event.clientY < bounds.top || event.clientY > bounds.bottom) logoutDialog.close();
+    });
+    logoutDialog.addEventListener('close', () => {
+        logoutUrl = null;
+        const focusTarget = logoutTrigger?.getClientRects().length ? logoutTrigger : toggle;
+        focusTarget?.focus({ preventScroll: true });
+        logoutTrigger = null;
+    });
+    logoutDialog.querySelector('[data-logout-confirm]').addEventListener('click', event => {
+        if (!logoutUrl || event.currentTarget.disabled) return;
+        event.currentTarget.disabled = true;
+        window.location.assign(logoutUrl);
+    });
+    window.addEventListener('pageshow', () => {
+        if (logoutDialog.open) logoutDialog.close();
+        logoutDialog.querySelector('[data-logout-confirm]').disabled = false;
+        logoutUrl = null;
+    });
 })();

@@ -51,7 +51,6 @@
 .buyer-layout .account-order { padding-block: 16px; border-color: var(--theme-soft-2); }
 .buyer-layout .account-form-photo img { width: 96px; height: 96px; }
 .buyer-layout .icon-btn-change-pp { right: -12px; bottom: 0; width: 44px; height: 44px; border: 1px solid var(--theme-soft-2); box-shadow: none; background: var(--theme-soft); }
-.buyer-layout .account-signout-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 16px; color: var(--theme-primary); font-size: .8125rem; }
 .buyer-layout .account-empty-state, .buyer-layout .luna-empty-state { padding: 40px 16px; border: 0; background: var(--theme-soft); border-radius: 6px; text-align: center; }
 .buyer-layout .account-content-card .accordion-item { border: 0; border-bottom: 1px solid var(--theme-soft-2); border-radius: 0; background: transparent; }
 .buyer-layout .account-content-card .accordion-button { min-height: 64px; padding: 16px 0; background: transparent; box-shadow: none; color: var(--theme-primary); }

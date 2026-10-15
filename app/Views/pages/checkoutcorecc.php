@@ -43,13 +43,14 @@
     color: var(--hijau);
 }
 </style>
-<div id="modal-redeem" class="d-none justify-content-center align-items-center"
+<div id="modal-redeem" role="dialog" aria-modal="true" aria-labelledby="checkout-redeem-title" class="d-none justify-content-center align-items-center"
     style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
     <div style="background-color: white;" class="p-4 rounded-3">
-        <h5 class="m-0">Redeem Voucher</h5>
-        <p class="m-0 text-secondary mb-1">Masukan code redeem dan klaim</p>
+        <h2 id="checkout-redeem-title" class="checkout-section-title">Klaim voucher</h2>
+        <p class="m-0 text-secondary mb-1">Masukkan kode voucher Anda</p>
         <form action="/voucher/redeem/checkout" method="post">
-            <input type="text" name="code" class="form-control mb-2 w-100" required>
+            <label class="visually-hidden" for="checkout-voucher-code">Kode voucher</label>
+            <input id="checkout-voucher-code" type="text" name="code" class="form-control mb-2 w-100" required>
             <div class="d-flex justify-content-end gap-1">
                 <button onclick="closeRedeem()" type="button" class="btn btn-outline-dark">Batal</button>
                 <button type="submit" class="btn btn-primary1">Ok</button>
@@ -57,17 +58,22 @@
         </form>
     </div>
 </div>
-<div class="konten checkout-page-shell">
+<main class="konten checkout-page-shell" aria-labelledby="checkout-title">
     <div class="container">
+        <header class="checkout-page-heading">
+            <a href="/cart" class="checkout-back-link"><span aria-hidden="true">&larr;</span> Kembali ke keranjang</a>
+            <h1 id="checkout-title">Selesaikan pesanan</h1>
+            <p>Lengkapi alamat dan pilih pengiriman sebelum melanjutkan pembayaran.</p>
+        </header>
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
             <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
-            <div id="modal-metode-bayar" class="d-none p-2 justify-content-center align-items-center"
+            <div id="modal-metode-bayar" role="dialog" aria-modal="true" aria-labelledby="checkout-payment-title" class="d-none p-2 justify-content-center align-items-center"
                 style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
                 <div style="background-color: white; max-width: 400px;" class="p-4 rounded-3">
                     <div class="h-100" style="overflow-y: auto; max-height: 80svh;">
                         <div class="d-flex justify-content-between">
-                            <h5 class="m-0">Metode Pembayaran</h5>
-                            <i style="cursor: pointer;" class="material-icons" onclick="closeMetode()">close</i>
+                            <h2 id="checkout-payment-title" class="checkout-section-title m-0">Metode pembayaran</h2>
+                            <button type="button" class="checkout-dialog-close" aria-label="Tutup metode pembayaran" onclick="closeMetode()"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <hr>
                         <p>Virtual Account</p>
@@ -300,34 +306,34 @@
                         <?= $msg; ?>
                     </div>
                     <?php } ?>
-                    <div class="pb-3 border-bottom">
-                        <h5 class="mb-0">Informasi Pemesan</h5>
+                    <section class="checkout-section checkout-customer">
+                        <h2 class="checkout-section-title">Informasi pemesan</h2>
                         <?php if ($user['email'] != 'tamu') { ?>
                         <p class="mb-0">Email : <?= $user['email']; ?></p>
                         <?php } else { ?>
                         <div class="form-floating mb-1">
-                            <input type="email" class="form-control" placeholder="Email" name="emailPem" required
+                            <input type="email" class="form-control" placeholder="Email" id="checkout-email" name="emailPem" required
                                 value="<?= session()->getFlashdata('emailPem') ? session()->getFlashdata('emailPem') : ''; ?>">
-                            <label for="floatingInput">Email</label>
+                            <label for="checkout-email">Email</label>
                         </div>
                         <?php } ?>
-                    </div>
-                    <div class="py-3 border-bottom">
-                        <h5 class="mb-2">Informasi Penerima</h5>
+                    </section>
+                    <section class="checkout-section checkout-address">
+                        <h2 class="checkout-section-title">Alamat penerima</h2>
                         <?= $this->include('pages/partials/checkoutAddressBook'); ?>
                         <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Email" name="nama" required
+                            <input type="text" class="form-control" placeholder="Email" id="checkout-name" name="nama" required
                                 value="<?= esc($user['nama']); ?>">
-                            <label for="floatingInput">Nama Lengkap</label>
+                            <label for="checkout-name">Nama Lengkap</label>
                         </div>
                         <div class="form-floating mb-1">
-                            <input type="number" class="form-control" placeholder="Nomor Handphone" name="nohp" required
+                            <input type="number" class="form-control" placeholder="Nomor Handphone" id="checkout-phone" name="nohp" required
                                 value="<?= esc($user['nohp']); ?>">
-                            <label for="floatingInput">No. HP</label>
+                            <label for="checkout-phone">No. HP</label>
                         </div>
                         <div class="form-alamat d-flex mb-1 gap-1">
                             <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="provinsi">
+                                <select class="form-select" name="provinsi" id="checkout-province">
                                     <option value="">-- Pilih provinsi --</option>
                                     <?php foreach ($provinsi as $p) { ?>
                                     <option value="<?= $p['id']; ?>-<?= $p['label']; ?>" <?= (!empty($user['alamat'])
@@ -339,10 +345,10 @@
                                     </option>
                                     <?php } ?>
                                 </select>
-                                <label for="floatingProvinsi">Provinsi</label>
+                                <label for="checkout-province">Provinsi</label>
                             </div>
                             <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kota">
+                                <select class="form-select" name="kota" id="checkout-city">
                                     <option value="">-- Pilih kota --</option>
                                     <?php foreach ($kabupaten as $p) {
                                         $id   = $p['city_id']  ?? $p['id']    ?? '';
@@ -356,12 +362,12 @@
                                     <?php } ?>
 
                                 </select>
-                                <label for="floatingProvinsi">Kabupaten/Kota</label>
+                                <label for="checkout-city">Kabupaten/Kota</label>
                             </div>
                         </div>
                         <div class="form-alamat d-flex mb-1 gap-1">
                             <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kecamatan">
+                                <select class="form-select" name="kecamatan" id="checkout-district">
                                     <option selected value="">-- Pilih kecamatan --</option>
                                     <?php foreach ($kecamatan as $p) {
                                         $id   = $p['subdistrict_id']   ?? $p['id']    ?? '';
@@ -375,10 +381,10 @@
                                     <?php } ?>
 
                                 </select>
-                                <label for="floatingProvinsi">Kecamatan</label>
+                                <label for="checkout-district">Kecamatan</label>
                             </div>
                             <div class="form-floating w-50">
-                                <select class="form-select" aria-label="Default select example" name="kodepos">
+                                <select class="form-select" name="kodepos" id="checkout-village">
                                     <option value="">-- Pilih Desa --</option>
                                     <?php foreach ($desa as $p) {
                                     $name = $p['DesaKelurahan'] ?? $p['label'] ?? '';
@@ -392,13 +398,13 @@
                                     <?php } ?>
 
                                 </select>
-                                <label for="floatingProvinsi">Desa/Kelurahan</label>
+                                <label for="checkout-village">Desa/Kelurahan</label>
                             </div>
                         </div>
                         <div class="form-alamat form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Email" name="alamat_add" required
+                            <input type="text" class="form-control" placeholder="Email" id="checkout-street" name="alamat_add" required
                                 value="<?= esc($user['alamat'] ? $user['alamat']['add'] : ''); ?>">
-                            <label for="floatingInput">Jalan, Nomor Rumah, RT-RW</label>
+                            <label for="checkout-street">Jalan, Nomor Rumah, RT-RW</label>
                             <div class="invalid-feedback">Tidak boleh mengandung karakter /</div>
                         </div>
                         <div class="form-alamat d-none">
@@ -406,8 +412,8 @@
                                 <div class="form-floating mb-1">
                                     <textarea type="text" class="form-control" placeholder="Email" name="alamat"
                                         required
-                                        style="height: fit-content;"><?= esc($user['alamat'] ? $user['alamat']['alamat'] : ''); ?></textarea>
-                                    <label for="floatingInput">Alamat Lengkap</label>
+                                        style="height: fit-content;" id="checkout-full-address"><?= esc($user['alamat'] ? $user['alamat']['alamat'] : ''); ?></textarea>
+                                    <label for="checkout-full-address">Alamat Lengkap</label>
                                 </div>
                             </fieldset>
                         </div>
@@ -416,21 +422,56 @@
                                 href="https://wa.me/<?= LUNAREA_CS_WHATSAPP_E164; ?>" style="color: var(--hijau);"
                                 class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Customer
                                 Service kami</a> setelah Anda melakukan pemesanan</p>
-                    </div>
-                    <div class="py-3">
+                    </section>
+                    <section class="checkout-section checkout-note">
+                        <h2 class="checkout-section-title">Catatan pesanan <span>(opsional)</span></h2>
                         <div class="form-floating mb-1">
-                            <input type="text" class="form-control" placeholder="Note" name="note">
-                            <label for="floatingInput">Note</label>
+                            <input type="text" class="form-control" id="checkout-note" placeholder="Pesan untuk toko" name="note">
+                            <label for="checkout-note">Pesan untuk toko</label>
                         </div>
+                    </section>
+                    <section class="checkout-section checkout-delivery" aria-label="Pilihan pengiriman">
+                    <div class="checkout-shipping-choices">
+                        <div class="d-flex justify-content-between align-items-start gap-3 shipping-request-header">
+                            <div>
+                                <h2 class="checkout-section-title">Metode pengiriman</h2>
+                                <p class="m-0 text-secondary" role="status" aria-live="polite" id="shipping-helper" style="font-size: small;">Lengkapi alamat untuk melihat pilihan pengiriman.</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success" type="button" onclick="loadShippingQuotes()">Cek Ongkir</button>
+                        </div>
+                        <div id="shipping-options" class="shipping-options-list mt-2"></div>
                     </div>
+                    <details class="checkout-shipping-audit my-3">
+                        <summary class="shipping-audit-toggle">
+                            <span>
+                                <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18M4 21h16M3 7h18M6 7l-4 8h8L6 7Zm12 0-4 8h8l-4-8Z"/></svg>
+                                <b>Detail berat untuk ongkir</b>
+                            </span>
+                            <small><?= number_format(((int)($shippingWeightGrams ?? 1000)) / 1000, 2, ',', '.'); ?> kg untuk estimasi ongkir</small>
+                        </summary>
+                        <div class="shipping-audit-body">
+                            <p class="text-secondary small mb-2">Estimasi ongkir menggunakan total berat produk sesuai jumlah pesanan. Periksa rincian berat dan dimensi produk di bawah ini.</p>
+                            <?php foreach (($shippingWeightDetails ?? []) as $weightItem) { ?>
+                                <div class="shipping-weight-row">
+                                    <div>
+                                        <strong><?= esc($weightItem['name']); ?></strong>
+                                        <small><?= esc($weightItem['variant']); ?> · Qty <?= (int)$weightItem['quantity']; ?> · Dimensi <?= esc($weightItem['dimension']); ?> cm</small>
+                                    </div>
+                                    <span><?= number_format((float)$weightItem['weight_kg'], 2, ',', '.'); ?> kg x <?= (int)$weightItem['quantity']; ?> = <b><?= number_format((float)$weightItem['total_weight_kg'], 2, ',', '.'); ?> kg</b></span>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </details>
+                    </section>
                 </div>
 
-                <div class="checkout-summary">
+                <aside class="checkout-summary" aria-labelledby="checkout-summary-title">
+                    <h2 class="checkout-section-title" id="checkout-summary-title">Ringkasan pesanan</h2>
                     <?php if (session()->get('email') != 'tamu') { ?>
-                    <div onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
-                        <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
-                        <p class="m-0">Redeem code voucher dan klaim</p>
-                    </div>
+                    <button type="button" onclick="openRedeem()" class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
+                        <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4V6Zm12 0v2m0 3v2m0 3v2"/></svg>
+                        <span>Klaim kode voucher</span>
+                    </button>
                     <?php if (count($voucher) > 0) { ?>
                     <div id="tombol-pilih-kurir"
                         class="tombol-pilih-kurir mb-1<?= $voucherSelected ? ' active' : ''; ?>"
@@ -446,10 +487,10 @@
                             <p class="m-0 text-secondary" style="font-size: small;">Tidak digabung dengan voucher pengguna baru</p>
                             <?php } ?>
                         </div>
-                        <i class="material-icons">chevron_right</i>
+                        <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg>
                         <?php } else { ?>
                         <p class="m-0 fw-bold">Pakai Voucher</p>
-                        <i class="material-icons">chevron_right</i>
+                        <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg>
                         <?php } ?>
                     </div>
                     <div class="container-pilih-voucher mb-2">
@@ -492,7 +533,7 @@
                     <?php } else { ?>
                     <div id="tombol-pilih-kurir" class="tombol-pilih-kurir mb-2" onclick="pilihVoucher()">
                         <p class="m-0 fw-bold">Pakai Voucher</p>
-                        <i class="material-icons">chevron_right</i>
+                        <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg>
                     </div>
                     <script>
                     let bukaContainerPilihVoucher1 = false;
@@ -512,13 +553,13 @@
                     } else { ?>
                     <a href="/hapuslocalstorage/<?= base64_encode('/keluar/regist'); ?>"
                         class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
-                        <i class="material-icons" style="rotate: -45deg; scale: 0.7;">confirmation_number</i>
+                        <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4V6Zm12 0v2m0 3v2m0 3v2"/></svg>
                         <p class="m-0">Daftar member untuk menggunakan voucher</p>
                     </a>
                     <?php } ?>
-                    <div style="border: 1px solid var(--hijau);" class="px-3 py-2 rounded">
+                    <div class="checkout-cart-preview">
                         <div class="d-flex justify-content-between align-items-center">
-                            <p class="fw-bold m-0" style="color: var(--hijau)">Keranjang kamu</p>
+                            <h3 class="checkout-cart-title">Produk pesanan</h3>
                             <style>
                             .go-cart i {
                                 font-size: 21px;
@@ -535,8 +576,7 @@
                                 }
                             }
                             </style>
-                            <a href="/cart" style="text-decoration: none;" class="go-cart"><i
-                                    class="material-icons">edit</i></a>
+                            <a href="/cart" style="text-decoration: none;" class="go-cart" aria-label="Ubah isi keranjang"><svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 5 4 4M4 20l4-1L20 7a2 2 0 0 0-4-4L4 15v5Z"/></svg></a>
                         </div>
                         <hr class="mb-1 mt-1">
                         <table class="table table-borderless m-0 checkout-products-table">
@@ -544,12 +584,12 @@
                                 <?php foreach ($produk as $index => $p) { ?>
                                 <tr>
                                     <td>
-                                        <p class="mb-0 d-inline"><?= $p['nama']; ?>
-                                        <p class="m-0 text-secondary d-inline">(<?= $keranjang[$index]['varian']; ?>)
+                                        <p class="mb-0 checkout-item-name"><?= esc($p['nama']); ?></p>
+                                        <p class="m-0 text-secondary checkout-item-variant"><?= esc($keranjang[$index]['varian']); ?>
                                         </p>
                                     </td>
                                     <td>
-                                        <p class="mb-0"><?= $jumlah[$index]; ?></p>
+                                        <p class="mb-0 checkout-item-quantity">&times;<?= $jumlah[$index]; ?></p>
                                     </td>
                                     <td class="text-end">
                                         <p class="mb-0 checkout-product-price">Rp
@@ -584,7 +624,7 @@
                         class="d-flex justify-content-between border-bottom checkout-total-row"
                         style="color: <?= $gantiKaca ? 'var(--hijau)' : 'gray'; ?>;">
                         <div class="d-flex gap-2 align-items-center">
-                            <i class="material-icons"><?= $gantiKaca ? 'check_box' : 'check_box_outline_blank'; ?></i>
+                            <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 4h16v16H4V4Z"/><?php if ($gantiKaca) { ?><path d="m7 12 3 3 7-7"/><?php } ?></svg>
                             <p class="my-2">Proteksi Kaca:</p>
                         </div>
                         <p class="my-2"><b>Rp <?= number_format($totalkaca, 0, ",", "."); ?></b></p>
@@ -620,48 +660,17 @@
                         </a>
                     </div>
                     <?php } ?>
-                    <details class="checkout-shipping-audit my-3">
-                        <summary class="shipping-audit-toggle">
-                            <span>
-                                <i class="material-icons">scale</i>
-                                <b>Detail berat untuk ongkir</b>
-                            </span>
-                            <small><?= number_format(((int)($shippingWeightGrams ?? 1000)) / 1000, 2, ',', '.'); ?> kg untuk estimasi ongkir</small>
-                        </summary>
-                        <div class="shipping-audit-body">
-                            <p class="text-secondary small mb-2">Estimasi ongkir menggunakan total berat produk sesuai jumlah pesanan. Periksa rincian berat dan dimensi produk di bawah ini.</p>
-                            <?php foreach (($shippingWeightDetails ?? []) as $weightItem) { ?>
-                                <div class="shipping-weight-row">
-                                    <div>
-                                        <strong><?= esc($weightItem['name']); ?></strong>
-                                        <small><?= esc($weightItem['variant']); ?> · Qty <?= (int)$weightItem['quantity']; ?> · Dimensi <?= esc($weightItem['dimension']); ?> cm</small>
-                                    </div>
-                                    <span><?= number_format((float)$weightItem['weight_kg'], 2, ',', '.'); ?> kg x <?= (int)$weightItem['quantity']; ?> = <b><?= number_format((float)$weightItem['total_weight_kg'], 2, ',', '.'); ?> kg</b></span>
-                                </div>
-                            <?php } ?>
-                        </div>
-                    </details>
-                    <div class="border-bottom py-2">
-                        <div class="d-flex justify-content-between align-items-start gap-3 shipping-request-header">
-                            <div>
-                                <p class="my-1 fw-bold">Pengiriman:</p>
-                                <p class="m-0 text-secondary" id="shipping-helper" style="font-size: small;">Lengkapi alamat untuk melihat pilihan pengiriman.</p>
-                            </div>
-                            <button class="btn btn-sm btn-outline-success" type="button" onclick="loadShippingQuotes()">Cek Ongkir</button>
-                        </div>
-                        <div id="shipping-options" class="shipping-options-list mt-2"></div>
-                    </div>
                     <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Ongkir:</p>
                         <p class="my-2"><b id="shipping-cost-label">Rp 0</b></p>
                     </div>
-                    <div class="d-flex justify-content-between border-bottom checkout-total-row">
-                        <p class="my-2">Total:</p>
+                    <div class="d-flex justify-content-between checkout-total-row checkout-final-total">
+                        <p class="my-2">Total pesanan</p>
                         <p class="my-2" style="color: var(--hijau);"><b id="checkout-grand-total">Rp
                                 <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0), 0, ",", "."); ?></b>
                         </p>
                     </div>
-                    <div class="mt-4">
+                    <div class="checkout-consent">
                         <p>
                             <input type="checkbox" id="checkbox-syarat" style="display: inline;" class="me-2" required>
                             <label for="checkbox-syarat" style="display: inline;">Saya telah membaca dan menyetujui
@@ -673,12 +682,13 @@
                         </p>
                     </div>
                     <button id="btn-checkout" class="btn btn-primary1 disabled" type="button" disabled
-                        onclick="openMetode()">Bayar</button>
-                </div>
+                        onclick="openMetode()">Pilih pembayaran</button>
+                    <p class="checkout-submit-note">Lengkapi data, pilih pengiriman, dan setujui ketentuan untuk melanjutkan.</p>
+                </aside>
             </div>
         </form>
     </div>
-</div>
+</main>
 <script>
 const modalRedeemElm = document.getElementById('modal-redeem');
 

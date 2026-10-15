@@ -218,7 +218,6 @@ $statusClass = function ($status) {
             </div>
         </div>
         <?php if ($role == '0') { ?>
-                <a class="account-signout-link" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">Keluar dari akun</a>
             </main>
         </div>
         <?php } ?>

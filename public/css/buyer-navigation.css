@@ -138,3 +138,19 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-header.navbar .buyer-desktop-logo { width: 160px; }
     .buyer-desktop-header.navbar .nav-link { padding-inline: 8px !important; }
 }
+
+/* Shared buyer logout confirmation, outside fixed navigation containers. */
+.buyer-logout-dialog {
+    width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+    margin: auto; padding: 28px; border: 1px solid var(--theme-soft, #e8e5de);
+    border-radius: 18px; background: var(--theme-background, #fff); color: var(--theme-primary, #2f2d20);
+    box-shadow: 0 20px 70px rgb(0 0 0 / 16%);
+}
+.buyer-logout-dialog::backdrop { background: rgb(0 0 0 / 42%); }
+.buyer-logout-dialog h2 { margin: 0 0 12px; font-family: inherit; font-size: 1.125rem; line-height: 1.4; font-weight: 600; }
+.buyer-logout-dialog p { margin: 0; font-size: .875rem; line-height: 1.65; }
+.buyer-logout-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.buyer-logout-actions button { min-width: 96px; min-height: 44px; padding: 10px 20px; border: 1px solid var(--theme-primary, #2f2d20); border-radius: 9px; background: transparent; color: inherit; font: inherit; font-size: .875rem; cursor: pointer; }
+.buyer-logout-actions [data-logout-confirm] { background: var(--theme-primary, #2f2d20); color: #fff; }
+.buyer-logout-actions button:focus-visible { outline: 2px solid var(--theme-primary, #2f2d20); outline-offset: 3px; }
+.buyer-logout-actions button:disabled { opacity: .6; cursor: wait; }

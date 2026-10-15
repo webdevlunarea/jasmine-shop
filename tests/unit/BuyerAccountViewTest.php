@@ -33,7 +33,8 @@ final class BuyerAccountViewTest extends CIUnitTestCase
         if ($page === 'account') {
             $this->assertStringContainsString('enctype="multipart/form-data"', $html);
             $this->assertSame(1, $xp->query('//form[@action="/account"]//input[@name="foto"]')->length);
-            $this->assertStringContainsString('Keluar dari akun', $html);
+            $this->assertStringNotContainsString('account-signout-link', $html);
+            $this->assertStringContainsString('data-buyer-logout', $html);
             $this->assertStringNotContainsString('>Menu akun</h5>', $html);
         }
         if ($page === 'cart') {

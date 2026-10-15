@@ -141,6 +141,10 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/buyer-product.css?v=<?= filemtime(FCPATH . 'css/buyer-product.css'); ?>">
     <?php } ?>
     <link rel="stylesheet" href="/css/buyer-account.css?v=<?= filemtime(FCPATH . 'css/buyer-account.css'); ?>">
+    <?php if ($title === 'Check Out') { ?>
+    <link rel="stylesheet" href="/css/buyer-checkout.css?v=<?= filemtime(FCPATH . 'css/buyer-checkout.css'); ?>">
+    <script defer src="/js/buyer-checkout.js?v=<?= filemtime(FCPATH . 'js/buyer-checkout.js'); ?>"></script>
+    <?php } ?>
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,

@@ -142,7 +142,7 @@ if ($isAdminNav) {
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
                         <a href="/transaction" class="btn" aria-label="Transaksi"><i class="material-icons" aria-hidden="true">receipt_long</i></a>
-                        <a href="/keluar" class="btn" aria-label="Keluar"><i class="material-icons">exit_to_app</i></a>
+                        <a data-buyer-logout href="/keluar" class="btn" aria-label="Keluar"><i class="material-icons">exit_to_app</i></a>
                     <?php } else { ?>
                         <button type="button" id="buyer-account-toggle" class="btn" aria-label="Menu akun" aria-controls="buyer-account-menu" aria-expanded="false"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></button>
                     <?php } ?>
@@ -161,7 +161,7 @@ if ($isAdminNav) {
                             <a href="/article">Artikel</a>
                             <a href="/manageratingterjual">Rating &amp; Terjual</a>
                             <a href="/stokadmin/all/1" class="mb-2">Mutasi Stok</a>
-                            <a href="/keluar" class="btn btn-outline-danger">Keluar</a>
+                            <a data-buyer-logout href="/keluar" class="btn btn-outline-danger">Keluar</a>
                         </div>
                     </div>
                 <?php } ?>
@@ -203,7 +203,7 @@ if ($isAdminNav) {
                     <i class="material-icons" aria-hidden="true"><?= esc($link['icon']); ?></i><span><?= esc($link['label']); ?></span>
                 </a>
             <?php } ?>
-            <a class="text-danger" href="/keluar"><i class="material-icons" aria-hidden="true">logout</i><span>Keluar</span></a>
+            <a data-buyer-logout class="text-danger" href="/keluar"><i class="material-icons" aria-hidden="true">logout</i><span>Keluar</span></a>
         </nav>
     </div>
 </div>
@@ -275,7 +275,7 @@ if ($isAdminNav) {
                         <?php } ?>
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
-                        <a href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
+                        <a data-buyer-logout href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
                     <?php } else { ?>
                         <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                     <?php } ?>
