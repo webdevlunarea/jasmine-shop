@@ -24,8 +24,8 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
             'kecamatan' => [['id' => '337401', 'label' => 'Ngaliyan']], 'desa' => [['label' => 'Ngaliyan', 'kodepos' => '50181']],
             'produk' => [['nama' => 'Lemari pakaian minimalis dua pintu dengan laci tambahan', 'harga' => 1000000, 'diskon' => 10]],
             'keranjang' => [['varian' => 'Putih natural']], 'jumlah' => [2], 'subtotal' => 1800000, 'total' => 1800000,
-            'diskonVoucher' => $state === 'member' ? 50000 : 0, 'potonganPreorder' => 0,
-            'gantiKaca' => true, 'totalkaca' => 25000, 'poin' => $guest ? 0 : 20000, 'usepoin' => false, 'biayaAdmin' => 4000,
+            'diskonVoucher' => in_array($state, ['member', 'all-discounts'], true) ? 50000 : 0, 'potonganPreorder' => $state === 'all-discounts' ? 100000 : 0,
+            'gantiKaca' => true, 'totalkaca' => 25000, 'poin' => $guest ? 0 : 20000, 'usepoin' => $state === 'all-discounts', 'biayaAdmin' => 4000,
             'voucher' => $guest || $state === 'no-voucher' ? [] : [$voucher], 'voucherSelected' => $state === 'member' ? $voucher : null,
             'activeVoucher' => $state === 'member' ? 2 : 0, 'shippingWeightGrams' => 40000,
             'shippingWeightDetails' => [['name' => 'Lemari pakaian minimalis dua pintu', 'variant' => 'Putih natural', 'quantity' => 2, 'dimension' => '120 x 45 x 180', 'weight_kg' => 20, 'total_weight_kg' => 40]],
@@ -69,6 +69,15 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
         $this->assertSame(1, $xp->query('//*[@id="modal-metode-bayar" and @role="dialog"]')->length);
         $this->assertStringContainsString('40,00 kg untuk estimasi ongkir', $html);
         $this->assertStringContainsString('checkout-shipping-audit', $html);
+        foreach (['payment-shipping-cost', 'payment-base-total', 'biaya-admin', 'biaya-total', 'payment-submit'] as $id) {
+            $this->assertSame(1, $xp->query('//*[@id="' . $id . '"]')->length);
+        }
+        $this->assertSame(1, $xp->query('//button[@id="payment-submit" and @disabled]')->length);
+        $this->assertStringContainsString('Subtotal produk', $html);
+        if ($state === 'all-discounts') {
+            foreach (['Potongan voucher', 'Potongan preorder', 'Luna Poin digunakan', 'Proteksi kaca'] as $text) $this->assertStringContainsString($text, $html);
+        }
+
         if (getenv('BUYER_CHECKOUT_ARTIFACTS') !== '1') return;
         $dir = WRITEPATH . 'cache/buyer-checkout-review';
         if (!is_dir($dir)) mkdir($dir, 0775, true);
@@ -85,5 +94,5 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
         }
     }
 
-    public static function checkoutStates(): array { return [['member'], ['guest'], ['no-voucher']]; }
+    public static function checkoutStates(): array { return [['member'], ['guest'], ['no-voucher'], ['all-discounts']]; }
 }

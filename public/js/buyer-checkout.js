@@ -44,9 +44,16 @@
             if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); control.click(); }
         });
     });
-    const paymentLabels = { bca: 'BCA', bni: 'BNI', bri: 'BRI', mandiri: 'Mandiri', permata: 'Permata', cimb: 'CIMB Niaga', qris: 'QRIS', card: 'Kartu kredit', rekening: 'Transfer bank BRI' };
+    const paymentLabels = { bca: 'BCA', bni: 'BNI', bri: 'BRI', mandiri: 'Mandiri', permata: 'Permata', cimb: 'CIMB Niaga', qris: 'QRIS', gopay: 'GoPay', shopeepay: 'ShopeePay', dana: 'DANA', card: 'Kartu kredit', rekening: 'Transfer bank BRI' };
     document.querySelectorAll('#modal-metode-bayar input[name="pembayaran"]').forEach(input => {
         input.setAttribute('aria-label', paymentLabels[input.value] || input.value);
+        const label = document.querySelector(`label[for="${input.id}"]`);
+        if (label) {
+            const name = document.createElement('span');
+            name.className = 'payment-method-name';
+            name.textContent = paymentLabels[input.value] || input.value;
+            label.append(name);
+        }
     });
     sync();
 })();

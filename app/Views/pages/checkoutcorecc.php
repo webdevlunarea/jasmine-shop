@@ -76,7 +76,7 @@
                             <button type="button" class="checkout-dialog-close" aria-label="Tutup metode pembayaran" onclick="closeMetode()"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <hr>
-                        <p>Virtual Account</p>
+                        <h3 class="payment-group-title">Virtual account & pembayaran digital</h3><p class="payment-group-note">Pilih metode yang paling nyaman untuk Anda.</p>
                         <div class="alert d-none" role="alert" id="alert-cc"></div>
                         <div class="container-pembayaran mb-1">
                             <input type="radio" name="pembayaran" id="pembayaran1" value="bca" checked>
@@ -149,88 +149,120 @@
                                 Kartu</button>
                         </div>
                         <hr>
-                        <p>Rekening Bank</p>
+                        <h3 class="payment-group-title">Transfer bank manual</h3><p class="payment-group-note">Transfer ke rekening toko setelah pesanan dibuat.</p>
                         <div class="container-pembayaran">
                             <input type="radio" name="pembayaran" id="pembayaran12" value="rekening">
                             <label for="pembayaran12" class="item-logo-pembayaran"><img src="/img/pembayaran/bri.webp"
                                     alt=""></label>
                         </div>
                         <hr>
-                        <table class="mb-3">
-                            <tbody>
-                                <tr>
-                                    <td>Total Pembelian</td>
-                                    <td class="fw-bold ps-4 text-right">: Rp
-                                        <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0), 0, ",", "."); ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Biaya Admin</td>
-                                    <td id="biaya-admin" class="fw-bold ps-4 text-right">: Rp
-                                        <?= number_format($biayaAdmin, 0, ",", "."); ?></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <hr class="my-1">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Total Bayar</td>
-                                    <td id="biaya-total" class="fw-bold ps-4 text-right" style="color: var(--hijau);">:
-                                        Rp
-                                        <?= number_format($total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + $biayaAdmin + ($gantiKaca ? $totalkaca : 0), 0, ",", "."); ?>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <section class="payment-breakdown" aria-labelledby="payment-breakdown-title">
+                            <h3 id="payment-breakdown-title">Rincian pembayaran</h3>
+                            <dl>
+                                <div><dt>Subtotal produk</dt><dd>Rp <?= number_format($subtotal, 0, ',', '.'); ?></dd></div>
+                                <?php if ($diskonVoucher > 0) { ?>
+                                <div><dt>Potongan voucher</dt><dd>− Rp <?= number_format($diskonVoucher, 0, ',', '.'); ?></dd></div>
+                                <?php } ?>
+                                <?php if ($potonganPreorder > 0) { ?>
+                                <div><dt>Potongan preorder</dt><dd>− Rp <?= number_format($potonganPreorder, 0, ',', '.'); ?></dd></div>
+                                <?php } ?>
+                                <?php if ($usepoin && $poin > 0) { ?>
+                                <div><dt>Luna Poin digunakan</dt><dd>− Rp <?= number_format($poin, 0, ',', '.'); ?></dd></div>
+                                <?php } ?>
+                                <?php if ($gantiKaca && $totalkaca > 0) { ?>
+                                <div><dt>Proteksi kaca</dt><dd>Rp <?= number_format($totalkaca, 0, ',', '.'); ?></dd></div>
+                                <?php } ?>
+                                <div><dt>Ongkir <small id="payment-shipping-method"></small></dt><dd id="payment-shipping-cost">Belum dipilih</dd></div>
+                                <div class="payment-before-fee"><dt>Total sebelum biaya admin</dt><dd id="payment-base-total">—</dd></div>
+                                <div><dt>Biaya admin</dt><dd id="biaya-admin">—</dd></div>
+                                <div class="payment-final-total"><dt>Total bayar</dt><dd id="biaya-total" aria-live="polite">—</dd></div>
+                            </dl>
+                            <p id="payment-fee-status" role="status" aria-live="polite">Pilih metode pembayaran untuk melihat total akhir.</p>
+                            <button id="payment-fee-retry" class="btn btn-sm btn-outline-secondary" type="button" hidden onclick="refreshPaymentFees()">Coba lagi</button>
+                        </section>
                         <script>
                         const biayaAdminElm = document.getElementById('biaya-admin');
                         const biayaTotalElm = document.getElementById('biaya-total');
                         const alertCcElm = document.getElementById('alert-cc');
                         const radioPembayaranElm = document.querySelectorAll('input[name="pembayaran"]');
+                        let paymentFeeRequest = 0;
+                        let paymentFeeController = null;
+                        let paymentFeeReady = false;
+                        let paymentFeeSnapshot = '';
+                        function paymentSnapshot() {
+                            return JSON.stringify([
+                                document.querySelector('input[name="pembayaran"]:checked')?.value,
+                                document.getElementById('shipping_quote_token').value,
+                                Number(window.selectedShippingCost || 0)
+                            ]);
+                        }
+                        async function refreshPaymentFees() {
+                            const requestId = ++paymentFeeRequest;
+                            paymentFeeController?.abort();
+                            paymentFeeController = new AbortController();
+                            const controller = paymentFeeController;
+                            const signal = controller.signal;
+                            const selected = document.querySelector('input[name="pembayaran"]:checked');
+                            const submit = document.getElementById('payment-submit');
+                            const status = document.getElementById('payment-fee-status');
+                            const retry = document.getElementById('payment-fee-retry');
+                            const token = document.getElementById('shipping_quote_token').value;
+                            const shipping = Number(window.selectedShippingCost || 0);
+                            const base = <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?> + shipping;
+                            const snapshot = paymentSnapshot();
+                            paymentFeeReady = false;
+                            submit.disabled = true;
+                            retry.hidden = true;
+                            biayaAdminElm.textContent = 'Menghitung…';
+                            biayaTotalElm.textContent = '—';
+                            document.getElementById('payment-base-total').textContent = formatRupiah(base);
+                            document.getElementById('payment-shipping-cost').textContent = token ? formatRupiah(shipping) : 'Belum dipilih';
+                            const shippingLabel = document.querySelector('input[name="shipping_option_radio"]:checked')?.closest('label')?.querySelector('b')?.textContent || '';
+                            document.getElementById('payment-shipping-method').textContent = token ? shippingLabel : '';
+                            if (!selected || !token) {
+                                status.textContent = 'Pilih pengiriman dan metode pembayaran terlebih dahulu.';
+                                biayaAdminElm.textContent = '—';
+                                return;
+                            }
+                            status.textContent = 'Menghitung biaya admin sesuai metode pembayaran…';
+                            alertCcElm.classList.add('d-none');
+                            const timeout = setTimeout(() => controller.abort(), 12000);
+                            try {
+                                const response = await fetch('/getadminfee', {
+                                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ bank: selected.value, nominal: base }), signal
+                                });
+                                if (!response.ok) throw new Error('Fee unavailable');
+                                const data = await response.json();
+                                const fee = Number(data.biayaAdmin);
+                                if (!['number', 'string'].includes(typeof data.biayaAdmin) || String(data.biayaAdmin).trim() === '' || !Number.isSafeInteger(fee) || fee < 0) throw new Error('Invalid fee');
+                                if (requestId !== paymentFeeRequest || snapshot !== paymentSnapshot()) return;
+                                biayaAdminElm.textContent = formatRupiah(fee);
+                                biayaTotalElm.textContent = formatRupiah(base + fee);
+                                status.textContent = 'Sudah termasuk ongkir dan biaya admin metode pembayaran terpilih.';
+                                paymentFeeReady = true;
+                                paymentFeeSnapshot = snapshot;
+                                submit.disabled = false;
+                            } catch (error) {
+                                if (requestId !== paymentFeeRequest || snapshot !== paymentSnapshot()) return;
+                                biayaAdminElm.textContent = 'Belum tersedia';
+                                biayaTotalElm.textContent = '—';
+                                status.textContent = 'Rincian pembayaran belum berhasil dimuat. Silakan coba lagi.';
+                                retry.hidden = false;
+                            } finally { clearTimeout(timeout); }
+                        }
                         radioPembayaranElm.forEach(elm => {
-                            elm.addEventListener('change', (e) => {
-                                alertCcElm.classList.add('d-none')
-                                const pembayaranSelected = e.target.value
-                                const containerFormCCElm = document.getElementById('container-form-cc')
-                                if (pembayaranSelected == 'card') {
-                                    containerFormCCElm.classList.remove('d-none')
-                                } else {
-                                    containerFormCCElm.classList.add('d-none')
-                                }
-
-                                (async () => {
-                                    const bodyFetchBiayaaAdmin = {
-                                        bank: pembayaranSelected,
-                                        nominal: <?= $total - $diskonVoucher - $potonganPreorder - ($usepoin ? $poin : 0) + ($gantiKaca ? $totalkaca : 0); ?> + Number(window.selectedShippingCost || 0)
-                                    }
-
-                                    try {
-                                        const fetchBiayaAdmin = await fetch('/getadminfee', {
-                                            method: 'post',
-                                            headers: {
-                                                'Content-type': 'application/json'
-                                            },
-                                            body: JSON.stringify(bodyFetchBiayaaAdmin)
-                                        })
-                                        if (!fetchBiayaAdmin.ok) throw new Error(fetchBiayaAdmin.statusText)
-
-                                        const fetchBiayaAdminJson = await fetchBiayaAdmin.json()
-                                        const biayaAdmin = Number(fetchBiayaAdminJson.biayaAdmin ?? 0)
-                                        biayaAdminElm.innerHTML =
-                                            `: Rp ${biayaAdmin.toLocaleString("id-ID")}`
-                                        biayaTotalElm.innerHTML =
-                                            `: Rp ${(biayaAdmin + bodyFetchBiayaaAdmin.nominal).toLocaleString("id-ID")}`
-                                    } catch (error) {
-                                        console.error('fetch biaya admin error:', error)
-                                        alertCcElm.classList.remove('d-none')
-                                        alertCcElm.classList.remove('alert-success')
-                                        alertCcElm.classList.add('alert-danger')
-                                        alertCcElm.innerHTML = 'Gagal menghitung biaya admin. Silakan coba lagi.'
-                                    }
-                                })()
-                            })
-                        })
+                            elm.addEventListener('change', () => {
+                                document.getElementById('container-form-cc').classList.toggle('d-none', elm.value !== 'card');
+                                refreshPaymentFees();
+                            });
+                        });
+                        document.getElementById('form-checkout').addEventListener('submit', event => {
+                            if (!paymentFeeReady || paymentFeeSnapshot !== paymentSnapshot() || !isBasicCheckoutFormValid() || !isShippingSelected()) {
+                                event.preventDefault();
+                                refreshPaymentFees();
+                            }
+                        });
 
                         const tokenCCElm = document.querySelector('input[name="tokencc"]');
                         const ccNumber = document.querySelector('input[name="ccNumber"]');
@@ -295,7 +327,7 @@
                             tokenCCElm.value = '';
                         }
                         </script>
-                        <button type="submit" class="btn btn-primary1 w-100">Lanjut bayar</button>
+                        <button id="payment-submit" type="submit" class="btn btn-primary1 w-100" disabled>Lanjut bayar</button>
                     </div>
                 </div>
             </div>
@@ -714,6 +746,7 @@ function openMetode() {
         if (shippingBox) shippingBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
+    refreshPaymentFees();
     modalMetodeBayarElm.classList.remove('d-none')
     modalMetodeBayarElm.classList.add('d-flex')
 }

@@ -13,7 +13,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
  await call('Page.enable');await call('Runtime.enable');await call('Network.enable');
  await call('Network.setBlockedURLs',{urls:['http://*','https://*']});
  // Synthetic rate responses only. No real API, address submission, payment or order creation.
- await call('Page.addScriptToEvaluateOnNewDocument',{source:`window.fetch=async()=>({ok:true,json:async()=>({success:true,data:{quotes:window.testQuotes??[{token:'fixture-internal',courier_code:'internal',service_name:'Pengiriman toko',cost:0},{token:'fixture-jne',courier_code:'jne',service_code:'REG',etd:'2-3 hari',cost:125000},...Array.from({length:8},(_,i)=>({token:'fixture-'+i,courier_code:'tiki',service_code:'REG',etd:'3-5 hari',cost:150000+i*10000}))]}})});`});
+ await call('Page.addScriptToEvaluateOnNewDocument',{source:`window.fetch=async(url,options)=>url==='/getadminfee'?({ok:true,json:async()=>({biayaAdmin:JSON.parse(options.body).bank==='rekening'?0:4000})}):({ok:true,json:async()=>({success:true,data:{quotes:window.testQuotes??[{token:'fixture-internal',courier_code:'internal',service_name:'Pengiriman toko',cost:0},{token:'fixture-jne',courier_code:'jne',service_code:'REG',etd:'2-3 hari',cost:125000},...Array.from({length:8},(_,i)=>({token:'fixture-'+i,courier_code:'tiki',service_code:'REG',etd:'3-5 hari',cost:150000+i*10000}))]}})});`});
  for(const state of ['member','guest','no-voucher']) for(const theme of ['default','sand']) {
   await call('Page.navigate',{url:'file:///'+path.join(dir,state+'-'+theme+'.html').replaceAll('\\','/')});await wait(250);
   await evaluate(`document.querySelector('#checkbox-syarat').checked=false`);

@@ -128,3 +128,33 @@ html.checkout-dialog-open, html.checkout-dialog-open body { overflow: hidden; }
 
 .checkout-page-shell .go-cart { color: var(--theme-primary); }
 .checkout-page-shell .btn-primary1, body:has(.checkout-page-shell) :is(#modal-metode-bayar,#modal-redeem) .btn-primary1 { box-shadow: none; }
+
+/* Complete payment recap, independent from the editable checkout summary. */
+body:has(.checkout-page-shell) #modal-metode-bayar > div { width: min(100%, 480px); max-width: 480px !important; }
+#modal-metode-bayar .payment-group-title { margin: 20px 0 6px; font-family: inherit; font-size: .875rem; font-weight: 600; color: var(--theme-primary); }
+#modal-metode-bayar .payment-group-note { margin: 0 0 14px; font-size: .75rem; line-height: 1.6; color: var(--theme-primary); opacity: .8; }
+body:has(.checkout-page-shell) #modal-metode-bayar .item-logo-pembayaran { min-height: 76px; flex-direction: column; gap: 8px; padding: 12px 8px; cursor: pointer; }
+body:has(.checkout-page-shell) #modal-metode-bayar .item-logo-pembayaran img { width: auto; max-width: 76px; height: 24px; object-fit: contain; }
+#modal-metode-bayar .payment-method-name { font-size: .6875rem; line-height: 1.4; text-align: center; color: var(--theme-primary); }
+#modal-metode-bayar .payment-breakdown { margin: 24px 0 18px; padding: 20px 16px; border-radius: 12px; background: var(--theme-soft); border: 1px solid var(--theme-soft-2); }
+#modal-metode-bayar .payment-breakdown h3 { margin: 0 0 14px; font-family: inherit; font-size: .875rem; font-weight: 600; color: var(--theme-primary); }
+#modal-metode-bayar .payment-breakdown dl { margin: 0; }
+#modal-metode-bayar .payment-breakdown dl > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding-block: 8px; align-items: baseline; font-size: .8125rem; line-height: 1.6; }
+#modal-metode-bayar .payment-breakdown dt { font-weight: 400; min-width: 0; }
+#modal-metode-bayar .payment-breakdown dd { margin: 0; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#modal-metode-bayar #payment-shipping-method { display: block; font-size: .75rem; }
+#modal-metode-bayar .payment-breakdown .payment-before-fee { border-top: 1px solid var(--theme-soft-2); margin-top: 6px; padding-top: 12px; }
+#modal-metode-bayar .payment-breakdown .payment-final-total { border-top: 1px solid var(--theme-soft-2); margin-top: 10px; padding-top: 16px; }
+#modal-metode-bayar .payment-final-total dt { font-weight: 600; }
+#modal-metode-bayar .payment-final-total dd { font-size: 1.125rem; font-weight: 600; letter-spacing: -.025em; }
+#modal-metode-bayar #payment-fee-status { margin: 12px 0 0; font-size: .75rem; line-height: 1.6; }
+#modal-metode-bayar #payment-fee-retry { margin-top: 12px; }
+#modal-metode-bayar #payment-submit { min-height: 48px; border-radius: 8px; }
+#modal-metode-bayar #payment-submit:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 359.98px) {
+    body:has(.checkout-page-shell) #modal-metode-bayar .container-pembayaran { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #modal-metode-bayar .payment-breakdown { padding: 16px 12px; }
+    #modal-metode-bayar .payment-breakdown dl > div { gap: 10px; }
+}
+
+#modal-metode-bayar #payment-fee-retry[hidden] { display: none !important; }
