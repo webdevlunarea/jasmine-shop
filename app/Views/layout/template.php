@@ -131,6 +131,9 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?php if (in_array($title, ['Masuk', 'Daftar'], true)) { ?>
     <link rel="stylesheet" href="/css/buyer-auth.css?v=<?= filemtime(FCPATH . 'css/buyer-auth.css'); ?>">
     <?php } ?>
+    <?php if (in_array($title, ['Kontak', 'Kontak Kami'], true)) { ?>
+    <link rel="stylesheet" href="/css/buyer-contact.css?v=<?= filemtime(FCPATH . 'css/buyer-contact.css'); ?>">
+    <?php } ?>
     <?php if ($title === 'Tentang') { ?>
     <link rel="stylesheet" href="/css/buyer-about.css?v=<?= filemtime(FCPATH . 'css/buyer-about.css'); ?>">
     <?php } ?>

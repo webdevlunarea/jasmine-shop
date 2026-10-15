@@ -1,76 +1,57 @@
-<?= $this->extend("layout/template"); ?>
-<?= $this->section("content"); ?>
-<div class="konten">
+<?= $this->extend('layout/template'); ?>
+<?= $this->section('content'); ?>
+<main class="konten buyer-contact-page" aria-labelledby="contact-title">
     <div class="container">
-        <h1 class="m-0">Hubungi Kami</h1>
-    </div>
-    <img src="/img/pic contact.png" alt="" style="width: 100%;" class="my-4">
-    <div class="container">
-        <div class="h-100 d-flex justify-content-between flex-column mb-5">
-            <div>
-                <h3>Customer Service Lunarea</h3>
-                <p>Ajukan pertanyaan Anda dengan menghubungi layanan pelanggan Lunarea Furniture atau dapatkan
-                    jawabannya di bawah ini.</p>
-                <h3>Temukan Solusi Cepat</h3>
-                <a href="/faq?a=5#flush-collapse5" class="text-dark d-block" style="text-decoration: underline;">Apakah
-                    saya bisa mendapatkan diskon gratis ongkir?</a>
-                <a href="/faq?a=6#flush-collapse6" class="text-dark d-block" style="text-decoration: underline;">Apakah
-                    saya bisa mengembalikan produk yang tidak sesuai dengan pesanan?</a>
-                <a href="/faq" style="color: var(--hijau);"
-                    class="d-block link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Lihat semua
-                    FAQ</a>
-            </div>
-            <div class="mt-3">
-                <p class="fw-bold mb-2">Layanan Pelanggan Lunarea</p>
-                <div class="contact-channel-grid">
-                    <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20mau%20membeli%20furniture....."
-                        class="contact-channel-card">
-                        <span class="contact-channel-card__icon"><i class="material-icons">support_agent</i></span>
-                        <span>
-                            <span class="contact-channel-card__label">Customer Service</span>
-                            <strong>Chat Customer Service</strong>
-                            <small>Untuk info produk, pesanan, pembayaran, dan bantuan umum.</small>
-                        </span>
-                    </a>
-                    <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....."
-                        class="contact-channel-card">
-                        <span class="contact-channel-card__icon contact-channel-card__icon--warning"><i class="material-icons">assignment_return</i></span>
-                        <span>
-                            <span class="contact-channel-card__label">Retur / Komplain</span>
-                            <strong>Ajukan Bantuan Pesanan</strong>
-                            <small>Untuk kendala barang, retur, klaim, dan after-sales.</small>
-                        </span>
-                    </a>
-                    <a href="mailto:cs@lunareafurniture.com" class="contact-channel-card">
-                        <span class="contact-channel-card__icon"><i class="material-icons">email</i></span>
-                        <span>
-                            <span class="contact-channel-card__label">Email</span>
-                            <strong>cs@lunareafurniture.com</strong>
-                            <small>Alternatif jika ingin mengirim detail secara tertulis.</small>
-                        </span>
-                    </a>
-                </div>
-                <a class="m-0" style="text-decoration: none; color: black">
-                    <p class=" m-0">Senin sampai Sabtu di jam kerja</p>
+        <nav class="contact-breadcrumb" aria-label="Breadcrumb"><a href="/">Beranda</a><span aria-hidden="true">/</span><span aria-current="page">Hubungi kami</span></nav>
+        <header class="contact-heading">
+            <p class="contact-eyebrow">Lunarea Furniture</p>
+            <h1 id="contact-title">Ada yang bisa kami bantu?</h1>
+            <p>Mulai dari memilih furnitur hingga bantuan pesanan, temukan cara yang tepat untuk menghubungi kami.</p>
+        </header>
+        <div class="contact-layout">
+            <section class="contact-channels" aria-labelledby="contact-channels-title">
+                <h2 id="contact-channels-title">Hubungi tim kami</h2>
+                <p class="contact-section-note">Layanan pelanggan tersedia Senin–Sabtu pada jam kerja.</p>
+                <a class="contact-channel" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&amp;text=Halo%20CS%20Lunarea%2C%20saya%20ingin%20bertanya%20tentang%20produk%20atau%20pesanan.">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 11H2v7h4v-7H4Zm16 0h2v7h-4v-7h2Zm0 7a4 4 0 0 1-4 4h-4"/></svg>
+                    <span><strong>Customer Service</strong><small>Informasi produk, pembelian, pembayaran, dan bantuan umum.</small><span class="contact-channel-action">Chat Customer Service <span aria-hidden="true">↗</span></span></span>
                 </a>
-            </div>
-        </div>
-        <hr class="my-4">
-        <div class="baris-ke-kolom gap-2 w-100">
-            <?php foreach ($artikel as $a) { ?>
-            <div style="flex: 1">
-                <p class="fw-bold mb-1"><?= ucwords($a['judul']); ?></p>
-                <div style="height: 40px; overflow: hidden; position: relative;">
-                    <div
-                        style="background-image: linear-gradient(to top, white, transparent); width: 100%; height: 100%; position: absolute;">
-                    </div>
-                    <p class="m-0"><?= esc($a['excerpt'] ?? ''); ?></p>
+                <a class="contact-channel" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&amp;text=Halo%20Tim%20Retur%20dan%20Komplain%20Lunarea%2C%20saya%20butuh%20bantuan%20terkait%20pesanan.">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 8h16v13H4V8Zm-1 0 3-5h12l3 5M9 12l-3 3 3 3m-3-3h8a3 3 0 0 1 3 3"/></svg>
+                    <span><strong>Retur &amp; komplain</strong><small>Bantuan untuk kendala barang, pengajuan retur, dan layanan setelah pembelian.</small><span class="contact-channel-action">Ajukan bantuan pesanan <span aria-hidden="true">↗</span></span></span>
+                </a>
+                <a class="contact-channel" href="mailto:cs@lunareafurniture.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v14H3V5Zm0 0 9 8 9-8"/></svg>
+                    <span><strong>Kirim melalui email</strong><small>cs@lunareafurniture.com</small><span class="contact-channel-action">Tulis email <span aria-hidden="true">↗</span></span></span>
+                </a>
+            </section>
+            <aside class="contact-help" aria-labelledby="contact-help-title">
+                <h2 id="contact-help-title">Temukan jawaban lebih cepat</h2>
+                <p>Beberapa pertanyaan yang sering ditanyakan pelanggan.</p>
+                <a class="contact-faq-link" href="/faq?a=5#flush-collapse5">Apakah tersedia diskon gratis ongkir?<span aria-hidden="true">→</span></a>
+                <a class="contact-faq-link" href="/faq?a=6#flush-collapse6">Bagaimana jika produk tidak sesuai pesanan?<span aria-hidden="true">→</span></a>
+                <a class="contact-text-link" href="/faq">Lihat semua FAQ <span aria-hidden="true">→</span></a>
+                <div class="contact-write">
+                    <h3>Lebih nyaman menulis pesan?</h3>
+                    <p>Sampaikan pertanyaan Anda melalui formulir kontak.</p>
+                    <a class="contact-button" href="/form">Tulis pesan</a>
                 </div>
-                <a href="/article/<?= $a['path']; ?>" style="text-decoration: none; color: var(--hijau)">baca
-                    selengkapnya...</a>
-            </div>
-            <?php } ?>
+            </aside>
         </div>
+        <?php if (!empty($artikel)) { ?>
+        <section class="contact-reading" aria-labelledby="contact-reading-title">
+            <h2 id="contact-reading-title">Informasi untuk Anda</h2>
+            <div class="contact-articles">
+                <?php foreach ($artikel as $a) { ?>
+                <article>
+                    <h3><?= esc(ucwords((string)($a['judul'] ?? ''))); ?></h3>
+                    <p><?= esc($a['excerpt'] ?? ''); ?></p>
+                    <a class="contact-text-link" href="<?= esc('/article/' . ($a['path'] ?? ''), 'attr'); ?>">Baca selengkapnya <span aria-hidden="true">→</span></a>
+                </article>
+                <?php } ?>
+            </div>
+        </section>
+        <?php } ?>
     </div>
-</div>
+</main>
 <?= $this->endSection(); ?>
