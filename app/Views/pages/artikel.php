@@ -243,15 +243,15 @@
                 $variants = json_decode($p['varian'] ?? '[]', true);
                 $variants = is_array($variants) ? $variants : [];
             ?>
-                <a class="card1" href="/product/<?= $p['path']; ?>">
+                <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                     <?php } ?>
-                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                    <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                     </div>
-                    <div>
+                    <div class="product-card-body">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php foreach ($variants as $v) { ?>
                             <p class="mb-0 varian"><?= $v ?></p>

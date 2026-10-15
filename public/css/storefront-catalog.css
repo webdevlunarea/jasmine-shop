@@ -1,0 +1,59 @@
+/* Storefront-only refinement. Product data, links and prices remain server-rendered. */
+body:not(.admin-body) .jdl-section {
+    font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(.8rem, .75rem + .2vw, .95rem);
+    font-weight: 600;
+    letter-spacing: .085em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    gap: 12px;
+    overflow-wrap: anywhere;
+}
+body:not(.admin-body) .jdl-section::before { display: none; content: none; }
+body:not(.admin-body) .jdl-section::after { content: ''; width: 36px; height: 1px; flex: 0 0 36px; background: currentColor; opacity: .25; }
+body:not(.admin-body) .jdl-section + h1 { font-size: clamp(1.3rem, 1.1rem + 1vw, 1.9rem); line-height: 1.3; font-weight: 600; letter-spacing: -.035em; padding-bottom: 12px; }
+
+body:not(.admin-body) .card-group1.no-scroll:has(> .store-product-card) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 28px 20px; }
+body:not(.admin-body) .store-product-card { position: relative; display: flex; flex-direction: column; gap: 12px; min-width: 0; max-width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #262626; text-decoration: none; }
+body:not(.admin-body) .store-product-card:hover { transform: none; box-shadow: none; color: #262626; }
+body:not(.admin-body) .store-product-card:focus-visible { outline: 2px solid var(--hijau); outline-offset: 5px; }
+body:not(.admin-body) .store-product-card div { min-width: 0; width: auto; }
+body:not(.admin-body) .store-product-card > .product-card-media { width: 100%; margin: 0; overflow: hidden; border-radius: 10px; background: var(--theme-soft, #f7f5f2); }
+body:not(.admin-body) .store-product-card .img-card1 { width: 100%; height: 100%; aspect-ratio: 1; object-fit: contain; border: 0; border-radius: 10px; opacity: 1; transform: none; }
+body:not(.admin-body) .store-product-card .img-card1-wm { inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 10px; z-index: 1; pointer-events: none; }
+body:not(.admin-body) .store-product-card:hover .img-card1 { transform: none; opacity: 1; }
+body:not(.admin-body) .store-product-card > .product-card-body { width: 100%; margin: 0; display: flex; flex-direction: column; gap: 7px; transform: none; }
+body:not(.admin-body) .store-product-card:hover .product-card-body { transform: none; }
+body:not(.admin-body) .store-product-card h5 { order: 0; margin: 0; color: #292929; font-size: .9rem; line-height: 1.55; font-weight: 500; letter-spacing: -.015em; overflow: visible; overflow-wrap: anywhere; white-space: normal; }
+body:not(.admin-body) .store-product-card .harga { order: 1; display: block !important; font-size: 1rem; line-height: 1.4; font-weight: 700; letter-spacing: -.025em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+body:not(.admin-body) .store-product-card .product-card-body > span.d-flex { order: 2; flex-wrap: wrap; }
+body:not(.admin-body) .store-product-card .diskon-coret,
+body:not(.admin-body) .store-product-card .product-card-body > p[style*='line-through'] { order: 2; color: #767676; font-size: .75rem; line-height: 1.5; }
+body:not(.admin-body) .store-product-card .container-varian { order: 3; width: 100%; margin: 0 !important; padding: 0 !important; overflow: visible; }
+body:not(.admin-body) .store-product-card .container-varian > div { display: flex; width: 100%; flex-wrap: wrap; gap: 3px 8px; }
+body:not(.admin-body) .store-product-card .varian { order: 3; max-width: 100%; margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; color: #6b6b6b; font-size: .73rem; font-weight: 400; line-height: 1.6; white-space: normal; text-wrap: wrap; overflow-wrap: anywhere; }
+body:not(.admin-body) .store-product-card .container-varian .varian + .varian::before { content: '·'; margin-right: 8px; color: #9c9c9c; }
+body:not(.admin-body) .store-product-card .product-card-body > .small { order: 4; font-size: .72rem; line-height: 1.5; }
+body:not(.admin-body) .store-product-card .diskon { display: block; top: 10px; left: 10px; margin: 0 !important; transform: none; padding: 5px 7px; border-radius: 5px; font-size: .7rem; line-height: 1.3; letter-spacing: .01em; }
+body:not(.admin-body) .store-product-card .terjual-badge { bottom: 8px; right: 8px; max-width: calc(100% - 16px); background: rgba(255,255,255,.94); color: #535353; backdrop-filter: none; padding: 3px 6px; border-radius: 4px; font-size: .65rem; line-height: 1.5; overflow-wrap: anywhere; }
+
+body:not(.admin-body) .store-product-card .diskon-bwh { display: none; }
+
+/* Flash-sale items keep their price, savings and real stock information. */
+body:not(.admin-body) .flash-sale-card { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 0; }
+body:not(.admin-body) .flash-sale-card:hover { transform: none; box-shadow: none; }
+body:not(.admin-body) .flash-sale-image { border-radius: 10px; }
+body:not(.admin-body) .flash-sale-image img:not(.flash-sale-watermark) { object-fit: contain; }
+body:not(.admin-body) .flash-sale-info { padding: 12px 0 0; }
+body:not(.admin-body) .flash-sale-info h3 { height: auto; display: block; overflow: visible; font-weight: 500; line-height: 1.5; -webkit-line-clamp: unset; overflow-wrap: anywhere; }
+body:not(.admin-body) .flash-sale-price span { font-weight: 700; }
+body:not(.admin-body) .flash-sale-badge { box-shadow: none; border-radius: 5px; font-size: .7rem; font-weight: 600; }
+
+@media (max-width: 575.98px) {
+    body:not(.admin-body) .card-group1.no-scroll:has(> .store-product-card) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; padding-inline: 0; }
+    body:not(.admin-body) .store-product-card { gap: 10px; }
+    body:not(.admin-body) .store-product-card h5 { font-size: .8rem; line-height: 1.5; }
+    body:not(.admin-body) .store-product-card .harga { font-size: .9rem; }
+    body:not(.admin-body) .store-product-card .diskon { top: 8px; left: 8px; font-size: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) { .store-product-card, .store-product-card * { transition: none !important; } }

@@ -1,0 +1,4 @@
+Font: Montserrat, normal variable weights 600-700, Latin subset.
+Source CSS: https://fonts.googleapis.com/css2?family=Montserrat:wght@600..700&display=swap
+Binary: https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2
+License: SIL Open Font License 1.1; see OFL.txt.

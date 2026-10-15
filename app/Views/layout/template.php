@@ -125,6 +125,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/style.css?v=<?= time(); ?>">
     <link rel="stylesheet" href="/css/commerce-responsive.css?v=<?= filemtime(FCPATH . 'css/commerce-responsive.css'); ?>">
     <link rel="stylesheet" href="/css/home-carousel.css?v=<?= filemtime(FCPATH . 'css/home-carousel.css'); ?>">
+    <link rel="stylesheet" href="/css/storefront-catalog.css?v=<?= filemtime(FCPATH . 'css/storefront-catalog.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">

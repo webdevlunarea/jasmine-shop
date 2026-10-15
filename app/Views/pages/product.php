@@ -458,11 +458,11 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
         <h5 class="jdl-section">Produk serupa</h5>
         <div class="card-group1 no-scroll">
             <?php foreach ($produksekategori as $p) { ?>
-                <a class="card1" href="/product/<?= $p['path']; ?>">
+                <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
                     <?php if ($p['diskon']) { ?>
                         <p class="diskon my-3">-<?= (int)$p['diskon']; ?>%</p>
                     <?php } ?>
-                    <div style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                    <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
                         <?php 
@@ -474,7 +474,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         </span>
                         <?php } ?>
                     </div>
-                    <div class="mt-3">
+                    <div class="product-card-body">
                         <h5 class="mb-0"><?= $p['nama']; ?></h5>
                         <?php if ($p['diskon']) { ?>
                             <p class="mb-0 harga d-inline">Rp

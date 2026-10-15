@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src: url('../fonts/montserrat/Montserrat-latin.woff2') format('woff2');
+}
 /* Buyer navigation only; admin navigation and checkout calculations are untouched. */
 :root:has(.buyer-promo-banner) { --buyer-promo-height: 44px; }
 .teks-atas.buyer-promo-banner {
@@ -74,7 +81,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-mobile-header .mobile-navbar-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
     .buyer-mobile-header .mobile-navbar-brand { display: inline-flex; align-items: center; min-width: 0; }
     .buyer-mobile-header .mobile-navbar-brand { color: var(--hijau); flex: 0 1 auto; text-decoration: none; }
-    .buyer-mobile-header .mobile-navbar-wordmark { font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif; font-size: clamp(24px, 6.8vw, 32px); font-weight: 700; line-height: 1.15; letter-spacing: -.06em; white-space: nowrap; }
+    .buyer-mobile-header .mobile-navbar-wordmark { font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif; font-size: clamp(18px, 5vw, 24px); font-weight: 700; line-height: 1.2; letter-spacing: .075em; text-transform: uppercase; white-space: nowrap; }
     .buyer-mobile-header .mobile-navbar-actions { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; margin-left: auto; }
     .buyer-mobile-header .btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px !important; min-height: 44px !important; padding: 0 !important; border-radius: 14px; color: var(--hijau) !important; background: var(--hijaumuda, #f1f5f9) !important; }
     .buyer-mobile-header .mobile-navbar-actions > .btn { background: transparent !important; border: 0 !important; border-radius: 0; box-shadow: none !important; }

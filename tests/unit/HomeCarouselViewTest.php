@@ -47,7 +47,7 @@ final class HomeCarouselViewTest extends CIUnitTestCase
         }, $html);
         $html = str_replace('src="/img/', 'src="' . $publicUrl . '/img/', $html);
         $styles = '';
-        foreach (['bootstrap.min.css', 'style.css', 'buyer-navigation.css', 'home-carousel.css'] as $file) {
+        foreach (['bootstrap.min.css', 'style.css', 'buyer-navigation.css', 'home-carousel.css', 'storefront-catalog.css'] as $file) {
             $styles .= '<link rel="stylesheet" href="' . $publicUrl . '/css/' . $file . '">';
         }
         $nav = view('layout/navbar', ['title' => 'Beranda'], ['saveData' => false]);
