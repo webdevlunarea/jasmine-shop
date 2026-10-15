@@ -17,7 +17,7 @@
                 <?php if (!empty($banner)) { ?>
                     <?php foreach ($banner as $ind_b => $b) { ?>
                         <div class="carousel-item <?= $ind_b == 0 ? 'active' : ''; ?>">
-                            <div class="home-hero-media" style="--home-hero-art: url('/imgbanner/<?= (int)$b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: (int)$b['id']; ?>');">
+                            <div class="home-hero-media">
                             <?php if ($b['link']) { ?>
                                 <a href="<?= esc($b['link']); ?>">
                             <?php } ?>
@@ -32,7 +32,7 @@
                 <?php } else { ?>
                     <?php for ($i = 1; $i <= 5; $i++) { ?>
                         <div class="carousel-item <?= $i == 1 ? 'active' : ''; ?>">
-                            <div class="home-hero-media" style="--home-hero-art: url('/img/benner/<?= $i; ?>.webp?v=<?= date('Ymd'); ?>');">
+                            <div class="home-hero-media">
                             <img <?= $i > 1 ? 'loading="lazy"' : ''; ?> src="/img/benner/<?= $i; ?>.webp?v=<?= date('Ymd'); ?>" class="home-hero-image" decoding="async"
                                 alt="Lunarea Furniture Banner <?= $i; ?>">
                             </div>

@@ -120,20 +120,19 @@ if ($isAdminNav) {
 <nav class="navbar-hp buyer-mobile-header hide-ke-show-block py-2" id="navbar-hp">
     <div class="container mobile-navbar-main">
         <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
-            <img class="mobile-navbar-brand-full" src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
-            <img class="mobile-navbar-brand-mark" src="<?= base_url('/img/logo icon.png'); ?>" alt="Lunarea">
+            <span class="mobile-navbar-wordmark">Lunarea</span>
         </a>
         <div class="mobile-navbar-actions">
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
                     <a href="/wishlist" class="btn position-relative" aria-label="Wishlist">
-                        <i class="material-icons">favorite_border</i>
+                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
                         <?php if ($title != 'Wishlist') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
                     </a>
                     <a href="/cart" class="btn position-relative" aria-label="Keranjang">
-                        <i class="material-icons">shopping_cart</i>
+                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
                         <?php if ($title != 'Keranjang') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
                         <?php } ?>
@@ -142,7 +141,7 @@ if ($isAdminNav) {
                         <a href="/transaction" class="btn" aria-label="Transaksi"><i class="material-icons" aria-hidden="true">receipt_long</i></a>
                         <a href="/keluar" class="btn" aria-label="Keluar"><i class="material-icons">exit_to_app</i></a>
                     <?php } else { ?>
-                        <button type="button" id="buyer-account-toggle" class="btn" aria-label="Menu akun" aria-controls="buyer-account-menu" aria-expanded="false"><i class="material-icons" aria-hidden="true">person_outline</i></button>
+                        <button type="button" id="buyer-account-toggle" class="btn" aria-label="Menu akun" aria-controls="buyer-account-menu" aria-expanded="false"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></button>
                     <?php } ?>
                 <?php } else { ?>
                     <div class="mobile-admin-menu-wrap">
@@ -164,7 +163,7 @@ if ($isAdminNav) {
                     </div>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" aria-label="Login"><i class="material-icons">person_outline</i></a>
+                <a href="/login" class="btn" aria-label="Login"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
             <?php } ?>
         </div>
     </div>

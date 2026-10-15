@@ -16,6 +16,7 @@ final class HomeCarouselViewTest extends CIUnitTestCase
         $this->assertSame($count, $xpath->query('//button[@data-bs-slide-to]')->length);
         $this->assertSame($count, $xpath->query('//div[@class="home-hero-media"]')->length);
         $this->assertSame($count - 1, $xpath->query('//img[@loading="lazy"]')->length);
+        $this->assertStringNotContainsString('--home-hero-art', $html);
         if ($banners) {
             $this->assertStringContainsString('href="/all?sort=harga&amp;promo=1"', $html);
             $this->assertStringContainsString('alt="Promo &lt;Lemari&gt;"', $html);
@@ -44,10 +45,7 @@ final class HomeCarouselViewTest extends CIUnitTestCase
         $html = preg_replace_callback('~src="/imgbanner/(\d+)\?[^\"]*"~', static function ($match) use ($publicUrl) {
             return 'src="' . $publicUrl . '/img/benner/' . ((int)$match[1] - 300) . '.webp"';
         }, $html);
-        $html = preg_replace_callback("~/imgbanner/(\d+)\?v=[0-9]+~", static function ($match) use ($publicUrl) {
-            return $publicUrl . '/img/benner/' . ((int)$match[1] - 300) . '.webp';
-        }, $html);
-        $html = str_replace(["url('/img/", 'src="/img/'], ["url('" . $publicUrl . '/img/', 'src="' . $publicUrl . '/img/'], $html);
+        $html = str_replace('src="/img/', 'src="' . $publicUrl . '/img/', $html);
         $styles = '';
         foreach (['bootstrap.min.css', 'style.css', 'buyer-navigation.css', 'home-carousel.css'] as $file) {
             $styles .= '<link rel="stylesheet" href="' . $publicUrl . '/css/' . $file . '">';

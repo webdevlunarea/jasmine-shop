@@ -15,6 +15,7 @@
 .buyer-promo-banner p { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .teks-atas.buyer-promo-banner--mobile { display: none; }
 .buyer-nav-icon { display: block; width: 22px; height: 22px; flex: 0 0 auto; }
+.buyer-action-icon { display: block; width: 23px; height: 23px; flex: 0 0 auto; }
 #buyer-account-menu[hidden] { display: none !important; }
 #buyer-account-menu {
     position: fixed;
@@ -69,12 +70,13 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
         z-index: 11;
     }
     .buyer-mobile-header > .container { max-width: 100%; padding-inline: 16px; }
-    .buyer-mobile-header .mobile-navbar-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+    .buyer-mobile-header .mobile-navbar-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
     .buyer-mobile-header .mobile-navbar-brand { display: inline-flex; align-items: center; min-width: 0; }
-    .buyer-mobile-header .mobile-navbar-brand-full { display: none; }
-    .buyer-mobile-header .mobile-navbar-brand-mark { display: block; width: 40px; height: 40px; object-fit: contain; }
-    .buyer-mobile-header .mobile-navbar-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .buyer-mobile-header .mobile-navbar-brand { color: var(--hijau); flex: 0 1 auto; text-decoration: none; }
+    .buyer-mobile-header .mobile-navbar-wordmark { font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif; font-size: clamp(24px, 6.8vw, 32px); font-weight: 700; line-height: 1.15; letter-spacing: -.06em; white-space: nowrap; }
+    .buyer-mobile-header .mobile-navbar-actions { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
     .buyer-mobile-header .btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px !important; min-height: 44px !important; padding: 0 !important; border-radius: 14px; color: var(--hijau) !important; background: var(--hijaumuda, #f1f5f9) !important; }
+    .buyer-mobile-header .mobile-navbar-actions > .btn { background: transparent !important; border: 0 !important; border-radius: 0; box-shadow: none !important; }
     .buyer-mobile-header .material-icons { font-size: 22px; color: currentColor !important; }
     .buyer-mobile-header .mobile-search-container { display: block; margin-top: 8px; }
     .buyer-mobile-header .search-box .input-group { min-width: 0; min-height: 44px; overflow: hidden; border-radius: 14px; }
