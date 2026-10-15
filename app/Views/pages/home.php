@@ -473,21 +473,10 @@ function closeModalVoucherAll(index) {
                 $variants = is_array($variants) ? $variants : [];
             ?>
             <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
-                <?php if ($p['diskon']) { ?>
-                <p class="diskon my-3">-<?= (int)$p['diskon']; ?>%</p>
-                <?php } ?>
                 <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                     <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                     <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>"
                         alt="<?= $p['nama']; ?>">
-                    <?php 
-                    $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
-                    if ($terjualTampil > 0) { 
-                    ?>
-                    <span class="terjual-badge">
-                        <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
-                    </span>
-                    <?php } ?>
                 </div>
                 <div class="product-card-body">
                     <h5 class="mb-0"><?= $p['nama']; ?></h5>
@@ -500,13 +489,13 @@ function closeModalVoucherAll(index) {
                     </div>
                     <!-- <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p> -->
                     <?php if ($p['diskon']) { ?>
-                    <span class="d-flex gap-1 align-items-center">
+                    <div class="product-card-price-meta">
                         <p class="mb-0 diskon-coret"
                             style="text-decoration: line-through; color: grey; width:fit-content;">
                             Rp
                             <?= number_format($p['harga'], 0, ",", "."); ?></p>
                         <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
-                    </span>
+                    </div>
                     <p class="mb-0 harga">Rp
                         <?php
                                 $persen = (100 - $p['diskon']) / 100;
@@ -518,7 +507,16 @@ function closeModalVoucherAll(index) {
                     <?php } ?>
 
                     <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
-                </div>
+
+                    <?php
+                    $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
+                    if ($terjualTampil > 0) {
+                    ?>
+                    <span class="terjual-badge">
+                        <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
+                    </span>
+                    <?php } ?>
+                    </div>
             </a>
             <?php } ?>
         </div>

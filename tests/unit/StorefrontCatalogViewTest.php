@@ -18,13 +18,21 @@ final class StorefrontCatalogViewTest extends CIUnitTestCase
             file_put_contents($fragment, $match[0]);
             foreach ([0, 20] as $discount) {
                 $p = ['path' => 'lemari-test', 'nama' => 'Lemari Minimalis Tiga Pintu dengan Laci Penyimpanan Serbaguna', 'diskon' => $discount,
-                    'harga' => 1250000, 'varian' => '["Putih","Cokelat"]', 'rate' => 5, 'gambar' => file_get_contents(FCPATH . 'img/benner/1.webp'),
+                    'harga' => 1250000, 'varian' => '["Putih","Cokelat"]', 'rate' => 5, 'gambar' => file_get_contents(FCPATH . 'img/logokategori/Lemari_Dewasa.webp'),
                     'wishlist_varian' => 'Putih Kombinasi Kayu Natural', 'terjual_custom' => 1234, 'terjual' => 20];
                 $variants = ['Putih', 'Cokelat', 'Abu-abu', 'Kayu Natural Kombinasi Putih'];
                 ob_start();
                 try { include $fragment; $card = ob_get_contents(); } finally { ob_end_clean(); }
                 $this->assertStringContainsString('href="/product/lemari-test"', $card);
                 $this->assertStringContainsString($p['nama'], $card);
+                $dom = new DOMDocument();
+                @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $card);
+                $xp = new DOMXPath($dom);
+                $this->assertSame(0, $xp->query('//div[@class="product-card-media"]//span[@class="terjual-badge"]')->length);
+                $this->assertSame($discount ? 1 : 0, $xp->query('//*[contains(concat(" ",normalize-space(@class)," ")," product-card-price-meta ")]//p[@class="diskon-bwh"]')->length);
+                $this->assertStringNotContainsString('card-saving-voucher', $card);
+                $this->assertStringNotContainsString('TERLARIS', $card);
+
                 $text = preg_replace('/\s+/', ' ', strip_tags($card));
                 $this->assertStringContainsString($discount ? '1.000.000' : '1.250.000', $text);
                 if ($discount) $this->assertStringContainsString('1.250.000', $text);

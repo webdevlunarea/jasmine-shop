@@ -244,9 +244,6 @@
                 $variants = is_array($variants) ? $variants : [];
             ?>
                 <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
-                    <?php if ($p['diskon']) { ?>
-                        <p class="diskon">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
-                    <?php } ?>
                     <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= $p['nama']; ?>">
@@ -258,12 +255,12 @@
                         <?php } ?>
                         <!-- <p class="mb-0 varian"><?= implode(" - ", json_decode($p['varian'], true)); ?></p> -->
                         <?php if ($p['diskon']) { ?>
-                            <span class="d-flex gap-1 align-items-center">
+                            <div class="product-card-price-meta">
                                 <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey; width:fit-content;">
                                     Rp
                                     <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
-                            </span>
+                                <p class="diskon-bwh">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
+                            </div>
                             <p class="mb-0 harga">Rp
                                 <?php
                                 $persen = (100 - $p['diskon']) / 100;
