@@ -980,7 +980,8 @@ class Pages extends BaseController
     public function index()
     {
         $produk = $this->barangModel->getBarangLimit();
-        $produkBaru = $this->barangModel->getBarangPopuler();
+        $produkPopuler = $this->barangModel->getBarangPopuler();
+        $produkTerbaru = $this->barangModel->getBarangBaru();
         $flashSaleSettings = $this->konstantaModel->getFlashSaleSettings();
         $flashSaleProducts = [];
         if (!empty($flashSaleSettings['enabled'])) {
@@ -1018,7 +1019,8 @@ class Pages extends BaseController
         $data = [
             'title' => 'Beranda',
             'produk' => $produk,
-            'produkBaru' => $produkBaru,
+            'produkPopuler' => $produkPopuler,
+            'produkTerbaru' => $produkTerbaru,
             'flashSaleProducts' => $flashSaleProducts,
             'flashSaleEnd' => $flashSaleEnd,
             'flashSaleSettings' => $flashSaleSettings,

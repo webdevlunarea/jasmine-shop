@@ -22,6 +22,12 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
    assert.ok(a.width<=width+1,`${page}/${state}/${theme}/${width}: overflow ${a.width}`);assert.ok(a.main.top>=a.header.bottom-1,'Content below header');assert.ok(a.footer.top>=a.main.bottom-1,'Footer below help content');assert.ok(a.h1<=32);
    for(const b of [...a.links,...a.controls])assert.ok(b.left>=0&&b.right<=width+1&&b.height>=44,`${page}/${width}: accessible controls`);
    a.grads.forEach(g=>assert.equal(g,'none'));checks++;
+   if(page==='kebijakanprivasi'){
+    const contact=await evaluate(`(()=>{const list=document.querySelector('.policy-contact-list');return [...list.querySelectorAll('dt')].map(e=>{const r=e.getBoundingClientRect(),d=e.nextElementSibling.getBoundingClientRect();return {width:r.width,right:r.right,top:r.top,bottom:r.bottom,valueLeft:d.left,valueTop:d.top,valueRight:d.right}})})()`);
+    assert.equal(contact.length,3);for(const c of contact){assert.ok(c.width>=150&&c.right<=width&&c.valueRight<=width);if(width<576)assert.ok(c.valueTop>=c.bottom-1);else assert.ok(c.valueLeft>=c.right)}
+    if(theme==='sand'&&[390,1440].includes(width)){await evaluate(`document.querySelector('.policy-contact-list').previousElementSibling.previousElementSibling.scrollIntoView({block:'start',behavior:'instant'})`);const shot=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(dir,`privacy-contact-${width}.png`),Buffer.from(shot.data,'base64'))}
+   }
+
    if(theme==='sand'&&[390,1440].includes(width)&&['initial','success'].includes(state)){const shot=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(dir,`${page}-${state}-${width}.png`),Buffer.from(shot.data,'base64'))}
   }
  }

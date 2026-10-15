@@ -6,15 +6,15 @@ $wishlistKeys = is_array($wishlistKeys ?? null) ? $wishlistKeys : [];
 $wishlistKeyFor = static fn($id, $variant) => (string)$id . '|' . mb_strtolower(trim((string)$variant));
 $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? ''), $wishlistKeys, true);
 ?>
-<div class="konten">
+<main class="konten buyer-product-page">
     <div class="container">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Beranda</a></li>
-                <li class="breadcrumb-item" aria-current="page"><a href="/all">Produk</a></li>
+                <li class="breadcrumb-item"><a href="/all">Produk</a></li>
                 <li class="breadcrumb-item"><a href="/all/<?= $produk['subkategori']; ?>"><?= str_replace('-', ' ', ucfirst($produk['subkategori'])) ?></a>
                 </li>
-                <li class="breadcrumb-item active"><a><?= $produk['nama']; ?></a></li>
+                <li class="breadcrumb-item active" aria-current="page" title="<?= esc($produk['nama'], 'attr'); ?>"><?= esc($produk['nama']); ?></li>
             </ol>
         </nav>
         <div class="product-detail-layout">
@@ -25,11 +25,12 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         if ($g && $ind_g != 'id') { ?>
                             <section class="img-produk-prev" id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
                                 <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                                <figure class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
+                                <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
                             </section>
                             <script>
                                 const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
                                 imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mousemove', (e) => {
+                                    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
                                     const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
                                     figureElm.style.backgroundSize = "auto"
                                     const widthGambar = e.target.offsetWidth;
@@ -42,17 +43,18 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                 })
                                 imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mouseleave', (e) => {
                                     const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
-                                    figureElm.style.backgroundSize = "cover"
+                                    figureElm.style.backgroundSize = "contain";
+                                    figureElm.style.backgroundPosition = "center";
                                 })
                             </script>
                     <?php }
                     } ?>
                 </div>
-                <div class="img-produk mb-3">
+                <div class="img-produk mb-3" role="group" aria-label="Foto produk">
                     <div class="mt-2">
                         <?php foreach ($gambar as $ind_g => $g) {
                             if ($g && $ind_g != 'id') { ?>
-                                <div class="img-produk-select <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
+                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
                         <?php }
                         } ?>
                     </div>
@@ -61,32 +63,32 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                 <div class="img-produk-besar">
                     <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
+                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
                     </section>
                     <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
+                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
                     </section>
                     <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
+                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
                     </section>
                     <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
+                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
                     </section>
                     <section class="img-produk-prev">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
+                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
                     </section>
                 </div>
-                <div class="img-produk mb-3">
+                <div class="img-produk mb-3" role="group" aria-label="Foto produk">
                     <div class="mt-2">
-                        <div class="img-produk-select selected"><img src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="apa=lah"></div>
-                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="apa=lah"></div>
-                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="apa=lah"></div>
-                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="apa=lah"></div>
-                        <div class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="apa=lah"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select selected"><img src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
                     </div>
                 </div>
             <?php } ?>
@@ -97,20 +99,11 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         <?= $msg; ?>
                     </div>
                 <?php } ?>
-                <h3 class="product-detail-title"><?= $produk['nama']; ?></h3>
+                <h1 class="product-detail-title"><?= esc($produk['nama']); ?></h1>
                 <?php if ($produk['diskon']) { ?>
                     <div class="d-flex gap-1 align-items-center">
                         <p class="mb-0" style="text-decoration: line-through; font-size: small; color: grey;">Rp <?= number_format($produk['harga'], 0, ",", "."); ?></p>
-                        <p class="m-0" style="background-color: var(--hijau);
-                        color: white;
-                        display: block;
-                        width: fit-content;
-                        line-height: 20px;
-                        padding-inline: 6px;
-                        padding-block: 3px;
-                        font-size: small;
-                        text-align: center;
-                        border-radius: 0.5em;">-<?= $produk['diskon'] ?>%</p>
+                        <p class="m-0 product-discount-badge">-<?= $produk['diskon'] ?>%</p>
                     </div>
                     <p class="mb-0 harga">Rp <?php
                                                 $persen = (100 - $produk['diskon']) / 100;
@@ -125,10 +118,10 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                 $avgRating = isset($ratingStats) ? (float)$ratingStats['avg'] : 0;
                 $jmlRating = isset($ratingStats) ? (int)$ratingStats['count'] : 0;
                 ?>
-                <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                <div class="product-social-proof d-flex flex-wrap align-items-center gap-2 mt-1">
                     <?php if ($jmlRating > 0) { ?>
                         <a href="#rating-section" class="text-decoration-none" style="color:inherit;">
-                            <p class="mb-0 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #fff7e0; width: fit-content; padding: 4px 10px; border-radius: 2em;">
+                            <p class="mb-0 d-flex align-items-center gap-1">
                                 <span style="color:#f5b301;">
                                     <?php for ($i = 1; $i <= 5; $i++) {
                                         echo $i <= round($avgRating) ? '★' : '☆';
@@ -140,39 +133,128 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         </a>
                     <?php } ?>
                     <?php if ($terjualTampil > 0) { ?>
-                        <p class="mb-0 d-flex align-items-center gap-1" style="font-size: 0.85rem; color: #555; background: #f5f5f5; width: fit-content; padding: 4px 10px; border-radius: 2em;">
+                        <p class="mb-0 d-flex align-items-center gap-1">
                             <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                         </p>
                     <?php } ?>
                 </div>
                 <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
-                    <p id="stok" class="product-stock <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
+                    <p id="stok" role="status" aria-live="polite" class="product-stock <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
                         <?= explode(",", $produk['stok'])[0]; ?></p>
                 <?php } else { ?>
-                    <p id="stok" class="product-stock text-danger">Stok habis</p>
+                    <p id="stok" role="status" aria-live="polite" class="product-stock text-danger">Stok habis</p>
                 <?php } ?>
                 <span class="garis mb-2"></span>
-                <h5 class="product-section-label">Varian</h5>
-                <style>
-                    @media (max-width: 600px) {
-                        .btn-group label {
-                            font-size: 12px;
-                        }
-                    }
-                </style>
-                <div class="btn-group" id="varian-group" role="group" aria-label="Basic radio toggle button group">
+                <h2 class="product-section-label">Pilih varian</h2>
+<div class="btn-group" id="varian-group" role="group" aria-label="Pilih varian produk">
                     <?php foreach ($varian as $key => $value) { ?>
                         <input type="radio" value="<?= $key ?>" class="btn-check" name="btnradio" autocomplete="off" id="btnradio<?= $key ?>" <?= $key == 0 ? "checked" : "" ?>>
-                        <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= $value ?></label>
+                        <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= esc($value); ?></label>
                     <?php } ?>
                 </div>
+                <div class="product-purchase-actions show-flex-ke-hide gap-1 align-items-center">
+                    <?php if (session()->get('isLogin')) { ?>
+                        <?php if (session()->get('role') == 0) { ?>
+                            <?php if (session()->get('active') == '1') { ?>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
+                                    <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <p class="m-0">Beli sekarang</p>
+                                    </button>
+                                </form>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                    <button type="submit" aria-label="Tambah ke keranjang" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                                    </button>
+                                </form>
+                                <?php if ($initialWishlistActive) { ?>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Hapus varian dari wishlist"><svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
+                                    </form>
+                                <?php } else { ?>
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Tambah varian ke wishlist"><svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
+                                    </form>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
+                            <p class="m-0">Masuk untuk beli</p>
+                        </a>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
+                            <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                        </a>
+                    <?php } ?>
+                </div>
+                <div class="product-mobile-purchase-bar hide-ke-show-flex justify-content-center align-items-center p-2 gap-1" aria-label="Pembelian produk">
+                    <?php if (session()->get('isLogin')) { ?>
+                        <?php if (session()->get('role') == 0) { ?>
+                            <?php if (session()->get('active') == '1') { ?>
+                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
+                                    <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <p class="m-0">Beli sekarang</p>
+                                    </button>
+                                </form>
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1)  : ""; ?>" method="post">
+                                    <button type="submit" aria-label="Tambah ke keranjang" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
+                                        <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                                    </button>
+                                </form>
+                                <?php if ($initialWishlistActive) { ?>
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="<?= $initialWishlistActive ? 'Hapus varian dari wishlist' : 'Tambah varian ke wishlist'; ?>">
+                                            <svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+                                        </button>
+                                    </form>
+                                <?php } else { ?>
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
+                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
+                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
+                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="<?= $initialWishlistActive ? 'Hapus varian dari wishlist' : 'Tambah varian ke wishlist'; ?>">
+                                            <svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+                                        </button>
+                                    </form>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <a class="btn btn-primary1 flex-grow-1" href="/verify">Verifikasi Email</a>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <a class="btn btn-primary1 flex-grow-1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" style="width: 100%" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
+                            <p class="m-0">Masuk untuk beli</p>
+                        </a>
+                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center justify-content-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
+                            <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                        </a>
+                    <?php } ?>
+                </div>
+
+                <h2 class="product-section-label product-description-label">Deskripsi produk</h2>
                 <div class="product-description"><?= $produk['deskripsi']; ?></div>
                 <hr class="m-0">
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed fw-bold px-3 pt-3 pb-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse2" aria-expanded="false" aria-controls="flush-collapse2">
-                                HARAP DIPERHATIKAN
+                                Perhatian sebelum membeli
                             </button>
                         </h2>
                         <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
@@ -198,7 +280,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed fw-bold px-3 pt-3 pb-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse" aria-expanded="false" aria-controls="flush-collapse">
-                                SYARAT & KETENTUAN KOMPLAIN
+                                Syarat & ketentuan komplain
                             </button>
                         </h2>
                         <div id="flush-collapse" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample1">
@@ -216,101 +298,6 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     </div>
                 </div>
                 <hr class="m-0 mb-4">
-                <div class="show-flex-ke-hide gap-1 align-items-center">
-                    <?php if (session()->get('isLogin')) { ?>
-                        <?php if (session()->get('role') == 0) { ?>
-                            <?php if (session()->get('active') == '1') { ?>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
-                                    <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <p class="m-0">Beli sekarang</p>
-                                    </button>
-                                </form>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
-                                    <button type="submit" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <i class="material-icons">shopping_cart</i>
-                                    </button>
-                                </form>
-                                <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
-                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
-                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
-                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
-                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Hapus varian dari wishlist"><i class="material-icons">favorite</i></button>
-                                    </form>
-                                <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
-                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
-                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
-                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
-                                        <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Tambah varian ke wishlist"><i class="material-icons">favorite_border</i></button>
-                                    </form>
-                                <?php } ?>
-                            <?php } else { ?>
-                                <a class="btn btn-primary1" href="/verify">Verifikasi Email</a>
-                            <?php } ?>
-                        <?php } else { ?>
-                            <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
-                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
-                        <?php } ?>
-                    <?php } else { ?>
-                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
-                            <p class="m-0">Masuk untuk beli</p>
-                        </a>
-                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
-                            <i class="material-icons">shopping_cart</i>
-                        </a>
-                    <?php } ?>
-                </div>
-                <div class="hide-ke-show-flex justify-content-center align-items-center p-2 gap-1" style="background-color: white; position:fixed; bottom: 0; left: 0; width: 100vw; z-index: 9; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                    <?php if (session()->get('isLogin')) { ?>
-                        <?php if (session()->get('role') == 0) { ?>
-                            <?php if (session()->get('active') == '1') { ?>
-                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
-                                    <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <p class="m-0">Beli sekarang</p>
-                                    </button>
-                                </form>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1)  : ""; ?>" method="post">
-                                    <button type="submit" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
-                                        <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
-                                    </button>
-                                </form>
-                                <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
-                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
-                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
-                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
-                                        <button type="submit" class="btn btn-outline-dark">
-                                            <i class="material-icons" style="font-size: 20px;">favorite</i>
-                                        </button>
-                                    </form>
-                                <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
-                                        <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
-                                        <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
-                                        <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
-                                        <button type="submit" class="btn btn-outline-dark">
-                                            <i class="material-icons" style="font-size: 20px;">favorite_border</i>
-                                        </button>
-                                    </form>
-                                <?php } ?>
-                            <?php } else { ?>
-                                <a class="btn btn-primary1 flex-grow-1" href="/verify">Verifikasi Email</a>
-                            <?php } ?>
-                        <?php } else { ?>
-                            <a class="btn btn-primary1 flex-grow-1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
-                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
-                        <?php } ?>
-                    <?php } else { ?>
-                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" style="width: 100%" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
-                            <p class="m-0">Masuk untuk beli</p>
-                        </a>
-                        <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center justify-content-center btn btn-outline-dark <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>" aria-label="Masuk untuk menambahkan ke keranjang">
-                            <i class="material-icons" style="font-size: 20px;">shopping_cart</i>
-                        </a>
-                    <?php } ?>
-                </div>
-
                 <div class="product-marketplace mt-3">
                     <p class="mb-1">
                         <?php if ($produk['tokped'] || $produk['shopee'] || $produk['tiktok']) { ?>
@@ -320,10 +307,10 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         <?php } ?>
                     </p>
                     <div>
-                        <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="blank"><img src="/img/logo/shopee_logo.webp" class="marketplace"></a>
-                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="blank"><img src="/img/logo/tokped_logo.webp" class="marketplace"></a>
-                        <a href="<?= $produk['tiktok'] ? $produk['tiktok'] : 'https://www.tiktok.com/@lunareafurnitureofficial'; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktok_logo.webp" class="marketplace"></a>
-                        <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="blank"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
+                        <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="_blank" rel="noopener noreferrer"><img src="/img/logo/shopee_logo.webp" class="marketplace" alt="Shopee"></a>
+                        <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tokped_logo.webp" class="marketplace" alt="Tokopedia"></a>
+                        <a href="<?= $produk['tiktok'] ? $produk['tiktok'] : 'https://www.tiktok.com/@lunareafurnitureofficial'; ?>" title="Tiktok" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tiktok_logo.webp" class="marketplace" alt="TikTok"></a>
+                        <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>
 
@@ -338,7 +325,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
     </div>
 
     <div class="container my-5" id="rating-section">
-        <h5 class="jdl-section">Rating &amp; Ulasan Pembeli</h5>
+        <h2 class="jdl-section">Rating &amp; ulasan pembeli</h2>
         <style>
             .rating-summary {
                 display: flex;
@@ -412,7 +399,8 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                 <label for="star<?= $s; ?>" title="<?= $s; ?> bintang">★</label>
                             <?php } ?>
                         </div>
-                        <textarea name="komentar" class="form-control mb-2" rows="3" maxlength="1000" placeholder="Tulis komentar Anda (opsional)..."><?= $userRating ? esc($userRating['komentar']) : ''; ?></textarea>
+                        <label class="form-label" for="product-review-comment">Ulasan Anda (opsional)</label>
+                        <textarea id="product-review-comment" name="komentar" class="form-control mb-2" rows="3" maxlength="1000" placeholder="Tulis komentar Anda (opsional)..."><?= $userRating ? esc($userRating['komentar']) : ''; ?></textarea>
                         <button type="submit" class="btn btn-primary1"><?= $userRating ? 'Update Ulasan' : 'Kirim Ulasan'; ?></button>
                     </form>
                 </div>
@@ -455,7 +443,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
     </div>
 
     <div class="container my-5">
-        <h5 class="jdl-section">Produk serupa</h5>
+        <h2 class="jdl-section">Produk serupa</h2>
         <div class="card-group1 no-scroll">
             <?php foreach ($produksekategori as $p) { ?>
                 <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
@@ -499,7 +487,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
             <?php } ?>
         </div>
     </div>
-</div>
+</main>
 <script>
     const elmVarianSelect = document.querySelectorAll(".btn-check")
     const imgProdukSelect = document.querySelectorAll(".img-produk-select")
@@ -537,22 +525,40 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
             form.action = exists ? form.dataset.delAction : form.dataset.addAction;
             form.querySelector('.wishlist-varian').value = variantName;
             form.querySelector('.wishlist-index-gambar').value = imageIndex;
-            const icon = form.querySelector('.material-icons');
-            if (icon) icon.textContent = exists ? 'favorite' : 'favorite_border';
+            const icon = form.querySelector('.product-wishlist-icon');
+            if (icon) icon.setAttribute('fill', exists ? 'currentColor' : 'none');
             const button = form.querySelector('button');
             if (button) button.setAttribute('aria-label', exists ? 'Hapus varian dari wishlist' : 'Tambah varian ke wishlist');
         });
     }
 
+    const galleryMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    function setGallerySelection(imageIndex) {
+        imgProdukSelect.forEach((thumbnail, index) => {
+            thumbnail.classList.toggle('selected', index === imageIndex);
+            thumbnail.setAttribute('aria-pressed', index === imageIndex ? 'true' : 'false');
+            thumbnail.setAttribute('aria-label', 'Lihat foto produk ' + (index + 1));
+        });
+    }
+
+    let galleryScrollFrame = 0;
+    imgProdukBesar.addEventListener('scroll', () => {
+        cancelAnimationFrame(galleryScrollFrame);
+        galleryScrollFrame = requestAnimationFrame(() => {
+            if (imgProdukBesar.clientWidth > 0) setGallerySelection(Math.round(imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth));
+        });
+    }, { passive: true });
+
     function selectVariantByIndex(variantIndex, shouldScroll = true) {
         const imageIndex = getImageIndexForVariantIndex(variantIndex);
-        imgProdukSelect.forEach(e => e.classList.remove("selected"));
-        if (imgProdukSelect[imageIndex]) imgProdukSelect[imageIndex].classList.add("selected");
+        setGallerySelection(imageIndex);
         elmVarianSelect.forEach(e => e.checked = false);
         if (elmVarianSelect[variantIndex]) elmVarianSelect[variantIndex].checked = true;
 
         const selectedStock = Number(stokValue[Number(variantIndex)] || 0);
-        stokElm.innerHTML = selectedStock > 0 ? 'Stok : ' + stokValue[Number(variantIndex)] : 'Stok habis';
+        stokElm.textContent = selectedStock > 0 ? 'Stok : ' + stokValue[Number(variantIndex)] : 'Stok habis';
+        stokElm.classList.toggle('text-danger', selectedStock < 3);
+        stokElm.classList.toggle('text-dark', selectedStock >= 3);
         setUrlElmBeli(selectedStock, imageIndex);
         setWishlistState(variantIndex, imageIndex);
 
@@ -560,17 +566,13 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
         if (window.innerWidth <= 600) {
             const position = Math.floor(imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth);
             const direction = imageIndex - position;
-            imgProdukBesar.scrollBy({ left: imgProdukBesar.clientWidth * direction, behavior: "smooth" });
+            imgProdukBesar.scrollBy({ left: imgProdukBesar.clientWidth * direction, behavior: galleryMotion() });
         } else {
-            imgProdukBesar.scrollTo({ left: imgProdukPrev[imageIndex].clientWidth * imageIndex, behavior: "smooth" });
+            imgProdukBesar.scrollTo({ left: imgProdukPrev[imageIndex].clientWidth * imageIndex, behavior: galleryMotion() });
         }
     }
 
-    imgProdukBesar.onscroll = (e) => {
-        console.log("scrollLeft: " + imgProdukBesar.scrollLeft)
-    }
-
-    if (imgProdukSelect.length > 0) {
+if (imgProdukSelect.length > 0) {
         imgProdukSelect.forEach((element, index) => {
             element.addEventListener("click", () => {
                 imgProdukSelect.forEach(e => e.classList.remove("selected"));
@@ -581,6 +583,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     if (getImageIndexForVariantIndex(vIndex) === index) variantIndex = vIndex;
                 });
                 selectVariantByIndex(variantIndex, false);
+                setGallerySelection(index);
 
                 if (window.innerWidth <= 600) {
                     //scroll
@@ -588,24 +591,24 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         imgProdukBesar.scrollLeft / imgProdukBesar.clientWidth
                     );
                     let direction = index - position;
-                    console.log("position: " + position)
-                    console.log("scrollLeft: " + imgProdukBesar.scrollLeft)
-                    console.log("clientWidth: " + imgProdukBesar.clientWidth)
-                    console.log("direction: " + direction)
+
+
+
+
                     const scrollAmount = imgProdukBesar.clientWidth * direction;
                     imgProdukBesar.scrollBy({
                         left: scrollAmount,
-                        behavior: "smooth",
+                        behavior: galleryMotion(),
                     });
                 } else {
                     const targetPosition = imgProdukPrev[index].clientWidth * index;
-                    console.log(imgProdukPrev[index].le)
-                    console.log("target position: " + targetPosition)
+
+
                     imgProdukBesar.scrollTo({
                         left: targetPosition,
-                        behavior: "smooth",
+                        behavior: galleryMotion(),
                     });
-                    console.log("scrollLeft after set: " + imgProdukBesar.scrollLeft)
+
                 }
             })
         });
@@ -643,6 +646,14 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
             }
         });
     }
+    imgProdukSelect.forEach(thumbnail => thumbnail.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); thumbnail.click(); }
+    }));
+    const purchaseBar = document.querySelector('.product-mobile-purchase-bar');
+    const measurePurchaseBar = () => document.documentElement.style.setProperty('--product-purchase-bar-height', (purchaseBar?.getBoundingClientRect().height || 0) + 'px');
+    if (purchaseBar && typeof ResizeObserver !== 'undefined') new ResizeObserver(measurePurchaseBar).observe(purchaseBar);
+    window.addEventListener('resize', measurePurchaseBar);
+    measurePurchaseBar();
     selectVariantByIndex(0, false);
 </script>
 <?= $this->endSection(); ?>

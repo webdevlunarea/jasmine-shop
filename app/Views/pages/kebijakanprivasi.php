@@ -135,36 +135,20 @@
             untuk terus berbenah dan mendapatkan versi terbaik dari produk,
             pelayanan, hingga pengalaman yang Kami berikan kepada pelanggan.
         </p>
-        <table>
-            <tbody>
-                <tr>
-                    <td>
-                        <p class="mb-0">Email</p>
-                    </td>
-                    <td>
-                        <p class="mb-0">
-                            : cs@lunareafurniture.com
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="mb-0">WhatsApp CS</p>
-                    </td>
-                    <td>
-                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan....." style="color: var(--hijau);">Chat Customer Service</a></p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="mb-0">WhatsApp Retur / Komplain</p>
-                    </td>
-                    <td>
-                        <p class="mb-0">: <a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." style="color: var(--hijau);">Ajukan Retur / Komplain</a></p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <dl class="policy-contact-list">
+            <div>
+                <dt>Email</dt>
+                <dd><a href="mailto:cs@lunareafurniture.com">cs@lunareafurniture.com</a></dd>
+            </div>
+            <div>
+                <dt>WhatsApp CS</dt>
+                <dd><a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Halo%20CS%20*Lunarea*%2C%20saya%20butuh%20bantuan....." style="color: var(--hijau);">Chat Customer Service</a></dd>
+            </div>
+            <div>
+                <dt>WhatsApp Retur / Komplain</dt>
+                <dd><a href="https://api.whatsapp.com/send?phone=<?= LUNAREA_RETURN_WHATSAPP_E164; ?>&text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." style="color: var(--hijau);">Ajukan Retur / Komplain</a></dd>
+            </div>
+        </dl>
         <h2 class="jdl-section mt-5">Produk & Layanan Kami</h2>
         <p>
             Lunarea Furniture menyediakan berbagai macam furniture mulai

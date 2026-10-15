@@ -44,6 +44,12 @@ final class BuyerHelpViewTest extends CIUnitTestCase
         } else {
             $this->assertGreaterThan(5, $xp->query('//article//p')->length);
             $this->assertGreaterThan(5, $xp->query('//article//h2')->length);
+            if ($page === 'kebijakanprivasi') {
+                $this->assertSame(3, $xp->query('//dl[@class="policy-contact-list"]/div/dt')->length);
+                $this->assertSame(3, $xp->query('//dl[@class="policy-contact-list"]/div/dd/a')->length);
+                $this->assertSame(1, $xp->query('//dl//a[@href="mailto:cs@lunareafurniture.com"]')->length);
+                $this->assertSame(2, $xp->query('//dl//a[contains(@href,"api.whatsapp.com/send?phone=")]')->length);
+            }
             if ($page === 'syaratdanketentuan') { $this->assertSame(1, $xp->query('//*[@id="voucher"]')->length); $this->assertStringContainsString('Ketentuan voucher contoh tetap tersedia.', $html); }
         }
         if (getenv('BUYER_HELP_ARTIFACTS') !== '1') return;

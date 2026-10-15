@@ -274,6 +274,7 @@ function closeModalVoucherAll(index) {
 }
 </script>
 <div class="konten pb-0">
+    <h1 class="visually-hidden">Lunarea Furniture</h1>
     <div class="container home-hero-container">
         <?= view('partials/home_carousel', ['banner' => $banner ?? []], ['saveData' => false]); ?>
     </div>
@@ -396,129 +397,9 @@ function closeModalVoucherAll(index) {
             </div>
         </div>
     </div>
-    <?php if (!empty($flashSaleProducts)) { ?>
-    <section class="container my-4 flash-sale-section" aria-labelledby="flash-sale-title">
-        <div class="flash-sale-shell">
-            <div class="flash-sale-head">
-                <div class="flash-sale-title-wrap">
-                    <span class="flash-sale-kicker"><i class="material-icons" aria-hidden="true">bolt</i> <?= esc($flashSaleSettings['kicker'] ?? 'Promo kilat'); ?></span>
-                    <h2 id="flash-sale-title" class="flash-sale-title"><?= esc($flashSaleSettings['title'] ?? 'Flash Sale Lunarea'); ?></h2>
-                    <p><?= esc($flashSaleSettings['subtitle'] ?? 'Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.'); ?></p>
-                </div>
-                <div class="flash-sale-action">
-                    <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" aria-live="polite">
-                        <span class="flash-countdown-label">Berakhir dalam</span>
-                        <div class="flash-countdown-time" aria-label="Hitung mundur flash sale">
-                            <span data-unit="hours">00</span><b>:</b><span data-unit="minutes">00</span><b>:</b><span data-unit="seconds">00</span>
-                        </div>
-                    </div>
-                    <a href="/all" class="flash-sale-see-all">Lihat Semua <i class="material-icons" aria-hidden="true">chevron_right</i></a>
-                </div>
-            </div>
-            <div class="flash-sale-products-wrap">
-                <button class="flash-sale-nav flash-sale-nav--prev" type="button" aria-label="Geser flash sale ke kiri" data-flash-prev>
-                    <i class="material-icons" aria-hidden="true">chevron_left</i>
-                </button>
-                <div class="flash-sale-products" data-flash-products>
-                    <?php foreach ($flashSaleProducts as $p) {
-                        $discount = max(0, (int)($p['diskon'] ?? 0));
-                        $price = (float)($p['harga'] ?? 0);
-                        $salePrice = round(((100 - $discount) / 100) * $price);
-                        $stockRaw = (string)($p['stok'] ?? '0');
-                        $stockParts = array_filter(array_map('trim', explode(',', $stockRaw)), static fn($v) => $v !== '');
-                        $totalStock = 0;
-                        foreach ($stockParts as $stockValue) {
-                            $totalStock += max(0, (int)$stockValue);
-                        }
-                        $soldDisplay = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? (int)$p['terjual_custom'] : (int)($p['terjual'] ?? 0);
-                        $progress = $soldDisplay > 0 ? min(88, max(12, round(($soldDisplay / max(1, $soldDisplay + $totalStock)) * 100))) : ($totalStock <= 5 ? 18 : 35);
-                        $stockText = $totalStock <= 0 ? 'Hampir habis' : ($totalStock <= 5 ? 'Stok Terbatas' : 'Cepat Habis');
-                    ?>
-                    <a class="flash-sale-card" href="/product/<?= esc($p['path']); ?>" aria-label="<?= esc($p['nama']); ?> diskon <?= $discount; ?> persen">
-                        <div class="flash-sale-image">
-                            <span class="flash-sale-badge">-<?= $discount; ?>%</span>
-                            <img class="flash-sale-watermark" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                            <img src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy">
-                        </div>
-                        <div class="flash-sale-info">
-                            <h3><?= esc($p['nama']); ?></h3>
-                            <div class="flash-sale-price">
-                                <span>Rp <?= number_format($salePrice, 0, ",", "."); ?></span>
-                                <del>Rp <?= number_format($price, 0, ",", "."); ?></del>
-                            </div>
-                            <div class="flash-sale-stock" aria-label="<?= esc($stockText); ?>">
-                                <span><?= esc($stockText); ?></span>
-                                <div class="flash-sale-stock-bar"><i style="width: <?= $progress; ?>%"></i></div>
-                            </div>
-                        </div>
-                    </a>
-                    <?php } ?>
-                </div>
-                <button class="flash-sale-nav flash-sale-nav--next" type="button" aria-label="Geser flash sale ke kanan" data-flash-next>
-                    <i class="material-icons" aria-hidden="true">chevron_right</i>
-                </button>
-            </div>
-        </div>
-    </section>
-    <?php } ?>
-    <div class="container my-3">
-        <?php
-        $window_width = "<script type='text/javascript'>document.write(window.innerWidth);</script>";
-        ?>
-        <h5 class="jdl-section">Rekomendasi</h5>
-        <h1 class="mb-1">Produk Terpopuler</h1>
-        <div class="card-group1 no-scroll">
-            <?php foreach ($produkBaru as $p) {
-                $variants = json_decode($p['varian'] ?? '[]', true);
-                $variants = is_array($variants) ? $variants : [];
-            ?>
-            <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
-                <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
-                    <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
-                    <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>"
-                        alt="<?= $p['nama']; ?>">
-                    <?php
-                    $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
-                    if ($terjualTampil > 0) {
-                    ?>
-                    <span class="terjual-badge">
-                        <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
-                    </span>
-                    <?php } ?>
-                </div>
-                <div class="product-card-body">
-                    <div class="product-card-heading">
-                        <h5 class="mb-0" title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h5>
-                        <?= view('partials/product_card_variants', ['cardVariants' => $variants], ['saveData' => false]); ?>
-                    </div>
-                    <div class="product-card-pricing">
-                        <?php if ($p['diskon']) { ?>
-                        <div class="product-card-price-meta">
-                            <p class="mb-0 diskon-coret"
-                                style="text-decoration: line-through; color: grey; width:fit-content;">
-                                Rp
-                                <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                            <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
-                        </div>
-                        <p class="mb-0 harga">Rp
-                            <?php
-                                    $persen = (100 - $p['diskon']) / 100;
-                                    $hasil = $persen * $p['harga'];
-                                    echo number_format($hasil, 0, ",", ".");
-                                    ?></p>
-                        <?php } else { ?>
-                        <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                        <?php } ?>
-                    </div>
-                    <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
-                </div>
-            </a>
-            <?php } ?>
-        </div>
-        <div class="mx-auto mt-2" style="width: fit-content;">
-            <a href="/all" class="btn mx-auto btn-primary1" style="width: fit-content;">Lihat Semua Produk</a>
-        </div>
-    </div>
+    <?= view('partials/home_flash_sale', ['flashSaleProducts' => $flashSaleProducts ?? [], 'flashSaleSettings' => $flashSaleSettings ?? [], 'flashSaleEnd' => $flashSaleEnd ?? null], ['saveData' => false]); ?>
+    <?= view('partials/home_product_section', ['sectionId' => 'home-popular-products', 'sectionTitle' => 'Produk Terpopuler', 'sectionProducts' => $produkPopuler ?? []], ['saveData' => false]); ?>
+    <?= view('partials/home_product_section', ['sectionId' => 'home-latest-products', 'sectionTitle' => 'Produk Terbaru', 'sectionProducts' => $produkTerbaru ?? []], ['saveData' => false]); ?>
     <?= $this->include('partials/home_benefits'); ?>
 </div>
 <script>
@@ -678,9 +559,17 @@ document.querySelectorAll('.flash-sale-products-wrap').forEach((wrap) => {
         const amount = Math.max(260, Math.floor(scroller.clientWidth * 0.8));
         scroller.scrollBy({
             left: direction * amount,
-            behavior: 'smooth'
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
         });
     };
+
+    const updateFlashNavigation = () => {
+        if (prev) prev.disabled = scroller.scrollLeft <= 1;
+        if (next) next.disabled = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
+    };
+    scroller.addEventListener('scroll', updateFlashNavigation, { passive: true });
+    window.addEventListener('resize', updateFlashNavigation);
+    updateFlashNavigation();
 
     prev?.addEventListener('click', () => move(-1));
     next?.addEventListener('click', () => move(1));

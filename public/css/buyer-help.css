@@ -77,3 +77,13 @@
 }
 @media (max-width: 399.98px) { .buyer-layout .tracking-order-card { grid-template-columns: minmax(0,1fr); } }
 @media (prefers-reduced-motion: reduce) { .buyer-layout .buyer-help-page .collapsing { transition: none; } }
+
+/* Contact labels are not numbered table cells; never constrain them to 40px. */
+.buyer-layout .policy-contact-list { margin: 20px 0 0; }
+.buyer-layout .policy-contact-list > div { display: grid; grid-template-columns: minmax(0,220px) minmax(0,1fr); gap: 16px; align-items: baseline; padding-block: 10px; border-bottom: 1px solid var(--theme-soft-2); }
+.buyer-layout .policy-contact-list :is(dt,dd) { min-width: 0; margin: 0; font-size: .875rem; line-height: 1.7; overflow-wrap: anywhere; }
+.buyer-layout .policy-contact-list dt { font-weight: 500; color: #626262; }
+.buyer-layout .policy-contact-list a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; overflow-wrap: anywhere; }
+@media (max-width: 575.98px) {
+    .buyer-layout .policy-contact-list > div { grid-template-columns: minmax(0,1fr); gap: 0; padding-block: 12px; }
+}

@@ -10,7 +10,7 @@ final class StorefrontCatalogViewTest extends CIUnitTestCase
         if (!is_dir($directory)) mkdir($directory, 0775, true);
         $html = '';
         foreach (['home', 'all', 'product', 'wishlist', 'artikel'] as $page) {
-            $source = file_get_contents(APPPATH . 'Views/pages/' . $page . '.php');
+            $source = file_get_contents(APPPATH . ($page === 'home' ? 'Views/partials/home_product_section.php' : 'Views/pages/' . $page . '.php'));
             preg_match('~<a class="card1 store-product-card".*?</a>~s', $source, $match);
             $this->assertNotEmpty($match, $page);
             // Render the actual card fragment, not a rewritten copy of its business logic.

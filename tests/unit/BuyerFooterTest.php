@@ -54,9 +54,35 @@ final class BuyerFooterTest extends CIUnitTestCase
         $this->assertStringNotContainsString('Periksa rincian pesanan', $auth);
         $full = view('layout/buyer_footer', ['footerVariant' => 'full'], ['saveData' => false]);
         $this->assertStringContainsString('Metode pembayaran', $full);
-        $this->assertStringContainsString('Our Brand', $full);
+        $this->assertStringContainsString('Brand kami', $full);
         $fallback = view('layout/buyer_footer', ['footerVariant' => '<invalid>'], ['saveData' => false]);
         $this->assertSame(preg_replace('/<!--.*?-->/s', '', $full), preg_replace('/<!--.*?-->/s', '', $fallback));
+    }
+
+    public function testFullFooterKeepsContactPaymentAndStoreLinksWithoutVisiblePhoneNumbers(): void
+    {
+        $wasLoggedIn = session()->get('isLogin');
+        try {
+            foreach ([false, true] as $loggedIn) {
+                session()->set('isLogin', $loggedIn);
+                $html = view('layout/buyer_footer', ['footerVariant' => 'full'], ['saveData' => false]);
+                $dom = new DOMDocument(); @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); $xp = new DOMXPath($dom);
+                $this->assertSame(1, $xp->query('//footer[contains(@class,"buyer-footer--full")]')->length);
+                foreach (['/about','/faq','/lacak-pengiriman','/contact','/kebijakan-privasi','/syarat-dan-ketentuan',$loggedIn?'/account':'/login'] as $href) $this->assertSame(1, $xp->query('//footer//a[@href="' . $href . '"]')->length);
+                $this->assertSame(6, $xp->query('//nav[@aria-label="Media sosial Lunarea"]/a[@aria-label]')->length);
+                $this->assertSame(8, $xp->query('//div[@class="buyer-footer__payment-logos"]/img[@alt and @loading="lazy"]')->length);
+                $this->assertSame(3, $xp->query('//nav[@aria-label="Marketplace Lunarea"]/a/img[@alt]')->length);
+                $this->assertSame(0, $xp->query('//footer//img[not(@alt)]')->length);
+                $this->assertSame(0, $xp->query('//footer//*[@style]')->length);
+                $this->assertSame(0, $xp->query('//footer//a[@target="_blank" and not(@rel="noopener noreferrer")]')->length);
+                foreach ([LUNAREA_CS_WHATSAPP_E164,LUNAREA_RETURN_WHATSAPP_E164] as $phone) {
+                    $this->assertStringContainsString('phone=' . $phone, $html);
+                    $this->assertStringNotContainsString($phone, strip_tags($html));
+                }
+                $this->assertStringContainsString('08.00 - 16.00 WIB', $html);
+                $this->assertStringContainsString('08.00 - 14.00 WIB', $html);
+            }
+        } finally { if ($wasLoggedIn === null) session()->remove('isLogin'); else session()->set('isLogin', $wasLoggedIn); }
     }
 
     public function testTemplateOnlyRendersBuyerFooterOutsideAdminLayout(): void
