@@ -9,7 +9,37 @@
     const toggle = document.getElementById('buyer-account-toggle');
     const menu = document.getElementById('buyer-account-menu');
     const root = document.documentElement;
+    const searchToggle = document.getElementById('buyer-search-toggle');
+    const searchPanel = document.getElementById('buyer-mobile-search');
+    const searchInput = searchPanel?.querySelector('.search-input');
     let returnFocus = null;
+    let lastScrollY = window.scrollY;
+    let downwardScroll = 0;
+
+    function closeSearch(restoreFocus = false) {
+        if (!searchPanel || searchPanel.hidden) return;
+        if (searchPanel.contains(document.activeElement)) document.activeElement.blur();
+        searchPanel.hidden = true;
+        searchToggle?.setAttribute('aria-expanded', 'false');
+        searchToggle?.setAttribute('aria-label', 'Buka pencarian');
+        syncHeader();
+        downwardScroll = 0;
+        lastScrollY = window.scrollY;
+        if (restoreFocus) searchToggle?.focus({ preventScroll: true });
+    }
+
+    function openSearch() {
+        if (!searchPanel || !mobile.matches) return;
+        closeMenu(false);
+        window.dispatchEvent(new Event('buyer-navigation-open'));
+        searchPanel.hidden = false;
+        searchToggle?.setAttribute('aria-expanded', 'true');
+        searchToggle?.setAttribute('aria-label', 'Tutup pencarian');
+        syncHeader();
+        downwardScroll = 0;
+        lastScrollY = window.scrollY;
+        searchInput?.focus({ preventScroll: true });
+    }
 
     function syncAccountTabs() {
         const tabs = document.querySelector('.account-mobile-tabs');
@@ -45,6 +75,7 @@
 
     function openMenu() {
         if (!menu || !mobile.matches) return;
+        closeSearch();
         returnFocus = document.activeElement;
         window.dispatchEvent(new Event('buyer-navigation-open'));
         menu.hidden = false;
@@ -54,11 +85,27 @@
     }
 
     toggle?.addEventListener('click', () => menu?.hidden ? openMenu() : closeMenu());
+    searchToggle?.addEventListener('click', () => searchPanel?.hidden ? openSearch() : closeSearch(true));
+    document.addEventListener('click', event => {
+        if (searchPanel && !searchPanel.hidden && !header.contains(event.target)) closeSearch();
+    });
+    window.addEventListener('scroll', () => {
+        const current = Math.max(0, window.scrollY);
+        const delta = current - lastScrollY;
+        lastScrollY = current;
+        if (!mobile.matches || !searchPanel || searchPanel.hidden) return;
+        downwardScroll = delta > 0 ? downwardScroll + delta : 0;
+        if (downwardScroll > 24) closeSearch();
+    }, { passive: true });
     menu?.addEventListener('click', event => {
         if (event.target === menu || event.target.closest('[data-buyer-menu-close]')) closeMenu();
         else if (event.target.closest('a[href]')) closeMenu(false);
     });
     document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && searchPanel && !searchPanel.hidden) {
+            event.preventDefault();
+            closeSearch(true);
+        }
         if (!menu || menu.hidden) return;
         if (event.key === 'Escape') { event.preventDefault(); closeMenu(); return; }
         if (event.key !== 'Tab') return;
@@ -68,8 +115,8 @@
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
     });
-    mobile.addEventListener('change', () => { closeMenu(false); syncHeader(); });
-    window.addEventListener('pageshow', () => { closeMenu(false); syncHeader(); });
+    mobile.addEventListener('change', () => { closeMenu(false); closeSearch(); syncHeader(); });
+    window.addEventListener('pageshow', () => { closeMenu(false); closeSearch(); syncHeader(); });
     window.addEventListener('resize', syncHeader, { passive: true });
     if ('ResizeObserver' in window) {
         const observer = new ResizeObserver(syncHeader);

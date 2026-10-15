@@ -123,6 +123,9 @@ if ($isAdminNav) {
             <span class="mobile-navbar-wordmark">Lunarea</span>
         </a>
         <div class="mobile-navbar-actions">
+            <button type="button" id="buyer-search-toggle" class="btn" aria-label="Buka pencarian" aria-controls="buyer-mobile-search" aria-expanded="false">
+                <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+            </button>
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
                     <a href="/wishlist" class="btn position-relative" aria-label="Wishlist">
@@ -167,7 +170,7 @@ if ($isAdminNav) {
             <?php } ?>
         </div>
     </div>
-    <div class="container mobile-search-container">
+    <div class="container mobile-search-container" id="buyer-mobile-search" hidden>
         <form class="d-flex w-100 search-box" role="search">
             <div class="input-group">
                 <input required type="text" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk">

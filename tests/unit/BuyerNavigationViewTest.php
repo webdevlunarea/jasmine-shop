@@ -23,6 +23,8 @@ final class BuyerNavigationViewTest extends CIUnitTestCase
         } else {
             $this->assertStringContainsString('buyer-mobile-header', $html);
             $this->assertStringContainsString('mobile-navbar-spacer', $html);
+            $this->assertStringContainsString('aria-controls="buyer-mobile-search" aria-expanded="false"', $html);
+            $this->assertStringContainsString('id="buyer-mobile-search" hidden', $html);
             $this->assertStringContainsString('<span class="mobile-navbar-wordmark">Lunarea</span>', $html);
             $this->assertStringNotContainsString('<img class="mobile-navbar-brand-', $html);
             $this->assertStringNotContainsString('id="akun-icon"', $html);

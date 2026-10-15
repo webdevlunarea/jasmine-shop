@@ -242,6 +242,20 @@ $presets = [
             'sidebar' => '#3A211B',
         ],
     ],
+    [
+        'name' => 'Lunarea Sand',
+        'desc' => 'Olive arang, beige pasir, dan putih bersih yang hangat serta elegan.',
+        'colors' => [
+            'primary' => '#2F2D20',
+            'primaryHover' => '#232217',
+            'soft' => '#F7F2ED',
+            'soft1' => '#EFE5DC',
+            'soft2' => '#DFCBB9',
+            'accent' => '#C7A78A',
+            'background' => '#FEFEFF',
+            'sidebar' => '#2F2D20',
+        ],
+    ],
 ];
 
 $fields = [
