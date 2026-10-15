@@ -127,6 +127,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/home-carousel.css?v=<?= filemtime(FCPATH . 'css/home-carousel.css'); ?>">
     <link rel="stylesheet" href="/css/storefront-catalog.css?v=<?= filemtime(FCPATH . 'css/storefront-catalog.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
+    <link rel="stylesheet" href="/css/buyer-footer.css?v=<?= filemtime(FCPATH . 'css/buyer-footer.css'); ?>">
     <script defer src="/js/buyer-navigation.js?v=<?= filemtime(FCPATH . 'js/buyer-navigation.js'); ?>"></script>
     <style id="global-theme-tone">
     :root,
@@ -278,7 +279,8 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 
     <?= $this->renderSection('content'); ?>
     <?php if (!$isAdminLayout) { ?>
-        <?= $this->include('layout/footer'); ?>
+        <?php $buyerFooter = \App\Libraries\BuyerFooter::resolve(service('uri')->getPath(), (string) parse_url(base_url(), PHP_URL_PATH)); ?>
+        <?= view('layout/buyer_footer', ['footerVariant' => $buyerFooter['variant'], 'footerPayment' => $buyerFooter['payment']], ['saveData' => false]); ?>
     <?php } ?>
     <?php if (isset($geser_container_melayang)) { ?>
     <div class="hide-ke-show-block" style="height: 53px; width: 100vw"></div>

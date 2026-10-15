@@ -1,0 +1,23 @@
+/* Scoped footer variants: regular document flow, never fixed over customer content. */
+.buyer-footer { position: static; clear: both; width: 100%; margin-top: 32px; padding-block: 24px; border-top: 1px solid var(--theme-soft-2); background: var(--theme-soft); color: var(--theme-primary-hover); }
+.buyer-footer p { margin: 0; overflow-wrap: anywhere; }
+.buyer-footer__top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 20px; }
+.buyer-footer__identity { min-width: 0; font-size: .8125rem; line-height: 1.7; }
+.buyer-footer .buyer-footer__brand { margin-bottom: 4px; font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 1.125rem; color: var(--theme-primary); }
+.buyer-footer__help, .buyer-footer__legal { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; min-width: 0; }
+.buyer-footer a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; padding-block: 8px; color: var(--theme-primary); font-size: .8125rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+.buyer-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.buyer-footer a:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; border-radius: 2px; }
+.buyer-footer__bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; }
+.buyer-footer--compact .buyer-footer__bottom { padding-top: 12px; border-top: 1px solid var(--theme-soft-2); }
+.buyer-footer .buyer-footer__copyright { font-size: .75rem; line-height: 1.7; }
+.buyer-footer--minimal { padding-block: 16px; background: var(--theme-background); }
+.buyer-footer .buyer-footer__payment-note { margin-bottom: 8px; font-size: .8125rem; line-height: 1.7; }
+@media (max-width: 767.98px) {
+    .buyer-footer { margin-top: 24px; padding-block: 20px; }
+    .buyer-footer__top, .buyer-footer__bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .buyer-footer__top { padding-bottom: 12px; }
+    .buyer-footer__help, .buyer-footer__legal { gap: 4px 16px; }
+    .buyer-footer--minimal { padding-block: 12px; }
+}
+@media print { .buyer-footer { display: none !important; } }

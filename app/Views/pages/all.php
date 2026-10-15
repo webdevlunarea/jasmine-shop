@@ -180,36 +180,6 @@
                     <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                     <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['gambar']); ?>"
                         alt="<?= $p['nama']; ?>">
-                </div>
-                <div class="product-card-body">
-                    <h5 class="mb-0"><?= $p['nama']; ?></h5>
-                    <div class="container-varian my-2 pb-1">
-                        <div>
-                            <?php foreach ($variants as $v) { ?>
-                            <p class="mb-0 varian"><?= $v ?></p>
-                            <?php } ?>
-                        </div>
-                    </div>
-                    <?php if ($p['diskon']) { ?>
-                    <div class="product-card-price-meta">
-                        <p class="mb-0 diskon-coret"
-                            style="text-decoration: line-through; color: grey; width:fit-content;">
-                            Rp
-                            <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                        <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
-                    </div>
-                    <p class="mb-0 harga">Rp
-                        <?php
-                                    $persen = (100 - $p['diskon']) / 100;
-                                    $hasil = $persen * $p['harga'];
-                                    echo number_format($hasil, 0, ",", ".");
-                                    ?></p>
-                    <?php } else { ?>
-                    <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                    <?php } ?>
-
-                    <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
-
                     <?php
                     $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
                     if ($terjualTampil > 0) {
@@ -218,7 +188,39 @@
                         <?= $terjualTampil >= 1000 ? number_format($terjualTampil/1000, 1, ",", ".") . 'rb+' : $terjualTampil; ?> Terjual
                     </span>
                     <?php } ?>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-heading">
+                        <h5 class="mb-0"><?= $p['nama']; ?></h5>
+                        <div class="container-varian my-2 pb-1">
+                            <div>
+                                <?php foreach ($variants as $v) { ?>
+                                <p class="mb-0 varian"><?= $v ?></p>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </div>
+                    <div class="product-card-pricing">
+                        <?php if ($p['diskon']) { ?>
+                        <div class="product-card-price-meta">
+                            <p class="mb-0 diskon-coret"
+                                style="text-decoration: line-through; color: grey; width:fit-content;">
+                                Rp
+                                <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                            <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
+                        </div>
+                        <p class="mb-0 harga">Rp
+                            <?php
+                                        $persen = (100 - $p['diskon']) / 100;
+                                        $hasil = $persen * $p['harga'];
+                                        echo number_format($hasil, 0, ",", ".");
+                                        ?></p>
+                        <?php } else { ?>
+                        <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
+                        <?php } ?>
+                    </div>
+                    <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
+                </div>
             </a>
             <?php } ?>
         </div>
