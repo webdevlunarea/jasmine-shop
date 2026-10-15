@@ -33,6 +33,7 @@ use App\Models\ShippingInternalCoverageModel;
 use App\Models\ShippingMethodModel;
 use App\Models\ShippingQuoteModel;
 use App\Services\Shipping\ShippingService;
+use App\Services\Payments\PaymentSafety;
 use DOMDocument;
 use Exception;
 use WebSocket\Client;
@@ -736,11 +737,17 @@ class Pages extends BaseController
 
     private function isSandboxOrder(array $order): bool
     {
-        return in_array((string)($order['email_cus'] ?? ''), $this->emailUjiCoba, true);
+        return PaymentSafety::environment($order, $this->emailUjiCoba, 'email_cus') === 'sandbox';
+    }
+
+    private function paymentServerKey(bool $sandbox): string
+    {
+        return $sandbox ? (string)env('MIDTRANS_SANDBOX_KEY', 'SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh') : (string)env('MIDTRANS_PRODUCTION_KEY', '');
     }
 
     private function syncOrderToLunaSistem(array $order): bool
     {
+        if ($this->isSandboxOrder($order)) return false;
         $enabled = strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) === 'true';
         if (!$enabled) {
             log_message('info', 'Sinkron order ke Luna Sistem nonaktif. Order {order} tidak dikirim.', [
@@ -785,6 +792,8 @@ class Pages extends BaseController
 
         $payload = [
             'order_id' => (string)($order['id_midtrans'] ?? ''),
+            'payment_environment' => $this->isSandboxOrder($order) ? 'sandbox' : 'production',
+            'is_test' => $this->isSandboxOrder($order),
             'status' => (string)($order['status'] ?? ''),
             'customer_id' => (string)($order['email_cus'] ?? ''),
             'customer_email' => (string)($order['email_cus'] ?? ''),
@@ -4275,7 +4284,9 @@ class Pages extends BaseController
             }
         }
 
-        $email = $this->request->getVar('emailPem') ? $this->request->getVar('emailPem') : session()->get('email');
+        $sessionEmail = (string)session()->get('email');
+        $email = PaymentSafety::normalizeEmail($sessionEmail === 'tamu' ? (string)$this->request->getVar('emailPem') : $sessionEmail);
+        $isSandboxCheckout = session()->get('isLogin') && $sessionEmail !== 'tamu' && PaymentSafety::isTestEmail($sessionEmail, $this->emailUjiCoba);
         $nama = $this->request->getVar('nama') ? $this->request->getVar('nama') : session()->get('nama');
         $nohp = $this->request->getVar('nohp') ? $this->request->getVar('nohp') : session()->get('nohp');
         $prov = $this->request->getVar('provinsi');
@@ -4425,7 +4436,7 @@ class Pages extends BaseController
         }
 
         //point
-        $pointSummary = $this->syncLunaPointExpiry($email, session()->get('poin'));
+        $pointSummary = $this->syncLunaPointExpiry($email, session()->get('poin'), !$isSandboxCheckout);
         $poinSession = $pointSummary['points'];
         $usepoin = session()->get('usepoin');
         $poin = (int)$pointSummary['active_balance'];
@@ -4442,6 +4453,7 @@ class Pages extends BaseController
                 'name' => 'Luna Point',
             ]);
 
+            if (!$isSandboxCheckout) {
             //update poin di pembeli
             $poinCounter = 0;
             $poinArrIndexTerpakai = [];
@@ -4471,6 +4483,7 @@ class Pages extends BaseController
 
             //update poin di session
             session()->set('poin', $poinSession);
+            }
         }
 
         // penambahan jika ada kaca
@@ -4512,11 +4525,7 @@ class Pages extends BaseController
             ]);
         }
 
-        $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
-        if (in_array($email, $this->emailUjiCoba))
-            $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
-        else
-            $auth = base64_encode($midtrans_production_key . ":");
+        $auth = base64_encode($this->paymentServerKey($isSandboxCheckout) . ':');
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = "L" . rand();
@@ -4572,7 +4581,7 @@ class Pages extends BaseController
 
         $arrPostField = [
             "transaction_details" => [
-                "order_id" => in_array($email, $this->emailUjiCoba) ? $randomId : $idFix,
+                "order_id" => $isSandboxCheckout ? $randomId : $idFix,
                 "gross_amount" => (int)$gross_amount,
             ],
             'customer_details' => array(
@@ -4713,7 +4722,7 @@ class Pages extends BaseController
         } else {
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => in_array($email, $this->emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
+                CURLOPT_URL => $isSandboxCheckout ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_RETURNTRANSFER => true,
@@ -4779,6 +4788,8 @@ class Pages extends BaseController
                 $status = "No Status";
                 break;
         }
+        $hasilMidtrans['_app_payment_environment'] = $isSandboxCheckout ? 'sandbox' : 'production';
+        $hasilMidtrans['_app_payment_effects_applied'] = false;
         $insertDataPemesanan = [
             'email_cus' => $email,
             'nama_pen' => $nama,
@@ -4823,7 +4834,7 @@ class Pages extends BaseController
             $this->shippingQuoteModel->markUsed($shippingQuoteToken);
         }
 
-        if ($insertDataPemesanan['idVoucher'] > 0) {
+        if (!$isSandboxCheckout && $insertDataPemesanan['idVoucher'] > 0) {
             $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
             session()->remove('voucher');
         }
@@ -4833,6 +4844,7 @@ class Pages extends BaseController
         $cekMember = $this->pembeliModel->getPembeli($email);
         if ($cekMember) $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
 
+        if (!$isSandboxCheckout) {
         //pengurangan stok produk
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $arrPostField['transaction_details']['order_id'])->first();
         if ($dataTransaksiFulDariDatabase && $status === 'Proses') {
@@ -4855,6 +4867,7 @@ class Pages extends BaseController
                 ])->update();
             }
         }
+        }
         $this->broadcastOrderUpdate();
         return redirect()->to('/order/' . $arrPostField['transaction_details']['order_id']);
     }
@@ -4868,6 +4881,15 @@ class Pages extends BaseController
     public function cancelOrder($order_id)
     {
         $pemesanan = $this->pemesananModel->getPemesanan($order_id);
+        if (!$pemesanan) return redirect()->to('/transaction');
+        if ($this->isSandboxOrder($pemesanan) && $pemesanan['status'] === 'Menunggu Pembayaran Rekening') {
+            $mid = json_decode($pemesanan['data_mid'], true) ?: [];
+            $mid['transaction_status'] = 'cancel';
+            $mid['_app_payment_environment'] = 'sandbox';
+            PaymentSafety::claim(\Config\Database::connect(), $order_id, 'Menunggu Pembayaran Rekening', 'Dibatalkan', $mid);
+            $this->broadcastOrderUpdate($order_id);
+            return redirect()->to('/order/' . $order_id);
+        }
         if ($pemesanan['status'] == 'Menunggu Pembayaran Rekening') {
             $dataMid_curr = json_decode($pemesanan['data_mid'], true);
             $dataMid_curr['transaction_status'] = 'cancel';
@@ -4937,16 +4959,12 @@ class Pages extends BaseController
             $this->broadcastOrderUpdate();
             return redirect()->to('/order/' . $order_id);
         }
-        $midtrans_production_key = env('MIDTRANS_PRODUCTION_KEY', 'DefaultValue');
-        if (in_array($pemesanan['email_cus'], $this->emailUjiCoba))
-            $auth = base64_encode("SB-Mid-server-3M67g25LgovNPlwdS4WfiMsh" . ":");
-        else
-            $auth = base64_encode($midtrans_production_key . ":");
+        $auth = base64_encode($this->paymentServerKey($this->isSandboxOrder($pemesanan)) . ':');
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_URL => $this->isSandboxOrder($pemesanan) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -5703,76 +5721,58 @@ class Pages extends BaseController
     }
     public function updateTransaction()
     {
-        $arr = [
-            'success' => true,
-        ];
-        $bodyJson = $this->request->getBody();
-        $body = json_decode($bodyJson, true);
+        $body = json_decode($this->request->getBody(), true);
+        if (!is_array($body) || !isset($body['order_id']) || !is_string($body['order_id'])) {
+            return $this->response->setStatusCode(400)->setJSON(['success'=>false, 'message'=>'Invalid notification']);
+        }
         $order_id = $body['order_id'];
-        $fraud = $body['fraud_status'];
-        if (isset($body['custom_field1'])) {
-            $customField = json_decode($body['custom_field1'] . (isset($body['custom_field2']) ? $body['custom_field2'] : '') . (isset($body['custom_field3']) ? $body['custom_field3'] : ''), true);
+        if (str_starts_with(strtoupper($order_id), 'I')) {
+            // Shared notification ingress: verification remains mandatory at the receiving shop.
+            $curl = curl_init('https://ilenafurniture.com/updatetransaction');
+            curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_CUSTOMREQUEST=>'POST',
+                CURLOPT_POSTFIELDS=>json_encode($body), CURLOPT_HTTPHEADER=>['Content-Type: application/json'],
+                CURLOPT_TIMEOUT=>20, CURLOPT_SSL_VERIFYHOST=>2, CURLOPT_SSL_VERIFYPEER=>true]);
+            $result = curl_exec($curl);
+            $code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $error = curl_error($curl);
+            curl_close($curl);
+            return $this->response->setStatusCode(!$error && $code >= 200 && $code < 300 ? 200 : 502)
+                ->setJSON(['success'=>!$error && $code >= 200 && $code < 300]);
         }
-        if ($fraud == "accept") {
-            switch ($body['transaction_status']) {
-                case 'settlement':
-                    $status = "Proses";
-                    break;
-                case 'capture':
-                    $status = "Proses";
-                    break;
-                case 'pending':
-                    $status = "Menunggu Pembayaran";
-                    break;
-                case 'expire':
-                    $status = "Kadaluarsa";
-                    break;
-                case 'deny':
-                    $status = "Ditolak";
-                    break;
-                case 'failure':
-                    $status = "Gagal";
-                    break;
-                case 'refund':
-                    $status = "Refund";
-                    break;
-                case 'partial_refund':
-                    $status = "Partial Refund";
-                    break;
-                case 'cancel':
-                    $status = "Dibatalkan";
-                    break;
-                default:
-                    $status = "No Status";
-                    break;
+        $order = $this->pemesananModel->getPemesanan($order_id);
+        if (!$order) return $this->response->setStatusCode(404)->setJSON(['success'=>false, 'message'=>'Order not found']);
+        $isSandboxOrder = $this->isSandboxOrder($order);
+        if (!PaymentSafety::validNotification($order, $body, $this->paymentServerKey($isSandboxOrder))) {
+            return $this->response->setStatusCode(403)->setJSON(['success'=>false, 'message'=>'Invalid notification signature or amount']);
+        }
+        $oldStatus = (string)$order['status'];
+        $status = PaymentSafety::notificationStatus($body);
+        if (!PaymentSafety::canTransition($oldStatus, $status) && !PaymentSafety::needsFirstPaidEffects($order, $status)) {
+            // A replay may retry the idempotent integration, but never loyalty or stock mutations.
+            if (!$isSandboxOrder && $status === 'Proses' && $oldStatus === 'Proses') $this->syncOrderToLunaSistem($order);
+            return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
+        }
+        $db = $this->paymentDatabase();
+        $db->transBegin();
+        try {
+            $order = PaymentSafety::lockedOrder($db, $order_id);
+            if (!$order) throw new \RuntimeException('Order disappeared');
+            $oldStatus = (string)$order['status'];
+            if (!PaymentSafety::canTransition($oldStatus, $status) && !PaymentSafety::needsFirstPaidEffects($order, $status)) {
+                $db->transRollback();
+                return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
             }
-        } else {
-            $status = 'Forbidden';
-        }
-
-        $order_id_first_char = substr($order_id, 0, 1);
-        if ($order_id_first_char == 'L') {
-            $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
-            if (isset($dataTransaksi_curr)) {
-                $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
-                $isSandboxOrder = $this->isSandboxOrder($dataTransaksi_curr);
-                $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
-                $dataMid_curr['transaction_status'] = $body['transaction_status'];
-                $this->pemesananModel->where('id_midtrans', $order_id)->set([
-                    'status' => $status,
-                    'data_mid' => json_encode($dataMid_curr),
-                ])->update();
-
-                $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
-                if ($dataTransaksiFulDariDatabase && $status !== $oldStatus) {
-                    $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
-                    if (!$isSandboxOrder) {
-                        $this->kirimEmailAdminStatusPembayaran($dataTransaksiFulDariDatabase, $status);
-                    }
-                }
-                if ($isSandboxOrder) {
-                    return $this->response->setJSON($arr, false);
-                }
+            $dataMid_curr = json_decode($order['data_mid'], true) ?: [];
+            $environment = PaymentSafety::environment($order, $this->emailUjiCoba, 'email_cus');
+            $dataMid_curr = array_merge($dataMid_curr, $body);
+            $dataMid_curr['_app_payment_environment'] = $environment;
+            if ($status === 'Proses') $dataMid_curr['_app_payment_effects_applied'] = true;
+            if (!PaymentSafety::claim($db, $order_id, $oldStatus, $status, $dataMid_curr)) {
+                $db->transRollback();
+                return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
+            }
+            $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
+            if (!$isSandboxOrder) {
                 if ($status == 'Proses') {
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
                         $this->voucherClaimedModel->where([
@@ -5783,6 +5783,7 @@ class Pages extends BaseController
                     //tambah poin
                     $emailCus = $dataTransaksiFulDariDatabase['email_cus'];
                     $pembeli = $this->pembeliModel->getPembeli($emailCus);
+                    if ($pembeli) {
                     $waktuCurr = strtotime("+7 Hours");
                     $waktuCurrYmd = date("Y-m-d", $waktuCurr);
                     $poin = json_decode($pembeli['poin'], true);
@@ -5868,6 +5869,7 @@ class Pages extends BaseController
                     $tier['data'] = $dataBaru;
                     $this->pembeliModel->where(['email_user' => $emailCus])->set(['tier' => json_encode($tier)])->update();
 
+                    }
                     //input stok admin
                     $itemsNya = json_decode($dataTransaksiFulDariDatabase['items'], true);
                     foreach ($itemsNya as $i) {
@@ -5949,211 +5951,37 @@ class Pages extends BaseController
                         $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
                     }
                 }
-                $this->broadcastOrderUpdate($order_id);
-                if (!$isSandboxOrder && $status == 'Proses' && $dataTransaksiFulDariDatabase) {
-                    $this->syncOrderToLunaSistem($dataTransaksiFulDariDatabase);
-                }
-            } else {
-                // $this->pemesananModel->insert([
-                //     'email_cus' => $customField['e'],
-                //     'nama_pen' => $customField['n'],
-                //     'hp_pen' => $customField['h'],
-                //     'alamat_pen' => $customField['a'],
-                //     'resi' => 'Menunggu pengiriman',
-                //     'items' => json_encode($customField['i']),
-                //     'kurir' => 'kosong',
-                //     'id_midtrans' => $order_id,
-                //     'status' => $status,
-                //     'data_mid' => json_encode($body),
-                //     'note' => $customField['nt'],
-                //     'diskonVoucher' => $customField['v']['d']
-                // ]);
 
-                // if ($customField['v']['d'] > 0) {
-                //     $voucherSelected = $this->voucherModel->where(['id' => $customField['v']['id']])->first();
-                //     $voucherSelected_email = json_decode($voucherSelected['list_email'], true);
-                //     array_push($voucherSelected_email, $customField['e']);
-                //     $this->voucherModel->where(['id' => $customField['v']['id']])->set(['list_email' => json_encode($voucherSelected_email)])->update();
-                // }
-
-                // //pengurangan stok produk
-                // $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
-                // $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-                // foreach ($dataTransaksiFulDariDatabase_items as $item) {
-                //     $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                //     $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
-                //     if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
-                //         $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                //             'stok' => (int)$barangCurr['stok'] - $item['quantity']
-                //         ])->update();
-                //     } else {
-                //         $stokTerbaru = explode(",", $barangCurr['stok']);
-                //         $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
-                //         $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected - $item['quantity'];
-                //         $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                //             'stok' => implode(",", $stokTerbaru)
-                //         ])->update();
-                //     }
-                // }
             }
-        } else if ($order_id_first_char == 'I') {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://ilenafurniture.com/updatetransaction",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($body),
-                CURLOPT_HTTPHEADER => array(
-                    "Accept: application/json",
-                    "Content-Type: application/json",
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $arr['hasil_curl'] = json_decode($response, true);
+            if (!$db->transStatus()) throw new \RuntimeException('Payment effects failed');
+            $db->transCommit();
+        } catch (\Throwable $error) {
+            $db->transRollback();
+            log_message('error', 'Payment notification failed for {order}: {message}', ['order'=>$order_id, 'message'=>$error->getMessage()]);
+            return $this->response->setStatusCode(500)->setJSON(['success'=>false, 'message'=>'Notification will be retried']);
         }
-        // $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
-
-        return $this->response->setJSON($arr, false);
+        $this->notifyVerifiedPayment($dataTransaksiFulDariDatabase, $oldStatus, $status, $isSandboxOrder);
+        return $this->response->setJSON(['success'=>true]);
     }
+    protected function paymentDatabase()
+    {
+        return \Config\Database::connect();
+    }
+
+    protected function notifyVerifiedPayment(array $order, string $old, string $status, bool $sandbox): void
+    {
+        // External messages never run inside the transaction holding the order lock.
+        $this->broadcastOrderUpdate((string)$order['id_midtrans']);
+        if ($old !== $status) $this->kirimEmailStatusPembayaran($order, $status);
+        if (!$sandbox) {
+            if ($old !== $status) $this->kirimEmailAdminStatusPembayaran($order, $status);
+            if ($status === 'Proses') $this->syncOrderToLunaSistem($order);
+        }
+    }
+
     public function updateTransactionCoreAPI()
     {
-        $bodyJson = $this->request->getBody();
-        $body = json_decode($bodyJson, true);
-        $order_id = $body['order_id'];
-        $fraud = $body['fraud_status'];
-        // if (isset($body['custom_field1'])) {
-        //     $customField = json_decode($body['custom_field1'] . (isset($body['custom_field2']) ? $body['custom_field2'] : '') . (isset($body['custom_field3']) ? $body['custom_field3'] : ''), true);
-        // }
-        if ($fraud == "accept") {
-            switch ($body['transaction_status']) {
-                case 'settlement':
-                    $status = "Proses";
-                    break;
-                case 'capture':
-                    $status = "Proses";
-                    break;
-                case 'pending':
-                    $status = "Menunggu Pembayaran";
-                    break;
-                case 'expire':
-                    $status = "Kadaluarsa";
-                    break;
-                case 'deny':
-                    $status = "Ditolak";
-                    break;
-                case 'failure':
-                    $status = "Gagal";
-                    break;
-                case 'refund':
-                    $status = "Refund";
-                    break;
-                case 'partial_refund':
-                    $status = "Partial Refund";
-                    break;
-                case 'cancel':
-                    $status = "Dibatalkan";
-                    break;
-                default:
-                    $status = "No Status";
-                    break;
-            }
-        } else {
-            $status = 'Forbidden';
-        }
-
-        $order_id_first_char = substr($order_id, 0, 1);
-        if ($order_id_first_char == 'J') {
-            $dataTransaksi_curr = $this->pemesananModel->getPemesanan($order_id);
-            if (isset($dataTransaksi_curr)) {
-                $dataMid_curr = json_decode($dataTransaksi_curr['data_mid'], true);
-                $dataMid_curr['transaction_status'] = $body['transaction_status'];
-                $this->pemesananModel->where('id_midtrans', $order_id)->set([
-                    'status' => $status,
-                    'data_mid' => json_encode($dataMid_curr),
-                ])->update();
-
-                //reset jumlah produk
-                if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
-                    $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
-                    $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-                    foreach ($dataTransaksiFulDariDatabase_items as $item) {
-                        $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-
-                        $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
-                        if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
-                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                                'stok' => (int)$barangCurr['stok'] + $item['quantity']
-                            ])->update();
-                        } else {
-                            $stokTerbaru = explode(",", $barangCurr['stok']);
-                            $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
-                            $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
-                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                                'stok' => implode(",", $stokTerbaru)
-                            ])->update();
-                        }
-                    }
-                }
-            } else {
-                // $this->pemesananModel->insert([
-                //     'email_cus' => $customField['e'],
-                //     'nama_pen' => $customField['n'],
-                //     'hp_pen' => $customField['h'],
-                //     'alamat_pen' => $customField['a'],
-                //     'resi' => 'Menunggu pengiriman',
-                //     'items' => json_encode($customField['i']),
-                //     'kurir' => 'kosong',
-                //     'id_midtrans' => $order_id,
-                //     'status' => $status,
-                //     'data_mid' => json_encode($body),
-                // ]);
-                $this->pemesananModel->insert([
-                    'id_midtrans' => $order_id,
-                    'status' => $status,
-                    'data_mid' => json_encode($body),
-                ]);
-            }
-        } else if ($order_id_first_char == 'I') {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://ilenafurniture.com/updatetransaction",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($body),
-                CURLOPT_HTTPHEADER => array(
-                    "Accept: application/json",
-                    "Content-Type: application/json"
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-        }
-        // $this->pembeliModel->where('email_user', 'sahrulcbm@gmail.com')->set(['transaksi' => json_encode($body)])->update();
-        $arr = [
-            'success' => true,
-        ];
-        return $this->response->setJSON($arr, false);
+        return $this->updateTransaction();
     }
 
     public function updateTransactionBackup()
@@ -6457,7 +6285,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . ($this->isSandboxOrder($pemesanan) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -6549,7 +6377,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . ($this->isSandboxOrder($pemesanan) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -6583,6 +6411,7 @@ class Pages extends BaseController
                     ];
                     return view('pages/orderShipping', $data);
                     break;
+                case 'Selesai':
                 case 'Dikirim':
                     $biller_code = "";
                     $bank = "";
@@ -6606,7 +6435,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . ($this->isSandboxOrder($pemesanan) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -6659,7 +6488,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . ($this->isSandboxOrder($pemesanan) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -6718,7 +6547,7 @@ class Pages extends BaseController
                             $bank = "mandiri";
                             break;
                         case 'qris':
-                            $va_number = 'https://api.' . (in_array($pemesanan['email_cus'], $this->emailUjiCoba) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
+                            $va_number = 'https://api.' . ($this->isSandboxOrder($pemesanan) ? 'sandbox.' : '') . 'midtrans.com/v2/qris/' . $dataMid['transaction_id'] . '/qr-code';
                             $bank = "qris";
                             break;
                         case 'gopay':
@@ -8231,6 +8060,7 @@ class Pages extends BaseController
 
     private function syncShippingToLunaSistem(array $order, ?array $shipment): bool
     {
+        if ($this->isSandboxOrder($order)) return false;
         if (strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) !== 'true') return false;
         $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
         $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');

@@ -17,34 +17,37 @@
         transition: 0.2s;
     }
 </style>
-<div class="konten order-page-shell">
+<?php
+$orderStatus = (string)($pemesanan['status'] ?? 'Menunggu Pembayaran');
+$orderComplete = $orderStatus === 'Selesai';
+$orderStage = 1;
+$orderTitle = !empty($pemesanan['bukti_bayar']) ? 'Pembayaran sedang diverifikasi' : 'Menunggu pembayaran';
+$orderDescription = !empty($pemesanan['bukti_bayar']) ? 'Bukti pembayaran sudah diterima. Tim kami akan memeriksanya sebelum pesanan diproses.' : 'Selesaikan pembayaran sesuai rincian berikut agar pesanan dapat diproses.';
+?>
+<main class="konten order-page-shell buyer-order-page" aria-labelledby="order-title">
     <div class="container">
-        <div class="d-flex justify-content-center align-items-center gap-2 my-5 order-steps">
-            <div class="d-flex flex-column justify-content-center align-items-center">
-                <div style="background-color: var(--hijau); padding: 1em; border-radius: 2em;"><i class="material-icons text-light">access_time</i></div>
-                <p class="m-0 text-center fw-bold" style="line-height: 20px; color: var(--hijau)">Menunggu<br>Pembayaran</p>
-            </div>
-            <div class="order-step-connector" style="color: gray">--------</div>
-            <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
-            <div class="order-step-connector" style="color: gray">--------</div>
-            <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
-        </div>
-    </div>
-    <div class="py-1 text-light w-100 text-center mb-5 order-reference" style="background-color: var(--hijau);">ID
-        Pesanan :
-        <b><?= $pemesanan['id_midtrans']; ?></b>
-    </div>
-    <div class="container">
-        <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
-        <div class="baris-ke-kolom mb-3">
-            <div class="limapuluh-ke-seratus">
+        <header class="order-heading">
+            <a class="order-back-link" href="<?= session('isLogin') && session('email') !== 'tamu' ? '/transaction' : '/all'; ?>"><span aria-hidden="true">←</span> <?= session('isLogin') && session('email') !== 'tamu' ? 'Riwayat pesanan' : 'Lihat produk'; ?></a>
+            <p class="order-eyebrow">Pesanan Lunarea</p>
+            <h1 id="order-title"><?= esc($orderTitle); ?></h1>
+            <p class="order-intro"><?= esc($orderDescription); ?></p>
+            <div class="order-reference"><span>Nomor pesanan</span><strong><?= esc($pemesanan['id_midtrans']); ?></strong></div>
+        </header>
+        <ol class="order-steps" aria-label="Progres pesanan">
+            <?php foreach (['Pembayaran', 'Diproses', 'Dikirim', 'Selesai'] as $stepIndex => $stepLabel) { ?>
+            <li class="<?= $stepIndex + 1 <= $orderStage ? 'is-reached' : ''; ?>" <?= $stepIndex + 1 === $orderStage ? 'aria-current="step"' : ''; ?>><span class="order-step-number" aria-hidden="true"><?= $stepIndex + 1; ?></span><span><?= esc($stepLabel); ?></span></li>
+            <?php } ?>
+        </ol>
+        <p class="order-link-note">Simpan tautan halaman ini untuk memeriksa perkembangan pesanan Anda. Jangan bagikan tautan kepada orang lain.</p>
+        <div class="baris-ke-kolom order-detail-grid mb-3">
+            <div class="limapuluh-ke-seratus order-detail-section">
                 <div class="order-payment-summary" style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 0.5em 2em;">
                     <div>
                         <?php if ($dataMid['payment_type'] == 'bank_transfer' || $dataMid['payment_type'] == 'echannel' || $dataMid['payment_type'] == 'rekening') { ?>
                             <p class="m-0"><?= $dataMid['payment_type'] == 'rekening' ? 'Nomor Rekening' : 'Nomor Virtual Account'; ?></p>
                             <div class="d-flex gap-2 align-items-center">
                                 <h5 class="m-0"><?= strtoupper($bank); ?> <b><?= $va_number; ?></b></h5>
-                                <i class="material-icons tombol-copy" onclick="copyVA(event)">content_copy</i>
+                                <button type="button" class="tombol-copy" data-order-copy="<?= esc($va_number, 'attr'); ?>" aria-label="Salin nomor pembayaran">Salin</button>
                             </div>
                             <?php if ($dataMid['payment_type'] == 'rekening') { ?>
                                 <p class="text-secondary">a.n. Catur Bhakti Mandiri</p>
@@ -58,7 +61,7 @@
                             </script>
                         <?php } else if ($dataMid['payment_type'] == 'qris') { ?>
                             <p class="m-0">QR Code</p>
-                            <img style="cursor: zoom-in;" onclick="openQR()" src="<?= $va_number; ?>" alt="" width="150px" height="150px">
+                            <button type="button" class="order-qr-trigger" onclick="openQR()" aria-label="Perbesar kode QR pembayaran"><img src="<?= esc($va_number, 'attr'); ?>" alt="Kode QR pembayaran" width="150" height="150"></button>
                         <?php } else if ($dataMid['payment_type'] == 'gopay') { ?>
                             <div class="d-flex gap-1">
                                 <a class="btn btn-primary1" href="<?= $va_number[0]['url']; ?>">QR Code</a>
@@ -74,7 +77,7 @@
                         <p class="m-0">Nominal</p>
                         <div class="d-flex gap-2 align-items-center">
                             <h5 class="m-0">Rp <?= number_format($dataMid['gross_amount'], 0, ",", "."); ?></h5>
-                            <i class="material-icons tombol-copy" onclick="copyNominal(event)">content_copy</i>
+                            <button type="button" class="tombol-copy" data-order-copy="<?= esc((string)$dataMid['gross_amount'], 'attr'); ?>" aria-label="Salin nominal pembayaran">Salin</button>
                         </div>
                         <script>
                             function copyNominal(e) {
@@ -85,11 +88,11 @@
                         </script>
                     </div>
                     <div>
-                        <p class="m-0">Waktu Kadaluarsa</p>
+                        <p class="m-0">Batas pembayaran</p>
                         <h5><?= $waktuExpire; ?></h5>
                     </div>
                     <div>
-                        <p class="m-0">Sisa Waktu Pembayaran</p>
+                        <p class="m-0">Sisa waktu pembayaran</p>
                         <h5 id="waktu" style="color: var(--hijau);"><?= $waktu; ?></h5>
                     </div>
                 </div>
@@ -99,16 +102,17 @@
                 <?php } else if ($dataMid['payment_type'] == 'rekening') { ?>
                     <hr>
                     <button class="btn btn-primary1" onclick="openUpload()">Upload bukti pembayaran</button>
-                    <div id="modal-upload" class="d-none p-3 justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
+                    <div id="modal-upload" role="dialog" aria-modal="true" aria-labelledby="order-upload-title" class="d-none p-3 justify-content-center align-items-center" style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
                         <div style="background-color: white;" class="px-4 py-3 rounded">
                             <div class="d-flex mb-3 gap-4 justify-content-between align-items-center">
-                                <h5 class="m-0">Upload bukti pembayaran</h5>
-                                <i style="cursor: pointer;" class="material-icons" onclick="closeUpload()">close</i>
+                                <h2 id="order-upload-title" class="order-section-title m-0">Unggah bukti pembayaran</h2>
+                                <button type="button" class="order-dialog-close" onclick="closeUpload()" aria-label="Tutup unggah bukti">×</button>
                             </div>
                             <form action="/payorder/<?= $pemesanan['id_midtrans']; ?>" method="post" enctype="multipart/form-data">
-                                <input id="bukti-bayar" type="file" name="buktiBayar" class="d-none" required>
+                                <?= csrf_field(); ?>
+                                <input id="bukti-bayar" type="file" name="buktiBayar" class="order-file-input" accept="image/*" required>
                                 <div id="preview-bayar" class="d-none" style="width: 100%; max-width: 500px; max-height: 300px; overflow: auto;">
-                                    <img src="https://images.unsplash.com/photo-1733320662296-ff70b879480e?q=80&w=1065&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" style="display:block;" class="w-100">
+                                    <img alt="Pratinjau bukti pembayaran" style="display:block;" class="w-100">
                                 </div>
                                 <label for="bukti-bayar" class="btn btn-outline-dark w-100 mt-2" id="btn-pilih-foto">Pilih foto</label>
                                 <button id="btn-submit-bayar" type="submit" class="mt-1 btn btn-primary1 d-block w-100" disabled>Upload</button>
@@ -133,8 +137,13 @@
                         }
 
                         buktiBayarElm.addEventListener('change', (e) => {
-                            console.log(e.target)
                             const file = e.target.files[0];
+                            if (!file) {
+                                previewBayarElm.classList.add('d-none');
+                                btnSubmitBayarElm.disabled = true;
+                                return;
+                            }
+                            if (previewBayarElm.children[0].src.startsWith('blob:')) URL.revokeObjectURL(previewBayarElm.children[0].src);
                             const blobFile = new Blob([file], {
                                 type: file.type
                             });
@@ -147,43 +156,19 @@
                     </script>
                 <?php } ?>
             </div>
-            <div class="limapuluh-ke-seratus">
-                <p class="fw-bold">Produk yang dibeli</p>
-                <div>
-                    <div class="d-flex mb-2">
-                        <div style="flex: 3; color: gray;">
-                            <p class="m-0">Nama</p>
-                        </div>
-                        <div style="flex: 1; color: gray;">
-                            <p class="m-0 text-center">Jumlah</p>
-                        </div>
-                        <div style="flex: 2; color: gray;">
-                            <p class="m-0">Harga</p>
-                        </div>
-                    </div>
-                    <?php foreach ($items as $i) { ?>
-                        <div class="d-flex">
-                            <div style="flex: 3;">
-                                <p class="m-0"><?= $i['name']; ?></p>
-                            </div>
-                            <div style="flex: 1;">
-                                <p class="m-0 text-center"><?= $i['quantity']; ?></p>
-                            </div>
-                            <div style="flex: 2;">
-                                <p class="m-0">Rp <?= number_format($i['value'], 0, ",", "."); ?></p>
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div>
+            <div class="limapuluh-ke-seratus order-detail-section">
+                <h2 class="order-section-title">Rincian pesanan</h2>
+                <?= view('partials/order_items', ['items' => $items]); ?>
             </div>
         </div>
+        <?php if (is_array($caraPembayaran ?? null) && $caraPembayaran) { ?>
         <div>
-            <p class="fw-bold text-center">Cara Pembayaran</p>
+            <h2 class="order-section-title">Cara pembayaran</h2>
             <div class="accordion accordion-flush" id="accordionFlushExample">
-                <?php foreach ($caraPembayaran as $ind_c => $c) { ?>
+                <?php foreach ((is_array($caraPembayaran ?? null) ? $caraPembayaran : []) as $ind_c => $c) { ?>
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse<?= $ind_c ?>" aria-expanded="false" aria-controls="flush-collapse1">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse<?= $ind_c ?>" aria-expanded="false" aria-controls="flush-collapse<?= $ind_c ?>">
                                 <?= $c['nama']; ?>
                             </button>
                         </h2>
@@ -196,7 +181,8 @@
                 <?php } ?>
             </div>
         </div>
-        <div class="d-flex justify-content-center gap-1">
+        <?php } ?>
+        <div class="order-actions">
             <a class="btn btn-primary1" href="/order/<?= $dataMid['order_id']; ?>">
                 <p class="m-0">Saya Sudah Bayar</p>
             </a>
@@ -205,7 +191,7 @@
             </button>
         </div>
     </div>
-</div>
+</main>
 <script>
     const expiryTimeElm = document.getElementById("waktu");
     const de = new Date('<?= $dataMid['expiry_time']; ?>');
@@ -215,7 +201,7 @@
 
     setInterval(() => {
         const currTime = new Date().getTime();
-        let dselisih = expireTime - currTime;
+        let dselisih = Number.isFinite(expireTime) ? Math.max(0, expireTime - currTime) : 0;
 
         const hours = String(Math.floor(dselisih / (1000 * 60 * 60))).padStart(2, '0');
         dselisih %= (1000 * 60 * 60);
@@ -264,9 +250,10 @@
             }
         }
     </style>
-    <div id="modal-qr" style="z-index: 100;position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.3);" class="d-flex justify-content-center align-items-center p-5">
+    <div id="modal-qr" role="dialog" aria-modal="true" aria-label="Kode QR pembayaran" style="z-index: 100;position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.3);" class="d-none justify-content-center align-items-center p-5">
         <div class="gambar-qr p-2 rounded">
-            <img src="<?= $va_number; ?>" alt="QRCode" class="w-100 h-100" style="object-fit: cover;">
+            <button type="button" class="order-dialog-close" aria-label="Tutup kode QR" onclick="closeQR()">×</button>
+            <img src="<?= $va_number; ?>" alt="QRCode" class="w-100 h-100" style="object-fit: contain;">
         </div>
     </div>
     <script>
@@ -279,6 +266,10 @@
             e.stopPropagation();
         })
 
+        function closeQR() {
+            modalQrElm.classList.remove('d-flex');
+            modalQrElm.classList.add('d-none');
+        }
         function openQR() {
             modalQrElm.classList.add('d-flex');
             modalQrElm.classList.remove('d-none');

@@ -111,7 +111,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <?php if ($title == 'Check Out') { ?>
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd">
     </script>
-    <?php if (in_array($user['email'], $emailUji)) { ?>
+    <?php if (\App\Services\Payments\PaymentSafety::isTestEmail((string)$user['email'], $emailUji)) { ?>
     <script id="midtrans-script" src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js"
         data-environment="sandbox" data-client-key="SB-Mid-client-aGWfdxs2btRH4xSd" type="text/javascript"></script>
     <?php } else { ?>
@@ -144,6 +144,10 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/buyer-product.css?v=<?= filemtime(FCPATH . 'css/buyer-product.css'); ?>">
     <?php } ?>
     <link rel="stylesheet" href="/css/buyer-account.css?v=<?= filemtime(FCPATH . 'css/buyer-account.css'); ?>">
+    <?php if (in_array($title, ['Peroses Pembayaran', 'Pembayaran Sukes'], true)) { ?>
+    <link rel="stylesheet" href="/css/buyer-order.css?v=<?= filemtime(FCPATH . 'css/buyer-order.css'); ?>">
+    <script defer src="/js/buyer-order.js?v=<?= filemtime(FCPATH . 'js/buyer-order.js'); ?>"></script>
+    <?php } ?>
     <?php if ($title === 'Check Out') { ?>
     <link rel="stylesheet" href="/css/buyer-checkout.css?v=<?= filemtime(FCPATH . 'css/buyer-checkout.css'); ?>">
     <script defer src="/js/buyer-checkout.js?v=<?= filemtime(FCPATH . 'js/buyer-checkout.js'); ?>"></script>

@@ -1,26 +1,25 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
-<div class="konten order-page-shell">
+<?php
+$orderStatus = (string)($pemesanan['status'] ?? 'Kadaluarsa');
+$orderComplete = $orderStatus === 'Selesai';
+$orderStage = 0;
+$orderTitle = $orderStatus === 'Dibatalkan' ? 'Pesanan dibatalkan' : 'Waktu pembayaran berakhir';
+$orderDescription = $orderStatus === 'Dibatalkan' ? 'Pesanan ini sudah dibatalkan. Silakan pilih produk kembali jika Anda ingin membuat pesanan baru.' : 'Batas waktu pembayaran untuk pesanan ini telah berakhir. Silakan buat pesanan baru untuk melanjutkan belanja.';
+?>
+<main class="konten order-page-shell buyer-order-page" aria-labelledby="order-title">
     <div class="container">
-        <div class="d-flex justify-content-center align-items-center gap-2 my-5 order-steps">
-            <div class="d-flex flex-column justify-content-center align-items-center">
-                <div style="padding: 1em; border-radius: 2em;" class="bg-danger"><i class="material-icons text-light">access_time</i></div>
-                <p class="m-0 text-center fw-bold text-danger" style="line-height: 20px;"><?= ucfirst($pemesanan['status']); ?></p>
-            </div>
-            <div class="order-step-connector" style="color: gray">--------</div>
-            <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">local_shipping</i></div>
-            <div class="order-step-connector" style="color: gray">--------</div>
-            <div style="background-color: gray; padding: 1em; border-radius: 2em;"><i class="material-icons text-light">done</i></div>
-        </div>
-    </div>
-    <div class="py-1 text-light w-100 text-center mb-5 order-reference" style="background-color: var(--hijau);">ID
-        Pesanan :
-        <b><?= $pemesanan['id_midtrans']; ?></b>
-    </div>
-    <div class="container">
-        <p class="my-auto text-secondary text-sm-start mb-4 limapuluh-ke-seratus">*Simpan URL halaman ini untuk melihat status pesanan. Atau dapat login sebagai member kami agar dapat melihat seluruh riwayat pesanan Anda.</p>
-        <div class="baris-ke-kolom mb-3">
-            <div class="limapuluh-ke-seratus">
+        <header class="order-heading">
+            <a class="order-back-link" href="<?= session('isLogin') && session('email') !== 'tamu' ? '/transaction' : '/all'; ?>"><span aria-hidden="true">←</span> <?= session('isLogin') && session('email') !== 'tamu' ? 'Riwayat pesanan' : 'Lihat produk'; ?></a>
+            <p class="order-eyebrow">Pesanan Lunarea</p>
+            <h1 id="order-title"><?= esc($orderTitle); ?></h1>
+            <p class="order-intro"><?= esc($orderDescription); ?></p>
+            <div class="order-reference"><span>Nomor pesanan</span><strong><?= esc($pemesanan['id_midtrans']); ?></strong></div>
+        </header>
+
+        <p class="order-link-note">Simpan tautan halaman ini untuk memeriksa perkembangan pesanan Anda. Jangan bagikan tautan kepada orang lain.</p>
+        <div class="baris-ke-kolom order-detail-grid mb-3">
+            <div class="limapuluh-ke-seratus order-detail-section">
                 <div class="d-flex justify-content-between mb-3 order-payment-summary">
                     <div class="flex-grow-1">
                         <p class="m-0 d-block">Metode Pembayaran</p>
@@ -40,67 +39,23 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <p class="m-0">Waktu Kadaluarsa</p>
+                    <p class="m-0">Batas pembayaran</p>
                     <h5><?= $waktuExpire; ?></h5>
                 </div>
                 <span class="garis mb-3"></span>
                 <div>
-                    <p class="m-0">Sisa Waktu Pembayaran</p>
-                    <h5 class="text-danger">Telah <?= $pemesanan['status']; ?></h5>
+                    <p class="m-0">Status pesanan</p>
+                    <h5 class="text-danger">Telah <?= esc($pemesanan['status']); ?></h5>
                 </div>
             </div>
-            <div class="limapuluh-ke-seratus">
-                <p class="fw-bold">Produk yang dibeli</p>
-                <div>
-                    <div class="d-flex mb-2">
-                        <div style="flex: 3; color: gray;">
-                            <p class="m-0">Nama</p>
-                        </div>
-                        <div style="flex: 1; color: gray;">
-                            <p class="m-0">Jumlah</p>
-                        </div>
-                        <div style="flex: 2; color: gray;">
-                            <p class="m-0">Harga</p>
-                        </div>
-                    </div>
-                    <?php foreach ($items as $i) { ?>
-                        <div class="d-flex order-product-row">
-                            <div style="flex: 3;">
-                                <p class="m-0"><?= $i['name']; ?></p>
-                            </div>
-                            <div style="flex: 1;">
-                                <p class="m-0"><?= $i['quantity']; ?></p>
-                            </div>
-                            <div style="flex: 2;">
-                                <p class="m-0">Rp <?= number_format($i['value'], 0, ",", "."); ?></p>
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div>
-            </div>
-        </div>
-        <div>
-            <p class="fw-bold text-center">Cara Pembayaran</p>
-            <div class="accordion accordion-flush" id="accordionFlushExample">
-                <?php foreach ($caraPembayaran as $ind_c => $c) { ?>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse<?= $ind_c ?>" aria-expanded="false" aria-controls="flush-collapse1">
-                                <?= $c['nama']; ?>
-                            </button>
-                        </h2>
-                        <div id="flush-collapse<?= $ind_c ?>" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                            <div class="accordion-body">
-                                <p class="mb-0"><?= $c['isi']; ?></p>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
+            <div class="limapuluh-ke-seratus order-detail-section">
+                <h2 class="order-section-title">Rincian pesanan</h2>
+                <?= view('partials/order_items', ['items' => $items]); ?>
             </div>
         </div>
         <div class="d-flex justify-content-center">
             <a class="btn btn-primary1" href="/all">Lihat Produk Kami</a>
         </div>
     </div>
-</div>
+</main>
 <?= $this->endSection(); ?>
