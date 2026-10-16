@@ -7,6 +7,7 @@ use CodeIgniter\Model;
 class KonstantaModel extends Model
 {
     protected $table = 'konstanta';
+    private ?int $lunaIdentityCapacity = null;
     protected $allowedFields = [
         'label',
         'value',
@@ -20,6 +21,53 @@ class KonstantaModel extends Model
     public function getKonstantaByLabel($label)
     {
         return $this->where(['label' => $label])->first();
+    }
+
+    public function getLunaProductIdentity(string $websiteId): ?array
+    {
+        $rows = $this->where('label', \App\Services\Integrations\LunaProductIdentity::PREFIX . $websiteId)->findAll();
+        if (!$rows) return null;
+        if (count($rows) !== 1) throw new \DomainException('Pemetaan MyLuna duplikat; perlu pemeriksaan admin.');
+        $identity = json_decode((string)$rows[0]['value'], true);
+        if (!is_array($identity)) throw new \DomainException('Pemetaan MyLuna tersimpan tidak valid.');
+        return $identity;
+    }
+
+    /** Caller holds the catalog advisory lock and transaction. No schema/primary-key changes. */
+    public function saveLunaProductIdentity(string $websiteId, array $identity, bool $dryRun = false): void
+    {
+        $prefix = \App\Services\Integrations\LunaProductIdentity::PREFIX;
+        $rows = $this->like('label', $prefix, 'after')->findAll();
+        $existing = null;
+        foreach ($rows as $row) {
+            $saved = json_decode((string)$row['value'], true);
+            if (!is_array($saved)) throw new \DomainException('Pemetaan MyLuna perlu pemeriksaan admin.');
+            if ($row['label'] === $prefix . $websiteId) {
+                if ($existing || ($saved['product_id'] ?? '') !== $identity['product_id']) throw new \DomainException('Identitas produk lama bertentangan; perubahan otomatis dihentikan.');
+                $existing = $row;
+            } elseif (($saved['product_id'] ?? '') === $identity['product_id']) {
+                throw new \DomainException('Satu produk MyLuna sudah terhubung ke produk website lain.');
+            }
+        }
+        $json = \App\Services\Integrations\LunaCatalogSchema::metadata($websiteId, $identity, $this->lunaIdentityStorageCapacity());
+        if ($dryRun) return;
+        $ok = $existing ? $this->update($existing['id'], ['value'=>$json]) : $this->insert(['label'=>$prefix . $websiteId, 'value'=>$json]);
+        if (!$ok || $this->getLunaProductIdentity($websiteId) !== $identity) throw new \DomainException('Penyimpanan pemetaan MyLuna gagal diverifikasi.');
+    }
+
+    /** Inspect the actual schema, never assume the website metadata column was widened. */
+    private function lunaIdentityStorageCapacity(): int
+    {
+        if ($this->lunaIdentityCapacity !== null) return $this->lunaIdentityCapacity;
+        $column = $this->db->query(
+            'SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+            [$this->db->prefixTable($this->table), 'value']
+        )->getRowArray();
+        if (!$column || !in_array(strtolower((string)$column['DATA_TYPE']), ['varchar', 'text', 'mediumtext', 'longtext'], true)
+            || !is_numeric($column['CHARACTER_MAXIMUM_LENGTH']) || (int)$column['CHARACTER_MAXIMUM_LENGTH'] < 1) {
+            throw new \DomainException('Schema penyimpanan metadata MyLuna belum terverifikasi.');
+        }
+        return $this->lunaIdentityCapacity = min(60000, (int)$column['CHARACTER_MAXIMUM_LENGTH']);
     }
 
     public static function defaultThemeWarna()

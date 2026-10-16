@@ -4291,12 +4291,23 @@ class Pages extends BaseController
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = (int)round($persen * $produknya['harga']);
                 $subtotal += $hasil * (int)$element['jumlah'];
-                array_push($produk, array(
-                    'id' => $produknya["id"],
-                    'name' => $produknya['nama'] . " (" . $element['varian'] . ")",
+                $orderItem = [
+                    'id' => $produknya['id'],
+                    'name' => $produknya['nama'] . ' (' . $element['varian'] . ')',
                     'value' => $hasil,
                     'quantity' => (int)$element['jumlah'],
-                ));
+                ];
+                if (filter_var(env('LUNA_PRODUCT_IDENTITY_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) {
+                    try {
+                        $identity = $this->konstantaModel->getLunaProductIdentity((string)$produknya['id']);
+                        if (!$identity) throw new \DomainException('Produk belum terhubung ke master MyLuna.');
+                        $orderItem = \App\Services\Integrations\LunaProductIdentity::enrich($orderItem, $identity, (string)$element['varian']);
+                    } catch (\Throwable $error) {
+                        session()->setFlashdata('msg', 'Produk atau varian perlu diperiksa admin sebelum pesanan dilanjutkan.');
+                        return redirect()->to('/checkout');
+                    }
+                }
+                $produk[] = $orderItem;
 
                 //untuk midtrans
                 $item = array(
