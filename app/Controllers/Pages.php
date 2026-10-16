@@ -2866,6 +2866,10 @@ class Pages extends BaseController
         }
 
         $pemesananTungguBayar = $this->pemesananModel->getPemesananPending($email);
+        if ($pemesananTungguBayar) {
+            $pemesananTungguBayar = $this->reconcilePendingOrder($pemesananTungguBayar);
+            if (!in_array($pemesananTungguBayar['status'], ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) $pemesananTungguBayar = null;
+        }
 
         $data = [
             'title' => 'Keranjang',
@@ -3427,6 +3431,10 @@ class Pages extends BaseController
 
         //cek apakah ada pesanan yang masih menunggu pembayaran
         $pemesananTungguBayar = $this->pemesananModel->getPemesananPending($email);
+        if ($pemesananTungguBayar) {
+            $pemesananTungguBayar = $this->reconcilePendingOrder($pemesananTungguBayar);
+            if (!in_array($pemesananTungguBayar['status'], ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) $pemesananTungguBayar = null;
+        }
         if ($pemesananTungguBayar) return redirect()->to('/order/' . $pemesananTungguBayar['id_midtrans']);
 
         if (!empty($keranjang)) {
@@ -4602,10 +4610,9 @@ class Pages extends BaseController
         // dd($arrPostField);
 
         if ($pembayaran == 'rekening') {
-            $dCurr = strtotime("+7 Hours");
-            $dExp = strtotime("+8 Hours");
-            $transaction_time = date("Y-m-d H:i:s", $dCurr);
-            $expiry_time = date("Y-m-d H:i:s", $dExp);
+            $manualNow = new \DateTimeImmutable('now', new \DateTimeZone('Asia/Jakarta'));
+            $transaction_time = $manualNow->format('Y-m-d H:i:s');
+            $expiry_time = $manualNow->modify('+1 hour')->format('Y-m-d H:i:s');
             $hasilMidtrans = [
                 "va_numbers" => [
                     [
@@ -4784,121 +4791,121 @@ class Pages extends BaseController
     }
     public function payOrder($order_id)
     {
-        $foto = file_get_contents($this->request->getFile('buktiBayar'));
-        $this->pemesananModel->where(['id_midtrans' => $order_id])->set(['bukti_bayar' => $foto])->update();
-        $this->broadcastOrderUpdate();
-        return redirect()->to('/order/' . $order_id);
+        if (strtolower($this->request->getMethod()) !== 'post') return $this->response->setStatusCode(405)->setBody('Gunakan formulir bukti pembayaran.');
+        $order = $this->pemesananModel->getPemesanan($order_id);
+        if (!\App\Services\Orders\InvoiceDocument::canRead($order ?: null, session('email'), session('role'), (bool)session('isLogin'))) {
+            return $this->response->setStatusCode(404)->setBody('Pesanan tidak ditemukan.');
+        }
+        $this->verifyBuyerPaymentRequest();
+        $file = $this->request->getFile('buktiBayar');
+        $target = '/order/' . rawurlencode((string)$order_id);
+        if (!$file || !$file->isValid() || $file->getSize() > 5 * 1024 * 1024) {
+            return redirect()->to($target)->with('msg', 'Pilih foto bukti pembayaran JPG, PNG, atau WebP dengan ukuran maksimal 5 MB.');
+        }
+        try {
+            $image = file_get_contents($file->getTempName());
+            $saved = is_string($image) && (new \App\Services\Payments\ManualPaymentProof($this->paymentDatabase()))
+                ->save((string)$order_id, (string)$order['email_cus'], $image);
+        } catch (\Throwable $error) {
+            log_message('error', 'Payment proof save deferred: {type}', ['type'=>get_class($error)]);
+            $saved = false;
+        }
+        if ($saved) {
+            try { $this->broadcastOrderUpdate((string)$order_id); } catch (\Throwable $error) { log_message('error', 'Payment proof broadcast deferred.'); }
+        }
+        return redirect()->to($target)->with('msg', $saved ? 'Bukti pembayaran tersimpan dan menunggu pemeriksaan.' : 'Bukti belum tersimpan. Periksa status dan batas waktu pesanan atau hubungi layanan pelanggan.');
     }
+    protected function paymentRemoteRequest(array $order, string $operation): array
+    {
+        $sandbox = $this->isSandboxOrder($order);
+        return (new \App\Services\Payments\MidtransOrderClient($sandbox, $this->paymentServerKey($sandbox)))
+            ->request((string)$order['id_midtrans'], $operation);
+    }
+
+    protected function paymentStatusGate(array $order): bool
+    {
+        $key = 'payment-status-' . hash('sha256', ($this->isSandboxOrder($order) ? 'sandbox:' : 'production:') . $order['id_midtrans']);
+        $cache = \Config\Services::cache();
+        if ($cache->get($key) !== null) return false;
+        $cache->save($key, time(), 20);
+        return true;
+    }
+
+    protected function reconcilePendingOrder(array $order, bool $force = false): array
+    {
+        if (!in_array($order['status'] ?? '', ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) return $order;
+        $mid = json_decode($order['data_mid'] ?? '', true) ?: [];
+        try {
+            if (($mid['payment_type'] ?? '') === 'rekening') {
+                // A proof of transfer needs admin review, not automatic expiry.
+                if (!empty($order['bukti_bayar']) || !\App\Services\Payments\PaymentExpiry::isDue($mid)) return $order;
+                $body = $mid;
+                $body['transaction_status'] = 'expire';
+            } else {
+                if (!$force && !$this->paymentStatusGate($order)) return $order;
+                $body = $this->paymentRemoteRequest($order, 'status');
+                if (!PaymentSafety::validNotification($order, $body, $this->paymentServerKey($this->isSandboxOrder($order)))) {
+                    throw new \RuntimeException('Payment status verification failed');
+                }
+            }
+            $result = $this->applyVerifiedPaymentUpdate($order, $body, $this->isSandboxOrder($order));
+            if (!$result['success']) throw new \RuntimeException('Payment reconciliation incomplete');
+        } catch (\Throwable $error) {
+            // Do not expire a gateway order locally on timeout, missing key, 404 or amount mismatch.
+            log_message('error', 'Pending payment reconciliation deferred: {type}', ['type'=>get_class($error)]);
+        }
+        return $this->pemesananModel->getPemesanan($order['id_midtrans']) ?: $order;
+    }
+
+    protected function verifyBuyerPaymentRequest(): void
+    {
+        \Config\Services::security()->verify($this->request);
+    }
+
     public function cancelOrder($order_id)
     {
-        $pemesanan = $this->pemesananModel->getPemesanan($order_id);
-        if (!$pemesanan) return redirect()->to('/transaction');
-        if ($this->isSandboxOrder($pemesanan) && $pemesanan['status'] === 'Menunggu Pembayaran Rekening') {
-            $mid = json_decode($pemesanan['data_mid'], true) ?: [];
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setStatusCode(405)->setHeader('Allow', 'POST')->setBody('Gunakan formulir pembatalan pesanan.');
+        }
+        $order = $this->pemesananModel->getPemesanan($order_id);
+        if (!\App\Services\Orders\InvoiceDocument::canRead($order ?: null, session('email'), session('role'), (bool)session('isLogin'))) {
+            return $this->response->setStatusCode(404)->setBody('Pesanan tidak ditemukan.');
+        }
+        $this->verifyBuyerPaymentRequest();
+        $target = '/order/' . rawurlencode((string)$order_id);
+        if (!in_array($order['status'], ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) {
+            return redirect()->to($target)->with('msg', 'Status pesanan sudah berubah. Pembatalan hanya tersedia sebelum pembayaran.');
+        }
+        $mid = json_decode($order['data_mid'], true) ?: [];
+        if (($mid['payment_type'] ?? '') === 'rekening') {
+            if (!empty($order['bukti_bayar'])) {
+                return redirect()->to($target)->with('msg', 'Bukti pembayaran sedang diperiksa. Hubungi layanan pelanggan untuk pembatalan.');
+            }
             $mid['transaction_status'] = 'cancel';
-            $mid['_app_payment_environment'] = 'sandbox';
-            PaymentSafety::claim(\Config\Database::connect(), $order_id, 'Menunggu Pembayaran Rekening', 'Dibatalkan', $mid);
-            $this->broadcastOrderUpdate($order_id);
-            return redirect()->to('/order/' . $order_id);
+            $result = $this->applyVerifiedPaymentUpdate($order, $mid, $this->isSandboxOrder($order));
+            return redirect()->to($target)->with('msg', $result['success'] ? 'Status pembatalan pesanan telah diperbarui.' : 'Pembatalan belum tersimpan. Muat ulang dan periksa status pesanan.');
         }
-        if ($pemesanan['status'] == 'Menunggu Pembayaran Rekening') {
-            $dataMid_curr = json_decode($pemesanan['data_mid'], true);
-            $dataMid_curr['transaction_status'] = 'cancel';
-            $status = 'Dibatalkan';
-            $this->pemesananModel->where('id_midtrans', $order_id)->set([
-                'status' => $status,
-                'data_mid' => json_encode($dataMid_curr),
-            ])->update();
-
-            $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
-            //reset jumlah produk
-            $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-            foreach ($dataTransaksiFulDariDatabase_items as $item) {
-                //bentuk item
-                //     {
-                //         "id":"B20240214223820",
-                //         "name":"Rak Serbaguna - RSD 80 (Putih)",
-                //         "value":517000,
-                //         "quantity":1
-                //     }
-                $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
-                if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
-                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                        'stok' => (int)$barangCurr['stok'] + $item['quantity']
-                    ])->update();
-                } else {
-                    $stokTerbaru = explode(",", $barangCurr['stok']);
-                    $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
-                    $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
-                    $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                        'stok' => implode(",", $stokTerbaru)
-                    ])->update();
-                }
+        try {
+            // Read the provider first: a delayed callback must not allow cancelling a paid order.
+            $body = $this->paymentRemoteRequest($order, 'status');
+            if (!PaymentSafety::validNotification($order, $body, $this->paymentServerKey($this->isSandboxOrder($order)))) throw new \RuntimeException('Invalid payment status');
+            $result = $this->applyVerifiedPaymentUpdate($order, $body, $this->isSandboxOrder($order));
+            if (!$result['success']) throw new \RuntimeException('Payment reconciliation failed');
+            $order = $this->pemesananModel->getPemesanan($order_id);
+            if (($order['status'] ?? '') !== 'Menunggu Pembayaran' || strtolower((string)($body['transaction_status'] ?? '')) !== 'pending') {
+                return redirect()->to($target)->with('msg', 'Status pembayaran sudah diperbarui. Silakan periksa pesanan Anda.');
             }
-            //aktifkan kemabli voucher claimednya
-            if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
-                $this->voucherClaimedModel->where([
-                    'id_voucher' => $dataTransaksiFulDariDatabase['idVoucher'],
-                    'email_user' => $dataTransaksiFulDariDatabase['email_cus']
-                ])->set(['active' => true])->update();
-            }
-            //aktifkan kembali poinnya
-            if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
-                $pembeliCur = $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->first();
-                $poinCur = json_decode($pembeliCur['poin'], true);
-                $poinCounter = 0;
-                $poinCurFinal = $dataTransaksiFulDariDatabase['pakai_poin'];
-                foreach ($poinCur as $ind_p => $p) {
-                    if (!$p['active']) {
-                        $poinCur[$ind_p]['active'] = true;
-                        if ((int)$p['nominal'] == 0) {
-                            $sisa = $poinCurFinal - $poinCounter;
-                            $poinCur[$ind_p]['nominal'] = $sisa;
-                        }
-                    } else {
-                        if ($poinCurFinal > $poinCounter) {
-                            $sisa = $poinCurFinal - $poinCounter;
-                            $poinCur[$ind_p]['nominal'] = (int)$p['nominal'] + $sisa;
-                        }
-                        break;
-                    }
-                    $poinCounter += (int)$p['nominal'];
-                }
-                $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
-            }
-            $this->broadcastOrderUpdate();
-            return redirect()->to('/order/' . $order_id);
+            try { $this->paymentRemoteRequest($order, 'cancel'); }
+            catch (\Throwable $error) { log_message('error', 'Cancellation result needs status confirmation.'); }
+            // Even a successful cancel HTTP response is followed by a verified status read.
+            $order = $this->reconcilePendingOrder($order, true);
+            $message = ($order['status'] ?? '') === 'Dibatalkan' ? 'Pesanan berhasil dibatalkan.'
+                : 'Pembatalan belum terkonfirmasi. Periksa status pesanan, lalu coba kembali bila masih menunggu pembayaran.';
+        } catch (\Throwable $error) {
+            log_message('error', 'Order cancellation deferred: {type}', ['type'=>get_class($error)]);
+            $message = 'Status pembayaran belum berhasil diperiksa. Pesanan tidak diubah; silakan coba kembali beberapa saat lagi.';
         }
-        $auth = base64_encode($this->paymentServerKey($this->isSandboxOrder($pemesanan)) . ':');
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->isSandboxOrder($pemesanan) ? "https://api.sandbox.midtrans.com/v2/" . $order_id . "/cancel" : "https://api.midtrans.com/v2/" . $order_id . "/cancel",
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_HTTPHEADER => array(
-                "Accept: application/json",
-                "Content-Type: application/json",
-                "Authorization: Basic " . $auth,
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            return "cURL Error #:" . $err;
-        }
-        $hasilMidtrans = json_decode($response, true);
-        if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
-            session()->setFlashdata('msg', $hasilMidtrans['status_message']);
-        }
-        return redirect()->to('/order/' . $order_id);
+        return redirect()->to($target)->with('msg', $message);
     }
 
     public function tracking($tipe, $resi)
@@ -5277,6 +5284,11 @@ class Pages extends BaseController
                 array_push($detailTransaksi, $this->pemesananModel->getPemesanan($idMid));
             }
         }
+        foreach ($detailTransaksi as &$pendingOrder) {
+            $payment = json_decode($pendingOrder['data_mid'] ?? '', true) ?: [];
+            if (\App\Services\Payments\PaymentExpiry::isDue($payment)) $pendingOrder = $this->reconcilePendingOrder($pendingOrder);
+        }
+        unset($pendingOrder);
         $data = [
             'title' => 'Transaksi Pembayaran',
             'transaksi' => $detailTransaksi,
@@ -5656,12 +5668,20 @@ class Pages extends BaseController
         if (!PaymentSafety::validNotification($order, $body, $this->paymentServerKey($isSandboxOrder))) {
             return $this->response->setStatusCode(403)->setJSON(['success'=>false, 'message'=>'Invalid notification signature or amount']);
         }
+        $result = $this->applyVerifiedPaymentUpdate($order, $body, $isSandboxOrder);
+        return $this->response->setStatusCode($result['success'] ? 200 : 500)->setJSON($result);
+    }
+
+    /** Only signed notifications or authenticated provider status reads reach this method. */
+    protected function applyVerifiedPaymentUpdate(array $order, array $body, bool $isSandboxOrder): array
+    {
+        $order_id = (string)$order['id_midtrans'];
         $oldStatus = (string)$order['status'];
         $status = PaymentSafety::notificationStatus($body);
         if (!PaymentSafety::canTransition($oldStatus, $status) && !PaymentSafety::needsFirstPaidEffects($order, $status)) {
             // A replay may retry the idempotent integration, but never loyalty or stock mutations.
             // A replay never imports operational orders; admin must prepare the AWB first.
-            return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
+            return ['success'=>true, 'ignored'=>true];
         }
         $db = $this->paymentDatabase();
         $db->transBegin();
@@ -5669,9 +5689,24 @@ class Pages extends BaseController
             $order = PaymentSafety::lockedOrder($db, $order_id);
             if (!$order) throw new \RuntimeException('Order disappeared');
             $oldStatus = (string)$order['status'];
+            $lockedPayment = json_decode($order['data_mid'], true) ?: [];
+            if (($lockedPayment['payment_type'] ?? '') !== 'rekening'
+                && !PaymentSafety::validNotification($order, $body, $this->paymentServerKey($this->isSandboxOrder($order)))) {
+                throw new \RuntimeException('Locked payment snapshot differs from provider status');
+            }
+            if (($lockedPayment['payment_type'] ?? '') === 'rekening' && $status === 'Kadaluarsa'
+                && !\App\Services\Payments\PaymentExpiry::isDue($lockedPayment)) {
+                $db->transRollback();
+                return ['success'=>true, 'ignored'=>true];
+            }
+            if (($lockedPayment['payment_type'] ?? '') === 'rekening' && !empty($order['bukti_bayar'])
+                && in_array($status, ['Kadaluarsa','Dibatalkan'], true)) {
+                $db->transRollback();
+                return ['success'=>false, 'review_required'=>true];
+            }
             if (!PaymentSafety::canTransition($oldStatus, $status) && !PaymentSafety::needsFirstPaidEffects($order, $status)) {
                 $db->transRollback();
-                return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
+                return ['success'=>true, 'ignored'=>true];
             }
             $dataMid_curr = json_decode($order['data_mid'], true) ?: [];
             $environment = PaymentSafety::environment($order, $this->emailUjiCoba, 'email_cus');
@@ -5680,7 +5715,7 @@ class Pages extends BaseController
             if ($status === 'Proses') $dataMid_curr['_app_payment_effects_applied'] = true;
             if (!PaymentSafety::claim($db, $order_id, $oldStatus, $status, $dataMid_curr)) {
                 $db->transRollback();
-                return $this->response->setJSON(['success'=>true, 'ignored'=>true]);
+                return ['success'=>true, 'ignored'=>true];
             }
             $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $order_id)->first();
             if (!$isSandboxOrder) {
@@ -5803,31 +5838,7 @@ class Pages extends BaseController
                 }
                 //reset jumlah produk
                 if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
-                    $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-                    foreach ($dataTransaksiFulDariDatabase_items as $item) {
-                        //bentuk item
-                        //     {
-                        //         "id":"B20240214223820",
-                        //         "name":"Rak Serbaguna - RSD 80 (Putih)",
-                        //         "value":517000,
-                        //         "quantity":1
-                        //     }
-
-                        $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-                        $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
-                        if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
-                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                                'stok' => (int)$barangCurr['stok'] + $item['quantity']
-                            ])->update();
-                        } else {
-                            $stokTerbaru = explode(",", $barangCurr['stok']);
-                            $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
-                            $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected + $item['quantity'];
-                            $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                                'stok' => implode(",", $stokTerbaru)
-                            ])->update();
-                        }
-                    }
+                    \App\Services\Payments\ReservedStockRelease::release($db, $dataTransaksiFulDariDatabase);
 
                     //aktifkan kemabli voucher claimednya
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
@@ -5839,27 +5850,7 @@ class Pages extends BaseController
 
                     //aktifkan kembali poinnya
                     if ($dataTransaksiFulDariDatabase['pakai_poin'] > 0) {
-                        $pembeliCur = $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->first();
-                        $poinCur = json_decode($pembeliCur['poin'], true);
-                        $poinCounter = 0;
-                        $poinCurFinal = $dataTransaksiFulDariDatabase['pakai_poin'];
-                        foreach ($poinCur as $ind_p => $p) {
-                            if (!$p['active']) {
-                                $poinCur[$ind_p]['active'] = true;
-                                if ((int)$p['nominal'] == 0) {
-                                    $sisa = $poinCurFinal - $poinCounter;
-                                    $poinCur[$ind_p]['nominal'] = $sisa;
-                                }
-                            } else {
-                                if ($poinCurFinal > $poinCounter) {
-                                    $sisa = $poinCurFinal - $poinCounter;
-                                    $poinCur[$ind_p]['nominal'] = (int)$p['nominal'] + $sisa;
-                                }
-                                break;
-                            }
-                            $poinCounter += (int)$p['nominal'];
-                        }
-                        $this->pembeliModel->where(['email_user' => $dataTransaksiFulDariDatabase['email_cus']])->set(['poin' => json_encode($poinCur)])->update();
+                        \App\Services\Payments\ReservedPointsRelease::release($db, $dataTransaksiFulDariDatabase);
                     }
                 }
 
@@ -5869,10 +5860,10 @@ class Pages extends BaseController
         } catch (\Throwable $error) {
             $db->transRollback();
             log_message('error', 'Payment notification failed for {order}: {message}', ['order'=>$order_id, 'message'=>$error->getMessage()]);
-            return $this->response->setStatusCode(500)->setJSON(['success'=>false, 'message'=>'Notification will be retried']);
+            return ['success'=>false, 'message'=>'Notification will be retried'];
         }
         $this->notifyVerifiedPayment($dataTransaksiFulDariDatabase, $oldStatus, $status, $isSandboxOrder);
-        return $this->response->setJSON(['success'=>true]);
+        return ['success'=>true];
     }
     protected function paymentDatabase()
     {
@@ -5979,7 +5970,13 @@ class Pages extends BaseController
     public function order($id_midtrans = false)
     {
         $pemesanan = $this->pemesananModel->getPemesanan($id_midtrans);
-        $shipment = $pemesanan ? $this->orderShipmentModel->getByOrderId((string)$id_midtrans) : null;
+        if (!\App\Services\Orders\InvoiceDocument::canRead($pemesanan ?: null, session('email'), session('role'), (bool)session('isLogin'))) {
+            return $this->response->setStatusCode(404)->setBody('Pesanan tidak ditemukan.');
+        }
+        $this->response->removeHeader('Cache-Control');
+        $this->response->setHeader('Cache-Control', 'private, no-store, max-age=0');
+        $pemesanan = $this->reconcilePendingOrder($pemesanan);
+        $shipment = $this->invoiceShipment((string)$id_midtrans);
         if (is_array($shipment) && (string)session('role') !== '1') unset($shipment['shipping_pricing']);
         $carapembayaran = [
             'bca' => [
@@ -6220,10 +6217,8 @@ class Pages extends BaseController
                             break;
                     }
 
-                    $waktuExpire = strtotime($dataMid['expiry_time']);
-                    $waktuCurr = strtotime("+7 Hours");
-                    $waktuSelisih = $waktuExpire - $waktuCurr;
-                    $waktu = date("H:i:s", $waktuSelisih);
+                    $waktuExpire = \App\Services\Payments\PaymentExpiry::timestamp($dataMid) ?? time();
+                    $waktu = \App\Services\Payments\PaymentExpiry::countdown($dataMid);
 
                     $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
                     $data = [
@@ -6236,7 +6231,7 @@ class Pages extends BaseController
                         'items' => $items,
                         'waktu' => $waktu,
                         'caraPembayaran' => $carapembayaran[$bank],
-                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'waktuExpire' => \App\Services\Payments\PaymentExpiry::label($dataMid),
                         'shipment' => $shipment,
                         'wsUrl' => $ws_url
                     ];
@@ -6247,10 +6242,8 @@ class Pages extends BaseController
                     $va_number = $dataMid['va_numbers'][0]['va_number'];
                     $bank = $dataMid['va_numbers'][0]['bank'];
 
-                    $waktuExpire = strtotime($dataMid['expiry_time']);
-                    $waktuCurr = strtotime("+7 Hours");
-                    $waktuSelisih = $waktuExpire - $waktuCurr;
-                    $waktu = date("H:i:s", $waktuSelisih);
+                    $waktuExpire = \App\Services\Payments\PaymentExpiry::timestamp($dataMid) ?? time();
+                    $waktu = \App\Services\Payments\PaymentExpiry::countdown($dataMid);
 
                     $bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
                     $data = [
@@ -6263,7 +6256,7 @@ class Pages extends BaseController
                         'items' => $items,
                         'waktu' => $waktu,
                         'caraPembayaran' => $carapembayaran[$bank],
-                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'waktuExpire' => \App\Services\Payments\PaymentExpiry::label($dataMid),
                         'shipment' => $shipment,
                         'wsUrl' => $ws_url
                     ];
@@ -6434,7 +6427,7 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'items' => $items,
                         'caraPembayaran' => $carapembayaran[$bank],
-                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'waktuExpire' => \App\Services\Payments\PaymentExpiry::label($dataMid),
                         'shipment' => $shipment,
                     ];
                     return view('pages/orderExpire', $data);
@@ -6493,7 +6486,7 @@ class Pages extends BaseController
                         'bank' => $bank,
                         'items' => $items,
                         'caraPembayaran' => $carapembayaran[$bank],
-                        'waktuExpire' => date("d", $waktuExpire) . " " . $bulan[(int)date("m", $waktuExpire) - 1] . " " . date("Y H:i:s", $waktuExpire),
+                        'waktuExpire' => \App\Services\Payments\PaymentExpiry::label($dataMid),
                         'shipment' => $shipment,
                     ];
                     return view('pages/orderExpire', $data);

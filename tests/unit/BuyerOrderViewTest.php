@@ -38,7 +38,9 @@ final class BuyerOrderViewTest extends CIUnitTestCase
         $this->assertSame(2, $xp->query('//*[contains(concat(" ",@class," ")," order-detail-section ")]')->length);
         if ($page === 'orderProgress') {
             $this->assertSame(1, $xp->query('//li[@aria-current="step"]')->length);
-            $this->assertStringContainsString('/cancelorder/ORDER-FIXTURE-', $html);
+            $this->assertStringContainsString('/cancelorder/ORDER-FIXTURE-', html_entity_decode($html, ENT_QUOTES | ENT_HTML5));
+            $this->assertSame(1, $xp->query('//*[@id="payment-deadline"]')->length);
+            $this->assertSame(1, $xp->query('//script[contains(@src,"buyer-payment.js")]')->length);
             if ($payment === 'rekening' && !$proof) {
                 $this->assertSame(1, $xp->query('//form[@method="post" and @enctype="multipart/form-data"]')->length);
                 $this->assertSame(1, $xp->query('//input[@name="buktiBayar" and @type="file"]')->length);

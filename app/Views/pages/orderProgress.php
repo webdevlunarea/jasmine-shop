@@ -52,7 +52,8 @@ $orderDescription = !empty($pemesanan['bukti_bayar']) ? 'Bukti pembayaran sudah 
                             <?php if ($dataMid['payment_type'] == 'rekening') { ?>
                                 <p class="text-secondary">a.n. Catur Bhakti Mandiri</p>
                             <?php } ?>
-                            <script>
+
+<script>
                                 function copyVA(e) {
                                     e.target.innerHTML = 'check';
                                     e.target.classList.add('checked');
@@ -186,53 +187,32 @@ $orderDescription = !empty($pemesanan['bukti_bayar']) ? 'Bukti pembayaran sudah 
             <a class="btn btn-primary1" href="/order/<?= $dataMid['order_id']; ?>">
                 <p class="m-0">Saya Sudah Bayar</p>
             </a>
-            <button class="btn btn-danger" onclick="triggerToast('Anda yakin akan membatalkan pesanan <?= $dataMid['order_id']; ?>?','/cancelorder/<?= $dataMid['order_id']; ?>')">
+            <button type="button" class="btn btn-danger" data-cancel-order="<?= esc('/cancelorder/' . rawurlencode($pemesanan['id_midtrans']), 'attr'); ?>">
                 <p class="m-0">Batalkan Pesanan</p>
             </button>
         </div>
     </div>
+<div id="payment-deadline" data-expiry-ms="<?= (\App\Services\Payments\PaymentExpiry::timestamp($dataMid) ?? 0) * 1000; ?>" data-server-now="<?= time() * 1000; ?>" data-order-id="<?= esc($pemesanan['id_midtrans'], 'attr'); ?>">
+    <p class="text-secondary small text-center" id="payment-deadline-message" role="status" aria-live="polite"></p>
+</div>
+<script defer src="/js/buyer-payment.js?v=<?= filemtime(FCPATH . 'js/buyer-payment.js'); ?>"></script>
 </main>
 <script>
-    const expiryTimeElm = document.getElementById("waktu");
-    const de = new Date('<?= $dataMid['expiry_time']; ?>');
-    const expireTime = de.getTime();
-    const dc = new Date();
-    const isRekening = <?= $dataMid['payment_type'] == 'rekening' ? 'true' : 'false'; ?>;
-
-    setInterval(() => {
-        const currTime = new Date().getTime();
-        let dselisih = Number.isFinite(expireTime) ? Math.max(0, expireTime - currTime) : 0;
-
-        const hours = String(Math.floor(dselisih / (1000 * 60 * 60))).padStart(2, '0');
-        dselisih %= (1000 * 60 * 60);
-        const minutes = String(Math.floor(dselisih / (1000 * 60))).padStart(2, '0');
-        dselisih %= (1000 * 60);
-        const seconds = String(Math.floor(dselisih / 1000)).padStart(2, '0');
-
-        expiryTimeElm.innerHTML = `${hours}:${minutes}:${seconds}`;
-        if (Number(hours) < 0 && Number(minutes) < 0 && Number(seconds) < 0) {
-            if (isRekening) {
-                expiryTimeElm.innerHTML = `00:00:00`;
-            } else {
-                // window.location.reload();
-            }
-        }
-    }, 1000);
-
     function copytext(teks) {
         navigator.clipboard.writeText(teks);
     }
 
-    const socket = new WebSocket('<?= $wsUrl; ?>');
-    socket.onopen = () => {
-        console.log(`Socket berhasil terkoneksi <?= $wsUrl; ?>`)
-    }
-    socket.onmessage = (event) => {
-        const datanya = JSON.parse(event.data);
-        console.log(datanya)
-        if (datanya.jenis == 'order' && datanya.id_order == '<?= $pemesanan['id_midtrans']; ?>') {
-            window.location.reload();
-        }
+    const orderSocketUrl = <?= json_encode((string)$wsUrl, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    if (/^wss?:\/\//.test(orderSocketUrl)) {
+        try {
+            const socket = new WebSocket(orderSocketUrl);
+            socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.jenis === 'order' && data.id_order === <?= json_encode((string)$pemesanan['id_midtrans']); ?>) window.location.reload();
+                } catch (_) { /* Ignore unrelated or invalid socket messages. */ }
+            };
+        } catch (_) { /* Expiry and manual status checks work without WebSocket. */ }
     }
 </script>
 <?php if ($dataMid['payment_type'] == 'qris') { ?>

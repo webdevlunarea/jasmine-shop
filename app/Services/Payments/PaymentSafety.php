@@ -43,14 +43,14 @@ final class PaymentSafety
         $expectedAmount = self::amount($mid['gross_amount'] ?? null);
         if ($expectedAmount === null || $expectedAmount !== self::amount($body['gross_amount'])) return false;
         if (!empty($mid['transaction_id']) && !empty($body['transaction_id']) && (string)$mid['transaction_id'] !== (string)$body['transaction_id']) return false;
-        if (in_array((string)$body['transaction_status'], ['capture','settlement'], true) && (string)$body['status_code'] !== '200') return false;
+        if (in_array(strtolower((string)$body['transaction_status']), ['capture','settlement'], true) && (string)$body['status_code'] !== '200') return false;
         $expected = hash('sha512', (string)$body['order_id'] . (string)$body['status_code'] . (string)$body['gross_amount'] . $serverKey);
         return hash_equals($expected, (string)$body['signature_key']);
     }
 
     public static function notificationStatus(array $body): ?string
     {
-        $raw = (string)($body['transaction_status'] ?? '');
+        $raw = strtolower((string)($body['transaction_status'] ?? ''));
         if ($raw === 'capture' && ($body['fraud_status'] ?? '') !== 'accept') return null;
         if ($raw === 'settlement' && !in_array($body['fraud_status'] ?? 'accept', ['', 'accept'], true)) return null;
         return ['settlement'=>'Proses', 'capture'=>'Proses', 'pending'=>'Menunggu Pembayaran', 'expire'=>'Kadaluarsa',
@@ -60,6 +60,7 @@ final class PaymentSafety
     public static function canTransition(string $old, ?string $new): bool
     {
         if ($new === null || $new === $old) return false;
+        if ($old === 'Menunggu Pembayaran Rekening') return in_array($new, ['Kadaluarsa','Dibatalkan'], true);
         if (in_array($old, ['Menunggu Pembayaran', 'No Status'], true)) {
             return in_array($new, ['Proses','Kadaluarsa','Ditolak','Gagal','Dibatalkan'], true);
         }

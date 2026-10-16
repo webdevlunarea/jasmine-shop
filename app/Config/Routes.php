@@ -88,10 +88,10 @@ $routes->post('/integrations/luna-return-status', 'Pages::updateReturStatusFromL
 // $routes->get('/successpay', 'Pages::successPay');
 // $routes->get('/progresspay', 'Pages::progressPay');
 // $routes->get('/errorpay', 'Pages::errorPay');
-$routes->get('/order/(:any)', 'Pages::order/$1');
-$routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1');
+$routes->get('/order/(:any)', 'Pages::order/$1', ['filter' => 'harusLogin']);
+$routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1', ['filter' => 'harusLogin']);
 $routes->post('/payorder/(:any)/confirm/(:any)', 'Pages::payOrderConfirm/$1/$2', ['filter' => 'harusAdmin']);
-$routes->post('/payorder/(:any)', 'Pages::payOrder/$1');
+$routes->post('/payorder/(:any)', 'Pages::payOrder/$1', ['filter' => 'harusLogin']);
 // $routes->get('/orderlocal', 'Pages::orderLocal');
 
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
