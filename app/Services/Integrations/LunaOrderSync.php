@@ -12,7 +12,8 @@ class LunaOrderSync
     public function __construct(?array $settings = null, $client = null)
     {
         $this->settings = $settings ?? [
-            'enabled' => strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) === 'true',
+            // CI4 env('...') converts "true" to boolean true; string-casting it yields "1".
+            'enabled' => filter_var(env('LUNA_SYSTEM_WEB_ORDER_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
             'url' => (string)env('LUNA_SYSTEM_WEB_ORDER_URL', ''),
             'token' => (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', ''),
         ];

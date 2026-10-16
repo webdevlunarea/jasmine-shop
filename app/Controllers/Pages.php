@@ -8007,7 +8007,7 @@ class Pages extends BaseController
     private function syncShippingToLunaSistem(array $order, ?array $shipment): bool
     {
         if ($this->isSandboxOrder($order)) return false;
-        if (strtolower((string)env('LUNA_SYSTEM_WEB_ORDER_ENABLED', 'false')) !== 'true') return false;
+        if (!filter_var(env('LUNA_SYSTEM_WEB_ORDER_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) return false;
         $url = (string)env('LUNA_SYSTEM_WEB_ORDER_URL', '');
         $token = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
         if (!$url || !$token) return false;

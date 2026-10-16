@@ -29,6 +29,67 @@ final class LunaOrderSyncTest extends CIUnitTestCase
     }
     private function settings():array{return ['enabled'=>true,'url'=>'https://myluna.example.test/api/lunarea-web-order','token'=>'unit-token'];}
 
+    /** @dataProvider environmentFlags */
+    public function testActualCiEnvironmentControlsOrderAndShippingSync(?string $flag, bool $enabled): void
+    {
+        $values = [
+            'LUNA_SYSTEM_WEB_ORDER_ENABLED'=>$flag,
+            'LUNA_SYSTEM_WEB_ORDER_URL'=>'https://myluna.example.test/api/v1/integrations/lunarea-web-order',
+            'LUNA_SYSTEM_WEB_ORDER_TOKEN'=>'unit-only-env-token',
+        ];
+        $previous = [];
+        foreach ($values as $key=>$value) {
+            $previous[$key] = [array_key_exists($key, $_ENV), $_ENV[$key] ?? null,
+                array_key_exists($key, $_SERVER), $_SERVER[$key] ?? null, getenv($key)];
+            unset($_ENV[$key], $_SERVER[$key]);
+            putenv($key);
+            if ($value !== null) $_ENV[$key] = $value;
+        }
+        try {
+            if ($flag === 'true') $this->assertSame(true, env('LUNA_SYSTEM_WEB_ORDER_ENABLED'));
+            $order = $this->order();
+            $payload = LunaOrderSync::payload($order, []);
+            $client = $this->client(200, ['success'=>true, 'data'=>[
+                'saleNumber'=>$payload['order_id'], 'tracking_number'=>$payload['tracking_number'],
+                'shipping_updated'=>true,
+            ]]);
+            // Use the real CI4 env() path, not injected settings that bypass flag conversion.
+            $result = (new LunaOrderSync(null, $client))->send($payload);
+            $this->assertSame($enabled, $result['success']);
+            $this->assertCount($enabled ? 1 : 0, $client->requests);
+
+            $shippingClient = $this->client(200, ['success'=>true, 'data'=>['shipping_updated'=>true]]);
+            \Config\Services::injectMock('curlrequest', $shippingClient);
+            $controller = new class extends \App\Controllers\Pages {
+                public function __construct() { $this->emailUjiCoba = []; }
+            };
+            $sync = new \ReflectionMethod(\App\Controllers\Pages::class, 'syncShippingToLunaSistem');
+            $sync->setAccessible(true);
+            $this->assertSame($enabled, $sync->invoke($controller, $order, null));
+            $this->assertCount($enabled ? 1 : 0, $shippingClient->requests);
+            $this->assertSame($order, $this->order());
+        } finally {
+            \Config\Services::resetSingle('curlrequest');
+            foreach ($previous as $key=>[$hadEnv, $env, $hadServer, $server, $process]) {
+                unset($_ENV[$key], $_SERVER[$key]);
+                if ($hadEnv) $_ENV[$key] = $env;
+                if ($hadServer) $_SERVER[$key] = $server;
+                putenv($process === false ? $key : $key.'='.$process);
+            }
+        }
+    }
+
+    public static function environmentFlags(): array
+    {
+        return [
+            'ci boolean true'=>['true', true], 'uppercase true'=>['TRUE', true],
+            'numeric enabled'=>['1', true], 'yes'=>['yes', true], 'on'=>['on', true],
+            'ci boolean false'=>['false', false], 'numeric disabled'=>['0', false],
+            'off'=>['off', false], 'invalid'=>['invalid', false],
+            'empty'=>['', false], 'missing'=>[null, false],
+        ];
+    }
+
     public function testSnapshotItemsAmountAndOriginalTimeArePreserved():void {
         $order=$this->order();$original=$order;$payload=LunaOrderSync::payload($order,[]);
         $this->assertSame(json_decode($order['items'],true),$payload['items']);
