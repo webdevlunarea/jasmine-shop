@@ -1,11 +1,13 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
 <script src="https://cdn.tiny.cloud/1/<?= $tinyMCE; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-<div class="konten">
+<div class="konten admin-module-page admin-module-add-voucher">
     <div class="container">
         <form action="/actionaddvoucher" method="post" enctype="multipart/form-data">
             <?= csrf_field(); ?>
-            <h3 class="">Buat Voucher</h3>
+            <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Tambah voucher', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Atur nominal, syarat, dan masa berlaku voucher.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/listvoucher', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+
+
             <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
                     <?= $msg; ?>

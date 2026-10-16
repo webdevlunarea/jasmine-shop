@@ -42,12 +42,10 @@
         </form>
     </div>
 </div>
-<div class="konten">
+<div class="konten admin-module-page admin-module-list-voucher">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1>List Voucher</h1>
-            <a href="/addvoucher" class="btn btn-primary1">Tambah Voucher</a>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Voucher', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Kelola potongan, periode berlaku, dan penerima voucher.', 'adminHeadingActions'=>[['label'=>'Tambah voucher', 'href'=>'/addvoucher', 'icon'=>'add', 'primary'=>true, 'external'=>false]]], ['saveData'=>false]); ?>
+
         <?php if ($msg) { ?>
             <div class="alert alert-primary" role="alert">
                 <?= $msg; ?>

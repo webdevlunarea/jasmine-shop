@@ -270,9 +270,9 @@ $fields = [
 ];
 ?>
 
-<div class="konten">
+<div class="konten admin-module-page admin-module-setting-warna">
     <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div class="admin-module-heading d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
             <div>
                 <h5 class="jdl-section mb-0">Tampilan Website</h5>
                 <h1 class="mb-1">Setting Tampilan Website</h1>

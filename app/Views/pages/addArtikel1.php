@@ -6,10 +6,12 @@
     }
 </style>
 <script src="https://cdn.tiny.cloud/1/<?= $tinymce; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-<div class="konten">
+<div class="konten admin-module-page admin-module-add-artikel1">
     <form method="post" action="/addarticle" enctype="multipart/form-data">
         <div class="container">
-            <h1 class="mb-3">Tambah Artikel</h1>
+            <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Tambah artikel', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Tulis judul, isi, dan gambar artikel website.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/article', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+
+
             <?= csrf_field(); ?>
             <div>
                 <table class="table-input w-100">

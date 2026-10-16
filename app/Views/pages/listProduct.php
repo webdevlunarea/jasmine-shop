@@ -1,29 +1,19 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-list-product">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="jdl-section">List Produk</h5>
-            <div class="d-flex gap-1">
-                <a href="/listproducttable" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
-                    <p class="mb-0">Eksport</p>
-                </a>
-                <a href="/categoryimagesadmin" class="btn btn-outline-dark d-flex gap-2" style="width: fit-content;">
-                    <i class="material-icons">image</i>
-                    <p class="mb-0">Gambar Kategori</p>
-                </a>
-            </div>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Produk', 'adminHeadingGroup'=>'Katalog', 'adminHeadingDescription'=>'Kelola foto produk website. Data utama tetap mengikuti MyLuna.', 'adminHeadingActions'=>[['label'=>'Ekspor', 'href'=>'/listproducttable', 'icon'=>'file_download', 'primary'=>false, 'external'=>false], ['label'=>'Gambar kategori', 'href'=>'/categoryimagesadmin', 'icon'=>'image', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+
         <?php if (session()->getFlashdata('msg')) { ?>
             <div class="alert alert-warning py-2"><?= session()->getFlashdata('msg'); ?></div>
         <?php } ?>
         <div class="alert alert-info py-2">
             Data utama produk seperti nama, harga, stok, varian, kategori, status aktif, berat, dan dimensi dikelola dari Luna Sistem. Admin website hanya untuk foto produk.
         </div>
-        <form action="/findproductadmin" method="post">
+        <form action="/findproductadmin" method="post" class="admin-module-search">
             <div class="mb-2 d-flex gap-3 align-items-center">
-                <p class="m-0" style="width: 150px">Cari barang</p>
-                <input type="text" class="form-control" name="cari" value="<?= $cari ? str_replace('-', ' ', $cari) : ''; ?>">
+                <label class="form-label m-0" for="admin-product-search">Cari produk</label>
+                <input type="search" id="admin-product-search" class="form-control" name="cari" value="<?= esc($cari ? str_replace('-', ' ', $cari) : ''); ?>"><button type="submit" class="btn btn-primary1">Cari</button>
             </div>
         </form>
         <div class="show-flex-ke-hide flex-column">

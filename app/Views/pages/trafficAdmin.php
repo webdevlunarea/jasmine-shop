@@ -23,9 +23,9 @@ foreach ($dailyTraffic as $day) {
     }
 }
 ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-traffic-admin">
     <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div class="admin-module-heading d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <h5 class="jdl-section mb-2">Traffic Pengunjung</h5>
                 <h1 class="mb-0">Statistik Traffic</h1>

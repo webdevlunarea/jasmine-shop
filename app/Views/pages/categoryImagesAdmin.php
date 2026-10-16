@@ -1,15 +1,8 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-category-images-admin">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <p class="admin-form-eyebrow mb-1">Website</p>
-                <h5 class="jdl-section mb-1">Gambar Kategori</h5>
-                <p class="text-muted mb-0">Upload gambar kategori transparan. Rekomendasi ukuran 300x300 px, format PNG/WebP.</p>
-            </div>
-            <a href="/listproduct" class="btn btn-outline-dark">Kembali</a>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Gambar kategori', 'adminHeadingGroup'=>'Katalog', 'adminHeadingDescription'=>'Gunakan gambar transparan PNG atau WebP, rekomendasi 300 × 300 px.', 'adminHeadingActions'=>[['label'=>'Kembali ke produk', 'href'=>'/listproduct', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
 
         <?php if (!empty($msg)) { ?>
             <div class="alert alert-info py-2"><?= esc($msg); ?></div>

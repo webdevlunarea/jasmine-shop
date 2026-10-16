@@ -231,7 +231,7 @@
     }
 }
 </style>
-<div class="konten">
+<div class="konten admin-module-page admin-module-stok-admin">
     <div class="container">
         <div class="stok-hero mb-4">
             <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-lg-center">

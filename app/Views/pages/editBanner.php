@@ -11,19 +11,13 @@
     background-color: #f8f9fa;
 }
 </style>
-<div class="konten">
+<div class="konten admin-module-page admin-module-edit-banner">
     <div class="container">
         <form action="/actioneditbanner/<?= $banner['id']; ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field(); ?>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h5 class="jdl-section mb-0">Homepage</h5>
-                    <h1 class="mb-0">Edit Banner</h1>
-                </div>
-                <a href="/listbanner" class="btn btn-outline-dark">Kembali</a>
-            </div>
+            <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Edit banner', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Gunakan gambar yang jelas dan periksa tampilannya di desktop maupun mobile.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/listbanner', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
 
-            <?php if ($msg) { ?>
+        <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
                     <?= $msg; ?>
                 </div>

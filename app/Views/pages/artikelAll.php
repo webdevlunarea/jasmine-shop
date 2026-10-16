@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten artikel">
+<div class="konten artikel admin-module-page admin-module-articles">
     <div class="container">
         <?php
         // === NEW: deteksi halaman pertama ===
@@ -105,13 +105,12 @@
             </div>
         </form>
 
-        <?php if (session()->get('role') == 1) { ?>
-        <div class="d-flex justify-content-end mb-3">
-            <a href="/addarticle" class="btn btn-primary1">Buat Artikel Baru</a>
-        </div>
+        <?php if ((string)session('role') === '1') { ?>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Artikel', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Kelola tulisan dan referensi furniture untuk pengunjung website.', 'adminHeadingActions'=>[['label'=>'Tambah artikel', 'href'=>'/addarticle', 'icon'=>'add', 'primary'=>true, 'external'=>false]]], ['saveData'=>false]); ?>
+
         <?php } ?>
 
-        <?php if (!isset($find)) { ?>
+        <?php if (!isset($find) && (string)session('role') !== '1') { ?>
         <div class="mb-4">
             <div class="p-5 header show-flex-ke-hide"
                 style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">

@@ -1,26 +1,19 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-list-invoice-admin">
     <div class="container">
-        <div class="d-flex justify-content-between">
-            <h3 class="">List Invoice</h3>
-            <a href="/addinvoiceadmin" class="btn btn-primary1">Tambah Invoice</a>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Invoice', 'adminHeadingGroup'=>'Operasional', 'adminHeadingDescription'=>'Temukan dan periksa invoice yang dibuat oleh admin.', 'adminHeadingActions'=>[['label'=>'Buat invoice', 'href'=>'/addinvoiceadmin', 'icon'=>'add', 'primary'=>true]]], ['saveData'=>false]); ?>
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Daftar invoice">
+            <table class="table admin-data-table align-middle"><caption class="visually-hidden">Nomor, tanggal, penerima dan tautan detail invoice.</caption>
+                <thead><tr><th scope="col">Nomor invoice</th><th scope="col">Tanggal</th><th scope="col">Penerima</th><th scope="col" class="text-end">Tindakan</th></tr></thead>
+                <tbody>
+                <?php if (!$seluruhInvoice) { ?><tr><td colspan="4" class="admin-empty-state">Belum ada invoice. Gunakan tombol Buat invoice untuk memulai.</td></tr><?php } ?>
+                <?php foreach ($seluruhInvoice as $invoice) { ?>
+                    <tr><td class="fw-semibold"><?= esc($invoice['id']); ?></td><td><?= esc($invoice['tanggal']); ?></td><td><?= esc($invoice['nama']); ?></td><td class="text-end"><a href="/invoiceadmin/<?= rawurlencode((string)$invoice['id']); ?>" class="btn orders-secondary" aria-label="Detail invoice <?= esc((string)$invoice['id'], 'attr'); ?>">Lihat detail<i class="material-icons" aria-hidden="true">north_east</i></a></td></tr>
+                <?php } ?>
+                </tbody>
+            </table>
         </div>
-        <hr>
-        <div class="d-flex border-bottom py-2 fw-bold">
-            <div style="flex: 3;">ID</div>
-            <div style="flex: 3;">Tanggal</div>
-            <div style="flex: 3;">Nama</div>
-            <div style="flex: 1;"></div>
-        </div>
-        <?php foreach ($seluruhInvoice as $invoice) { ?>
-            <div class="d-flex py-2">
-                <div style="flex: 3;"><?= $invoice['id']; ?></div>
-                <div style="flex: 3;"><?= $invoice['tanggal']; ?></div>
-                <div style="flex: 3;"><?= $invoice['nama']; ?></div>
-                <div style="flex: 1;"><a href="/invoiceadmin/<?= $invoice['id']; ?>" class="btn btn-light">Detail</a></div>
-            </div>
-        <?php } ?>
     </div>
 </div>
 <?= $this->endSection(); ?>

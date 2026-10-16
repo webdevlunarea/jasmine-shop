@@ -1,11 +1,13 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
 <script src="https://cdn.tiny.cloud/1/<?= $tinyMCE; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-<div class="konten">
+<div class="konten admin-module-page admin-module-edit-voucher">
     <div class="container">
         <form action="/actioneditvoucher/<?= $voucher['id']; ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field(); ?>
-            <h3 class="">Edit Voucher</h3>
+            <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Edit voucher', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Periksa kembali syarat voucher sebelum menyimpan perubahan.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/listvoucher', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+
+
             <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
                     <?= $msg; ?>

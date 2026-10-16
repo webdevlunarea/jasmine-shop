@@ -1,8 +1,8 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-manage-rating-terjual">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="admin-module-heading d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h5 class="jdl-section m-0">Kelola Rating &amp; Terjual</h5>
             <div class="d-flex gap-2 flex-wrap">
                 <form action="/generatedummyratingterjual" method="post" onsubmit="return confirm('Generate Data Demo:\n\n- Terjual semua produk di-random 5-400\n- Produk yang BELUM punya rating dibuat 3-7 ulasan dummy\n- Produk yang SUDAH punya rating di-skip\n\nLanjutkan?');">

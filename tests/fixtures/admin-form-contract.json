@@ -1,0 +1,2063 @@
+{
+  "shippingAdmin": {
+    "forms": [
+      {
+        "action": "/shippingadmin",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/shippingadmin",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/shippingadmin/coverage/PHP_f913bbf9863c/deactivate",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "action",
+        "type": "hidden",
+        "value": "settings",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "internal_active",
+        "type": "checkbox",
+        "value": "1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_active",
+        "type": "checkbox",
+        "value": "1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_id",
+        "type": "text",
+        "value": "PHP_66ed9a90d529",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_label",
+        "type": "text",
+        "value": "PHP_21349dedd1b5",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_provinsi",
+        "type": "text",
+        "value": "PHP_02cde6531181",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_kecamatan",
+        "type": "text",
+        "value": "PHP_f5b520236489",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_postal_code",
+        "type": "text",
+        "value": "PHP_4b642ba29d92",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_origin_kelurahan",
+        "type": "text",
+        "value": "PHP_e374cdff74cb",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rajaongkir_couriers",
+        "type": "text",
+        "value": "PHP_a4a463309b07",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "action",
+        "type": "hidden",
+        "value": "add_coverage",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "provinsi_id",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kabupaten_id",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kecamatan_id",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listInvoiceAdmin": {
+    "forms": [],
+    "fields": []
+  },
+  "addInvoice": {
+    "forms": [
+      {
+        "action": "/actionaddinvoiceadmin",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "tanggal",
+        "type": "date",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "id",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "alamat",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-1-nama",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-1-kuantitas",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-1-harga",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "hitungProduk",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-' +\n            counterItem + '-nama",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-' +\n            counterItem + '-kuantitas",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "produk-' +\n            counterItem + '-harga",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listProduct": {
+    "forms": [
+      {
+        "action": "/findproductadmin",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "cari",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "flashSaleAdmin": {
+    "forms": [
+      {
+        "action": "/flashsaleadmin",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "selected_product_ids_order",
+        "type": "hidden",
+        "value": "PHP_b561f97dc353",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "enabled",
+        "type": "checkbox",
+        "value": "1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kicker",
+        "type": "text",
+        "value": "PHP_8985f2bde68d",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "40",
+        "multiple": ""
+      },
+      {
+        "name": "end_time",
+        "type": "time",
+        "value": "PHP_55b4326dc117",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "value": "PHP_7001495baef4",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "80",
+        "multiple": ""
+      },
+      {
+        "name": "subtitle",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "180",
+        "multiple": ""
+      },
+      {
+        "name": "limit",
+        "type": "number",
+        "value": "PHP_1e08ae68c1f9",
+        "min": "PHP_24a149b10275",
+        "max": "24",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "mode",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "product_ids[]",
+        "type": "checkbox",
+        "value": "PHP_a057e15beeee",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "categoryImagesAdmin": {
+    "forms": [
+      {
+        "action": "/categoryimagesadmin",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "category_PHP_73952d35d760",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "addArtikel1": {
+    "forms": [
+      {
+        "action": "/addarticle",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "judul",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "penulis",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori-barang",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "waktu",
+        "type": "datetime-local",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "header",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "isi",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "editArtikel": {
+    "forms": [
+      {
+        "action": "/editarticle/PHP_e5dee4f8faa4",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "judul",
+        "type": "text",
+        "value": "PHP_9a7cd3fe979d",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "penulis",
+        "type": "text",
+        "value": "PHP_303797a3ec4d",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori-barang",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "waktu",
+        "type": "datetime-local",
+        "value": "PHP_8c080398176a",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "header",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "isi",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listBanner": {
+    "forms": [],
+    "fields": []
+  },
+  "addBanner": {
+    "forms": [
+      {
+        "action": "/actionaddbanner",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "judul",
+        "type": "text",
+        "value": "PHP_c60db3f91c4f",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "alt",
+        "type": "text",
+        "value": "PHP_426f50161740",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "link",
+        "type": "text",
+        "value": "PHP_7473157d23e7",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "urutan",
+        "type": "number",
+        "value": "PHP_b3ca17e42705",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "gambar",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "active",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "editBanner": {
+    "forms": [
+      {
+        "action": "/actioneditbanner/PHP_3be07d3e2f35",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "judul",
+        "type": "text",
+        "value": "PHP_d0d54c3a713c",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "alt",
+        "type": "text",
+        "value": "PHP_a12c59e8ae55",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "link",
+        "type": "text",
+        "value": "PHP_c4aa396ac928",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "urutan",
+        "type": "number",
+        "value": "PHP_be12805033a7",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "gambar",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "active",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listVoucher": {
+    "forms": [
+      {
+        "action": "/voucher/addmember",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "counter",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "idvoucher",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "email1",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "code1",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "email${ind_c}",
+        "type": "text",
+        "value": "${c.email_user}",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "code${ind_c}",
+        "type": "text",
+        "value": "${c.code ? c.code : ''}",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "email${jmlCodeCur}",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "code${jmlCodeCur}",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "addVoucher": {
+    "forms": [
+      {
+        "action": "/actionaddvoucher",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "nominal",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "satuan",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "max_potongan",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jenis",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kuota",
+        "type": "number",
+        "value": "-1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "durasi",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "durasi-poin",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "poster",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "keterangan",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "email",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "set-all-user-voucher",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "set-redeem",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "syarat-ketentuan",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jadwal1",
+        "type": "date",
+        "value": "",
+        "min": "PHP_63cde7511a3a",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jadwal2",
+        "type": "date",
+        "value": "",
+        "min": "PHP_63cde7511a3a",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "broadcast",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "poster-email",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "isi-email",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "auto-claimed",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tidak_gabung_voucher_baru",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "hitungProduk",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "editVoucher": {
+    "forms": [
+      {
+        "action": "/actioneditvoucher/PHP_0a47d2e85cf2",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "PHP_906e85bb55d9",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "nominal",
+        "type": "number",
+        "value": "PHP_96141d6d720a",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "satuan",
+        "type": "",
+        "value": "PHP_be2a2942e1c3",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "max_potongan",
+        "type": "number",
+        "value": "PHP_15629e120f17",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jenis",
+        "type": "",
+        "value": "PHP_1a8c88ecfbf8",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kuota",
+        "type": "number",
+        "value": "PHP_c1836cfe6b1f",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "durasi",
+        "type": "",
+        "value": "PHP_edcec5bcba7e",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "durasi-poin",
+        "type": "",
+        "value": "PHP_7eb5b1b8b2c0",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "poster",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "keterangan",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "email",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "set-all-user-voucher",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "set-redeem",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "syarat-ketentuan",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jadwal1",
+        "type": "date",
+        "value": "PHP_a43629b022d1",
+        "min": "PHP_63cde7511a3a",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jadwal2",
+        "type": "date",
+        "value": "PHP_281559fd082b",
+        "min": "PHP_63cde7511a3a",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "broadcast",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "poster-email",
+        "type": "file",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "isi-email",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "auto-claimed",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tidak_gabung_voucher_baru",
+        "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "manageRatingTerjual": {
+    "forms": [
+      {
+        "action": "/generatedummyratingterjual",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/freshgeneratedummyratingterjual",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/hapusdummyrating",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/manageratingterjual",
+        "method": "get",
+        "enctype": ""
+      },
+      {
+        "action": "/updateterjualadmin/PHP_eb0702917132",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/manageratingterjual",
+        "method": "get",
+        "enctype": ""
+      },
+      {
+        "action": "/editratingadmin/PHP_d0e142e8e793",
+        "method": "post",
+        "enctype": ""
+      },
+      {
+        "action": "/delrating/PHP_d0e142e8e793",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "cari",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "terjual",
+        "type": "number",
+        "value": "PHP_bda02f5cb0ff",
+        "min": "0",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "terjual_custom",
+        "type": "number",
+        "value": "PHP_23a463150941",
+        "min": "0",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tab",
+        "type": "hidden",
+        "value": "rating",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "filter_barang",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "nama_pembeli",
+        "type": "text",
+        "value": "PHP_91a91c8cee64",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "rating",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "komentar",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "1000",
+        "multiple": ""
+      },
+      {
+        "name": "from_admin",
+        "type": "hidden",
+        "value": "1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "stokAdmin": {
+    "forms": [
+      {
+        "action": "",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "jenis",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "varian",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jumlah",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "id_barang",
+        "type": "text",
+        "value": "PHP_055036d8e2a5",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "PHP_eb3eb2793e8e",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listRedeem": {
+    "forms": [
+      {
+        "action": "/redeemcode",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "voucher",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "code",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "trafficAdmin": {
+    "forms": [],
+    "fields": []
+  },
+  "settingWarna": {
+    "forms": [
+      {
+        "action": "/settingwarna",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "topPromoDesktop",
+        "type": "text",
+        "value": "PHP_3bab44e2172c",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "160",
+        "multiple": ""
+      },
+      {
+        "name": "topPromoMobile",
+        "type": "text",
+        "value": "PHP_d20102effb8d",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "160",
+        "multiple": ""
+      },
+      {
+        "name": "PHP_66ce355889ef",
+        "type": "color",
+        "value": "PHP_f1b8520e45d4",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "editProduct": {
+    "forms": [
+      {
+        "action": "/editproduct/PHP_055036d8e2a5",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "PHP_44f4284ee69f",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "harga",
+        "type": "number",
+        "value": "PHP_1150da7a78d6",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "diskon",
+        "type": "number",
+        "value": "PHP_5461d08175b3",
+        "min": "",
+        "max": "",
+        "step": "any",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "dimensi",
+        "type": "text",
+        "value": "PHP_351409c3fa64",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "berat",
+        "type": "number",
+        "value": "PHP_8260b6fb0313",
+        "min": "",
+        "max": "",
+        "step": "any",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "stok",
+        "type": "text",
+        "value": "PHP_7046785e9172",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "terjual_custom",
+        "type": "number",
+        "value": "PHP_391201ac76f9",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "terjual",
+        "type": "hidden",
+        "value": "PHP_b7c5bcaf029e",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori",
+        "type": "text",
+        "value": "PHP_1931320e6a0e",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subkategori",
+        "type": "text",
+        "value": "PHP_3e5bbcbd16fa",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "varian",
+        "type": "text",
+        "value": "PHP_1048d1571adc",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jml_varian",
+        "type": "number",
+        "value": "PHP_9eb2d5f08cc2",
+        "min": "1",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "shopee",
+        "type": "url",
+        "value": "PHP_c50c1714e57d",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tokped",
+        "type": "url",
+        "value": "PHP_77f904662d09",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tiktok",
+        "type": "url",
+        "value": "PHP_2a3645329c2b",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "youtube",
+        "type": "url",
+        "value": "PHP_e6454e415af4",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "deskripsi",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "deskripsi_nonhtml",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "pencarian",
+        "type": "text",
+        "value": "PHP_213ee20f8aef",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "variant_image_PHP_cbdb4042f216",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "addProduct": {
+    "forms": [
+      {
+        "action": "/addproduct",
+        "method": "post",
+        "enctype": "multipart/form-data"
+      }
+    ],
+    "fields": [
+      {
+        "name": "nama",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "harga",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "diskon",
+        "type": "number",
+        "value": "0",
+        "min": "",
+        "max": "",
+        "step": "any",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "dimensi",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "berat",
+        "type": "number",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "any",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "stok",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "kategori",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subkategori",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "varian",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "jml_varian",
+        "type": "number",
+        "value": "1",
+        "min": "1",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "shopee",
+        "type": "url",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tokped",
+        "type": "url",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "tiktok",
+        "type": "url",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "youtube",
+        "type": "url",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "deskripsi",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "deskripsi_nonhtml",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "pencarian",
+        "type": "text",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "listForm": {
+    "forms": [],
+    "fields": []
+  },
+  "artikelAll": {
+    "forms": [
+      {
+        "action": "/actionsearcharticle",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "kategori",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "cari",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  },
+  "partials/shippingSubsidySettings": {
+    "forms": [
+      {
+        "action": "/shippingadmin/subsidy",
+        "method": "post",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "subsidy_enabled",
+        "type": "checkbox",
+        "value": "1",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subsidy_percentage",
+        "type": "number",
+        "value": "PHP_0f25bc314944",
+        "min": "0",
+        "max": "100",
+        "step": "0.01",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subsidy_max_amount",
+        "type": "number",
+        "value": "PHP_c97c74367d95",
+        "min": "0",
+        "max": "2000000000",
+        "step": "1",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subsidy_starts_at",
+        "type": "datetime-local",
+        "value": "PHP_86857086758f",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subsidy_ends_at",
+        "type": "datetime-local",
+        "value": "PHP_5e6a1fafd3b4",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "subsidy_couriers[]",
+        "type": "checkbox",
+        "value": "PHP_955e5e3da438",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
+  }
+}

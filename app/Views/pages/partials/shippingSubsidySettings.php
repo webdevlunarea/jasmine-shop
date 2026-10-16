@@ -9,10 +9,10 @@ $configuredCouriers = array_values(array_filter(array_map(static fn($code) => st
 $subsidyCouriers = array_values(array_unique(array_merge($configuredCouriers, $subsidy['couriers'])));
 $percentageDisplay = number_format($subsidy['percentage_bps'] / 100, 2, '.', '');
 ?>
-<section class="shipping-admin-panel mt-3">
+<section class="shipping-admin-panel mt-3" id="shipping-subsidy" aria-labelledby="shipping-subsidy-title">
     <div class="shipping-panel-head">
         <div>
-            <h5 class="fw-bold mb-1">Subsidi Ongkir</h5>
+            <h5 class="fw-bold mb-1" id="shipping-subsidy-title">Subsidi Ongkir</h5>
             <p class="text-secondary mb-0">Toko menanggung sebagian tarif ekspedisi. Pembeli hanya melihat ongkir akhir, tanpa label subsidi.</p>
         </div>
         <span class="badge <?= $subsidy['enabled'] && !empty($subsidyStorageReady) ? 'text-bg-success' : 'text-bg-secondary'; ?>"><?= $subsidy['enabled'] && !empty($subsidyStorageReady) ? 'Diaktifkan' : 'Nonaktif'; ?></span>

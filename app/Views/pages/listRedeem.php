@@ -2,7 +2,7 @@
 <?= $this->section('content'); ?>
 <div id="modal-redeem" class="d-none justify-content-center align-items-center" style="background-color: rgba(0, 0, 0, 0.5); position: fixed; left:0; top:0; width:100vw; height:100svh;">
     <div style="background-color: white;" class="p-4 rounded-3">
-        <h5 class="mb-2">Tambah Code</h5>
+        <h5 class="mb-2">Tambah kode</h5>
         <form action="/redeemcode" method="post">
             <div class="mb-1">
                 <label>Voucher</label>
@@ -23,40 +23,23 @@
         </form>
     </div>
 </div>
-<div class="konten">
+<div class="konten admin-module-page admin-module-list-redeem">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 class="">List Redeem Code</h3>
-            <button onclick="openRedeem()" class="btn btn-primary1">Tambah Code</button>
+        <div class="admin-module-heading d-flex justify-content-between align-items-center">
+            <h3 class="">Kode redeem</h3>
+            <button onclick="openRedeem()" class="btn btn-primary1">Tambah kode</button>
         </div>
-        <hr>
-        <div class="d-flex border-bottom py-2 fw-bold">
-            <div style="flex: 1;">No</div>
-            <div style="flex: 3;">Nama Voucher</div>
-            <div style="flex: 3;">Code</div>
-            <div style="flex: 3;">Action</div>
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Daftar kode redeem">
+            <table class="table admin-data-table align-middle">
+                <thead><tr><th scope="col">No.</th><th scope="col">Voucher</th><th scope="col">Kode</th><th scope="col" class="text-end">Tindakan</th></tr></thead>
+                <tbody>
+                <?php if (!$redeem) { ?><tr><td colspan="4" class="admin-empty-state">Belum ada kode redeem. Tambahkan kode untuk voucher yang tersedia.</td></tr><?php } ?>
+                <?php foreach ($redeem as $index=>$r) { ?>
+                    <tr><td><?= $index+1; ?></td><td><?= esc($r['nama']); ?></td><td class="fw-semibold"><?= esc($r['code']); ?></td><td class="text-end"><button type="button" class="btn btn-light" disabled aria-label="Edit kode belum tersedia" title="Edit kode belum tersedia"><i class="material-icons" aria-hidden="true">edit</i></button> <button type="button" class="btn btn-outline-danger" disabled aria-label="Hapus kode belum tersedia" title="Hapus kode belum tersedia"><i class="material-icons" aria-hidden="true">delete</i></button></td></tr>
+                <?php } ?>
+                </tbody>
+            </table>
         </div>
-        <?php
-        $no = 1;
-        if (count($redeem) > 0) {
-            foreach ($redeem as $r) { ?>
-                <div class="d-flex py-2">
-                    <div style="flex: 1;"><?= $no; ?></div>
-                    <div style="flex: 3;"><?= $r['nama']; ?></div>
-                    <div style="flex: 3;"><?= $r['code']; ?></div>
-                    <div style="flex: 3;">
-                        <button class="btn btn-outline-dark"><i class="material-icons">edit</i></button>
-                        <button class="btn btn-outline-danger"><i class="material-icons">delete</i></button>
-                    </div>
-                </div>
-            <?php
-                $no++;
-            }
-        } else { ?>
-            <div class="d-flex py-2 justify-content-center">
-                <p>Tidak ada redeem code</p>
-            </div>
-        <?php } ?>
     </div>
 </div>
 <script>

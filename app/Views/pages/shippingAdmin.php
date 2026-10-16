@@ -18,19 +18,9 @@ $originPostalCode = trim((string)($rajaSettings['origin_postal_code'] ?? $rajaSe
 $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode !== '';
 ?>
 
-<div class="konten">
+<div class="konten admin-module-page admin-module-shipping-admin">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-            <div>
-                <p class="admin-form-eyebrow mb-1">Website</p>
-                <h5 class="jdl-section mb-1">Pengiriman</h5>
-                <p class="text-muted mb-0">Atur Jasa Kirim Toko, wilayah layanan, dan estimasi ongkir ekspedisi.</p>
-            </div>
-            <a href="/" target="_blank" class="btn btn-outline-dark d-flex align-items-center gap-2">
-                <i class="material-icons">open_in_new</i>
-                <span>Lihat Website</span>
-            </a>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Pengiriman', 'adminHeadingGroup'=>'Operasional', 'adminHeadingDescription'=>'Kelola metode, lokasi asal, wilayah layanan, dan subsidi ongkir.', 'adminHeadingActions'=>[['label'=>'Lihat toko', 'href'=>'/', 'icon'=>'storefront', 'primary'=>false, 'external'=>true]]], ['saveData'=>false]); ?>
 
         <?php if (!empty($msg)) { ?>
             <div class="alert alert-info py-2"><?= esc($msg); ?></div>
@@ -67,8 +57,13 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
             </div>
         </div>
 
+        <nav class="admin-module-section-nav" aria-label="Bagian pengaturan pengiriman">
+            <a href="#shipping-methods">Metode &amp; lokasi asal</a>
+            <a href="#shipping-coverage">Wilayah layanan</a>
+            <a href="#shipping-subsidy">Subsidi ongkir</a>
+        </nav>
         <div class="shipping-admin-grid">
-            <section class="shipping-admin-panel">
+            <section class="shipping-admin-panel" id="shipping-methods">
                 <div class="shipping-panel-head">
                     <div>
                         <h5 class="fw-bold mb-1">Pengaturan Utama</h5>
@@ -106,37 +101,37 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                         </div>
                         <div class="row g-2">
                             <div class="col-md-5">
-                                <label class="form-label fw-bold">ID Lokasi Asal</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_id" value="<?= esc($originId); ?>" placeholder="Opsional, ID lokasi asal yang terverifikasi">
+                                <label class="form-label fw-bold" for="shipping-origin-id">ID Lokasi Asal</label>
+                                <input type="text" class="form-control" id="shipping-origin-id" name="rajaongkir_origin_id" value="<?= esc($originId); ?>" placeholder="Opsional, ID lokasi asal yang terverifikasi">
                                 <small class="text-secondary">Gunakan ID lokasi yang sudah diverifikasi pada layanan pengiriman.</small>
                             </div>
                             <div class="col-md-7">
-                                <label class="form-label fw-bold">Nama Lokasi Asal</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_label" value="<?= esc($originLabel); ?>" placeholder="Kota Semarang, Jawa Tengah">
+                                <label class="form-label fw-bold" for="shipping-origin-label">Nama Lokasi Asal</label>
+                                <input type="text" class="form-control" id="shipping-origin-label" name="rajaongkir_origin_label" value="<?= esc($originLabel); ?>" placeholder="Kota Semarang, Jawa Tengah">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">Provinsi Asal</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_provinsi" value="<?= esc($originProvinsi); ?>" placeholder="Jawa Tengah">
+                                <label class="form-label fw-bold" for="shipping-origin-province">Provinsi Asal</label>
+                                <input type="text" class="form-control" id="shipping-origin-province" name="rajaongkir_origin_provinsi" value="<?= esc($originProvinsi); ?>" placeholder="Jawa Tengah">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">Kecamatan Asal</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_kecamatan" value="<?= esc($originKecamatan); ?>" placeholder="Contoh: Tembalang">
+                                <label class="form-label fw-bold" for="shipping-origin-district">Kecamatan Asal</label>
+                                <input type="text" class="form-control" id="shipping-origin-district" name="rajaongkir_origin_kecamatan" value="<?= esc($originKecamatan); ?>" placeholder="Contoh: Tembalang">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">Kode Pos Asal</label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_postal_code" value="<?= esc($originPostalCode); ?>" placeholder="Contoh: 50275">
+                                <label class="form-label fw-bold" for="shipping-origin-postal">Kode Pos Asal</label>
+                                <input type="text" class="form-control" id="shipping-origin-postal" name="rajaongkir_origin_postal_code" value="<?= esc($originPostalCode); ?>" placeholder="Contoh: 50275">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">Kelurahan Asal <span class="text-secondary fw-normal">(opsional)</span></label>
-                                <input type="text" class="form-control" name="rajaongkir_origin_kelurahan" value="<?= esc($originKelurahan); ?>" placeholder="Lengkapi kelurahan untuk pencarian lokasi yang lebih tepat">
+                                <label class="form-label fw-bold" for="shipping-origin-village">Kelurahan Asal <span class="text-secondary fw-normal">(opsional)</span></label>
+                                <input type="text" class="form-control" id="shipping-origin-village" name="rajaongkir_origin_kelurahan" value="<?= esc($originKelurahan); ?>" placeholder="Lengkapi kelurahan untuk pencarian lokasi yang lebih tepat">
                                 <small class="text-secondary">Estimasi ongkir tersedia setelah ID lokasi asal atau kecamatan dan kode pos dilengkapi.</small>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="form-label fw-bold">Kurir Aktif</label>
-                        <input type="text" class="form-control" name="rajaongkir_couriers" value="<?= esc(implode(',', $couriers)); ?>" placeholder="jne,jnt,sicepat,tiki,pos,sentral">
+                        <label class="form-label fw-bold" for="shipping-couriers">Kurir Aktif</label>
+                        <input type="text" class="form-control" id="shipping-couriers" name="rajaongkir_couriers" value="<?= esc(implode(',', $couriers)); ?>" placeholder="jne,jnt,sicepat,tiki,pos,sentral">
                         <small class="text-secondary">Pisahkan dengan koma. Sentral Cargo tampil apabila tarif dan layanan tersedia.</small>
                         <div class="shipping-courier-chips mt-2">
                             <?php foreach ($couriers as $courier) { ?>
@@ -152,10 +147,10 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                 </form>
             </section>
 
-            <section class="shipping-admin-panel">
+            <section class="shipping-admin-panel" id="shipping-coverage">
                 <div class="shipping-panel-head">
                     <div>
-                        <h5 class="fw-bold mb-1">Coverage Jasa Kirim Toko</h5>
+                        <h5 class="fw-bold mb-1">Wilayah layanan Jasa Kirim Toko</h5>
                         <p class="text-secondary mb-0">Tambahkan kecamatan yang berhak mendapat pengiriman toko gratis.</p>
                     </div>
                     <span class="shipping-count-badge"><?= $activeCoverage; ?> aktif</span>
@@ -165,7 +160,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                     <?= csrf_field(); ?>
                     <input type="hidden" name="action" value="add_coverage">
                     <div>
-                        <label class="form-label fw-bold">Provinsi</label>
+                        <label class="form-label fw-bold" for="ship-prov">Provinsi</label>
                         <select class="form-select" name="provinsi_id" id="ship-prov" required>
                             <option value="">Pilih provinsi</option>
                             <?php foreach ($provinsi as $p) { ?>
@@ -174,20 +169,20 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                         </select>
                     </div>
                     <div>
-                        <label class="form-label fw-bold">Kota/Kabupaten</label>
+                        <label class="form-label fw-bold" for="ship-kab">Kota/Kabupaten</label>
                         <select class="form-select" name="kabupaten_id" id="ship-kab" required disabled>
                             <option value="">Pilih kota</option>
                         </select>
                     </div>
                     <div>
-                        <label class="form-label fw-bold">Kecamatan</label>
+                        <label class="form-label fw-bold" for="ship-kec">Kecamatan</label>
                         <select class="form-select" name="kecamatan_id" id="ship-kec" required disabled>
                             <option value="">Pilih kecamatan</option>
                         </select>
                     </div>
                     <button class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2" type="submit">
                         <i class="material-icons">add_location_alt</i>
-                        <span>Tambah Coverage</span>
+                        <span>Tambah kecamatan</span>
                     </button>
                 </form>
 
@@ -196,7 +191,7 @@ $originReady = $originId !== '' || $originKecamatan !== '' || $originPostalCode 
                         <div class="shipping-empty-state">
                             <i class="material-icons">map</i>
                             <strong>Belum ada kecamatan</strong>
-                            <p class="text-secondary mb-0">Tambahkan coverage agar Jasa Kirim Toko bisa muncul di checkout.</p>
+                            <p class="text-secondary mb-0">Tambahkan wilayah layanan agar Jasa Kirim Toko bisa muncul di checkout.</p>
                         </div>
                     <?php } ?>
 

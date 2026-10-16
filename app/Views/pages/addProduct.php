@@ -1,9 +1,9 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
 <script src="https://cdn.tiny.cloud/1/<?= $tinymce; ?>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-<div class="konten">
+<div class="konten admin-module-page admin-module-add-product">
     <div class="container admin-product-editor">
-        <div class="admin-form-hero mb-4">
+        <div class="admin-module-heading admin-form-hero mb-4">
             <div>
                 <p class="admin-form-eyebrow mb-1">Produk</p>
                 <h1 class="mb-1">Tambah Produk</h1>

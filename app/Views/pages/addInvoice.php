@@ -1,9 +1,11 @@
 <?= $this->extend("layout/template"); ?>
 <?= $this->section("content"); ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-add-invoice">
     <div class="container">
         <form action="/actionaddinvoiceadmin" method="post">
-            <h3 class="">Buat Invoice</h3>
+            <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Buat invoice', 'adminHeadingGroup'=>'Operasional', 'adminHeadingDescription'=>'Lengkapi penerima dan rincian produk sebelum menyimpan.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/invoiceadmin', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+
+
             <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
                     <?= $msg; ?>

@@ -20,18 +20,9 @@
     }
 }
 </style>
-<div class="konten">
+<div class="konten admin-module-page admin-module-list-banner">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="jdl-section mb-0">Homepage</h5>
-                <h1 class="mb-0">List Banner</h1>
-            </div>
-            <a href="/addbanner" class="btn btn-primary1 d-flex gap-2 align-items-center" style="width: fit-content;">
-                <i class="material-icons">add</i>
-                <p class="mb-0">Tambah Banner</p>
-            </a>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Banner', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Atur gambar, urutan, dan tautan banner beranda.', 'adminHeadingActions'=>[['label'=>'Tambah banner', 'href'=>'/addbanner', 'icon'=>'add', 'primary'=>true, 'external'=>false]]], ['saveData'=>false]); ?>
 
         <?php if ($msg) { ?>
             <div class="alert alert-primary" role="alert">

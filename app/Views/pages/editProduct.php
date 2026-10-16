@@ -19,7 +19,7 @@ if (!is_array($variantList) || count($variantList) < 1) $variantList = ['Default
 $imageSlotCount = min(50, count($variantList) + max((int)$jmlVarianProduk, 1) - 1);
 $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
 ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-edit-product">
     <div class="container admin-product-editor">
         <style>
             .admin-product-fields .form-control[readonly],
@@ -143,7 +143,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                 }
             }
         </style>
-        <div class="admin-form-hero mb-4">
+        <div class="admin-module-heading admin-form-hero mb-4">
             <div>
                 <p class="admin-form-eyebrow mb-1">Produk</p>
                 <h1 class="mb-1">Edit Foto Produk</h1>

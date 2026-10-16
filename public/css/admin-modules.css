@@ -1,0 +1,179 @@
+/* Shared administration surfaces. Buyer pages and printable documents are excluded. */
+.admin-body .admin-module-page { min-width: 0; width: 100%; }
+.admin-body .admin-module-page > .container,
+.admin-body .admin-module-page > form > .container { max-width: 1440px; min-width: 0; width: 100%; padding: 26px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-surface); box-shadow: none; }
+.admin-body .admin-module-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 18px; margin: 0 0 26px !important; padding-bottom: 23px; border: 0; border-bottom: 1px solid var(--admin-border); border-radius: 0; background: transparent; box-shadow: none; }
+.admin-body .admin-module-heading > div { min-width: 0; }
+.admin-body .admin-module-heading :is(h1, h2, h3),
+.admin-body .admin-module-heading > h5 { margin: 0 0 7px; font-size: clamp(22px, 2.3vw, 27px); line-height: 1.3; font-weight: 600 !important; letter-spacing: -.7px; color: var(--admin-text); }
+.admin-body .admin-module-heading :is(.jdl-section, .admin-form-eyebrow) { font-size: 10px; font-weight: 600; letter-spacing: 1.3px; color: var(--admin-muted); margin-bottom: 7px !important; }
+.admin-body .admin-module-heading > h5.jdl-section { font-size: 24px; text-transform: none; color: var(--admin-text); letter-spacing: -.5px; }
+.admin-body .admin-module-heading .jdl-section::before { display: none; }
+.admin-body .admin-module-description,
+.admin-body .admin-module-heading > div > p:not(.admin-section-kicker):not(.admin-form-eyebrow) { margin: 0; font-size: 12px; line-height: 1.7; color: var(--admin-muted); max-width: 680px; }
+.admin-body .admin-module-heading .admin-module-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.admin-body .admin-module-page .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 13px; border-radius: 8px; font-size: 12px; font-weight: 500; white-space: normal; }
+.admin-body .admin-module-page .btn :is(p, span) { margin: 0; }
+.admin-body .admin-module-page .btn .material-icons { font-size: 18px; }
+.admin-body .admin-module-page :is(.btn-outline-dark, .btn-light) { border: 1px solid var(--admin-border); color: var(--admin-text); background: var(--admin-surface); box-shadow: none; }
+.admin-body .admin-module-page :is(.btn-outline-dark, .btn-light):hover { border-color: var(--admin-primary); color: var(--admin-primary); background: var(--admin-primary-soft); }
+.admin-body .admin-module-page :is(.form-control, .form-select) { min-width: 0; min-height: 44px; border: 1px solid var(--admin-border); border-radius: 8px; background-color: var(--admin-surface); font-size: 13px; padding-block: 10px; box-shadow: none; color: var(--admin-text); }
+.admin-body .admin-module-page .form-control:focus,
+.admin-body .admin-module-page .form-select:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 3px var(--admin-primary-soft); }
+.admin-body .admin-module-page :is(.form-control, .form-select):disabled { background: #f3f4f1; color: var(--admin-muted); }
+.admin-body .admin-module-page input[readonly] { background: var(--admin-primary-soft); }
+.admin-body .admin-module-page input[type="color"] { padding: 5px; }
+.admin-body .admin-module-page input[type="file"] { font-size: 12px; }
+.admin-body .admin-module-page :is(input[type="checkbox"], input[type="radio"]) { accent-color: var(--admin-primary); }
+.admin-body .admin-module-page :is(.form-label, .form-label.fw-bold) { color: var(--admin-text); font-size: 12px; font-weight: 500 !important; margin-bottom: 7px; }
+.admin-body .admin-module-page :is(small, .small) { line-height: 1.7; font-size: 11px; }
+.admin-body .admin-module-page :is(.text-secondary, .text-muted) { color: var(--admin-muted) !important; }
+.admin-body .admin-module-page :is(.alert-info, .alert-primary) { background: var(--admin-primary-soft); border: 1px solid var(--admin-border); color: var(--admin-text); font-size: 12px; line-height: 1.7; border-radius: 8px; box-shadow: none; }
+.admin-body .admin-module-page .badge { padding: 5px 8px; border-radius: 5px !important; font-size: 10px; font-weight: 500; line-height: 1.5; white-space: normal; }
+.admin-body .admin-module-page .text-bg-success { background: var(--admin-primary-soft) !important; color: var(--admin-primary) !important; }
+.admin-body .admin-module-page :is(.admin-form-section, .flash-admin-panel, .shipping-admin-panel, .traffic-section, .color-field, .variant-image-map-section) { border: 1px solid var(--admin-border); border-radius: 10px; padding: 21px; box-shadow: none; background: var(--admin-surface); min-width: 0; }
+.admin-body .admin-module-page :is(.admin-form-section__head, .flash-admin-panel__head, .shipping-panel-head) { gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--admin-border); }
+.admin-body .admin-module-page :is(.admin-form-section__head, .flash-admin-panel__head, .shipping-panel-head) :is(h3, h5) { font-size: 14px; font-weight: 600 !important; line-height: 1.5; }
+.admin-body .admin-module-page :is(.admin-form-section__head, .flash-admin-panel__head, .shipping-panel-head) p { font-size: 12px; line-height: 1.7; }
+.admin-body .admin-module-page :is(.admin-form-section__head > span, .admin-field-step) { width: 28px; height: 28px; flex: 0 0 28px; font-size: 11px; background: var(--admin-primary-soft); color: var(--admin-primary); box-shadow: none; }
+.admin-body .admin-module-page :is(.admin-product-grid, .admin-field-grid, .row, .baris-ke-kolom) > * { min-width: 0; }
+.admin-body .admin-module-page :is(.admin-product-preview, .admin-preview-card, .preview-product-card) { box-shadow: none; border-color: var(--admin-border); border-radius: 10px; }
+.admin-body .admin-module-page :is(.luna-locked-panel, .website-promo-field) { padding: 14px 16px; background: var(--admin-primary-soft); border: 1px solid var(--admin-border); border-radius: 8px; box-shadow: none; }
+.admin-body .admin-module-page .luna-locked-panel .material-icons { color: var(--admin-primary); background: transparent; padding: 2px; border-radius: 0; font-size: 21px; }
+.admin-body .admin-module-page .editable-photo-panel { border: 1px solid var(--admin-border); box-shadow: none; }
+.admin-body .admin-module-page .website-promo-field .form-control { border-color: var(--admin-border) !important; }
+.admin-body .admin-module-page .variant-image-picker { grid-template-columns: minmax(0, 1fr) 76px minmax(130px, .8fr); gap: 14px; border-color: var(--admin-border); border-radius: 8px; padding: 14px; }
+.admin-body .admin-module-page .variant-image-picker__preview { width: 76px; height: 76px; object-fit: contain; border-color: var(--admin-border); border-radius: 7px; }
+.admin-body .admin-module-page :is(.table-responsive, .container-list-form) { max-width: 100%; overscroll-behavior-x: contain; border: 1px solid var(--admin-border); border-radius: 9px; }
+.admin-body .admin-module-page .table { font-size: 12px; margin: 0; --bs-table-border-color: var(--admin-border); }
+.admin-body .admin-module-page .table :is(th, td) { padding: 13px 15px; vertical-align: middle; }
+.admin-body .admin-module-page .table th { font-weight: 500; color: var(--admin-muted); background: var(--admin-primary-soft); font-size: 11px; }
+.admin-body .admin-module-page .table td { overflow-wrap: anywhere; }
+.admin-body .admin-module-page .table-input { font-size: 13px; }
+.admin-body .admin-module-page .table-input td { padding: 10px 9px; vertical-align: top; }
+.admin-body .admin-module-page .table-input td:first-child { color: var(--admin-muted); }
+.admin-body .admin-module-page .table-input :is(.baris, input, textarea, select) { min-width: 0; max-width: 100%; }
+.admin-body .admin-module-page .pagination { gap: 4px; flex-wrap: wrap; }
+.admin-body .admin-module-page .pagination .page-link { min-width: 42px; min-height: 44px; display: grid; place-items: center; font-size: 12px; border-radius: 7px; border-color: var(--admin-border); box-shadow: none; }
+.admin-body .admin-module-section-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 23px 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); }
+.admin-body .admin-module-section-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 13px; border: 1px solid var(--admin-border); border-radius: 7px; font-size: 12px; color: var(--admin-muted); background: var(--admin-surface); }
+.admin-body .admin-module-section-nav a:hover { background: var(--admin-primary-soft); color: var(--admin-primary); border-color: var(--admin-primary); }
+.admin-body .admin-module-page :is(#shipping-methods, #shipping-coverage, #shipping-subsidy) { scroll-margin-top: calc(var(--admin-topbar) + 20px); }
+/* Shipping: neutral overview, clear sections, no decorative colored icon cards. */
+.admin-body .admin-module-shipping-admin .shipping-admin-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding-block: 2px 8px; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item { min-width: 0; border: 0; border-right: 1px solid var(--admin-border); border-radius: 0; box-shadow: none; padding: 8px 18px; gap: 0; background: transparent; align-items: flex-start; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item:first-child { padding-left: 0; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item:last-child { border: 0; }
+.admin-body .admin-module-shipping-admin .summary-icon { display: none; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item :is(strong, small) { overflow-wrap: anywhere; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item small { font-size: 11px; color: var(--admin-muted); margin-bottom: 6px; }
+.admin-body .admin-module-shipping-admin .shipping-summary-item strong { font-weight: 600; font-size: 14px; line-height: 1.5; color: var(--admin-text); }
+.admin-body .admin-module-shipping-admin .shipping-admin-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 22px; align-items: start; }
+.admin-body .admin-module-page .shipping-form-stack,
+.admin-body .admin-module-page .shipping-coverage-form { gap: 19px; }
+.admin-body .admin-module-page :is(.shipping-admin-toggle, .flash-admin-toggle) { padding: 14px; background: var(--admin-primary-soft); border: 1px solid var(--admin-border); border-radius: 8px; gap: 12px; align-items: flex-start; }
+.admin-body .admin-module-page :is(.shipping-admin-toggle, .flash-admin-toggle) strong { font-weight: 500; font-size: 13px; }
+.admin-body .admin-module-page :is(.shipping-admin-toggle, .flash-admin-toggle) input { width: 18px; height: 18px; margin-top: 4px; flex-shrink: 0; }
+.admin-body .admin-module-page .origin-box { background: transparent; padding: 18px 0; border: 0; border-block: 1px solid var(--admin-border); border-radius: 0; }
+.admin-body .admin-module-page .origin-box > div > div > strong { font-size: 13px; font-weight: 600; }
+.admin-body .admin-module-page .shipping-count-badge { background: var(--admin-primary-soft); color: var(--admin-primary); border-radius: 5px; font-size: 11px; font-weight: 500; padding: 5px 9px; }
+.admin-body .admin-module-page .shipping-courier-chips span { font-size: 10px; font-weight: 500; background: var(--admin-primary-soft); color: var(--admin-primary); border-radius: 5px; padding: 4px 8px; }
+.admin-body .admin-module-page .shipping-coverage-list { gap: 0; max-height: 520px; overflow-y: auto; }
+.admin-body .admin-module-page .shipping-coverage-row { border: 0; border-top: 1px solid var(--admin-border); border-radius: 0; padding: 15px 0; gap: 13px; }
+.admin-body .admin-module-page .shipping-coverage-row strong { font-size: 12px; font-weight: 600; }
+.admin-body .admin-module-page .shipping-coverage-row small { font-size: 11px; }
+.admin-body .admin-module-page .shipping-coverage-row.is-inactive { background: transparent; opacity: 1; color: var(--admin-muted); }
+.admin-body .admin-module-page .coverage-pin { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 6px; background: var(--admin-primary-soft); color: var(--admin-primary); }
+.admin-body .admin-module-page .coverage-pin i { font-size: 18px; }
+.admin-body .admin-module-page .shipping-empty-state { padding: 26px 16px; background: transparent; border: 1px dashed var(--admin-border); border-radius: 8px; box-shadow: none; }
+.admin-body .admin-module-page #shipping-subsidy { margin-top: 24px !important; }
+.admin-body .admin-module-page #shipping-subsidy fieldset { border-top: 1px solid var(--admin-border); padding-top: 15px; }
+.admin-body .admin-module-page #shipping-subsidy fieldset label { padding: 8px 10px; min-height: 44px; font-size: 12px; border: 1px solid var(--admin-border); border-radius: 6px; }
+/* Promo/product editors and admin list surfaces. */
+.admin-body .admin-module-page .flash-admin-grid { gap: 22px; }
+.admin-body .admin-module-page :is(.flash-admin-preview, .flash-preview-card, .flash-preview-shell) { border: 1px solid var(--admin-border); border-radius: 10px; box-shadow: none; }
+.admin-body .admin-module-page .flash-product-option { border-color: var(--admin-border); border-radius: 8px; box-shadow: none; background: var(--admin-surface); }
+.admin-body .admin-module-page .flash-product-option:has(input:checked) { border-color: var(--admin-primary); background: var(--admin-primary-soft); }
+.admin-body .admin-module-page .flash-admin-panel input[type="checkbox"] { accent-color: var(--admin-primary); }
+.admin-body .admin-module-page :is(.flash-admin-preview, .flash-home-preview, .flash-selected-tools, .flash-selected-chip, .flash-text-preview) { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 8px; box-shadow: none; color: var(--admin-text); }
+.admin-body .admin-module-page :is(.flash-admin-preview, .flash-home-preview, .flash-selected-tools, .flash-text-preview) :is(strong, h5) { color: var(--admin-text); font-weight: 600; }
+.admin-body .admin-module-page .flash-admin-preview > div { border-color: var(--admin-border); box-shadow: none; }
+.admin-body .admin-module-page .flash-home-preview__head > span { background: var(--admin-primary-soft); color: var(--admin-primary); font-size: 11px; font-weight: 500; border-radius: 5px; }
+.admin-body .admin-module-page .flash-admin-sync { color: var(--admin-muted); }
+.admin-body .admin-module-page .item-list-voucher { padding: 20px; margin-bottom: 12px; background: transparent; border: 1px solid var(--admin-border); border-radius: 9px; box-shadow: none; }
+.admin-body .admin-module-page .item-list-voucher h5 { font-size: 15px; font-weight: 600; }
+.admin-body .admin-module-page .item-list-voucher p { font-size: 12px; overflow-wrap: anywhere; }
+.admin-body .admin-module-page .banner-preview { width: 165px; max-width: 100%; border-color: var(--admin-border); border-radius: 8px; background: var(--admin-primary-soft); }
+.admin-body .admin-module-page .banner-row { padding-block: 17px; border-color: var(--admin-border); }
+.admin-body .admin-module-page .banner-form-preview { border-color: var(--admin-border); background: var(--admin-primary-soft); border-radius: 9px; box-shadow: none; object-fit: contain; }
+.admin-body .admin-module-list-product .admin-module-search { padding: 16px; background: var(--admin-primary-soft); border: 1px solid var(--admin-border); border-radius: 8px; margin: 18px 0 22px; }
+.admin-body .admin-module-list-product :is(.show-flex-ke-hide, .hide-ke-show-flex) p { overflow-wrap: anywhere; font-size: 12px; }
+.admin-body .admin-module-list-product .show-flex-ke-hide > .w-100 { padding-block: 12px; align-items: center; }
+.admin-body .admin-module-list-product .show-flex-ke-hide > .w-100 > div { min-width: 0; }
+.admin-body .admin-module-list-product hr { margin-block: 3px; }
+.admin-body .admin-module-page :is(.stok-sync-card, .stok-varian-card, .stok-table-card) { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 9px; box-shadow: none; }
+.admin-body .admin-module-page .stok-hero { padding: 0 0 24px; border: 0; border-bottom: 1px solid var(--admin-border); border-radius: 0; background: transparent; box-shadow: none; }
+.admin-body .admin-module-page .stok-hero h3 { font-size: 24px; font-weight: 600 !important; letter-spacing: -.6px; line-height: 1.4; }
+.admin-body .admin-module-page .stok-badge { font-size: 10px; font-weight: 500; border: 0; border-radius: 5px; background: var(--admin-primary-soft); color: var(--admin-primary); padding: 5px 8px; }
+.admin-body .admin-module-page .stok-varian-grid { gap: 14px; }
+.admin-body .admin-module-page .stok-table-head { background: var(--admin-primary-soft); color: var(--admin-muted); font-size: 10px; font-weight: 500; text-transform: none; }
+.admin-body .admin-module-page .stok-table-row { font-size: 12px; border-color: var(--admin-border); }
+.admin-body .admin-module-page :is(.traffic-card, .traffic-range) { border-color: var(--admin-border); border-radius: 8px; background: var(--admin-surface); box-shadow: none; }
+.admin-body .admin-module-page .traffic-card { padding: 18px; }
+.admin-body .admin-module-page .traffic-card p { font-size: 11px; color: var(--admin-muted); }
+.admin-body .admin-module-page .traffic-card h3 { font-size: 23px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.admin-body .admin-module-page .traffic-section h3 { font-size: 15px; font-weight: 600; }
+.admin-body .admin-module-page .traffic-range a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; border-radius: 6px; }
+.admin-body .admin-module-page .traffic-range a.active { background: var(--admin-primary-soft); color: var(--admin-primary); box-shadow: none; }
+.admin-body .admin-module-page .traffic-chart { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.admin-body .admin-module-page .theme-preview { box-shadow: none; border-color: var(--admin-border); border-radius: 10px; }
+.admin-body .admin-module-page .theme-preview-card { box-shadow: none; }
+.admin-body .admin-module-page .color-field { padding: 14px; border-radius: 8px; }
+.admin-body .admin-module-page .theme-preset { box-shadow: none; border-radius: 8px; }
+.admin-body .admin-module-page .preset-btn { border-color: var(--admin-border); border-radius: 8px; box-shadow: none; }
+.admin-body .admin-module-page .admin-form-section #container-isi > div { border-radius: 8px; }
+/* Legacy non-Bootstrap dialogs remain wired to their existing handlers. */
+.admin-body :is(#modal-add, #modal-redeem, #modal-email, #modalnya) { z-index: 1060 !important; padding: 18px; overflow-y: auto; overscroll-behavior: contain; }
+.admin-body :is(#modal-add, #modal-redeem, #modal-email, #modalnya) > div { width: min(100%, 560px); max-height: calc(100dvh - 36px); overflow-y: auto; border-radius: 12px !important; border: 1px solid var(--admin-border); background: var(--admin-surface) !important; box-shadow: 0 24px 70px rgb(0 0 0 / 18%); }
+.admin-body :is(#modal-add, #modal-redeem, #modal-email, #modalnya) :is(input, select, button) { min-height: 44px; }
+.admin-body .admin-module-page .admin-data-table { min-width: 620px; }
+.admin-body .admin-module-page .admin-empty-state { padding: 32px 20px; text-align: center; font-size: 13px; color: var(--admin-muted); }
+@media (max-width: 1200px) {
+    .admin-body .admin-module-shipping-admin .shipping-admin-grid { grid-template-columns: minmax(0, 1fr); }
+    .admin-body .admin-module-page .flash-admin-grid { grid-template-columns: minmax(0, 1fr); }
+    .admin-body .admin-module-page .admin-product-grid { grid-template-columns: minmax(0, 1fr); }
+    .admin-body .admin-module-page .admin-product-preview { position: static; }
+}
+@media (max-width: 767px) {
+    .admin-body .admin-module-page > .container,
+    .admin-body .admin-module-page > form > .container { padding: 18px; }
+    .admin-body .admin-module-heading { flex-direction: column; gap: 15px; margin-bottom: 22px !important; padding-bottom: 20px; }
+    .admin-body .admin-module-heading :is(h1, h2, h3), .admin-body .admin-module-heading > h5.jdl-section { font-size: 23px; }
+    .admin-body .admin-module-heading .admin-module-actions { width: 100%; }
+    .admin-body .admin-module-page :is(.form-control, .form-select) { font-size: 16px; }
+    .admin-body .admin-module-page .table-input, .admin-body .admin-module-page .table-input tbody { display: block; width: 100%; }
+    .admin-body .admin-module-page .table-input tr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; margin-bottom: 15px; }
+    .admin-body .admin-module-page .table-input td { display: block; width: auto; padding: 0; }
+    .admin-body .admin-module-page .table-input td:first-child { font-size: 12px; }
+    .admin-body .admin-module-page :is(.admin-field-grid, .variant-image-picker) { grid-template-columns: minmax(0, 1fr); }
+    .admin-body .admin-module-page .variant-image-picker__preview { width: 100px; height: 100px; }
+    .admin-body .admin-module-page :is(.admin-form-section, .flash-admin-panel, .shipping-admin-panel, .traffic-section) { padding: 17px; }
+    .admin-body .admin-module-shipping-admin .shipping-admin-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 0; }
+    .admin-body .admin-module-shipping-admin .shipping-summary-item { padding: 0 12px; }
+    .admin-body .admin-module-shipping-admin .shipping-summary-item:nth-child(odd) { padding-left: 0; }
+    .admin-body .admin-module-shipping-admin .shipping-summary-item:nth-child(even) { border: 0; }
+    .admin-body .admin-module-page .shipping-coverage-row { flex-direction: column; align-items: stretch; }
+    .admin-body .admin-module-page .coverage-action { justify-content: space-between; }
+    .admin-body .admin-module-page .shipping-coverage-list { max-height: none; overflow: visible; }
+    .admin-body .admin-module-page .shipping-panel-head { flex-direction: column; }
+    .admin-body .admin-module-page .shipping-form-stack > button { width: 100%; }
+    .admin-body .admin-module-page .shipping-coverage-form > button { width: 100%; }
+    .admin-body .admin-module-page :is(.d-flex.gap-1, .d-flex.gap-2, .d-flex.gap-3) { flex-wrap: wrap; }
+    .admin-body .admin-module-add-invoice #container-produk-invoice > div { flex-direction: column; gap: 12px !important; border-bottom: 1px solid var(--admin-border); padding-bottom: 15px; margin-bottom: 15px; }
+    .admin-body .admin-module-page .banner-preview { width: 100%; }
+    .admin-body .admin-module-page .item-list-voucher { padding: 16px; }
+    .admin-body .admin-module-page .traffic-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-body .admin-module-page .traffic-card { padding: 15px; }
+    .admin-body .admin-module-page .traffic-card h3 { font-size: 20px; }
+    .admin-body .admin-module-page .stok-table-card { max-width: 100%; }
+}

@@ -5,19 +5,9 @@ $selectedIds = array_flip((array)($settings['product_ids'] ?? []));
 $previewProducts = $previewProducts ?? [];
 $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
 ?>
-<div class="konten">
+<div class="konten admin-module-page admin-module-flash-sale-admin">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-            <div>
-                <h5 class="jdl-section mb-1">Promo Website</h5>
-                <h1 class="mb-1">Flash Sale</h1>
-                <p class="text-secondary mb-0">Atur tampilan Flash Sale di homepage tanpa mengubah data utama produk dari Luna Sistem.</p>
-            </div>
-            <a href="/" target="_blank" class="btn btn-outline-dark d-flex align-items-center gap-2">
-                <i class="material-icons">open_in_new</i>
-                <span>Lihat Home</span>
-            </a>
-        </div>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Flash Sale', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Atur jadwal, teks promosi, dan produk pilihan tanpa mengubah master produk.', 'adminHeadingActions'=>[['label'=>'Lihat toko', 'href'=>'/', 'icon'=>'storefront', 'primary'=>false, 'external'=>true]]], ['saveData'=>false]); ?>
 
         <?php if (!empty($msg)) { ?>
             <div class="alert alert-warning py-2"><?= esc($msg); ?></div>
