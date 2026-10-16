@@ -762,18 +762,22 @@ class Pages extends BaseController
         $order['_shipping_snapshot'] = $shipment;
         $payload = \App\Services\Integrations\LunaOrderSync::payload($order, $this->emailUjiCoba,
             (string)($customer['auth_provider'] ?? 'email'), $this->shippingPricingForLuna($shipment));
-        return (new \App\Services\Integrations\LunaOrderSync())->send($payload);
+        $result = (new \App\Services\Integrations\LunaOrderSync())->send($payload);
+        if (!empty($result['success']) && is_array($result['fulfillment'] ?? null)) {
+            (new \App\Services\Integrations\LunaFulfillment())->record((string)$order['id_midtrans'], $result['fulfillment'], $this->emailUjiCoba);
+        }
+        return $result;
     }
 
     public function syncPaidOrderToLuna($id_midtrans)
     {
         if ($denied = $this->guardOrderAdminRequest()) return $denied;
         try {
+            if ($this->request->getPost('review_confirmed') !== '1') throw new \DomainException('Konfirmasikan pemeriksaan rincian pesanan sebelum meneruskan ke MyLuna.');
             $order = $this->pemesananModel->getPemesanan((string)$id_midtrans);
             if (!$order) throw new \DomainException('Pesanan tidak ditemukan.');
             if ($this->isSandboxOrder($order)) throw new \DomainException('Pesanan uji coba tidak dikirim ke MyLuna produksi.');
             if (($order['status'] ?? '') !== 'Proses') throw new \DomainException('Sinkron pesanan hanya tersedia untuk status Proses.');
-            if (!\App\Services\Integrations\LunaOrderSync::validTracking($order['resi'] ?? null)) throw new \DomainException('Isi dan simpan resi pengiriman sebelum mengirim pesanan ke MyLuna.');
             $result = $this->performLunaOrderSync($order);
             log_message('info', 'Admin {admin} meminta sinkron order {order}; hasil {result}.', [
                 'admin'=>(string)session('email'), 'order'=>(string)$id_midtrans, 'result'=>$result['success'] ? 'diterima' : 'belum terkonfirmasi']);
@@ -877,6 +881,27 @@ class Pages extends BaseController
         ]);
         curl_exec($curl);
         curl_close($curl);
+    }
+
+    public function updateOrderStatusFromLuna()
+    {
+        $expected = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
+        $token = (string)$this->request->getHeaderLine('X-Luna-Webhook-Token');
+        if (strtolower($this->request->getMethod()) !== 'post' || $expected === '' || !hash_equals($expected, $token)) {
+            return $this->response->setStatusCode(401)->setJSON(['success'=>false, 'message'=>'Invalid integration token']);
+        }
+        try {
+            $body = json_decode($this->request->getBody(), true);
+            if (!is_array($body) || ($body['stage'] ?? '') !== 'processed') throw new \DomainException('Konfirmasi proses tidak valid.');
+            $id = (string)($body['order_id'] ?? '');
+            (new \App\Services\Integrations\LunaFulfillment())->record($id, $body, $this->emailUjiCoba);
+            return $this->response->setJSON(['success'=>true, 'order_id'=>$id, 'stage'=>'processed']);
+        } catch (\DomainException $error) {
+            return $this->response->setStatusCode(422)->setJSON(['success'=>false, 'message'=>$error->getMessage()]);
+        } catch (\Throwable $error) {
+            log_message('error', 'MyLuna fulfillment acknowledgement failed: {type}', ['type'=>get_class($error)]);
+            return $this->response->setStatusCode(500)->setJSON(['success'=>false, 'message'=>'Konfirmasi proses belum tersimpan.']);
+        }
     }
 
     public function updateReturStatusFromLuna()
@@ -5710,7 +5735,8 @@ class Pages extends BaseController
             }
             $dataMid_curr = json_decode($order['data_mid'], true) ?: [];
             $environment = PaymentSafety::environment($order, $this->emailUjiCoba, 'email_cus');
-            $dataMid_curr = array_merge($dataMid_curr, $body);
+            // Fulfillment metadata is owned by the authenticated MyLuna acknowledgement, not a payment payload.
+            $dataMid_curr = array_merge($dataMid_curr, array_diff_key($body, ['_app_luna_fulfillment'=>true]));
             $dataMid_curr['_app_payment_environment'] = $environment;
             if ($status === 'Proses') $dataMid_curr['_app_payment_effects_applied'] = true;
             if (!PaymentSafety::claim($db, $order_id, $oldStatus, $status, $dataMid_curr)) {
@@ -7880,7 +7906,7 @@ class Pages extends BaseController
             }
         }
 
-        if ($status === 'Proses') session()->setFlashdata('msg', 'Pembayaran dikonfirmasi. Isi resi pengiriman, lalu kirim pesanan ke MyLuna.');
+        if ($status === 'Proses') session()->setFlashdata('msg', 'Pembayaran dikonfirmasi. Tinjau rincian pesanan, lalu teruskan ke MyLuna. Resi diisi setelah proses pusat.');
         $this->broadcastOrderUpdate($id_midtrans);
         return redirect()->to('/listcustomer')->withCookies();
     }
@@ -7944,7 +7970,9 @@ class Pages extends BaseController
             }
             $saved = $result['order'];
             $preparing = $saved['status'] === 'Proses';
-            $synced = !$preparing && $this->syncShippingToLunaSistem($saved, $result['shipment']);
+            $savedMid = json_decode((string)($saved['data_mid'] ?? ''), true) ?: [];
+            $processedByTcp = ($savedMid['_app_luna_fulfillment']['stage'] ?? '') === 'processed';
+            $synced = (!$preparing || $processedByTcp) && $this->syncShippingToLunaSistem($saved, $result['shipment']);
             if ($result['changed'] && $saved['status'] === 'Dikirim') {
                 try {
                     $this->kirimPesanEmail($saved['email_cus'], 'Lunarea Store - Pembaruan pengiriman pesanan',
@@ -7956,7 +7984,7 @@ class Pages extends BaseController
             $this->broadcastOrderUpdate($id);
             return $this->response->setJSON([
                 'success' => true, 'status' => $saved['status'], 'resi' => $saved['resi'], 'luna_synced' => $synced,
-                'message' => $preparing ? 'Resi tersimpan. Pesanan masih Proses; gunakan tombol Kirim pesanan ke MyLuna setelah memeriksa datanya.' : ($synced ? 'Pengiriman tersimpan dan tersinkron.' : 'Pengiriman tersimpan. Sinkronisasi ke MyLuna belum berhasil atau belum diaktifkan; simpan ulang untuk mencoba lagi.'),
+                'message' => $preparing ? ('Resi tersimpan. Pesanan belum ditandai dikirim. Pilih Dalam Pengiriman saat barang benar-benar dikirim.' . ($processedByTcp && !$synced ? ' Sinkronisasi resi ke MyLuna tertunda; coba sinkron ulang.' : '')) : ($synced ? 'Pengiriman tersimpan dan tersinkron.' : 'Pengiriman tersimpan. Sinkronisasi ke MyLuna belum berhasil atau belum diaktifkan; simpan ulang untuk mencoba lagi.'),
                 'csrf_hash' => csrf_hash(),
             ]);
         } catch (\DomainException $e) {

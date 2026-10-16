@@ -35,6 +35,20 @@ final class OrderShippingManagerTest extends CIUnitTestCase
         $this->assertFalse($this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman'])['changed']);
     }
 
+    public function testReviewedNewWorkflowWaitsForTcpBeforeDispatch(): void
+    {
+        $this->connection->query('ALTER TABLE pemesanan ADD COLUMN data_mid TEXT');
+        $this->connection->table('pemesanan')->update(['data_mid'=>'{"_app_luna_fulfillment":{"stage":"received"}}']);
+        try {
+            $this->manager->update('LTEST', ['kurir'=>'JNE','resi'=>'TEST123','shipping_status'=>'Dalam Pengiriman']);
+            $this->fail('Dispatched before TCP acknowledgement');
+        } catch (\DomainException $error) {
+            $this->assertSame('Proses', $this->connection->table('pemesanan')->get()->getRowArray()['status']);
+        }
+        $this->connection->table('pemesanan')->update(['data_mid'=>'{"_app_luna_fulfillment":{"stage":"processed"}}']);
+        $this->assertSame('Dikirim', $this->manager->update('LTEST', ['kurir'=>'JNE','resi'=>'TEST123','shipping_status'=>'Dalam Pengiriman'])['order']['status']);
+    }
+
     public function testInternalDeliveryRequiresAndPreservesAdminAwb(): void
     {
         $this->connection->table('order_shipments')->update(['shipping_method_code' => 'internal_delivery', 'shipping_cost' => 0]);

@@ -31,7 +31,6 @@ class LunaOrderSync
     {
         if (PaymentSafety::environment($order, $testEmails, 'email_cus') !== 'production') throw new \DomainException('Pesanan uji coba tidak dikirim ke MyLuna produksi.');
         if (($order['status'] ?? '') !== 'Proses') throw new \DomainException('Sinkron pesanan hanya tersedia saat status Proses dan pembayaran sudah dikonfirmasi.');
-        if (!self::validTracking($order['resi'] ?? null)) throw new \DomainException('Isi dan simpan nomor resi terlebih dahulu, termasuk untuk Jasa Kirim Toko.');
         $id = (string)($order['id_midtrans'] ?? '');
         if (!preg_match('/^L[A-Za-z0-9_-]{1,49}$/D', $id)) throw new \DomainException('Nomor pesanan Lunarea tidak valid.');
         $items = is_string($order['items'] ?? null) ? json_decode($order['items'], true) : ($order['items'] ?? null);
@@ -57,7 +56,7 @@ class LunaOrderSync
             'hp_pen'=>(string)($order['hp_pen'] ?? ''), 'alamat_pen'=>$order['alamat_pen'] ?? '',
             'kurir'=>(string)($order['kurir'] ?? ''), 'note'=>(string)($order['note'] ?? ''),
             'courier'=>$courier, 'service_name'=>(string)($shipment['service_name'] ?? $shipment['service_code'] ?? ''),
-            'shipping_cost'=>isset($shipment['shipping_cost']) ? (int)$shipment['shipping_cost'] : null, 'tracking_number'=>(string)$order['resi'],
+            'shipping_cost'=>isset($shipment['shipping_cost']) ? (int)$shipment['shipping_cost'] : null, 'tracking_number'=>self::validTracking($order['resi'] ?? null) ? trim($order['resi']) : '',
             'shipping_method_code'=>($order['_shipping_method_code'] ?? 'legacy'), 'shipping_status'=>'Disiapkan',
             'shipping_revision'=>$shipment['updated_at'] ?? null,
             'items'=>$items, 'data_mid'=>$mid,
@@ -92,7 +91,7 @@ class LunaOrderSync
             }
             if (($payload['shipping_pricing']['subsidy_amount'] ?? 0) > 0 && empty($body['data']['shipping_pricing_recorded'])) return $failure('Pesanan diterima, tetapi pencatatan subsidi ongkir belum dikonfirmasi. Periksa versi backend MyLuna.');
             log_message('info', 'Sinkron order {order} ke MyLuna berhasil.', ['order'=>$payload['order_id']]);
-            return ['success'=>true, 'message'=>'Pesanan '.$payload['order_id'].' dikonfirmasi tersedia di MyLuna. Cari di Penjualan, platform WEBSITE. Pesanan yang sudah ada tidak dibuat ulang.'];
+            return ['success'=>true, 'fulfillment'=>$body['data']['fulfillment'] ?? null, 'message'=>'Pesanan '.$payload['order_id'].' dikonfirmasi tersedia di MyLuna. Cari di Penjualan, platform WEBSITE. Pesanan yang sudah ada tidak dibuat ulang.'];
         } catch (\Throwable $error) {
             log_message('error', 'Sinkron order {order} ke MyLuna mengalami gangguan transport.', ['order'=>$payload['order_id']]);
             return $failure('Koneksi MyLuna terganggu atau melewati batas waktu. Pesanan mungkin sudah diterima; periksa nomor pesanan di MyLuna sebelum mencoba lagi.');

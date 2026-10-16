@@ -35,6 +35,7 @@ $shippingLabel = function (?array $shipment, array $order): string {
     return trim((string)($order['kurir'] ?? '')) ?: 'Belum dipilih';
 };
 $shippingStatusLabel = function (?array $shipment, array $order): string {
+    if (($order['status'] ?? '') === 'Proses') return \App\Services\Integrations\LunaFulfillment::label($order['data_mid'] ?? []);
     if ($shipment && !empty($shipment['shipping_status'])) return (string)$shipment['shipping_status'];
     if (($order['status'] ?? '') === 'Proses') return 'Sedang diproses';
     if (($order['status'] ?? '') === 'Dikirim') return 'Dikirim';

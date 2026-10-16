@@ -80,6 +80,7 @@ final class LunaOrderSyncTest extends CIUnitTestCase
         $saved=$this->order();$controller=new class($saved) extends \App\Controllers\Pages {
             public array $sent=[];
             public function __construct($order) {
+                $this->request=new class {public function getPost($key){return $key === 'review_confirmed' ? '1' : null;}};
                 $this->emailUjiCoba=[];$this->response=\Config\Services::response(null,false);
                 $this->pemesananModel=new class($order){private array $order;public function __construct($order){$this->order=$order;}public function getPemesanan($id){return $this->order;}};
             }
@@ -104,13 +105,12 @@ final class LunaOrderSyncTest extends CIUnitTestCase
         $this->assertStringNotContainsString('barangModel',$source);$this->assertStringNotContainsString('->insert(',$source);
         $view=file_get_contents(APPPATH.'Views/pages/listCustomer.php');$this->assertStringContainsString('order-sync-form',$view);$this->assertStringContainsString('csrf_field()',$view);
     }
-    public function testAllDeliveryMethodsRequireAwbBeforePayloadIsCreated(): void
+    public function testAllDeliveryMethodsCanBeReviewedBeforeAwbExists(): void
     {
         foreach (['legacy','internal_delivery'] as $method) {
             foreach (['','Menunggu pengiriman','kosong'] as $awb) {
                 $order=$this->order();$order['_shipping_method_code']=$method;$order['resi']=$awb;
-                try { LunaOrderSync::payload($order,[]);$this->fail('Missing AWB accepted'); }
-                catch (DomainException $error) { $this->assertStringContainsString('resi',$error->getMessage()); }
+                $this->assertSame('', LunaOrderSync::payload($order,[])['tracking_number']);
             }
         }
     }

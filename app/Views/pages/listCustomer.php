@@ -496,8 +496,10 @@
                             <?php if ($t['status'] === 'Proses') { ?>
                                 <form class="order-sync-form mt-2" method="post" action="/syncorder/<?= rawurlencode($t['id_midtrans']); ?>">
                                     <?= csrf_field(); ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-success" <?= \App\Services\Integrations\LunaOrderSync::validTracking($t['resi'] ?? null) ? '' : 'disabled'; ?>>Kirim pesanan ke MyLuna</button>
-                                    <p class="small text-secondary mt-1 mb-0">Resi wajib diisi. Pengiriman ulang nomor pesanan yang sama tidak membuat pesanan baru.</p>
+                                    <p class="small text-secondary mb-2"><?= esc(\App\Services\Integrations\LunaFulfillment::label($t['data_mid'])); ?></p>
+                                    <label class="small d-block mb-2"><input type="checkbox" name="review_confirmed" value="1" required> Produk, varian, alamat, dan ekspedisi sudah saya periksa.</label>
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Tinjau &amp; teruskan / periksa status MyLuna</button>
+                                    <p class="small text-secondary mt-1 mb-0">Periksa produk, varian, alamat dan ekspedisi sebelum meneruskan. Resi diisi setelah proses pusat. Pengiriman ulang tidak membuat pesanan baru.</p>
                                 </form>
                             <?php } ?>
                             <?php if (in_array($t['status'], ['Dikirim', 'Selesai'], true) || ($t['shipment']['shipping_status'] ?? '') === 'Disiapkan') { ?>

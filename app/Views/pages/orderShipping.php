@@ -18,6 +18,7 @@ if ($shipment) {
 $trackingNumber = trim((string)($shipment['tracking_number'] ?? $pemesanan['resi'] ?? ''));
 $shippingStatus = ($pemesanan['status'] ?? '') === 'Selesai' ? 'Selesai' : ($shipment['shipping_status'] ?? (($kurir ?? '') === 'kosong' ? 'Sedang diproses' : 'Dikirim'));
 $shippingCost = $shipment ? (int)($shipment['shipping_cost'] ?? 0) : null;
+if (($pemesanan['status'] ?? '') === 'Proses') $shippingStatus = \App\Services\Integrations\LunaFulfillment::label($pemesanan['data_mid'] ?? []);
 ?>
 <?php
 $orderStatus = (string)($pemesanan['status'] ?? 'Dikirim');

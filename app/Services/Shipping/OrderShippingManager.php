@@ -51,6 +51,10 @@ class OrderShippingManager
                 $next = $shippingStatus === 'Disiapkan' ? 'Proses' : ($shippingStatus === 'Terkirim' ? 'Selesai' : 'Dikirim');
             }
             if ($current === 'Selesai' && $next !== 'Selesai') throw new \DomainException('Pesanan selesai tidak boleh dikembalikan ke pengiriman.');
+            $mid = json_decode((string)($order['data_mid'] ?? ''), true);
+            if ($next === 'Dikirim' && ($mid['_app_luna_fulfillment']['stage'] ?? '') === 'received') {
+                throw new \DomainException('Pesanan masih menunggu proses pusat. Periksa status MyLuna sebelum menandai pengiriman.');
+            }
             if ($internal) $courier = 'Jasa Kirim Toko';
             $changes = ['status' => $next, 'resi' => $awb, 'kurir' => $courier];
             $changed = $next !== $current || $awb !== (string)$order['resi'] || $courier !== (string)$order['kurir']
