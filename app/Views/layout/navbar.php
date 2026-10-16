@@ -8,30 +8,33 @@ $isAdminNav = session()->get('role') == '1';
 if ($isAdminNav) {
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
-        ['label' => 'Order', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
-        ['label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
-        ['label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
-        ['label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'match' => ['flashsaleadmin']],
-        ['label' => 'Gambar Kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
-        ['label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
-        ['label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
-        ['label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
-        ['label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
-        ['label' => 'Warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
-        ['label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
-        ['label' => 'Rating', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
-        ['label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
-        ['label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'match' => ['listredeem']],
+        ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
+        ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
+        ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
+        ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
+        ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
+        ['group'=>'Katalog', 'label' => 'Gambar kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
+        ['group'=>'Katalog', 'label' => 'Rating & terjual', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
+        ['group'=>'Promosi & konten', 'label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'match' => ['flashsaleadmin']],
+        ['group'=>'Promosi & konten', 'label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
+        ['group'=>'Promosi & konten', 'label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'match' => ['listredeem']],
+        ['group'=>'Promosi & konten', 'label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
+        ['group'=>'Promosi & konten', 'label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
+        ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
     ];
 ?>
 <input type="checkbox" id="admin-menu-toggle" class="d-none">
-<aside class="admin-sidebar">
-    <a href="/listcustomer" class="admin-brand">
-        <img src="<?= base_url('/img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" alt="Lunarea">
-        <span>Admin</span>
-    </a>
+<aside class="admin-sidebar" id="admin-navigation" aria-label="Menu administrator">
+    <div class="admin-brand-row">
+        <a href="/listcustomer" class="admin-brand" aria-label="Lunarea, halaman pesanan">
+            <span class="admin-brand-mark" aria-hidden="true">L.</span>
+            <span class="admin-brand-copy"><strong>Lunarea</strong><small>Workspace admin</small></span>
+        </a>
+        <button type="button" class="admin-icon-btn admin-drawer-close" data-admin-menu-close aria-label="Tutup menu admin"><i class="material-icons" aria-hidden="true">close</i></button>
+    </div>
     <nav class="admin-nav" aria-label="Navigasi admin">
-        <?php foreach ($adminNav as $item) {
+        <?php $lastAdminGroup = null; foreach ($adminNav as $item) {
             $active = false;
             foreach ($item['match'] as $pattern) {
                 if ($currentPath === $pattern || strpos($currentPath, $pattern . '/') === 0) {
@@ -39,43 +42,44 @@ if ($isAdminNav) {
                     break;
                 }
             }
-        ?>
-            <a href="<?= $item['url']; ?>" class="admin-nav-item <?= $active ? 'active' : ''; ?>">
-                <i class="material-icons"><?= $item['icon']; ?></i>
-                <span><?= $item['label']; ?></span>
+            if ($lastAdminGroup !== $item['group']) { ?>
+                <p class="admin-nav-heading"><?= esc($item['group']); ?></p>
+            <?php $lastAdminGroup = $item['group']; } ?>
+            <a href="<?= esc($item['url'], 'attr'); ?>" class="admin-nav-item <?= $active ? 'active' : ''; ?>" <?= $active ? 'aria-current="page"' : ''; ?>>
+                <i class="material-icons" aria-hidden="true"><?= $item['icon']; ?></i>
+                <span><?= esc($item['label']); ?></span>
             </a>
         <?php } ?>
     </nav>
     <div class="admin-sidebar-footer">
         <a href="/" class="admin-nav-item">
-            <i class="material-icons">storefront</i>
+            <i class="material-icons" aria-hidden="true">storefront</i>
             <span>Lihat Toko</span>
         </a>
         <a href="/account" class="admin-nav-item">
-            <i class="material-icons">person_outline</i>
+            <i class="material-icons" aria-hidden="true">person_outline</i>
             <span>Akun</span>
         </a>
         <a href="/keluar" class="admin-nav-item danger">
-            <i class="material-icons">logout</i>
+            <i class="material-icons" aria-hidden="true">logout</i>
             <span>Keluar</span>
         </a>
     </div>
 </aside>
-<label for="admin-menu-toggle" class="admin-menu-scrim"></label>
+<button type="button" class="admin-menu-scrim" data-admin-menu-close aria-label="Tutup menu navigasi" tabindex="-1"></button>
 <header class="admin-topbar">
     <div class="admin-topbar-left">
-        <label for="admin-menu-toggle" class="admin-icon-btn" aria-label="Buka menu admin">
-            <i class="material-icons">menu</i>
-        </label>
+        <button type="button" class="admin-icon-btn admin-menu-trigger" data-admin-menu-open aria-controls="admin-navigation" aria-expanded="false" aria-label="Buka menu admin">
+            <i class="material-icons" aria-hidden="true">menu</i>
+        </button>
         <div>
-            <p class="admin-eyebrow m-0">Lunarea Admin</p>
-            <h1 class="admin-page-title m-0"><?= esc($title); ?></h1>
+            <p class="admin-eyebrow m-0">Workspace / <?= $currentPath === 'listcustomer' || strpos($currentPath, 'listcustomer/') === 0 ? 'Operasional' : 'Administrasi'; ?></p>
+            <h1 class="admin-page-title m-0"><?= esc($title === 'List Customer' ? 'Pesanan pelanggan' : $title); ?></h1>
         </div>
     </div>
     <div class="admin-topbar-actions">
-        <a href="/addproduct" class="btn btn-primary1 admin-quick-action"><i class="material-icons">add</i><span>Produk</span></a>
-        <a href="/addarticle" class="btn btn-light admin-icon-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tambah Artikel"><i class="material-icons">article</i></a>
-        <a href="/addbanner" class="btn btn-light admin-icon-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tambah Banner"><i class="material-icons">add_photo_alternate</i></a>
+        <a href="/" class="admin-store-link"><i class="material-icons" aria-hidden="true">storefront</i><span>Lihat toko</span></a>
+        <a href="/account" class="admin-icon-btn admin-profile-link" aria-label="Buka akun admin"><i class="material-icons" aria-hidden="true">person_outline</i></a>
     </div>
 </header>
 <?php return;

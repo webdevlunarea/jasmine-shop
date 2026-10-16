@@ -144,6 +144,10 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/buyer-product.css?v=<?= filemtime(FCPATH . 'css/buyer-product.css'); ?>">
     <?php } ?>
     <link rel="stylesheet" href="/css/buyer-account.css?v=<?= filemtime(FCPATH . 'css/buyer-account.css'); ?>">
+    <?php if ((string)session()->get('role') === '1') { ?>
+    <link rel="stylesheet" href="/css/admin-workspace.css?v=<?= filemtime(FCPATH . 'css/admin-workspace.css'); ?>">
+    <script defer src="/js/admin-workspace.js?v=<?= filemtime(FCPATH . 'js/admin-workspace.js'); ?>"></script>
+    <?php } ?>
     <?php if (in_array($title, ['Peroses Pembayaran', 'Pembayaran Sukes'], true)) { ?>
     <link rel="stylesheet" href="/css/buyer-order.css?v=<?= filemtime(FCPATH . 'css/buyer-order.css'); ?>">
     <script defer src="/js/buyer-order.js?v=<?= filemtime(FCPATH . 'js/buyer-order.js'); ?>"></script>
