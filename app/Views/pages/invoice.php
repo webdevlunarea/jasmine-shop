@@ -1,254 +1,48 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="UTF-8" />
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
-    <title><?= $title; ?> | Lunarea Furniture</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <!-- <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> -->
-    <!-- icon google -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-
-    <script src="https://kit.fontawesome.com/917733e7d4.js" crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="/css/style_pdf.css" />
-</head>
-
-<body>
-    <div class="print">
-        <?php if ($transaksi['status'] == 'Proses' || $transaksi['status'] == 'Dikirim' || $transaksi['status'] == 'Selesai') { ?>
-            <div class="print-lunas">
-                <p>L U N A S</p>
-            </div>
-        <?php } else if ($transaksi['status'] == 'Menunggu Pembayaran' || $transaksi['status'] == 'Menunggu Pembayaran Rekening') {
-        } else { ?>
-            <div class="print-lunas">
-                <p>G A G A L</p>
-            </div>
-        <?php } ?>
-        <div class="d-flex justify-content-between mb-2">
-            <img src="<?= base_url('img/Logo Lunarea Bg Terang ukuran kecil.webp'); ?>" style="width: 50mm; height:fit-content;" />
-            <div class="d-flex flex-column align-items-end">
-                <p class="mb-0">INVOICE</p>
-                <p class="mb-0"><?php
-                                $d = strtotime($transaksi['data_mid']['transaction_time']);
-                                echo date("dmY", $d)
-                                ?>/CBM/<?= explode("-", $transaksi['id_midtrans'])[0]; ?></p>
-            </div>
-        </div>
-        <div class="d-flex justify-content-between mb-2">
-            <div class="w-100">
-                <p class="fw-bold mb-0">DITERBITKAN ATAS NAMA</p>
-                <p class="mb-0">Penjual : <b>Lunarea Furniture</b></p>
-            </div>
-            <div class="w-100">
-                <p class="fw-bold mb-0">PENERIMA</p>
-                <div class="w-100">
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2.7">
-                            <p class="mb-0">Pembeli</p>
-                        </div>
-                        <div style="flex: 0.4">
-                            <p class="text-center mb-0">:</p>
-                        </div>
-                        <div style="flex: 5">
-                            <p class="mb-0"><?= $transaksi['nama_pen']; ?></p>
-                        </div>
-                    </div>
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2.7">
-                            <p class="mb-0">Tanggal Pembelian</p>
-                        </div>
-                        <div style="flex: 0.4">
-                            <p class="text-center mb-0">:</p>
-                        </div>
-                        <div style="flex: 5">
-                            <p class="mb-0"><?php
-                                            $d = strtotime($transaksi['data_mid']['transaction_time']);
-                                            echo date("d", $d) . " " . $bulan[(int)date("m", $d) - 1] . " " . date("Y", $d)
-                                            ?></p>
-                        </div>
-                    </div>
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2.7">
-                            <p class="mb-0">Alamat Pengiriman</p>
-                        </div>
-                        <div style="flex: 0.4">
-                            <p class="text-center mb-0">:</p>
-                        </div>
-                        <div style="flex: 5">
-                            <p class="mb-0">
-                                <?= $transaksi['alamat_pen']; ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Container List Barang -->
-        <div class="w-100 border-bottom border-dark pb-2">
-            <div class="w-100 d-flex border-bottom border-top border-dark py-2">
-                <div style="flex: 2.9">
-                    <p class="mb-0 fw-bold">INFO PRODUK</p>
-                </div>
-                <div style="flex: 1">
-                    <p class="text-center mb-0 fw-bold">KUANTITAS</p>
-                </div>
-                <div style="flex: 1">
-                    <p class="text-center mb-0 fw-bold">HARGA SATUAN</p>
-                </div>
-                <div style="flex: 1">
-                    <p class="text-center mb-0 fw-bold">JUMLAH</p>
-                </div>
-            </div>
-            <?php
-            $totalHarga = 0;
-            foreach ($transaksi['items'] as $item) {
-                $totalHarga += $item['value'] * $item['quantity'];
-            ?>
-                <div class="w-100 d-flex">
-                    <div style="flex: 3">
-                        <p class="mb-0"><?= $item['name']; ?></p>
-                    </div>
-                    <div style="flex: 1">
-                        <p class="text-center mb-0"><?= $item['quantity']; ?></p>
-                    </div>
-                    <div style="flex: 1">
-                        <p class="text-center mb-0">Rp <?= number_format($item['value'], 0, ",", "."); ?></p>
-                    </div>
-                    <div style="flex: 1">
-                        <p class="text-end mb-0">Rp <?= number_format($item['value'] * $item['quantity'], 0, ",", "."); ?></p>
-                    </div>
-                </div>
-            <?php } ?>
-        </div>
-
-        <!-- Container perhitungan -->
-        <div class="w-100 d-flex mt-auto border-bottom">
-            <div class="flex-grow-1 w-100"></div>
-            <div class="flex-grow-1 w-100">
-                <div class="w-100 py-2">
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2">
-                            <p class="mb-0 fw-bold">TOTAL HARGA</p>
-                        </div>
-                        <div style="flex: 1">
-                            <p class="text-end mb-0 fw-bold">
-                                Rp <?= number_format($totalHarga, 0, ",", "."); ?>
-                            </p>
-                        </div>
-                    </div>
-                    <?php if (((int)$transaksi['data_mid']['gross_amount'] - 5000 - $totalHarga) < 0) { ?>
-                        <div class="w-100 d-flex">
-                            <div style="flex: 2">
-                                <p class="mb-0">Diskon</p>
-                            </div>
-                            <div style="flex: 1">
-                                <p class="text-end mb-0">Rp <?php
-                                                            $ongkir = (int)$transaksi['data_mid']['gross_amount'] - 5000 - $totalHarga;
-                                                            echo number_format($ongkir, 0, ",", ".");
-                                                            ?></p>
-                            </div>
-                        </div>
-                    <?php } ?>
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2">
-                            <p class="mb-0">Biaya Admin</p>
-                        </div>
-                        <div style="flex: 1">
-                            <p class="text-end mb-0">Rp 5.000</p>
-                        </div>
-                    </div>
-                    <div class="w-100 d-flex">
-                        <div style="flex: 2">
-                            <p class="mb-0 fw-bold">TOTAL TAGIHAN</p>
-                        </div>
-                        <div style="flex: 1">
-                            <p class="text-end mb-0 fw-bold">
-                                Rp <?= number_format($transaksi['data_mid']['gross_amount'], 0, ",", "."); ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Container footer -->
-        <div class="w-100 d-flex py-2">
-            <div class="w-100">
-                <p class="mb-0 text-black-50">Kurir :</p>
-                <p class="mb-0 fw-bold"><?= $transaksi['kurir']; ?></p>
-            </div>
-            <div class="w-100">
-                <p class="mb-0 text-black-50">Metode Pembayaran</p>
-                <p class="mb-0">
-                    <?php
-                    switch ($transaksi['data_mid']['payment_type']) {
-                        case 'credit_card':
-                            echo "Credit Card<br>" . strtoupper($transaksi['data_mid']['bank']) . " " . ucfirst($transaksi['data_mid']['card_type']);
-                            break;
-                        case 'echannel':
-                            switch ($transaksi['data_mid']['biller_code']) {
-                                case '70012':
-                                    echo "Mandiri Bill";
-                                    break;
-                                default:
-                                    echo "EChannel";
-                                    break;
-                            }
-                            break;
-                        case 'bank_transfer':
-                            if (isset($transaksi['data_mid']['va_numbers']))
-                                echo strtoupper($transaksi['data_mid']['va_numbers'][0]['bank']) . " VA";
-                            else if (isset($transaksi['data_mid']['permata_va_number']))
-                                echo "Bank Permata VA";
-                            else if (isset($transaksi['data_mid']['bca_va_number']))
-                                echo "BCA VA";
-                            break;
-                        case 'gopay':
-                            echo 'Qris';
-                            break;
-                        case 'qris':
-                            echo 'Qris';
-                            break;
-                        default:
-                            echo $transaksi['data_mid']['payment_type'];
-                            break;
-                    }
-                    ?></p>
-            </div>
-        </div>
-        <div class="w-100 d-flex py-2 justify-content-between align-items-end">
-            <div style="width: 50%">
-                <p class="mb-0">
-                    Invoice ini sah dan diproses oleh sistem<br />
-                    Silakan hubungi
-                    <a style="color: var(--merahLogo)" class="link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover">Lunarea Furniture CS</a>
-                    apabila kamu membutuhkan bantuan.
-                </p>
-            </div>
-            <div>
-                <p class="mb-0 text-black-50">
-                    Terakhir diupdate: <?php
-                                        $d = strtotime($transaksi['data_mid']['transaction_time']);
-                                        echo date("d", $d) . " " . $bulan[(int)date("m", $d) - 1] . " " . date("Y", $d) . " " . date("H:i:s", $d)
-                                        ?> WIB
-                </p>
-            </div>
-        </div>
-    </div>
-</body>
-<?php if ($transaksi['status'] == 'Proses' || $transaksi['status'] == 'Dikirim' || $transaksi['status'] == 'Selesai' || $transaksi['status'] == 'Menunggu Pembayaran') { ?>
-    <script>
-        window.print();
-    </script>
+<?php $pdf = $pdf ?? false; $money = static fn($amount) => ($amount < 0 ? '− ' : '') . 'Rp ' . number_format(abs($amount), 0, ',', '.'); ?>
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>Invoice <?= esc($invoice['orderId']); ?> | Lunarea Furniture</title>
+<style><?= file_get_contents(FCPATH . 'css/buyer-invoice.css'); ?></style>
+</head><body class="<?= $pdf ? 'invoice-pdf' : 'invoice-preview'; ?>">
+<?php if (!$pdf) { ?>
+<nav class="invoice-toolbar" aria-label="Tindakan invoice">
+<a class="invoice-back" href="/transaction">← Kembali ke transaksi</a><div class="invoice-actions">
+<button class="invoice-button invoice-button-secondary" type="button" id="invoice-print">Cetak</button>
+<a class="invoice-button" href="/invoice/<?= rawurlencode($invoice['orderId']); ?>" download>Unduh PDF</a></div></nav>
 <?php } ?>
-
-</html>
+<main class="invoice-paper" aria-labelledby="invoice-title">
+<table class="invoice-heading" role="presentation"><tr>
+<td class="invoice-brand"><span class="invoice-wordmark">Lunarea</span><span class="invoice-brand-detail">F U R N I T U R E</span></td>
+<td class="invoice-heading-right"><h1 id="invoice-title">Invoice</h1><p><?= esc($invoice['number']); ?></p><span class="invoice-status <?= $invoice['paid'] ? 'invoice-status-paid' : ''; ?>"><?= esc($invoice['badge']); ?></span></td>
+</tr></table>
+<table class="invoice-parties" role="presentation"><tr>
+<td><h2>Diterbitkan oleh</h2><p class="invoice-strong">Lunarea Furniture</p><p>Semarang, Jawa Tengah</p><p class="invoice-muted">lunareafurniture.com</p></td>
+<td><h2>Ditujukan kepada</h2><p class="invoice-strong"><?= esc($invoice['recipient']); ?></p><p class="invoice-address"><?= nl2br(esc($invoice['address'])); ?></p></td>
+</tr></table>
+<table class="invoice-meta" role="presentation"><tr>
+<td><h2>Nomor pesanan</h2><p><?= esc($invoice['orderId']); ?></p></td>
+<td><h2>Tanggal pembelian</h2><p><?= esc($invoice['date']); ?></p></td>
+<td><h2>Metode pembayaran</h2><p><?= esc($invoice['method']); ?></p></td>
+</tr></table>
+<table class="invoice-items"><caption>Rincian pesanan</caption>
+<thead><tr><th scope="col" class="invoice-product">Produk</th><th scope="col" class="invoice-quantity">Jumlah</th><th scope="col" class="invoice-numeric">Harga satuan</th><th scope="col" class="invoice-numeric">Total</th></tr></thead><tbody>
+<?php foreach ($invoice['items'] as $item) { ?>
+<tr><td class="invoice-product"><?= esc($item['name']); ?></td><td class="invoice-quantity"><span class="invoice-mobile-label" aria-hidden="true">Jumlah</span><?= (int)$item['quantity']; ?></td><td class="invoice-numeric"><span class="invoice-mobile-label" aria-hidden="true">Harga satuan</span><?= $money($item['price']); ?></td><td class="invoice-numeric"><span class="invoice-mobile-label" aria-hidden="true">Total</span><?= $money($item['amount']); ?></td></tr>
+<?php } ?>
+<?php if (!$invoice['items']) { ?><tr><td colspan="4">Rincian produk belum tercatat.</td></tr><?php } ?>
+</tbody></table>
+<div class="invoice-settlement">
+<table class="invoice-totals" aria-label="Ringkasan tagihan">
+<?php foreach ($invoice['rows'] as $row) { ?><tr><th scope="row"><?= esc($row['label']); ?></th><td><?= $money($row['amount']); ?></td></tr><?php } ?>
+<tr class="invoice-grand-total"><th scope="row">Total tagihan</th><td><?= $invoice['total'] === null ? 'Belum tercatat' : $money($invoice['total']); ?></td></tr></table>
+<?php if ($invoice['hasAdjustment']) { ?><p class="invoice-adjustment">Penyesuaian mengikuti tagihan pesanan tersimpan dan dapat mencakup biaya layanan, proteksi, atau potongan lain.</p><?php } ?>
+<?php if ($invoice['cashback'] > 0) { ?><p class="invoice-adjustment">Cashback pesanan: <?= $money($invoice['cashback']); ?>. Cashback bukan potongan total tagihan.</p><?php } ?>
+</div>
+<table class="invoice-delivery" role="presentation"><tr><td><h2>Pengiriman</h2><p><?= esc($invoice['courier']); ?></p></td><td><h2>Nomor resi</h2><p><?= esc($invoice['tracking']); ?></p></td></tr></table>
+<footer class="invoice-note"><p class="invoice-strong">Terima kasih telah memilih Lunarea.</p><p>Dokumen ini diterbitkan secara elektronik. Simpan invoice sebagai rincian pesanan Anda.</p>
+<?php if (!$invoice['paid']) { ?><p>Invoice ini bukan bukti pembayaran lunas. Status pesanan: <?= esc($invoice['status'] ?: 'Belum tersedia'); ?>.</p><?php } ?>
+<p>Butuh bantuan? Hubungi layanan pelanggan melalui lunareafurniture.com/contact.</p></footer>
+</main>
+<?php if (!$pdf) { ?><script>document.getElementById('invoice-print').addEventListener('click', function () { window.print(); });</script><?php } ?>
+</body></html>

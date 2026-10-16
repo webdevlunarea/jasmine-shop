@@ -250,7 +250,7 @@ $flashMsg = session()->getFlashdata('msg');
                                                     <?php } ?>
                                                 </div>
                                                 <div class="w-100 d-flex flex-column align-items-end gap-1">
-                                                    <a href="/invoice/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-primary1">Invoice</a>
+                                                    <a href="/invoice/<?= rawurlencode($item_transaksi['id_midtrans']); ?>" class="btn btn-primary1" download>Unduh invoice</a>
                                                     <?php if (in_array($item_transaksi['status'], ['Dikirim', 'Selesai'])) { ?>
                                                         <?php if ($returAktif) { ?>
                                                             <a href="/retur/order/<?= $item_transaksi['id_midtrans']; ?>" class="btn btn-outline-warning">

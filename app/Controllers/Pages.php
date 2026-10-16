@@ -757,8 +757,7 @@ class Pages extends BaseController
     protected function performLunaOrderSync(array $order): array
     {
         $customer = $this->userModel->getUser((string)($order['email_cus'] ?? ''));
-        $shipment = \Config\Database::connect()->tableExists('order_shipments')
-            ? $this->orderShipmentModel->getByOrderId((string)$order['id_midtrans']) : null;
+        $shipment = $this->invoiceShipment((string)$order['id_midtrans']);
         $order['_shipping_method_code'] = $shipment['shipping_method_code'] ?? 'legacy';
         $order['_shipping_snapshot'] = $shipment;
         $payload = \App\Services\Integrations\LunaOrderSync::payload($order, $this->emailUjiCoba,
@@ -7426,30 +7425,42 @@ class Pages extends BaseController
         return view('pages/all', $data);
     }
 
+    protected function invoiceShipment(string $orderId): ?array
+    {
+        return \Config\Database::connect()->tableExists('order_shipments')
+            ? ($this->orderShipmentModel->getByOrderId($orderId) ?: null) : null;
+    }
+
     public function invoice($id_mid)
     {
-        $transaksi = $this->pemesananModel->getPemesanan($id_mid);
-        $arr = [
-            'id' => $transaksi['id'],
-            'email_cus' => $transaksi['email_cus'],
-            'nama_pen' => $transaksi['nama_pen'],
-            'hp_pen' => $transaksi['hp_pen'],
-            'alamat_pen' => $transaksi['alamat_pen'],
-            'resi' => $transaksi['resi'],
-            'id_midtrans' => $transaksi['id_midtrans'],
-            'items' => json_decode($transaksi['items'], true),
-            'status' => $transaksi['status'],
-            'kurir' => $transaksi['kurir'],
-            'data_mid' => json_decode($transaksi['data_mid'], true),
-        ];
-        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        $data = [
-            'title' => 'Print Preview',
-            'transaksi' => $arr,
-            'transaksiJson' => json_encode($arr),
-            'bulan' => $bulan
-        ];
-        return view('pages/invoice', $data);
+        $order = $this->pemesananModel->getPemesanan($id_mid);
+        $this->response->removeHeader('Cache-Control');
+        $this->response->setHeader('Cache-Control', 'private, no-store, max-age=0')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setHeader('X-Robots-Tag', 'noindex, nofollow');
+        if (!\App\Services\Orders\InvoiceDocument::canRead(
+            $order ?: null, session('email'), session('role'), (bool)session('isLogin')
+        )) {
+            return $this->response->setStatusCode(404)->setBody('Invoice tidak ditemukan.');
+        }
+        $shipment = \Config\Database::connect()->tableExists('order_shipments')
+            ? $this->orderShipmentModel->getByOrderId((string)$order['id_midtrans']) : null;
+        $invoice = \App\Services\Orders\InvoiceDocument::build($order, $shipment ?: null);
+        if ($this->request->getGet('preview') === '1') {
+            return $this->response->setContentType('text/html')->setBody(
+                view('pages/invoice', ['invoice'=>$invoice, 'pdf'=>false], ['saveData'=>false])
+            );
+        }
+        try {
+            $pdf = (new \App\Services\Orders\InvoicePdf())->render($invoice);
+        } catch (\Throwable $e) {
+            log_message('error', 'Invoice PDF rendering failed: {type}', ['type'=>get_class($e)]);
+            return $this->response->setStatusCode(503)->setHeader('Retry-After', '60')
+                ->setBody('Invoice sedang dipersiapkan. Silakan coba kembali beberapa saat lagi.');
+        }
+        return $this->response->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $invoice['filename'] . '"')
+            ->setBody($pdf);
     }
     public function fixIsiArtikel()
     {
