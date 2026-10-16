@@ -120,6 +120,13 @@ final class LunaOrderSyncTest extends CIUnitTestCase
         $options=$client->requests[0][1];$this->assertSame($payload,$options['json']);$this->assertTrue($options['verify']);
         $this->assertFalse($options['allow_redirects']);$this->assertSame('unit-token',$options['headers']['X-Luna-Webhook-Token']);
     }
+    public function testNamespacedInternalNumberUsesVerifiedExternalAcknowledgement():void {
+        $payload=LunaOrderSync::payload($this->order(),[]);
+        $body=['success'=>true,'data'=>['saleNumber'=>'LWEB-L00000227','website_order_id'=>'L00000227','tracking_number'=>'TEST227']];
+        $this->assertTrue((new LunaOrderSync($this->settings(),$this->client(200,$body)))->send($payload)['success']);
+        $body['data']['website_order_id']='OTHER';
+        $this->assertFalse((new LunaOrderSync($this->settings(),$this->client(200,$body)))->send($payload)['success']);
+    }
     /** @dataProvider rejectedAcknowledgements */
     public function testWrongIdentitySkippedAndHttpErrorsNeverClaimSuccess(int $status,array $body):void {
         $this->assertFalse((new LunaOrderSync($this->settings(),$this->client($status,$body)))->send(LunaOrderSync::payload($this->order(),[]))['success']);

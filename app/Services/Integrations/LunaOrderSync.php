@@ -82,7 +82,7 @@ class LunaOrderSync
             $status = $response->getStatusCode();
             $body = json_decode($response->getBody(), true);
             if ($status < 200 || $status >= 300 || empty($body['success']) || !empty($body['data']['skipped'])
-                || ($body['data']['saleNumber'] ?? '') !== $payload['order_id']
+                || ($body['data']['website_order_id'] ?? $body['data']['saleNumber'] ?? '') !== $payload['order_id']
                 || ($body['data']['tracking_number'] ?? '') !== $payload['tracking_number']) {
                 log_message('error', 'Sinkron order {order} ke MyLuna ditolak. HTTP {code}.', ['order'=>$payload['order_id'], 'code'=>$status]);
                 if ($status === 401 || $status === 403) return $failure('Koneksi MyLuna ditolak. Periksa kecocokan token integrasi kedua server.');
