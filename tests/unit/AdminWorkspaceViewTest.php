@@ -78,11 +78,11 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         try { $html=$this->render('layout/navbar',['title'=>'List Customer']); }
         finally { if ($old===null) unset($_SERVER['REQUEST_URI']); else $_SERVER['REQUEST_URI']=$old; }
         $dom=new DOMDocument(); @$dom->loadHTML($html); $xp=new DOMXPath($dom);
-        $this->assertSame(14,$xp->query('//nav[@aria-label="Navigasi admin"]/a')->length);
+        $this->assertSame(15,$xp->query('//nav[@aria-label="Navigasi admin"]/a')->length);
         $this->assertSame(4,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
-        foreach (['/shippingadmin','/listproduct','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna','/keluar'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
+        foreach (['/shippingadmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna','/keluar'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
     }
 
     public function testExportSyntheticPreviewWhenRequested(): void

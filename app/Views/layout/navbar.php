@@ -13,6 +13,7 @@ if ($isAdminNav) {
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
         ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
+        ['group'=>'Katalog', 'label' => 'Pemetaan MyLuna', 'icon' => 'compare_arrows', 'url' => '/lunamappingadmin', 'match' => ['lunamappingadmin']],
         ['group'=>'Katalog', 'label' => 'Gambar kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
         ['group'=>'Katalog', 'label' => 'Rating & terjual', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
         ['group'=>'Promosi & konten', 'label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'match' => ['flashsaleadmin']],

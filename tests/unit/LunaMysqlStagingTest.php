@@ -65,4 +65,34 @@ final class LunaMysqlStagingTest extends CIUnitTestCase
         }
         $this->assertSame($settingsBefore, hash('sha256', json_encode($db->query('SELECT id,label,value FROM konstanta ORDER BY id')->getResultArray(), JSON_THROW_ON_ERROR)));
     }
+
+    public function testReviewedMappingPersistsWithoutChangingProductsOrdersOrStock(): void
+    {
+        $db=$this->auditDb;
+        $snapshot=static function () use ($db): array {
+            $hashes=[];
+            foreach (['barang'=>'id,nama,varian,stok,harga', 'stok'=>'id,id_barang,jumlah,stok_akhir', 'pemesanan'=>'id,id_midtrans,status,items', 'konstanta'=>'id,label,value'] as $table=>$columns) {
+                $hashes[$table]=hash('sha256',json_encode($db->query('SELECT '.$columns.' FROM '.$table.' ORDER BY id')->getResultArray(),JSON_THROW_ON_ERROR));
+            }
+            return $hashes;
+        };
+        $before=$snapshot();
+        $lock='lunarea_catalog_identity_'.substr(hash('sha256',$db->getDatabase()),0,24);
+        $this->assertSame(1,(int)$db->query('SELECT GET_LOCK(?, 2) AS acquired',[$lock])->getRowArray()['acquired']);
+        $db->transBegin();
+        try {
+            $web=['id'=>'ZSTAGEREVIEW01','nama'=>'Synthetic only','varian'=>'["PUTIH"]','active'=>1];
+            $master=['id'=>'33333333-3333-4333-8333-333333333333','active'=>true,'website_ids'=>[],
+                'variants'=>[['id'=>'44444444-4444-4444-8444-444444444444','value'=>'WHITE']]];
+            $identity=\App\Services\Integrations\LunaMappingReview::identity($web,$master,[$master['variants'][0]['id']],null);
+            $identity['review']=['by'=>'staging@example.test','at'=>'2026-10-17T00:00:00Z','note'=>'Synthetic staging review; no master writes.'];
+            $model=new KonstantaModel($db); $model->saveLunaProductIdentity($web['id'],$identity);
+            $this->assertSame($identity,$model->getLunaProductIdentity($web['id']));
+            try { $model->saveLunaProductIdentity('ZSTAGEDOUBLE01',$identity); $this->fail('Duplicate master accepted'); }
+            catch (DomainException $e) { $this->assertStringContainsString('sudah terhubung',$e->getMessage()); }
+            $during=$snapshot();
+            foreach (['barang','stok','pemesanan'] as $table) $this->assertSame($before[$table],$during[$table]);
+        } finally { $db->transRollback(); $db->query('SELECT RELEASE_LOCK(?)',[$lock]); }
+        $this->assertSame($before,$snapshot());
+    }
 }
