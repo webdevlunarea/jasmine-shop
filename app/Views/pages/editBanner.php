@@ -19,7 +19,7 @@
 
         <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
-                    <?= $msg; ?>
+                    <?= esc($msg); ?>
                 </div>
             <?php } ?>
 
@@ -41,11 +41,13 @@
                 <label class="form-label">Urutan</label>
                 <input type="number" class="form-control" name="urutan" value="<?= (int)$banner['urutan']; ?>">
             </div>
-            <div class="mb-2">
-                <label class="form-label">Gambar Saat Ini</label>
-                <img id="banner-preview" class="banner-form-preview d-block mb-2" src="/imgbanner/<?= $banner['id']; ?>?v=<?= strtotime($banner['updated_at'] ?? '') ?: $banner['id']; ?>" alt="<?= esc($banner['alt'] ?: $banner['judul']); ?>">
-                <input type="file" class="form-control" name="gambar" accept="image/png,image/jpeg,image/webp" onchange="previewBanner(event)">
-                <p class="text-secondary mt-1 mb-0" style="font-size: small;">Kosongkan jika tidak ingin mengganti gambar. Maksimal 4 MB.</p>
+            <div class="mb-2 admin-image-field" data-max-bytes="4194304">
+                <label class="form-label" for="banner-image">Gambar banner</label>
+                <img id="banner-preview" data-image-preview class="banner-form-preview d-block mb-2" src="/imgbanner/<?= $banner['id']; ?>?v=<?= strtotime($banner['updated_at'] ?? '') ?: $banner['id']; ?>" alt="<?= esc($banner['alt'] ?: $banner['judul']); ?>">
+                <input type="file" class="form-control" id="banner-image" name="gambar" accept=".webp,.avif,image/webp,image/avif" data-image-input aria-describedby="banner-image-feedback">
+                <p class="text-secondary mt-1 mb-0" style="font-size: small;">WebP atau AVIF · Maksimal 4 MB dan 4096 px per sisi. Kosongkan untuk mempertahankan gambar lama.</p>
+                <p id="banner-image-feedback" class="admin-media-feedback" data-image-feedback role="status" aria-live="polite">Gambar tersimpan tetap dipakai jika tidak diganti.</p>
+                <button type="button" class="btn btn-light" data-reset-image hidden>Batalkan pilihan baru</button>
             </div>
             <div class="mb-3 d-flex gap-1 align-items-center">
                 <input type="checkbox" name="active" id="active" <?= $banner['active'] ? 'checked' : ''; ?>>
@@ -55,12 +57,5 @@
         </form>
     </div>
 </div>
-<script>
-function previewBanner(event) {
-    const preview = document.getElementById('banner-preview');
-    const file = event.target.files[0];
-    if (!file) return;
-    preview.src = URL.createObjectURL(file);
-}
-</script>
+
 <?= $this->endSection(); ?>

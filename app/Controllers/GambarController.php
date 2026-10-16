@@ -9,6 +9,7 @@ use App\Models\GambarUserModel;
 use App\Models\VoucherModel;
 use App\Models\PemesananModel;
 use App\Models\BannerModel;
+use App\Models\GambarBarangModel;
 
 
 class GambarController extends BaseController
@@ -20,6 +21,7 @@ class GambarController extends BaseController
     protected $gambarUserModel;
     protected $pemesananModel;
     protected $bannerModel;
+    protected $gambarBarangModel;
     public function __construct()
     {
         $this->artikelModel = new ArtikelModel();
@@ -29,6 +31,7 @@ class GambarController extends BaseController
         $this->gambarUserModel = new GambarUserModel();
         $this->pemesananModel = new PemesananModel();
         $this->bannerModel = new BannerModel();
+        $this->gambarBarangModel = new GambarBarangModel();
     }
 
     public function tampilGambarBarang($idBarang)
@@ -37,6 +40,18 @@ class GambarController extends BaseController
         return \App\Services\PublicCatalogImage::respond(
             $this->response, $product['gambar'] ?? null, $this->request->getHeaderLine('If-None-Match')
         );
+    }
+
+    public function tampilFotoProduk($idBarang, $slot)
+    {
+        if (!ctype_digit((string)$slot) || (int)$slot < 1 || (int)$slot > 50) {
+            return $this->response->setStatusCode(404)->setHeader('Cache-Control', 'no-store')->setBody('');
+        }
+        $key = 'gambar'.(int)$slot;
+        $row = $this->gambarBarangModel->select($key)->where('id', $idBarang)->first();
+        $bytes = $row[$key] ?? null;
+        if (!$bytes && (int)$slot === 1) $bytes = $this->barangModel->select('gambar')->where('id', $idBarang)->first()['gambar'] ?? null;
+        return \App\Services\PublicCatalogImage::respond($this->response, $bytes, $this->request->getHeaderLine('If-None-Match'));
     }
 
     // public function tampilGambarVarian($idBarang, $urutan)

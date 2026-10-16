@@ -19,7 +19,7 @@
 
         <?php if ($msg) { ?>
                 <div class="alert alert-danger" role="alert">
-                    <?= $msg; ?>
+                    <?= esc($msg); ?>
                 </div>
             <?php } ?>
 
@@ -41,12 +41,14 @@
                 <label class="form-label">Urutan</label>
                 <input type="number" class="form-control" name="urutan" value="<?= old('urutan') !== null ? old('urutan') : 0; ?>">
             </div>
-            <div class="mb-2">
-                <label class="form-label">Gambar Banner</label>
-                <input type="file" class="form-control" name="gambar" accept="image/png,image/jpeg,image/webp" required onchange="previewBanner(event)">
-                <p class="text-secondary mt-1 mb-0" style="font-size: small;">Rekomendasi rasio gambar mengikuti banner lama, sekitar 16:5. Maksimal 4 MB.</p>
+            <div class="mb-2 admin-image-field" data-max-bytes="4194304">
+                <label class="form-label" for="banner-image">Gambar banner</label>
+                <input type="file" class="form-control" id="banner-image" name="gambar" accept=".webp,.avif,image/webp,image/avif" data-image-input aria-describedby="banner-image-feedback" required>
+                <p class="text-secondary mt-1 mb-0" style="font-size: small;">WebP atau AVIF · Rasio sekitar 16:5 · Maksimal 4 MB dan 4096 px per sisi.</p>
+                <img id="banner-preview" class="banner-form-preview d-block my-3" src="/img/nopic.jpg" data-image-preview alt="Preview banner">
+                <p id="banner-image-feedback" class="admin-media-feedback" data-image-feedback role="status" aria-live="polite">Pilih gambar untuk melihat preview.</p>
+                <button type="button" class="btn btn-light" data-reset-image hidden>Batalkan pilihan baru</button>
             </div>
-            <img id="banner-preview" class="banner-form-preview d-none mb-3" alt="Preview banner">
             <div class="mb-3 d-flex gap-1 align-items-center">
                 <input type="checkbox" name="active" id="active" checked>
                 <label for="active">Aktifkan banner</label>
@@ -55,13 +57,5 @@
         </form>
     </div>
 </div>
-<script>
-function previewBanner(event) {
-    const preview = document.getElementById('banner-preview');
-    const file = event.target.files[0];
-    if (!file) return;
-    preview.src = URL.createObjectURL(file);
-    preview.classList.remove('d-none');
-}
-</script>
+
 <?= $this->endSection(); ?>

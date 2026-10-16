@@ -2,7 +2,7 @@
 <?= $this->section('content'); ?>
 <div class="konten admin-module-page admin-module-category-images-admin">
     <div class="container">
-        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Gambar kategori', 'adminHeadingGroup'=>'Katalog', 'adminHeadingDescription'=>'Gunakan gambar transparan PNG atau WebP, rekomendasi 300 × 300 px.', 'adminHeadingActions'=>[['label'=>'Kembali ke produk', 'href'=>'/listproduct', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
+        <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Gambar kategori', 'adminHeadingGroup'=>'Katalog', 'adminHeadingDescription'=>'Gunakan WebP atau AVIF, rekomendasi 300 × 300 px. Periksa preview sebelum menyimpan.', 'adminHeadingActions'=>[['label'=>'Kembali ke produk', 'href'=>'/listproduct', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
 
         <?php if (!empty($msg)) { ?>
             <div class="alert alert-info py-2"><?= esc($msg); ?></div>
@@ -13,19 +13,20 @@
             <div class="row g-3">
                 <?php foreach ($categories as $key => $label) { ?>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="border rounded-4 p-3 h-100 bg-white">
+                        <div class="admin-image-field h-100" data-max-bytes="2097152">
                             <div class="d-flex gap-3 align-items-center mb-3">
                                 <div style="width:76px;height:76px;display:grid;place-items:center;background:transparent;border:1px dashed #d1d5db;border-radius:14px;">
-                                    <img class="category-image-preview" src="<?= esc($images[$key] ?? ''); ?>" alt="<?= esc($label); ?>" style="width:68px;height:68px;object-fit:contain;background:transparent;">
+                                    <img class="category-image-preview" data-image-preview src="<?= esc($images[$key] ?? ''); ?>" alt="<?= esc($label); ?>" style="width:68px;height:68px;object-fit:contain;background:transparent;">
                                 </div>
                                 <div>
                                     <p class="mb-1 fw-bold"><?= esc($label); ?></p>
                                     <small class="text-muted"><?= esc($key); ?></small>
                                 </div>
                             </div>
-                            <label class="form-label">Ganti gambar</label>
-                            <input type="file" class="form-control category-image-input" name="category_<?= esc($key); ?>" accept="image/png,image/webp,image/jpeg">
-                            <small class="text-muted category-image-note">Saran: 300x300 px, background transparan, max 2MB.</small>
+                            <label class="form-label" for="category-<?= esc($key); ?>">Pilih / ganti gambar</label>
+                            <input type="file" class="form-control category-image-input" id="category-<?= esc($key); ?>" data-image-input name="category_<?= esc($key); ?>" accept=".webp,.avif,image/webp,image/avif">
+                            <small class="admin-media-feedback d-block" data-image-feedback role="status" aria-live="polite">WebP atau AVIF · Maksimal 2 MB · Saran 300 × 300 px.</small>
+                            <button type="button" class="btn btn-light" data-reset-image hidden>Batalkan pilihan baru</button>
                         </div>
                     </div>
                 <?php } ?>
@@ -36,30 +37,5 @@
         </form>
     </div>
 </div>
-<script>
-    document.querySelectorAll('.category-image-input').forEach((input) => {
-        input.addEventListener('change', () => {
-            const file = input.files && input.files[0];
-            const card = input.closest('.col-12');
-            const preview = card ? card.querySelector('.category-image-preview') : null;
-            const note = card ? card.querySelector('.category-image-note') : null;
-            if (!file || !preview) return;
 
-            if (!['image/png', 'image/webp', 'image/jpeg'].includes(file.type)) {
-                input.value = '';
-                if (note) note.textContent = 'Format harus PNG, WebP, atau JPG.';
-                return;
-            }
-
-            if (file.size > 1024 * 1024 * 2) {
-                input.value = '';
-                if (note) note.textContent = 'Ukuran maksimal 2MB.';
-                return;
-            }
-
-            preview.src = URL.createObjectURL(file);
-            if (note) note.textContent = `Preview: ${file.name}. Klik Simpan Gambar Kategori untuk menerapkan.`;
-        });
-    });
-</script>
 <?= $this->endSection(); ?>

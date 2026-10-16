@@ -59,7 +59,12 @@ final class PublicCatalogImageTest extends CIUnitTestCase
     public function testOnlyPublicImageHandlersUseCachingService(): void
     {
         $source = file_get_contents(APPPATH . 'Controllers/GambarController.php');
-        $this->assertSame(2, substr_count($source, 'PublicCatalogImage::respond('));
+        $this->assertSame(3, substr_count($source, 'PublicCatalogImage::respond('));
+        foreach (['tampilGambarBarang', 'tampilFotoProduk', 'tampilGambarBanner'] as $method) {
+            preg_match('/public function ' . $method . '\([^)]*\).*?\n    }/s', $source, $match);
+            $this->assertNotEmpty($match);
+            $this->assertStringContainsString('PublicCatalogImage::respond(', $match[0]);
+        }
         foreach (['tampilGambarUser', 'tampilGambarBuktiBayar'] as $method) {
             preg_match('/public function ' . $method . '\([^)]*\).*?\n    }/s', $source, $match);
             $this->assertNotEmpty($match);

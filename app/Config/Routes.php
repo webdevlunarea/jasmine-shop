@@ -204,6 +204,7 @@ $routes->get('/apiauto/schedule', 'Pages::scheduleVoucher', ['filter' => 'corsFi
 
 // GambarController
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
+$routes->get('/imgproduct/(:segment)/(:num)', 'GambarController::tampilFotoProduk/$1/$2');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');
 $routes->get('/imgart/(:any)/(:any)', 'GambarController::tampilGambarArtikel/$1/$2');
 $routes->get('/imgvoucher/email/(:any)', 'GambarController::voucherPosterEmail/$1');

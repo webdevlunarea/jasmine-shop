@@ -8144,57 +8144,47 @@ class Pages extends BaseController
 
     public function actionCategoryImagesAdmin()
     {
-        $images = $this->konstantaModel->getCategoryImages();
-        $uploadDir = WRITEPATH . 'uploads/category-images';
-        if (!is_dir($uploadDir)) {
-            @mkdir($uploadDir, 0775, true);
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
+        $created = []; $db = null;
+        try {
+            $images = $this->konstantaModel->getCategoryImages(); $uploads = []; $total = 0;
+            foreach ($this->categoryImageOptions() as $key=>$label) {
+                $bytes = \App\Services\CatalogImageUpload::read($this->request->getFile('category_'.$key), $label, 2097152);
+                if ($bytes === null) continue;
+                $total += strlen($bytes);
+                if ($total > \App\Services\CatalogImageUpload::MAX_BATCH_BYTES) throw new \DomainException('Total gambar baru maksimal 12 MB. Simpan bertahap.');
+                $uploads[$key] = $bytes;
+            }
+            if (!$uploads) return redirect()->to('/categoryimagesadmin')->with('msg', 'Belum ada gambar baru yang dipilih.');
+            $dir = WRITEPATH.'uploads/category-images';
+            if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) throw new \RuntimeException('Category directory unavailable');
+            foreach ($uploads as $key=>$bytes) {
+                $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($bytes);
+                $filename = $key.'-'.bin2hex(random_bytes(12)).($mime === 'image/avif' ? '.avif' : '.webp');
+                $path = $dir.DIRECTORY_SEPARATOR.$filename;
+                $created[] = $path;
+                if (file_put_contents($path, $bytes, LOCK_EX) !== strlen($bytes)) throw new \RuntimeException('Category image write failed');
+                $images[$key] = '/category-image/'.$filename;
+            }
+            $db = \Config\Database::connect(); $db->transBegin();
+            $this->konstantaModel->saveCategoryImages($images);
+            if (!$db->transStatus()) throw new \RuntimeException('Category image settings failed');
+            $db->transCommit();
+            return redirect()->to('/categoryimagesadmin')->with('msg', count($uploads).' gambar kategori berhasil disimpan.');
+        } catch (\Throwable $error) {
+            if ($db) $db->transRollback();
+            // Only new generated paths from this request are cleaned; saved images remain intact.
+            foreach ($created as $path) if (is_file($path)) @unlink($path);
+            $message = $error instanceof \DomainException ? $error->getMessage() : 'Penyimpanan gambar gagal. Periksa izin folder upload dan log server.';
+            if (!($error instanceof \DomainException)) log_message('error', 'Admin category media save failed: {type}', ['type'=>get_class($error)]);
+            return redirect()->to('/categoryimagesadmin')->with('msg', $message.' Belum ada perubahan disimpan. Pilih ulang file.');
         }
-        if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
-            session()->setFlashdata('msg', 'Folder upload kategori belum bisa ditulis. Pastikan folder writable/uploads bisa ditulis server.');
-            return redirect()->to('/categoryimagesadmin');
-        }
-
-        $changed = 0;
-
-        foreach ($this->categoryImageOptions() as $key => $label) {
-            $file = $this->request->getFile('category_' . $key);
-            if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) continue;
-            if (!$file->isValid() || $file->hasMoved()) {
-                session()->setFlashdata('msg', 'Upload gambar ' . $label . ' gagal. Coba pilih ulang file gambar.');
-                return redirect()->to('/categoryimagesadmin');
-            }
-
-            $mime = (string)$file->getMimeType();
-            if (!in_array($mime, ['image/png', 'image/webp', 'image/jpeg'], true)) {
-                session()->setFlashdata('msg', 'Format gambar ' . $label . ' harus PNG, WebP, atau JPG.');
-                return redirect()->to('/categoryimagesadmin');
-            }
-
-            if ($file->getSize() > 1024 * 1024 * 2) {
-                session()->setFlashdata('msg', 'Ukuran gambar ' . $label . ' maksimal 2MB.');
-                return redirect()->to('/categoryimagesadmin');
-            }
-
-            $extension = strtolower($file->getExtension() ?: 'webp');
-            if (!in_array($extension, ['png', 'webp', 'jpg', 'jpeg'], true)) $extension = 'webp';
-            $fileName = $key . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
-            if (!$file->move($uploadDir, $fileName, true)) {
-                session()->setFlashdata('msg', 'Gambar ' . $label . ' gagal disimpan ke folder upload.');
-                return redirect()->to('/categoryimagesadmin');
-            }
-            $images[$key] = '/category-image/' . $fileName;
-            $changed++;
-        }
-
-        $this->konstantaModel->saveCategoryImages($images);
-        session()->setFlashdata('msg', $changed > 0 ? $changed . ' gambar kategori berhasil diperbarui.' : 'Belum ada gambar baru yang dipilih.');
-        return redirect()->to('/categoryimagesadmin');
     }
 
     public function categoryImageFile($fileName)
     {
         $fileName = basename((string)$fileName);
-        if (!preg_match('/^[a-z0-9-]+\.(png|webp|jpg|jpeg)$/i', $fileName)) {
+        if (!preg_match('/^[a-z0-9-]+\.(png|webp|avif|jpg|jpeg)$/i', $fileName)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
@@ -8207,6 +8197,7 @@ class Pages extends BaseController
         $mimeTypes = [
             'png' => 'image/png',
             'webp' => 'image/webp',
+            'avif' => 'image/avif',
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
         ];
@@ -8327,8 +8318,10 @@ class Pages extends BaseController
     public function editProduct($id)
     {
         $produk = $this->barangModel->getBarangAdmin($id);
-        $gambar = $this->gambarBarangModel->getGambar($id);
-        $varian = json_decode($produk['varian'], true);
+        if (!$produk) return redirect()->to('/listproduct')->with('msg', 'Produk tidak ditemukan.');
+        $gambar = $this->gambarBarangModel->getGambar($id) ?: [];
+        $varian = json_decode($produk['varian'] ?? '[]', true);
+        if (!is_array($varian) || !$varian) $varian = ['Default'];
         if ($produk['pencarian'] == null || $produk['pencarian'] == '') {
             $diskon = '';
             $varianJadi = '';
@@ -8354,58 +8347,63 @@ class Pages extends BaseController
 
     public function actionEditProduct($id)
     {
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
         $produk = $this->barangModel->where('id', $id)->first();
-        if (!$produk) {
-            session()->setFlashdata('msg', 'Produk tidak ditemukan.');
-            return redirect()->to('/listproduct');
-        }
-
-        $varian = json_decode($produk['varian'] ?? '[]', true);
-        if (!is_array($varian) || count($varian) < 1) $varian = ['Default'];
-        $hasilVarian = min(50, count($varian) + max((int)($produk['jml_varian'] ?? 1), 1) - 1);
-        $gambarUpdate = ['id' => $id];
-        $barangUpdate = ['id' => $id];
-        $adaGambarBaru = false;
-        $diskon = (float)($this->request->getVar('diskon') ?? ($produk['diskon'] ?? 0));
-        if ($diskon < 0) $diskon = 0;
-        if ($diskon > 100) $diskon = 100;
-        $barangUpdate['diskon'] = $diskon;
-        $variantImageMap = [];
-        foreach ($varian as $variantName) {
-            $postedIndex = $this->request->getPost('variant_image_' . md5($variantName));
-            if ($postedIndex === null) {
-                $postedIndex = $this->defaultProductVariantImageIndex($produk, $variantName);
+        if (!$produk) return redirect()->to('/listproduct')->with('msg', 'Produk tidak ditemukan.');
+        try {
+            $existing = $this->gambarBarangModel->getGambar($id) ?: [];
+            $copyLegacyCover = empty($existing['gambar1']) && !empty($produk['gambar']);
+            if (empty($existing['gambar1']) && !empty($produk['gambar'])) $existing['gambar1'] = $produk['gambar'];
+            $images = ['id'=>$id]; $product = ['id'=>$id]; $batchBytes = 0;
+            // Validate every upload before any discount, mapping or image is written.
+            for ($i = 1; $i <= 50; $i++) {
+                $bytes = \App\Services\CatalogImageUpload::read($this->request->getFile('gambar'.$i), 'Foto '.$i);
+                if ($bytes === null) continue;
+                $batchBytes += strlen($bytes);
+                if ($batchBytes > \App\Services\CatalogImageUpload::MAX_BATCH_BYTES) throw new \DomainException('Total foto baru maksimal 12 MB per penyimpanan. Simpan dalam beberapa tahap.');
+                $images['gambar'.$i] = $bytes;
+                $existing['gambar'.$i] = $bytes;
+                if ($i === 1) $product['gambar'] = $bytes;
             }
-            $variantImageMap[$variantName] = max(0, min($hasilVarian - 1, (int)$postedIndex));
-        }
-        $this->konstantaModel->saveProductVariantImageMap($id, $variantImageMap);
-
-        for ($i = 1; $i <= $hasilVarian; $i++) {
-            $file = $this->request->getFile('gambar' . $i);
-            if ($file && $file->isValid() && !$file->hasMoved()) {
-                $content = file_get_contents($file->getTempName());
-                if ($content !== false) {
-                    $gambarUpdate['gambar' . $i] = $content;
-                    if ($i === 1) $barangUpdate['gambar'] = $content;
-                    $adaGambarBaru = true;
-                }
+            $discount = $this->request->getPost('diskon') ?? ($produk['diskon'] ?? 0);
+            if (!is_numeric($discount) || !is_finite((float)$discount) || (float)$discount < 0 || (float)$discount > 100) throw new \DomainException('Diskon harus antara 0 dan 100 persen.');
+            $product['diskon'] = (float)$discount;
+            $variants = json_decode($produk['varian'] ?? '[]', true);
+            if (!is_array($variants) || !$variants) $variants = ['Default'];
+            $map = [];
+            $hasImages = count(array_filter($existing, static fn($v, $k) => preg_match('/^gambar[1-9][0-9]?$/D', (string)$k) && !empty($v), ARRAY_FILTER_USE_BOTH)) > 0;
+            foreach ($variants as $name) {
+                $raw = $this->request->getPost('variant_image_'.md5($name));
+                if ($raw === null) $raw = (string)$this->defaultProductVariantImageIndex($produk, $name);
+                if (!is_scalar($raw) || !ctype_digit((string)$raw) || (int)$raw > 49 || ($hasImages && empty($existing['gambar'.((int)$raw + 1)]))) throw new \DomainException('Pilih foto yang tersedia untuk varian '.$name.'.');
+                $map[$name] = (int)$raw;
             }
+            if (count($images) > 1 && $copyLegacyCover && !isset($images['gambar1'])) $images['gambar1'] = $produk['gambar'];
+            $this->saveProductMedia((string)$id, $product, $images, $map);
+            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', 'Foto, pilihan foto varian, dan promo berhasil disimpan. Data utama tetap mengikuti Luna Sistem.');
+        } catch (\DomainException $error) {
+            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', $error->getMessage().' Belum ada perubahan disimpan. Pilih ulang file sebelum mencoba lagi.');
+        } catch (\Throwable $error) {
+            log_message('error', 'Admin product media save failed for {product}; type {type}', ['product'=>(string)$id, 'type'=>get_class($error)]);
+            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', 'Penyimpanan gambar gagal. Periksa log server dan batas upload sebelum mencoba lagi.');
         }
+    }
 
-        if ($adaGambarBaru || $diskon !== (float)($produk['diskon'] ?? 0)) {
-            $this->barangModel->save($barangUpdate);
-        }
-
-        if ($adaGambarBaru) {
-            $existingGambar = $this->gambarBarangModel->where(['id' => $id])->first();
-            if ($existingGambar) $this->gambarBarangModel->save($gambarUpdate);
-            else $this->gambarBarangModel->insert($gambarUpdate);
-            session()->setFlashdata('msg', 'Foto, relasi foto-varian, dan promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
-        } else {
-            session()->setFlashdata('msg', 'Relasi foto-varian dan promo website berhasil diperbarui. Data produk utama tetap mengikuti Luna Sistem.');
-        }
-
-        return redirect()->to('/editproduct/' . $id);
+    protected function saveProductMedia(string $id, array $product, array $images, array $map): void
+    {
+        $db = \Config\Database::connect();
+        $db->transBegin();
+        try {
+            if ($this->barangModel->save($product) === false) throw new \RuntimeException('Product media update failed');
+            if (count($images) > 1) {
+                $saved = $this->gambarBarangModel->getGambar($id)
+                    ? $this->gambarBarangModel->save($images) : $this->gambarBarangModel->insert($images);
+                if ($saved === false) throw new \RuntimeException('Gallery update failed');
+            }
+            $this->konstantaModel->saveProductVariantImageMap($id, $map);
+            if (!$db->transStatus()) throw new \RuntimeException('Product media transaction failed');
+            $db->transCommit();
+        } catch (\Throwable $error) { $db->transRollback(); throw $error; }
     }
     public function delProduct($id)
     {
@@ -8737,26 +8735,23 @@ class Pages extends BaseController
     }
     public function actionAddBanner()
     {
-        if (!$this->validate([
-            'judul' => ['rules' => 'required'],
-            'gambar' => ['rules' => 'uploaded[gambar]|is_image[gambar]|max_size[gambar,4096]'],
-        ])) {
-            session()->setFlashdata('msg', 'Judul dan gambar banner wajib diisi. Maksimal ukuran gambar 4 MB.');
-            return redirect()->to('/addbanner')->withInput();
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
+        try {
+            if (!trim((string)$this->request->getPost('judul'))) throw new \DomainException('Judul banner wajib diisi.');
+            $bytes = \App\Services\CatalogImageUpload::read($this->request->getFile('gambar'), 'Banner', 4194304, true);
+            $saved = $this->bannerModel->insert([
+                'judul'=>$this->request->getPost('judul'),
+                'alt'=>$this->request->getPost('alt') ?: $this->request->getPost('judul'),
+                'link'=>$this->normalizeBannerLink($this->request->getPost('link')),
+                'gambar'=>$bytes, 'urutan'=>(int)$this->request->getPost('urutan'),
+                'active'=>$this->request->getPost('active') ? 1 : 0,
+            ]);
+            if ($saved === false) throw new \RuntimeException('Banner insert failed');
+            return redirect()->to('/listbanner')->with('msg', 'Banner berhasil ditambahkan.');
+        } catch (\Throwable $error) {
+            if (!($error instanceof \DomainException)) log_message('error', 'Admin banner insert failed: {type}', ['type'=>get_class($error)]);
+            return redirect()->to('/addbanner')->withInput()->with('msg', $error instanceof \DomainException ? $error->getMessage() : 'Penyimpanan banner gagal. Periksa log server.');
         }
-
-        $gambar = $this->request->getFile('gambar');
-        $this->bannerModel->insert([
-            'judul' => $this->request->getVar('judul'),
-            'alt' => $this->request->getVar('alt') ? $this->request->getVar('alt') : $this->request->getVar('judul'),
-            'link' => $this->normalizeBannerLink($this->request->getVar('link')),
-            'gambar' => file_get_contents($gambar->getTempName()),
-            'urutan' => $this->request->getVar('urutan') !== null ? (int)$this->request->getVar('urutan') : 0,
-            'active' => $this->request->getVar('active') ? 1 : 0,
-        ]);
-
-        session()->setFlashdata('msg', 'Banner berhasil ditambahkan');
-        return redirect()->to('/listbanner');
     }
     public function editBanner($id)
     {
@@ -8774,41 +8769,24 @@ class Pages extends BaseController
     }
     public function actionEditBanner($id)
     {
-        $banner = $this->bannerModel->where(['id' => $id])->first();
-        if (!$banner) {
-            session()->setFlashdata('msg', 'Banner tidak ditemukan');
-            return redirect()->to('/listbanner');
+        if ($denied = $this->guardOrderAdminRequest()) return $denied;
+        $banner = $this->bannerModel->where(['id'=>$id])->first();
+        if (!$banner) return redirect()->to('/listbanner')->with('msg', 'Banner tidak ditemukan.');
+        try {
+            if (!trim((string)$this->request->getPost('judul'))) throw new \DomainException('Judul banner wajib diisi.');
+            $bytes = \App\Services\CatalogImageUpload::read($this->request->getFile('gambar'), 'Banner');
+            $update = [
+                'judul'=>$this->request->getPost('judul'), 'alt'=>$this->request->getPost('alt') ?: $this->request->getPost('judul'),
+                'link'=>$this->normalizeBannerLink($this->request->getPost('link')), 'urutan'=>(int)$this->request->getPost('urutan'),
+                'active'=>$this->request->getPost('active') ? 1 : 0,
+            ];
+            if ($bytes !== null) $update['gambar'] = $bytes;
+            if ($this->bannerModel->where(['id'=>$id])->set($update)->update() === false) throw new \RuntimeException('Banner update failed');
+            return redirect()->to('/listbanner')->with('msg', 'Banner berhasil diperbarui.');
+        } catch (\Throwable $error) {
+            if (!($error instanceof \DomainException)) log_message('error', 'Admin banner update failed: {type}', ['type'=>get_class($error)]);
+            return redirect()->to('/editbanner/'.rawurlencode((string)$id))->with('msg', $error instanceof \DomainException ? $error->getMessage() : 'Penyimpanan banner gagal. Periksa log server.');
         }
-
-        if (!$this->validate([
-            'judul' => ['rules' => 'required'],
-        ])) {
-            session()->setFlashdata('msg', 'Judul banner wajib diisi');
-            return redirect()->to('/editbanner/' . $id)->withInput();
-        }
-
-        $dataUpdate = [
-            'judul' => $this->request->getVar('judul'),
-            'alt' => $this->request->getVar('alt') ? $this->request->getVar('alt') : $this->request->getVar('judul'),
-            'link' => $this->normalizeBannerLink($this->request->getVar('link')),
-            'urutan' => $this->request->getVar('urutan') !== null ? (int)$this->request->getVar('urutan') : 0,
-            'active' => $this->request->getVar('active') ? 1 : 0,
-        ];
-
-        $gambar = $this->request->getFile('gambar');
-        if ($gambar && $gambar->isValid()) {
-            if (!$this->validate([
-                'gambar' => ['rules' => 'is_image[gambar]|max_size[gambar,4096]'],
-            ])) {
-                session()->setFlashdata('msg', 'Format gambar tidak valid atau ukuran lebih dari 4 MB.');
-                return redirect()->to('/editbanner/' . $id)->withInput();
-            }
-            $dataUpdate['gambar'] = file_get_contents($gambar->getTempName());
-        }
-
-        $this->bannerModel->where(['id' => $id])->set($dataUpdate)->update();
-        session()->setFlashdata('msg', 'Banner berhasil diupdate');
-        return redirect()->to('/listbanner');
     }
     public function activeBanner($id)
     {

@@ -76,7 +76,15 @@ final class AdminModulesViewTest extends CIUnitTestCase
     public function testExistingFormEndpointsAndFieldDefaultsArePreserved(): void
     {
         $manifest=json_decode(file_get_contents(TESTPATH.'fixtures/admin-form-contract.json'),true);
-        foreach ($manifest as $page=>$expected) $this->assertSame($expected,$this->contract(file_get_contents(APPPATH.'Views/pages/'.$page.'.php')),$page.' form contract changed');
+        foreach ($manifest as $page=>$expected) {
+            $actual=$this->contract(file_get_contents(APPPATH.'Views/pages/'.$page.'.php'));
+            // UI sections may move; field names/defaults and their multiplicity must stay intact.
+            foreach (['forms','fields'] as $key) {
+                usort($expected[$key], static fn($a,$b)=>strcmp(json_encode($a),json_encode($b)));
+                usort($actual[$key], static fn($a,$b)=>strcmp(json_encode($a),json_encode($b)));
+            }
+            $this->assertSame($expected,$actual,$page.' form contract changed');
+        }
     }
 
     public function testShippingCoverageAndSubsidyAreStillIndependentPostForms(): void
@@ -108,9 +116,9 @@ final class AdminModulesViewTest extends CIUnitTestCase
     private function preview(string $page,string $content): void
     {
         $root=':root{--theme-primary:#2F2D20;--theme-primary-hover:#242218;--theme-sidebar:#2F2D20;--theme-background:#f8f8f5;--theme-accent:#C7A78A;--theme-soft:#f4f0e8;--theme-soft-2:#e8e0d5;--hijau:#2F2D20;}.admin-body{--admin-primary:var(--theme-primary);--admin-bg:var(--theme-background);--admin-primary-soft:var(--theme-soft);}';
-        $css=file_get_contents(FCPATH.'css/style.css').file_get_contents(FCPATH.'css/admin-workspace.css').file_get_contents(FCPATH.'css/admin-modules.css').$root;
+        $css=file_get_contents(FCPATH.'css/style.css').file_get_contents(FCPATH.'css/admin-workspace.css').file_get_contents(FCPATH.'css/admin-modules.css').file_get_contents(FCPATH.'css/admin-media.css').$root;
         $nav=view('layout/navbar',['title'=>'Administrasi'],['saveData'=>false]);
-        $html='<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"><style>'.$css.'</style></head><body class="admin-body">'.$nav.$content.'<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script><script>'.file_get_contents(FCPATH.'js/admin-workspace.js').'</script></body></html>';
+        $html='<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"><style>'.$css.'</style></head><body class="admin-body">'.$nav.$content.'<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script><script>'.file_get_contents(FCPATH.'js/admin-workspace.js').'</script><script>'.file_get_contents(FCPATH.'js/admin-media.js').'</script></body></html>';
         // External editor SDKs are excluded from synthetic styling previews, not from application views.
         $html=preg_replace('~<script[^>]+src="https://cdn\.tiny\.cloud[^>]*>.*?</script>~s','',$html);
         file_put_contents(sys_get_temp_dir().'/lunarea-module-'.$page.'.html',$html);

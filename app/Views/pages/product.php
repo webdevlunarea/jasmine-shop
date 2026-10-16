@@ -25,7 +25,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         if ($g && $ind_g != 'id') { ?>
                             <section class="img-produk-prev" id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
                                 <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                                <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('data:image/webp;base64,<?= base64_encode($g); ?>')"></figure>
+                                <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>')"></figure>
                             </section>
                             <script>
                                 const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
@@ -54,7 +54,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     <div class="mt-2">
                         <?php foreach ($gambar as $ind_g => $g) {
                             if ($g && $ind_g != 'id') { ?>
-                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img src="data:image/webp;base64,<?= base64_encode($g); ?>" alt="<?= $produk['nama']; ?>"></div>
+                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= $produk['nama']; ?>"></div>
                         <?php }
                         } ?>
                     </div>
