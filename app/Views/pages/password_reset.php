@@ -30,15 +30,17 @@
                         <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Lanjutkan</button>
                     <?php elseif ($step === 'confirm') : ?>
-                        <div class="auth-reset-email-confirm" aria-live="polite">
-                            <span class="auth-reset-email-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg></span>
-                            <span class="auth-reset-email-label">Kirim kode ke alamat ini</span>
-                            <strong><?= esc($maskedEmail); ?></strong>
-                            <small>Alamat email disamarkan untuk menjaga privasi akun Anda.</small>
+                        <div class="auth-reset-email-confirm" aria-live="polite" aria-label="Alamat email pemulihan">
+                            <span class="auth-reset-email-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg></span>
+                            <div class="auth-reset-email-copy">
+                                <span class="auth-reset-email-label">Email pemulihan</span>
+                                <strong><?= esc($maskedEmail); ?></strong>
+                                <small>Kode verifikasi akan dikirim ke alamat ini.</small>
+                            </div>
                         </div>
                         <label class="auth-reset-confirm-check" for="confirm-reset-email">
                             <input id="confirm-reset-email" type="checkbox" name="confirm_email" value="1" required>
-                            <span>Ya, ini alamat email saya dan saya dapat membukanya.</span>
+                            <span>Saya dapat membuka email tersebut.</span>
                         </label>
                         <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Kirim kode ke email ini</button>
