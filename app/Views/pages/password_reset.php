@@ -1,0 +1,68 @@
+<?= $this->extend('layout/template'); ?>
+<?= $this->section('content'); ?>
+<div class="konten auth-page">
+    <div class="container">
+        <div class="auth-shell">
+            <section class="auth-panel" aria-labelledby="reset-title">
+                <div class="auth-heading">
+                    <h1 id="reset-title"><?= $step === 'request' ? 'Lupa sandi?' : 'Buat sandi baru'; ?></h1>
+                    <p><?= $step === 'request' ? 'Masukkan email akun Anda. Kami akan mengirim kode verifikasi 6 digit.' : 'Masukkan kode angka dari email, lalu tentukan sandi baru Anda.'; ?></p>
+                </div>
+                <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
+                <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
+                <form class="auth-form" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>">
+                    <?= csrf_field(); ?>
+                    <?php if ($step === 'request') : ?>
+                        <div class="auth-field">
+                            <label for="reset-email">Email akun</label>
+                            <input id="reset-email" class="form-control" type="email" name="email" value="<?= esc($email); ?>" maxlength="254" autocomplete="email" required>
+                        </div>
+                        <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
+                        <button type="submit" class="btn btn-primary1 auth-submit">Kirim kode verifikasi</button>
+                    <?php else : ?>
+                        <div class="auth-field">
+                            <label for="reset-otp">Kode verifikasi</label>
+                            <input id="reset-otp" class="form-control auth-otp" type="text" name="otp" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" aria-describedby="reset-code-help" required>
+                            <p class="auth-reset-help" id="reset-code-help">6 digit angka · Berlaku 10 menit · Maksimal 5 percobaan</p>
+                        </div>
+                        <div class="auth-field">
+                            <label for="reset-password">Sandi baru</label>
+                            <input id="reset-password" class="form-control" type="password" name="sandi" minlength="8" maxlength="72" pattern="(?=.*[0-9]).{8,}" autocomplete="new-password" aria-describedby="reset-password-help" required>
+                            <p class="auth-reset-help" id="reset-password-help">Minimal 8 karakter dan wajib mengandung angka.</p>
+                        </div>
+                        <div class="auth-field">
+                            <label for="reset-confirmation">Konfirmasi sandi baru</label>
+                            <input id="reset-confirmation" class="form-control" type="password" name="konfirmasi_sandi" minlength="8" maxlength="72" autocomplete="new-password" required>
+                        </div>
+                        <button type="button" class="auth-reset-toggle" id="reset-password-toggle" aria-pressed="false" aria-controls="reset-password reset-confirmation">Tampilkan sandi</button>
+                        <button type="submit" class="btn btn-primary1 auth-submit">Simpan sandi baru</button>
+                    <?php endif; ?>
+                </form>
+                <?php if ($step === 'reset') : ?>
+                    <div class="auth-switch">Belum menerima kode? <a href="<?= esc(site_url('lupa-sandi'), 'attr'); ?>">Kirim ulang kode</a><p class="auth-reset-help">Tunggu 60 detik sebelum meminta ulang. Maksimal 3 permintaan per email dalam 15 menit.</p></div>
+                <?php endif; ?>
+                <div class="auth-switch"><a href="<?= esc(site_url('login'), 'attr'); ?>">Kembali ke halaman masuk</a></div>
+            </section>
+        </div>
+    </div>
+</div>
+<script>
+(() => {
+    const form = document.getElementById('password-reset-form');
+    const submit = form.querySelector('[type="submit"]');
+    function syncCaptcha() {
+        submit.disabled = !!form.querySelector('.auth-captcha') && window.lunareaCaptchaReady !== true;
+    }
+    document.addEventListener('lunarea:captcha', syncCaptcha);
+    syncCaptcha();
+    form.addEventListener('submit', () => { submit.disabled = true; submit.textContent = 'Memproses…'; });
+    const toggle = document.getElementById('reset-password-toggle');
+    if (toggle) toggle.addEventListener('click', () => {
+        const show = toggle.getAttribute('aria-pressed') !== 'true';
+        ['reset-password', 'reset-confirmation'].forEach(id => document.getElementById(id).type = show ? 'text' : 'password');
+        toggle.setAttribute('aria-pressed', String(show));
+        toggle.textContent = show ? 'Sembunyikan sandi' : 'Tampilkan sandi';
+    });
+})();
+</script>
+<?= $this->endSection(); ?>

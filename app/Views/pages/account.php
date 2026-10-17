@@ -127,6 +127,7 @@ $statusClass = function ($status) {
         <?php } ?>
 
         <?php if ($role == '0') { ?>
+            <?= view('partials/account_username', ['usernameSettings' => $usernameSettings ?? ['available' => false, 'username' => '']], ['saveData' => false]); ?>
             <?= view('partials/account_facebook', ['facebookLinkState' => $facebookLinkState ?? 'disabled'], ['saveData' => false]); ?>
         <?php } ?>
         <div class="row g-3 account-main-grid">
@@ -180,6 +181,7 @@ $statusClass = function ($status) {
                     <p class="text-secondary small mb-3">Profil yang lengkap membuat checkout, voucher, dan bantuan pesanan lebih mudah.</p>
                     <?php if (session()->get('active')) { ?>
                         <form class="row g-3" action="/account" method="post" enctype="multipart/form-data">
+                            <?= csrf_field(); ?>
                             <div class="col-12 text-center">
                                 <div class="account-form-photo">
                                     <label for="input-file" class="icon-btn-change-pp" aria-label="Ganti foto profil"><i class="material-icons">edit</i></label>

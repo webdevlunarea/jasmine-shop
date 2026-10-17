@@ -26,6 +26,10 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => ['harusLogout', 'cs
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => 'harusLogout']);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => ['harusLogout', 'csrf']]);
+$routes->get('/lupa-sandi', 'PasswordReset::requestForm');
+$routes->post('/lupa-sandi', 'PasswordReset::requestCode', ['filter' => 'csrf']);
+$routes->get('/reset-sandi', 'PasswordReset::resetForm');
+$routes->post('/reset-sandi', 'PasswordReset::complete', ['filter' => 'csrf']);
 $routes->get('/auth/google', 'Pages::googleLogin');
 $routes->get('/auth/google/callback', 'Pages::googleCallback');
 $routes->get('/auth/facebook', 'Pages::facebookLogin');
@@ -101,7 +105,8 @@ $routes->post('/payorder/(:any)', 'Pages::payOrder/$1', ['filter' => 'harusLogin
 $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin']);
 // $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
-$routes->post('/account', 'Pages::editAccount', ['filter' => 'harusLogin']);
+$routes->post('/account', 'Pages::editAccount', ['filter' => ['harusLogin', 'csrf']]);
+$routes->post('/account/username', 'CustomerUsername::save', ['filter' => ['harusUser', 'csrf']]);
 $routes->get('/contact', 'Pages::contact');
 $routes->get('/about', 'Pages::about');
 

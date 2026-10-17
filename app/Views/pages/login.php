@@ -21,15 +21,15 @@
                     <span>Masuk dengan Google</span>
                 </a>
                 <?= view('partials/auth_facebook', ['redirect' => $redirect ?? ''], ['saveData' => false]); ?>
-                <div class="auth-divider"><span>atau masuk dengan email</span></div>
+                <div class="auth-divider"><span>atau masuk dengan email / username</span></div>
                 <form action="/masuk" method="post" class="auth-form">
                     <?= csrf_field(); ?>
                     <?php if (!empty($redirect)) { ?>
                         <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">
                     <?php } ?>
                     <div class="auth-field">
-                        <label for="login-email">Email</label>
-                        <input id="login-email" type="email" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="name@example.com" name="email" value="<?= esc($val['isiEmail'] ?? ''); ?>" autocomplete="email" required>
+                        <label for="login-email">Email atau username</label>
+                        <input id="login-email" type="text" class="form-control <?= ($val['val_email']) ? "is-invalid" : ""; ?>" placeholder="Email atau username Anda" name="email" value="<?= esc($val['isiEmail'] ?? ''); ?>" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="254" required>
                         <div class="invalid-feedback"><?= $val['val_email']; ?></div>
                     </div>
                     <div class="auth-field">
@@ -38,6 +38,7 @@
                         <button class="auth-password-toggle" type="button" data-target="login-password" aria-label="Tampilkan sandi" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="auth-eye-slash d-none" d="m3 3 18 18"/></svg></button>
                         <div class="invalid-feedback"><?= $val['val_sandi']; ?></div>
                     </div>
+                    <a class="auth-forgot-link" href="<?= esc(site_url('lupa-sandi'), 'attr'); ?>">Lupa sandi?</a>
                     <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Masuk">
                 </form>

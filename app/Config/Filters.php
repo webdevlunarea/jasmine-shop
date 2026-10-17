@@ -29,6 +29,7 @@ class Filters extends BaseConfig
         'harusLogin'    => \App\Filters\LoginFilter::class,
         'harusLogout'    => \App\Filters\LogoutFilter::class,
         'corsFilter'    => \App\Filters\CorsFilter::class,
+        'passwordSession' => \App\Filters\PasswordSessionFilter::class,
     ];
 
     /**
@@ -40,6 +41,7 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+            'passwordSession',
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',

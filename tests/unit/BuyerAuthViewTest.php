@@ -54,7 +54,7 @@ final class BuyerAuthViewTest extends CIUnitTestCase
     public function testTemplateSuppressesPromotionsOnlyForAuthPages(): void
     {
         $source = file_get_contents(APPPATH . 'Views/layout/template.php');
-        $this->assertStringContainsString("in_array($" . "title, ['Masuk', 'Daftar'], true)", $source);
+        $this->assertStringContainsString("in_array($" . "title, ['Masuk', 'Daftar', 'Lupa sandi', 'Reset sandi'], true)", $source);
         $this->assertSame(2, substr_count($source, 'if (!$isAdminLayout && !$isAuthPage)'));
         $this->assertStringContainsString("view('layout/buyer_footer'", $source);
     }

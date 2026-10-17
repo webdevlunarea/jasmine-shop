@@ -189,7 +189,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/public-articles.css?v=<?= filemtime(FCPATH . 'css/public-articles.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-footer.css?v=<?= filemtime(FCPATH . 'css/buyer-footer.css'); ?>">
-    <?php if (in_array($title, ['Masuk', 'Daftar'], true)) { ?>
+    <?php if (in_array($title, ['Masuk', 'Daftar', 'Lupa sandi', 'Reset sandi'], true)) { ?>
     <link rel="stylesheet" href="/css/buyer-auth.css?v=<?= filemtime(FCPATH . 'css/buyer-auth.css'); ?>">
     <?php } ?>
     <?php if (in_array($title, ['Kontak', 'Kontak Kami'], true)) { ?>
@@ -307,7 +307,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 
 <?php
 $isAdminLayout = session()->get('role') == '1';
-$isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
+$isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar', 'Lupa sandi', 'Reset sandi'], true);
 ?>
 
 <body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-layout buyer-auth-body' : 'buyer-layout'); ?>">

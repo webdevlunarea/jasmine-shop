@@ -38,6 +38,7 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
                     private $owner; private ?array $record;
                     public function __construct($owner, ?array $record) { $this->owner=$owner; $this->record=$record; }
                     public function getUser($email) { $this->owner->lookups[]=$email; return $this->record && $email===$this->record['email'] ? $this->record : null; }
+                    public function getUserByUsername($username) { $this->owner->lookups[]='username:'.strtolower($username); return $this->record && strtolower($username)===($this->record['username']??'') && $this->record['role']==='0' ? $this->record : null; }
                 };
                 if ($downstream) {
                     $empty=new class {
@@ -58,7 +59,7 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
 
     private function record(string $role='0', string $active='1'): array
     {
-        return ['email'=>'buyer@example.test','sandi'=>password_hash('UnitPass123!', PASSWORD_BCRYPT, ['cost'=>4]),'active'=>$active,'role'=>$role];
+        return ['email'=>'buyer@example.test','username'=>'pembeli_01','sandi'=>password_hash('UnitPass123!', PASSWORD_BCRYPT, ['cost'=>4]),'active'=>$active,'role'=>$role];
     }
 
     public function testLegacySuffixNeverResolvesToAnotherAccount(): void
@@ -81,7 +82,7 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
         $this->assertStringEndsWith('/login',$controller->actionLogin()->getHeaderLine('Location'));
         $this->assertFalse((bool)session()->get('isLogin'));
         $this->assertNull(session()->get('email'));
-        $this->assertSame('Email atau sandi tidak sesuai.',session()->getFlashdata('msg'));
+        $this->assertSame('Email/username atau sandi tidak sesuai.',session()->getFlashdata('msg'));
     }
 
     /** @dataProvider malformedCredentials */
@@ -119,5 +120,32 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
         $this->assertSame('0',session()->get('active'));
         $this->assertSame('/checkout',session()->get('redirect_after_verify'));
         $this->assertNull(session()->get('role'));
+    }
+
+    public function testUsernameLoginUsesCanonicalEmailForSessionAndCommerce(): void
+    {
+        $c=$this->controller(['email'=>' PeMbElI_01 ','sandi'=>'UnitPass123!','redirect'=>'/checkout'],$this->record(),true);
+        $this->assertStringContainsString('/hapuslocalstorage/', $c->actionLogin()->getHeaderLine('Location'));
+        $this->assertSame(['username:pembeli_01'], $c->lookups);
+        $this->assertSame('buyer@example.test', session('email'));
+        $this->assertSame('0', session('role'));
+        $this->assertTrue(session('isLogin'));
+    }
+
+    public function testUsernameStillRequiresCorrectPassword(): void
+    {
+        $c=$this->controller(['email'=>'pembeli_01','sandi'=>'wrong'],$this->record());
+        $this->assertStringEndsWith('/login', $c->actionLogin()->getHeaderLine('Location'));
+        $this->assertFalse((bool)session('isLogin'));
+        $this->assertNull(session('email'));
+        $this->assertSame('Email/username atau sandi tidak sesuai.', session()->getFlashdata('msg'));
+    }
+
+    public function testInactiveUsernameLoginKeepsVerificationAndCanonicalEmail(): void
+    {
+        $c=$this->controller(['email'=>'pembeli_01','sandi'=>'UnitPass123!','redirect'=>'/checkout'],$this->record('0','0'));
+        $this->assertStringEndsWith('/verify', $c->actionLogin()->getHeaderLine('Location'));
+        $this->assertSame('buyer@example.test',session('email'));
+        $this->assertSame('0',session('active'));
     }
 }

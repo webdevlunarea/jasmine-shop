@@ -29,7 +29,8 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
   assert.equal(await evaluate(`document.querySelector('.auth-submit').disabled`),false);assert.equal(await evaluate(`document.querySelector('.auth-form').checkValidity()`),true);
   await click('.auth-password-toggle');assert.equal(await evaluate(`document.querySelector('input[name=sandi]').type`),'text');assert.equal(await evaluate(`document.querySelector('.auth-password-toggle').getAttribute('aria-label')`),'Sembunyikan sandi');await click('.auth-password-toggle');assert.equal(await evaluate(`document.querySelector('input[name=sandi]').type`),'password');
   if(page==='signup'){await click('#syarat');assert.equal(await evaluate(`document.querySelector('.auth-submit').disabled`),true);await click('#syarat');}
-  await evaluate(`const i=document.querySelector('input[name=email]');i.value='invalid';i.dispatchEvent(new Event('input',{bubbles:true}))`);assert.equal(await evaluate(`document.querySelector('.auth-form').checkValidity()`),false);checks++;
+  await evaluate(`const i=document.querySelector('input[name=email]');i.value='invalid';i.dispatchEvent(new Event('input',{bubbles:true}))`);assert.equal(await evaluate(`document.querySelector('.auth-form').checkValidity()`),page==='login');
+  await evaluate(`document.querySelector('input[name=email]').value=''`);assert.equal(await evaluate(`document.querySelector('.auth-form').checkValidity()`),false);checks++;
  }
  console.log(`PASS: ${checks} auth layout/interaction cases: 9 widths, inline errors, Google redirect, password toggle and signup consent; no form submitted.`);
  }finally{ws.close()}

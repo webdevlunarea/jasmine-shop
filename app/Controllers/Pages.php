@@ -2298,6 +2298,7 @@ class Pages extends BaseController
                 'isLogin' => true
             ]);
         }
+        session()->set('password_session_version', (new \App\Services\Auth\PasswordSessionVersions())->current((string)$user['email']));
         return true;
     }
 
@@ -2458,12 +2459,14 @@ class Pages extends BaseController
             'email' => is_string($postEmail) ? trim($postEmail) : '',
             'sandi' => is_string($postPassword) ? $postPassword : '',
         ];
+        $isEmail = strpos($credentials['email'], '@') !== false;
         if (!$this->validateData($credentials, [
             'email' => [
-                'rules' => 'required|valid_email|max_length[254]',
+                'rules' => $isEmail ? 'required|valid_email|max_length[254]' : 'required|regex_match[/^[A-Za-z][A-Za-z0-9_]{2,29}$/D]',
                 'errors' => [
-                    'required' => 'Email harus diisi',
+                    'required' => 'Email atau username harus diisi',
                     'valid_email' => 'Format email belum sesuai',
+                    'regex_match' => 'Format username belum sesuai',
                     'max_length' => 'Email terlalu panjang'
                 ]
             ],
@@ -2484,22 +2487,24 @@ class Pages extends BaseController
 
         $email = $credentials['email'];
         $sandi = $credentials['sandi'];
-        $getUser = $this->userModel->getUser($email);
+        $getUser = $isEmail ? $this->userModel->getUser($email) : $this->userModel->getUserByUsername($email);
 
         if (!$getUser) {
-            session()->setFlashdata('msg', 'Email atau sandi tidak sesuai.');
+            session()->setFlashdata('msg', 'Email/username atau sandi tidak sesuai.');
             if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login');
         }
         $authSandi = password_verify($sandi, (string)($getUser['sandi'] ?? ''));
         if (!$authSandi) {
-            session()->setFlashdata('msg', 'Email atau sandi tidak sesuai.');
+            session()->setFlashdata('msg', 'Email/username atau sandi tidak sesuai.');
             session()->setFlashdata('isiEmail', $email);
             if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login');
         }
         // Only verified credentials can establish an authenticated session.
+        $email = (string)$getUser['email'];
         session()->regenerate(true);
+        session()->set('password_session_version', (new \App\Services\Auth\PasswordSessionVersions())->current($email));
         if ($getUser['active'] == '0') {
             $ses_data = [
                 'email' => $getUser['email'],
@@ -2621,7 +2626,7 @@ class Pages extends BaseController
     }
     public function logout()
     {
-        session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient', 'facebook_oauth', 'facebook_link_nonce']);
+        session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient', 'facebook_oauth', 'facebook_link_nonce', 'password_session_version', 'password_reset_email']);
         $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
         session()->remove($ses_data);
     }
@@ -6784,6 +6789,15 @@ class Pages extends BaseController
         ];
         $profileCompletion = (int)round((count(array_filter($profileFields)) / count($profileFields)) * 100);
 
+        $usernameSettings = ['available' => false, 'username' => ''];
+        if ((string)session('role') === '0') {
+            try {
+                $usernameSettings = ['available' => true, 'username' => (new \App\Services\Auth\CustomerUsernames())->current((string)$email) ?? ''];
+            } catch (\Throwable $e) {
+                // Existing email/social login and account pages remain usable before schema deployment.
+            }
+        }
+
         $data = [
             'title' => 'Akun Saya',
             'nama' => $nama,
@@ -6793,6 +6807,7 @@ class Pages extends BaseController
             'auth_provider' => $getCurUser['auth_provider'] ?? (!empty($getCurUser['google_id']) ? 'google' : 'email'),
             'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
             'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
+            'usernameSettings' => $usernameSettings,
             'profileCompletion' => $profileCompletion,
             'activeOrders' => $activeOrders,
             'pendingPayment' => $pendingPayment,

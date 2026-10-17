@@ -1,4 +1,10 @@
-/* Only the customer login/signup pages; no checkout/admin form overrides. */
+/* Customer authentication pages; no checkout/admin form overrides. */
+.buyer-auth-body .auth-forgot-link { display: inline-flex; align-items: center; justify-self: end; min-height: 44px; color: var(--theme-primary, #2f2d20); font-size: .875rem; font-weight: 500; }
+.buyer-auth-body .auth-reset-note { padding: 14px 16px; background: var(--theme-soft, #f7f2ed); color: var(--theme-primary, #2f2d20); line-height: 1.7; }
+.buyer-auth-body .auth-reset-help { margin: 8px 0 0; font-size: .8125rem; line-height: 1.7; color: #626262; }
+.buyer-auth-body .auth-field .auth-otp { padding-inline: 16px; text-align: center; font-family: Consolas,Monaco,monospace; font-size: 1.5rem; font-variant-numeric: tabular-nums; letter-spacing: .35em; }
+.buyer-auth-body .auth-reset-toggle { justify-self: start; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--theme-primary, #2f2d20); font-size: .875rem; text-decoration: underline; }
+.buyer-auth-body :is(.auth-forgot-link,.auth-reset-toggle):focus-visible { outline: 2px solid var(--theme-primary, #2f2d20); outline-offset: 3px; }
 .buyer-auth-body .auth-facebook-btn { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; width: 100%; margin-top: 12px; padding: 12px 16px; border: 1px solid #0866ff; border-radius: 6px; background: #0866ff; color: #fff; font-weight: 600; text-decoration: none; }
 .buyer-auth-body .auth-facebook-btn:hover { background: #0756d6; color: #fff; }
 .buyer-auth-body .auth-facebook-btn:focus-visible { outline: 3px solid #152f69; outline-offset: 3px; }
