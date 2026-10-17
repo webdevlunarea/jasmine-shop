@@ -969,6 +969,7 @@ class Pages extends BaseController
         if ($flashSaleEnd <= time()) {
             $flashSaleEnd = strtotime('tomorrow ' . $flashSaleSettings['end_time'] . ':59');
         }
+        $flashSaleRemaining = max(0, $flashSaleEnd - time());
         $banner = $this->getHomeBanner();
         $msgEvent = session()->getFlashdata('msg_event');
         $msgActive = session()->getFlashdata('msg_active');
@@ -997,6 +998,7 @@ class Pages extends BaseController
             'produkTerbaru' => $produkTerbaru,
             'flashSaleProducts' => $flashSaleProducts,
             'flashSaleEnd' => $flashSaleEnd,
+            'flashSaleRemaining' => $flashSaleRemaining,
             'flashSaleSettings' => $flashSaleSettings,
             'banner' => $banner,
             'metaKeyword' => 'lunarea furniture,toko furniture,

@@ -11,7 +11,8 @@
                     <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" role="timer" aria-label="Sisa waktu promo kilat" aria-live="off">
                         <span class="flash-countdown-label">Berakhir dalam</span>
                         <div class="flash-countdown-time" aria-label="Hitung mundur promo kilat">
-                            <span data-unit="hours">00</span><b>:</b><span data-unit="minutes">00</span><b>:</b><span data-unit="seconds">00</span>
+                            <?php $countdownSeconds = max(0, (int)($flashSaleRemaining ?? 0)); ?>
+                            <span data-unit="hours"><?= str_pad((string)intdiv($countdownSeconds, 3600), 2, '0', STR_PAD_LEFT); ?></span><b>:</b><span data-unit="minutes"><?= str_pad((string)intdiv($countdownSeconds % 3600, 60), 2, '0', STR_PAD_LEFT); ?></span><b>:</b><span data-unit="seconds"><?= str_pad((string)($countdownSeconds % 60), 2, '0', STR_PAD_LEFT); ?></span>
                         </div>
                     </div>
                     <a href="/all" class="flash-sale-see-all">Lihat semua <span aria-hidden="true">→</span></a>

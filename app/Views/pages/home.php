@@ -394,7 +394,7 @@ function closeModalVoucherAll(index) {
             </div>
         </div>
     </div>
-    <?= view('partials/home_flash_sale', ['flashSaleProducts' => $flashSaleProducts ?? [], 'flashSaleSettings' => $flashSaleSettings ?? [], 'flashSaleEnd' => $flashSaleEnd ?? null], ['saveData' => false]); ?>
+    <?= view('partials/home_flash_sale', ['flashSaleProducts' => $flashSaleProducts ?? [], 'flashSaleSettings' => $flashSaleSettings ?? [], 'flashSaleEnd' => $flashSaleEnd ?? null, 'flashSaleRemaining' => $flashSaleRemaining ?? 0], ['saveData' => false]); ?>
     <?= view('partials/home_product_section', ['sectionId' => 'home-popular-products', 'sectionTitle' => 'Produk Terpopuler', 'sectionProducts' => $produkPopuler ?? []], ['saveData' => false]); ?>
     <?= view('partials/home_product_section', ['sectionId' => 'home-latest-products', 'sectionTitle' => 'Produk Terbaru', 'sectionProducts' => $produkTerbaru ?? []], ['saveData' => false]); ?>
     <?= $this->include('partials/home_benefits'); ?>
@@ -539,6 +539,10 @@ document.querySelectorAll('[data-flash-countdown]').forEach((timer) => {
         if (hoursEl) hoursEl.textContent = pad(hours);
         if (minutesEl) minutesEl.textContent = pad(minutes);
         if (secondsEl) secondsEl.textContent = pad(seconds);
+        if (totalSeconds === 0 && !timer.dataset.refreshScheduled) {
+            timer.dataset.refreshScheduled = '1';
+            window.setTimeout(() => window.location.reload(), 1200);
+        }
     }
 
     renderFlashCountdown();

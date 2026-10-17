@@ -62,7 +62,12 @@ class BarangModel extends Model
     }
     public function getBarangBaru()
     {
-        return $this->where(['active' => '1'])->orderBy('id', 'desc')->findAll(10, 0);
+        // Product aliases/duplicate rows may share one public URL. Keep only the
+        // newest active row for each path so homepage sections don't repeat it.
+        return $this->where(['active' => '1'])
+            ->where("barang.id = (SELECT MAX(terbaru.id) FROM barang AS terbaru WHERE terbaru.path = barang.path AND terbaru.active = '1')", null, false)
+            ->orderBy('id', 'desc')
+            ->findAll(10, 0);
     }
     public function getBarangPopuler()
     {

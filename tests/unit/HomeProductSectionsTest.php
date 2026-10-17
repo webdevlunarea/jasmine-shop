@@ -10,10 +10,11 @@ final class HomeProductSectionsTest extends CIUnitTestCase
         // Disposable in-memory database only; never use the default connection.
         $db = \Config\Database::connect(['DBDriver'=>'SQLite3','database'=>':memory:','DBPrefix'=>'','DBDebug'=>true],false);
         try {
-            $db->query('CREATE TABLE barang (id INTEGER PRIMARY KEY, active TEXT, tracking_pop INTEGER)');
-            for ($id=1;$id<=13;$id++) $db->table('barang')->insert(['id'=>$id,'active'=>$id===13?'0':'1','tracking_pop'=>1000-$id]);
+            $db->query('CREATE TABLE barang (id INTEGER PRIMARY KEY, active TEXT, tracking_pop INTEGER, path TEXT)');
+            for ($id=1;$id<=13;$id++) $db->table('barang')->insert(['id'=>$id,'active'=>$id===13?'0':'1','tracking_pop'=>1000-$id,'path'=>'produk-' . $id]);
+            $db->table('barang')->insert(['id'=>14,'active'=>'1','tracking_pop'=>900,'path'=>'produk-12']);
             $model = new BarangModel($db);
-            $this->assertSame(range(12,3),array_map('intval',array_column($model->getBarangBaru(),'id')));
+            $this->assertSame([14,11,10,9,8,7,6,5,4,3],array_map('intval',array_column($model->getBarangBaru(),'id')));
             $this->assertSame(range(1,10),array_map('intval',array_column($model->getBarangPopuler(),'id')));
         } finally { $db->close(); }
         $controller = file_get_contents(APPPATH . 'Controllers/Pages.php');
