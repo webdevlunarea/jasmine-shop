@@ -64,22 +64,54 @@ Smoke test manual setelah konfigurasi: buka login, klik Facebook, setujui akses 
 - Token, kode, App Secret, dan respons mentah provider tidak disimpan dalam sesi/tabel maupun dicetak ke log oleh integrasi ini. Konfigurasi web server/APM perlu meredaksi query callback (`code`, `state`) dan menonaktifkan perekaman body token exchange. Production: gunakan mode production CI4 tanpa debug toolbar/profiler untuk endpoint autentikasi.
 - Login pertama membuat akun pelanggan role `0`, pembeli, dan pemetaan dalam satu transaksi. Sandi acak di-hash. Foto memakai avatar lokal; profil/provider tidak disisipkan sebagai HTML.
 - Email wajib untuk pendaftaran pertama. Tanpa email, tampilkan arahan untuk mengizinkan akses email atau menggunakan pendaftaran email. Email provider tidak dianggap bukti untuk menautkan akun lokal lama.
-- Email yang sudah terdaftar: gunakan metode login akun sebelumnya. Penautan akun lama secara eksplisit belum termasuk fitur ini. Facebook tidak mengaktifkan ulang akun nonaktif atau masuk ke akun admin.
+- Email yang sudah terdaftar: masuk melalui email/sandi atau Google, lalu buka **Akun Saya → Tautkan Facebook**. Penautan memakai form POST dengan CSRF, OAuth state sekali pakai, dan nonce yang terikat pada sesi serta email pengguna. Facebook tidak mengaktifkan ulang akun nonaktif atau masuk ke akun admin.
+- Callback penautan memeriksa ulang akun aktif di database dan kesamaan email Facebook dengan akun lokal. Logout, pergantian akun/sesi, state kedaluwarsa, atau permintaan tanpa CSRF menghentikan alur tanpa membuat tautan.
+- Penautan hanya menambah satu baris pada `facebook_identities`: sandi, provider asal, profil, pesanan, poin, voucher, dan keranjang tetap utuh. Facebook yang sudah tertaut ke akun lain tidak dipindahkan; tautan lokal yang sudah ada tidak ditimpa. Penautan ulang identitas yang sama ke pemilik yang sama bersifat idempotent.
+- Sesudah tertaut, login Facebook mencari pemilik melalui Facebook ID. Google tetap mencari akun berdasarkan email Google terverifikasi yang sama. Login email/sandi tetap memerlukan sandi akun yang benar; penautan tidak membuat sandi baru otomatis. Akun yang dibuat pertama kali lewat provider sosial perlu mengatur sandi akun jika ingin memakai login email/sandi.
+- Endpoint penautan: `POST /auth/facebook/link`, hanya pelanggan aktif dengan CSRF. Callback tetap `/auth/facebook/callback`; tidak perlu menambahkan callback lain di Meta atau SQL baru jika tabel pemetaan sudah tersedia. Jika sebelumnya ada dua akun berbeda dengan riwayat belanja masing-masing, fitur ini tidak menggabungkan atau memindahkan riwayatnya.
 - Login berikutnya mencari berdasarkan Facebook ID walaupun email provider berubah/tidak dikembalikan. Sesi diregenerasi dan voucher mengikuti helper proyek, lalu diarahkan melalui `hapuslocalstorage` ke target lokal yang tervalidasi.
 - `facebook_identities` menyimpan identitas akun: masukkan tabel ini dalam prosedur penghapusan data pelanggan. Rollback migrasi dihentikan jika tabel sudah berisi pemetaan.
 
 ## Verifikasi
 
+### Jika muncul "Login Facebook belum tersedia. Silakan coba lagi nanti."
+
+Pesan ini berasal dari tahap pencarian/pembuatan akun lokal setelah profil Meta berhasil diambil. Ini berbeda dari error scope atau token. Penyebabnya perlu dikonfirmasi dari database server yang melayani website, bukan database laptop.
+
+Sesudah versi diagnostik ini ter-deploy, jalankan dari direktori proyek server:
+
+```sh
+php spark facebook:check
+```
+
+Perintah ini hanya membaca metadata database dan menampilkan status konfigurasi, tanpa mencetak App ID, App Secret, token, email pelanggan, nama database, atau SQL mentah; tidak melakukan migrasi otomatis. Status READY bukan bukti kredensial Meta valid atau semua constraint/default legacy sesuai.
+
+- `missing_table:facebook_identities`: migrasi pemetaan belum tersedia pada database yang dipakai server. Backup, periksa `php spark migrate:status`, dan tinjau semua migrasi App pending sebelum `php spark migrate -n App`.
+- `missing_column:user.auth_provider`: kolom provider yang digunakan kode belum tersedia pada schema server. Tinjau schema sebelum membuat migrasi penambah kolom; jangan menjalankan ALTER generik tanpa pemeriksaan.
+- `unsupported_value:user.auth_provider.facebook`: enum provider belum mendukung `facebook`. Pertahankan seluruh nilai enum lama saat menyiapkan perubahan schema.
+- `nontransactional_table:<table>`: tabel terkait belum menggunakan InnoDB; tinjau backup dan konversi engine bersama operator database sebelum pendaftaran akun baru.
+- `database_metadata_unavailable`: periksa koneksi database, ekstensi PHP, dan izin membaca metadata. Jangan membagikan `.env` atau pesan koneksi mentah yang mungkin memuat identitas server.
+- Jika schema READY tetapi pendaftaran tetap gagal, filter log CI4 hanya pada pesan `Facebook account storage failed` / `Facebook account lookup failed`. Diagnostik baru mencatat stage tetap dan kode database numerik, tanpa isi SQL/provider. Misalnya `stage=user_insert; db_code=1364` menunjukkan field wajib legacy saat insert; `1062` menunjukkan benturan unique key. Tinjau constraint schema, jangan menampilkan respons database mentah ke pelanggan.
+
+Pada versi lama yang belum memiliki `facebook:check`, pemeriksaan awal read-only di phpMyAdmin:
+
+```sql
+SHOW TABLES LIKE 'facebook_identities';
+SHOW COLUMNS FROM `user` LIKE 'auth_provider';
+```
+
+Gunakan nama tabel dengan prefix jika database deployment memakai prefix. Jangan mengaktifkan mode development di production untuk memperlihatkan rincian error kepada publik.
+
 ```powershell
-php vendor/bin/phpunit --filter 'Facebook|PasswordLoginSecurityTest|BuyerAuthViewTest' --no-coverage
+php vendor/bin/phpunit --filter 'Facebook|PasswordLoginSecurityTest|BuyerAuthViewTest|BuyerAccountViewTest' --no-coverage
 ```
 
 Tes otomatis menggunakan mock provider dan database SQLite in-memory, bukan kredensial Meta atau database aplikasi. Uji langsung setelah konfigurasi: sukses/ulang login, batal, state salah/kedaluwarsa/replay, izin email ditolak, benturan email, akun nonaktif, checkout redirect, serta login email/Google tetap normal. Login langsung ke Meta memerlukan konfigurasi aplikasi dan browser pengguna; hasil tes mock bukan bukti end-to-end Meta.
 
 Hasil verifikasi implementasi (17 Oktober 2026):
 
-- Tes terfokus Facebook + regresi login: **73 tes, 282 assertion, tanpa kegagalan**. Mencakup konfigurasi `.env`, callback/state, transaksi akun, tombol, dan bootstrap HTTP/rute CI4 asli dengan provider dummy, serta redirect XAMPP subdirektori.
-- Seluruh PHPUnit: **456 tes, 2401 assertion, tanpa kegagalan, 2 dilewati**. Dua tes MySQL staging bersifat opt-in dan tidak dijalankan tanpa koneksi staging terisolasi. Sintaks PHP seluruh berkas integrasi dan `git diff --check` bersih.
+- Tes terfokus Facebook + regresi login: **118 tes, 613 assertion, tanpa kegagalan**. Mencakup konfigurasi `.env`, callback/state, transaksi akun, tombol, dan bootstrap HTTP/rute CI4 asli dengan provider dummy, serta redirect XAMPP subdirektori.
+- Seluruh PHPUnit: **487 tes, 2488 assertion, tanpa kegagalan, 2 dilewati**. Dua tes MySQL staging bersifat opt-in dan tidak dijalankan tanpa koneksi staging terisolasi. Sintaks PHP seluruh berkas integrasi dan `git diff --check` bersih.
 - Tiga tes tampilan lama diperbarui agar sesuai copy promo berbahasa Indonesia dan class skeleton gambar saat ini; assertion struktur, aksesibilitas, harga, serta tautan tetap dipertahankan. Tidak ada perubahan UI beranda/katalog.
 - Tombol diperiksa melalui DOM (tautan, redirect, label, ikon, kondisi aktivasi). Verifikasi visual browser belum selesai karena koneksi runtime browser gagal; tidak ada klaim pengujian langsung Meta.
 

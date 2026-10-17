@@ -2621,7 +2621,7 @@ class Pages extends BaseController
     }
     public function logout()
     {
-        session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient']);
+        session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient', 'facebook_oauth', 'facebook_link_nonce']);
         $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
         session()->remove($ses_data);
     }
@@ -6792,6 +6792,7 @@ class Pages extends BaseController
             'foto' => $foto,
             'auth_provider' => $getCurUser['auth_provider'] ?? (!empty($getCurUser['google_id']) ? 'google' : 'email'),
             'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
+            'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
             'profileCompletion' => $profileCompletion,
             'activeOrders' => $activeOrders,
             'pendingPayment' => $pendingPayment,

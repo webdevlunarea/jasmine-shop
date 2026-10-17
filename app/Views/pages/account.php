@@ -126,6 +126,9 @@ $statusClass = function ($status) {
 
         <?php } ?>
 
+        <?php if ($role == '0') { ?>
+            <?= view('partials/account_facebook', ['facebookLinkState' => $facebookLinkState ?? 'disabled'], ['saveData' => false]); ?>
+        <?php } ?>
         <div class="row g-3 account-main-grid">
             <div class="col-lg-7">
                 <?php if ($role == '0') { ?>

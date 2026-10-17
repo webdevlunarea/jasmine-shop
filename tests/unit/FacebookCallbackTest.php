@@ -25,6 +25,7 @@ final class FacebookCallbackTest extends CIUnitTestCase
                     private array $query;
                     public function __construct(array $query) { $this->query = $query; }
                     public function getGet($key) { return $this->query[$key] ?? null; }
+                    public function getMethod() { return 'POST'; }
                 };
             }
             protected function facebookOAuth(): FacebookOAuth {
@@ -46,6 +47,10 @@ final class FacebookCallbackTest extends CIUnitTestCase
                 return ['email' => 'buyer@example.test', 'active' => '1', 'role' => $this->role];
             }
             private function loginUserSession(array $user): bool { $this->calls[] = 'session'; session()->set(['email' => $user['email'], 'role' => $user['role'], 'isLogin' => true]); return true; }
+            protected function facebookLinkCustomer(array $profile, string $email): array {
+                $this->calls[] = 'link:' . $email;
+                return ['email' => $email, 'active' => '1', 'role' => '0'];
+            }
             private function claimMissingAutoVouchersForEmail(string $email): void { $this->calls[] = 'claim'; }
             private function prepareLoginVoucherNotification(string $email): void { $this->calls[] = 'voucher'; }
         };
@@ -146,5 +151,97 @@ final class FacebookCallbackTest extends CIUnitTestCase
         } finally {
             $app->baseURL = $original;
         }
+    }
+
+    private function signedIn(): void
+    {
+        session()->set(['isLogin' => true, 'email' => 'buyer@example.test', 'role' => '0', 'active' => '1', 'keranjang' => [['id' => 123]], 'poin' => [['nominal' => 50]]]);
+    }
+
+    private function pendingLink(): void
+    {
+        $this->signedIn();
+        session()->set('facebook_link_nonce', 'fixture-binding');
+        session()->set('facebook_oauth', ['mode' => 'link', 'state' => 'fixture-state', 'created' => time(),
+            'email' => 'buyer@example.test', 'link_nonce' => 'fixture-binding', 'redirect' => '/account']);
+    }
+
+    public function testLinkStartBindsIntentToCurrentAccountAndSession(): void
+    {
+        $this->signedIn();
+        $c = $this->controller();
+        $response = $c->facebookLink();
+        $this->assertStringStartsWith('https://www.facebook.com/', $response->getHeaderLine('Location'));
+        $pending = session('facebook_oauth');
+        $this->assertSame('link', $pending['mode']);
+        $this->assertSame('buyer@example.test', $pending['email']);
+        $this->assertSame(session('facebook_link_nonce'), $pending['link_nonce']);
+        $this->assertSame(64, strlen($pending['state']));
+    }
+
+    public function testGuestCannotStartLinking(): void
+    {
+        $c = $this->controller();
+        $this->assertStringEndsWith('/login', $c->facebookLink()->getHeaderLine('Location'));
+        $this->assertNull(session('facebook_oauth'));
+    }
+
+    public function testLinkCallbackPreservesCurrentSessionAndDoesNotCreateAnotherAccount(): void
+    {
+        $this->pendingLink();
+        $c = $this->controller(['state' => 'fixture-state', 'code' => 'code']);
+        $response = $c->facebookCallback();
+        $this->assertStringEndsWith('/account', $response->getHeaderLine('Location'));
+        $this->assertSame(['profile', 'link:buyer@example.test'], $c->calls);
+        $this->assertSame('buyer@example.test', session('email'));
+        $this->assertSame([['id' => 123]], session('keranjang'));
+        $this->assertSame([['nominal' => 50]], session('poin'));
+        $this->assertNull(session('facebook_link_nonce'));
+        $this->assertNull(session('facebook_oauth'));
+        $c->calls = [];
+        $c->facebookCallback();
+        $this->assertSame([], $c->calls);
+    }
+
+    /** @dataProvider changedLinkSessions */
+    public function testChangedLinkSessionNeverCallsProviderOrDatabase(string $field, $value): void
+    {
+        $this->pendingLink();
+        session()->set($field, $value);
+        $c = $this->controller(['state' => 'fixture-state', 'code' => 'code']);
+        $c->facebookCallback();
+        $this->assertSame([], $c->calls);
+        $this->assertNull(session('facebook_oauth'));
+    }
+    public static function changedLinkSessions(): array
+    {
+        return [['email', 'other@example.test'], ['isLogin', false], ['active', '0'], ['role', '1'], ['facebook_link_nonce', 'different-session']];
+    }
+
+    /** @dataProvider invalidLinkCallbacks */
+    public function testCancelledExpiredOrInvalidLinkDoesNotChangeAccount(array $query, int $age): void
+    {
+        $this->pendingLink();
+        $pending = session('facebook_oauth'); $pending['created'] = time() - $age; session()->set('facebook_oauth', $pending);
+        $c = $this->controller($query);
+        $this->assertStringEndsWith('/account', $c->facebookCallback()->getHeaderLine('Location'));
+        $this->assertSame([], $c->calls);
+        $this->assertSame('buyer@example.test', session('email'));
+        $this->assertNull(session('facebook_oauth'));
+    }
+    public static function invalidLinkCallbacks(): array
+    {
+        return [[['state' => 'fixture-state', 'error' => 'access_denied'], 0],
+            [['state' => 'wrong', 'code' => 'code'], 0], [['state' => 'fixture-state', 'code' => 'code'], 601]];
+    }
+
+    public function testLogoutInvalidatesPendingLinkFlow(): void
+    {
+        $this->pendingLink();
+        $controller = new class extends \App\Controllers\Pages { public function __construct() {} };
+        $controller->logout();
+        $this->assertNull(session('facebook_oauth'));
+        $this->assertNull(session('facebook_link_nonce'));
+        $this->assertFalse((bool)session('isLogin'));
     }
 }

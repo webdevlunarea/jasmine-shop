@@ -59,4 +59,29 @@ final class FacebookRoutesTest extends CIUnitTestCase
         $this->assertFalse((bool)session('isLogin'));
         $this->assertSame('no-referrer', $result->response()->getHeaderLine('Referrer-Policy'));
     }
+
+    public function testAnonymousLinkPostRequiresLocalLogin(): void
+    {
+        $result = $this->post('/auth/facebook/link');
+        $this->assertStringContainsString('/login', $result->response()->getHeaderLine('Location'));
+        $this->assertNull(session('facebook_oauth'));
+    }
+
+    public function testSignedInLinkPostRejectsMissingCsrf(): void
+    {
+        $this->expectException(\CodeIgniter\Security\Exceptions\SecurityException::class);
+        $this->withSession(['isLogin' => true, 'role' => '0', 'active' => '1', 'email' => 'buyer@example.test'])
+            ->post('/auth/facebook/link');
+    }
+
+    public function testSignedInLinkPostWithCsrfStartsExplicitAuthorization(): void
+    {
+        $result = $this->withSession(['isLogin' => true, 'role' => '0', 'active' => '1', 'email' => 'buyer@example.test'])
+            ->withHeaders([config(\Config\Security::class)->headerName => csrf_hash()])
+            ->post('/auth/facebook/link');
+        $result->assertStatus(302);
+        $this->assertStringStartsWith('https://www.facebook.com/', $result->response()->getHeaderLine('Location'));
+        $this->assertSame('link', session('facebook_oauth')['mode']);
+        $this->assertSame('buyer@example.test', session('facebook_oauth')['email']);
+    }
 }

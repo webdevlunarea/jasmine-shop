@@ -30,6 +30,7 @@ $routes->get('/auth/google', 'Pages::googleLogin');
 $routes->get('/auth/google/callback', 'Pages::googleCallback');
 $routes->get('/auth/facebook', 'Pages::facebookLogin');
 $routes->get('/auth/facebook/callback', 'Pages::facebookCallback');
+$routes->post('/auth/facebook/link', 'Pages::facebookLink', ['filter' => ['harusUser', 'csrf']]);
 $routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');
 $routes->get('/keluar', 'Pages::actionLogout');
 $routes->get('/keluar/regist', 'Pages::actionLogoutRegist');

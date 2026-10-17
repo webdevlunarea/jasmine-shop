@@ -75,6 +75,8 @@ final class FacebookCustomersTest extends CIUnitTestCase
         $this->connection->table('pembeli')->insert(['email_user' => 'buyer@example.test']);
         try { $this->customers->resolve($this->profile()); $this->fail('Expected insert failure'); }
         catch (\RuntimeException $e) {
+            $this->assertInstanceOf(\App\Services\Auth\FacebookAccountException::class, $e);
+            $this->assertSame('buyer_insert', $e->stage());
             $this->assertSame(0, $this->connection->table('user')->countAllResults());
             $this->assertSame(0, $this->connection->table('facebook_identities')->countAllResults());
         }
@@ -85,5 +87,70 @@ final class FacebookCustomersTest extends CIUnitTestCase
         $this->customers->resolve($this->profile());
         $this->expectException(\RuntimeException::class);
         $this->migration->down();
+    }
+
+    private function existingCustomer(string $email = 'buyer@example.test', string $active = '1', string $role = '0'): void
+    {
+        $this->connection->table('user')->insert(['email' => $email, 'role' => $role, 'active' => $active, 'auth_provider' => 'google', 'sandi' => 'original-hash']);
+        $this->connection->table('pembeli')->insert(['email_user' => $email, 'keranjang' => '[{"id":123}]', 'poin' => '[{"nominal":50}]', 'transaksi' => '["OLD-ORDER"]']);
+    }
+
+    public function testExplicitLinkAndLaterLoginPreserveOriginalAccountAndCommerceData(): void
+    {
+        $this->existingCustomer();
+        $beforeUser = $this->connection->table('user')->get()->getRowArray();
+        $beforeBuyer = $this->connection->table('pembeli')->get()->getRowArray();
+        $linked = $this->customers->link($this->profile(), 'buyer@example.test');
+        $this->assertSame($beforeUser, $linked);
+        $this->assertTrue($this->customers->isLinked('buyer@example.test'));
+        $this->assertSame($beforeUser, $this->customers->resolve(['id' => '987']));
+        $this->assertSame($beforeUser, $this->connection->table('user')->get()->getRowArray());
+        $this->assertSame($beforeBuyer, $this->connection->table('pembeli')->get()->getRowArray());
+        $this->customers->link($this->profile(), 'buyer@example.test');
+        $this->assertSame(1, $this->connection->table('facebook_identities')->countAllResults());
+        $this->assertSame(1, $this->connection->table('user')->countAllResults());
+    }
+
+    public function testFacebookAlreadyOwnedByAnotherAccountNeverMoves(): void
+    {
+        $this->customers->resolve($this->profile());
+        $this->existingCustomer('other@example.test');
+        try {
+            $this->customers->link(['id' => '987', 'email' => 'other@example.test'], 'other@example.test');
+            $this->fail('Expected linked identity collision');
+        } catch (\DomainException $e) {
+            $this->assertSame('buyer@example.test', $this->connection->table('facebook_identities')->get()->getRowArray()['email_user']);
+            $this->assertFalse($this->customers->isLinked('other@example.test'));
+        }
+    }
+
+    public function testExistingLinkCannotBeReplacedWithAnotherFacebook(): void
+    {
+        $this->existingCustomer();
+        $this->customers->link($this->profile(), 'buyer@example.test');
+        try {
+            $this->customers->link(['id' => '988', 'email' => 'buyer@example.test'], 'buyer@example.test');
+            $this->fail('Expected local account collision');
+        } catch (\DomainException $e) {
+            $this->assertSame('987', $this->connection->table('facebook_identities')->get()->getRowArray()['facebook_id']);
+            $this->assertSame(1, $this->connection->table('facebook_identities')->countAllResults());
+        }
+    }
+
+    /** @dataProvider invalidLinkAccounts */
+    public function testLinkRejectsInactiveAdminAndDifferentOrMissingEmail(string $active, string $role, array $profile): void
+    {
+        $this->existingCustomer('buyer@example.test', $active, $role);
+        try { $this->customers->link($profile, 'buyer@example.test'); $this->fail('Expected invalid link'); }
+        catch (\DomainException $e) { $this->assertSame(0, $this->connection->table('facebook_identities')->countAllResults()); }
+    }
+    public static function invalidLinkAccounts(): array
+    {
+        return [
+            ['0', '0', ['id' => '987', 'email' => 'buyer@example.test']],
+            ['1', '1', ['id' => '987', 'email' => 'buyer@example.test']],
+            ['1', '0', ['id' => '987', 'email' => 'other@example.test']],
+            ['1', '0', ['id' => '987']],
+        ];
     }
 }
