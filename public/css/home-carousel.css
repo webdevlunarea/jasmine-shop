@@ -1,6 +1,7 @@
 .home-hero-image { display: block; width: 100%; height: auto; object-fit: contain; }
 .home-hero-carousel { padding-bottom: 0; background: transparent; }
 .home-hero-carousel .carousel-indicators { display: none !important; }
+.home-hero-carousel .carousel-control-prev { display: none !important; }
 .home-hero-carousel .carousel-control-next { display: none !important; }
 .home-hero-carousel .carousel-control-prev,
 .home-hero-carousel .carousel-control-next { top: 50%; bottom: auto; width: 44px; height: 44px; transform: translateY(-50%); opacity: .75; }
