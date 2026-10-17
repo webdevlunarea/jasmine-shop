@@ -67,13 +67,15 @@ final class LunaMappingReviewTest extends CIUnitTestCase
         $this->assertSame([9,3],array_column($projected['entries'],'stock'));
         $this->assertSame('["CHERRY HITAM","PUTIH"]',$website['varian']);
     }
-    public function testStockSnapshotFailsClosedForMissingVariantOrInvalidQuantity(): void
+    public function testStockSnapshotFailsClosedForMissingVariantButClampsNegativeInventoryToZero(): void
     {
         $identity=LunaMappingReview::identity($this->website(),$this->master(),$this->choices(),null);
-        foreach ([array_replace($this->master(), ['variants'=>[$this->master()['variants'][0]]]), array_replace($this->master(), ['variants'=>[array_replace($this->master()['variants'][0], ['stock'=>-1]),$this->master()['variants'][1]]])] as $master) {
-            try { LunaMappingReview::stock($this->website(),$master,$identity); $this->fail('Incomplete or invalid inventory accepted'); }
-            catch (DomainException $e) { $this->assertNotEmpty($e->getMessage()); }
-        }
+        try { LunaMappingReview::stock($this->website(),array_replace($this->master(), ['variants'=>[$this->master()['variants'][0]]]),$identity); $this->fail('Incomplete inventory accepted'); }
+        catch (DomainException $e) { $this->assertNotEmpty($e->getMessage()); }
+        $negative = array_replace($this->master(), ['stock'=>-4, 'variants'=>[array_replace($this->master()['variants'][0], ['stock'=>-7]),$this->master()['variants'][1]]]);
+        $projected = LunaMappingReview::stock($this->website(), $negative, $identity);
+        $this->assertSame('0,3', $projected['value']);
+        $this->assertSame([0,3], array_column($projected['entries'], 'stock'));
     }
     public function testStockSnapshotSupportsUnvariedMasterWithoutInventingAFreeStockValue(): void
     {

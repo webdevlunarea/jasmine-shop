@@ -30,7 +30,7 @@ final class LunaMappingReview
     /** Map authoritative MyLuna stock to existing Lunarea variant order without renaming variants. */
     public static function stock(array $website, array $master, array $identity): array
     {
-        $whole = static fn($value): bool => is_int($value) && $value >= 0;
+        $whole = static fn($value): bool => is_int($value);
         if (!$whole($master['stock'] ?? null)) throw new \DomainException('Stok produk MyLuna tidak valid.');
         $websiteVariants = self::variants($website);
         $mappedVariants = $identity['variants'] ?? null;
@@ -38,7 +38,8 @@ final class LunaMappingReview
         if (!is_array($mappedVariants) || !is_array($masterVariants)) throw new \DomainException('Pemetaan stok varian tidak valid.');
         if (!$masterVariants) {
             if ($mappedVariants || ($websiteVariants && $websiteVariants !== ['Default'])) throw new \DomainException('Struktur varian MyLuna dan Lunarea belum cocok.');
-            return ['value'=>(string)$master['stock'], 'entries'=>[['variant'=>'Default', 'stock'=>$master['stock']]]];
+            $stock = max(0, $master['stock']);
+            return ['value'=>(string)$stock, 'entries'=>[['variant'=>'Default', 'stock'=>$stock]]];
         }
         if (!$websiteVariants || count($mappedVariants) !== count($websiteVariants)) throw new \DomainException('Pemetaan setiap varian perlu dilengkapi sebelum stok diselaraskan.');
         $remote = [];
@@ -46,7 +47,7 @@ final class LunaMappingReview
             if (!is_array($variant) || !LunaProductIdentity::uuid($variant['id'] ?? null) || !$whole($variant['stock'] ?? null) || isset($remote[$variant['id']])) {
                 throw new \DomainException('Data stok varian MyLuna tidak valid atau duplikat.');
             }
-            $remote[$variant['id']] = $variant['stock'];
+            $remote[$variant['id']] = max(0, $variant['stock']);
         }
         $entries = []; $seen = [];
         foreach ($websiteVariants as $name) {

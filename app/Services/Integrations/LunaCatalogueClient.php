@@ -38,13 +38,13 @@ final class LunaCatalogueClient
             foreach ($body['data']['products'] as $product) {
                 if (!is_array($product) || !LunaProductIdentity::uuid($product['id'] ?? null) || isset($products[$product['id']])
                     || !is_string($product['name'] ?? null) || !is_string($product['sku'] ?? null)
-                    || !is_bool($product['active'] ?? null) || !is_int($product['stock'] ?? null) || $product['stock'] < 0
+                    || !is_bool($product['active'] ?? null) || !is_int($product['stock'] ?? null)
                     || !is_array($product['website_ids'] ?? null) || !is_array($product['variants'] ?? null)) throw new \RuntimeException('Invalid product');
                 foreach ($product['website_ids'] as $websiteId) if (!is_string($websiteId) || strlen($websiteId) > 100) throw new \RuntimeException('Invalid reference');
                 $names = [];
                 foreach ($product['variants'] as $v) {
                     if (!is_array($v) || !LunaProductIdentity::uuid($v['id'] ?? null) || isset($variantIds[$v['id']])
-                        || !is_string($v['value'] ?? null) || trim($v['value']) === '' || !is_int($v['stock'] ?? null) || $v['stock'] < 0 || isset($names[$v['value']])) throw new \RuntimeException('Invalid variant');
+                        || !is_string($v['value'] ?? null) || trim($v['value']) === '' || !is_int($v['stock'] ?? null) || isset($names[$v['value']])) throw new \RuntimeException('Invalid variant');
                     $variantIds[$v['id']] = true; $names[$v['value']] = true;
                 }
                 $products[$product['id']] = $product;

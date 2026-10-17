@@ -13,7 +13,8 @@ final class LunaProductStockSync
             throw new \DomainException('Identitas master MyLuna untuk sinkron stok tidak cocok.');
         }
         $stock = $product['stock'] ?? null;
-        if (!is_int($stock) || $stock < 0) throw new \DomainException('Stok master MyLuna tidak valid.');
+        if (!is_int($stock)) throw new \DomainException('Stok master MyLuna tidak valid.');
+        $stock = max(0, $stock);
         $localNames = json_decode((string)($website['varian'] ?? ''), true);
         if (!is_array($localNames) || array_values($localNames) !== $localNames) throw new \DomainException('Urutan varian Lunarea perlu diperiksa.');
         $localMap = $identity['variants'] ?? null;
@@ -29,10 +30,10 @@ final class LunaProductStockSync
         $remote = [];
         foreach ($remoteVariants as $variant) {
             if (!is_array($variant) || !LunaProductIdentity::uuid($variant['id'] ?? null)
-                || !is_int($variant['stock'] ?? null) || $variant['stock'] < 0 || isset($remote[$variant['id']])) {
+                || !is_int($variant['stock'] ?? null) || isset($remote[$variant['id']])) {
                 throw new \DomainException('Data stok varian MyLuna tidak valid.');
             }
-            $remote[$variant['id']] = $variant['stock'];
+            $remote[$variant['id']] = max(0, $variant['stock']);
         }
         $ordered = []; $used = [];
         foreach ($localNames as $name) {

@@ -37,4 +37,12 @@ final class LunaProductStockSyncTest extends CIUnitTestCase
         $result=LunaProductStockSync::project(['id'=>$identity['product_id'],'stock'=>0,'variants'=>[]],$identity,['nama'=>'Table','varian'=>'[]']);
         $this->assertSame(['nama'=>'Table','varian'=>'[]','stok'=>'0'],$result);
     }
+    public function testNegativeMyLunaInventoryProjectsAsZeroSellableStock(): void
+    {
+        $master=$this->master();
+        $master['stock']=-4;
+        $master['variants'][0]['stock']=-7;
+        $result=LunaProductStockSync::project($master,$this->identity(),['nama'=>'Cabinet','varian'=>'["PUTIH","HITAM"]']);
+        $this->assertSame('0,9',$result['stok']);
+    }
 }
