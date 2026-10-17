@@ -28,11 +28,21 @@ class PasswordResetMailer
                 ? "Kode reset sandi Lunarea: {$code}\nBerlaku 10 menit, hanya sekali pakai. Jangan bagikan kode ini kepada siapa pun.\nJika Anda tidak meminta reset sandi, abaikan email ini."
                 : 'Sandi akun Lunarea berhasil diperbarui. Sesi lama akan diakhiri pada permintaan berikutnya. Jika bukan Anda yang mengubahnya, gunakan Lupa sandi di website resmi Lunarea dan hubungi layanan pelanggan.')
                 . "\n\nLunarea furniture, always your choice, always your furniture.\nhttps://lunareafurniture.com");
-            if (!$email->send(false)) throw new \RuntimeException();
+            if (!$email->send(false)) {
+                // Keep SMTP response contents out of logs; record only a protocol status code.
+                $debug = $email->printDebugger([]);
+                preg_match('/\b(?:[45]\d{2}|[245]\.\d\.\d)\b/', strip_tags((string)$debug), $match);
+                log_message('error', 'Password reset email transport rejected the message. SMTP status: {status}.', [
+                    'status' => $match[0] ?? 'unavailable',
+                ]);
+                return false;
+            }
             return true;
         } catch (\Throwable $e) {
             // SMTP debugger/exception messages can contain addresses, credentials and OTPs.
-            log_message('error', 'Password reset email delivery failed. Check SMTP configuration privately.');
+            log_message('error', 'Password reset email delivery raised {exception}. Check SMTP configuration privately.', [
+                'exception' => get_class($e),
+            ]);
             return false;
         } finally {
             if ($email !== null) $email->clear(true);
