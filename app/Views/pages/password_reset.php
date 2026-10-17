@@ -5,13 +5,12 @@
         <div class="auth-shell auth-reset-shell">
             <section class="auth-panel auth-reset-panel<?= $step === 'confirm' ? ' auth-reset-panel-confirm' : ''; ?>" aria-labelledby="reset-title">
                 <div class="auth-heading">
-                    <?php if ($step === 'confirm') : ?><span class="auth-reset-eyebrow">PEMULIHAN AKUN</span><?php endif; ?>
-                    <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Pastikan email Anda' : 'Lupa sandi?'); ?></h1>
-                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Kode verifikasi akan dikirim ke alamat email berikut.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
+                    <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi alamat email' : 'Lupa sandi?'); ?></h1>
+                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan Anda dapat membuka alamat email tujuan kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
-                <form class="auth-form" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>">
+                <form class="auth-form<?= $step === 'confirm' ? ' auth-reset-confirm-form' : ''; ?>" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>">
                     <?= csrf_field(); ?>
                     <?php if ($step === 'request') : ?>
                         <div class="auth-field">
@@ -22,11 +21,9 @@
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Lanjutkan</button>
                     <?php elseif ($step === 'confirm') : ?>
                         <div class="auth-reset-email-confirm" aria-live="polite" aria-label="Alamat email pemulihan">
-                            <span class="auth-reset-email-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg></span>
                             <div class="auth-reset-email-copy">
-                            <span class="auth-reset-email-label">KODE DIKIRIM KE</span>
+                                <span class="auth-reset-email-label">ALAMAT EMAIL PEMULIHAN</span>
                                 <strong><?= esc($maskedEmail); ?></strong>
-                                <small>Alamat disamarkan demi keamanan akun.</small>
                             </div>
                         </div>
                         <label class="auth-reset-confirm-check" for="confirm-reset-email">
