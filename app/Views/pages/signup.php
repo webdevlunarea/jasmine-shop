@@ -45,8 +45,9 @@
                     </div>
                     <div class="auth-field">
                         <label for="signup-phone">No handphone</label>
-                        <input id="signup-phone" type="tel" inputmode="numeric" class="form-control <?= ($val['val_nohp']) ? "is-invalid" : ""; ?>" placeholder="08xxxxxxxxxx" name="nohp" value="<?= old('nohp'); ?>" autocomplete="tel" required>
-                        <div class="invalid-feedback"><?= $val['val_nohp']; ?></div>
+                        <input id="signup-phone" type="tel" inputmode="tel" maxlength="24" class="form-control <?= ($val['val_nohp']) ? "is-invalid" : ""; ?>" placeholder="081234567890 atau +6281234567890" name="nohp" value="<?= old('nohp'); ?>" autocomplete="tel" aria-describedby="signup-phone-help signup-phone-error" required>
+                        <small id="signup-phone-help" class="form-text text-secondary">Gunakan nomor seluler Indonesia yang aktif. Format +62 dan 08 diterima.</small>
+                        <div id="signup-phone-error" class="invalid-feedback"><?= $val['val_nohp']; ?></div>
                     </div>
                     <label class="auth-consent" for="syarat">
                         <input type="checkbox" id="syarat" required>

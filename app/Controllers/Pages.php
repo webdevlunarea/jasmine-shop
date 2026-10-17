@@ -1892,6 +1892,13 @@ class Pages extends BaseController
             return redirect()->to('/signup')->withInput();
         }
 
+        $normalizedPhone = (new \App\Services\Auth\IndonesianMobileNumber())->normalize((string) $this->request->getPost('nohp'));
+        if ($normalizedPhone === null) {
+            session()->setFlashdata('val-nohp', 'Masukkan nomor seluler Indonesia yang valid, contoh 081234567890 atau +6281234567890.');
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
+            return redirect()->to('/signup')->withInput();
+        }
+
         if ((new \App\Services\Auth\DisposableEmailPolicy())->isBlocked((string) $this->request->getPost('email'))) {
             session()->setFlashdata('val-email', 'Gunakan alamat email permanen yang dapat Anda akses.');
             if ($redirect) session()->setFlashdata('redirect', $redirect);
@@ -1923,7 +1930,7 @@ class Pages extends BaseController
         $this->pembeliModel->insert([
             'nama' => $this->request->getVar('nama'),
             'email_user' => $this->request->getVar('email'),
-            'nohp' => $this->request->getVar('nohp'),
+            'nohp' => $normalizedPhone,
             'alamat' => json_encode([]),
             'wishlist' => json_encode([]),
             'keranjang' => json_encode([]),
