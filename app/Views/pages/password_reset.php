@@ -6,7 +6,11 @@
             <section class="auth-panel auth-reset-panel" aria-labelledby="reset-title">
                 <div class="auth-reset-brand">
                     <span class="auth-reset-mark" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2M12 12v3"/></svg>
+                        <?php if ($step === 'confirm') : ?>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg>
+                        <?php else : ?>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2M12 12v3"/></svg>
+                        <?php endif; ?>
                     </span>
                     <span>Pemulihan akun Lunarea</span>
                 </div>
@@ -27,8 +31,10 @@
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Lanjutkan</button>
                     <?php elseif ($step === 'confirm') : ?>
                         <div class="auth-reset-email-confirm" aria-live="polite">
-                            <span class="auth-reset-email-label">Email pemulihan</span>
+                            <span class="auth-reset-email-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg></span>
+                            <span class="auth-reset-email-label">Kirim kode ke alamat ini</span>
                             <strong><?= esc($maskedEmail); ?></strong>
+                            <small>Alamat email disamarkan untuk menjaga privasi akun Anda.</small>
                         </div>
                         <label class="auth-reset-confirm-check" for="confirm-reset-email">
                             <input id="confirm-reset-email" type="checkbox" name="confirm_email" value="1" required>

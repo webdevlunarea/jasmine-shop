@@ -4,11 +4,16 @@
 .buyer-auth-body .auth-reset-help { margin: 8px 0 0; font-size: .8125rem; line-height: 1.7; color: #626262; }
 .buyer-auth-body .auth-field .auth-otp { padding-inline: 16px; text-align: center; font-family: Consolas,Monaco,monospace; font-size: 1.5rem; font-variant-numeric: tabular-nums; letter-spacing: .35em; }
 .buyer-auth-body .auth-reset-toggle { justify-self: start; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--theme-primary, #2f2d20); font-size: .875rem; text-decoration: underline; }
-.buyer-auth-body .auth-reset-email-confirm { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--theme-soft-2); border-radius: 8px; background: var(--theme-soft); }
+.buyer-auth-body .auth-reset-email-confirm { display: grid; justify-items: center; gap: 7px; padding: 20px 16px; border: 1px solid var(--theme-soft-2); border-radius: 12px; background: linear-gradient(145deg, var(--theme-soft), #fff 88%); text-align: center; }
+.buyer-auth-body .auth-reset-email-icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 3px; border-radius: 50%; background: #fff; color: var(--theme-primary); box-shadow: 0 2px 8px rgba(47, 45, 32, .07); }
+.buyer-auth-body .auth-reset-email-icon svg { width: 19px; height: 19px; }
 .buyer-auth-body .auth-reset-email-label { color: #626262; font-size: .8125rem; }
-.buyer-auth-body .auth-reset-email-confirm strong { color: var(--theme-primary); font-size: 1rem; letter-spacing: .02em; overflow-wrap: anywhere; }
-.buyer-auth-body .auth-reset-confirm-check { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; color: #48463e; font-size: .875rem; line-height: 1.6; cursor: pointer; }
-.buyer-auth-body .auth-reset-confirm-check input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--theme-primary); }
+.buyer-auth-body .auth-reset-email-confirm strong { color: var(--theme-primary); font-size: 1.0625rem; letter-spacing: .015em; overflow-wrap: anywhere; }
+.buyer-auth-body .auth-reset-email-confirm small { max-width: 34ch; color: #747166; font-size: .75rem; line-height: 1.55; }
+.buyer-auth-body .auth-reset-confirm-check { display: flex; align-items: flex-start; gap: 11px; min-height: 52px; padding: 13px 14px; border: 1px solid var(--theme-soft-2); border-radius: 10px; background: #fff; color: #48463e; font-size: .875rem; line-height: 1.55; cursor: pointer; transition: background-color .18s ease, border-color .18s ease; }
+.buyer-auth-body .auth-reset-confirm-check:hover { border-color: var(--theme-primary); background: var(--theme-soft); }
+.buyer-auth-body .auth-reset-confirm-check:focus-within { outline: 2px solid var(--theme-primary); outline-offset: 2px; }
+.buyer-auth-body .auth-reset-confirm-check input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--theme-primary); }
 .buyer-auth-body .auth-reset-change { justify-self: center; min-height: 44px; padding: 4px 8px; border: 0; background: transparent; color: var(--theme-primary); font-size: .875rem; font-weight: 600; text-decoration: underline; }
 .buyer-auth-body .auth-reset-change:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
 .buyer-auth-body .auth-reset-page { padding-block: clamp(40px, 8vh, 88px); background: radial-gradient(ellipse at 50% 0, var(--theme-soft) 0, transparent 55%); }
