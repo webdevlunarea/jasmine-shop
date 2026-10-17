@@ -141,6 +141,35 @@ final class CatalogImageUploadTest extends CIUnitTestCase
         $bytes=$this->image(); $c=$this->controller(['gambar1'=>$this->file($bytes)]); $c->actionEditProduct('P1');
         $this->assertSame($bytes,$c->saved[1]['gambar']); $this->assertSame($bytes,$c->saved[2]['gambar1']);
     }
+    public function testWebsiteOwnedProductFieldsCanBeEditedWithoutChangingMasterFields(): void
+    {
+        $post = [
+            'harga'=>'1299000', 'diskon'=>'15', 'deskripsi'=>'<p>Deskripsi baru</p><script>alert(1)</script>',
+            'deskripsi_nonhtml'=>'Deskripsi baru', 'pencarian'=>'lemari minimalis', 'shopee'=>'https://shopee.co.id/item',
+            'tokped'=>'', 'tiktok'=>'', 'youtube'=>'https://youtube.com/watch?v=abc',
+            'stok'=>'999', 'varian'=>'Varian yang dimanipulasi', 'kategori'=>'kategori-manipulasi',
+        ];
+        $c=$this->controller([], $post);
+        $c->actionEditProduct('P1');
+        $saved=$c->saved[1];
+        $this->assertSame('1299000',$saved['harga']);
+        $this->assertSame(15.0,$saved['diskon']);
+        $this->assertSame('<p>Deskripsi baru</p>',$saved['deskripsi']);
+        $this->assertSame('Deskripsi baru',$saved['deskripsi_nonhtml']);
+        $this->assertSame('lemari minimalis',$saved['pencarian']);
+        $this->assertSame('https://shopee.co.id/item',$saved['shopee']);
+        $this->assertArrayNotHasKey('stok',$saved);
+        $this->assertArrayNotHasKey('varian',$saved);
+        $this->assertArrayNotHasKey('kategori',$saved);
+    }
+    public function testInvalidWebsitePriceOrMarketplaceUrlDoesNotSaveAnyChanges(): void
+    {
+        foreach ([['harga'=>'0'], ['harga'=>'1299000','shopee'=>'javascript:alert(1)']] as $post) {
+            $c=$this->controller([], $post);
+            $c->actionEditProduct('P1');
+            $this->assertSame([],$c->saved);
+        }
+    }
     public function testInvalidSecondFilePreventsEveryWriteIncludingDiscountAndMapping(): void
     {
         $c=$this->controller(['gambar1'=>$this->file($this->image()),'gambar2'=>$this->file($this->image('png'))],['diskon'=>'25']);

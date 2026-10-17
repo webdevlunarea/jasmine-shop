@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten artikel admin-module-page admin-module-articles">
+<div class="konten artikel public-article-index admin-module-page admin-module-articles">
     <div class="container">
         <?php
         // === NEW: deteksi halaman pertama ===
@@ -77,7 +77,7 @@
         }
         </style>
 
-        <form action="/actionsearcharticle" method="post" class="mb-2">
+        <form action="/actionsearcharticle" method="post" class="mb-2 article-discovery">
             <div class="d-flex gap-1 align-items-center w-100">
                 <select onchange="changeKategori(event)" class="form-select" style="width: fit-content" name="kategori"
                     id="">
@@ -112,7 +112,8 @@
 
         <?php if (!isset($find) && (string)session('role') !== '1') { ?>
         <div class="mb-4">
-            <div class="p-5 header show-flex-ke-hide"
+            <div class="article-hero">
+            <div class="p-5 header show-flex-ke-hide article-hero-copy"
                 style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
                 <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Lunarea's Article</h1>
                 <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala
@@ -121,7 +122,7 @@
                     <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
                 </div>
             </div>
-            <div class="p-4 header hide-ke-show-flex"
+            <div class="p-4 header hide-ke-show-flex article-hero-copy"
                 style="position: relative; margin-bottom: -30svh; flex-direction: column; justify-content: end; width: 80%;">
                 <h2 class="text-light mb-1">Lunarea's Article</h2>
                 <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala
@@ -130,9 +131,10 @@
                     <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
                 </div>
             </div>
-            <img class="d-block rounded header"
+            <img class="d-block rounded header article-hero-image"
                 src="https://images.unsplash.com/photo-1613575831056-0acd5da8f085?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="">
+            </div>
         </div>
         <?php } ?>
 

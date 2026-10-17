@@ -8121,12 +8121,31 @@ class Pages extends BaseController
 
     public function actionFlashSaleAdmin()
     {
-        $postedProductIds = $this->request->getPost('product_ids') ?? [];
+        $postedRaw = $this->request->getPost('product_ids') ?? [];
+        $postedProductIds = is_array($postedRaw)
+            ? array_values(array_unique(array_filter(array_map(static function ($id) {
+                return is_scalar($id) ? trim((string)$id) : '';
+            }, $postedRaw), static fn($id) => $id !== '')))
+            : [];
         $orderedProductIds = trim((string)($this->request->getPost('selected_product_ids_order') ?? ''));
         if ($orderedProductIds !== '') {
             $ordered = array_filter(array_map('trim', explode(',', $orderedProductIds)), static fn($id) => $id !== '');
             $checkedLookup = array_flip(array_map('strval', (array)$postedProductIds));
             $postedProductIds = array_values(array_filter($ordered, static fn($id) => isset($checkedLookup[(string)$id])));
+        }
+
+        $mode = $this->request->getPost('mode') === 'manual' ? 'manual' : 'auto';
+        $enabled = $this->request->getPost('enabled') !== null;
+        if ($enabled && $mode === 'manual' && !$postedProductIds) {
+            return redirect()->to('/flashsaleadmin')->with('msg', 'Pilih minimal satu produk sebelum mengaktifkan mode manual. Pengaturan sebelumnya tetap digunakan.');
+        }
+
+        // Only accept products currently eligible and actually present in the admin selector.
+        $eligibleIds = array_fill_keys(array_map('strval', array_column($this->barangModel->getBarangFlashSaleCandidates(250), 'id')), true);
+        $invalidSelectionCount = count(array_filter($postedProductIds, static fn($id) => !isset($eligibleIds[(string)$id])));
+        $postedProductIds = array_values(array_filter($postedProductIds, static fn($id) => isset($eligibleIds[(string)$id])));
+        if ($enabled && $mode === 'manual' && !$postedProductIds) {
+            return redirect()->to('/flashsaleadmin')->with('msg', 'Produk pilihan sudah tidak memenuhi syarat diskon atau status aktif. Pilih ulang produk yang tersedia; pengaturan sebelumnya tetap digunakan.');
         }
 
         $settings = [
@@ -8147,6 +8166,7 @@ class Pages extends BaseController
         } elseif ($saved['mode'] === 'manual') {
             $msg .= ' Mode manual aktif dengan ' . count($saved['product_ids']) . ' produk pilihan.';
         }
+        if ($invalidSelectionCount > 0) $msg .= ' ' . $invalidSelectionCount . ' pilihan yang tidak lagi memenuhi syarat telah dilepas.';
         $msg .= ' Teks aktif: "' . $saved['kicker'] . ' / ' . $saved['title'] . '".';
         session()->setFlashdata('msg', $msg);
 
@@ -8379,6 +8399,31 @@ class Pages extends BaseController
             $discount = $this->request->getPost('diskon') ?? ($produk['diskon'] ?? 0);
             if (!is_numeric($discount) || !is_finite((float)$discount) || (float)$discount < 0 || (float)$discount > 100) throw new \DomainException('Diskon harus antara 0 dan 100 persen.');
             $product['diskon'] = (float)$discount;
+            $price = $this->request->getPost('harga');
+            if ($price !== null) {
+                $price = trim((string)$price);
+                if (!preg_match('/^[0-9]{1,18}$/D', $price) || (int)$price < 1) throw new \DomainException('Harga website harus berupa angka rupiah lebih dari 0.');
+                $product['harga'] = $price;
+            }
+            foreach (['deskripsi', 'deskripsi_nonhtml', 'pencarian'] as $field) {
+                $value = $this->request->getPost($field);
+                if ($value === null) continue;
+                $value = trim((string)$value);
+                if ($field === 'deskripsi') $value = \App\Services\ProductDescriptionSanitizer::sanitize($value);
+                $limit = $field === 'pencarian' ? 10000 : 100000;
+                if (mb_strlen($value, 'UTF-8') > $limit) throw new \DomainException('Konten '.$field.' terlalu panjang.');
+                $product[$field] = $value;
+            }
+            foreach (['shopee', 'tokped', 'tiktok', 'youtube'] as $field) {
+                $value = $this->request->getPost($field);
+                if ($value === null) continue;
+                $value = trim((string)$value);
+                if ($value !== '' && (!filter_var($value, FILTER_VALIDATE_URL) || !in_array(strtolower((string)parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true))) {
+                    throw new \DomainException('Link '.$field.' harus berupa URL HTTPS atau HTTP yang valid.');
+                }
+                if (strlen($value) > 255) throw new \DomainException('Link '.$field.' terlalu panjang.');
+                $product[$field] = $value;
+            }
             $variants = json_decode($produk['varian'] ?? '[]', true);
             if (!is_array($variants) || !$variants) $variants = ['Default'];
             $map = [];
@@ -8391,9 +8436,9 @@ class Pages extends BaseController
             }
             if (count($images) > 1 && $copyLegacyCover && !isset($images['gambar1'])) $images['gambar1'] = $produk['gambar'];
             $this->saveProductMedia((string)$id, $product, $images, $map);
-            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', 'Foto, pilihan foto varian, dan promo berhasil disimpan. Data utama tetap mengikuti Luna Sistem.');
+            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', 'Perubahan konten website, foto, dan promo berhasil disimpan. Data master serta stok tetap mengikuti Luna Sistem.');
         } catch (\DomainException $error) {
-            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', $error->getMessage().' Belum ada perubahan disimpan. Pilih ulang file sebelum mencoba lagi.');
+            return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', $error->getMessage().' Perubahan belum disimpan.');
         } catch (\Throwable $error) {
             log_message('error', 'Admin product media save failed for {product}; type {type}', ['product'=>(string)$id, 'type'=>get_class($error)]);
             return redirect()->to('/editproduct/'.rawurlencode((string)$id))->with('msg', 'Penyimpanan gambar gagal. Periksa log server dan batas upload sebelum mencoba lagi.');

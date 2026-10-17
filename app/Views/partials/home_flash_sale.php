@@ -35,10 +35,10 @@
                         $stockText = $totalStock <= 0 ? 'Stok habis' : ($totalStock <= 5 ? 'Stok terbatas' : 'Stok tersedia');
                     ?>
                     <a class="flash-sale-card" href="/product/<?= esc($p['path']); ?>" aria-label="<?= esc($p['nama']); ?> diskon <?= $discount; ?> persen">
-                        <div class="flash-sale-image">
+                        <div class="flash-sale-image image-skeleton">
                             <span class="flash-sale-badge">-<?= $discount; ?>%</span>
                             <img class="flash-sale-watermark" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="">
-                            <img src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy" decoding="async">
+                            <img data-skeleton-image src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= esc($p['nama']); ?>" loading="lazy" decoding="async">
                         </div>
                         <div class="flash-sale-info">
                             <h3 title="<?= esc($p['nama'], 'attr'); ?>"><?= esc($p['nama']); ?></h3>

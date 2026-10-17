@@ -1,0 +1,52 @@
+/* Lightweight placeholders for home banners and product imagery. */
+.image-skeleton {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: #f0ede8;
+}
+.image-skeleton::after {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 28%, rgb(255 255 255 / 66%) 48%, transparent 68%);
+    content: "";
+    pointer-events: none;
+    transform: translateX(-100%);
+    animation: image-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+.image-skeleton [data-skeleton-image] {
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity .28s ease;
+}
+.image-skeleton.is-image-ready [data-skeleton-image] { opacity: 1; }
+.image-skeleton.is-image-ready::after,
+.image-skeleton.is-image-error::after { display: none; }
+.image-skeleton.is-image-error::before {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #8c877f;
+    content: "Gambar belum tersedia";
+    font-size: 12px;
+}
+.home-hero-media.image-skeleton { min-height: 120px; }
+.home-hero-media.image-skeleton [data-skeleton-image] { display: block; width: 100%; height: auto; }
+.product-card-media.image-skeleton,
+.flash-sale-image.image-skeleton { background-color: #f3f0eb; }
+.product-card-media.image-skeleton .img-card1:not(.img-card1-wm),
+.flash-sale-image.image-skeleton > img:not(.flash-sale-watermark) { object-fit: contain; }
+.image-skeleton .terjual-badge,
+.image-skeleton .flash-sale-badge,
+.image-skeleton .flash-sale-watermark { z-index: 3; }
+@keyframes image-skeleton-shimmer {
+    to { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .image-skeleton::after { animation: none; transform: none; opacity: .42; }
+    .image-skeleton [data-skeleton-image] { transition: none; }
+}

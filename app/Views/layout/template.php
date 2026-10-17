@@ -125,7 +125,9 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/style.css?v=<?= filemtime(FCPATH . 'css/style.css'); ?>">
     <link rel="stylesheet" href="/css/commerce-responsive.css?v=<?= filemtime(FCPATH . 'css/commerce-responsive.css'); ?>">
     <link rel="stylesheet" href="/css/home-carousel.css?v=<?= filemtime(FCPATH . 'css/home-carousel.css'); ?>">
+    <link rel="stylesheet" href="/css/image-skeletons.css?v=<?= filemtime(FCPATH . 'css/image-skeletons.css'); ?>">
     <link rel="stylesheet" href="/css/storefront-catalog.css?v=<?= filemtime(FCPATH . 'css/storefront-catalog.css'); ?>">
+    <link rel="stylesheet" href="/css/public-articles.css?v=<?= filemtime(FCPATH . 'css/public-articles.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-footer.css?v=<?= filemtime(FCPATH . 'css/buyer-footer.css'); ?>">
     <?php if (in_array($title, ['Masuk', 'Daftar'], true)) { ?>
@@ -460,6 +462,7 @@ $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
         window.sessionStorage.setItem('greeting-close', true);
     }
     </script>
+    <script defer src="/js/image-skeletons.js?v=<?= filemtime(FCPATH . 'js/image-skeletons.js'); ?>"></script>
 </body>
 
 </html>

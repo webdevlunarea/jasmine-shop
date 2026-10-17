@@ -557,6 +557,66 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
+
+    /* Admin Flash Sale: compact surfaces aligned with the Lunarea admin theme. */
+    .admin-module-flash-sale-admin .flash-admin-grid { gap: 16px; }
+    .admin-module-flash-sale-admin .flash-admin-panel {
+        padding: 20px;
+        border-color: color-mix(in srgb, var(--theme-primary) 13%, white);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgb(47 45 32 / 5%);
+    }
+    .admin-module-flash-sale-admin .flash-admin-panel__head h5 { color: var(--theme-primary); font-size: 15px; font-weight: 600 !important; }
+    .admin-module-flash-sale-admin .flash-admin-panel__head p,
+    .admin-module-flash-sale-admin .flash-admin-toggle small,
+    .admin-module-flash-sale-admin .flash-selected-tools small,
+    .admin-module-flash-sale-admin .flash-admin-preview p { color: #6f7069 !important; font-size: 12px; line-height: 1.65; }
+    .admin-module-flash-sale-admin .flash-admin-toggle,
+    .admin-module-flash-sale-admin .flash-selected-tools {
+        padding: 13px 14px;
+        border: 1px solid color-mix(in srgb, var(--theme-primary) 12%, white);
+        border-radius: 9px;
+        background: color-mix(in srgb, var(--theme-accent, #c7a78a) 13%, white);
+    }
+    .admin-module-flash-sale-admin .flash-admin-toggle input,
+    .admin-module-flash-sale-admin .flash-product-option input { accent-color: var(--theme-primary); }
+    .admin-module-flash-sale-admin :is(.form-control, .form-select) { min-height: 44px; border-color: #e5e2dc; border-radius: 7px; font-size: 13px; }
+    .admin-module-flash-sale-admin textarea.form-control { min-height: auto; }
+    .admin-module-flash-sale-admin .form-label { color: var(--theme-primary); font-size: 12px; font-weight: 600 !important; }
+    .admin-module-flash-sale-admin .flash-admin-preview,
+    .admin-module-flash-sale-admin .flash-home-preview {
+        padding: 15px;
+        border-color: color-mix(in srgb, var(--theme-primary) 12%, white);
+        border-radius: 10px;
+        background: #fbfaf8;
+    }
+    .admin-module-flash-sale-admin .flash-admin-preview > span,
+    .admin-module-flash-sale-admin .flash-admin-sync strong,
+    .admin-module-flash-sale-admin .flash-selected-tools strong,
+    .admin-module-flash-sale-admin .flash-product-option__body em,
+    .admin-module-flash-sale-admin .flash-home-preview__head span { color: var(--theme-primary); }
+    .admin-module-flash-sale-admin .flash-admin-sync div,
+    .admin-module-flash-sale-admin .flash-text-preview,
+    .admin-module-flash-sale-admin .flash-product-option { border-color: #e9e6e0; border-radius: 8px; }
+    .admin-module-flash-sale-admin .flash-text-preview strong { background: var(--theme-primary); border-radius: 5px; }
+    .admin-module-flash-sale-admin .flash-text-preview h4 { color: var(--theme-primary); font-size: 18px; font-weight: 600; }
+    .admin-module-flash-sale-admin .flash-product-option { grid-template-columns: 20px 54px minmax(0, 1fr); gap: 11px; padding: 10px; }
+    .admin-module-flash-sale-admin .flash-product-option:hover,
+    .admin-module-flash-sale-admin .flash-product-option:has(input:checked) { border-color: var(--theme-accent, #c7a78a); background: #fbf8f4; }
+    .admin-module-flash-sale-admin .flash-product-option img { width: 54px; height: 54px; border-radius: 6px; }
+    .admin-module-flash-sale-admin .flash-product-option__body strong,
+    .admin-module-flash-sale-admin .flash-home-preview__head strong,
+    .admin-module-flash-sale-admin .flash-home-preview__item { color: var(--theme-primary); font-size: 12px; font-weight: 600; }
+    .admin-module-flash-sale-admin .flash-product-option__body small,
+    .admin-module-flash-sale-admin .flash-home-preview__head small { color: #75756f; font-size: 11px; }
+    .admin-module-flash-sale-admin .flash-home-preview__head span { background: #f3eee8; font-size: 11px; }
+    .admin-module-flash-sale-admin .btn-primary1 { min-height: 44px; border-radius: 7px; box-shadow: none; }
+    .admin-module-flash-sale-admin .flash-product-list { gap: 8px; max-height: 540px; }
+    @media (max-width: 575.98px) {
+        .admin-module-flash-sale-admin .flash-admin-panel { padding: 15px; }
+        .admin-module-flash-sale-admin .flash-product-option { grid-template-columns: 20px 46px minmax(0, 1fr); gap: 8px; }
+        .admin-module-flash-sale-admin .flash-product-option img { width: 46px; height: 46px; }
+    }
 </style>
 
 <script>

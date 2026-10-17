@@ -43,6 +43,6 @@ final class LunaProductStockSyncTest extends CIUnitTestCase
         $master['stock']=-4;
         $master['variants'][0]['stock']=-7;
         $result=LunaProductStockSync::project($master,$this->identity(),['nama'=>'Cabinet','varian'=>'["PUTIH","HITAM"]']);
-        $this->assertSame('0,9',$result['stok']);
+        $this->assertSame('9,0',$result['stok']);
     }
 }

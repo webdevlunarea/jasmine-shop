@@ -1,8 +1,8 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<?php if (!session()->get('submitEmail') && session()->get('role') != 1) { ?>/
-<div id="submit-email" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
-    <div class="ps-4 pe-4 pb-4 pt-2 rounded" style="background-color: #eff8f2;">
+<?php if (!session()->get('submitEmail') && session()->get('role') != 1) { ?>
+<div id="submit-email" class="d-none justify-content-center align-items-center article-email-modal">
+    <div class="article-email-dialog">
         <div class="d-flex justify-content-end">
             <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
         </div>
@@ -46,8 +46,8 @@
 </script>
 <?php } ?>
 <?php if (session()->get('role') == 1) { ?>
-    <div id="edit-komen" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background-color: rgba(0,0,0,0.5);" class="d-none justify-content-center align-items-center">
-        <div class="p-4 bg-light">
+    <div id="edit-komen" class="d-none justify-content-center align-items-center article-email-modal">
+        <div class="article-email-dialog">
             <form action="/editkomen" method="post" id="form-edit">
                 <h5>Edit Komen</h5>
                 <div class="form-floating mb-1">
@@ -66,10 +66,10 @@
         </div>
     </div>
 <?php } ?>
-<div class="konten artikel">
+<div class="konten artikel public-article-detail">
     <div class="container mb-5">
-        <img src="<?= $artikel['header']; ?>" alt="<?= $artikel['judul'] ?>" class="header">
-        <div class="p-5 mx-5 show-ke-hide" style="background-color: white; box-shadow: 5px 5px 20px rgba(0,0,0,0.1); position: relative; margin-top: -10svh">
+        <img src="<?= esc($artikel['header'], 'attr'); ?>" alt="<?= esc($artikel['judul'], 'attr'); ?>" class="header article-cover">
+        <article class="p-5 mx-5 show-ke-hide article-content-card">
             <div class="d-flex justify-content-between">
                 <div class="d-flex gap-1 mb-3">
                     <?php foreach ($artikel['kategori'] as $k) { ?>
@@ -105,7 +105,7 @@
                 <p class="m-0 text-secondary">Terakhir diubah pada <?= $artikel['waktu']; ?></p>
             </div>
             <span class="garis my-3"></span>
-            <?= $artikel['isi']; ?>
+            <div class="article-prose"><?= $artikel['isi']; ?></div>
             <span class="garis my-3"></span>
             <div class="d-flex justify-content-between align-items-start" style="gap: 6em;">
                 <div style="flex: 1;">
@@ -127,8 +127,8 @@
                     <?php } ?>
                 </div>
             </div>
-        </div>
-        <div class="p-4 mx-4 hide-ke-show-block" style="background-color: white; box-shadow: 5px 5px 20px rgba(0,0,0,0.1); position: relative; margin-top: -15svh">
+        </article>
+        <article class="p-4 mx-4 hide-ke-show-block article-content-card article-content-card--mobile">
             <div class="d-flex justify-content-between mb-1 align-items-center">
                 <div class="d-flex gap-1">
                     <?php foreach ($artikel['kategori'] as $k) { ?>
@@ -163,7 +163,7 @@
                 <p class="m-0 text-secondary"><?= $artikel['waktu']; ?></p>
             </div>
             <span class="garis my-3"></span>
-            <?= $artikel['isi']; ?>
+            <div class="article-prose"><?= $artikel['isi']; ?></div>
             <span class="garis my-3"></span>
             <div class="d-flex justify-content-between">
                 <?php if ($prevArtikel) { ?>
@@ -181,9 +181,9 @@
                     </a>
                 <?php } ?>
             </div>
-        </div>
+        </article>
     </div>
-    <div class="container mb-5">
+    <div class="container mb-5 article-comments">
         <h5 class="jdl-section mb-3">Komentar</h5>
         <form action="/addkomen/<?= $artikel['path']; ?>" method="post">
             <div class="mb-2">
@@ -217,7 +217,7 @@
             <?php } ?>
         </div>
     </div>
-    <div class="container mb-5">
+    <div class="container mb-5 article-related">
         <h5 class="jdl-section mb-3">Artikel Serupa</h5>
         <div class="d-flex flex-column gap-3" style="min-height: 100px;">
             <?php foreach ($artikelTerkait as $ind_a => $a) { ?>

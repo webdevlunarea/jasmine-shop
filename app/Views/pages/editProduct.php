@@ -73,16 +73,28 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                 box-shadow: 0 10px 30px rgba(22, 163, 74, .08);
             }
             .website-promo-field {
-                border: 2px solid #f59e0b;
+                border: 1px solid #e8ded3;
                 border-radius: 14px;
                 padding: 12px;
-                background: #fffbeb;
+                background: #fbf8f5;
             }
             .website-promo-field .form-control {
                 background: #fff !important;
-                border: 1px solid #f59e0b !important;
+                border: 1px solid #d9c8b8 !important;
                 color: #111827 !important;
                 cursor: text !important;
+            }
+            .luna-locked-panel {
+                border-color: #e6ded6;
+                background: linear-gradient(135deg, #f8f5f1, #fff);
+            }
+            .luna-locked-panel .material-icons {
+                color: #2f2d20;
+            }
+            .admin-product-fields .admin-field:not(.website-promo-field) .form-control:not([readonly]) {
+                background-color: #fff;
+                border-color: #d9c8b8;
+                cursor: text;
             }
             .variant-image-picker {
                 display: grid;
@@ -148,8 +160,8 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         <div class="admin-module-heading admin-form-hero mb-4">
             <div>
                 <p class="admin-form-eyebrow mb-1">Produk</p>
-                <h1 class="mb-1">Edit Foto Produk</h1>
-                <p class="text-muted mb-0">Data utama produk dikunci agar tetap satu jalur dari Luna Sistem. Di website hanya foto produk yang bisa diperbarui.</p>
+                <h1 class="mb-1">Edit Produk</h1>
+                <p class="text-muted mb-0">Kelola harga dan konten Lunarea tanpa mengubah identitas master maupun stok MyLuna.</p>
             </div>
             <a class="btn btn-outline-dark" href="/listproduct">Kembali</a>
         </div>
@@ -157,16 +169,16 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
             <div class="alert alert-info py-2" role="status"><?= esc($mediaMessage); ?></div>
         <?php } ?>
         <div class="luna-locked-panel mb-3">
-            <i class="material-icons">lock</i>
+            <i class="material-icons">sync_alt</i>
             <div>
-                <strong>Mode satu jalur aktif.</strong>
-                <p class="mb-0 text-muted">Nama, harga normal, stok, varian, kategori, status aktif, berat, dimensi, deskripsi, dan link marketplace wajib diedit dari Luna Sistem. Admin website hanya bisa upload/mengganti foto dan mengatur diskon promo website.</p>
+                <strong>Data jual dan stok memiliki sumber berbeda.</strong>
+                <p class="mb-0 text-muted">Harga dan konten yang diedit di sini berlaku untuk Lunarea. Stok tetap mengikuti MyLuna. Identitas, nama master, kategori, varian, berat, dimensi, dan status produk tetap terlindungi dari perubahan tidak sengaja.</p>
             </div>
         </div>
         <form method="post" action="/editproduct/<?= $produk['id']; ?>" enctype="multipart/form-data" class="admin-product-form">
             <?= csrf_field(); ?>
             <nav class="admin-module-section-nav" aria-label="Bagian edit produk">
-                <a href="#product-gallery">Kelola foto</a><a href="#product-variant-photos">Foto per varian</a><a href="#product-master">Informasi produk &amp; promo</a>
+                <a href="#product-gallery">Foto produk</a><a href="#product-variant-photos">Foto varian</a><a href="#product-master">Harga &amp; konten</a>
             </nav>
             <?= view('partials/admin_product_gallery', ['produk'=>$produk, 'gambar'=>$gambar, 'imageSlotCount'=>$imageSlotCount], ['saveData'=>false]); ?>
             <section class="admin-form-section variant-image-map-section mt-4" id="product-variant-photos">
@@ -197,41 +209,41 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
             <div class="admin-product-grid" id="product-master">
                 <div class="admin-product-fields">
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>1</span><div><h5>Informasi utama</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
+                        <div class="admin-form-section__head"><span>1</span><div><h5>Harga &amp; promo website</h5><p>Perubahan harga berlaku pada transaksi Lunarea; stok tetap mengikuti MyLuna.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="nama">Nama produk</label>
-                                <input id="nama" type="text" class="form-control" value="<?= esc($namaProduk); ?>" name="nama" required onchange="isiPencarian(event)" placeholder="Contoh: Lemari Pakaian 3 Pintu Luna">
+                                <input id="nama" type="text" class="form-control" value="<?= esc($namaProduk); ?>" name="nama" readonly aria-readonly="true" required onchange="isiPencarian(event)" placeholder="Contoh: Lemari Pakaian 3 Pintu Luna">
                                 <small>Tulis nama singkat, jelas, dan mudah dicari customer.</small>
                             </div>
                             <div class="admin-field">
-                                <label class="form-label" for="harga">Harga</label>
+                                <label class="form-label" for="harga">Harga jual Lunarea</label>
                                 <div class="input-group"><span class="input-group-text">Rp</span><input id="harga" type="number" class="form-control" value="<?= esc($hargaProduk); ?>" name="harga" required placeholder="1250000"></div>
-                                <small>Masukkan angka tanpa titik/koma.</small>
+                                <small>Harga jual untuk Lunarea, masukkan angka rupiah tanpa titik/koma.</small>
                             </div>
                             <div class="admin-field website-promo-field">
                                 <label class="form-label" for="diskon">Diskon</label>
                                 <div class="input-group"><input id="diskon" type="number" class="form-control" value="<?= esc($diskonProduk); ?>" name="diskon" step="any" required onchange="isiPencarian(event)"><span class="input-group-text">%</span></div>
-                                <small><b>Bisa diedit di website.</b> Harga normal tetap dari Luna Sistem, diskon ini hanya promo website dan dikirim ke Luna Sistem sebagai diskon transaksi.</small>
+                                <small>Diskon promo khusus Lunarea. Nilai diskon dicatat bersama detail pesanan.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="dimensi">Dimensi</label>
-                                <input id="dimensi" value="<?= esc($dimensiProduk); ?>" type="text" class="form-control" name="dimensi" required placeholder="80 x 45 x 180">
+                                <input id="dimensi" value="<?= esc($dimensiProduk); ?>" type="text" class="form-control" name="dimensi" readonly aria-readonly="true" required placeholder="80 x 45 x 180">
                                 <small>Format disarankan: P x L x T dalam cm.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="berat">Berat</label>
-                                <div class="input-group"><input id="berat" value="<?= esc($beratProduk); ?>" type="number" class="form-control" name="berat" step="any" required><span class="input-group-text">kg</span></div>
+                                <div class="input-group"><input id="berat" value="<?= esc($beratProduk); ?>" type="number" class="form-control" name="berat" readonly aria-readonly="true" step="any" required><span class="input-group-text">kg</span></div>
                                 <small>Berat untuk estimasi pengiriman.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="stok">Stok</label>
-                                <input id="stok" type="text" class="form-control" value="<?= esc($stokProduk); ?>" name="stok" required placeholder="ready / 25 / pre-order 7 hari">
+                                <input id="stok" type="text" class="form-control" value="<?= esc($stokProduk); ?>" name="stok" readonly aria-readonly="true" required placeholder="ready / 25 / pre-order 7 hari">
                                 <small>Bisa angka stok atau status ready/pre-order.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="terjual_custom">Terjual custom</label>
-                                <input id="terjual_custom" type="number" class="form-control" value="<?= esc($produk['terjual_custom'] ?? 0); ?>" name="terjual_custom" placeholder="Atur manual jumlah terjual">
+                                <input id="terjual_custom" type="number" class="form-control" value="<?= esc($produk['terjual_custom'] ?? 0); ?>" name="terjual_custom" readonly aria-readonly="true" placeholder="Atur manual jumlah terjual">
                                 <small>Angka manual untuk tampilan terjual.</small>
                                 <input type="hidden" value="<?= esc($produk['terjual'] ?? 0); ?>" name="terjual">
                             </div>
@@ -239,26 +251,26 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>2</span><div><h5>Kategori & varian</h5><p>Terkunci, mengikuti Luna Sistem. Slot foto otomatis mengikuti varian yang sudah tersimpan.</p></div></div>
+                        <div class="admin-form-section__head"><span>2</span><div><h5>Data master &amp; stok</h5><p>Dikelola melalui MyLuna agar pemetaan produk dan stok tetap konsisten.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field">
                                 <label class="form-label" for="kategori">Kategori</label>
-                                <input id="kategori" list="kategori-list" type="text" class="form-control" value="<?= esc($kategoriProduk); ?>" name="kategori" required onchange="isiPencarian(event)" placeholder="lemari-dewasa">
+                                <input id="kategori" list="kategori-list" type="text" class="form-control" value="<?= esc($kategoriProduk); ?>" name="kategori" readonly aria-readonly="true" required onchange="isiPencarian(event)" placeholder="lemari-dewasa">
                                 <small>Contoh: lemari-dewasa, meja-belajar, rak-serbaguna.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="subkategori">Sub kategori</label>
-                                <input id="subkategori" type="text" class="form-control" value="<?= esc($subkategoriProduk); ?>" name="subkategori" required onchange="isiPencarian(event)" placeholder="lemari-3-pintu">
+                                <input id="subkategori" type="text" class="form-control" value="<?= esc($subkategoriProduk); ?>" name="subkategori" readonly aria-readonly="true" required onchange="isiPencarian(event)" placeholder="lemari-3-pintu">
                                 <small>Gunakan huruf kecil dan tanda minus agar URL rapi.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="varian">Varian warna/model</label>
-                                <input id="varian" type="text" class="form-control" value="<?= esc($varianText); ?>" name="varian" required onchange="isiPencarian(event)" placeholder="Putih, Coklat, Oak">
+                                <input id="varian" type="text" class="form-control" value="<?= esc($varianText); ?>" name="varian" readonly aria-readonly="true" required onchange="isiPencarian(event)" placeholder="Putih, Coklat, Oak">
                                 <small>Pisahkan dengan koma. Contoh: Putih, Coklat, Oak.</small>
                             </div>
                             <div class="admin-field">
                                 <label class="form-label" for="jml_varian">Jumlah foto per varian</label>
-                                <input id="jml_varian" type="number" min="1" class="form-control" value="<?= esc($jmlVarianProduk); ?>" name="jml_varian" required>
+                                <input id="jml_varian" type="number" min="1" class="form-control" value="<?= esc($jmlVarianProduk); ?>" name="jml_varian" readonly aria-readonly="true" required>
                                 <small>Jika tiap varian punya 2 foto, isi 2.</small>
                             </div>
                         </div>
@@ -266,7 +278,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>3</span><div><h5>Link marketplace & video</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
+                        <div class="admin-form-section__head"><span>3</span><div><h5>Link marketplace &amp; video</h5><p>Link yang ditampilkan pada halaman produk Lunarea.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field"><label class="form-label" for="shopee">Link Shopee</label><input id="shopee" type="url" class="form-control" value="<?= esc($produk['shopee'] ?? ''); ?>" name="shopee" placeholder="https://shopee.co.id/..."><small>Link tombol Shopee di halaman detail.</small></div>
                             <div class="admin-field"><label class="form-label" for="tokped">Link Tokopedia</label><input id="tokped" type="url" class="form-control" value="<?= esc($produk['tokped'] ?? ''); ?>" name="tokped" placeholder="https://tokopedia.com/..."><small>Link tombol Tokopedia.</small></div>
@@ -276,22 +288,22 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                     </section>
 
                     <section class="admin-form-section">
-                        <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi & pencarian</h5><p>Terkunci, mengikuti Luna Sistem.</p></div></div>
+                        <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi &amp; pencarian</h5><p>Konten khusus halaman produk dan pencarian Lunarea.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="deskripsi">Deskripsi HTML</label>
-                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" required><?= $deskripsiProduk; ?></textarea>
+                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi"><?= esc($deskripsiProduk); ?></textarea>
                                 <small>Tulis/edit seperti di artikel. Admin bisa bold, list, heading, dan link tanpa mengetik tag HTML manual.</small>
                             </div>
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="deskripsi_nonhtml">Deskripsi tanpa HTML</label>
-                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" required><?= esc($deskripsiNonhtmlProduk); ?></textarea>
+                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml"><?= esc($deskripsiNonhtmlProduk); ?></textarea>
                                 <small>Otomatis bisa mengikuti deskripsi tanpa format HTML, tetap bisa diedit manual.</small>
                             </div>
                             <div class="admin-field admin-field--full">
                                 <label class="form-label" for="pencarian">Keyword pencarian</label>
                                 <div class="input-group">
-                                    <input id="pencarian" type="text" class="form-control" value="<?= esc($pencarianProduk); ?>" name="pencarian" required placeholder="lemari pakaian minimalis modern putih murah">
+                                    <input id="pencarian" type="text" class="form-control" value="<?= esc($pencarianProduk); ?>" name="pencarian" placeholder="lemari pakaian minimalis modern putih murah">
                                     <button class="btn btn-outline-dark" type="button" id="generateSearchKeyword">Generate</button>
                                 </div>
                                 <small>Bisa otomatis dibuat dari nama, kategori, subkategori, varian, dan deskripsi.</small>
@@ -314,7 +326,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                 </aside>
             </div>
             <div class="d-grid gap-2 mt-3 admin-form-actions-sticky">
-                <button class="btn btn-primary1" type="submit">Simpan Foto & Relasi Varian</button>
+                <button class="btn btn-primary1" type="submit">Simpan Perubahan</button>
                 <a class="btn btn-outline-dark" href="/listproduct">Batal</a>
             </div>
         </form>
@@ -336,12 +348,16 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
     let hasilVarian = jmlVarian + varian - 1;
     const existingVariants = <?= json_encode($variantList, JSON_UNESCAPED_UNICODE); ?>;
 
+    const websiteEditableFields = new Set(['harga', 'diskon', 'deskripsi', 'deskripsi_nonhtml', 'pencarian', 'shopee', 'tokped', 'tiktok', 'youtube']);
     document.querySelectorAll('.admin-product-fields input, .admin-product-fields textarea').forEach((field) => {
-        if (field.name === 'diskon') {
-            field.required = true;
-            field.removeAttribute('readonly');
+        if (websiteEditableFields.has(field.name)) {
+            field.readOnly = false;
             field.removeAttribute('aria-readonly');
-            field.setAttribute('title', 'Diskon promo khusus website');
+            field.removeAttribute('tabindex');
+            field.classList.remove('bg-light');
+            field.setAttribute('title', 'Dikelola khusus untuk Lunarea');
+            if (['harga', 'diskon'].includes(field.name)) field.required = true;
+            else field.required = false;
             return;
         }
         field.readOnly = true;
@@ -352,7 +368,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         field.setAttribute('tabindex', '-1');
     });
     document.querySelectorAll('.admin-product-fields label').forEach((label) => {
-        if (label.querySelector('.readonly-badge') || label.getAttribute('for') === 'diskon') return;
+        if (label.querySelector('.readonly-badge') || websiteEditableFields.has(label.getAttribute('for'))) return;
         const badge = document.createElement('span');
         badge.className = 'readonly-badge';
         badge.innerHTML = '<i class="material-icons">lock</i> Readonly';
@@ -367,8 +383,6 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         promoBadge.innerHTML = '<i class="material-icons">local_offer</i> Promo Website';
         diskonLabel.appendChild(promoBadge);
     }
-    document.getElementById('generateSearchKeyword')?.setAttribute('disabled', 'disabled');
-
     function isiPencarian(e) {
         if (e.srcElement.value != '') {
             if (e.srcElement.name == 'nama') elmPencarian.value += `${e.srcElement.value} `;
@@ -419,7 +433,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
         document.getElementById('previewPrice').textContent = `${formatRupiah(finalPrice)}${diskon > 0 ? ' • Diskon ' + diskon + '%' : ''}`;
         document.getElementById('previewSpec').textContent = `${get('dimensi') || 'Dimensi'} cm • ${get('berat') || 'Berat'} kg`;
         document.getElementById('previewVariants').textContent = `Varian: ${get('varian') || '-'}`;
-        document.getElementById('previewDescription').innerHTML = getDescriptionContent() || 'Preview deskripsi.';
+        document.getElementById('previewDescription').textContent = stripHtml(getDescriptionContent()) || 'Preview deskripsi.';
     }
 
     document.querySelectorAll('.admin-product-form input, .admin-product-form textarea').forEach((field) => { field.addEventListener('input', updateAdminProductPreview); field.addEventListener('change', updateAdminProductPreview); });
@@ -427,7 +441,7 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
     document.getElementById('generateSearchKeyword')?.addEventListener('click', generateSearchKeyword);
     document.querySelector('.admin-product-form').addEventListener('submit', () => {
         if (window.tinymce) tinymce.triggerSave();
-        syncPlainDescription(true);
+        syncPlainDescription(false);
         if (!document.querySelector('[name="pencarian"]').value.trim()) generateSearchKeyword();
     });
     if (window.tinymce) {
@@ -435,8 +449,9 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
             selector: '#deskripsi',
             height: 320,
             menubar: false,
-            readonly: true,
-            toolbar: false,
+            readonly: false,
+            plugins: 'lists link',
+            toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link | removeformat',
             setup: function(editor) {
                 editor.on('input change keyup setcontent', function() {
                     syncPlainDescription();
