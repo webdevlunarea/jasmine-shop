@@ -243,21 +243,24 @@
     </div>
     <div class="container mb-5 article-related">
         <h5 class="jdl-section mb-3">Artikel Serupa</h5>
-        <div class="d-flex flex-column gap-3" style="min-height: 100px;">
-            <?php foreach ($artikelTerkait as $ind_a => $a) { ?>
-                <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                    <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($a['header'], 'attr'); ?>" alt="<?= esc($a['judul'], 'attr'); ?>"></div>
-                    <div style="position: relative;" class="d-flex flex-column">
-                        <p class="m-0 judul"><?= $a['judul']; ?></p>
-                        <div class="container-isi">
-                            <div class="overlay-isi"></div>
-                            <p class="m-0 isi"><?= $a['isi']; ?></p>
-                        </div>
-                        <a class="readmore">Baca selengkapnya</a>
-                    </div>
-                </div>
-            <?php } ?>
-        </div>
+        <?php if (!empty($artikelTerkait)) { ?>
+            <div class="article-related-grid">
+                <?php foreach ($artikelTerkait as $a) { ?>
+                    <a class="article-related-card" href="<?= site_url('article/' . rawurlencode((string) ($a['path'] ?? ''))); ?>">
+                        <span class="article-related-card__image image-skeleton">
+                            <img data-skeleton-image loading="lazy" decoding="async" src="<?= esc($a['header'] ?? '', 'attr'); ?>" alt="<?= esc($a['judul'] ?? 'Artikel Lunarea', 'attr'); ?>">
+                        </span>
+                        <span class="article-related-card__body">
+                            <span class="article-related-card__title"><?= esc($a['judul'] ?? ''); ?></span>
+                            <span class="article-related-card__summary"><?= esc(trim(preg_replace('/\\s+/', ' ', strip_tags((string) ($a['isi'] ?? ''))))); ?></span>
+                            <span class="article-related-card__link">Baca artikel <span aria-hidden="true">&rarr;</span></span>
+                        </span>
+                    </a>
+                <?php } ?>
+            </div>
+        <?php } else { ?>
+            <p class="article-related-empty">Belum ada artikel serupa untuk ditampilkan.</p>
+        <?php } ?>
     </div>
     <div class="container">
         <h5 class="jdl-section">Produk Terkait</h5>
@@ -305,12 +308,6 @@
         </div>
     </div>
 </div>
-<script>
-    function pergiKeArtikel(judulArtikel) {
-        console.log(judulArtikel)
-        window.location.href = '/article/' + judulArtikel
-    }
-</script>
 <?php if (session()->get('role') == 1) { ?>
     <script>
         const editKomenElm = document.getElementById('edit-komen')

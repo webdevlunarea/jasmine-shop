@@ -315,29 +315,94 @@
 .buyer-layout .public-article-detail .container-komen > div { padding: 16px 0; }
 .buyer-layout .public-article-detail .container-komen p { color: var(--article-muted); font-size: 13px; line-height: 1.75; }
 .buyer-layout .public-article-detail .container-komen .fw-bold { color: var(--article-ink); }
-.buyer-layout .public-article-detail .article-related .card-artikel-kecil { margin-bottom: 12px; }
-.buyer-layout .public-article-detail .article-related .card-group1 { gap: 14px; }
-.buyer-layout .public-article-detail .article-related .card-artikel-kecil {
-    flex: 1 1 280px;
-    border: 1px solid var(--article-border);
-    border-radius: 9px;
-    background: #fff;
-    box-shadow: 0 5px 18px rgb(47 45 32 / 5%);
+.buyer-layout .public-article-detail .article-related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
-.buyer-layout .public-article-detail .article-related .card-artikel-kecil > .article-card-image {
-    width: 110px;
-    min-height: 112px;
-    height: 100%;
+.buyer-layout .public-article-detail .article-related-card {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    min-width: 0;
+    min-height: 132px;
     overflow: hidden;
+    border: 1px solid var(--article-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--article-ink);
+    text-decoration: none;
+    box-shadow: 0 5px 18px rgb(47 45 32 / 5%);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.buyer-layout .public-article-detail .article-related .article-card-image > img {
+.buyer-layout .public-article-detail .article-related-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--article-ink) 24%, white);
+    color: var(--article-ink);
+    box-shadow: 0 12px 26px rgb(47 45 32 / 9%);
+}
+.buyer-layout .public-article-detail .article-related-card:focus-visible {
+    outline: 3px solid rgb(199 167 138 / 55%);
+    outline-offset: 3px;
+}
+.buyer-layout .public-article-detail .article-related-card__image {
+    display: block;
+    min-width: 0;
+    min-height: 132px;
+    overflow: hidden;
+    background: #f2eee8;
+}
+.buyer-layout .public-article-detail .article-related-card__image img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-.buyer-layout .public-article-detail .article-related .card-artikel-kecil .judul { padding: 12px 12px 4px; font-size: 13px; }
-.buyer-layout .public-article-detail .article-related .card-artikel-kecil .container-isi { margin-inline: 12px; }
+.buyer-layout .public-article-detail .article-related-card__body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+}
+.buyer-layout .public-article-detail .article-related-card__title {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--article-ink);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.buyer-layout .public-article-detail .article-related-card__summary {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: 6px;
+    color: var(--article-muted);
+    font-size: 12px;
+    line-height: 1.65;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.buyer-layout .public-article-detail .article-related-card__link {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 9px;
+    color: #81664f;
+    font-size: 11px;
+    font-weight: 600;
+}
+.buyer-layout .public-article-detail .article-related-empty {
+    margin: 0;
+    padding: 18px;
+    border: 1px solid var(--article-border);
+    border-radius: 10px;
+    background: #faf9f7;
+    color: var(--article-muted);
+    font-size: 13px;
+}
 
 /* Newsletter and comment-edit overlays are shared by public and admin article views. */
 .article-email-modal {
@@ -436,6 +501,11 @@
     .buyer-layout .public-article-detail .article-content-card > .d-flex.justify-content-between { align-items: flex-start !important; gap: 6px 14px; flex-wrap: wrap; }
     .buyer-layout .public-article-detail .article-prose { font-size: 14px; line-height: 1.85; }
     .buyer-layout .public-article-detail .article-comments > form { padding: 16px; }
+    .buyer-layout .public-article-detail .article-related-grid { grid-template-columns: 1fr; gap: 10px; }
+    .buyer-layout .public-article-detail .article-related-card { grid-template-columns: 104px minmax(0, 1fr); min-height: 116px; border-radius: 9px; }
+    .buyer-layout .public-article-detail .article-related-card__image { min-height: 116px; }
+    .buyer-layout .public-article-detail .article-related-card__body { padding: 11px; }
+    .buyer-layout .public-article-detail .article-related-card__title { font-size: 13px; }
     .article-email-modal { align-items: flex-end !important; padding: 12px; }
     .article-email-dialog { width: 100%; max-height: 88vh; padding: 24px 20px calc(20px + env(safe-area-inset-bottom)); border-radius: 16px; }
 }

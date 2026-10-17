@@ -8,7 +8,7 @@
 .buyer-layout .buyer-product-page .product-detail-layout { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 48px; margin-top: 0; align-items: start; }
 .buyer-layout .buyer-product-page .product-gallery { min-width: 0; position: sticky; top: calc(var(--buyer-header-bottom,100px) + 20px); }
 .buyer-layout .buyer-product-page .product-detail-info { position: static; padding: 0; min-width: 0; }
-.buyer-layout .buyer-product-page .img-produk-besar { display: flex; width: 100%; aspect-ratio: 1; gap: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 6px; background: var(--theme-soft); }
+.buyer-layout .buyer-product-page .img-produk-besar { position: relative; display: flex; width: 100%; aspect-ratio: 1; gap: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 6px; background: var(--theme-soft); }
 .buyer-layout .buyer-product-page .img-produk-besar::-webkit-scrollbar { display: none; }
 .buyer-layout .buyer-product-page .img-produk-besar .img-produk-prev { position: relative; flex: 0 0 100%; min-width: 100%; width: 100%; height: 100%; scroll-snap-align: start; border-radius: 6px; background: var(--theme-soft); }
 .buyer-layout .buyer-product-page .img-produk-besar .img-produk-prev-baru { width: 100%; height: 100%; margin: 0; border-radius: 6px; background-size: contain; background-position: center; background-repeat: no-repeat; }
@@ -23,11 +23,20 @@
 .buyer-layout .buyer-product-page .product-discount-badge { padding: 3px 6px; border-radius: 4px; background: var(--theme-soft); color: var(--theme-primary); font-size: .75rem; line-height: 1.5; }
 .buyer-layout .buyer-product-page .product-social-proof { margin-top: 12px !important; gap: 8px 16px !important; font-size: .8125rem; }
 .buyer-layout .buyer-product-page .product-social-proof > a { display: inline-flex; min-height: 44px; align-items: center; }
-.buyer-layout .buyer-product-page .product-stock { margin-top: 8px; padding: 0; border: 0; border-radius: 0; background: transparent; font-size: .8125rem; }
+.buyer-layout .buyer-product-page .product-stock { display: inline-flex; width: fit-content; align-items: center; min-height: 30px; margin: 8px 0 0; padding: 5px 10px; border: 1px solid transparent; border-radius: 999px; font-size: .75rem; font-weight: 600; letter-spacing: .01em; }
+.buyer-layout .buyer-product-page .product-stock.is-available { border-color: #e6e3dc; background: #f7f6f3; color: #555349; }
+.buyer-layout .buyer-product-page .product-stock.is-low-stock { border-color: #eadcc9; background: #f8f3ed; color: #795b3e; }
+.buyer-layout .buyer-product-page .product-stock.is-out-of-stock { border-color: #deddd9; background: #eeedea; color: #575650; }
+.buyer-layout .buyer-product-page .product-gallery.is-out-of-stock .img-produk-besar .img-produk-prev-baru { filter: grayscale(1) contrast(.94); opacity: .72; }
+.buyer-layout .buyer-product-page .product-gallery.is-out-of-stock .img-produk-besar .img-produk-prev > img { filter: grayscale(1); opacity: .72; }
+.buyer-layout .buyer-product-page .product-gallery.is-out-of-stock .img-produk-besar::after { content: "Stok habis"; position: absolute; z-index: 3; top: 14px; left: 14px; padding: 7px 12px; border: 1px solid rgb(255 255 255 / 70%); border-radius: 999px; background: rgb(47 45 32 / 82%); color: #fff; font-size: .75rem; font-weight: 600; letter-spacing: .02em; pointer-events: none; }
 .buyer-layout .buyer-product-page .product-detail-info .garis { margin-block: 20px; background: var(--theme-soft-2); }
 .buyer-layout .buyer-product-page .product-section-label { margin-bottom: 12px; font-size: .875rem; line-height: 1.5; font-weight: 500; color: var(--theme-primary); }
 .buyer-layout .buyer-product-page #varian-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
 .buyer-layout .buyer-product-page #varian-group > label { display: inline-flex; align-items: center; justify-content: center; flex: 0 1 auto; min-width: 44px; min-height: 44px; max-width: 100%; padding: 10px 14px; margin: 0 !important; border: 1px solid var(--theme-soft-2); border-radius: 6px !important; color: var(--theme-primary); background: transparent; font-size: .8125rem; font-weight: 400; white-space: normal; box-shadow: none; }
+.buyer-layout .buyer-product-page #varian-group > label.is-sold-out { gap: 6px; border-color: #deddd9; background: #f2f1ee; color: #77766f; }
+.buyer-layout .buyer-product-page #varian-group > label.is-sold-out::after { content: "Habis"; padding: 2px 5px; border-radius: 999px; background: #e4e2dd; color: #575650; font-size: .625rem; font-weight: 600; }
+.buyer-layout .buyer-product-page #varian-group > .btn-check:checked + label.is-sold-out { border-color: #aaa8a0; background: #e9e8e4; color: #4a4943; }
 .buyer-layout .buyer-product-page #varian-group > .btn-check:checked + label { border-color: var(--theme-primary); background: var(--theme-soft); color: var(--theme-primary); }
 .buyer-layout .buyer-product-page :is(a,button,[role='button'],textarea):focus-visible, .buyer-layout .buyer-product-page .btn-check:focus-visible + label, .buyer-layout .buyer-product-page .star-input input:focus-visible + label { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
 .buyer-layout .buyer-product-page :is(.product-purchase-actions,.product-mobile-purchase-bar) { gap: 8px !important; }

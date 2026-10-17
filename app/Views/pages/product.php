@@ -3,6 +3,7 @@
 <?php
 $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
 $wishlistKeys = is_array($wishlistKeys ?? null) ? $wishlistKeys : [];
+$stokVarianTampil = array_map('intval', explode(',', (string) ($produk['stok'] ?? '0')));
 $wishlistKeyFor = static fn($id, $variant) => (string)$id . '|' . mb_strtolower(trim((string)$variant));
 $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? ''), $wishlistKeys, true);
 ?>
@@ -138,18 +139,16 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         </p>
                     <?php } ?>
                 </div>
-                <?php if ((int)explode(",", $produk['stok'])[0] > 0) { ?>
-                    <p id="stok" role="status" aria-live="polite" class="product-stock <?= (int)$produk['stok'] < 3 ? "text-danger " : "text-dark"; ?>">Stok :
-                        <?= explode(",", $produk['stok'])[0]; ?></p>
-                <?php } else { ?>
-                    <p id="stok" role="status" aria-live="polite" class="product-stock text-danger">Stok habis</p>
-                <?php } ?>
+                <?php $stokAwal = $stokVarianTampil[0] ?? 0; ?>
+                <p id="stok" role="status" aria-live="polite" class="product-stock <?= $stokAwal > 0 ? ($stokAwal < 3 ? 'is-low-stock' : 'is-available') : 'is-out-of-stock'; ?>">
+                    <?= $stokAwal > 0 ? 'Stok tersedia · ' . $stokAwal : 'Stok habis'; ?>
+                </p>
                 <span class="garis mb-2"></span>
                 <h2 class="product-section-label">Pilih varian</h2>
 <div class="btn-group" id="varian-group" role="group" aria-label="Pilih varian produk">
                     <?php foreach ($varian as $key => $value) { ?>
                         <input type="radio" value="<?= $key ?>" class="btn-check" name="btnradio" autocomplete="off" id="btnradio<?= $key ?>" <?= $key == 0 ? "checked" : "" ?>>
-                        <label class="btn btn-outline-dark" for="btnradio<?= $key ?>"><?= esc($value); ?></label>
+                        <label class="btn btn-outline-dark <?= ($stokVarianTampil[$key] ?? 0) < 1 ? 'is-sold-out' : ''; ?>" data-stock="<?= (int) ($stokVarianTampil[$key] ?? 0); ?>" for="btnradio<?= $key ?>"><?= esc($value); ?></label>
                     <?php } ?>
                 </div>
                 <div class="product-purchase-actions show-flex-ke-hide gap-1 align-items-center">
@@ -503,6 +502,8 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
     const variantImageMap = <?= json_encode($variantImageMap, JSON_UNESCAPED_UNICODE); ?>;
     const wishlistKeys = new Set(<?= json_encode($wishlistKeys, JSON_UNESCAPED_UNICODE); ?>);
     const varianArray = <?= json_encode(array_values($varian), JSON_UNESCAPED_UNICODE); ?>;
+    const productGallery = document.querySelector('.product-gallery');
+    const variantLabels = document.querySelectorAll('#varian-group > label');
 
     function wishlistKeyFor(variant) {
         return idProduk + '|' + String(variant || '').trim().toLowerCase();
@@ -556,9 +557,16 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
         if (elmVarianSelect[variantIndex]) elmVarianSelect[variantIndex].checked = true;
 
         const selectedStock = Number(stokValue[Number(variantIndex)] || 0);
-        stokElm.textContent = selectedStock > 0 ? 'Stok : ' + stokValue[Number(variantIndex)] : 'Stok habis';
-        stokElm.classList.toggle('text-danger', selectedStock < 3);
-        stokElm.classList.toggle('text-dark', selectedStock >= 3);
+        stokElm.textContent = selectedStock > 0 ? 'Stok tersedia · ' + stokValue[Number(variantIndex)] : 'Stok habis';
+        stokElm.classList.toggle('is-out-of-stock', selectedStock <= 0);
+        stokElm.classList.toggle('is-low-stock', selectedStock > 0 && selectedStock < 3);
+        stokElm.classList.toggle('is-available', selectedStock >= 3);
+        productGallery?.classList.toggle('is-out-of-stock', selectedStock <= 0);
+        variantLabels.forEach((label) => {
+            const soldOut = Number(label.dataset.stock || 0) <= 0;
+            label.classList.toggle('is-sold-out', soldOut);
+            label.setAttribute('aria-label', label.textContent.trim() + (soldOut ? ', stok habis' : ''));
+        });
         setUrlElmBeli(selectedStock, imageIndex);
         setWishlistState(variantIndex, imageIndex);
 
