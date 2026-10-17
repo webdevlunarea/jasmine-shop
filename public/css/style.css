@@ -5308,9 +5308,9 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 
 .confirm-dialog__body {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    align-items: start;
-    gap: 0 14px;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0;
     padding: 26px;
     border: 1px solid #e9e2d8;
     border-radius: 20px;
@@ -5323,7 +5323,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     grid-row: 1;
     width: 44px;
     height: 44px;
-    margin: 2px 0 0;
+    margin: 0 auto 14px;
     background: #f2e9df;
     color: #2f2d20;
 }
@@ -5333,9 +5333,11 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 }
 
 .confirm-dialog__content {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     min-width: 0;
+    width: 100%;
+    text-align: center;
 }
 
 .confirm-dialog__eyebrow {
@@ -5363,6 +5365,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
 
 .confirm-dialog__actions {
     grid-column: 1 / -1;
+    width: 100%;
     gap: 9px;
     margin-top: 22px;
 }
@@ -5396,7 +5399,7 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     }
 
     .confirm-dialog__body {
-        gap: 0 12px;
+        gap: 0;
         padding: 22px 20px 20px;
         border-radius: 18px;
     }

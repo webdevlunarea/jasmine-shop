@@ -467,6 +467,38 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     const toastOkBtnElm = document.querySelector(".confirm-dialog__ok")
     const toastCancelBtnElm = document.querySelector(".confirm-dialog__cancel")
     let confirmReturnFocus = null;
+    let confirmScrollY = 0;
+    let confirmScrollStyles = null;
+
+    function lockConfirmScroll() {
+        if (document.body.classList.contains('confirm-dialog-open')) return;
+        confirmScrollY = window.scrollY || window.pageYOffset || 0;
+        confirmScrollStyles = {
+            htmlOverflow: document.documentElement.style.overflow,
+            bodyPosition: document.body.style.position,
+            bodyTop: document.body.style.top,
+            bodyWidth: document.body.style.width,
+            bodyOverflow: document.body.style.overflow
+        };
+        document.body.classList.add('confirm-dialog-open');
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${confirmScrollY}px`;
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function unlockConfirmScroll() {
+        if (!confirmScrollStyles) return;
+        document.documentElement.style.overflow = confirmScrollStyles.htmlOverflow;
+        document.body.style.position = confirmScrollStyles.bodyPosition;
+        document.body.style.top = confirmScrollStyles.bodyTop;
+        document.body.style.width = confirmScrollStyles.bodyWidth;
+        document.body.style.overflow = confirmScrollStyles.bodyOverflow;
+        document.body.classList.remove('confirm-dialog-open');
+        window.scrollTo(0, confirmScrollY);
+        confirmScrollStyles = null;
+    }
 
     function triggerToast(text, linkAction, onConfirm) {
         const hasCallback = typeof onConfirm === 'function';
@@ -476,6 +508,7 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
             onConfirm();
         } : null;
         toastElm.classList.add("show")
+        lockConfirmScroll();
         toastTitleElm.textContent = 'Konfirmasi tindakan'
         toastTeksElm.textContent = text
         toastOkElm.action = linkAction || ''
@@ -496,6 +529,7 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     function hapusToast() {
         toastElm.classList.remove("show")
         toastOkElm.onsubmit = null;
+        unlockConfirmScroll();
         if (confirmReturnFocus && typeof confirmReturnFocus.focus === 'function') confirmReturnFocus.focus();
         confirmReturnFocus = null;
     }
