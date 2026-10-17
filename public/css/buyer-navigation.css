@@ -77,6 +77,9 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
         border-bottom: 1px solid var(--bs-border-color, #e5e7eb);
         z-index: 11;
     }
+    /* Consistent mobile page gutters; Bootstrap containers keep their own
+       gutters, so the small outer inset also protects full-width content. */
+    .buyer-layout > .buyer-page-content > .konten { padding-inline: 8px; }
     .buyer-mobile-header > .container { max-width: 100%; padding-inline: 20px; }
     .buyer-mobile-header .mobile-navbar-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
     .buyer-mobile-header .mobile-navbar-brand { display: inline-flex; align-items: center; min-width: 0; min-height: 44px; flex: 0 1 auto; margin: 0; padding: 0; color: var(--theme-primary, #2f2d20); text-decoration: none; -webkit-tap-highlight-color: transparent; }
