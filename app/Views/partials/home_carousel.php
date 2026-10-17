@@ -37,4 +37,43 @@
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Slide berikutnya</span>
             </button>
+            <script>
+                (() => {
+                    const carousel = document.getElementById('carouselExampleIndicators');
+                    if (!carousel || carousel.dataset.desktopDragReady === 'true') return;
+                    carousel.dataset.desktopDragReady = 'true';
+
+                    let startX = 0;
+                    let startY = 0;
+                    let dragged = false;
+                    let suppressClick = false;
+
+                    carousel.addEventListener('pointerdown', (event) => {
+                        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                        startX = event.clientX;
+                        startY = event.clientY;
+                        dragged = false;
+                    });
+
+                    carousel.addEventListener('pointerup', (event) => {
+                        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                        const deltaX = event.clientX - startX;
+                        const deltaY = event.clientY - startY;
+                        if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+
+                        dragged = true;
+                        suppressClick = true;
+                        const instance = bootstrap.Carousel.getOrCreateInstance(carousel);
+                        deltaX < 0 ? instance.next() : instance.prev();
+                        window.setTimeout(() => { suppressClick = false; }, 350);
+                    });
+
+                    carousel.addEventListener('click', (event) => {
+                        if (!suppressClick || !dragged) return;
+                        event.preventDefault();
+                        event.stopPropagation();
+                        dragged = false;
+                    }, true);
+                })();
+            </script>
         </div>
