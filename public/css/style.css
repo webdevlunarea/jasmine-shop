@@ -5065,8 +5065,22 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     .mobile-navbar-brand {
         display: inline-flex;
         align-items: center;
+        flex: 0 1 auto;
+        max-width: 132px;
+        margin: 0;
+        padding: 0;
         min-width: 0;
         text-decoration: none;
+    }
+
+    .mobile-navbar-logo {
+        display: block;
+        width: clamp(106px, 31vw, 128px);
+        max-width: 100%;
+        height: auto;
+        max-height: 14px;
+        object-fit: contain;
+        object-position: left center;
     }
 
     .mobile-navbar-brand-full {
@@ -5490,6 +5504,13 @@ body.kategori-dropdown-open .container-kategori > a.kategori {
     .confirm-dialog.toast,
     .confirm-dialog__actions .btn {
         transition: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .mobile-navbar-logo {
+        width: 104px;
+        max-height: 12px;
     }
 }
 
