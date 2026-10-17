@@ -661,7 +661,7 @@
                 Jawa, Madura, dan Bali.</p>
             <p class="text-justify">Atau jika masih bimbang mau meja rias minimalis, meja rias multifungsi, meja rias
                 simple, meja rias minimalis modern, meja rias minimalis kecil atau meja-meja lainnya, Kamu bisa hubungi
-                <i>Customer Service</i> Lunarea yang bakal menjawab semua pertanyaanmu dengan sepenuh hati!
+                Layanan pelanggan Lunarea siap menjawab semua pertanyaan Anda.
             </p>
         </div>
     </div>

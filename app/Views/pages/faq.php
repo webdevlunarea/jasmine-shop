@@ -63,7 +63,7 @@
                         <p class="mb-0 fw-bold">Bagaimana cara melakukan pembelian produk Lunarea Furniture?</p>
                         <ul>
                             <li>
-                                <p class="mb-0">Login menggunakan akun Anda atau jika belum memiliki akun, maka lakukan registrasi terlebih dahulu</p>
+                                <p class="mb-0">Masuk menggunakan akun Anda. Jika belum memiliki akun, silakan mendaftar terlebih dahulu.</p>
                             </li>
                             <li>
                                 <p class="mb-0">Pilih produk yang anda inginkan</p>
@@ -167,21 +167,21 @@
                         <p class="mb-0 mt-1 fw-bold">Bagaimana Saya bisa mendapatkan informasi posisi pesanan?</p>
                         <ul>
                             <li>
-                                <p class="mb-0">Informasi resi akan selalu mendapatkan update pada website, pembeli bisa mendapatkan informasi posisi pesanan dengan mengecek di dashboard website bagian akun > transaksi > detail transaksi > klik tracking nomor resi.</p>
+                                <p class="mb-0">Informasi resi akan diperbarui di situs. Untuk melihat posisi pesanan, buka menu akun &gt; transaksi &gt; detail transaksi, lalu pilih nomor resi.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Pengecekan posisi pesanan melalui tracking system hanya bisa dilakukan oleh pelanggan.</p>
+                                <p class="mb-0">Posisi pesanan hanya dapat dilihat oleh pelanggan melalui sistem pelacakan.</p>
                             </li>
                         </ul>
                         <p class="mb-0 mt-1 fw-bold">Berapa lama proses pengiriman pesanan?</p>
-                        <p class="mb-3">Pengiriman produk sampai ke alamat tujuan diestimasikan selama 7 hari kerja. Apabila lebih dari itu, dapat segera menghubungi customer service Kami, agar dapat membantu tracking produk yang telah dipesan.</p>
+                        <p class="mb-3">Pengiriman produk diperkirakan memerlukan waktu 7 hari kerja. Jika lebih lama, hubungi layanan pelanggan agar kami dapat membantu melacak pesanan Anda.</p>
                         <p class="mb-0 mt-1 fw-bold">Apakah perlu konfirmasi untuk biaya kirim dan ambil di ekspedisi?</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Untuk pembayaran biaya kirim, khusus pesanan via website akan langsung tercantum pada pilihan saat check out.</p>
                             </li>
                             <li>
-                                <p class="mb-0">Untuk pesanan yang memerlukan pembayaran biaya kirim dan tidak dapat dijangkau ekspedisi, akan Kami sampaikan informasi lebih lanjut via chat oleh customer service Lunarea Furniture. Kami perlu konfirmasi dan jawaban setuju atau tidak setuju dalam kurun waktu 1x24 jam, kalau lebih dari itu maka akan langsung dilakukan proses refund.</p>
+                                <p class="mb-0">Untuk pesanan yang memerlukan biaya kirim dan berada di luar jangkauan ekspedisi, layanan pelanggan Lunarea Furniture akan menghubungi Anda melalui pesan. Mohon berikan keputusan dalam 1 x 24 jam. Jika tidak ada jawaban, pesanan akan diproses untuk pengembalian dana.</p>
                             </li>
                         </ul>
                     </div>
@@ -195,7 +195,7 @@
                 <div id="flush-collapse6" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <p class="mb-0 fw-bold">Bagaimana prosedur komplain?</p>
-                        <p class="mb-0">Jika produk yang diterima bermasalah, silakan hubungi customer service Lunarea Furniture maksimal 7 hari kerja setelah produk diterima. Agar komplain dapat diproses, siapkan bukti berikut:</p>
+                                <p class="mb-0">Jika produk yang diterima bermasalah, silakan hubungi layanan pelanggan Lunarea Furniture paling lambat 7 hari kerja setelah produk diterima. Agar keluhan dapat diproses, siapkan bukti berikut:</p>
                         <ul>
                             <li>
                                 <p class="mb-0">Video unboxing sejak paket dibuka.
@@ -206,7 +206,7 @@
                                 </p>
                             </li>
                             <li>
-                                <p class="mb-0">Jika komponen produk rusak karena pengiriman, customer service akan membantu proses penggantian komponen. Estimasi pengiriman komponen pengganti kurang lebih 14 hari kerja.</p>
+                                <p class="mb-0">Jika komponen produk rusak saat pengiriman, layanan pelanggan akan membantu proses penggantian. Pengiriman komponen pengganti diperkirakan memerlukan waktu sekitar 14 hari kerja.</p>
                             </li>
                             <li>
                                 <p class="mb-0">Jika aksesoris rusak karena pengiriman, aksesoris yang rusak perlu dikirimkan kembali terlebih dahulu. Setelah diterima, kami akan mengirimkan aksesoris pengganti maksimal 7 hari kerja.</p>

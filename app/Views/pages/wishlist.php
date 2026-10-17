@@ -7,9 +7,9 @@
             <?= $this->include('partials/account_nav'); ?>
             <main class="account-content-card">
         <div class="account-page-heading d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-            <h1 class="mb-0">Wishlist <span class="account-heading-count">(<?= count($wishlist); ?>)</span></h1>
+            <h1 class="mb-0">Daftar Favorit <span class="account-heading-count">(<?= count($wishlist); ?>)</span></h1>
             <form action="/wishlisttocart" method="post">
-                <button type="submit" class="btn btn-outline-dark" title="Tambahkan semua produk wishlist ke keranjang" <?= count($wishlist) === 0 ? 'disabled' : ''; ?>>Tambah semua</button>
+                        <button type="submit" class="btn btn-outline-dark" title="Tambahkan semua produk favorit ke keranjang" <?= count($wishlist) === 0 ? 'disabled' : ''; ?>>Tambah semua</button>
             </form>
         </div>
         <?php if (count($wishlist) > 0) { ?>
@@ -50,7 +50,7 @@
                 <?php } ?>
             </div>
         <?php } else { ?>
-            <div class="account-empty-state"><h5>Wishlist Anda masih kosong.</h5><p class="text-secondary">Simpan produk yang Anda sukai agar mudah ditemukan kembali.</p><a href="/all" class="btn btn-primary1">Jelajahi Produk</a></div>
+            <div class="account-empty-state"><h5>Daftar favorit Anda masih kosong.</h5><p class="text-secondary">Simpan produk yang Anda sukai agar mudah ditemukan kembali.</p><a href="/all" class="btn btn-primary1">Jelajahi Produk</a></div>
         <?php } ?>
             </main>
         </div>

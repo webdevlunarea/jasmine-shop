@@ -99,7 +99,7 @@ $statusClass = function ($status) {
                 <div class="col">
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span class="account-badge"><i class="material-icons" style="font-size:18px;">verified_user</i><?= session()->get('active') ? 'Akun aktif' : 'Perlu aktivasi' ?></span>
-                        <span class="account-badge"><i class="material-icons" style="font-size:18px;"><?= $is_google_account ? 'account_circle' : 'mail_outline' ?></i><?= $is_google_account ? 'Login Google' : 'Login Email' ?></span>
+                        <span class="account-badge"><i class="material-icons" style="font-size:18px;"><?= $is_google_account ? 'account_circle' : 'mail_outline' ?></i><?= $is_google_account ? 'Masuk dengan Google' : 'Masuk dengan email' ?></span>
                     </div>
                     <h1 class="mb-1">Halo, <?= esc($nama ?: 'Customer Lunarea'); ?></h1>
                     <p class="mb-3" style="opacity:.9;"><?= esc($email); ?></p>
@@ -120,7 +120,7 @@ $statusClass = function ($status) {
                 <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/transaction"><span class="account-stat-icon"><i class="material-icons">receipt_long</i></span><span><h6><?= (int)$activeOrders; ?></h6><p>Pesanan aktif</p></span></a></div>
                 <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/voucher"><span class="account-stat-icon"><i class="material-icons">local_offer</i></span><span><h6><?= (int)$voucherCount; ?></h6><p>Voucher tersedia</p></span></a></div>
                 <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/point"><span class="account-stat-icon"><i class="material-icons">stars</i></span><span><h6><?= number_format((int)$poinTotal, 0, ',', '.'); ?></h6><p>Luna poin</p></span></a></div>
-                <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/wishlist"><span class="account-stat-icon"><i class="material-icons">favorite_border</i></span><span><h6><?= (int)$wishlistCount; ?></h6><p>Wishlist</p></span></a></div>
+                <div class="col-6 col-lg-3"><a class="account-card account-stat" href="/wishlist"><span class="account-stat-icon"><i class="material-icons">favorite_border</i></span><span><h6><?= (int)$wishlistCount; ?></h6><p>Daftar Favorit</p></span></a></div>
             </div>
 
 

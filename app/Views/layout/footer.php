@@ -37,7 +37,7 @@
                 <nav class="buyer-footer__full-menu" aria-label="Informasi toko">
                     <a href="/about">Tentang Lunarea</a>
                     <a href="<?= session()->get('isLogin') ? '/account' : '/login'; ?>"><?= session()->get('isLogin') ? 'Akun saya' : 'Masuk'; ?></a>
-                    <a href="/faq">FAQ</a>
+                    <a href="/faq">Pertanyaan Umum</a>
                     <a href="/lacak-pengiriman">Lacak pengiriman</a>
                     <a href="/contact">Hubungi kami</a>
                 </nav>
@@ -49,7 +49,7 @@
                     <p>Sabtu | 08.00 - 14.00 WIB</p>
                 </div>
                 <nav class="buyer-footer__full-contact" aria-label="Layanan pelanggan">
-                    <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>&amp;text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." target="_blank" rel="noopener noreferrer">Customer Service <span aria-hidden="true">↗</span></a>
+                    <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>&amp;text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." target="_blank" rel="noopener noreferrer">Layanan Pelanggan <span aria-hidden="true">↗</span></a>
                     <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_RETURN_WHATSAPP_E164, 'attr'); ?>&amp;text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." target="_blank" rel="noopener noreferrer">Retur / Komplain <span aria-hidden="true">↗</span></a>
                     <a href="mailto:cs@lunareafurniture.com">cs@lunareafurniture.com</a>
                 </nav>
@@ -80,7 +80,7 @@
             </section>
         </div>
         <div class="buyer-footer__bottom">
-            <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. All rights reserved.</p>
+            <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. Hak cipta dilindungi.</p>
             <nav class="buyer-footer__legal" aria-label="Kebijakan toko">
                 <a href="/kebijakan-privasi">Kebijakan Privasi</a>
                 <a href="/syarat-dan-ketentuan">Syarat &amp; Ketentuan</a>

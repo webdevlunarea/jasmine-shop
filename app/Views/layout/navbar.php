@@ -133,7 +133,7 @@ if ($isAdminNav) {
             </button>
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn position-relative" aria-label="Wishlist">
+                    <a href="/wishlist" class="btn position-relative" aria-label="Daftar Favorit">
                         <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
                         <?php if ($title != 'Wishlist') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
@@ -171,7 +171,7 @@ if ($isAdminNav) {
                     </div>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" aria-label="Login"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                <a href="/login" class="btn" aria-label="Masuk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
             <?php } ?>
         </div>
     </div>
@@ -191,7 +191,7 @@ if ($isAdminNav) {
         ['url' => '/transaction', 'label' => 'Transaksi', 'icon' => 'receipt_long'],
         ['url' => '/point', 'label' => 'Luna Poin', 'icon' => 'stars'],
         ['url' => '/voucher', 'label' => 'Voucher', 'icon' => 'confirmation_number'],
-        ['url' => '/wishlist', 'label' => 'Wishlist', 'icon' => 'favorite_border'],
+        ['url' => '/wishlist', 'label' => 'Daftar Favorit', 'icon' => 'favorite_border'],
         ['url' => '/cart', 'label' => 'Keranjang', 'icon' => 'shopping_cart'],
         ['url' => '/lacak-pengiriman', 'label' => 'Lacak Pengiriman', 'icon' => 'local_shipping'],
     ];
@@ -267,7 +267,7 @@ if ($isAdminNav) {
             <div class="buyer-desktop-actions">
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Wishlist" aria-label="Wishlist">
+                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Daftar Favorit" aria-label="Daftar Favorit">
                         <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
                         <?php if ($title != 'Wishlist') { ?>
                             <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
@@ -280,7 +280,7 @@ if ($isAdminNav) {
                         <?php } ?>
                     </a>
                     <?php if (session()->get('email') == 'tamu') { ?>
-                        <a data-buyer-logout href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
+                        <a data-buyer-logout href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keluar" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
                     <?php } else { ?>
                         <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                     <?php } ?>
@@ -297,7 +297,7 @@ if ($isAdminNav) {
                     <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Login" aria-label="Login"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                <a href="/login" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Masuk" aria-label="Masuk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
             <?php } ?>
             </div>
         </div>

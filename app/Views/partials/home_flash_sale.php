@@ -4,13 +4,13 @@
             <div class="flash-sale-head">
                 <div class="flash-sale-title-wrap">
                     <span class="flash-sale-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m13 3-9 11h7l-1 7 10-12h-7l1-6Z"/></svg> <?= esc($flashSaleSettings['kicker'] ?? 'Promo kilat'); ?></span>
-                    <h2 id="flash-sale-title" class="flash-sale-title"><?= esc($flashSaleSettings['title'] ?? 'Flash Sale Lunarea'); ?></h2>
+                    <h2 id="flash-sale-title" class="flash-sale-title"><?= esc($flashSaleSettings['title'] ?? 'Promo Kilat Lunarea'); ?></h2>
                     <p><?= esc($flashSaleSettings['subtitle'] ?? 'Harga spesial untuk produk pilihan. Buruan sebelum waktu habis.'); ?></p>
                 </div>
                 <div class="flash-sale-action">
-                    <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" role="timer" aria-label="Sisa waktu Flash Sale" aria-live="off">
+                    <div class="flash-countdown" data-flash-countdown data-end="<?= (int)($flashSaleEnd ?? strtotime('today 23:59:59')); ?>" role="timer" aria-label="Sisa waktu promo kilat" aria-live="off">
                         <span class="flash-countdown-label">Berakhir dalam</span>
-                        <div class="flash-countdown-time" aria-label="Hitung mundur flash sale">
+                        <div class="flash-countdown-time" aria-label="Hitung mundur promo kilat">
                             <span data-unit="hours">00</span><b>:</b><span data-unit="minutes">00</span><b>:</b><span data-unit="seconds">00</span>
                         </div>
                     </div>
@@ -18,7 +18,7 @@
                 </div>
             </div>
             <div class="flash-sale-products-wrap">
-                <button class="flash-sale-nav flash-sale-nav--prev" type="button" aria-label="Geser flash sale ke kiri" data-flash-prev>
+                <button class="flash-sale-nav flash-sale-nav--prev" type="button" aria-label="Geser promo kilat ke kiri" data-flash-prev>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 6-6 6 6 6"/></svg>
                 </button>
                 <div class="flash-sale-products" data-flash-products>
@@ -53,7 +53,7 @@
                     </a>
                     <?php } ?>
                 </div>
-                <button class="flash-sale-nav flash-sale-nav--next" type="button" aria-label="Geser flash sale ke kanan" data-flash-next>
+                <button class="flash-sale-nav flash-sale-nav--next" type="button" aria-label="Geser promo kilat ke kanan" data-flash-next>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg>
                 </button>
             </div>

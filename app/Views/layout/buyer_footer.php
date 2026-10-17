@@ -14,7 +14,7 @@ $footerPayment = !empty($footerPayment);
                 <p>Butuh bantuan? Tim kami siap membantu Anda.</p>
             </div>
             <nav class="buyer-footer__help" aria-label="Bantuan pelanggan">
-                <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>" target="_blank" rel="noopener noreferrer">Customer Service</a>
+                <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>" target="_blank" rel="noopener noreferrer">Layanan Pelanggan</a>
                 <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_RETURN_WHATSAPP_E164, 'attr'); ?>" target="_blank" rel="noopener noreferrer">Retur / Komplain</a>
                 <a href="/lacak-pengiriman">Lacak Pengiriman</a>
             </nav>
@@ -23,12 +23,12 @@ $footerPayment = !empty($footerPayment);
         <p class="buyer-footer__payment-note">Periksa rincian pesanan sebelum menyelesaikan pembayaran.</p>
         <?php } ?>
         <div class="buyer-footer__bottom">
-            <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. All rights reserved.</p>
+            <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. Hak cipta dilindungi.</p>
             <nav class="buyer-footer__legal" aria-label="Kebijakan dan bantuan">
                 <?php if ($footerVariant === 'minimal') { ?>
                 <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>" target="_blank" rel="noopener noreferrer"><?= $footerPayment ? 'Bantuan pembayaran' : 'Bantuan'; ?></a>
                 <?php } else { ?>
-                <a href="/faq">FAQ</a>
+                <a href="/faq">Pertanyaan Umum</a>
                 <?php } ?>
                 <a href="/kebijakan-privasi"<?= $footerPayment ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>Kebijakan Privasi</a>
                 <a href="/syarat-dan-ketentuan"<?= $footerPayment ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>Syarat &amp; Ketentuan</a>

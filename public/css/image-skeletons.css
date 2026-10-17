@@ -38,6 +38,10 @@
 .home-hero-media.image-skeleton [data-skeleton-image] { display: block; width: 100%; height: auto; }
 .product-card-media.image-skeleton,
 .flash-sale-image.image-skeleton { background-color: #f3f0eb; }
+.img-produk-prev.image-skeleton { background-color: #f3f0eb; }
+.img-produk-prev.image-skeleton [data-skeleton-background] { position: relative; z-index: 1; }
+.img-produk-select.image-skeleton { background-color: #f3f0eb; }
+.img-produk-select.image-skeleton [data-skeleton-image] { display: block; width: 100%; height: 100%; object-fit: contain; }
 .product-card-media.image-skeleton .img-card1:not(.img-card1-wm),
 .flash-sale-image.image-skeleton > img:not(.flash-sale-watermark) { object-fit: contain; }
 .image-skeleton .terjual-badge,

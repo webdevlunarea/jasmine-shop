@@ -1,7 +1,7 @@
 <?php
 $helpLinks = [
     'tracking' => ['/lacak-pengiriman', 'Lacak pengiriman'],
-    'faq' => ['/faq', 'FAQ'],
+    'faq' => ['/faq', 'Pertanyaan Umum'],
     'terms' => ['/syarat-dan-ketentuan', 'Syarat & ketentuan'],
     'privacy' => ['/kebijakan-privasi', 'Kebijakan privasi'],
 ];

@@ -146,6 +146,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/buyer-product.css?v=<?= filemtime(FCPATH . 'css/buyer-product.css'); ?>">
     <?php } ?>
     <link rel="stylesheet" href="/css/buyer-account.css?v=<?= filemtime(FCPATH . 'css/buyer-account.css'); ?>">
+    <link rel="stylesheet" href="/css/carousel-theme.css?v=<?= filemtime(FCPATH . 'css/carousel-theme.css'); ?>">
     <?php if ((string)session()->get('role') === '1') { ?>
     <link rel="stylesheet" href="/css/admin-workspace.css?v=<?= filemtime(FCPATH . 'css/admin-workspace.css'); ?>">
     <link rel="stylesheet" href="/css/admin-modules.css?v=<?= filemtime(FCPATH . 'css/admin-modules.css'); ?>">

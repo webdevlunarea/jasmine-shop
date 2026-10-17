@@ -5,7 +5,7 @@ $accountMenu = [
     ['key' => 'transaction', 'label' => 'Transaksi', 'url' => '/transaction', 'icon' => 'receipt_long'],
     ['key' => 'point', 'label' => 'Luna Poin', 'url' => '/point', 'icon' => 'stars'],
     ['key' => 'voucher', 'label' => 'Voucher', 'url' => '/voucher', 'icon' => 'local_offer'],
-    ['key' => 'wishlist', 'label' => 'Wishlist', 'url' => '/wishlist', 'icon' => 'favorite_border'],
+    ['key' => 'wishlist', 'label' => 'Daftar Favorit', 'url' => '/wishlist', 'icon' => 'favorite_border'],
     ['key' => 'cart', 'label' => 'Keranjang', 'url' => '/cart', 'icon' => 'shopping_cart'],
 ];
 $accountIconPaths = [

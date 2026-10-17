@@ -18,8 +18,8 @@
                     <circle cx="11" cy="11" r=".75"/><circle cx="15" cy="15" r=".75"/>
                 </svg>
                 <div class="home-benefit-copy">
-                    <h2>Spesial offer discount 5%</h2>
-                    <p>Hanya untuk member Lunarea di setiap pembelian pertama</p>
+                    <h2>Penawaran Spesial Diskon 5%</h2>
+                    <p>Khusus pelanggan Lunarea untuk pembelian pertama</p>
                 </div>
             </li>
             <li class="home-benefit">

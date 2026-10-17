@@ -246,7 +246,7 @@ $flashMsg = session()->getFlashdata('msg');
                                                             <?php } ?>
                                                         </p>
                                                         <?php if ($item_transaksi['status'] != "Proses") { ?>
-                                                            <a class="btn btn-primary1" href="/lacak-pengiriman?keyword=<?= urlencode($item_transaksi['id_midtrans']); ?>">Tracking</a>
+                                                            <a class="btn btn-primary1" href="/lacak-pengiriman?keyword=<?= urlencode($item_transaksi['id_midtrans']); ?>">Lacak Pesanan</a>
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </div>
@@ -310,7 +310,7 @@ $flashMsg = session()->getFlashdata('msg');
                             if (session()->get('email') != 'tamu') { ?>
                                 <div class="account-empty-state"><h5>Belum ada transaksi</h5><p class="text-secondary">Pesanan Anda akan tampil di sini setelah checkout.</p><a href="/all" class="btn btn-primary1">Jelajahi Produk</a></div>
                             <?php } else { ?>
-                                <p>Riwayat transaksi dapat berfungsi ketika Anda login sebagai member</p>
+                                <p>Riwayat transaksi tersedia setelah Anda masuk sebagai pelanggan.</p>
                         <?php }
                         } ?>
                     </div>

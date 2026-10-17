@@ -115,7 +115,7 @@
             <div class="article-hero">
             <div class="p-5 header show-flex-ke-hide article-hero-copy"
                 style="position: relative; margin-bottom: -50svh; flex-direction: column; justify-content: end; width: 40%;">
-                <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Welcome to Lunarea's Article</h1>
+                <h1 class="text-light mb-1" style="font-size: 50px; line-height: 52px">Selamat Datang di Artikel Lunarea</h1>
                 <p class="text-light mb-3">Perbarui informasi & referensi Anda seputar furniture dengan desain ala
                     masyarakat urban</p>
                 <div class="d-flex gap-2">
@@ -131,9 +131,9 @@
                     <a href="/all" class="btn btn-primary1">Pergi ke Toko</a>
                 </div>
             </div>
-            <img class="d-block rounded header article-hero-image"
+            <div class="article-hero-media image-skeleton"><img data-skeleton-image class="d-block rounded header article-hero-image"
                 src="https://images.unsplash.com/photo-1613575831056-0acd5da8f085?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="">
+                alt=""></div>
             </div>
         </div>
         <?php } ?>
@@ -152,7 +152,7 @@
                 <div style="width: calc(100% / 3);">
                     <div class="card-artikel-besar" style="height: 320px;"
                         onclick="pergiKeArtikel(`<?= $artikel[0]['path']; ?>`)">
-                        <img class="rounded" src="<?= $artikel[0]['header']; ?>" alt="<?= $artikel[0]['judul']; ?>">
+                        <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($artikel[0]['header'], 'attr'); ?>" alt="<?= esc($artikel[0]['judul'], 'attr'); ?>"></div>
                         <p class="m-0 judul"><?= $artikel[0]['judul']; ?></p>
                         <div class="container-isi">
                             <div class="overlay-isi"></div>
@@ -164,7 +164,7 @@
                 <div style="width: calc(100% / 3);" class="d-flex flex-column gap-4">
                     <div class="card-artikel-kecil" style="height: 150px;"
                         onclick="pergiKeArtikel(`<?= $artikel[1]['path']; ?>`)">
-                        <img class="rounded" src="<?= $artikel[1]['header']; ?>" alt="<?= $artikel[1]['judul']; ?>">
+                        <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($artikel[1]['header'], 'attr'); ?>" alt="<?= esc($artikel[1]['judul'], 'attr'); ?>"></div>
                         <div style="position: relative;" class="d-flex flex-column">
                             <p class="m-0 judul"><?= $artikel[1]['judul']; ?></p>
                             <div class="container-isi">
@@ -176,7 +176,7 @@
                     </div>
                     <div class="card-artikel-kecil" style="height: 150px;"
                         onclick="pergiKeArtikel(`<?= $artikel[2]['path']; ?>`)">
-                        <img class="rounded" src="<?= $artikel[2]['header']; ?>" alt="<?= $artikel[2]['judul']; ?>">
+                        <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($artikel[2]['header'], 'attr'); ?>" alt="<?= esc($artikel[2]['judul'], 'attr'); ?>"></div>
                         <div style="position: relative;" class="d-flex flex-column">
                             <p class="m-0 judul"><?= $artikel[2]['judul']; ?></p>
                             <div class="container-isi">
@@ -190,7 +190,7 @@
                 <div style="width: calc(100% / 3);" class="d-flex flex-column gap-4">
                     <div class="card-artikel-kecil" style="height: 150px;"
                         onclick="pergiKeArtikel(`<?= $artikel[3]['path']; ?>`)">
-                        <img class="rounded" src="<?= $artikel[3]['header']; ?>" alt="<?= $artikel[3]['judul']; ?>">
+                        <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($artikel[3]['header'], 'attr'); ?>" alt="<?= esc($artikel[3]['judul'], 'attr'); ?>"></div>
                         <div style="position: relative;" class="d-flex flex-column">
                             <p class="m-0 judul"><?= $artikel[3]['judul']; ?></p>
                             <div class="container-isi">
@@ -202,7 +202,7 @@
                     </div>
                     <div class="card-artikel-kecil" style="height: 150px;"
                         onclick="pergiKeArtikel(`<?= $artikel[4]['path']; ?>`)">
-                        <img class="rounded" src="<?= $artikel[4]['header']; ?>" alt="<?= $artikel[4]['judul']; ?>">
+                        <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($artikel[4]['header'], 'attr'); ?>" alt="<?= esc($artikel[4]['judul'], 'attr'); ?>"></div>
                         <div style="position: relative;" class="d-flex flex-column">
                             <p class="m-0 judul"><?= $artikel[4]['judul']; ?></p>
                             <div class="container-isi">
@@ -228,7 +228,7 @@
                     // NEW: jika halaman > 1 -> $indexAwal tetap -1 => semua item masuk grid (rata 3)
                     if ($ind_a > $indexAwal) { ?>
                 <div class="card-artikel-besar" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                    <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
+                    <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($a['header'], 'attr'); ?>" alt="<?= esc($a['judul'], 'attr'); ?>"></div>
                     <p class="judul"><?= $a['judul']; ?></p>
                     <div class="container-isi">
                         <div class="overlay-isi"></div>
@@ -246,7 +246,7 @@
             <div class="d-flex flex-column gap-3" style="min-height: 100px;">
                 <?php foreach ($artikel as $ind_a => $a) { ?>
                 <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                    <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
+                    <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($a['header'], 'attr'); ?>" alt="<?= esc($a['judul'], 'attr'); ?>"></div>
                     <div style="position: relative;" class="d-flex flex-column">
                         <p class="m-0 judul"><?= $a['judul']; ?></p>
                         <div class="container-isi">

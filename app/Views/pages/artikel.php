@@ -1,48 +1,72 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
 <?php if (!session()->get('submitEmail') && session()->get('role') != 1) { ?>
-<div id="submit-email" class="d-none justify-content-center align-items-center article-email-modal">
-    <div class="article-email-dialog">
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-light" onclick="closeSubmitEmail()">x</button>
+<div id="submit-email" class="d-none justify-content-center align-items-center article-email-modal" aria-hidden="true">
+    <section class="article-email-dialog" role="dialog" aria-modal="true" aria-labelledby="article-email-title" tabindex="-1">
+        <div class="article-email-dialog-topline">
+            <span class="article-email-kicker">Jurnal Lunarea</span>
+            <button type="button" class="article-email-close" aria-label="Tutup" onclick="closeSubmitEmail()"><span aria-hidden="true">&times;</span></button>
         </div>
-        <h4 class="text-center">Jangan pergi dulu!</h4>
-        <p class="text-secondary text-center mb-3">Dapatkan informasi terbaru dengan memasukkan email Anda</p>
+        <h2 id="article-email-title">Inspirasi untuk rumah Anda</h2>
+        <p class="article-email-description">Dapatkan artikel, ide penataan, dan kabar terbaru dari Lunarea melalui email.</p>
         <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
-            <div class="form-floating mb-3">
-                <input type="email" class="form-control" placeholder="name@example.com" name="email" required>
-                <label for="floatingInput">Email</label>
+            <label class="article-email-label" for="article-subscribe-email">Alamat email</label>
+            <div class="article-email-field">
+                <input id="article-subscribe-email" type="email" class="form-control" placeholder="nama@email.com" name="email" autocomplete="email" required>
             </div>
-            <div class="mb-3">
+            <div class="article-email-consent">
                 <input type="checkbox" required id="syaratsubmitemail">
-                <label for="syaratsubmitemail">Anda menyetujui seluruh <a style="color: var(--hijau);" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/kebijakan-privasi">kebijakan privasi</a> Kami.</label>
+                <label for="syaratsubmitemail">Saya menyetujui <a href="/kebijakan-privasi">kebijakan privasi</a> Lunarea.</label>
             </div>
-            <button type="submit" class="btn btn-primary1 w-100">OK</button>
+            <button type="submit" class="btn btn-primary1 article-email-submit">Berlangganan</button>
         </form>
-    </div>
+    </section>
 </div>
 <script>
     const submitEmailElm = document.getElementById('submit-email');
+    const submitEmailDialog = submitEmailElm.querySelector('[role="dialog"]');
+    const submitEmailCloseButton = submitEmailElm.querySelector('.article-email-close');
     let opened = false;
-    document.body.onscroll = (e) => {
-        const scrollingElm = e.target.scrollingElement;
-        const hasil = Math.round(
-            (scrollingElm.scrollTop /
-                (scrollingElm.scrollHeight -
-                    scrollingElm.clientHeight)) *
-            100
-        );
-        if (hasil > 60 && !opened) {
-            submitEmailElm.classList.remove('d-none')
-            submitEmailElm.classList.add('d-flex')
-            opened = true
-        }
-    };
+    let previousFocus = null;
+    function openSubmitEmail() {
+        if (opened) return;
+        opened = true;
+        previousFocus = document.activeElement;
+        submitEmailElm.classList.remove('d-none');
+        submitEmailElm.classList.add('d-flex');
+        submitEmailElm.setAttribute('aria-hidden', 'false');
+        document.documentElement.classList.add('article-modal-open');
+        submitEmailCloseButton.focus();
+    }
 
     function closeSubmitEmail() {
-        submitEmailElm.classList.add('d-none')
-        submitEmailElm.classList.remove('d-flex')
+        submitEmailElm.classList.add('d-none');
+        submitEmailElm.classList.remove('d-flex');
+        submitEmailElm.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('article-modal-open');
+        if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
     }
+    window.addEventListener('scroll', function () {
+        if (opened) return;
+        const scrollable = document.documentElement;
+        const range = scrollable.scrollHeight - window.innerHeight;
+        const progress = range > 0 ? (window.scrollY / range) * 100 : 0;
+        if (progress >= 60) openSubmitEmail();
+    }, { passive: true });
+    submitEmailElm.addEventListener('click', function (event) {
+        if (event.target === submitEmailElm) closeSubmitEmail();
+    });
+    document.addEventListener('keydown', function (event) {
+        if (submitEmailElm.classList.contains('d-none')) return;
+        if (event.key === 'Escape') closeSubmitEmail();
+        if (event.key === 'Tab') {
+            const focusable = submitEmailElm.querySelectorAll('a[href], button:not([disabled]), input:not([disabled])');
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    });
 </script>
 <?php } ?>
 <?php if (session()->get('role') == 1) { ?>
@@ -68,7 +92,7 @@
 <?php } ?>
 <div class="konten artikel public-article-detail">
     <div class="container mb-5">
-        <img src="<?= esc($artikel['header'], 'attr'); ?>" alt="<?= esc($artikel['judul'], 'attr'); ?>" class="header article-cover">
+        <div class="article-cover-wrap image-skeleton"><img data-skeleton-image src="<?= esc($artikel['header'], 'attr'); ?>" alt="<?= esc($artikel['judul'], 'attr'); ?>" class="header article-cover"></div>
         <article class="p-5 mx-5 show-ke-hide article-content-card">
             <div class="d-flex justify-content-between">
                 <div class="d-flex gap-1 mb-3">
@@ -222,7 +246,7 @@
         <div class="d-flex flex-column gap-3" style="min-height: 100px;">
             <?php foreach ($artikelTerkait as $ind_a => $a) { ?>
                 <div class="card-artikel-kecil" onclick="pergiKeArtikel(`<?= $a['path']; ?>`)">
-                    <img class="rounded" src="<?= $a['header']; ?>" alt="<?= $a['judul']; ?>">
+                    <div class="article-card-image image-skeleton"><img data-skeleton-image class="rounded" src="<?= esc($a['header'], 'attr'); ?>" alt="<?= esc($a['judul'], 'attr'); ?>"></div>
                     <div style="position: relative;" class="d-flex flex-column">
                         <p class="m-0 judul"><?= $a['judul']; ?></p>
                         <div class="container-isi">
@@ -244,9 +268,9 @@
                 $variants = is_array($variants) ? $variants : [];
             ?>
                 <a class="card1 store-product-card" href="/product/<?= $p['path']; ?>">
-                    <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
+                    <div class="product-card-media image-skeleton" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
-                        <img class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= $p['nama']; ?>">
+                        <img data-skeleton-image class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= esc($p['nama'], 'attr'); ?>">
                     </div>
                     <div class="product-card-body">
                     <div class="product-card-heading">

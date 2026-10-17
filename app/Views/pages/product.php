@@ -23,9 +23,9 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                 <div class="img-produk-besar">
                     <?php foreach ($gambar as $ind_g => $g) {
                         if ($g && $ind_g != 'id') { ?>
-                            <section class="img-produk-prev" id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
+                            <section class="img-produk-prev image-skeleton" id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
                                 <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                                <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>')"></figure>
+                                <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>')"></figure>
                             </section>
                             <script>
                                 const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
@@ -54,41 +54,41 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     <div class="mt-2">
                         <?php foreach ($gambar as $ind_g => $g) {
                             if ($g && $ind_g != 'id') { ?>
-                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= $produk['nama']; ?>"></div>
+                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img data-skeleton-image src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
                         <?php }
                         } ?>
                     </div>
                 </div>
             <?php } else { ?>
                 <div class="img-produk-besar">
-                    <section class="img-produk-prev">
+                    <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
+                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
                     </section>
-                    <section class="img-produk-prev">
+                    <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
+                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
                     </section>
-                    <section class="img-produk-prev">
+                    <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
+                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
                     </section>
-                    <section class="img-produk-prev">
+                    <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
+                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
                     </section>
-                    <section class="img-produk-prev">
+                    <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
+                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
                     </section>
                 </div>
                 <div class="img-produk mb-3" role="group" aria-label="Foto produk">
                     <div class="mt-2">
-                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select selected"><img src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
-                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
-                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
-                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
-                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select"><img src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton selected"><img data-skeleton-image src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton"><img data-skeleton-image src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton"><img data-skeleton-image src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton"><img data-skeleton-image src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                        <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton"><img data-skeleton-image src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
                     </div>
                 </div>
             <?php } ?>
@@ -260,11 +260,11 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                         <div id="flush-collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body">
                                 <ol>
-                                    <li>Produk dikirim dalam keadaan <b>BELUM DIRAKIT</b>. Perakitan dilakukan oleh customer.</li>
+                                    <li>Produk dikirim dalam keadaan <b>BELUM DIRAKIT</b>. Perakitan dilakukan oleh pelanggan.</li>
                                     <li>Apabila produk yang dipesan sudah sampai di alamat tujuan, periksa dan pastikan secara menyeluruh bahwa nama, warna, dan kode produk sesuai dengan pemesanan.</li>
-                                    <li>Setelah memastikan produk telah sesuai, silahkan buka produk pesanan. Diwajibkan untuk merekam video saat unboxing produk sebagai antisipasi apabila terjadi kerusakan/kecacatan/item dalam produk yang kurang sesuai dapat dijadikan sebagai barang bukti komplain kepada customer service Kami.</li>
+                                    <li>Setelah memastikan produk telah sesuai, silakan buka kemasan pesanan. Rekam video sejak kemasan dibuka sebagai bukti jika ditemukan kerusakan, cacat, atau komponen yang tidak sesuai untuk disampaikan kepada layanan pelanggan kami.</li>
                                     <li>Petunjuk perakitan ada di dalam kardus dalam bentuk selembar kertas.</li>
-                                    <li>Jika dirasa masih kesulitan untuk merakit dengan bantuan petunjuk perakitan, customer dapat melihat tutorial di Youtube Lunarea Furniture sesuai dengan nama produk yang dibeli atau menghubungi customer service untuk langkah lebih lanjut.</li>
+                                    <li>Jika masih kesulitan merakit dengan mengikuti petunjuk, pelanggan dapat melihat panduan video di kanal YouTube Lunarea Furniture sesuai nama produk atau menghubungi layanan pelanggan.</li>
                                     <li>Pengiriman produk akan diproses 1 hari setelah pembayaran selesai. Jika bertepatan pada hari libur nasional atau libur lebaran, pengiriman diproses pada hari pertama setelah agenda libur yang tertulis.</li>
                                     <li>Pengiriman produk menuju alamat tujuan menggunakan jasa dari mitra ekspedisi terpercaya</li>
                                     <li><b>Gratis ongkir</b> berlaku untuk wilayah Jawa, Madura & Bali</li>
@@ -287,7 +287,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                             <div class="accordion-body">
                                 <ol>
                                     <li>Wajib menyertakan video unboxing dan foto bagian nomer produksi (misal: MBMR 168, AO42)</li>
-                                    <li>Apabila terdapat kerusakan komponen akibat pengiriman, segera hubungi customer service Kami agar dapat segera diproses penggantian komponen tersebut. Estimasi pengiriman komponen pengganti ini memerlukan waktu kurang lebih 14 hari kerja.</li>
+                                    <li>Jika komponen rusak saat pengiriman, segera hubungi layanan pelanggan agar penggantian dapat diproses. Pengiriman komponen pengganti diperkirakan memerlukan waktu sekitar 14 hari kerja.</li>
                                     <li>Apabila terdapat kerusakan aksesoris akibat pengiriman, silahkan kirimkan kembali aksesoris yang rusak, agar kami dapat segera menggantinya dengan aksesoris yang baru. </li>
                                     <li>Sebagai informasi, untuk proses pengiriman ulang komponen memerlukan waktu selambat-lambatnya 14 hari kerja untuk komponen dan 7 hari kerja untuk aksesoris.</li>
                                     <li>Batas waktu komplain maksimal 14 hari kerja setelah produk diterima dan maksimal pengajuan komplain sebanyak 2 kali.</li>
@@ -408,7 +408,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                 <p class="text-muted fst-italic" style="font-size: 0.9rem;">Anda dapat memberikan ulasan setelah membeli produk ini.</p>
             <?php } ?>
         <?php } else if (!session()->get('isLogin')) { ?>
-            <p class="text-muted fst-italic" style="font-size: 0.9rem;"><a href="/login">Login</a> untuk memberikan ulasan setelah pembelian.</p>
+            <p class="text-muted fst-italic" style="font-size: 0.9rem;"><a href="/login">Masuk</a> untuk memberikan ulasan setelah pembelian.</p>
         <?php } ?>
 
         <?php if (!empty($ratingList)) { ?>
