@@ -177,7 +177,12 @@ final class CustomerEmailChanges
             $config = config(\Config\Email::class); $mail = \Config\Services::email(null, false);
             $mail->setFrom($config->fromEmail ?: $config->SMTPUser, $config->fromName ?: 'Lunarea Furniture');
             $mail->setTo($to); $mail->setSubject($subject); $mail->setMailType('html');
-            $mail->setMessage('<div style="font-family:Arial,sans-serif;color:#2f2d20;line-height:1.7">' . $body . '<p>Salam,<br>Lunarea Furniture</p></div>');
+            $mail->setMessage(view('emails/layout', [
+                'title' => $subject,
+                'preheader' => 'Pemberitahuan keamanan akun Lunarea Furniture.',
+                'bodyHtml' => '<div style="color:#3f3b34;font-size:15px;line-height:1.75">' . $body . '<p style="margin:22px 0 0">Salam,<br><strong>Lunarea Furniture</strong></p></div>',
+            ], ['saveData' => false]));
+            $mail->setAltMessage(trim(preg_replace('/\s+/', ' ', strip_tags($body))) . "\n\nLunarea furniture, always your choice, always your furniture.\nhttps://lunareafurniture.com");
             if (!$mail->send(false)) throw new \RuntimeException();
             return true;
         } catch (\Throwable $e) { log_message('error', 'Customer email-change notification delivery failed. Check SMTP configuration privately.'); return false; }
