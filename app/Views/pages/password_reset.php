@@ -10,7 +10,7 @@
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
-                <form class="auth-form<?= $step === 'confirm' ? ' auth-reset-confirm-form' : ''; ?>" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>" <?= $step === 'reset' ? 'data-confirm-submit data-confirm-message="Pastikan data sandi baru sudah benar. Lanjutkan?"' : ''; ?>>
+                <form class="auth-form<?= $step === 'confirm' ? ' auth-reset-confirm-form' : ''; ?>" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'reset' ? 'reset-sandi' : 'lupa-sandi'), 'attr'); ?>" <?= $step === 'reset' ? 'data-confirm-submit data-confirm-message="Pastikan data sandi baru sudah benar. Lanjutkan?"' : ''; ?>>
                     <?= csrf_field(); ?>
                     <?php if ($step === 'request') : ?>
                         <div class="auth-field">
@@ -65,10 +65,13 @@
 (() => {
     const form = document.getElementById('password-reset-form');
     const submit = form.querySelector('[data-primary-submit]') || form.querySelector('[type="submit"]');
+    const changeIdentity = form.querySelector('[name="change_identity"]');
     const captcha = form.querySelector('.auth-captcha');
     const captchaStatus = form.querySelector('.auth-captcha-status');
+    let changeIdentityRequested = false;
+    if (changeIdentity) changeIdentity.addEventListener('click', () => { changeIdentityRequested = true; });
     form.addEventListener('submit', event => {
-        if (event.submitter && event.submitter.name === 'change_identity') return;
+        if (changeIdentityRequested || (event.submitter && event.submitter.name === 'change_identity')) return;
         if (captcha && window.lunareaCaptchaReady !== true) {
             event.preventDefault();
             if (captchaStatus) captchaStatus.textContent = 'Selesaikan verifikasi keamanan sebelum mengirim.';

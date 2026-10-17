@@ -66,6 +66,22 @@ final class PasswordResetControllerTest extends CIUnitTestCase
         $this->assertNull(session('password_reset_pending_email'));
     }
 
+    public function testChangingIdentityClearsPendingAndPreviouslySelectedResetEmail(): void
+    {
+        session()->set([
+            'password_reset_pending_email' => 'buyer@example.test',
+            'password_reset_pending_at' => time(),
+            'password_reset_email' => 'buyer@example.test',
+        ]);
+        $c = $this->controller(['change_identity' => '1']);
+
+        $this->assertStringEndsWith('/lupa-sandi', $c->requestCode()->getHeaderLine('Location'));
+        $this->assertNull(session('password_reset_pending_email'));
+        $this->assertNull(session('password_reset_pending_at'));
+        $this->assertNull(session('password_reset_email'));
+        $this->assertSame([], $c->calls);
+    }
+
     public function testFailedDeliveryKeepsConfirmationStepAndShowsActionableFeedback(): void
     {
         session()->set(['password_reset_pending_email'=>'buyer@example.test','password_reset_pending_at'=>time()]);

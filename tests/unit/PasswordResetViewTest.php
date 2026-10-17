@@ -22,12 +22,13 @@ final class PasswordResetViewTest extends CIUnitTestCase
         $this->assertSame(1,$xp->query('//h1')->length);
         $this->assertSame(1,$xp->query('//form[@method="post"]')->length);
         $this->assertSame(1,$xp->query('//input[@name="'.csrf_token().'"]')->length);
-        $this->assertSame(site_url($step==='request'?'lupa-sandi':'reset-sandi'),$xp->query('//form')->item(0)->getAttribute('action'));
+        $this->assertSame(site_url($step==='reset'?'reset-sandi':'lupa-sandi'),$xp->query('//form')->item(0)->getAttribute('action'));
         if($step==='confirm') {
             $this->assertStringContainsString('B****@example.test',$html);
             $this->assertStringNotContainsString('buyer@example.test',$html);
             $this->assertStringContainsString('name="confirm_email"',$html);
             $this->assertStringContainsString('name="change_identity"',$html);
+            $this->assertStringContainsString('changeIdentityRequested',$html);
         }
         if($step==='reset') {
             $input=$xp->query('//input[@name="otp"]')->item(0);
@@ -49,7 +50,7 @@ final class PasswordResetViewTest extends CIUnitTestCase
             file_put_contents($dir.'/'.$step.'.html','<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'.$styles.'<style>:root{--theme-primary:#2f2d20;--theme-primary-hover:#232217;--theme-soft:#f7f2ed;--theme-soft-2:#dfcbb9;--theme-background:#fff}</style></head><body class="buyer-layout buyer-auth-body">'.$html.'</body></html>');
         }
     }
-    public static function steps(): array { return [['request'],['reset']]; }
+    public static function steps(): array { return [['request'],['confirm'],['reset']]; }
 
     public function testEmailIsEscapedTableBasedAndContainsOnlyNumericOtp(): void
     {
