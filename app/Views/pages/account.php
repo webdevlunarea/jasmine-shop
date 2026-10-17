@@ -127,6 +127,7 @@ $statusClass = function ($status) {
         <?php } ?>
 
         <?php if ($role == '0') { ?>
+            <?= view('partials/account_email', ['emailChangeSettings' => $emailChangeSettings ?? []], ['saveData' => false]); ?>
             <?= view('partials/account_username', ['usernameSettings' => $usernameSettings ?? ['available' => false, 'username' => '']], ['saveData' => false]); ?>
             <?= view('partials/account_facebook', ['facebookLinkState' => $facebookLinkState ?? 'disabled'], ['saveData' => false]); ?>
         <?php } ?>

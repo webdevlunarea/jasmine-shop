@@ -6804,12 +6804,24 @@ class Pages extends BaseController
         ];
         $profileCompletion = (int)round((count(array_filter($profileFields)) / count($profileFields)) * 100);
 
-        $usernameSettings = ['available' => false, 'username' => ''];
+        $usernameSettings = ['available' => false, 'username' => '', 'can_change' => false, 'next_change_label' => null];
         if ((string)session('role') === '0') {
             try {
-                $usernameSettings = ['available' => true, 'username' => (new \App\Services\Auth\CustomerUsernames())->current((string)$email) ?? ''];
+                $usernameSettings = array_merge(
+                    ['available' => true, 'can_change' => true, 'next_change_label' => null],
+                    (new \App\Services\Auth\CustomerUsernames())->settings((string)$email)
+                );
             } catch (\Throwable $e) {
                 // Existing email/social login and account pages remain usable before schema deployment.
+            }
+        }
+
+        $emailChangeSettings = ['available' => false, 'can_change' => false, 'next_change_label' => null, 'pending_email' => ''];
+        if ((string)session('role') === '0') {
+            try {
+                $emailChangeSettings = (new \App\Services\Auth\CustomerEmailChanges())->settings((string)$email);
+            } catch (\Throwable $e) {
+                // Account access remains available before the migration is deployed.
             }
         }
 
@@ -6823,6 +6835,7 @@ class Pages extends BaseController
             'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
             'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
             'usernameSettings' => $usernameSettings,
+            'emailChangeSettings' => $emailChangeSettings,
             'profileCompletion' => $profileCompletion,
             'activeOrders' => $activeOrders,
             'pendingPayment' => $pendingPayment,
