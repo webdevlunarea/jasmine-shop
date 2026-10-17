@@ -115,12 +115,17 @@ if ($isAdminNav) {
         right: 5px;
     }
 </style>
-<div class="d-flex justify-content-center" style="position: fixed; top: 0; z-index: 15; left: 0; width: 100%;">
-    <div class="notif">
-        <div class="d-flex py-2 justify-content-center align-items-center">
-            <i class="material-icons fw-bold" style="color: var(--hijau);">check</i>
+<div class="buyer-notif-wrap d-flex justify-content-center" aria-live="polite" aria-atomic="true">
+    <div class="notif" role="status">
+        <span class="notif-icon" aria-hidden="true">
+            <i class="material-icons">check</i>
+        </span>
+        <div class="notif-copy">
+            <span class="notif-title">Berhasil</span>
+            <p class="notif-message">
+                <?= $notif['wishlist'] ? $notif['wishlist'] : ''; ?><?= $notif['cart'] ? $notif['cart'] : ''; ?>
+            </p>
         </div>
-        <p class="m-0 fw-bold"><?= $notif['wishlist'] ? $notif['wishlist'] : ''; ?><?= $notif['cart'] ? $notif['cart'] : ''; ?></p>
     </div>
 </div>
 <nav class="navbar-hp buyer-mobile-header hide-ke-show-block py-2" id="navbar-hp">

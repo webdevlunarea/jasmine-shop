@@ -166,14 +166,14 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                     </button>
                                 </form>
                                 <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Hapus varian ini dari daftar favorit Anda?">
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
                                         <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Hapus varian dari wishlist"><svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Tambahkan varian ini ke daftar favorit Anda?">
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
@@ -211,7 +211,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                     </button>
                                 </form>
                                 <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Hapus varian ini dari daftar favorit Anda?">
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
@@ -220,7 +220,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                         </button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Tambahkan varian ini ke daftar favorit Anda?">
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
