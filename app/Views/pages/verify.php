@@ -11,7 +11,7 @@
             </div>
         <?php } ?>
         <p class="text-center">Cek email & masukkan kode OTP</p>
-        <form action="/verify" method="post" class="d-flex flex-column align-items-stretch container">
+        <form action="/verify" method="post" class="d-flex flex-column align-items-stretch container" data-confirm-submit data-confirm-message="Kirim kode verifikasi untuk memeriksa akun Anda?">
             <?= csrf_field(); ?>
             <div class="d-flex gap-1 mb-2" style="max-width: 400px">
                 <input oninput="handleChange('otp2', '', event)" style="flex: 1;" maxlength="1" type="text" autofocus class="text-center form-control py-3 fw-bold" name="otp1">
@@ -27,7 +27,7 @@
             <p class="m-0">Kode kadaluarsa dalam <b class="m-0" id="waktu"><?= $waktu; ?></b> detik</p>
             <div class="d-flex gap-1">
                 <p class="m-0">Belum mendapatkan kode OTP?</p>
-                <form action="/kirimotp" method="post" class="d-inline">
+                <form action="/kirimotp" method="post" class="d-inline" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?">
                     <button type="submit" style="color: var(--hijau); border: none; background: none;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kirim ulang</button>
                 </form>
             </div>

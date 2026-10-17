@@ -9,7 +9,7 @@
         </div>
         <h2 id="article-email-title">Inspirasi untuk rumah Anda</h2>
         <p class="article-email-description">Dapatkan artikel, ide penataan, dan kabar terbaru dari Lunarea melalui email.</p>
-        <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post">
+        <form action="/submitemail/<?= urlencode($artikel['judul']); ?>" method="post" data-confirm-submit data-confirm-message="Daftarkan email Anda untuk menerima inspirasi dan kabar terbaru Lunarea?">
             <label class="article-email-label" for="article-subscribe-email">Alamat email</label>
             <div class="article-email-field">
                 <input id="article-subscribe-email" type="email" class="form-control" placeholder="nama@email.com" name="email" autocomplete="email" required>
@@ -209,7 +209,7 @@
     </div>
     <div class="container mb-5 article-comments">
         <h5 class="jdl-section mb-3">Komentar</h5>
-        <form action="/addkomen/<?= $artikel['path']; ?>" method="post">
+        <form action="/addkomen/<?= $artikel['path']; ?>" method="post" data-confirm-submit data-confirm-message="Kirim komentar ini pada artikel? Pastikan isinya sudah sesuai.">
             <div class="mb-2">
                 <label for="">Nama</label>
                 <input type="text" class="form-control" name="nama" placeholder="Nama" required>

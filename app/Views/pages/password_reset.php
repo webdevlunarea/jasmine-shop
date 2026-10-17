@@ -10,7 +10,7 @@
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
-                <form class="auth-form<?= $step === 'confirm' ? ' auth-reset-confirm-form' : ''; ?>" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>">
+                <form class="auth-form<?= $step === 'confirm' ? ' auth-reset-confirm-form' : ''; ?>" id="password-reset-form" method="post" action="<?= esc(site_url($step === 'request' ? 'lupa-sandi' : 'reset-sandi'), 'attr'); ?>" data-confirm-submit data-confirm-message="Pastikan data pemulihan sudah benar. Lanjutkan proses ini?">
                     <?= csrf_field(); ?>
                     <?php if ($step === 'request') : ?>
                         <div class="auth-field">

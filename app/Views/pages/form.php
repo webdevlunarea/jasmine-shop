@@ -15,7 +15,7 @@
                 <?php if (!empty($val['msg'])) { ?>
                 <div class="contact-form-notice" role="status"><?= esc($val['msg']); ?></div>
                 <?php } ?>
-                <form id="contact-message-form" action="/actionform" method="post">
+                <form id="contact-message-form" action="/actionform" method="post" data-confirm-submit data-confirm-message="Pesan Anda akan dikirim ke tim Lunarea untuk ditindaklanjuti. Lanjutkan?">
                     <?= csrf_field(); ?>
                     <div class="contact-field-row">
                         <div class="contact-field"><label for="contact-name">Nama lengkap</label><input id="contact-name" type="text" class="form-control" name="nama" autocomplete="name" placeholder="Nama Anda" required></div>

@@ -109,7 +109,7 @@ $orderDescription = !empty($pemesanan['bukti_bayar']) ? 'Bukti pembayaran sudah 
                                 <h2 id="order-upload-title" class="order-section-title m-0">Unggah bukti pembayaran</h2>
                                 <button type="button" class="order-dialog-close" onclick="closeUpload()" aria-label="Tutup unggah bukti">×</button>
                             </div>
-                            <form action="/payorder/<?= $pemesanan['id_midtrans']; ?>" method="post" enctype="multipart/form-data">
+                            <form action="/payorder/<?= $pemesanan['id_midtrans']; ?>" method="post" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Kirim bukti pembayaran ini untuk diperiksa oleh tim Lunarea?">
                                 <?= csrf_field(); ?>
                                 <input id="bukti-bayar" type="file" name="buktiBayar" class="order-file-input" accept="image/*" required>
                                 <div id="preview-bayar" class="d-none" style="width: 100%; max-width: 500px; max-height: 300px; overflow: auto;">

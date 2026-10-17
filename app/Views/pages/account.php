@@ -181,7 +181,7 @@ $statusClass = function ($status) {
                     <h5 class="fw-bold mb-1">Edit profil</h5>
                     <p class="text-secondary small mb-3">Profil yang lengkap membuat checkout, voucher, dan bantuan pesanan lebih mudah.</p>
                     <?php if (session()->get('active')) { ?>
-                        <form class="row g-3" action="/account" method="post" enctype="multipart/form-data">
+                        <form class="row g-3" action="/account" method="post" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Simpan perubahan profil yang Anda masukkan sekarang?">
                             <?= csrf_field(); ?>
                             <div class="col-12 text-center">
                                 <div class="account-form-photo">

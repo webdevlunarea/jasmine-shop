@@ -73,17 +73,17 @@ $hasStockIssue = count($indStokHabis ?? []) > 0;
                                     <strong>Rp <?= number_format($lineTotal, 0, ',', '.'); ?></strong>
                                 </div>
                                 <div class="cart-action-row">
-                                    <form action="/delcart/<?= $index; ?>" method="post">
+                                    <form action="/delcart/<?= $index; ?>" method="post" data-confirm-submit data-confirm-message="Hapus produk ini dari keranjang Anda?">
                                         <button type="submit" class="cart-delete-btn" aria-label="Hapus <?= esc($p['nama']); ?> dari keranjang">
                                             <i class="material-icons" aria-hidden="true">delete</i>
                                         </button>
                                     </form>
                                     <div class="cart-qty-control">
-                                        <form action="/redcart/<?= $index; ?>" method="post">
+                                        <form action="/redcart/<?= $index; ?>" method="post" data-confirm-submit data-confirm-message="Kurangi jumlah produk ini satu buah?">
                                             <button type="submit" aria-label="Kurangi jumlah">−</button>
                                         </form>
                                         <input disabled type="number" class="<?= $isStockIssue ? 'text-danger' : ''; ?>" value="<?= (int)$jumlah[$index]; ?>" aria-label="Jumlah produk">
-                                        <form action="/addcart/<?= esc($p['id'], 'url'); ?>/<?= rawurlencode($keranjang[$index]['varian']); ?>/<?= (int)$keranjang[$index]['index_gambar']; ?>" method="post">
+                                        <form action="/addcart/<?= esc($p['id'], 'url'); ?>/<?= rawurlencode($keranjang[$index]['varian']); ?>/<?= (int)$keranjang[$index]['index_gambar']; ?>" method="post" data-confirm-submit data-confirm-message="Tambah jumlah produk ini satu buah?">
                                             <button type="submit" aria-label="Tambah jumlah">+</button>
                                         </form>
                                     </div>

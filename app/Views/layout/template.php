@@ -324,15 +324,15 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <div class="toast confirm-dialog start-50 translate-middle" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="toast confirm-dialog start-50 translate-middle" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-message" aria-live="polite">
         <div class="toast-body confirm-dialog__body">
             <div class="confirm-dialog__icon">
                 <i class="material-icons">help_outline</i>
             </div>
             <div class="confirm-dialog__content">
                 <p class="confirm-dialog__eyebrow">Konfirmasi</p>
-                <h5>Apakah Anda yakin?</h5>
-                <p class="confirm-dialog__message">Hello, world! This is a toast message.</p>
+                <h5 id="confirm-dialog-title">Apakah Anda yakin?</h5>
+                <p class="confirm-dialog__message" id="confirm-dialog-message">Tindakan ini akan diproses setelah Anda mengonfirmasi.</p>
             </div>
             <div class="confirm-dialog__actions">
                 <button type="button" class="btn btn-light confirm-dialog__cancel" onclick="hapusToast()">Batal</button>
@@ -466,6 +466,7 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     const toastOkElm = document.querySelector(".confirm-dialog form")
     const toastOkBtnElm = document.querySelector(".confirm-dialog__ok")
     const toastCancelBtnElm = document.querySelector(".confirm-dialog__cancel")
+    let confirmReturnFocus = null;
 
     function triggerToast(text, linkAction, onConfirm) {
         const hasCallback = typeof onConfirm === 'function';
@@ -475,26 +476,62 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
             onConfirm();
         } : null;
         toastElm.classList.add("show")
-        toastTitleElm.innerHTML = 'Konfirmasi tindakan'
-        toastTeksElm.innerHTML = text
+        toastTitleElm.textContent = 'Konfirmasi tindakan'
+        toastTeksElm.textContent = text
         toastOkElm.action = linkAction || ''
         if (!linkAction && !hasCallback) {
             toastOkElm.classList.add('d-none');
             toastOkElm.setAttribute('disabled', '');
-            toastTitleElm.innerHTML = 'Informasi'
-            toastCancelBtnElm.innerHTML = 'Ok';
+            toastTitleElm.textContent = 'Informasi'
+            toastCancelBtnElm.textContent = 'Mengerti';
         } else {
             toastOkElm.classList.remove('d-none');
             toastOkElm.removeAttribute('disabled');
-            toastOkBtnElm.innerHTML = 'Lanjutkan';
-            toastCancelBtnElm.innerHTML = 'Batal';
+            toastOkBtnElm.textContent = 'Ya, lanjutkan';
+            toastCancelBtnElm.textContent = 'Periksa kembali';
         }
+        if (hasCallback) window.requestAnimationFrame(() => toastOkBtnElm.focus());
     }
 
     function hapusToast() {
         toastElm.classList.remove("show")
         toastOkElm.onsubmit = null;
+        if (confirmReturnFocus && typeof confirmReturnFocus.focus === 'function') confirmReturnFocus.focus();
+        confirmReturnFocus = null;
     }
+
+    // Konfirmasi terarah untuk pengiriman formulir pelanggan yang mengubah data.
+    // Form tanpa data-confirm-submit tetap menggunakan perilaku existing.
+    document.addEventListener('submit', function(event) {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm-submit')) return;
+
+        if (form.dataset.confirmApproved === '1') {
+            delete form.dataset.confirmApproved;
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
+        const message = form.dataset.confirmMessage || 'Pastikan informasi yang Anda masukkan sudah benar sebelum melanjutkan.';
+        confirmReturnFocus = submitter || document.activeElement;
+        triggerToast(message, '', function() {
+            form.dataset.confirmApproved = '1';
+            if (typeof form.requestSubmit === 'function') {
+                submitter ? form.requestSubmit(submitter) : form.requestSubmit();
+            } else {
+                HTMLFormElement.prototype.submit.call(form);
+            }
+        });
+    }, true);
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && toastElm.classList.contains('show')) {
+            event.preventDefault();
+            hapusToast();
+        }
+    });
 
     function bukaDropdown(id) {
         const elementDropdown = document.getElementById(id);

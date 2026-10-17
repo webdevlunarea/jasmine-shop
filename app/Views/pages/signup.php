@@ -22,7 +22,7 @@
                 </a>
                 <?= view('partials/auth_facebook', ['redirect' => $redirect ?? ''], ['saveData' => false]); ?>
                 <div class="auth-divider"><span>atau daftar dengan email</span></div>
-                <form action="/daftar" method="post" class="auth-form">
+                <form action="/daftar" method="post" class="auth-form" data-confirm-submit data-confirm-message="Periksa kembali nama, email, nomor HP, dan data akun Anda sebelum membuat akun Lunarea.">
                     <?= csrf_field(); ?>
                     <?php if (!empty($redirect)) { ?>
                         <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">

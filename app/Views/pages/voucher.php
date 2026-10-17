@@ -30,7 +30,7 @@
     <div style="background-color: white;" class="p-4 rounded-3">
         <h5 class="m-0" id="redeem-title">Masukkan kode voucher</h5>
         <p class="m-0 text-secondary mb-1">Klaim voucher menggunakan kode yang Anda miliki.</p>
-        <form action="/voucher/redeem" method="post">
+        <form action="/voucher/redeem" method="post" data-confirm-submit data-confirm-message="Gunakan kode ini untuk menambahkan voucher ke akun Anda?">
             <label class="form-label mt-3" for="redeem-code">Kode voucher</label>
             <input id="redeem-code" type="text" name="code" autocomplete="off" required class="form-control mb-2 w-100">
             <div class="d-flex justify-content-end gap-1">
@@ -82,7 +82,7 @@
                                 </div>
                             <?php } ?>
                             <?php foreach ($voucher as $ind_v => $v) { ?>
-                                <form action="/voucher/claim" method="post">
+                                <form action="/voucher/claim" method="post" data-confirm-submit data-confirm-message="Klaim voucher ini dan tambahkan ke daftar voucher akun Anda?">
                                     <div class="list-voucher-customer">
                                         <div class="baris-ke-kolom justify-content-between">
                                             <div>

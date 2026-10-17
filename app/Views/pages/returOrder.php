@@ -111,7 +111,7 @@ $canSubmitReturn = !$existingReturn || (($existingReturn['status'] ?? '') === 'M
             <?php } ?>
 
             <?php if ($canSubmitReturn) { ?>
-            <form action="/retur/order/<?= esc($pemesanan['id_midtrans']); ?>" method="post" enctype="multipart/form-data">
+            <form action="/retur/order/<?= esc($pemesanan['id_midtrans']); ?>" method="post" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Ajukan permintaan retur untuk pesanan ini dengan rincian dan bukti yang dilampirkan?">
                 <?= csrf_field(); ?>
 
                 <p class="fw-bold mb-2">Pilih produk yang ingin diretur</p>

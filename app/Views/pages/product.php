@@ -155,25 +155,25 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post" data-confirm-submit data-confirm-message="Lanjutkan membeli produk dengan varian yang sedang dipilih?">
                                     <button type="submit" class="d-flex gap-2 align-items-center btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <p class="m-0">Beli sekarang</p>
                                     </button>
                                 </form>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post">
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) : ""; ?>" method="post" data-confirm-submit data-confirm-message="Tambahkan produk dengan varian yang sedang dipilih ke keranjang?">
                                     <button type="submit" aria-label="Tambah ke keranjang" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
                                     </button>
                                 </form>
                                 <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Hapus varian ini dari daftar favorit Anda?">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
                                         <button type="submit" class="btn btn-outline-dark product-wishlist-button" aria-label="Hapus varian dari wishlist"><svg class="product-action-icon product-wishlist-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Tambahkan varian ini ke daftar favorit Anda?">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
@@ -200,18 +200,18 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                     <?php if (session()->get('isLogin')) { ?>
                         <?php if (session()->get('role') == 0) { ?>
                             <?php if (session()->get('active') == '1') { ?>
-                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post">
+                                <form style="flex: 1;" action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1) . "/checkout" : ""; ?>" method="post" data-confirm-submit data-confirm-message="Lanjutkan membeli produk dengan varian yang sedang dipilih?">
                                     <button type="submit" class="w-100 d-flex justify-content-center align-items-center gap-2 btn btn-primary1 btn-beli-product-checkout <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <p class="m-0">Beli sekarang</p>
                                     </button>
                                 </form>
-                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1)  : ""; ?>" method="post">
+                                <form action="<?= (int)explode(",", $produk['stok'])[0] > 0 ? ("/addcart/" . $produk['id'] . "/" . $varian[0] . "/" . (int)$produk['jml_varian'] - 1)  : ""; ?>" method="post" data-confirm-submit data-confirm-message="Tambahkan produk dengan varian yang sedang dipilih ke keranjang?">
                                     <button type="submit" aria-label="Tambah ke keranjang" class="btn btn-outline-dark btn-beli-product <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>" <?= (int)explode(",", $produk['stok'])[0] > 0 ? "" : "disabled"; ?>>
                                         <svg class="product-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
                                     </button>
                                 </form>
                                 <?php if ($initialWishlistActive) { ?>
-                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                    <form action="/delwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Hapus varian ini dari daftar favorit Anda?">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
@@ -220,7 +220,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                                         </button>
                                     </form>
                                 <?php } else { ?>
-                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>">
+                                    <form action="/addwishlist/<?= $produk['id']; ?>" method="post" class="product-wishlist-form" data-add-action="/addwishlist/<?= $produk['id']; ?>" data-del-action="/delwishlist/<?= $produk['id']; ?>" data-confirm-submit data-confirm-message="Tambahkan varian ini ke daftar favorit Anda?">
                                         <input type="hidden" name="varian" class="wishlist-varian" value="<?= esc($varian[0] ?? ''); ?>">
                                         <input type="hidden" name="index_gambar" class="wishlist-index-gambar" value="<?= isset($variantImageMap[$varian[0] ?? '']) ? (int)$variantImageMap[$varian[0] ?? ''] : 0; ?>">
                                         <input type="hidden" name="redirect" value="/product/<?= esc($produk['path']); ?>">
@@ -391,7 +391,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
             <?php if ($bolehRating) { ?>
                 <div class="rating-form mb-4">
                     <h6 class="mb-2"><?= $userRating ? 'Ubah Rating &amp; Ulasan Anda' : 'Berikan Rating &amp; Ulasan'; ?></h6>
-                    <form action="/addrating/<?= $produk['id']; ?>" method="post">
+                    <form action="/addrating/<?= $produk['id']; ?>" method="post" data-confirm-submit data-confirm-message="Kirim penilaian dan ulasan ini untuk ditampilkan pada produk?">
                         <div class="star-input mb-2">
                             <?php for ($s = 5; $s >= 1; $s--) { ?>
                                 <input type="radio" id="star<?= $s; ?>" name="rating" value="<?= $s; ?>" <?= $userRating && (int)$userRating['rating'] == $s ? 'checked' : ($s == 5 && !$userRating ? 'checked' : ''); ?>>

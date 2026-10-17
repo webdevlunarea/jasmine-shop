@@ -16,7 +16,7 @@
                 <a href="/voucher" class="btn btn-primary1">Lihat promo</a>
                 <a href="/all" class="btn btn-outline-dark">Mulai belanja</a>
             <?php } else if ($status == 'fail') { ?>
-                <form action="/kirimotp" method="post">
+                <form action="/kirimotp" method="post" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?">
                     <button type="submit" class="btn btn-outline-dark">Kirim ulang kode OTP</button>
                 </form>
             <?php } ?>

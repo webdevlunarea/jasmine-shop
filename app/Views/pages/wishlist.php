@@ -8,7 +8,7 @@
             <main class="account-content-card">
         <div class="account-page-heading d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <h1 class="mb-0">Daftar Favorit <span class="account-heading-count">(<?= count($wishlist); ?>)</span></h1>
-            <form action="/wishlisttocart" method="post">
+            <form action="/wishlisttocart" method="post" data-confirm-submit data-confirm-message="Tambahkan semua produk favorit yang tersedia ke keranjang?">
                         <button type="submit" class="btn btn-outline-dark" title="Tambahkan semua produk favorit ke keranjang" <?= count($wishlist) === 0 ? 'disabled' : ''; ?>>Tambah semua</button>
             </form>
         </div>

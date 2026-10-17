@@ -48,7 +48,7 @@
     <div style="background-color: white;" class="p-4 rounded-3">
         <h2 id="checkout-redeem-title" class="checkout-section-title">Klaim voucher</h2>
         <p class="m-0 text-secondary mb-1">Masukkan kode voucher Anda</p>
-        <form action="/voucher/redeem/checkout" method="post">
+        <form action="/voucher/redeem/checkout" method="post" data-confirm-submit data-confirm-message="Terapkan kode voucher ini pada pesanan Anda?">
             <label class="visually-hidden" for="checkout-voucher-code">Kode voucher</label>
             <input id="checkout-voucher-code" type="text" name="code" class="form-control mb-2 w-100" required>
             <div class="d-flex justify-content-end gap-1">
@@ -65,7 +65,7 @@
             <h1 id="checkout-title">Selesaikan pesanan</h1>
             <p>Lengkapi alamat dan pilih pengiriman sebelum melanjutkan pembayaran.</p>
         </header>
-        <form class="w-100" id="form-checkout" action="/actionpaycore" method="post">
+        <form class="w-100" id="form-checkout" action="/actionpaycore" method="post" data-confirm-submit data-confirm-message="Pastikan alamat, pilihan pengiriman, dan metode pembayaran sudah sesuai sebelum melanjutkan pesanan.">
             <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
             <div id="modal-metode-bayar" role="dialog" aria-modal="true" aria-labelledby="checkout-payment-title" class="d-none p-2 justify-content-center align-items-center"
                 style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">
