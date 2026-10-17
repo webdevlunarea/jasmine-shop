@@ -58,7 +58,9 @@ class CustomerModerationAdmin extends BaseController
     {
         $emails = $this->request->getPost('emails');
         if (!is_array($emails) || !$emails) return $this->back('Pilih akun yang akan dihapus.');
-        if (count($emails) > 100) return $this->back('Pilih maksimal 100 akun dalam satu proses.');
+        // The admin screen renders up to 300 eligible rows and its select-all
+        // control submits that set; keep the server cap aligned with the UI.
+        if (count($emails) > 300) return $this->back('Pilih maksimal 300 akun dalam satu proses.');
         $db = db_connect();
         $deleted = $skipped = 0;
         $protected = ['pemesanan' => 'email_cus', 'retur_pengajuan' => 'email_cus', 'preorder_barang' => 'email_customer', 'rating' => 'email_cus', 'point_history' => 'email_user', 'voucher_redeem' => 'email_user'];
