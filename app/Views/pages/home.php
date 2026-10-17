@@ -154,26 +154,23 @@ if ($msg_active) { ?>
 <div id="modal-voucher" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; z-index: 99;"
     class="d-none justify-content-center align-items-center modal-voucher">
     <?php if ($v['poster']) { ?>
-    <div class="container-notif-voucher"
-        style="border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); position:relative">
-        <div class="d-flex justify-content-end w-100 p-2" style="position: absolute;">
-            <i class="material-icons" onclick="closeModalVoucherAll(<?= $counterVoucher; ?>)"
-                style="cursor: pointer; color: rgba(0, 0, 0, 0.5)">close</i>
-        </div>
-        <img src="/imgvoucher/<?= $v['id']; ?>" alt="">
-        <div class="px-5 py-4 position-relative">
-            <div class="d-flex gap-2 align-items-center justify-content-center mb-3">
+    <div class="container-notif-voucher">
+        <button type="button" class="voucher-notice-close" aria-label="Tutup pemberitahuan voucher" onclick="closeModalVoucherAll(<?= $counterVoucher; ?>)">
+            <i class="material-icons" aria-hidden="true">close</i>
+        </button>
+        <img class="voucher-notice-poster" src="/imgvoucher/<?= esc($v['id'], 'attr'); ?>" alt="Poster voucher <?= esc($v['nama'] ?? 'Lunarea', 'attr'); ?>">
+        <div class="voucher-notice-content">
+            <div class="voucher-notice-pagination">
                 <?php if ($counterEvent > 1) { ?>
                 <div class="d-flex gap-1 justify-content-center">
                     <?php for ($i = 0; $i < $counterEvent; $i++) { ?>
                     <div class="item-slider <?= $i == $counterVoucher ? 'active' : ''; ?>"></div>
                     <?php } ?>
                 </div>
-                <button class="btn-next" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i
-                        class="material-icons">chevron_right</i></button>
+                <button class="btn-next" aria-label="Lanjut ke pemberitahuan berikutnya" onclick="closeModalVoucher(<?= $counterVoucher; ?>)"><i class="material-icons" aria-hidden="true">chevron_right</i></button>
                 <?php } ?>
             </div>
-            <a href="/voucher" class="btn btn-primary1 w-100 text-center mb-2">Coba sekarang</a>
+            <a href="/voucher" class="btn btn-primary1 w-100 text-center">Coba sekarang</a>
         </div>
     </div>
     <?php } else { ?>

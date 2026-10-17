@@ -19,7 +19,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <!-- Google tag (gtag.js) -->
@@ -76,27 +76,60 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Lunarea Furniture">
-    <meta name="description"
-        content="<?= isset($metaDeskripsi) ? $metaDeskripsi : 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.'; ?>">
+    <?php
+    $seoTitle = trim((string) ($title ?? ''));
+    $seoTitle = $seoTitle !== '' ? $seoTitle . ' | Lunarea Furniture' : 'Lunarea Furniture | Furnitur Rumah untuk Ruang yang Lebih Nyaman';
+    $seoDescription = trim(strip_tags((string) ($metaDeskripsi ?? '')));
+    if ($seoDescription === '') {
+        $seoDescription = 'Lunarea Furniture menghadirkan pilihan lemari, meja, rak, dan kursi untuk rumah Anda. Temukan furnitur fungsional, pilihan produk, serta penawaran terbaru di toko resmi Lunarea.';
+    }
+    $seoCanonical = site_url(trim((string) service('uri')->getPath(), '/'));
+    $seoIsHome = trim((string) service('uri')->getPath(), '/') === '';
+    ?>
+    <meta name="description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta name="keywords"
         content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea'; ?>">
     <meta name="author" content="Lunarea Furniture">
-    <meta name="title" content="<?= $title; ?> | Lunarea Furniture">
+    <meta name="title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta data-rh="true" name="title" content="<?= $title; ?> | Lunarea Furniture">
-    <meta data-rh="true" property="og:title" content="Lunarea Furniture">
+    <meta data-rh="true" property="og:title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta data-rh="true" property="og:site_name" content="Lunarea Furniture">
-    <meta data-rh="true" property="og:url" content="https://lunareafurniture.com/">
+    <meta data-rh="true" property="og:url" content="<?= esc($seoCanonical, 'attr'); ?>">
+    <meta data-rh="true" property="og:description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/logo icon.png">
     <meta data-rh="true" property="product:price:currency" content="Rp">
     <meta data-rh="true" property="product:price:amount" content="0">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://lunareafurniture.com">
+    <link rel="canonical" href="<?= esc($seoCanonical, 'attr'); ?>">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?= $title; ?> | Lunarea Furniture">
-    <meta name="twitter:description"
-        content="<?= isset($metaDeskripsi) ? $metaDeskripsi : 'Lunarea hadir untuk menciptakan ruangan Anda menjadi estetis dengan harga yang terjangkau. Kami menyediakan 4 macam furniture yaitu kursi, rak, meja, dan lemari.'; ?>">
+    <meta name="twitter:title" content="<?= esc($seoTitle, 'attr'); ?>">
+    <meta name="twitter:description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta name="twitter:image" content="https://lunareafurniture.com/logo icon.png">
+    <?php if ($seoIsHome) { ?>
+    <script type="application/ld+json">
+    <?= json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'WebSite',
+                '@id' => 'https://lunareafurniture.com/#website',
+                'url' => 'https://lunareafurniture.com/',
+                'name' => 'Lunarea Furniture',
+                'alternateName' => ['Lunarea', 'Lunarea Furniture Indonesia'],
+                'inLanguage' => 'id-ID',
+                'publisher' => ['@id' => 'https://lunareafurniture.com/#organization'],
+            ],
+            [
+                '@type' => 'Organization',
+                '@id' => 'https://lunareafurniture.com/#organization',
+                'name' => 'Lunarea Furniture',
+                'url' => 'https://lunareafurniture.com/',
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>
+    </script>
+    <?php } ?>
     <title><?= $title; ?> | Lunarea Furniture</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
@@ -462,6 +495,36 @@ $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar'], true);
         }
         window.sessionStorage.setItem('greeting-close', true);
     }
+
+    // Tampilkan validasi formulir native dalam Bahasa Indonesia.
+    document.addEventListener('invalid', function(event) {
+        const field = event.target;
+        if (!field || typeof field.setCustomValidity !== 'function') return;
+
+        if (field.validity.valueMissing) {
+            field.setCustomValidity('Bagian ini wajib diisi.');
+        } else if (field.validity.typeMismatch && field.type === 'email') {
+            field.setCustomValidity('Masukkan alamat email dengan format yang benar.');
+        } else if (field.validity.typeMismatch && field.type === 'url') {
+            field.setCustomValidity('Masukkan alamat tautan dengan format yang benar.');
+        } else if (field.validity.patternMismatch) {
+            field.setCustomValidity('Periksa kembali format yang dimasukkan.');
+        } else if (field.validity.tooShort) {
+            field.setCustomValidity('Isian terlalu pendek.');
+        } else if (field.validity.tooLong) {
+            field.setCustomValidity('Isian terlalu panjang.');
+        } else if (field.validity.rangeUnderflow || field.validity.rangeOverflow) {
+            field.setCustomValidity('Nilai yang dimasukkan berada di luar rentang yang diizinkan.');
+        } else if (field.validity.badInput) {
+            field.setCustomValidity('Masukkan nilai dengan format yang benar.');
+        }
+    }, true);
+
+    document.addEventListener('input', function(event) {
+        if (event.target && typeof event.target.setCustomValidity === 'function') {
+            event.target.setCustomValidity('');
+        }
+    }, true);
     </script>
     <script defer src="/js/image-skeletons.js?v=<?= filemtime(FCPATH . 'js/image-skeletons.js'); ?>"></script>
 </body>
