@@ -2,7 +2,7 @@
 <?php if ($captchaConfig->enabled): ?>
 <div class="auth-captcha" role="group" aria-label="Verifikasi keamanan" data-state="loading">
     <div class="auth-captcha-slot" data-sitekey="<?= esc($captchaConfig->siteKey, 'attr'); ?>"></div>
-    <p class="auth-captcha-status" role="status" aria-live="polite" aria-atomic="true">Memuat verifikasi…</p>
+    <p class="auth-captcha-status" id="auth-captcha-status" role="status" aria-live="polite" aria-atomic="true">Memuat verifikasi…</p>
     <noscript><p>Aktifkan JavaScript untuk menjalankan verifikasi keamanan.</p></noscript>
 </div>
 <script>

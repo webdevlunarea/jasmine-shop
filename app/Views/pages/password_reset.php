@@ -6,7 +6,7 @@
             <section class="auth-panel auth-reset-panel<?= $step === 'confirm' ? ' auth-reset-panel-confirm' : ''; ?>" aria-labelledby="reset-title">
                 <div class="auth-heading">
                     <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi alamat email' : 'Lupa sandi?'); ?></h1>
-                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan Anda dapat membuka alamat email tujuan kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
+                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Kode verifikasi akan dikirim ke alamat di bawah. Pastikan Anda dapat membukanya.' : 'Masukkan email atau username akun Anda. Kami akan menampilkan alamat pemulihan sebelum mengirim kode.'); ?></p>
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
@@ -28,8 +28,9 @@
                         </div>
                         <label class="auth-reset-confirm-check" for="confirm-reset-email">
                             <input id="confirm-reset-email" type="checkbox" name="confirm_email" value="1" required>
-                            <span>Saya dapat membuka email tersebut.</span>
+                            <span>Saya dapat membuka alamat email ini.</span>
                         </label>
+                        <p class="auth-reset-submit-hint">Selesaikan verifikasi keamanan, lalu tekan <strong>Kirim kode verifikasi</strong>.</p>
                         <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Kirim kode verifikasi</button>
                         <button type="submit" class="auth-reset-change" name="change_identity" value="1" formnovalidate>Gunakan email atau username lain</button>
@@ -64,13 +65,16 @@
 (() => {
     const form = document.getElementById('password-reset-form');
     const submit = form.querySelector('[data-primary-submit]') || form.querySelector('[type="submit"]');
-    function syncCaptcha() {
-        submit.disabled = !!form.querySelector('.auth-captcha') && window.lunareaCaptchaReady !== true;
-    }
-    document.addEventListener('lunarea:captcha', syncCaptcha);
-    syncCaptcha();
+    const captcha = form.querySelector('.auth-captcha');
+    const captchaStatus = form.querySelector('.auth-captcha-status');
     form.addEventListener('submit', event => {
         if (event.submitter && event.submitter.name === 'change_identity') return;
+        if (captcha && window.lunareaCaptchaReady !== true) {
+            event.preventDefault();
+            if (captchaStatus) captchaStatus.textContent = 'Selesaikan verifikasi keamanan sebelum mengirim.';
+            captcha.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            return;
+        }
         submit.disabled = true;
         submit.textContent = 'Memproses…';
     });
