@@ -31,6 +31,49 @@
 .admin-body .admin-nav-item.active i { opacity: 1; }
 .admin-body .admin-sidebar-footer { padding: 10px 14px 16px; border-top: 1px solid rgb(255 255 255 / 10%); }
 .admin-body .admin-sidebar-footer .danger { color: #f0c5bd; }
+
+/* Account moderation: calm, compact surfaces with clear destructive-action hierarchy. */
+.admin-body .customer-moderation { --moderation-ink: #2f2d20; --moderation-accent: #c7a78a; }
+.admin-body .customer-moderation > .card {
+    border: 1px solid color-mix(in srgb, var(--moderation-ink) 9%, white) !important;
+    border-radius: 16px !important;
+    background: #fff;
+    box-shadow: 0 8px 28px rgb(47 45 32 / 5%) !important;
+}
+.admin-body .customer-moderation > .card h3 { color: var(--moderation-ink); letter-spacing: -.35px; }
+.admin-body .customer-moderation > .card > .d-flex:first-child { padding-bottom: 15px; border-bottom: 1px solid #efeee9; }
+.admin-body .customer-moderation > .card .badge.text-bg-light {
+    padding: 8px 11px; border: 1px solid #ebe8df; border-radius: 999px;
+    color: #585343 !important; font-size: 12px; font-weight: 600;
+}
+.admin-body .customer-moderation .table-responsive { border: 1px solid #eeede8; border-radius: 12px; }
+.admin-body .customer-moderation .table { min-width: 690px; margin: 0; }
+.admin-body .customer-moderation .table thead th {
+    padding: 12px 14px; border-bottom: 1px solid #e9e7df; background: #f8f7f3;
+    color: #777366; font-size: 10px; font-weight: 700; letter-spacing: .65px; text-transform: uppercase;
+}
+.admin-body .customer-moderation .table tbody td { padding: 13px 14px; border-color: #f0efe9; color: #494638; font-size: 12px; }
+.admin-body .customer-moderation .table tbody tr:last-child td { border-bottom: 0; }
+.admin-body .customer-moderation .table tbody tr:hover { background: #fbfaf7; }
+.admin-body .customer-moderation .form-check-input { width: 17px; height: 17px; margin: 0; accent-color: var(--moderation-ink); cursor: pointer; }
+.admin-body .customer-moderation .form-check-input:disabled { cursor: not-allowed; opacity: .4; }
+.admin-body .customer-moderation form[action="/customeradmin/delete-expired-unverified"] > .btn-outline-danger {
+    min-height: 42px; margin-top: 15px; padding: 9px 15px; border-color: #ead4cf; border-radius: 9px;
+    background: #fff8f6; color: #9b4639; font-size: 12px; font-weight: 600;
+}
+.admin-body .customer-moderation form[action="/customeradmin/delete-expired-unverified"] > .btn-outline-danger:hover { background: #9b4639; color: #fff; }
+.admin-body .customer-moderation .alert-info { border: 1px solid #e5dfd0; border-radius: 11px; background: #faf8f1; color: #514b3b; font-size: 12px; }
+.admin-body .customer-moderation .form-label { color: #464334; font-size: 12px; font-weight: 600; }
+.admin-body .customer-moderation .form-control { min-height: 43px; border-color: #e5e3dc; border-radius: 9px; font-size: 13px; }
+.admin-body .customer-moderation .btn-primary1 { min-height: 43px; border-radius: 9px; background: var(--moderation-ink); font-size: 12px; font-weight: 600; }
+.admin-body .customer-moderation .list-group-item { min-height: 53px; border-color: #efeee8; color: #454234; font-size: 12px; }
+.admin-body .customer-moderation .list-group-item .btn { min-height: 34px; padding-inline: 12px; border-radius: 8px; font-size: 11px; }
+@media (max-width: 767.98px) {
+    .admin-body .customer-moderation > .card { padding: 18px !important; border-radius: 13px !important; }
+    .admin-body .customer-moderation > .card > .d-flex:first-child { align-items: flex-start !important; }
+    .admin-body .customer-moderation .table thead th, .admin-body .customer-moderation .table tbody td { padding: 11px 10px; }
+    .admin-body .customer-moderation form[action="/customeradmin/delete-expired-unverified"] > .btn-outline-danger { width: 100%; }
+}
 .admin-body .admin-topbar { min-height: var(--admin-topbar); padding: 12px 32px; backdrop-filter: none; background: var(--admin-surface); }
 .admin-body .admin-eyebrow { font-size: 10px; color: var(--admin-muted); font-weight: 500; margin-bottom: 3px !important; }
 .admin-body .admin-page-title { font-size: 15px; font-weight: 600; letter-spacing: -.35px; }

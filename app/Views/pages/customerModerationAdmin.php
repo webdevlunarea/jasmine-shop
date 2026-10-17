@@ -1,7 +1,7 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
 <main class="konten admin-module-page">
- <div class="container">
+ <div class="container customer-moderation">
   <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Akun & email spam', 'adminHeadingGroup'=>'Pengaturan', 'adminHeadingDescription'=>'Kelola domain email sementara dan bersihkan pendaftaran kedaluwarsa. Akun yang terkait pesanan, retur, preorder, rating, poin, atau penukaran voucher akan dilewati.'], ['saveData'=>false]); ?>
   <?php if (!empty($msg)) { ?><div class="alert alert-info" role="status"><?= esc($msg); ?></div><?php } ?>
   <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
