@@ -69,30 +69,32 @@ class PasswordResetService
     }
 
     /** Same public response for known/unknown/limited/delivery-failed addresses. Never return the code. */
-    public function request(string $email, string $ip): void
+    public function request(string $email, string $ip): bool
     {
         $email = strtolower(trim($email));
-        if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) return;
-        if (!$this->allow('request-ip', $ip, 10, 900) || !$this->allow('request-email', $email, 3, 900)) return;
+        if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
+        if (!$this->allow('request-ip', $ip, 10, 900) || !$this->allow('request-email', $email, 3, 900)) return false;
         $user = $this->db->table('user')->where('email', $email)->get()->getRowArray();
-        if (!$user || (string)$user['role'] !== '0') return;
+        if (!$user || (string)$user['role'] !== '0') return false;
         $email = $user['email']; $now = $this->now();
         $old = $this->db->table('customer_password_reset_codes')->where('email_user', $email)->get()->getRowArray();
-        if ($old && (int)$old['created_at'] > $now - 60) return;
+        if ($old && (int)$old['created_at'] > $now - 60) return false;
         $code = $this->newCode(); $id = bin2hex(random_bytes(32));
         $record = ['email_user' => $email, 'request_id' => $id, 'otp_hash' => password_hash($code, PASSWORD_DEFAULT),
             'created_at' => $now, 'expires_at' => $now + 600, 'attempts' => 0, 'used' => 0];
         try {
             $builder = $this->db->table('customer_password_reset_codes');
             $ok = $old ? $builder->where('email_user', $email)->where('created_at <=', $now - 60)->update($record) : $builder->insert($record);
-            if (!$ok || $this->db->affectedRows() !== 1) return;
+            if (!$ok || $this->db->affectedRows() !== 1) return false;
         } catch (\Throwable $e) {
-            if (in_array((int)($this->db->error()['code'] ?? 0), [19, 1062], true)) return;
+            if (in_array((int)($this->db->error()['code'] ?? 0), [19, 1062], true)) return false;
             throw new \RuntimeException('Reset storage unavailable');
         }
         if (!$this->mailer->sendCode($email, $code)) {
             $this->db->table('customer_password_reset_codes')->where('email_user', $email)->where('request_id', $id)->update(['used' => 1]);
+            return false;
         }
+        return true;
     }
 
     public function reset(string $email, $code, $password, $confirmation, string $ip): void

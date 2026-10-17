@@ -76,10 +76,14 @@ class PasswordReset extends BaseController
                 session()->setFlashdata('reset_error', 'Sesi konfirmasi berakhir. Masukkan email atau username kembali.');
                 return $this->redirectTo('lupa-sandi');
             }
-            try { $this->resets()->request($email, $this->request->getIPAddress()); }
+            try { $sent = $this->resets()->request($email, $this->request->getIPAddress()); }
             catch (\Throwable $e) {
                 log_message('error', 'Password reset request storage failed. Check reset schema privately.');
                 session()->setFlashdata('reset_error', 'Layanan reset sandi sedang terganggu. Silakan coba lagi nanti.');
+                return $this->redirectTo('lupa-sandi');
+            }
+            if (!$sent) {
+                session()->setFlashdata('reset_error', 'Kode belum berhasil dikirim. Tunggu setidaknya 60 detik sebelum mencoba lagi, lalu periksa kembali koneksi dan folder spam.');
                 return $this->redirectTo('lupa-sandi');
             }
             session()->set('password_reset_email', $email);

@@ -14,7 +14,7 @@ final class PasswordResetControllerTest extends CIUnitTestCase
     private function controller(array $post)
     {
         return new class($post) extends PasswordReset {
-            public array $calls=[]; public bool $invalid=false;
+            public array $calls=[]; public bool $invalid=false; public bool $requestSuccess=true;
             public function __construct(array $post) {
                 $this->request=new class($post) {
                     private array $post;
@@ -31,7 +31,7 @@ final class PasswordResetControllerTest extends CIUnitTestCase
                 return new class($this) extends PasswordResetService {
                     private $owner;
                     public function __construct($owner) { $this->owner=$owner; }
-                    public function request(string $email,string $ip): void { $this->owner->calls[]=['request',$email,$ip]; }
+                    public function request(string $email,string $ip): bool { $this->owner->calls[]=['request',$email,$ip]; return $this->owner->requestSuccess; }
                     public function resolveCustomerEmail(string $identity,string $ip): ?string {
                         $this->owner->calls[]=['resolve',$identity,$ip];
                         return in_array(strtolower($identity), ['buyer@example.test','buyername'], true) ? 'buyer@example.test' : null;
@@ -64,6 +64,17 @@ final class PasswordResetControllerTest extends CIUnitTestCase
         $this->assertSame([['request','buyer@example.test','192.0.2.1']],$c->calls);
         $this->assertSame('buyer@example.test',session('password_reset_email'));
         $this->assertNull(session('password_reset_pending_email'));
+    }
+
+    public function testFailedDeliveryKeepsConfirmationStepAndShowsActionableFeedback(): void
+    {
+        session()->set(['password_reset_pending_email'=>'buyer@example.test','password_reset_pending_at'=>time()]);
+        $c=$this->controller(['confirm_email'=>'1']);
+        $c->requestSuccess=false;
+        $this->assertStringEndsWith('/lupa-sandi',$c->requestCode()->getHeaderLine('Location'));
+        $this->assertSame('buyer@example.test',session('password_reset_pending_email'));
+        $this->assertNull(session('password_reset_email'));
+        $this->assertNotEmpty(session()->getFlashdata('reset_error'));
     }
 
     /** @dataProvider renderedSteps */
