@@ -39,6 +39,14 @@ class Email extends BaseConfig
      * SMTP Password
      */
     public string $SMTPPass = '';
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Keep SMTP credentials in the environment; never commit them to config.
+        $this->SMTPPass = (string) env('SMTP_PASS', '');
+    }
+
 
     /**
      * SMTP Port
