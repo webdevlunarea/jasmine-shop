@@ -3,10 +3,11 @@
 <div class="konten auth-page auth-reset-page">
     <div class="container">
         <div class="auth-shell auth-reset-shell">
-            <section class="auth-panel auth-reset-panel" aria-labelledby="reset-title">
+            <section class="auth-panel auth-reset-panel<?= $step === 'confirm' ? ' auth-reset-panel-confirm' : ''; ?>" aria-labelledby="reset-title">
                 <div class="auth-heading">
-                    <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi email pemulihan' : 'Lupa sandi?'); ?></h1>
-                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan alamat pemulihan ini benar sebelum kami mengirim kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
+                    <?php if ($step === 'confirm') : ?><span class="auth-reset-eyebrow">PEMULIHAN AKUN</span><?php endif; ?>
+                    <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Pastikan email Anda' : 'Lupa sandi?'); ?></h1>
+                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Kode verifikasi akan dikirim ke alamat email berikut.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
@@ -23,9 +24,9 @@
                         <div class="auth-reset-email-confirm" aria-live="polite" aria-label="Alamat email pemulihan">
                             <span class="auth-reset-email-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m4.5 6 7.5 6 7.5-6"/></svg></span>
                             <div class="auth-reset-email-copy">
-                                <span class="auth-reset-email-label">Email pemulihan</span>
+                            <span class="auth-reset-email-label">KODE DIKIRIM KE</span>
                                 <strong><?= esc($maskedEmail); ?></strong>
-                                <small>Kode verifikasi akan dikirim ke alamat ini.</small>
+                                <small>Alamat disamarkan demi keamanan akun.</small>
                             </div>
                         </div>
                         <label class="auth-reset-confirm-check" for="confirm-reset-email">
@@ -33,7 +34,7 @@
                             <span>Saya dapat membuka email tersebut.</span>
                         </label>
                         <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
-                        <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Kirim kode ke email ini</button>
+                        <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Kirim kode verifikasi</button>
                         <button type="submit" class="auth-reset-change" name="change_identity" value="1" formnovalidate>Gunakan email atau username lain</button>
                     <?php else : ?>
                         <div class="auth-field">
