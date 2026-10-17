@@ -21,8 +21,11 @@
                         <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Lanjutkan</button>
                     <?php elseif ($step === 'confirm') : ?>
                         <div class="auth-reset-email-confirm" aria-live="polite" aria-label="Alamat email pemulihan">
+                            <span class="auth-reset-email-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+                            </span>
                             <div class="auth-reset-email-copy">
-                                <span class="auth-reset-email-label">ALAMAT EMAIL PEMULIHAN</span>
+                                <span class="auth-reset-email-label">Email pemulihan</span>
                                 <strong><?= esc($maskedEmail); ?></strong>
                             </div>
                         </div>

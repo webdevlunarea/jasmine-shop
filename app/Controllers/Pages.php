@@ -1407,6 +1407,7 @@ class Pages extends BaseController
                 'val_email' => session()->getFlashdata('val-email'),
                 'val_sandi' => session()->getFlashdata('val-sandi'),
                 'val_nohp' => session()->getFlashdata('val-nohp'),
+                'val_kebijakan' => session()->getFlashdata('val-kebijakan'),
                 'msg' => session()->getFlashdata('msg'),
                 // 'val_alamat' => session()->getFlashdata('val-alamat'),
             ]
@@ -1681,10 +1682,18 @@ class Pages extends BaseController
                     'required' => 'Nomor handphone harus diisi'
                 ]
             ],
+            'persetujuan_kebijakan' => [
+                'rules' => 'required|in_list[1]',
+                'errors' => [
+                    'required' => 'Baca dan setujui Syarat & Ketentuan serta Kebijakan Privasi sebelum membuat akun.',
+                    'in_list' => 'Persetujuan kebijakan belum valid. Silakan baca kedua dokumen dan setujui kembali.',
+                ]
+            ],
         ])) {
             $validation = \Config\Services::validation();
             session()->setFlashdata('val-nama', $validation->getError('nama'));
             session()->setFlashdata('val-nohp', $validation->getError('nohp'));
+            session()->setFlashdata('val-kebijakan', $validation->getError('persetujuan_kebijakan'));
             session()->setFlashdata('val-email', $validation->getError('email'));
             session()->setFlashdata('val-sandi', $validation->getError('sandi'));
             session()->setFlashdata('val-nohp', $validation->getError('nohp'));

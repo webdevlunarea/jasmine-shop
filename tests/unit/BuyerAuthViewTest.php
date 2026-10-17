@@ -7,7 +7,7 @@ final class BuyerAuthViewTest extends CIUnitTestCase
     /** @dataProvider authCases */
     public function testCleanFormsKeepAuthenticationContracts(string $page, bool $errors): void
     {
-        $val = array_fill_keys(['msg', 'val_nama', 'val_email', 'val_sandi', 'val_nohp', 'isiEmail'], '');
+        $val = array_fill_keys(['msg', 'val_nama', 'val_email', 'val_sandi', 'val_nohp', 'val_kebijakan', 'isiEmail'], '');
         if ($errors) {
             $val['msg'] = 'Silakan periksa kembali data akun Anda.';
             foreach (['val_nama', 'val_email', 'val_sandi', 'val_nohp'] as $key) $val[$key] = 'Data belum sesuai. Periksa kembali isian Anda.';
@@ -43,6 +43,10 @@ final class BuyerAuthViewTest extends CIUnitTestCase
         $this->assertSame(1, $xp->query('//*[local-name()="svg" and @class="auth-google-icon"]')->length);
         if ($page === 'signup') {
             $this->assertSame(1, $xp->query('//input[@id="syarat" and @type="checkbox" and @required]')->length);
+            $this->assertSame('persetujuan_kebijakan', $xp->query('//input[@id="syarat"]')->item(0)->getAttribute('name'));
+            $this->assertSame(1, $xp->query('//*[@id="signup-policy-modal"]//section[@role="dialog" and @aria-modal="true"]')->length);
+            $this->assertSame(2, $xp->query('//a[@data-policy and @aria-haspopup="dialog"]')->length);
+            $this->assertSame(1, $xp->query('//button[@id="signup-policy-accept" and @disabled]')->length);
             $this->assertFalse($xp->query('//input[@name="sandi"]')->item(0)->hasAttribute('value'));
             $this->assertStringContainsString('/kebijakan-privasi', $html);
             $this->assertStringContainsString('/syarat-dan-ketentuan', $html);
@@ -55,7 +59,7 @@ final class BuyerAuthViewTest extends CIUnitTestCase
     {
         $source = file_get_contents(APPPATH . 'Views/layout/template.php');
         $this->assertStringContainsString("in_array($" . "title, ['Masuk', 'Daftar', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true)", $source);
-        $this->assertSame(2, substr_count($source, 'if (!$isAdminLayout && !$isAuthPage)'));
+        $this->assertSame(1, substr_count($source, 'if (!$isAdminLayout && !$isAuthPage)'));
         $this->assertStringContainsString("view('layout/buyer_footer'", $source);
     }
 
