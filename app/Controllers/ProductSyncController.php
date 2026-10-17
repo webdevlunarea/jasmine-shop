@@ -6,6 +6,7 @@ use App\Models\BarangModel;
 use App\Models\StokModel;
 use App\Models\KonstantaModel;
 use App\Services\Integrations\LunaProductIdentity;
+use App\Services\Integrations\LunaProductStockSync;
 use App\Services\Integrations\LunaCatalogSchema;
 
 class ProductSyncController extends BaseController
@@ -45,6 +46,7 @@ class ProductSyncController extends BaseController
         $createMissing = filter_var($body['create_missing'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $dryRun = filter_var($body['dry_run'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $syncIdentity = filter_var($body['sync_identity'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $stockOnly = filter_var($body['stock_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if (!is_array($products) || count($products) === 0) {
             return $this->response->setStatusCode(400)->setJSON([
@@ -56,6 +58,9 @@ class ProductSyncController extends BaseController
         // Creating new rows requires a separately verified contract for required legacy columns.
         if ($createMissing) return $this->response->setStatusCode(422)->setJSON([
             'success'=>false, 'message'=>'Pembuatan produk otomatis belum diaktifkan untuk schema website existing. Gunakan produk website yang sudah diverifikasi.',
+        ]);
+        if ($stockOnly && $syncIdentity) return $this->response->setStatusCode(422)->setJSON([
+            'success'=>false, 'message'=>'Sinkron stok hanya dapat memperbarui stok, bukan identitas atau katalog.',
         ]);
 
         $summary = [
@@ -78,6 +83,27 @@ class ProductSyncController extends BaseController
         foreach ($products as $product) {
             if (!is_array($product)) {
                 $summary['skipped']++;
+                continue;
+            }
+
+            if ($stockOnly) {
+                $masterId = (string)($product['id'] ?? '');
+                $match = $this->findMappedWebsiteProduct($masterId);
+                if (!$match) {
+                    $summary['skipped']++;
+                    $summary['items'][] = ['luna_product_id'=>$masterId, 'status'=>'skipped_unmapped'];
+                    continue;
+                }
+                $existingIdentity = $this->konstantaModel->getLunaProductIdentity((string)$match['id']);
+                if (!$existingIdentity) throw new \DomainException('Pemetaan MyLuna belum tersedia.');
+                $syncData = LunaProductStockSync::project($product, $existingIdentity, $match);
+                LunaCatalogSchema::product((string)$match['id'], ['stok'=>$syncData['stok']]);
+                if (!$dryRun && (string)$match['stok'] !== (string)$syncData['stok']) {
+                    if (!$this->barangModel->where(['id'=>$match['id']])->set(['stok'=>$syncData['stok']])->update()) throw new \RuntimeException('Stock-only update failed');
+                }
+                if ((string)$match['stok'] !== (string)$syncData['stok']) $this->recordStockChanges($match, $syncData, $product, $dryRun);
+                $summary['updated']++;
+                $summary['items'][] = ['website_id'=>$match['id'], 'luna_product_id'=>$masterId, 'status'=>'stock_updated'];
                 continue;
             }
 
@@ -188,6 +214,25 @@ class ProductSyncController extends BaseController
         $row = array_values($candidates)[0];
         $row['_luna_match_by'] = $linkedId ? 'canonical_id' : 'explicit_id';
         return $row;
+    }
+
+    /** Stock-only updates are accepted solely through an admin-reviewed canonical mapping. */
+    private function findMappedWebsiteProduct(string $masterId): ?array
+    {
+        if (!LunaProductIdentity::uuid($masterId)) throw new \DomainException('ID master MyLuna tidak valid.');
+        $matchedId = null;
+        foreach ($this->konstantaModel->like('label', LunaProductIdentity::PREFIX, 'after')->findAll() as $row) {
+            $identity = json_decode((string)$row['value'], true);
+            if (!is_array($identity) || !LunaProductIdentity::uuid($identity['product_id'] ?? null)) throw new \DomainException('Pemetaan tersimpan perlu ditinjau admin.');
+            if ($identity['product_id'] !== $masterId) continue;
+            $websiteId = substr((string)$row['label'], strlen(LunaProductIdentity::PREFIX));
+            if ($matchedId !== null && $matchedId !== $websiteId) throw new \DomainException('Pemetaan master duplikat; stok tidak disinkronkan.');
+            $matchedId = $websiteId;
+        }
+        if ($matchedId === null) return null;
+        $product = $this->barangModel->where('id', $matchedId)->first();
+        if (!$product) throw new \DomainException('Produk website pada pemetaan sudah tidak ditemukan.');
+        return $product;
     }
 
     private function buildWebsiteProductData(array $product, ?array $existing, bool $syncIdentity): array

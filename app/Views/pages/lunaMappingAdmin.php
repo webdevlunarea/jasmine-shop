@@ -9,7 +9,7 @@
         <div><span>Referensi tersimpan</span><strong><?= (int)$mapped; ?></strong></div>
         <div><span>Belum terhubung</span><strong><?= (int)($total-$mapped); ?></strong></div>
     </div>
-    <p class="mapping-notice">Pemetaan tidak mengubah ID, stok, harga, atau pesanan lama. Referensi tersimpan tetap perlu diperiksa kecocokan variannya.
+    <p class="mapping-notice">Stok produk dan varian Lunarea mengikuti MyLuna melalui sinkronisasi katalog. Gambar dan konten visual tetap milik Lunarea. Harga serta pesanan lama tidak berubah.
         <?php if (!$identityEnabled) { ?><strong>Penggunaan identitas baru di checkout masih nonaktif.</strong><?php } else { ?><strong>Identitas baru digunakan untuk pesanan berikutnya.</strong><?php } ?>
     </p>
     <div class="mapping-workspace">
@@ -53,7 +53,7 @@
                         <legend class="visually-hidden">Pilihan produk dan varian MyLuna</legend>
                         <label for="master-search">Cari produk MyLuna</label><input id="master-search" class="form-control" type="search" placeholder="Ketik nama, SKU, atau ID" autocomplete="off">
                         <label for="master-product">Produk MyLuna</label><select id="master-product" name="master_id" class="form-select" required><option value="">Pilih produk MyLuna</option></select>
-                        <p class="mapping-help">Pilih berdasarkan model dan spesifikasi yang sama. Produk yang sudah terhubung ke ID website lain tidak ditawarkan.</p>
+                        <p class="mapping-help">Pilih berdasarkan model dan spesifikasi yang sama. Saat pasangan disimpan, stok terkini MyLuna diselaraskan ke Lunarea. Produk yang sudah terhubung ke ID website lain tidak ditawarkan.</p>
                         <div id="master-detail" class="mapping-master-detail" hidden></div>
                         <div id="variant-mapping" class="mapping-variants"></div>
                         <p id="mapping-validation" class="mapping-help" role="status" aria-live="polite"></p>

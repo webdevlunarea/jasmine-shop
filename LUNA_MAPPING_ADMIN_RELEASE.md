@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementasi lokal; belum di-push atau di-deploy pada pekerjaan ini. Tidak ada SQL, perubahan konfigurasi, atau penulisan data produksi yang dijalankan.
+Implementasi pengembangan sinkron stok; status rilis mengikuti commit/deployment terbaru. Tidak ada SQL atau penulisan data produksi yang dijalankan oleh proses pengembangan ini.
 
 Menu baru: **Katalog → Pemetaan MyLuna**, path `/lunamappingadmin`.
 
@@ -18,15 +18,17 @@ Produk/varian lama yang sudah dipetakan tidak dialihkan ke ID lain dari halaman 
 
 ## Batas perubahan
 
-- MyLuna hanya menambah GET `/api/v1/integrations/lunarea-web-catalogue` dengan token integrasi backend. Query diproyeksikan ke ID/SKU/nama/status/ref website/UUID varian; tidak mengirim harga beli, stok, credential, atau data pelanggan.
+- MyLuna menyediakan GET `/api/v1/integrations/lunarea-web-catalogue` yang diautentikasi backend dan memproyeksikan ID/SKU/nama/status/ref website/UUID varian serta stok produk dan varian. Endpoint tidak mengirim harga, credential, atau data pelanggan.
 - Website membaca katalog melalui backend HTTPS; token tidak diteruskan ke browser. Gagal koneksi/respons tidak lengkap memblokir penyimpanan.
 - Saat menyimpan: pemeriksaan admin, metode POST, CSRF, konfirmasi/catatan, fresh master fingerprint, revision website, advisory lock katalog existing, transaksi dan row lock, kepemilikan varian, duplikasi produk, serta readback hasil penyimpanan.
 - Koneksi MyLuna dikonfigurasi memakai URL/token integrasi existing. Endpoint katalog diturunkan sebagai sibling dari URL `lunarea-web-order`; bukan URL yang diberikan browser.
 - Metadata ditulis ke `konstanta` memakai prefix `luna_product_identity_` existing. Memerlukan kapasitas `value` cukup; model memeriksa schema aktual dan menolak overflow. Schema produksi sebelumnya sudah diverifikasi TEXT. Tidak ada tabel baru/migration atau SQL tambahan untuk rilis ini.
 - Catatan pemeriksaan terakhir menyimpan admin, UTC timestamp, alasan dan fingerprint master dalam metadata. Ini bukan tabel riwayat audit lengkap; log aplikasi mencatat kejadian penyimpanan tanpa token.
-- ID produk/varian, stok, harga, foto, keranjang dan snapshot pesanan lama tidak ditulis. Tidak membuat/meneruskan order. L00000227 tidak disentuh.
+- Saat admin menyimpan pemetaan pertama kali, hanya snapshot stok MyLuna yang disalin ke `barang.stok` dalam transaksi yang sama dengan metadata pemetaan. Perubahan dicatat di tabel `stok` existing. Produk/varian, harga, foto, keranjang dan snapshot pesanan lama tidak ditulis. Tidak membuat/meneruskan order.
+- Sinkronisasi rutin MyLuna ke Lunarea membawa payload stock-only, dipetakan melalui UUID MyLuna yang telah disetujui admin dan urutan varian lokal. Data gambar, harga, nama, konten, dan identitas lokal tidak ikut ditimpa. Produk belum dipetakan dilewati; ketidakcocokan varian atau stok ditolak, tidak ditebak. Retry terbatas dilakukan saat gangguan jaringan/API.
+- Di MyLuna, `LUNAREA_WEBSITE_STOCK_SYNC_ENABLED=true` mengaktifkan sinkron stok. Bila variabel ini kosong, mekanisme mempertahankan kompatibilitas dengan `LUNAREA_WEBSITE_PRODUCT_SYNC_ENABLED`. Pastikan flag yang dipakai pada runtime MyLuna aktif setelah deploy; jangan menyalin nilai rahasia ke log atau browser. Kode repository tidak mengubah `.env`.
 - `LUNA_PRODUCT_IDENTITY_ENABLED` tidak diubah. Jika OFF, checkout tetap memakai perilaku sebelumnya: menyimpan mapping bukan berarti checkout otomatis menggunakannya. Aktivasi terpisah setelah cakupan produk dan pengujian pesanan disetujui.
-- Pemeriksaan katalog live adalah verifikasi saat request, bukan transaksi atomik lintas dua database. Import order MyLuna tetap memvalidasi master/varian di dalam transaksi existing.
+- Sinkron stok adalah pembaruan near-real-time berbasis event setelah perubahan stok (umumnya antrean singkat sekitar 1,5 detik, ditambah latensi jaringan/retry), bukan transaksi atomik lintas dua database atau reservasi stok saat checkout. Import order MyLuna tetap memvalidasi dan mengurangi stok master dalam transaksi existing. Jika webhook stok tertunda/gagal, stok website dapat sementara tertinggal; pantau log/hasil sync dan gunakan rekonsiliasi terarah.
 - Batas katalog saat ini 2.000 produk; jika terlampaui request ditolak, bukan dipotong diam-diam. Paginasi provider menjadi pekerjaan berikutnya bila diperlukan.
 
 ## Pengujian yang dijalankan
@@ -34,6 +36,7 @@ Produk/varian lama yang sudah dipetakan tidak dialihkan ke ID lain dari halaman 
 - Suite PHP: 388 tes, 2.224 assertions, 2 tes MySQL opt-in dilewati pada suite biasa.
 - Uji MySQL 8 hasil restore localhost khusus metadata review: 1 tes, 10 assertions. Verifikasi readback, konflik satu master untuk dua website, produk/order/stok tidak berubah, rollback metadata, lalu server staging dihentikan normal.
 - Regresi backend integrasi website berbasis mock: 12 suite / 134 tes lulus; `tsc --noEmit` lulus. Peringatan ts-jest TS151002 existing tetap ada.
+- Validasi tambahan sinkronisasi stok: suite PHPUnit dan backend sinkronisasi stok harus lulus sebelum rilis.
 - Browser Chrome headless dengan fixture sintetis localhost: dropdown tidak memilih otomatis, varian duplikat memblokir tombol, varian lengkap diterima, payload form benar, API gagal memblokir kontrol form, muat ulang pulih. Desktop 1365px dan mobile 390px diperiksa; tidak ada horizontal overflow pada fixture.
 - Pemeriksaan visual menggunakan CSS/view asli tetapi fixture tanpa shell/login/database aplikasi penuh. Ini bukan bukti end-to-end produksi. Alat browser interaktif mengalami masalah koneksi; pemeriksaan fixture memakai browser headless lokal.
 - Tidak melakukan login, pemetaan, forward order, atau request API produksi pada pengembangan halaman ini.

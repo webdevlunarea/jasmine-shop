@@ -7,8 +7,8 @@ use CodeIgniter\Test\CIUnitTestCase;
 final class LunaMappingReviewTest extends CIUnitTestCase
 {
     private function website(): array { return ['id'=>'B20240116151233', 'nama'=>'MT 120', 'varian'=>'["CHERRY HITAM","PUTIH"]', 'active'=>1]; }
-    private function master(): array { return ['id'=>'7ef42be0-9851-4d75-ab2b-13e9acd58990','name'=>'MT 120','sku'=>'MT12','active'=>true,'website_ids'=>[],
-        'variants'=>[['id'=>'3b2bb1d3-df78-4272-92b2-87612eac4c1d','value'=>'CHERRY HITAM'],['id'=>'11111111-1111-4111-8111-111111111111','value'=>'WHITE']]]; }
+    private function master(): array { return ['id'=>'7ef42be0-9851-4d75-ab2b-13e9acd58990','name'=>'MT 120','sku'=>'MT12','active'=>true,'stock'=>42,'website_ids'=>[],
+        'variants'=>[['id'=>'3b2bb1d3-df78-4272-92b2-87612eac4c1d','value'=>'CHERRY HITAM','stock'=>9],['id'=>'11111111-1111-4111-8111-111111111111','value'=>'WHITE','stock'=>3]]]; }
     private function choices(): array { return array_column($this->master()['variants'], 'id'); }
 
     public function testExplicitVariantAliasesUseUuidWithoutRenamingWebsite(): void
@@ -54,7 +54,33 @@ final class LunaMappingReviewTest extends CIUnitTestCase
         $before = LunaMappingReview::revision($this->website(), null);
         $this->assertNotSame($before, LunaMappingReview::revision(array_replace($this->website(), ['varian'=>'["PUTIH"]']), null));
         $this->assertNotSame($before, LunaMappingReview::revision($this->website(), ['version'=>1]));
+        $this->assertNotSame($before, LunaMappingReview::revision(array_replace($this->website(), ['stok'=>'9,3']), null));
         $this->assertNotSame(LunaMappingReview::fingerprint($this->master()), LunaMappingReview::fingerprint(array_replace($this->master(), ['active'=>false])));
+    }
+    public function testStockSnapshotMapsByMasterVariantIdAndPreservesWebsiteOrderAndLabels(): void
+    {
+        $website=$this->website();
+        $identity=LunaMappingReview::identity($website,$this->master(),$this->choices(),null);
+        $projected=LunaMappingReview::stock($website,$this->master(),$identity);
+        $this->assertSame('9,3',$projected['value']);
+        $this->assertSame(['CHERRY HITAM','PUTIH'],array_column($projected['entries'],'variant'));
+        $this->assertSame([9,3],array_column($projected['entries'],'stock'));
+        $this->assertSame('["CHERRY HITAM","PUTIH"]',$website['varian']);
+    }
+    public function testStockSnapshotFailsClosedForMissingVariantOrInvalidQuantity(): void
+    {
+        $identity=LunaMappingReview::identity($this->website(),$this->master(),$this->choices(),null);
+        foreach ([array_replace($this->master(), ['variants'=>[$this->master()['variants'][0]]]), array_replace($this->master(), ['variants'=>[array_replace($this->master()['variants'][0], ['stock'=>-1]),$this->master()['variants'][1]]])] as $master) {
+            try { LunaMappingReview::stock($this->website(),$master,$identity); $this->fail('Incomplete or invalid inventory accepted'); }
+            catch (DomainException $e) { $this->assertNotEmpty($e->getMessage()); }
+        }
+    }
+    public function testStockSnapshotSupportsUnvariedMasterWithoutInventingAFreeStockValue(): void
+    {
+        $website=array_replace($this->website(),['varian'=>'["Default"]','stok'=>'5']);
+        $master=array_replace($this->master(),['stock'=>0,'variants'=>[]]);
+        $identity=LunaMappingReview::identity($website,$master,[],null);
+        $this->assertSame(['value'=>'0','entries'=>[['variant'=>'Default','stock'=>0]]],LunaMappingReview::stock($website,$master,$identity));
     }
     public function testNoVariantMasterOnlyAcceptsEmptyOrDefaultWebsite(): void
     {

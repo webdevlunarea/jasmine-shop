@@ -19,12 +19,44 @@ final class LunaMappingReview
 
     public static function revision(array $website, ?array $identity): string
     {
-        return hash('sha256', json_encode([(string)$website['id'], (string)$website['nama'], (string)$website['varian'], (string)$website['active'], $identity], JSON_THROW_ON_ERROR));
+        return hash('sha256', json_encode([(string)$website['id'], (string)$website['nama'], (string)$website['varian'], (string)$website['active'], (string)($website['stok'] ?? ''), $identity], JSON_THROW_ON_ERROR));
     }
 
     public static function fingerprint(array $master): string
     {
         return hash('sha256', json_encode($master, JSON_THROW_ON_ERROR));
+    }
+
+    /** Map authoritative MyLuna stock to existing Lunarea variant order without renaming variants. */
+    public static function stock(array $website, array $master, array $identity): array
+    {
+        $whole = static fn($value): bool => is_int($value) && $value >= 0;
+        if (!$whole($master['stock'] ?? null)) throw new \DomainException('Stok produk MyLuna tidak valid.');
+        $websiteVariants = self::variants($website);
+        $mappedVariants = $identity['variants'] ?? null;
+        $masterVariants = $master['variants'] ?? null;
+        if (!is_array($mappedVariants) || !is_array($masterVariants)) throw new \DomainException('Pemetaan stok varian tidak valid.');
+        if (!$masterVariants) {
+            if ($mappedVariants || ($websiteVariants && $websiteVariants !== ['Default'])) throw new \DomainException('Struktur varian MyLuna dan Lunarea belum cocok.');
+            return ['value'=>(string)$master['stock'], 'entries'=>[['variant'=>'Default', 'stock'=>$master['stock']]]];
+        }
+        if (!$websiteVariants || count($mappedVariants) !== count($websiteVariants)) throw new \DomainException('Pemetaan setiap varian perlu dilengkapi sebelum stok diselaraskan.');
+        $remote = [];
+        foreach ($masterVariants as $variant) {
+            if (!is_array($variant) || !LunaProductIdentity::uuid($variant['id'] ?? null) || !$whole($variant['stock'] ?? null) || isset($remote[$variant['id']])) {
+                throw new \DomainException('Data stok varian MyLuna tidak valid atau duplikat.');
+            }
+            $remote[$variant['id']] = $variant['stock'];
+        }
+        $entries = []; $seen = [];
+        foreach ($websiteVariants as $name) {
+            $id = $mappedVariants[$name] ?? null;
+            if (!LunaProductIdentity::uuid($id) || !array_key_exists($id, $remote) || isset($seen[$id])) throw new \DomainException('Pasangan varian dan stok MyLuna belum lengkap.');
+            $seen[$id] = true;
+            $entries[] = ['variant'=>$name, 'stock'=>$remote[$id]];
+        }
+        if (count($seen) !== count($remote)) throw new \DomainException('Jumlah varian berubah di MyLuna. Tinjau ulang pemetaan sebelum sinkron stok.');
+        return ['value'=>implode(',', array_column($entries, 'stock')), 'entries'=>$entries];
     }
 
     public static function identity(array $website, array $master, array $selected, ?array $existing): array

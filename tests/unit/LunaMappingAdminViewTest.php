@@ -46,7 +46,9 @@ final class LunaMappingAdminViewTest extends CIUnitTestCase
     {
         $code=file_get_contents(APPPATH.'Controllers/LunaMappingAdmin.php');
         foreach (['security()->verify($this->request)', 'GET_LOCK', 'FOR UPDATE', 'LunaMappingReview::revision', 'LunaMappingReview::fingerprint', 'transRollback', 'RELEASE_LOCK', 'saveLunaProductIdentity'] as $guard) $this->assertStringContainsString($guard,$code);
-        foreach (['StokModel','PemesananModel','LUNA_PRODUCT_IDENTITY_ENABLED\', true', 'ALTER TABLE', 'INSERT INTO products'] as $forbidden) $this->assertStringNotContainsString($forbidden,$code);
+        foreach (['PemesananModel','LUNA_PRODUCT_IDENTITY_ENABLED\', true', 'ALTER TABLE', 'INSERT INTO products'] as $forbidden) $this->assertStringNotContainsString($forbidden,$code);
+        $this->assertStringContainsString('LunaMappingReview::stock', $code);
+        $this->assertStringContainsString('Sinkron stok awal dari MyLuna', $code);
         $routes=file_get_contents(APPPATH.'Config/Routes.php');
         $this->assertStringContainsString("'/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => 'harusAdmin']",$routes);
     }

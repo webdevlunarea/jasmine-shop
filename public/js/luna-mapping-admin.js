@@ -35,7 +35,7 @@
         document.getElementById('master-fingerprint').value = product ? product.fingerprint : '';
         if (!product) { validate(); return; }
         detail.hidden = false;
-        for (const text of [product.name, 'SKU: ' + product.sku, 'ID: ' + product.id]) {
+        for (const text of [product.name, 'SKU: ' + product.sku, 'ID: ' + product.id, 'Stok master MyLuna: ' + product.stock]) {
             const line = document.createElement('div'); line.textContent = text; detail.append(line);
         }
         if (product.variants.length) website.variants.forEach((name, index) => {
@@ -44,7 +44,7 @@
             const select = document.createElement('select'); select.className = 'form-select'; select.name = 'variant_ids[' + index + ']'; select.id = label.htmlFor; select.required = true;
             select.add(option('Pilih varian MyLuna', ''));
             const lockedId = saved?.variants?.[name];
-            for (const variant of product.variants) if (!lockedId || variant.id === lockedId) select.add(option(variant.value + ' · ' + variant.id, variant.id));
+            for (const variant of product.variants) if (!lockedId || variant.id === lockedId) select.add(option(variant.value + ' · stok ' + variant.stock, variant.id));
             if (lockedId) select.value = lockedId;
             select.addEventListener('change', validate); row.append(label, select); variants.append(row);
         });
@@ -55,7 +55,7 @@
         const selected = masterSelect.value || saved?.product_id || '';
         const term = search.value.trim().toLocaleLowerCase('id');
         masterSelect.replaceChildren(option('Pilih produk MyLuna', ''));
-        for (const p of products) if (eligible(p) && (p.id === selected || (p.name + ' ' + p.sku + ' ' + p.id).toLocaleLowerCase('id').includes(term))) masterSelect.add(option(p.name + ' · ' + p.sku, p.id));
+        for (const p of products) if (eligible(p) && (p.id === selected || (p.name + ' ' + p.sku + ' ' + p.id).toLocaleLowerCase('id').includes(term))) masterSelect.add(option(p.name + ' · ' + p.sku + ' · stok ' + p.stock, p.id));
         masterSelect.value = selected; renderMaster();
     }
 
