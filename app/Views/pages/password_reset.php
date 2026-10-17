@@ -2,18 +2,8 @@
 <?= $this->section('content'); ?>
 <div class="konten auth-page">
     <div class="container">
-        <div class="auth-shell auth-reset-shell">
-            <section class="auth-panel auth-reset-panel" aria-labelledby="reset-title">
-                <div class="auth-reset-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h16v11H4z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg></div>
-                <p class="auth-reset-eyebrow">Keamanan akun Lunarea</p>
-                <?php $resetStep = $step === 'request' ? 1 : ($step === 'confirm' ? 2 : 3); ?>
-                <ol class="auth-reset-steps" aria-label="Tahapan pemulihan sandi">
-                    <?php foreach (['Identifikasi', 'Konfirmasi', 'Sandi baru'] as $index => $label) { $number = $index + 1; ?>
-                    <li class="<?= $number === $resetStep ? 'is-current' : ($number < $resetStep ? 'is-complete' : ''); ?>" <?= $number === $resetStep ? 'aria-current="step"' : ''; ?>>
-                        <span><?= $number < $resetStep ? '✓' : $number; ?></span><small><?= esc($label); ?></small>
-                    </li>
-                    <?php } ?>
-                </ol>
+        <div class="auth-shell">
+            <section class="auth-panel" aria-labelledby="reset-title">
                 <div class="auth-heading">
                     <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi email pemulihan' : 'Lupa sandi?'); ?></h1>
                     <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan alamat pemulihan ini benar sebelum kami mengirim kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
