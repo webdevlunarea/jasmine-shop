@@ -13,7 +13,7 @@ final class PasswordResetViewTest extends CIUnitTestCase
             public function section($name): string { return ''; }
             public function endSection(): string { return ''; }
             public function render(string $step): string {
-                $email='buyer@example.test'; $message=''; $error='';
+                $email='buyer@example.test'; $maskedEmail='B****@example.test'; $message=''; $error='';
                 ob_start(); try { include APPPATH.'Views/pages/password_reset.php'; return ob_get_contents(); } finally { ob_end_clean(); }
             }
         };
@@ -23,6 +23,12 @@ final class PasswordResetViewTest extends CIUnitTestCase
         $this->assertSame(1,$xp->query('//form[@method="post"]')->length);
         $this->assertSame(1,$xp->query('//input[@name="'.csrf_token().'"]')->length);
         $this->assertSame(site_url($step==='request'?'lupa-sandi':'reset-sandi'),$xp->query('//form')->item(0)->getAttribute('action'));
+        if($step==='confirm') {
+            $this->assertStringContainsString('B****@example.test',$html);
+            $this->assertStringNotContainsString('buyer@example.test',$html);
+            $this->assertStringContainsString('name="confirm_email"',$html);
+            $this->assertStringContainsString('name="change_identity"',$html);
+        }
         if($step==='reset') {
             $input=$xp->query('//input[@name="otp"]')->item(0);
             $this->assertSame('text',$input->getAttribute('type'));

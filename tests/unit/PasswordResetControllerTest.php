@@ -32,6 +32,10 @@ final class PasswordResetControllerTest extends CIUnitTestCase
                     private $owner;
                     public function __construct($owner) { $this->owner=$owner; }
                     public function request(string $email,string $ip): void { $this->owner->calls[]=['request',$email,$ip]; }
+                    public function resolveCustomerEmail(string $identity,string $ip): ?string {
+                        $this->owner->calls[]=['resolve',$identity,$ip];
+                        return in_array(strtolower($identity), ['buyer@example.test','buyername'], true) ? 'buyer@example.test' : null;
+                    }
                     public function reset(string $email,$code,$password,$confirmation,string $ip): void {
                         $this->owner->calls[]=['reset',$email,$code,$password,$confirmation,$ip];
                         if($this->owner->invalid) throw new \DomainException(PasswordResetService::INVALID_CODE);
@@ -41,28 +45,39 @@ final class PasswordResetControllerTest extends CIUnitTestCase
         };
     }
 
-    public function testRequestUsesGenericReplyAndDoesNotStoreOtpOrPassword(): void
+    public function testIdentifierMustBeSubmittedBeforeEmailIsConfirmedAndCodeIsSent(): void
     {
-        $c=$this->controller(['email'=>' Buyer@Example.test ','sandi'=>'never-store']);
+        $c=$this->controller(['identity'=>'buyername','sandi'=>'never-store']);
+        $this->assertStringEndsWith('/lupa-sandi',$c->requestCode()->getHeaderLine('Location'));
+        $this->assertSame([['resolve','buyername','192.0.2.1']],$c->calls);
+        $this->assertSame('buyer@example.test',session('password_reset_pending_email'));
+        $this->assertNull(session('password_reset_email'));
+        $this->assertStringNotContainsString('never-store',json_encode(session()->get()));
+        $this->assertNull(session()->get('_ci_old_input'));
+    }
+
+    public function testOnlyExplicitEmailConfirmationSendsResetCode(): void
+    {
+        session()->set(['password_reset_pending_email'=>'buyer@example.test','password_reset_pending_at'=>time()]);
+        $c=$this->controller(['confirm_email'=>'1']);
         $this->assertStringEndsWith('/reset-sandi',$c->requestCode()->getHeaderLine('Location'));
         $this->assertSame([['request','buyer@example.test','192.0.2.1']],$c->calls);
         $this->assertSame('buyer@example.test',session('password_reset_email'));
-        $this->assertStringContainsString('Jika email terdaftar',session()->getFlashdata('reset_message'));
-        $this->assertStringNotContainsString('never-store',json_encode(session()->get()));
-        $this->assertNull(session()->get('_ci_old_input'));
+        $this->assertNull(session('password_reset_pending_email'));
     }
 
     /** @dataProvider renderedSteps */
     public function testRealLayoutRetainsTitleAcrossCaptchaPartial(string $step, string $title): void
     {
-        session()->remove(array_keys(session()->get()));
-        session()->set('password_reset_email', 'buyer@example.test');
+            session()->remove(array_keys(session()->get()));
+            if ($step === 'confirm') session()->set(['password_reset_pending_email'=>'buyer@example.test','password_reset_pending_at'=>time()]);
+            if ($step === 'reset') session()->set('password_reset_email', 'buyer@example.test');
         $config = config(\Config\Recaptcha::class);
         $enabled = $config->enabled;
         $config->enabled = false;
         try {
             $controller = $this->controller([]);
-            $response = $step === 'request' ? $controller->requestForm() : $controller->resetForm();
+            $response = $step === 'reset' ? $controller->resetForm() : $controller->requestForm();
             $html = $response->getBody();
             $this->assertStringContainsString('<title>' . $title . ' | Lunarea Furniture</title>', $html);
             $this->assertStringContainsString('buyer-auth.css', $html);
@@ -81,11 +96,19 @@ final class PasswordResetControllerTest extends CIUnitTestCase
 
     public function testInvalidEmailNeverCallsStorageOrMailer(): void
     {
-        foreach([[],['email'=>[]],['email'=>'not-email']] as $post) {
+        foreach([[],['identity'=>[]],['identity'=>'not-email@']] as $post) {
             $c=$this->controller($post);
             $this->assertStringEndsWith('/lupa-sandi',$c->requestCode()->getHeaderLine('Location'));
             $this->assertSame([],$c->calls);
         }
+    }
+
+    public function testUnknownIdentityDoesNotReachCodeMailer(): void
+    {
+        $c=$this->controller(['identity'=>'unknownname']);
+        $this->assertStringEndsWith('/lupa-sandi',$c->requestCode()->getHeaderLine('Location'));
+        $this->assertSame([['resolve','unknownname','192.0.2.1']],$c->calls);
+        $this->assertNull(session('password_reset_pending_email'));
     }
 
     public function testCompletionUsesSessionTargetNotPostedVictimAndSignsOut(): void

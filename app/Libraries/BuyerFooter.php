@@ -15,7 +15,7 @@ final class BuyerFooter
         $path = preg_replace('~^/?index\.php(?:/|$)~', '/', $path);
         $root = explode('/', trim($path, '/'))[0];
         $payment = in_array($root, ['checkout', 'actionpaycore', 'order', 'payorder', 'invoice'], true);
-        $minimal = $payment || in_array($root, ['login', 'signup', 'masuk', 'daftar', 'daftarcoba', 'verify', 'auth'], true);
+        $minimal = $payment || in_array($root, ['login', 'signup', 'masuk', 'daftar', 'daftarcoba', 'verify', 'auth', 'lupa-sandi', 'reset-sandi'], true);
         $compact = in_array($root, ['cart', 'account', 'transaction', 'wishlist', 'point', 'voucher', 'retur', 'lacak-pengiriman'], true);
         return ['variant' => $minimal ? 'minimal' : ($compact ? 'compact' : 'full'), 'payment' => $payment];
     }

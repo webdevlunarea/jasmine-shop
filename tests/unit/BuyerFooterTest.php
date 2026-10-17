@@ -17,7 +17,7 @@ final class BuyerFooterTest extends CIUnitTestCase
         foreach (['/', '/all', '/all/lemari', '/product/lemari', '/article', '/article/judul', '/about', '/contact', '/faq', '/kebijakan-privasi', '/syarat-dan-ketentuan', '/accounting', '/cartoon', '/checkout-other'] as $path) $cases[] = [$path, '', 'full', false];
         foreach (['/account', '/account/addresses/manage', '/cart', '/transaction', '/wishlist', '/point/history', '/voucher', '/retur/order/test', '/lacak-pengiriman'] as $path) $cases[] = [$path, '', 'compact', false];
         foreach (['/checkout', '/actionpaycore', '/order/test', '/payorder/test', '/invoice/test'] as $path) $cases[] = [$path, '', 'minimal', true];
-        foreach (['/login', '/signup', '/masuk', '/daftar', '/verify/url/test', '/auth/google/callback'] as $path) $cases[] = [$path, '', 'minimal', false];
+        foreach (['/login', '/signup', '/masuk', '/daftar', '/verify/url/test', '/auth/google/callback', '/lupa-sandi', '/reset-sandi'] as $path) $cases[] = [$path, '', 'minimal', false];
         $cases[] = ['/checkout/?voucher=1', '', 'minimal', true];
         $cases[] = ['/jasmine-shop/public/index.php/point/history', '/jasmine-shop/public/', 'compact', false];
         $cases[] = ['/index.php/signup', '', 'minimal', false];

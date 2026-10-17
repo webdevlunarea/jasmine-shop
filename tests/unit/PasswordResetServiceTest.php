@@ -16,6 +16,7 @@ final class PasswordResetServiceTest extends CIUnitTestCase
         parent::setUp();
         $this->connection = \Config\Database::connect(['DBDriver'=>'SQLite3','database'=>':memory:','DBPrefix'=>'','DBDebug'=>true], false);
         $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT, role TEXT, active TEXT, auth_provider TEXT)');
+        $this->connection->query('CREATE TABLE customer_usernames (username TEXT PRIMARY KEY, email_user TEXT UNIQUE)');
         $this->connection->query('CREATE TABLE pembeli (email_user TEXT PRIMARY KEY, keranjang TEXT, transaksi TEXT, poin TEXT)');
         $this->connection->table('user')->insert(['email'=>'buyer@example.test','sandi'=>password_hash('OldPassword123!',PASSWORD_DEFAULT),'role'=>'0','active'=>'1','auth_provider'=>'google']);
         $this->connection->table('user')->insert(['email'=>'admin@example.test','sandi'=>'old-admin-hash','role'=>'1','active'=>'1']);
@@ -100,6 +101,15 @@ final class PasswordResetServiceTest extends CIUnitTestCase
         $this->request('unknown@example.test'); $this->request('admin@example.test');
         $this->assertCount(3,$this->mailer->codes);
         $this->assertSame('old-admin-hash',$this->connection->table('user')->where('email','admin@example.test')->get()->getRowArray()['sandi']);
+    }
+
+    public function testResetIdentifierResolvesCustomerEmailAndUsernameButNeverAdmin(): void
+    {
+        $this->connection->table('customer_usernames')->insert(['username'=>'buyername','email_user'=>'buyer@example.test']);
+        $this->assertSame('buyer@example.test',$this->service->resolveCustomerEmail('buyer@example.test','192.0.2.10'));
+        $this->assertSame('buyer@example.test',$this->service->resolveCustomerEmail('buyername','192.0.2.11'));
+        $this->assertNull($this->service->resolveCustomerEmail('admin@example.test','192.0.2.12'));
+        $this->assertNull($this->service->resolveCustomerEmail('missingname','192.0.2.13'));
     }
 
     public function testDeliveryFailureLeavesNoUsableCode(): void

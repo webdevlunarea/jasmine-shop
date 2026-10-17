@@ -5,8 +5,8 @@
         <div class="auth-shell">
             <section class="auth-panel" aria-labelledby="reset-title">
                 <div class="auth-heading">
-                    <h1 id="reset-title"><?= $step === 'request' ? 'Lupa sandi?' : 'Buat sandi baru'; ?></h1>
-                    <p><?= $step === 'request' ? 'Masukkan email akun Anda. Kami akan mengirim kode verifikasi 6 digit.' : 'Masukkan kode angka dari email, lalu tentukan sandi baru Anda.'; ?></p>
+                    <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi email pemulihan' : 'Lupa sandi?'); ?></h1>
+                    <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan alamat pemulihan ini benar sebelum kami mengirim kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
                 </div>
                 <?php if (!empty($message)) : ?><div class="auth-alert auth-reset-note" role="status"><?= esc($message); ?></div><?php endif; ?>
                 <?php if (!empty($error)) : ?><div class="alert alert-danger auth-alert" role="alert"><?= esc($error); ?></div><?php endif; ?>
@@ -14,11 +14,23 @@
                     <?= csrf_field(); ?>
                     <?php if ($step === 'request') : ?>
                         <div class="auth-field">
-                            <label for="reset-email">Email akun</label>
-                            <input id="reset-email" class="form-control" type="email" name="email" value="<?= esc($email); ?>" maxlength="254" autocomplete="email" required>
+                            <label for="reset-identity">Email atau username</label>
+                            <input id="reset-identity" class="form-control" type="text" name="identity" maxlength="254" autocomplete="username" required>
                         </div>
                         <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
-                        <button type="submit" class="btn btn-primary1 auth-submit">Kirim kode verifikasi</button>
+                        <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Lanjutkan</button>
+                    <?php elseif ($step === 'confirm') : ?>
+                        <div class="auth-reset-email-confirm" aria-live="polite">
+                            <span class="auth-reset-email-label">Email pemulihan</span>
+                            <strong><?= esc($maskedEmail); ?></strong>
+                        </div>
+                        <label class="auth-reset-confirm-check" for="confirm-reset-email">
+                            <input id="confirm-reset-email" type="checkbox" name="confirm_email" value="1" required>
+                            <span>Ya, ini alamat email saya dan saya dapat membukanya.</span>
+                        </label>
+                        <?= view('partials/auth_recaptcha', [], ['saveData' => false]); ?>
+                        <button type="submit" data-primary-submit class="btn btn-primary1 auth-submit">Kirim kode ke email ini</button>
+                        <button type="submit" class="auth-reset-change" name="change_identity" value="1" formnovalidate>Gunakan email atau username lain</button>
                     <?php else : ?>
                         <div class="auth-field">
                             <label for="reset-otp">Kode verifikasi</label>
@@ -49,13 +61,17 @@
 <script>
 (() => {
     const form = document.getElementById('password-reset-form');
-    const submit = form.querySelector('[type="submit"]');
+    const submit = form.querySelector('[data-primary-submit]') || form.querySelector('[type="submit"]');
     function syncCaptcha() {
         submit.disabled = !!form.querySelector('.auth-captcha') && window.lunareaCaptchaReady !== true;
     }
     document.addEventListener('lunarea:captcha', syncCaptcha);
     syncCaptcha();
-    form.addEventListener('submit', () => { submit.disabled = true; submit.textContent = 'Memproses…'; });
+    form.addEventListener('submit', event => {
+        if (event.submitter && event.submitter.name === 'change_identity') return;
+        submit.disabled = true;
+        submit.textContent = 'Memproses…';
+    });
     const toggle = document.getElementById('reset-password-toggle');
     if (toggle) toggle.addEventListener('click', () => {
         const show = toggle.getAttribute('aria-pressed') !== 'true';

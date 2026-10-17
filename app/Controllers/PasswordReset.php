@@ -15,7 +15,29 @@ class PasswordReset extends BaseController
         return redirect()->to(site_url($path))->removeHeader('Cache-Control')
             ->setHeader('Cache-Control', 'no-store, private')->setHeader('Referrer-Policy', 'no-referrer');
     }
-    public function requestForm() { return $this->page('request'); }
+    private function pendingEmail(): ?string
+    {
+        $email = session('password_reset_pending_email');
+        $created = session('password_reset_pending_at');
+        if (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)
+            || !is_numeric($created) || (int)$created < time() - 600) {
+            session()->remove(['password_reset_pending_email', 'password_reset_pending_at']);
+            return null;
+        }
+        return $email;
+    }
+    public function requestForm()
+    {
+        $pending = $this->pendingEmail();
+        if ($pending === null) {
+            $previous = session('password_reset_email');
+            if (is_string($previous) && filter_var($previous, FILTER_VALIDATE_EMAIL)) {
+                $pending = $previous;
+                session()->set(['password_reset_pending_email' => $pending, 'password_reset_pending_at' => time()]);
+            }
+        }
+        return $this->page($pending !== null ? 'confirm' : 'request');
+    }
     public function resetForm()
     {
         if (!is_string(session('password_reset_email')) || !filter_var(session('password_reset_email'), FILTER_VALIDATE_EMAIL)) return $this->redirectTo('lupa-sandi');
@@ -25,33 +47,70 @@ class PasswordReset extends BaseController
     {
         return $this->response->setHeader('Cache-Control', 'no-store, private')->setHeader('Referrer-Policy', 'no-referrer')
             ->setBody(view('pages/password_reset', [
-                'title' => $step === 'request' ? 'Lupa sandi' : 'Reset sandi', 'step' => $step,
+                'title' => $step === 'reset' ? 'Reset sandi' : ($step === 'confirm' ? 'Konfirmasi email pemulihan' : 'Lupa sandi'), 'step' => $step,
                 'email' => is_string(session('password_reset_email')) ? session('password_reset_email') : '',
+                'maskedEmail' => $step === 'confirm' ? $this->maskEmail((string)session('password_reset_pending_email')) : '',
                 'message' => session()->getFlashdata('reset_message'), 'error' => session()->getFlashdata('reset_error'),
             ]));
+    }
+    private function maskEmail(string $email): string
+    {
+        [$local, $domain] = array_pad(explode('@', $email, 2), 2, '');
+        return strtoupper(mb_substr($local, 0, 1)) . '****@' . $domain;
     }
     public function requestCode()
     {
         if (strtoupper($this->request->getMethod()) !== 'POST') return $this->response->setStatusCode(403);
-        $email = $this->request->getPost('email');
-        if (!is_string($email) || strlen($email) > 254 || !filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
-            session()->setFlashdata('reset_error', 'Masukkan alamat email akun yang valid.');
+        if ($this->request->getPost('change_identity') === '1') {
+            session()->remove(['password_reset_pending_email', 'password_reset_pending_at', 'password_reset_email']);
             return $this->redirectTo('lupa-sandi');
         }
         if ($error = $this->captchaError()) {
             session()->setFlashdata('reset_error', $error);
             return $this->redirectTo('lupa-sandi');
         }
-        $email = strtolower(trim($email));
-        try { $this->resets()->request($email, $this->request->getIPAddress()); }
+
+        if ($this->request->getPost('confirm_email') === '1') {
+            $email = $this->pendingEmail();
+            if ($email === null) {
+                session()->setFlashdata('reset_error', 'Sesi konfirmasi berakhir. Masukkan email atau username kembali.');
+                return $this->redirectTo('lupa-sandi');
+            }
+            try { $this->resets()->request($email, $this->request->getIPAddress()); }
+            catch (\Throwable $e) {
+                log_message('error', 'Password reset request storage failed. Check reset schema privately.');
+                session()->setFlashdata('reset_error', 'Layanan reset sandi sedang terganggu. Silakan coba lagi nanti.');
+                return $this->redirectTo('lupa-sandi');
+            }
+            session()->set('password_reset_email', $email);
+            session()->remove(['password_reset_pending_email', 'password_reset_pending_at']);
+            session()->setFlashdata('reset_message', 'Jika akun terdaftar dan batas permintaan belum tercapai, kode dikirim ke email pemulihan. Periksa juga folder spam.');
+            return $this->redirectTo('reset-sandi');
+        }
+
+        $identity = $this->request->getPost('identity');
+        if (!is_string($identity) || strlen(trim($identity)) > 254 || trim($identity) === '') {
+            session()->setFlashdata('reset_error', 'Masukkan email atau username akun Anda.');
+            return $this->redirectTo('lupa-sandi');
+        }
+        $identity = trim($identity);
+        if (strpos($identity, '@') !== false && !filter_var($identity, FILTER_VALIDATE_EMAIL)) {
+            session()->setFlashdata('reset_error', 'Format email belum sesuai.');
+            return $this->redirectTo('lupa-sandi');
+        }
+        try { $email = $this->resets()->resolveCustomerEmail($identity, $this->request->getIPAddress()); }
         catch (\Throwable $e) {
-            log_message('error', 'Password reset request storage failed. Check reset schema privately.');
+            log_message('error', 'Password reset identifier lookup failed.');
             session()->setFlashdata('reset_error', 'Layanan reset sandi sedang terganggu. Silakan coba lagi nanti.');
             return $this->redirectTo('lupa-sandi');
         }
-        session()->set('password_reset_email', $email);
-        session()->setFlashdata('reset_message', 'Jika email terdaftar sebagai akun pelanggan dan batas permintaan belum tercapai, kode dikirim ke email tersebut. Periksa juga folder spam.');
-        return $this->redirectTo('reset-sandi');
+        if ($email === null) {
+            session()->setFlashdata('reset_message', 'Jika data cocok dengan akun pelanggan, instruksi pemulihan akan ditampilkan. Periksa kembali email atau username yang dimasukkan.');
+            return $this->redirectTo('lupa-sandi');
+        }
+        session()->set(['password_reset_pending_email' => $email, 'password_reset_pending_at' => time()]);
+        session()->remove('password_reset_email');
+        return $this->redirectTo('lupa-sandi');
     }
     public function complete()
     {

@@ -17,6 +17,29 @@ class PasswordResetService
     protected function now(): int { return time(); }
     protected function newCode(): string { return str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT); }
 
+    /** Resolve a customer login identifier only after CAPTCHA and under a strict lookup rate limit. */
+    public function resolveCustomerEmail(string $identity, string $ip): ?string
+    {
+        $identity = trim($identity);
+        if ($identity === '' || strlen($identity) > 254
+            || !$this->allow('identify-ip', $ip, 5, 900)
+            || !$this->allow('identify-value', strtolower($identity), 3, 900)) return null;
+
+        if (strpos($identity, '@') !== false) {
+            if (!filter_var($identity, FILTER_VALIDATE_EMAIL)) return null;
+            $user = $this->db->table('user')->where('email', strtolower($identity))->get()->getRowArray();
+        } else {
+            $username = UsernamePolicy::normalize($identity);
+            if ($username === null || !$this->db->tableExists('customer_usernames')) return null;
+            $mapping = $this->db->table('customer_usernames')->where('username', $username)->get()->getRowArray();
+            $user = $mapping
+                ? $this->db->table('user')->where('email', $mapping['email_user'])->get()->getRowArray()
+                : null;
+        }
+
+        return $user && (string)($user['role'] ?? '') === '0' ? (string)$user['email'] : null;
+    }
+
     public static function passwordError($password, $confirmation): ?string
     {
         if (!is_string($password) || mb_strlen($password) < 8 || strlen($password) > 72 || strpos($password, "\0") !== false || !preg_match('/[0-9]/', $password)) {
