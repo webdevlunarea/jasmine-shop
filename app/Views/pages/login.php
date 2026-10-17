@@ -22,7 +22,7 @@
                 </a>
                 <?= view('partials/auth_facebook', ['redirect' => $redirect ?? ''], ['saveData' => false]); ?>
                 <div class="auth-divider"><span>atau masuk dengan email / username</span></div>
-                <form action="/masuk" method="post" class="auth-form" data-confirm-submit data-confirm-message="Pastikan data masuk sudah benar. Lanjutkan ke akun Lunarea?">
+                <form action="/masuk" method="post" class="auth-form">
                     <?= csrf_field(); ?>
                     <?php if (!empty($redirect)) { ?>
                         <input type="hidden" name="redirect" value="<?= esc($redirect); ?>">
