@@ -1546,8 +1546,9 @@ class Pages extends BaseController
             ]
         ];
 
+        $namaKategoriSeo = $subkategori ? ucwords(str_replace('-', ' ', (string) $subkategori)) : 'Semua Produk';
         $data = [
-            'title' => 'Semua Produk',
+            'title' => $namaKategoriSeo,
             'produk' => $produk,
             'kategori' => $subkategori,
             'page' => 1,
@@ -1578,8 +1579,9 @@ class Pages extends BaseController
             $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, 0);
         }
         $semuaproduk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll();
+        $namaKategoriSeo = $subkategori ? ucwords(str_replace('-', ' ', (string) $subkategori)) : 'Semua Produk';
         $data = [
-            'title' => 'Semua Produk',
+            'title' => $namaKategoriSeo . ((int) $page > 1 ? ' - Halaman ' . (int) $page : ''),
             'produk' => $produk,
             'kategori' => $subkategori,
             'page' => $page,
@@ -1587,6 +1589,9 @@ class Pages extends BaseController
             'semuaProduk' => $semuaproduk,
             'categoryImages' => $this->konstantaModel->getCategoryImages()
         ];
+        if ($subkategori) {
+            $data['metaDeskripsi'] = 'Jelajahi koleksi ' . $namaKategoriSeo . ' dari Lunarea Furniture. Lihat pilihan produk dan informasi selengkapnya.';
+        }
         return view('pages/all', $data);
     }
     public function signup()
@@ -7445,6 +7450,7 @@ class Pages extends BaseController
 
         $data = [
             'title' => 'Produk',
+            'metaRobots' => 'noindex, follow',
             'produk' => $produk,
             'nama' => $nama,
             'kategori' => false,

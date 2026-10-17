@@ -52,27 +52,6 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     })(window, document, 'script', 'dataLayer', 'GTM-WMVCNHX5');
     </script>
     <!-- End Google Tag Manager -->
-    <?php if (isset($produk)) {
-        if (isset($produk['nama'])) { ?>
-    <script type="application/ld+json">
-    {
-        "@context": "https://lunareafurniture.com/",
-        "@type": "produk",
-        "name": "<?= $produk['nama'] ?>",
-        "image": "https://lunareafurniture.com/imgpic/<?= $produk['id'] ?>",
-        "description": "<?= $produk['deskripsi_nonhtml'] ?>",
-        "sku": "<?= $produk['id']; ?>",
-        "offers": {
-            "@type": "Offer",
-            "priceCurrency": "IDR",
-            "price": "<?= $produk['harga'] ?>",
-            "itemCondition": "New",
-            "availability": "in_stok"
-        }
-    }
-    </script>
-    <?php }
-    } ?>
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Lunarea Furniture">
@@ -84,23 +63,70 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
         $seoDescription = 'Lunarea Furniture menghadirkan pilihan lemari, meja, rak, dan kursi untuk rumah Anda. Temukan furnitur fungsional, pilihan produk, serta penawaran terbaru di toko resmi Lunarea.';
     }
     $seoCanonical = site_url(trim((string) service('uri')->getPath(), '/'));
-    $seoIsHome = trim((string) service('uri')->getPath(), '/') === '';
+    $seoPath = trim((string) service('uri')->getPath(), '/');
+    $seoIsHome = $seoPath === '';
+    $seoNoindexPaths = ['login', 'signup', 'cart', 'checkout', 'account', 'wishlist', 'voucher', 'point', 'transaction', 'order', 'invoice'];
+    $seoRobots = 'index, follow';
+    if ((string) session()->get('role') === '1' || in_array($seoPath, $seoNoindexPaths, true)
+        || preg_match('~^(find|search|invoice|transaction|order)(/|$)~i', $seoPath)) {
+        $seoRobots = 'noindex, follow';
+    }
+    if (isset($metaRobots) && in_array($metaRobots, ['noindex, follow', 'noindex, nofollow'], true)) {
+        $seoRobots = $metaRobots;
+    }
+    $seoProductData = null;
+    if (isset($produk['nama'], $produk['id'], $produk['harga'])) {
+        $seoPriceRaw = trim((string) $produk['harga']);
+        $seoPrice = preg_replace('/[^0-9]/', '', $seoPriceRaw);
+        $seoName = trim(strip_tags((string) $produk['nama']));
+        $seoDescriptionProduct = trim(strip_tags((string) ($produk['deskripsi_nonhtml'] ?? $produk['deskripsi'] ?? '')));
+        if ($seoName !== '' && $seoPrice !== '' && (int) $seoPrice > 0) {
+            $seoProductData = [
+                '@context' => 'https://schema.org',
+                '@type' => 'Product',
+                'name' => $seoName,
+                'url' => $seoCanonical,
+                'sku' => (string) $produk['id'],
+                'image' => [base_url('imgpic/' . rawurlencode((string) $produk['id']))],
+                'offers' => [
+                    '@type' => 'Offer',
+                    'url' => $seoCanonical,
+                    'priceCurrency' => 'IDR',
+                    'price' => (int) $seoPrice,
+                    'itemCondition' => 'https://schema.org/NewCondition',
+                ],
+            ];
+            if ($seoDescriptionProduct !== '') $seoProductData['description'] = $seoDescriptionProduct;
+            $stockRaw = trim((string) ($produk['stok'] ?? ''));
+            $stockValues = preg_match('/^\d+(?:\s*[,|]\s*\d+)*$/', $stockRaw)
+                ? array_map('intval', preg_split('/[,|]/', $stockRaw) ?: [])
+                : [];
+            if (count($stockValues) > 0) {
+                $seoProductData['offers']['availability'] = max($stockValues) > 0
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock';
+            }
+        }
+    }
     ?>
     <meta name="description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta name="keywords"
         content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea'; ?>">
     <meta name="author" content="Lunarea Furniture">
-    <meta name="title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta data-rh="true" name="title" content="<?= $title; ?> | Lunarea Furniture">
+    <?php if ($seoProductData !== null) { ?>
+    <script type="application/ld+json"><?= json_encode($seoProductData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+    <?php } ?>
     <meta data-rh="true" property="og:title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta data-rh="true" property="og:site_name" content="Lunarea Furniture">
     <meta data-rh="true" property="og:url" content="<?= esc($seoCanonical, 'attr'); ?>">
     <meta data-rh="true" property="og:description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/logo icon.png">
-    <meta data-rh="true" property="product:price:currency" content="Rp">
-    <meta data-rh="true" property="product:price:amount" content="0">
-    <meta name="robots" content="index, follow">
+    <?php if ($seoProductData !== null) { ?>
+    <meta property="product:price:currency" content="IDR">
+    <meta property="product:price:amount" content="<?= esc((string) $seoProductData['offers']['price'], 'attr'); ?>">
+    <?php } ?>
+    <meta name="robots" content="<?= esc($seoRobots, 'attr'); ?>">
     <link rel="canonical" href="<?= esc($seoCanonical, 'attr'); ?>">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= esc($seoTitle, 'attr'); ?>">
@@ -130,7 +156,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>
     </script>
     <?php } ?>
-    <title><?= $title; ?> | Lunarea Furniture</title>
+    <title><?= esc($seoTitle); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
