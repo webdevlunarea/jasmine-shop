@@ -45,34 +45,40 @@
 
                     let startX = 0;
                     let startY = 0;
-                    let dragged = false;
+                    let mouseDown = false;
                     let suppressClick = false;
 
-                    carousel.addEventListener('pointerdown', (event) => {
-                        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                    carousel.addEventListener('mousedown', (event) => {
+                        if (event.button !== 0) return;
                         startX = event.clientX;
                         startY = event.clientY;
-                        dragged = false;
+                        mouseDown = true;
+                        carousel.classList.add('is-dragging');
                     });
 
-                    carousel.addEventListener('pointerup', (event) => {
-                        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                    document.addEventListener('mouseup', (event) => {
+                        if (!mouseDown) return;
+                        mouseDown = false;
+                        carousel.classList.remove('is-dragging');
                         const deltaX = event.clientX - startX;
                         const deltaY = event.clientY - startY;
                         if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
 
-                        dragged = true;
                         suppressClick = true;
-                        const instance = bootstrap.Carousel.getOrCreateInstance(carousel);
-                        deltaX < 0 ? instance.next() : instance.prev();
+                        const Carousel = window.bootstrap && window.bootstrap.Carousel;
+                        if (Carousel) {
+                            const instance = Carousel.getOrCreateInstance(carousel);
+                            deltaX < 0 ? instance.next() : instance.prev();
+                        }
                         window.setTimeout(() => { suppressClick = false; }, 350);
                     });
 
+                    carousel.addEventListener('dragstart', (event) => event.preventDefault());
                     carousel.addEventListener('click', (event) => {
-                        if (!suppressClick || !dragged) return;
+                        if (!suppressClick) return;
                         event.preventDefault();
                         event.stopPropagation();
-                        dragged = false;
+                        suppressClick = false;
                     }, true);
                 })();
             </script>

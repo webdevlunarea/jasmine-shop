@@ -1,5 +1,9 @@
 .home-hero-image { display: block; width: 100%; height: auto; object-fit: contain; }
 .home-hero-carousel { padding-bottom: 0; background: transparent; }
+@media (hover: hover) and (pointer: fine) {
+    .home-hero-carousel { cursor: grab; }
+    .home-hero-carousel.is-dragging { cursor: grabbing; }
+}
 .home-hero-carousel .carousel-indicators { display: none !important; }
 .home-hero-carousel .carousel-control-prev { display: none !important; }
 .home-hero-carousel .carousel-control-next { display: none !important; }
