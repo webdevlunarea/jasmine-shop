@@ -309,6 +309,14 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 <?php
 $isAdminLayout = session()->get('role') == '1';
 $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true);
+$promoPath = '/' . trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+$showTopPromo = !$isAdminLayout && !$isAuthPage && (
+    $promoPath === '/' ||
+    str_starts_with($promoPath, '/all') ||
+    str_starts_with($promoPath, '/page/') ||
+    str_starts_with($promoPath, '/find/') ||
+    str_starts_with($promoPath, '/product/')
+);
 ?>
 
 <body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-layout buyer-auth-body' : 'buyer-layout'); ?>">
@@ -338,7 +346,7 @@ $isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar', 'Lupa sand
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">
     </script>
-    <?php if (!$isAdminLayout && !$isAuthPage) {
+    <?php if ($showTopPromo) {
         $topPromoTexts = model(\App\Models\KonstantaModel::class)->getTopPromoTexts();
         $topPromoDesktop = $topPromoTexts['desktop'] ?? 'Dapatkan harga khusus pembelian pertama | Gratis ongkir hingga 100%';
         $topPromoMobile = $topPromoTexts['mobile'] ?? $topPromoDesktop;
