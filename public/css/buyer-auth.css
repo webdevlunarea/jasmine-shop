@@ -11,6 +11,18 @@
 .buyer-auth-body .auth-reset-confirm-check input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--theme-primary); }
 .buyer-auth-body .auth-reset-change { justify-self: center; min-height: 44px; padding: 4px 8px; border: 0; background: transparent; color: var(--theme-primary); font-size: .875rem; font-weight: 600; text-decoration: underline; }
 .buyer-auth-body .auth-reset-change:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
+.buyer-auth-body .auth-reset-page { padding-block: clamp(40px, 8vh, 88px); background: radial-gradient(ellipse at 50% 0, var(--theme-soft) 0, transparent 55%); }
+.buyer-auth-body .auth-reset-shell { max-width: 480px; }
+.buyer-auth-body .auth-reset-panel { padding: clamp(24px, 5vw, 38px); border: 1px solid rgba(47, 45, 32, .10); border-radius: 16px; background: #fff; box-shadow: 0 16px 44px rgba(47, 45, 32, .08); }
+.buyer-auth-body .auth-reset-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 24px; color: #666357; font-size: .8125rem; font-weight: 600; letter-spacing: .025em; }
+.buyer-auth-body .auth-reset-mark { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border: 1px solid var(--theme-soft-2); border-radius: 12px; background: var(--theme-soft); color: var(--theme-primary); }
+.buyer-auth-body .auth-reset-mark svg { width: 21px; height: 21px; }
+.buyer-auth-body .auth-reset-panel .auth-heading { margin-bottom: 22px; }
+.buyer-auth-body .auth-reset-panel .auth-heading h1 { font-size: clamp(1.55rem, 1.35rem + .7vw, 1.9rem); }
+.buyer-auth-body .auth-reset-panel .auth-submit { width: 100%; }
+.buyer-auth-body .auth-reset-panel .auth-switch { text-align: center; }
+.buyer-auth-body .auth-reset-panel .auth-reset-change { width: 100%; text-align: center; }
+.buyer-auth-body .auth-reset-panel .auth-alert { padding: 13px 15px; }
 .buyer-auth-body :is(.auth-forgot-link,.auth-reset-toggle):focus-visible { outline: 2px solid var(--theme-primary, #2f2d20); outline-offset: 3px; }
 .buyer-auth-body .auth-facebook-btn { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; width: 100%; margin-top: 12px; padding: 12px 16px; border: 1px solid #0866ff; border-radius: 6px; background: #0866ff; color: #fff; font-weight: 600; text-decoration: none; }
 .buyer-auth-body .auth-facebook-btn:hover { background: #0756d6; color: #fff; }
@@ -46,7 +58,7 @@
 .buyer-auth-body .auth-switch a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; }
 .buyer-auth-body .auth-alert { margin-bottom: 20px; border-radius: 6px; font-size: .875rem; overflow-wrap: anywhere; }
 .buyer-auth-body .auth-google-btn:focus-visible, .buyer-auth-body .auth-password-toggle:focus-visible, .buyer-auth-body .auth-submit:focus-visible, .buyer-auth-body .auth-switch a:focus-visible, .buyer-auth-body .auth-consent a:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
-@media (max-width: 575.98px) { .buyer-auth-body .auth-page { padding-block: 28px 20px; } .buyer-auth-body .auth-page > .container { padding-inline: 20px; } }
+@media (max-width: 575.98px) { .buyer-auth-body .auth-page { padding-block: 28px 20px; } .buyer-auth-body .auth-page > .container { padding-inline: 20px; } .buyer-auth-body .auth-reset-page { padding-block: 32px 24px; } .buyer-auth-body .auth-reset-panel { padding: 24px 20px; border-radius: 14px; } }
 @media (prefers-reduced-motion: reduce) { .buyer-auth-body .auth-page * { transition: none !important; } }
 
 /* Keep the security widget balanced with the existing form, without an extra card. */

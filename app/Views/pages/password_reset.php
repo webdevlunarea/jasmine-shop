@@ -1,9 +1,15 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<div class="konten auth-page">
+<div class="konten auth-page auth-reset-page">
     <div class="container">
-        <div class="auth-shell">
-            <section class="auth-panel" aria-labelledby="reset-title">
+        <div class="auth-shell auth-reset-shell">
+            <section class="auth-panel auth-reset-panel" aria-labelledby="reset-title">
+                <div class="auth-reset-brand">
+                    <span class="auth-reset-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2M12 12v3"/></svg>
+                    </span>
+                    <span>Pemulihan akun Lunarea</span>
+                </div>
                 <div class="auth-heading">
                     <h1 id="reset-title"><?= $step === 'reset' ? 'Buat sandi baru' : ($step === 'confirm' ? 'Konfirmasi email pemulihan' : 'Lupa sandi?'); ?></h1>
                     <p><?= $step === 'reset' ? 'Masukkan kode dari email, lalu tentukan sandi baru Anda.' : ($step === 'confirm' ? 'Pastikan alamat pemulihan ini benar sebelum kami mengirim kode verifikasi.' : 'Masukkan email atau username akun Anda untuk melihat alamat pemulihan.'); ?></p>
