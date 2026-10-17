@@ -40,6 +40,7 @@ use WebSocket\Client;
 
 class Pages extends BaseController
 {
+    use FacebookLoginTrait;
     protected $barangModel;
     protected $gambarBarangModel;
     protected $gambarUserModel;

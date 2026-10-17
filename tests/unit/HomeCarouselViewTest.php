@@ -14,7 +14,8 @@ final class HomeCarouselViewTest extends CIUnitTestCase
         $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," carousel-item ")]')->length);
         $this->assertSame(1, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," carousel-item ") and contains(concat(" ",normalize-space(@class)," ")," active ")]')->length);
         $this->assertSame($count, $xpath->query('//button[@data-bs-slide-to]')->length);
-        $this->assertSame($count, $xpath->query('//div[@class="home-hero-media"]')->length);
+        $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," home-hero-media ")]')->length);
+        $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," home-hero-media ") and contains(concat(" ",normalize-space(@class)," ")," image-skeleton ")]//img[@data-skeleton-image]')->length);
         $this->assertSame($count - 1, $xpath->query('//img[@loading="lazy"]')->length);
         $this->assertStringNotContainsString('--home-hero-art', $html);
         if ($banners) {

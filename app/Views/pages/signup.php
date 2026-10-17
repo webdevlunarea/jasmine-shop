@@ -20,6 +20,7 @@
                     </svg>
                     <span>Daftar dengan Google</span>
                 </a>
+                <?= view('partials/auth_facebook', ['redirect' => $redirect ?? ''], ['saveData' => false]); ?>
                 <div class="auth-divider"><span>atau daftar dengan email</span></div>
                 <form action="/daftar" method="post" class="auth-form">
                     <?= csrf_field(); ?>

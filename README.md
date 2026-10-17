@@ -28,6 +28,11 @@ to your `app` folder. The affected files can be copied or merged from
 Copy `env` to `.env` and tailor for your app, specifically the baseURL
 and any database settings.
 
+### Facebook Login
+
+Setup, environment keys, migration checklist, and verification: [Facebook Login CI4](docs/FACEBOOK_LOGIN.md).
+Use [facebook.env.example](docs/facebook.env.example) for blank configuration entries. Keep real credentials in the ignored `.env` only.
+
 ## Important Change with index.php
 
 `index.php` is no longer in the root of the project! It has been moved inside the *public* folder,

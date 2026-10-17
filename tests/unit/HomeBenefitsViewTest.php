@@ -13,7 +13,7 @@ final class HomeBenefitsViewTest extends CIUnitTestCase
         $this->assertSame(3, $xpath->query('//li[@class="home-benefit"]')->length);
         $this->assertSame(3, $xpath->query('//*[local-name()="svg" and @stroke="currentColor" and @aria-hidden="true"]')->length);
         $this->assertSame(0, $xpath->query('//img|//*[@style]')->length);
-        foreach (['Gratis ongkir 100%', 'Pengiriman di pulau Jawa, Madura, dan Bali tanpa minimum pembelian', 'Spesial offer discount 5%', 'Hanya untuk member Lunarea di setiap pembelian pertama', 'Pengiriman ke seluruh Indonesia', 'Dengan jasa ekspedisi terpercaya yang mengantarkan ke alamat tujuan'] as $text) {
+        foreach (['Gratis ongkir 100%', 'Pengiriman di pulau Jawa, Madura, dan Bali tanpa minimum pembelian', 'Penawaran Spesial Diskon 5%', 'Khusus pelanggan Lunarea untuk pembelian pertama', 'Pengiriman ke seluruh Indonesia', 'Dengan jasa ekspedisi terpercaya yang mengantarkan ke alamat tujuan'] as $text) {
             $this->assertStringContainsString($text, $html);
         }
         $this->assertStringContainsString("include('partials/home_benefits')", file_get_contents(APPPATH . 'Views/pages/home.php'));

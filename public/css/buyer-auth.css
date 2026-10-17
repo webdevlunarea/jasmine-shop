@@ -1,4 +1,8 @@
 /* Only the customer login/signup pages; no checkout/admin form overrides. */
+.buyer-auth-body .auth-facebook-btn { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; width: 100%; margin-top: 12px; padding: 12px 16px; border: 1px solid #0866ff; border-radius: 6px; background: #0866ff; color: #fff; font-weight: 600; text-decoration: none; }
+.buyer-auth-body .auth-facebook-btn:hover { background: #0756d6; color: #fff; }
+.buyer-auth-body .auth-facebook-btn:focus-visible { outline: 3px solid #152f69; outline-offset: 3px; }
+.buyer-auth-body .auth-facebook-icon { width: 22px; height: 22px; flex-shrink: 0; }
 .buyer-auth-body { background: var(--theme-background, #fff); }
 .buyer-auth-body .auth-page { display: block; min-height: 0; padding-block: clamp(32px, 6vw, 64px) 32px; background: transparent; }
 .buyer-auth-body .auth-shell { display: block; max-width: 420px; margin-inline: auto; }
