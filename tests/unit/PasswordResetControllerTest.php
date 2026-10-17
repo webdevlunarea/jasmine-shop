@@ -52,6 +52,33 @@ final class PasswordResetControllerTest extends CIUnitTestCase
         $this->assertNull(session()->get('_ci_old_input'));
     }
 
+    /** @dataProvider renderedSteps */
+    public function testRealLayoutRetainsTitleAcrossCaptchaPartial(string $step, string $title): void
+    {
+        session()->remove(array_keys(session()->get()));
+        session()->set('password_reset_email', 'buyer@example.test');
+        $config = config(\Config\Recaptcha::class);
+        $enabled = $config->enabled;
+        $config->enabled = false;
+        try {
+            $controller = $this->controller([]);
+            $response = $step === 'request' ? $controller->requestForm() : $controller->resetForm();
+            $html = $response->getBody();
+            $this->assertStringContainsString('<title>' . $title . ' | Lunarea Furniture</title>', $html);
+            $this->assertStringContainsString('buyer-auth.css', $html);
+            $this->assertStringContainsString('buyer-auth-body', $html);
+            $this->assertStringContainsString('id="password-reset-form"', $html);
+            $this->assertStringContainsString('no-store', $response->getHeaderLine('Cache-Control'));
+        } finally {
+            $config->enabled = $enabled;
+        }
+    }
+
+    public static function renderedSteps(): array
+    {
+        return [['request', 'Lupa sandi'], ['reset', 'Reset sandi']];
+    }
+
     public function testInvalidEmailNeverCallsStorageOrMailer(): void
     {
         foreach([[],['email'=>[]],['email'=>'not-email']] as $post) {

@@ -1,4 +1,5 @@
 <?php
+$title = (string) ($title ?? '');
 $themeWarna = \App\Models\KonstantaModel::defaultThemeWarna();
 try {
     $themeModel = new \App\Models\KonstantaModel();
@@ -111,7 +112,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     ?>
     <meta name="description" content="<?= esc($seoDescription, 'attr'); ?>">
     <meta name="keywords"
-        content="<?= isset($metaKeyword) ? $metaKeyword : 'lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea'; ?>">
+        content="<?= esc((string) ($metaKeyword ?? ('lunarea furniture,toko furniture,' . strtolower($title) . ' lunarea')), 'attr'); ?>">
     <meta name="author" content="Lunarea Furniture">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php if ($seoProductData !== null) { ?>

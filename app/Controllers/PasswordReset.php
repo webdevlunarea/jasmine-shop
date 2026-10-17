@@ -28,7 +28,7 @@ class PasswordReset extends BaseController
                 'title' => $step === 'request' ? 'Lupa sandi' : 'Reset sandi', 'step' => $step,
                 'email' => is_string(session('password_reset_email')) ? session('password_reset_email') : '',
                 'message' => session()->getFlashdata('reset_message'), 'error' => session()->getFlashdata('reset_error'),
-            ], ['saveData' => false]));
+            ]));
     }
     public function requestCode()
     {
