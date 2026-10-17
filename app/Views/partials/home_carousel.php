@@ -1,18 +1,5 @@
 <?php $banner = $banner ?? []; ?>
-        <div id="carouselExampleIndicators" class="carousel slide home-hero-carousel" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-                <?php if (!empty($banner)) { ?>
-                    <?php foreach ($banner as $ind_b => $b) { ?>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<?= $ind_b; ?>" class="<?= $ind_b == 0 ? 'active' : ''; ?>"
-                            <?= $ind_b == 0 ? 'aria-current="true"' : ''; ?> aria-label="Slide <?= $ind_b + 1; ?>"></button>
-                    <?php } ?>
-                <?php } else { ?>
-                    <?php for ($i = 0; $i < 5; $i++) { ?>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<?= $i; ?>" class="<?= $i == 0 ? 'active' : ''; ?>"
-                            <?= $i == 0 ? 'aria-current="true"' : ''; ?> aria-label="Slide <?= $i + 1; ?>"></button>
-                    <?php } ?>
-                <?php } ?>
-            </div>
+        <div id="carouselExampleIndicators" class="carousel slide home-hero-carousel" data-bs-ride="carousel" data-bs-touch="true">
             <div class="carousel-inner" style="border-radius: 0.5em;">
                 <?php if (!empty($banner)) { ?>
                     <?php foreach ($banner as $ind_b => $b) { ?>

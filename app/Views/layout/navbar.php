@@ -125,8 +125,8 @@ if ($isAdminNav) {
 </div>
 <nav class="navbar-hp buyer-mobile-header hide-ke-show-block py-2" id="navbar-hp">
     <div class="container mobile-navbar-main">
-        <a class="mobile-navbar-brand" href="/" aria-label="Lunarea Furniture">
-            <span class="mobile-navbar-wordmark">Lunarea</span>
+        <a class="navbar-brand buyer-desktop-brand mobile-navbar-brand" href="/" aria-label="Lunarea Furniture — Beranda">
+            <img src="<?= base_url('/img/Logo Lunarea Bg Terang.png'); ?>" class="buyer-desktop-logo mobile-navbar-logo" width="180" height="19" alt="Lunarea Furniture" decoding="async">
         </a>
         <div class="mobile-navbar-actions">
             <button type="button" id="buyer-search-toggle" class="btn" aria-label="Buka pencarian" aria-controls="buyer-mobile-search" aria-expanded="false">
@@ -218,16 +218,16 @@ if ($isAdminNav) {
 
 <?php if ($showMobileBottomNav) { ?>
     <nav class="mobile-bottom-nav hide-ke-show-flex" aria-label="Navigasi utama mobile">
-        <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/">
-            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        <a class="mobile-bottom-nav__item <?= $title == 'Beranda' ? "active " : ""; ?>" href="/" <?= $title == 'Beranda' ? 'aria-current="page"' : ''; ?>>
+            <span class="mobile-bottom-nav__icon"><svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3.5 10 8.5-7 8.5 7"/><path d="M5.5 9v11.5h5v-6h3v6h5V9"/></svg></span>
             <span>Beranda</span>
         </a>
-        <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all">
-            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <a class="mobile-bottom-nav__item <?= $title == 'Semua Produk' ? "active " : ""; ?>" href="/all" <?= $title == 'Semua Produk' ? 'aria-current="page"' : ''; ?>>
+            <span class="mobile-bottom-nav__icon"><svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 4.5h15v15h-15z"/><path d="M12 4.5v15M8 8h1M15 8h1M8 16h1M15 16h1"/></svg></span>
             <span>Produk</span>
         </a>
-        <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article">
-            <svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+        <a class="mobile-bottom-nav__item <?= $title == 'Artikel' ? "active " : ""; ?>" href="/article" <?= $title == 'Artikel' ? 'aria-current="page"' : ''; ?>>
+            <span class="mobile-bottom-nav__icon"><svg class="buyer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4.5h10a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M18 19.5a3 3 0 0 1 3-3V7.5a3 3 0 0 0-3-3M8.5 9h6M8.5 12.5h6"/></svg></span>
             <span>Artikel</span>
         </a>
     </nav>
