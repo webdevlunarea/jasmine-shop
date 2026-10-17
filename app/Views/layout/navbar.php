@@ -11,6 +11,7 @@ if ($isAdminNav) {
         ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
+        ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
         ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
         ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
         ['group'=>'Katalog', 'label' => 'Pemetaan MyLuna', 'icon' => 'compare_arrows', 'url' => '/lunamappingadmin', 'match' => ['lunamappingadmin']],
@@ -160,6 +161,7 @@ if ($isAdminNav) {
                             <a href="/listbanner">Banner</a>
                             <a href="/listvoucher">List Voucher</a>
                             <a href="/listcustomer">List Customer</a>
+                            <a href="/customeradmin">Akun &amp; email spam</a>
                             <a href="/listproduct">List Products</a>
                             <a href="/flashsaleadmin">Flash Sale</a>
                             <a href="/shippingadmin">Pengiriman</a>

@@ -160,6 +160,10 @@ $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$
 $routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail/$1', ['filter' => 'corsFilter']);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
+$routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
+$routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customeradmin/domain/remove', 'CustomerModerationAdmin::removeDomain', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdmin::deleteExpiredUnverified', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);

@@ -1892,6 +1892,12 @@ class Pages extends BaseController
             return redirect()->to('/signup')->withInput();
         }
 
+        if ((new \App\Services\Auth\DisposableEmailPolicy())->isBlocked((string) $this->request->getPost('email'))) {
+            session()->setFlashdata('val-email', 'Gunakan alamat email permanen yang dapat Anda akses.');
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
+            return redirect()->to('/signup')->withInput();
+        }
+
         $otp_number = rand(100000, 999999);
         // $waktu_otp = time() + 300;
         $d = strtotime("+425 minutes");
