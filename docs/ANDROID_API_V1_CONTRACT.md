@@ -102,6 +102,7 @@ Perubahan daftar favorit juga memakai perlindungan snapshot. Jika server mengemb
 | Method | Path | Auth | Body |
 |---|---|---|---|
 | POST | `/shipping/quotes` | Bearer | `{"address_id": 123}`; kuotasi dihitung dari keranjang dan alamat tersimpan saat ini |
+| GET | `/vouchers/available` | Bearer | Daftar klaim voucher aktif milik akun; harga/potongan tetap dihitung dan divalidasi server |
 | POST | `/checkout/preview` | Bearer | `address_id`, `shipping_quote_token`, `payment_method`, opsional `voucher_claim_id`, `use_points`, `include_glass` |
 | POST | `/checkout/orders` | Bearer | Body pilihan checkout yang sama, opsional `card_token`; header wajib `Idempotency-Key` unik minimal 16 karakter |
 

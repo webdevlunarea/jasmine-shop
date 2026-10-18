@@ -41,7 +41,11 @@ class DispatchCustomerNotifications extends BaseCommand
             if (!$claimed || $db->affectedRows() !== 1) continue;
             $devices = $db->table('customer_push_devices')->where(['email_user' => $row['email_user'], 'is_active' => 1])->get()->getResultArray();
             if (!$devices) {
-                $db->table('customer_push_notifications')->where('id', $row['id'])->update(['status' => 'sent', 'sent_at' => $now, 'updated_at' => $now]);
+                // Preserve the message until a device registers. PushDeviceController wakes
+                // these rows when the customer later enables notifications on a device.
+                $db->table('customer_push_notifications')->where('id', $row['id'])->update([
+                    'status' => 'awaiting_device', 'last_error' => 'AWAITING_DEVICE', 'updated_at' => $now,
+                ]);
                 $empty++;
                 continue;
             }

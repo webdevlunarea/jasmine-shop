@@ -57,6 +57,14 @@ class PushDeviceController extends ApiController
             if (!$persisted || $persisted['email_user'] !== $this->authEmail() || (int)$persisted['is_active'] !== 1) {
                 throw new \RuntimeException('Device registration was not persisted.');
             }
+            if ($db->tableExists('customer_push_notifications')) {
+                $db->table('customer_push_notifications')->where([
+                    'email_user' => $this->authEmail(), 'status' => 'awaiting_device',
+                ])->update([
+                    'status' => 'pending', 'last_error' => null,
+                    'next_attempt_at' => $now, 'updated_at' => $now,
+                ]);
+            }
         } catch (\Throwable $e) {
             log_message('error', 'Customer API push device registration failed: ' . get_class($e));
             return $this->failure('PUSH_REGISTRATION_FAILED', 'Perangkat belum terdaftar untuk notifikasi. Coba lagi.', 503);

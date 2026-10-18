@@ -96,4 +96,14 @@ final class DispatchCustomerNotificationsTest extends CIUnitTestCase
         $this->assertSame('pending', $notification['status']);
         $this->assertSame('FCM_DELIVERY_FAILED', $notification['last_error']);
     }
+
+    public function testNotificationWaitsForDeviceInsteadOfBeingLost(): void
+    {
+        $this->connection->table('customer_push_devices')->emptyTable();
+        $this->dispatch(['ok' => true, 'status' => 200, 'error_code' => null]);
+        $notification = $this->connection->table('customer_push_notifications')->get()->getRowArray();
+        $this->assertSame('awaiting_device', $notification['status']);
+        $this->assertNull($notification['sent_at']);
+        $this->assertSame('AWAITING_DEVICE', $notification['last_error']);
+    }
 }
