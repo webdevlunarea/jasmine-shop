@@ -159,4 +159,10 @@ interface LunareaApi {
 
     @HTTP(method = "DELETE", path = "push/devices", hasBody = true)
     suspend fun unregisterPushDevice(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
+    @GET("notifications")
+    suspend fun notifications(): Response<ApiEnvelope<JsonObject>>
+
+    @POST("notifications/read")
+    suspend fun markNotificationsRead(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 }

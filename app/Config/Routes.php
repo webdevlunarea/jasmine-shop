@@ -56,6 +56,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->get('orders/(:segment)/tracking', 'Api\\V1\\OrderController::tracking/$1');
         $routes->post('push/devices', 'Api\\V1\\PushDeviceController::register');
         $routes->delete('push/devices', 'Api\\V1\\PushDeviceController::unregister');
+        $routes->get('notifications', 'Api\\V1\\NotificationController::index');
+        $routes->post('notifications/read', 'Api\\V1\\NotificationController::markRead');
     });
 });
 

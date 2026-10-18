@@ -18,7 +18,17 @@ class DispatchCustomerNotifications extends BaseCommand
 
     protected function connection(): BaseConnection { return Database::connect(); }
     protected function sender(): FirebaseMessageSender { return new FirebaseMessaging(); }
-    protected function decryptDeviceToken(string $ciphertext): string { return service('encrypter')->decrypt($ciphertext); }
+    protected function decryptDeviceToken(string $ciphertext): string
+    {
+        // New rows use a base64 envelope so binary ciphertext survives utf8mb4 TEXT.
+        // Rows written by earlier versions remain readable as raw ciphertext.
+        if (str_starts_with($ciphertext, 'b64:')) {
+            $decoded = base64_decode(substr($ciphertext, 4), true);
+            if ($decoded === false) throw new \UnexpectedValueException('Invalid encrypted device token encoding.');
+            $ciphertext = $decoded;
+        }
+        return service('encrypter')->decrypt($ciphertext);
+    }
 
     public function run(array $params)
     {

@@ -11,7 +11,9 @@ class PushDeviceController extends ApiController
 
     protected function encryptDeviceToken(string $token): string
     {
-        return service('encrypter')->encrypt($token);
+        // Encryption returns raw binary by default. Store a printable ASCII form
+        // because device_token is a utf8mb4 TEXT column in production MySQL.
+        return 'b64:' . base64_encode(service('encrypter')->encrypt($token));
     }
 
     public function register()

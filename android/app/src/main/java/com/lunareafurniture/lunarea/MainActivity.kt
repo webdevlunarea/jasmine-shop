@@ -58,6 +58,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -150,6 +151,9 @@ private fun LunareaApp() {
     var notificationMessage by remember { mutableStateOf<String?>(null) }
     var notificationsEnabled by remember { mutableStateOf(PushDeviceRegistration(context).isOptedIn()) }
     var showNotificationIntro by remember { mutableStateOf(false) }
+    var notificationInboxOpen by remember { mutableStateOf(false) }
+    var notificationsRefreshVersion by remember { mutableIntStateOf(0) }
+    var unreadNotificationCount by remember { mutableIntStateOf(0) }
     var cartItems by remember { mutableStateOf<List<CartLine>>(emptyList()) }
     var cartSubtotal by remember { mutableLongStateOf(0L) }
     var cartLoading by remember { mutableStateOf(false) }
@@ -307,8 +311,23 @@ private fun LunareaApp() {
         }
     }
 
-    BackHandler(enabled = tab != AppTab.HOME || accountSection != AccountSection.MENU) {
+    LaunchedEffect(signedIn, notificationsRefreshVersion) {
+        if (!signedIn) {
+            unreadNotificationCount = 0
+            return@LaunchedEffect
+        }
+        runCatching { ApiClient.get(context).notifications() }
+            .onSuccess { response ->
+                val data = response.body()?.data
+                if (response.isSuccessful && response.body()?.success == true && data != null) {
+                    unreadNotificationCount = data.get("unread_count")?.asInt?.coerceAtLeast(0) ?: 0
+                }
+            }
+    }
+
+    BackHandler(enabled = notificationInboxOpen || tab != AppTab.HOME || accountSection != AccountSection.MENU) {
         when {
+            notificationInboxOpen -> { notificationInboxOpen = false; notificationsRefreshVersion++ }
             tab == AppTab.CHECKOUT -> tab = AppTab.CART
             tab == AppTab.ACCOUNT && accountSection != AccountSection.MENU -> accountSection = AccountSection.MENU
             tab != AppTab.HOME -> { tab = AppTab.HOME; accountSection = AccountSection.MENU }
@@ -326,7 +345,14 @@ private fun LunareaApp() {
                 listOf(AppTab.HOME, AppTab.CATALOG, AppTab.CART, AppTab.ACCOUNT).forEach { item ->
                     NavigationBarItem(
                         selected = tab == item,
-                        onClick = { tab = item },
+                        onClick = {
+                            notificationInboxOpen = false
+                            tab = item
+                            // The checkout reachable from Account is a nested account
+                            // section; selecting the already-active Account tab must
+                            // return to the account menu instead of doing nothing.
+                            if (item == AppTab.ACCOUNT) accountSection = AccountSection.MENU
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             indicatorColor = MaterialTheme.colorScheme.primaryContainer,
                             selectedIconColor = LunareaGreenText,
@@ -361,10 +387,22 @@ private fun LunareaApp() {
             }
         }
     ) { insets ->
-        when (tab) {
+        if (notificationInboxOpen) {
+            NotificationInboxScreen(
+                modifier = Modifier.padding(insets),
+                signedIn = signedIn,
+                refreshVersion = notificationsRefreshVersion,
+                onRefresh = { notificationsRefreshVersion++ },
+                onBack = { notificationInboxOpen = false; notificationsRefreshVersion++ },
+                onLogin = { notificationInboxOpen = false; tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU },
+                onUnreadCount = { unreadNotificationCount = it }
+            )
+        } else when (tab) {
             AppTab.HOME, AppTab.CATALOG -> CatalogScreen(
                 modifier = Modifier.padding(insets), tab = tab, query = query, onQueryChange = { query = it.take(120) },
                 signedIn = signedIn,
+                unreadNotificationCount = unreadNotificationCount,
+                onOpenNotifications = { notificationInboxOpen = true },
                 onLoginRequired = { tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU; message = "Masuk terlebih dahulu untuk menggunakan keranjang dan favorit." },
                 categories = categories, selectedCategory = selectedCategory,
                 onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
@@ -426,6 +464,7 @@ private fun LunareaApp() {
                     // continues in the background and the user sees clear feedback.
                     PushDeviceRegistration(context).stopForSignOut()
                     signedIn = false
+                    unreadNotificationCount = 0
                     accountSection = AccountSection.MENU
                     cartItems = emptyList()
                     cartSubtotal = 0L
@@ -478,6 +517,158 @@ private fun LunareaApp() {
                     Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
                     onCompleted = { identity -> identifier = identity; password = ""; accountSection = AccountSection.MENU; message = "Kata sandi berhasil diperbarui. Silakan masuk." }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationInboxScreen(
+    modifier: Modifier,
+    signedIn: Boolean,
+    refreshVersion: Int,
+    onRefresh: () -> Unit,
+    onBack: () -> Unit,
+    onLogin: () -> Unit,
+    onUnreadCount: (Int) -> Unit
+) {
+    val context = LocalContext.current
+    var notifications by remember { mutableStateOf<List<JsonObject>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(signedIn, refreshVersion) {
+        if (!signedIn) {
+            notifications = emptyList()
+            error = null
+            loading = false
+            onUnreadCount(0)
+            return@LaunchedEffect
+        }
+        loading = true
+        error = null
+        try {
+            val api = ApiClient.get(context)
+            val response = api.notifications()
+            val body = response.body()
+            val data = body?.data
+            if (!response.isSuccessful || body?.success != true || data == null) {
+                error = body?.error?.message ?: "Pemberitahuan belum dapat dimuat. Coba lagi."
+                return@LaunchedEffect
+            }
+            val rows = data.getAsJsonArray("notifications")?.mapNotNull { raw ->
+                raw.takeIf { it.isJsonObject }?.asJsonObject
+            }.orEmpty()
+            notifications = rows
+            onUnreadCount(data.get("unread_count")?.asInt?.coerceAtLeast(0) ?: 0)
+
+            // Tandai pemberitahuan yang sudah berhasil dikirim sebagai dibaca
+            // setelah inbox dibuka. Status antrean yang belum terkirim tidak diubah.
+            if (rows.any { it.get("status")?.asString == "sent" }) {
+                val marked = api.markNotificationsRead(JsonObject())
+                if (marked.isSuccessful && marked.body()?.success == true) {
+                    notifications = rows.map { row ->
+                        if (row.get("status")?.asString == "sent") row.deepCopy().apply { addProperty("status", "read") } else row
+                    }
+                    onUnreadCount(0)
+                }
+            }
+        } catch (_: Exception) {
+            error = "Koneksi belum tersedia. Periksa internet lalu coba lagi."
+        } finally {
+            loading = false
+        }
+    }
+
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Row(
+            Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
+                Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Kembali", tint = MaterialTheme.colorScheme.onSurface)
+            }
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Pemberitahuan", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text("Kabar terbaru tentang akun dan pesanan Anda", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = onRefresh, enabled = !loading, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
+                Icon(painterResource(R.drawable.ic_refresh), contentDescription = "Muat ulang", tint = LunareaGreenText, modifier = Modifier.size(20.dp))
+            }
+        }
+
+        when {
+            !signedIn -> Column(
+                Modifier.fillMaxSize().padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(painterResource(R.drawable.ic_notifications), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(36.dp))
+                Spacer(Modifier.height(14.dp))
+                Text("Masuk untuk melihat pemberitahuan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(6.dp))
+                Text("Pembaruan pesanan dan akun akan tampil di sini.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(18.dp))
+                Button(onClick = onLogin, shape = RoundedCornerShape(14.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Masuk ke akun") }
+            }
+            loading && notifications.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = LunareaGreenText)
+            }
+            error != null && notifications.isEmpty() -> Column(
+                Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(error.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(onClick = onRefresh, modifier = Modifier.heightIn(min = 48.dp)) { Text("Coba lagi") }
+            }
+            notifications.isEmpty() -> Column(
+                Modifier.fillMaxSize().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(painterResource(R.drawable.ic_notifications), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(34.dp))
+                Spacer(Modifier.height(12.dp))
+                Text("Belum ada pemberitahuan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(4.dp))
+                Text("Pembaruan pesanan Anda akan muncul di sini.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            else -> LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (error != null) item { Text(error.orEmpty(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                items(notifications, key = { it.get("id")?.asString ?: it.hashCode().toString() }) { item ->
+                    val status = item.get("status")?.asString.orEmpty()
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f), RoundedCornerShape(16.dp))
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Box(
+                            Modifier.size(38.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(painterResource(R.drawable.ic_notifications), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(19.dp))
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(item.get("title")?.asString.orEmpty().ifBlank { "Pembaruan Lunarea" }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(4.dp))
+                            Text(item.get("body")?.asString.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                if (status == "awaiting_device") "Tersimpan di akun" else item.get("created_at")?.asString.orEmpty(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (status == "sent") Box(Modifier.padding(start = 8.dp, top = 6.dp).size(8.dp).background(LunareaGreenText, CircleShape))
+                    }
+                }
             }
         }
     }
@@ -555,6 +746,14 @@ private fun LunareaSectionTitle(title: String, subtitle: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(LunareaSpacing.xxs)) {
         Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
         subtitle?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
+}
+
+@Composable
+private fun CheckoutSectionHeading(title: String, subtitle: String? = null) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+        subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
     }
 }
 
@@ -1024,6 +1223,15 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
     var city by remember { mutableStateOf<RegionOption?>(null) }
     var district by remember { mutableStateOf<RegionOption?>(null) }
     var village by remember { mutableStateOf<RegionOption?>(null) }
+    var loadingCities by remember { mutableStateOf(false) }
+    var loadingDistricts by remember { mutableStateOf(false) }
+    var loadingVillages by remember { mutableStateOf(false) }
+    var cityError by remember { mutableStateOf<String?>(null) }
+    var districtError by remember { mutableStateOf<String?>(null) }
+    var villageError by remember { mutableStateOf<String?>(null) }
+    var cityRequest by remember { mutableIntStateOf(0) }
+    var districtRequest by remember { mutableIntStateOf(0) }
+    var villageRequest by remember { mutableIntStateOf(0) }
     var label by remember { mutableStateOf("") }
     var recipient by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -1048,11 +1256,61 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
             RegionOption(row.get("id")?.asInt ?: return@let null, row.get("label")?.asString.orEmpty(), row.get("kodepos")?.asString.orEmpty())
         }
     } ?: emptyList()
+    fun loadCities(forProvince: RegionOption) {
+        val request = ++cityRequest
+        loadingCities = true; cityError = null; cities = emptyList()
+        scope.launch {
+            try {
+                val response = ApiClient.get(context).cities(forProvince.id)
+                if (request != cityRequest || province?.id != forProvince.id) return@launch
+                if (response.isSuccessful && response.body()?.success == true) {
+                    cities = options(response.body()?.data)
+                    if (cities.isEmpty()) cityError = "Daftar kota untuk provinsi ini belum tersedia. Coba muat ulang."
+                } else cityError = response.customerError("Daftar kota belum dapat dimuat. Coba muat ulang.")
+            } catch (_: Exception) {
+                if (request == cityRequest && province?.id == forProvince.id) cityError = "Koneksi kota belum tersedia. Periksa internet lalu coba lagi."
+            } finally { if (request == cityRequest) loadingCities = false }
+        }
+    }
+    fun loadDistricts(forCity: RegionOption) {
+        val request = ++districtRequest
+        loadingDistricts = true; districtError = null; districts = emptyList()
+        scope.launch {
+            try {
+                val response = ApiClient.get(context).districts(forCity.id)
+                if (request != districtRequest || city?.id != forCity.id) return@launch
+                if (response.isSuccessful && response.body()?.success == true) {
+                    districts = options(response.body()?.data)
+                    if (districts.isEmpty()) districtError = "Daftar kecamatan belum tersedia. Coba muat ulang."
+                } else districtError = response.customerError("Daftar kecamatan belum dapat dimuat. Coba muat ulang.")
+            } catch (_: Exception) {
+                if (request == districtRequest && city?.id == forCity.id) districtError = "Koneksi kecamatan belum tersedia. Periksa internet lalu coba lagi."
+            } finally { if (request == districtRequest) loadingDistricts = false }
+        }
+    }
+    fun loadVillages(forDistrict: RegionOption) {
+        val request = ++villageRequest
+        loadingVillages = true; villageError = null; villages = emptyList()
+        scope.launch {
+            try {
+                val response = ApiClient.get(context).villages(forDistrict.id)
+                if (request != villageRequest || district?.id != forDistrict.id) return@launch
+                if (response.isSuccessful && response.body()?.success == true) {
+                    villages = options(response.body()?.data)
+                    if (villages.isEmpty()) villageError = "Daftar kelurahan belum tersedia. Coba muat ulang."
+                } else villageError = response.customerError("Daftar kelurahan belum dapat dimuat. Coba muat ulang.")
+            } catch (_: Exception) {
+                if (request == villageRequest && district?.id == forDistrict.id) villageError = "Koneksi kelurahan belum tersedia. Periksa internet lalu coba lagi."
+            } finally { if (request == villageRequest) loadingVillages = false }
+        }
+    }
     LaunchedEffect(refresh) {
         busy = true
         try {
             loadAddressRows()
-            provinces = options(ApiClient.get(context).provinces().body()?.data)
+            val response = ApiClient.get(context).provinces()
+            if (response.isSuccessful && response.body()?.success == true) provinces = options(response.body()?.data)
+            else message = response.customerError("Daftar provinsi belum dapat dimuat.")
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba muat ulang alamat." }
         finally { busy = false }
     }
@@ -1099,19 +1357,40 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
                     OutlinedTextField(label, { label = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Label alamat · Rumah/Kantor") }, singleLine = true)
                     OutlinedTextField(recipient, { recipient = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama penerima") }, singleLine = true)
                     OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
-                    RegionSelector("Provinsi", province, provinces, true) { selected ->
+                    RegionSelector("Provinsi", province, provinces, provinces.isNotEmpty()) { selected ->
                         province = selected; city = null; district = null; village = null; cities = emptyList(); districts = emptyList(); villages = emptyList()
-                        scope.launch { try { cities = options(ApiClient.get(context).cities(selected.id).body()?.data) } catch (_: Exception) { message = "Daftar kota belum dapat dimuat." } }
+                        cityError = null; districtError = null; villageError = null
+                        loadCities(selected)
                     }
-                    RegionSelector("Kota/Kabupaten", city, cities, province != null) { selected ->
+                    RegionSelector("Kota/Kabupaten", city, cities, province != null && !loadingCities && cities.isNotEmpty(), loadingCities) { selected ->
                         city = selected; district = null; village = null; districts = emptyList(); villages = emptyList()
-                        scope.launch { try { districts = options(ApiClient.get(context).districts(selected.id).body()?.data) } catch (_: Exception) { message = "Daftar kecamatan belum dapat dimuat." } }
+                        districtError = null; villageError = null
+                        loadDistricts(selected)
                     }
-                    RegionSelector("Kecamatan", district, districts, city != null) { selected ->
+                    cityError?.let { error ->
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                            TextButton(onClick = { province?.let(::loadCities) }, enabled = province != null && !loadingCities) { Text("Muat ulang") }
+                        }
+                    }
+                    RegionSelector("Kecamatan", district, districts, city != null && !loadingDistricts && districts.isNotEmpty(), loadingDistricts) { selected ->
                         district = selected; village = null; villages = emptyList()
-                        scope.launch { try { villages = options(ApiClient.get(context).villages(selected.id).body()?.data) } catch (_: Exception) { message = "Daftar kelurahan belum dapat dimuat." } }
+                        villageError = null
+                        loadVillages(selected)
                     }
-                    RegionSelector("Kelurahan", village, villages, district != null) { village = it }
+                    districtError?.let { error ->
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                            TextButton(onClick = { city?.let(::loadDistricts) }, enabled = city != null && !loadingDistricts) { Text("Muat ulang") }
+                        }
+                    }
+                    RegionSelector("Kelurahan", village, villages, district != null && !loadingVillages && villages.isNotEmpty(), loadingVillages) { village = it }
+                    villageError?.let { error ->
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                            TextButton(onClick = { district?.let(::loadVillages) }, enabled = district != null && !loadingVillages) { Text("Muat ulang") }
+                        }
+                    }
                     OutlinedTextField(detail, { detail = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama jalan, nomor, patokan") }, minLines = 2)
                     Button(
                         enabled = !busy && label.isNotBlank() && recipient.isNotBlank() && phone.isNotBlank() && detail.isNotBlank() && province != null && city != null && district != null && village != null,
@@ -1200,6 +1479,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
     var addressId by remember { mutableLongStateOf(0L) }
     var quotes by remember { mutableStateOf<List<ShippingOption>>(emptyList()) }
     var quote by remember { mutableStateOf<ShippingOption?>(null) }
+    var shippingWeightGrams by remember { mutableIntStateOf(0) }
     var payment by remember { mutableStateOf("bca") }
     var paymentMenu by remember { mutableStateOf(false) }
     var quoteMenu by remember { mutableStateOf(false) }
@@ -1212,7 +1492,10 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var quoteLoading by remember { mutableStateOf(false) }
+    var previewLoading by remember { mutableStateOf(false) }
     var refreshQuotes by remember { mutableIntStateOf(0) }
+    var quoteRequestGeneration by remember { mutableIntStateOf(0) }
+    var previewRequestGeneration by remember { mutableIntStateOf(0) }
     val checkoutPrefs = remember { context.getSharedPreferences("lunarea_checkout_pending", android.content.Context.MODE_PRIVATE) }
     var idempotencyKey by remember { mutableStateOf(checkoutPrefs.getString("idempotency_key", "").orEmpty()) }
     var orderResult by remember { mutableStateOf<String?>(null) }
@@ -1252,19 +1535,24 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
     }
 
     LaunchedEffect(addressId, refreshQuotes) {
+        val requestId = ++quoteRequestGeneration
         quotes = emptyList()
         quote = null
         preview = null
+        shippingWeightGrams = 0
         if (addressId <= 0) {
             quoteLoading = false
+            message = null
             return@LaunchedEffect
         }
         quoteLoading = true; quotes = emptyList(); quote = null; preview = null; idempotencyKey = ""; message = null
         try {
             val response = ApiClient.get(context).shippingQuotes(JsonObject().apply { addProperty("address_id", addressId) })
+            if (requestId != quoteRequestGeneration) return@LaunchedEffect
             val data = response.body()?.data
             val list = data?.getAsJsonArray("quotes")
             if (response.isSuccessful && response.body()?.success == true && list != null) {
+                shippingWeightGrams = runCatching { data.get("weight_grams")?.asInt ?: 0 }.getOrDefault(0).coerceAtLeast(0)
                 quotes = list.mapNotNull { item ->
                     val row = item.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
                     val token = row.stringOrNull("token").orEmpty()
@@ -1278,26 +1566,36 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                     )
                 }
                 if (quotes.isEmpty()) message = "Pilihan pengiriman belum tersedia untuk alamat ini."
-            } else message = response.body()?.error?.message ?: "Pilihan pengiriman belum dapat dimuat."
-        } catch (_: Exception) { message = "Koneksi pengiriman belum tersedia. Coba lagi." }
-        finally { quoteLoading = false }
+            } else message = response.customerError("Pilihan pengiriman belum dapat dimuat.")
+        } catch (_: Exception) { if (requestId == quoteRequestGeneration) message = "Koneksi pengiriman belum tersedia. Periksa internet lalu coba muat ulang." }
+        finally { if (requestId == quoteRequestGeneration) quoteLoading = false }
     }
 
     LaunchedEffect(addressId, quote?.token, payment, usePoints, includeGlass, voucherClaimId) {
-        val selected = quote ?: return@LaunchedEffect
-        if (addressId <= 0) return@LaunchedEffect
+        val requestId = ++previewRequestGeneration
+        val selected = quote
+        if (selected == null || addressId <= 0) {
+            preview = null
+            previewLoading = false
+            return@LaunchedEffect
+        }
         preview = null
+        previewLoading = true
+        message = null
         try {
+            delay(180)
             val payload = JsonObject().apply {
                 addProperty("address_id", addressId); addProperty("shipping_quote_token", selected.token); addProperty("payment_method", payment)
                 addProperty("use_points", usePoints); addProperty("include_glass", includeGlass)
                 if (voucherClaimId > 0) addProperty("voucher_claim_id", voucherClaimId)
             }
             val response = ApiClient.get(context).checkoutPreview(payload)
+            if (requestId != previewRequestGeneration) return@LaunchedEffect
             val data = response.body()?.data?.getAsJsonObject("checkout")
             if (response.isSuccessful && response.body()?.success == true && data != null) preview = data
-            else message = response.body()?.error?.message ?: "Ringkasan pembayaran belum tersedia."
-        } catch (_: Exception) { message = "Ringkasan pembayaran belum dapat dimuat." }
+            else message = response.customerError("Ringkasan pembayaran belum tersedia.")
+        } catch (_: Exception) { if (requestId == previewRequestGeneration) message = "Ringkasan pembayaran belum dapat dimuat. Periksa koneksi lalu coba lagi." }
+        finally { if (requestId == previewRequestGeneration) previewLoading = false }
     }
 
     paymentInstructions?.let { instructions ->
@@ -1342,48 +1640,107 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
         )
     }
 
-    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
-        LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Total dan ongkir dihitung ulang dengan aman")
-        LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
+            LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Tinjau alamat, ongkir, dan total pesanan")
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                    Text("1", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
+                }
+                Text("Alamat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                    Text("2", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
+                }
+                Text("Pengiriman", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                    Text("3", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
+                }
+                Text("Bayar", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        LazyColumn(Modifier.weight(1f).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(top = 14.dp, bottom = 16.dp)) {
             item {
-                Text("Alamat penerima", fontWeight = FontWeight.SemiBold)
-                if (addresses.isEmpty()) TextButton(onClick = { refreshAddress++ }) { Text("Muat ulang alamat") }
+                CheckoutSectionHeading("Alamat penerima")
+                if (addresses.isEmpty()) {
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(if (busy) "Memuat alamat…" else "Belum ada alamat pengiriman", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                            Text("Tambahkan alamat tersimpan melalui menu Akun untuk melihat pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(onClick = { refreshAddress++ }, enabled = !busy) { Text("Muat ulang alamat") }
+                        }
+                    }
+                }
                 else {
                     val selectedAddress = addresses.firstOrNull { (it.get("id")?.asLong ?: 0L) == addressId }
                     Box {
-                        OutlinedButton(onClick = { quoteMenu = !quoteMenu }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-                            Text(selectedAddress?.let { "${it.get("label")?.asString.orEmpty()} · ${it.get("recipient_name")?.asString.orEmpty()}" } ?: "Pilih alamat", modifier = Modifier.weight(1f))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().clickable { quoteMenu = true },
+                            shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                        ) {
+                            Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
+                                    Box(contentAlignment = Alignment.Center) { Text("⌖", color = MaterialTheme.colorScheme.onSecondaryContainer, style = MaterialTheme.typography.titleMedium) }
+                                }
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Text(selectedAddress?.get("label")?.asString?.ifBlank { "Alamat pengiriman" } ?: "Pilih alamat", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                    Text(selectedAddress?.let { "${it.get("recipient_name")?.asString.orEmpty()} · ${it.get("recipient_phone")?.asString.orEmpty()}" } ?: "Pilih alamat tersimpan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    val savedRegion = selectedAddress?.getAsJsonObject("address")
+                                    Text(savedRegion?.let { listOf("add", "desa", "kec", "kab", "prov", "kodepos").mapNotNull { key -> it.get(key)?.takeUnless { value -> value.isJsonNull }?.asString?.takeIf(String::isNotBlank) }.joinToString(", ") }?.takeIf(String::isNotBlank) ?: "Ketuk untuk memilih alamat", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+                                }
+                                Text("Ubah", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                            }
                         }
-                        DropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 320.dp)) {
+                        DropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(.92f).heightIn(max = 360.dp)) {
                             addresses.forEach { addr -> DropdownMenuItem(text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}") }, onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }) }
                         }
                     }
                 }
             }
             item {
-                Text("Metode pengiriman", fontWeight = FontWeight.SemiBold)
-                if (quoteLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                CheckoutSectionHeading("Metode pengiriman", "Tarif mengikuti keranjang dan alamat yang dipilih")
+                if (quoteLoading) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
+                    Text("Menghitung pilihan pengiriman…", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 if (quotes.isNotEmpty()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (shippingWeightGrams > 0) {
+                        Text(
+                            "Berat dasar perhitungan ongkir: ${"%.2f".format(Locale("id", "ID"), shippingWeightGrams / 1000.0)} kg",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            "Tarif otomatis menggunakan berat. Ukuran produk ditampilkan sebagai informasi dan belum menjadi dasar tarif.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         quotes.forEach { option ->
                             val selected = quote?.token == option.token
                             val selectionColor by animateColorAsState(
-                                targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .48f) else MaterialTheme.colorScheme.surface,
                                 animationSpec = tween(durationMillis = 180),
                                 label = "shipping-option-selection"
                             )
-                            Card(
+                            Surface(
                                 onClick = { quote = option },
-                                shape = MaterialTheme.shapes.medium,
-                                colors = CardDefaults.cardColors(containerColor = selectionColor),
+                                shape = RoundedCornerShape(14.dp), color = selectionColor,
                                 border = androidx.compose.foundation.BorderStroke(
                                     1.dp,
-                                    if (selected) LunareaGreenText.copy(alpha = .42f) else MaterialTheme.colorScheme.outlineVariant
+                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant
                                 )
                             ) {
-                                Row(Modifier.fillMaxWidth().padding(13.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    Column(Modifier.weight(1f)) { Text(option.courier.ifBlank { "Pengiriman" }, fontWeight = FontWeight.SemiBold); Text(option.service + (option.eta?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                    Text(if (option.cost == 0L) "Gratis" else formatRupiah(option.cost), fontWeight = FontWeight.Bold)
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 13.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(selected = selected, onClick = { quote = option }, modifier = Modifier.size(24.dp))
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(option.courier.ifBlank { "Pengiriman" }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                        Text(option.service + (option.eta?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    Text(if (option.cost == 0L) "Gratis" else formatRupiah(option.cost), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = if (option.cost == 0L) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 }
                             }
                         }
@@ -1394,16 +1751,17 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                         modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)
                     ) { Text("Perbarui pilihan pengiriman", fontSize = 12.sp) }
                 } else if (!quoteLoading) {
-                    Text(message ?: "Pilihan pengiriman belum tersedia.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-                    TextButton(
-                        onClick = { refreshQuotes++ },
-                        enabled = addressId > 0,
-                        modifier = Modifier.heightIn(min = 44.dp)
-                    ) { Text("Coba muat ulang") }
+                    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface) {
+                        Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Text(if (addressId <= 0) "Pilih alamat untuk melihat tarif" else "Pilihan pengiriman belum tersedia", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                            Text(message ?: "Periksa alamat dan coba perbarui pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(onClick = { refreshQuotes++ }, enabled = addressId > 0, modifier = Modifier.heightIn(min = 44.dp)) { Text("Coba lagi") }
+                        }
+                    }
                 }
             }
             item {
-                Text("Metode pembayaran", fontWeight = FontWeight.SemiBold)
+                CheckoutSectionHeading("Metode pembayaran")
                 Box {
                     OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(12.dp)) {
                         Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode pembayaran", modifier = Modifier.weight(1f))
@@ -1420,7 +1778,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                 }
             }
             if (availableVouchers.isNotEmpty()) item {
-                Text("Voucher", fontWeight = FontWeight.SemiBold)
+                CheckoutSectionHeading("Voucher", "Opsional")
                 Box {
                     OutlinedButton(onClick = { voucherMenu = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
                         val selectedVoucher = availableVouchers.firstOrNull { (it.get("claim_id")?.asLong ?: 0L) == voucherClaimId }
@@ -1442,15 +1800,37 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
             item { Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(usePoints, { usePoints = it }); Text("Gunakan Luna Point") } }
             item { Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(includeGlass, { includeGlass = it }); Text("Tambahkan proteksi kaca jika tersedia") } }
             item {
+                if (previewLoading) {
+                    Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Text("Memperbarui total pesanan…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
                 preview?.let { summary ->
-                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("Ringkasan pembayaran", fontWeight = FontWeight.SemiBold)
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CheckoutSectionHeading("Ringkasan pesanan")
+                            summary.getAsJsonArray("items")?.forEach { raw ->
+                                if (raw.isJsonObject) {
+                                    val item = raw.asJsonObject
+                                    val itemName = item.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                    val variant = item.get("variant")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                    val qty = item.get("quantity")?.takeUnless { it.isJsonNull }?.asInt ?: 1
+                                    val weight = item.get("weight_kg")?.takeUnless { it.isJsonNull }?.asDouble ?: 0.0
+                                    val dimensions = item.get("dimensions")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        Text("$itemName${variant.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()} × $qty", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                        Text("Berat ${"%.2f".format(Locale("id", "ID"), weight)} kg/unit${dimensions.takeIf(String::isNotBlank)?.let { " · Ukuran $it cm" }.orEmpty()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Text("Subtotal produk: ${formatRupiah(summary.get("subtotal")?.asLong ?: 0L)}")
                             summary.get("voucher_discount")?.asLong?.takeIf { it > 0 }?.let { Text("Diskon voucher: −${formatRupiah(it)}") }
                             summary.get("points_applied")?.asLong?.takeIf { it > 0 }?.let { Text("Luna Point: −${formatRupiah(it)}") }
                             summary.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let { Text("Proteksi kaca: ${formatRupiah(it)}") }
-                            Text("Ongkir: ${formatRupiah(summary.getAsJsonObject("shipping")?.get("cost")?.asLong ?: 0L)}")
+                            val shippingSummary = summary.getAsJsonObject("shipping")
+                            Text("Pengiriman${shippingSummary?.get("courier")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}: ${formatRupiah(shippingSummary?.get("cost")?.asLong ?: 0L)}")
                             Text("Biaya administrasi: ${formatRupiah(summary.get("admin_fee")?.asLong ?: 0L)}")
                             HorizontalDivider()
                             Text("Total: ${formatRupiah(summary.get("total")?.asLong ?: 0L)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LunareaGreenText)
@@ -1461,10 +1841,18 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                 orderResult?.let { Text(it, color = LunareaGreenText, fontWeight = FontWeight.SemiBold) }
             }
         }
-        Button(
-            enabled = preview != null && !busy && quote != null,
+        Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
+          Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            preview?.let { summary ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Total pembayaran", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(formatRupiah(summary.get("total")?.asLong ?: 0L), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+            Button(
+            enabled = preview != null && !previewLoading && !busy && quote != null,
             onClick = {
-                val snapshot = preview ?: return@Button
+                if (preview == null) return@Button
                 val signature = checkoutRequestSignature(addressId, quote!!.token, payment, usePoints, includeGlass, voucherClaimId)
                 val savedSignature = checkoutPrefs.getString("request_signature", "")
                 if (idempotencyKey.isBlank() || savedSignature != signature) idempotencyKey = java.util.UUID.randomUUID().toString()
@@ -1491,7 +1879,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                                 idempotencyKey = ""
                             }
                         } else {
-                            val errorMessage = response.body()?.error?.message ?: "Pesanan belum berhasil dibuat. Periksa Pesanan saya sebelum mencoba lagi."
+                            val errorMessage = response.customerError("Pesanan belum berhasil dibuat. Periksa Pesanan saya sebelum mencoba lagi.")
                             message = errorMessage
                             if (response.code() == 422 && Regex("ongkir|pengiriman|quote|alamat", RegexOption.IGNORE_CASE).containsMatchIn(errorMessage)) {
                                 // Refresh stale delivery data before allowing another payment attempt.
@@ -1508,18 +1896,33 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit) {
                         orderResult = "Respons belum dapat dipastikan. Gunakan tombol yang sama agar kunci permintaan tetap sama; jangan buat permintaan baru."
                     } finally { busy = false }
                 }
-            }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)
-        ) { if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Buat pesanan") }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)
+            ) { if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Buat pesanan") }
+          }
+        }
     }
 }
 
 @Composable
-private fun RegionSelector(title: String, selected: RegionOption?, options: List<RegionOption>, enabled: Boolean, onSelect: (RegionOption) -> Unit) {
+private fun RegionSelector(
+    title: String,
+    selected: RegionOption?,
+    options: List<RegionOption>,
+    enabled: Boolean,
+    loading: Boolean = false,
+    onSelect: (RegionOption) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxWidth()) {
         OutlinedButton(onClick = { expanded = true }, enabled = enabled, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-            Text(selected?.label ?: "Pilih $title", modifier = Modifier.weight(1f))
-            Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
+            Text(
+                selected?.label ?: if (loading) "Memuat $title…" else "Pilih $title",
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (loading) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+            else Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 300.dp)) {
             options.forEach { option -> DropdownMenuItem(text = { Text(option.label) }, onClick = { onSelect(option); expanded = false }) }
@@ -1759,6 +2162,7 @@ private fun EmptyState(text: String, onAction: () -> Unit, action: String) {
 private fun CatalogScreen(
     modifier: Modifier, tab: AppTab, query: String, onQueryChange: (String) -> Unit,
     signedIn: Boolean, onLoginRequired: () -> Unit,
+    unreadNotificationCount: Int, onOpenNotifications: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
     products: List<ProductSummary>, loading: Boolean, message: String?, canLoadMore: Boolean,
     onSearch: () -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
@@ -1836,27 +2240,34 @@ private fun CatalogScreen(
 
     Box(modifier.fillMaxSize()) {
       Column(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 18.dp, vertical = 12.dp)) {
-            Image(
-                painter = painterResource(R.drawable.logo_lunarea),
-                contentDescription = "Lunarea Furniture",
-                modifier = Modifier.width(126.dp).height(16.dp),
-                contentScale = ContentScale.Fit
-            )
+        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 18.dp, vertical = 10.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(R.drawable.logo_lunarea),
+                    contentDescription = "Lunarea Furniture",
+                    modifier = Modifier.width(126.dp).height(16.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(Modifier.weight(1f))
+                BadgedBox(badge = {
+                    if (unreadNotificationCount > 0) Badge {
+                        Text(if (unreadNotificationCount > 99) "99+" else unreadNotificationCount.toString())
+                    }
+                }) {
+                    IconButton(
+                        onClick = onOpenNotifications,
+                        modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_notifications),
+                            contentDescription = "Pemberitahuan${if (unreadNotificationCount > 0) ", $unreadNotificationCount belum dibaca" else ""}",
+                            tint = LunareaGreenText,
+                            modifier = Modifier.size(23.dp)
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.height(8.dp))
-            Text(
-                if (tab == AppTab.HOME) "Ruang nyaman, pilihan Lunarea" else "Katalog pilihan",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
-            )
-            Text(
-                if (tab == AppTab.HOME) "Furnitur untuk rumah yang terasa lebih nyaman" else "Temukan furnitur untuk setiap ruang",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-            Spacer(Modifier.height(10.dp))
             OutlinedTextField(
                 value = query, onValueChange = onQueryChange, modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Cari furnitur...") }, singleLine = true,
