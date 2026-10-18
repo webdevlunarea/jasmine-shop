@@ -24,6 +24,9 @@ final class CustomerUsernamesTest extends CIUnitTestCase
         require_once APPPATH . 'Database/Migrations/2026-10-17-000002_CreateCustomerUsernames.php';
         $this->migration = new \App\Database\Migrations\CreateCustomerUsernames(\Config\Database::forge($this->connection));
         $this->migration->up();
+        require_once APPPATH . 'Database/Migrations/2026-10-18-000002_AddUsernameChangeCooldown.php';
+        $cooldownMigration = new \App\Database\Migrations\AddUsernameChangeCooldown(\Config\Database::forge($this->connection));
+        $cooldownMigration->up();
         $this->usernames = new CustomerUsernames($this->connection);
     }
 
@@ -56,6 +59,10 @@ final class CustomerUsernamesTest extends CIUnitTestCase
     public function testChangingUsernamePreservesAccountAndReleasesOldAlias(): void
     {
         $this->usernames->save('one@example.test', 'nama_lama');
+        try { $this->usernames->save('one@example.test', 'nama_baru'); $this->fail('Expected cooldown'); }
+        catch (\DomainException $e) { $this->assertStringContainsString('setiap 6 bulan', $e->getMessage()); }
+        $this->connection->table('customer_usernames')->where('email_user', 'one@example.test')
+            ->update(['changed_at' => gmdate('Y-m-d H:i:s', strtotime('-7 months'))]);
         $this->usernames->save('one@example.test', 'nama_baru');
         $model = new UserModel($this->connection);
         $this->assertNull($model->getUserByUsername('nama_lama'));

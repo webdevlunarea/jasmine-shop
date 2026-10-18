@@ -11,11 +11,21 @@ final class HomeCarouselViewTest extends CIUnitTestCase
         $dom = new DOMDocument();
         @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
         $xpath = new DOMXPath($dom);
-        $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," carousel-item ")]')->length);
-        $this->assertSame(1, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," carousel-item ") and contains(concat(" ",normalize-space(@class)," ")," active ")]')->length);
-        $this->assertSame($count, $xpath->query('//button[@data-bs-slide-to]')->length);
-        $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," home-hero-media ")]')->length);
-        $this->assertSame($count, $xpath->query('//div[contains(concat(" ",normalize-space(@class)," ")," home-hero-media ") and contains(concat(" ",normalize-space(@class)," ")," image-skeleton ")]//img[@data-skeleton-image]')->length);
+        $slideCount = 0;
+        $activeCount = 0;
+        foreach ($dom->getElementsByTagName('div') as $div) {
+            $classes = trim($div->getAttribute('class'));
+            if (in_array($classes, ['carousel-item', 'carousel-item active'], true)) {
+                $slideCount++;
+                if ($classes === 'carousel-item active') $activeCount++;
+            }
+        }
+        $this->assertSame($count, $slideCount);
+        $this->assertSame(1, $activeCount);
+        $this->assertSame(1, $xpath->query('//button[@data-bs-slide="prev"]')->length);
+        $this->assertSame(1, $xpath->query('//button[@data-bs-slide="next"]')->length);
+        $this->assertSame($count, substr_count($html, 'class="home-hero-media image-skeleton"'));
+        $this->assertSame($count, substr_count($html, 'data-skeleton-image'));
         $this->assertSame($count - 1, $xpath->query('//img[@loading="lazy"]')->length);
         $this->assertStringNotContainsString('--home-hero-art', $html);
         if ($banners) {

@@ -16,7 +16,7 @@ final class UsernameControllerTest extends CIUnitTestCase
         parent::setUp(); session()->destroy();
         $this->connection = \Config\Database::connect(['DBDriver' => 'SQLite3', 'database' => ':memory:', 'DBPrefix' => '', 'DBDebug' => true], false);
         $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, role TEXT, active TEXT)');
-        $this->connection->query('CREATE TABLE customer_usernames (username TEXT PRIMARY KEY, email_user TEXT UNIQUE)');
+        $this->connection->query('CREATE TABLE customer_usernames (username TEXT PRIMARY KEY, email_user TEXT UNIQUE, changed_at TEXT NULL)');
         $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
     }
     protected function tearDown(): void { session()->destroy(); $this->connection->close(); parent::tearDown(); }

@@ -9,7 +9,8 @@ final class PaymentNotificationIsolationTest extends CIUnitTestCase
     {
         parent::setUp();
         $this->memoryDb=\Config\Database::connect(['DBDriver'=>'SQLite3','database'=>':memory:','DBPrefix'=>'','DBDebug'=>true],false);
-        $this->memoryDb->query('CREATE TABLE pemesanan (id INTEGER PRIMARY KEY, id_midtrans TEXT UNIQUE, email_cus TEXT, status TEXT, data_mid TEXT)');
+        $this->memoryDb->query('CREATE TABLE pemesanan (id INTEGER PRIMARY KEY, id_midtrans TEXT UNIQUE, email_cus TEXT, status TEXT, data_mid TEXT, idVoucher INTEGER DEFAULT 0, pakai_poin INTEGER DEFAULT 0, items TEXT DEFAULT "[]")');
+        $this->memoryDb->query('CREATE TABLE customer_push_notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, email_user TEXT NOT NULL, notification_type TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, payload TEXT, dedupe_key TEXT UNIQUE NOT NULL, status TEXT NOT NULL, attempts INTEGER NOT NULL, next_attempt_at TEXT NOT NULL, sent_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)');
         $this->memoryDb->table('pemesanan')->insert(['id_midtrans'=>'LTEST','email_cus'=>'test@example.test','status'=>'Menunggu Pembayaran',
             'data_mid'=>json_encode(['gross_amount'=>100000,'payment_type'=>'bank_transfer','transaction_id'=>'TEST-TX','_app_payment_environment'=>'sandbox','_app_payment_effects_applied'=>false])]);
     }
@@ -45,6 +46,13 @@ final class PaymentNotificationIsolationTest extends CIUnitTestCase
         $body['signature_key']=hash('sha512','LTEST'.'200'.'100000.00'.$key);
         return $body;
     }
+    private function productionExpiryBody(): array
+    {
+        $body=['order_id'=>'LTEST','gross_amount'=>'100000.00','status_code'=>'202','transaction_status'=>'expire','transaction_id'=>'TEST-TX'];
+        $key=(string)env('MIDTRANS_PRODUCTION_KEY');
+        $body['signature_key']=hash('sha512','LTEST'.'202'.'100000.00'.$key);
+        return $body;
+    }
     public function testSignedSandboxCallbackUpdatesBuyerStatusOnceWithoutOperationalModels(): void
     {
         $old=getenv('MIDTRANS_SANDBOX_KEY');putenv('MIDTRANS_SANDBOX_KEY=isolated-unit-key');
@@ -77,5 +85,39 @@ final class PaymentNotificationIsolationTest extends CIUnitTestCase
             $this->assertTrue($mid['_app_payment_effects_applied']);
             $this->assertCount(1,$controller->notifications);
         } finally { $old===false?putenv('MIDTRANS_SANDBOX_KEY'):putenv('MIDTRANS_SANDBOX_KEY='.$old); }
+    }
+    public function testProductionPaymentStatusAndPushOutboxCommitAtomically(): void
+    {
+        $old=getenv('MIDTRANS_PRODUCTION_KEY');putenv('MIDTRANS_PRODUCTION_KEY=isolated-production-unit-key');
+        try {
+            $this->memoryDb->table('pemesanan')->update([
+                'email_cus'=>'buyer@example.test',
+                'data_mid'=>json_encode(['gross_amount'=>100000,'payment_type'=>'bank_transfer','transaction_id'=>'TEST-TX','_app_payment_environment'=>'production','_app_payment_effects_applied'=>false]),
+            ]);
+            $controller=$this->controller($this->productionExpiryBody());
+            $this->assertSame(200,$controller->updateTransaction()->getStatusCode());
+            $this->assertSame('Kadaluarsa',$this->memoryDb->table('pemesanan')->get()->getRowArray()['status']);
+            $event=$this->memoryDb->table('customer_push_notifications')->get()->getRowArray();
+            $this->assertSame('buyer@example.test',$event['email_user']);
+            $this->assertSame('payment_status',$event['notification_type']);
+            $this->assertSame(['order_id'=>'LTEST','status'=>'Kadaluarsa'],json_decode($event['payload'],true));
+            $controller->updateTransaction();
+            $this->assertSame(1,$this->memoryDb->table('customer_push_notifications')->countAllResults());
+        } finally { $old===false?putenv('MIDTRANS_PRODUCTION_KEY'):putenv('MIDTRANS_PRODUCTION_KEY='.$old); }
+    }
+    public function testFailedPaymentOutboxInsertRollsBackTheStatusTransition(): void
+    {
+        $old=getenv('MIDTRANS_PRODUCTION_KEY');putenv('MIDTRANS_PRODUCTION_KEY=isolated-production-unit-key');
+        try {
+            $this->memoryDb->table('pemesanan')->update([
+                'email_cus'=>'buyer@example.test',
+                'data_mid'=>json_encode(['gross_amount'=>100000,'payment_type'=>'bank_transfer','transaction_id'=>'TEST-TX','_app_payment_environment'=>'production','_app_payment_effects_applied'=>false]),
+            ]);
+            $this->memoryDb->query("CREATE TRIGGER reject_customer_push BEFORE INSERT ON customer_push_notifications BEGIN SELECT RAISE(ABORT, 'synthetic outbox failure'); END");
+            $controller=$this->controller($this->productionExpiryBody());
+            $this->assertSame(500,$controller->updateTransaction()->getStatusCode());
+            $this->assertSame('Menunggu Pembayaran',$this->memoryDb->table('pemesanan')->get()->getRowArray()['status']);
+            $this->assertSame(0,$this->memoryDb->table('customer_push_notifications')->countAllResults());
+        } finally { $old===false?putenv('MIDTRANS_PRODUCTION_KEY'):putenv('MIDTRANS_PRODUCTION_KEY='.$old); }
     }
 }

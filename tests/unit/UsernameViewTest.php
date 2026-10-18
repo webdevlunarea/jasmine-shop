@@ -7,7 +7,7 @@ final class UsernameViewTest extends CIUnitTestCase
     /** @dataProvider settings */
     public function testAccountFormAndUnavailableState(bool $available, string $username): void
     {
-        $html = view('partials/account_username', ['usernameSettings' => ['available' => $available, 'username' => $username]], ['saveData' => false]);
+        $html = view('partials/account_username', ['usernameSettings' => ['available' => $available, 'username' => $username, 'can_change' => true]], ['saveData' => false]);
         $dom = new DOMDocument(); @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); $xp = new DOMXPath($dom);
         $this->assertSame($available ? 1 : 0, $xp->query('//form')->length);
         if (!$available) return;

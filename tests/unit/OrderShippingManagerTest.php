@@ -29,10 +29,14 @@ final class OrderShippingManagerTest extends CIUnitTestCase
     {
         $result = $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
         $this->assertSame('Dikirim', $result['order']['status']);
+        $this->assertSame('Menunggu pengiriman', $result['previous_shipping_status']);
+        $this->assertSame('Dalam Pengiriman', $result['shipment']['shipping_status']);
         $saved = $this->connection->table('order_shipments')->get()->getRowArray();
         $this->assertSame('TEST123', $saved['tracking_number']);
         $this->assertSame(12345, (int)$saved['shipping_cost']);
-        $this->assertFalse($this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman'])['changed']);
+        $replay = $this->manager->update('LTEST', ['kurir' => 'JNE', 'resi' => 'TEST123', 'shipping_status' => 'Dalam Pengiriman']);
+        $this->assertFalse($replay['changed']);
+        $this->assertSame('Dalam Pengiriman', $replay['previous_shipping_status']);
     }
 
     public function testReviewedNewWorkflowWaitsForTcpBeforeDispatch(): void
@@ -54,10 +58,13 @@ final class OrderShippingManagerTest extends CIUnitTestCase
         $this->connection->table('order_shipments')->update(['shipping_method_code' => 'internal_delivery', 'shipping_cost' => 0]);
         $result = $this->manager->update('LTEST', ['shipping_status' => 'Disiapkan', 'resi' => 'TOKO-227']);
         $this->assertSame('Proses', $result['order']['status']);
+        $this->assertSame('Menunggu pengiriman', $result['previous_shipping_status']);
         $result = $this->manager->update('LTEST', ['shipping_status' => 'Dalam Pengiriman', 'resi' => 'TOKO-227']);
+        $this->assertSame('Disiapkan', $result['previous_shipping_status']);
         $this->assertSame('TOKO-227', $result['order']['resi']);
         $this->assertSame('TOKO-227', $result['shipment']['tracking_number']);
         $result = $this->manager->update('LTEST', [], true);
+        $this->assertSame('Dalam Pengiriman', $result['previous_shipping_status']);
         $this->assertSame('Selesai', $result['order']['status']);
         $this->assertSame('Terkirim', $result['shipment']['shipping_status']);
     }

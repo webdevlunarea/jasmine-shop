@@ -30,6 +30,8 @@ class Filters extends BaseConfig
         'harusLogout'    => \App\Filters\LogoutFilter::class,
         'corsFilter'    => \App\Filters\CorsFilter::class,
         'passwordSession' => \App\Filters\PasswordSessionFilter::class,
+        'apiCustomer' => \App\Filters\ApiCustomerFilter::class,
+        'apiVersion' => \App\Filters\ApiVersionFilter::class,
     ];
 
     /**
@@ -47,7 +49,7 @@ class Filters extends BaseConfig
             // 'invalidchars',
         ],
         'after' => [
-            'toolbar',
+            'toolbar' => ['except' => ['api/*']],
             // 'honeypot',
             // 'secureheaders',
         ],

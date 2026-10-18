@@ -8,9 +8,33 @@ class RajaOngkirRateProvider
 {
     protected ShippingMethodModel $methodModel;
 
-    public function __construct()
+    public function __construct(?ShippingMethodModel $methodModel = null)
     {
-        $this->methodModel = new ShippingMethodModel();
+        $this->methodModel = $methodModel ?? new ShippingMethodModel();
+    }
+
+    protected function cacheGet(string $key) { return \Config\Services::cache()->get($key); }
+
+    protected function cacheSave(string $key, $value, int $ttl): void
+    {
+        \Config\Services::cache()->save($key, $value, $ttl);
+    }
+
+    private function cacheKey(string $scope, string $apiKey, array $facts): string
+    {
+        return 'lunarea-rajaongkir-' . $scope . '-' . hash('sha256', json_encode([
+            'api_key_fingerprint' => hash('sha256', $apiKey),
+            'facts' => $facts,
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    private function remember(string $key, int $ttl, callable $loader)
+    {
+        $cached = $this->cacheGet($key);
+        if (is_array($cached) && array_key_exists('value', $cached)) return $cached['value'];
+        $value = $loader();
+        $this->cacheSave($key, ['value' => $value], $ttl);
+        return $value;
     }
 
     public function getQuotes(array $address, int $weightGrams): array
@@ -53,30 +77,20 @@ class RajaOngkirRateProvider
                 return [];
             }
 
-            log_message('info', 'RajaOngkir quote request origin=' . $originId . ' destination=' . $destinationId . ' weight=' . max(1, $weightGrams) . ' courier=' . $courier);
-
-            $response = $client->post('https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost', [
-                'headers' => [
-                    'key' => $apiKey,
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                ],
-                'form_params' => [
-                    'origin' => $originId,
-                    'destination' => $destinationId,
-                    'weight' => max(1, $weightGrams),
-                    'courier' => $courier,
-                    'price' => 'lowest',
-                ],
+            $cacheKey = $this->cacheKey('rates', $apiKey, [
+                'origin_id' => $originId,
+                'destination_id' => $destinationId,
+                'weight_grams' => max(1, $weightGrams),
+                'couriers' => $courier,
+                'price' => 'lowest',
+                'method_settings' => hash('sha256', (string)($method['settings'] ?? '{}')),
             ]);
-
-            if ($response->getStatusCode() !== 200) {
-                return [];
-            }
-
-            $payload = json_decode((string)$response->getBody(), true);
-            if (!is_array($payload) || empty($payload['data']) || !is_array($payload['data'])) {
-                return [];
-            }
+            // Briefly cache identical quotes to prevent address refreshes and retries
+            // from consuming the provider's free-tier request quota.
+            $payload = $this->remember($cacheKey, 60, fn() => $this->requestRatePayload(
+                $client, $apiKey, $originId, $destinationId, $weightGrams, $courier
+            ));
+            if (!is_array($payload) || empty($payload['data']) || !is_array($payload['data'])) return [];
 
             $quotes = [];
             foreach ($payload['data'] as $item) {
@@ -105,9 +119,23 @@ class RajaOngkirRateProvider
 
             return $quotes;
         } catch (\Throwable $e) {
-            log_message('error', 'RajaOngkir quote error: ' . $e->getMessage());
+            log_message('error', 'RajaOngkir quote error: ' . get_class($e));
             return [];
         }
+    }
+
+    protected function requestRatePayload($client, string $apiKey, string $originId, string $destinationId, int $weightGrams, string $courier): ?array
+    {
+        $response = $client->post('https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost', [
+            'headers' => ['key' => $apiKey, 'Content-Type' => 'application/x-www-form-urlencoded'],
+            'form_params' => [
+                'origin' => $originId, 'destination' => $destinationId,
+                'weight' => max(1, $weightGrams), 'courier' => $courier, 'price' => 'lowest',
+            ],
+        ]);
+        if ($response->getStatusCode() !== 200) return null;
+        $payload = json_decode((string)$response->getBody(), true);
+        return is_array($payload) && isset($payload['data']) && is_array($payload['data']) ? $payload : null;
     }
 
     protected function resolveOriginId($client, string $apiKey, array $settings): string
@@ -150,6 +178,16 @@ class RajaOngkirRateProvider
         $kecamatan = trim((string)($address['kecamatan_label'] ?? ''));
         $kabupaten = trim((string)($address['kabupaten_label'] ?? ''));
         $provinsi = trim((string)($address['provinsi_label'] ?? ''));
+
+        $cacheKey = $this->cacheKey('destination', $apiKey, [
+            'postal_code' => $kodepos,
+            'kelurahan' => $this->normalizeLocationName($kelurahan),
+            'kecamatan' => $this->normalizeLocationName($kecamatan),
+            'kabupaten' => $this->normalizeLocationName($kabupaten),
+            'provinsi' => $this->normalizeLocationName($provinsi),
+        ]);
+        $cachedId = $this->cacheGet($cacheKey);
+        if (is_string($cachedId)) return $cachedId;
 
         $queries = [];
 
@@ -228,10 +266,13 @@ class RajaOngkirRateProvider
 
         if ($bestId !== '' && $bestScore >= $minimumScore) {
             log_message('info', 'RajaOngkir destination matched id=' . $bestId . ' score=' . $bestScore . ' label=' . $bestLabel);
+            $this->cacheSave($cacheKey, $bestId, 86400);
             return $bestId;
         }
 
         log_message('warning', 'RajaOngkir destination match failed. score=' . $bestScore . ' kecamatan=' . $kecamatan . ' kodepos=' . $kodepos . ' kabupaten=' . $kabupaten);
+        // Cache misses briefly so repeated retries do not fan out to several search calls.
+        $this->cacheSave($cacheKey, '', 300);
         return '';
     }
 

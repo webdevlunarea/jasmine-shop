@@ -46,6 +46,16 @@ class LunaFulfillment
             } else {
                 $mid['_app_luna_fulfillment'] = ['stage'=>$stage, 'sale_id'=>$saleId, 'processed_at'=>$processedAt];
                 $this->db->table('pemesanan')->where('id_midtrans', $orderId)->update(['data_mid'=>json_encode($mid)]);
+                if ($stage === 'processed' && $this->db->tableExists('customer_push_notifications')
+                    && filter_var((string)($order['email_cus'] ?? ''), FILTER_VALIDATE_EMAIL)) {
+                    $queued = (new \App\Services\Notifications\CustomerPushNotifications($this->db))->enqueue(
+                        (string)$order['email_cus'], 'order_processing', 'Pesanan sedang diproses',
+                        'Pesanan ' . $orderId . ' sudah diteruskan untuk diproses.',
+                        ['order_id' => $orderId, 'status' => 'Proses'],
+                        'processing:' . $orderId . ':' . $saleId . ':' . $processedAt
+                    );
+                    if (!$queued) throw new \RuntimeException('Order processing notification was not recorded.');
+                }
             }
             if (!$this->db->transStatus()) throw new \RuntimeException('Fulfillment acknowledgement failed');
             $this->db->transCommit();

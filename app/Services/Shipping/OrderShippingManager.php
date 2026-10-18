@@ -26,6 +26,12 @@ class OrderShippingManager
             }
             $hasShipments = $this->db->tableExists('order_shipments');
             $shipment = $hasShipments ? $this->db->table('order_shipments')->where('id_midtrans', $orderId)->get()->getRowArray() : null;
+            $previousShippingStatus = (string)($shipment['shipping_status'] ?? match ($current) {
+                'Proses' => 'Disiapkan',
+                'Dikirim' => 'Dalam Pengiriman',
+                'Selesai' => 'Terkirim',
+                default => '',
+            });
             $internal = ($shipment['shipping_method_code'] ?? '') === 'internal_delivery';
             $courier = trim((string)($input['kurir'] ?? $order['kurir'] ?? ''));
             $awb = trim((string)($input['resi'] ?? $order['resi'] ?? ''));
@@ -62,16 +68,35 @@ class OrderShippingManager
             $this->db->table('pemesanan')->where('id_midtrans', $orderId)->update($changes);
             if ($shipment) {
                 // Quoted courier/service/cost stay immutable. Only fulfillment fields change.
+                $shippingUpdatedAt = date('Y-m-d H:i:s');
                 $this->db->table('order_shipments')->where('id', $shipment['id'])->update([
                     'tracking_number' => $awb,
                     'shipping_status' => $shippingStatus,
-                    'updated_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => $shippingUpdatedAt,
                 ]);
-                $shipment = array_merge($shipment, ['tracking_number' => $awb, 'shipping_status' => $shippingStatus]);
+                $shipment = array_merge($shipment, ['tracking_number' => $awb, 'shipping_status' => $shippingStatus, 'updated_at' => $shippingUpdatedAt]);
+            } else {
+                $shippingUpdatedAt = date('Y-m-d H:i:s');
+            }
+            if ($previousShippingStatus !== $shippingStatus && $this->db->tableExists('customer_push_notifications')) {
+                $pushCopy = \App\Services\Notifications\ShippingStatusNotification::for($shippingStatus, $orderId);
+                if ($pushCopy !== null && filter_var((string)($order['email_cus'] ?? ''), FILTER_VALIDATE_EMAIL)) {
+                    $queued = (new \App\Services\Notifications\CustomerPushNotifications($this->db))->enqueue(
+                        (string)$order['email_cus'], 'shipping_status', $pushCopy['title'], $pushCopy['body'],
+                        ['order_id' => $orderId, 'status' => $shippingStatus, 'tracking_number' => $awb, 'courier' => $courier],
+                        'shipping:' . $orderId . ':' . $previousShippingStatus . ':' . $shippingStatus . ':' . $shippingUpdatedAt
+                    );
+                    if (!$queued) throw new \RuntimeException('Shipping status notification was not recorded.');
+                }
             }
             if (!$this->db->transStatus()) throw new \RuntimeException('Shipping transaction failed');
-            $this->db->transCommit();
-            return ['order' => array_merge($order, $changes), 'shipment' => $shipment, 'changed' => (bool)$changed];
+            if (!$this->db->transCommit()) throw new \RuntimeException('Shipping transaction commit failed');
+            return [
+                'order' => array_merge($order, $changes),
+                'shipment' => $shipment,
+                'changed' => (bool)$changed,
+                'previous_shipping_status' => $previousShippingStatus,
+            ];
         } catch (\Throwable $e) {
             $this->db->transRollback();
             throw $e;

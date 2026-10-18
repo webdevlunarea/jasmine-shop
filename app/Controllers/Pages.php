@@ -4314,7 +4314,6 @@ class Pages extends BaseController
             ]);
         }
 
-        $auth = base64_encode($this->paymentServerKey($isSandboxCheckout) . ':');
         $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
         $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
         $randomId = "L" . rand();
@@ -4334,21 +4333,14 @@ class Pages extends BaseController
         $customField = '';
 
         $gross_amount = $total - $diskonVoucher - $potonganPreorder - $poinDipakai + ($gantiKaca ? $totalkaca : 0) + $shippingCost;
-        $biayaAdmin = 0;
-        $banks = ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'];
-        if (in_array($pembayaran, $banks)) {
-            $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
-            $biayaAdmin = 4000 + (4000 * $ppn);
-        } else if ($pembayaran == 'gopay' || $pembayaran == 'shopeepay') {
-            $biayaAdmin = $gross_amount * 0.02;
-        } else if ($pembayaran == 'qris') {
-            $biayaAdmin = $gross_amount * 0.007;
-        } else if ($pembayaran == 'dana') {
-            $biayaAdmin = $gross_amount * 0.015;
-        } else if ($pembayaran == 'card') {
-            $biayaAdmin = $gross_amount * 0.029 + 2000;
-        }
-        $biayaAdmin = (int)ceil($biayaAdmin);
+        $ppnPercent = in_array($pembayaran, ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'], true)
+            ? (float)($this->konstantaModel->getKonstantaById(1)['value'] ?? 0)
+            : 0.0;
+        $biayaAdmin = (new \App\Services\Payments\CheckoutAmountCalculator())->adminFee(
+            (string)$pembayaran,
+            (int)$gross_amount,
+            $ppnPercent
+        );
 
         array_push($itemDetails, array(
             'id' => 'Biaya Admin',
@@ -4357,16 +4349,15 @@ class Pages extends BaseController
             'name' => 'Biaya Admin',
         ));
 
-        $gross_amount = 0;
         foreach ($itemDetails as &$item) {
             $item['id'] = substr((string)($item['id'] ?? ''), 0, 64);
             $item['price'] = (int)round((float)($item['price'] ?? 0));
             $item['quantity'] = max(1, (int)($item['quantity'] ?? 1));
             $item['name'] = substr((string)($item['name'] ?? $item['id']), 0, 50);
             unset($item['packed']);
-            $gross_amount += $item['price'] * $item['quantity'];
         }
         unset($item);
+        $gross_amount = (new \App\Services\Payments\CheckoutAmountCalculator())->totalFromItems($itemDetails);
 
         $arrPostField = [
             "transaction_details" => [
@@ -4508,34 +4499,14 @@ class Pages extends BaseController
                 "currency" => "IDR"
             ];
         } else {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => $isSandboxCheckout ? "https://api.sandbox.midtrans.com/v2/charge" : "https://api.midtrans.com/v2/charge",
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($arrPostField),
-                CURLOPT_HTTPHEADER => array(
-                    "Accept: application/json",
-                    "Content-Type: application/json",
-                    "Authorization: Basic " . $auth,
-                ),
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return "cURL Error #:" . $err;
-            }
-            $hasilMidtrans = json_decode($response, true);
-
-            if (substr($hasilMidtrans['status_code'], 0, 1) != '2') {
-                session()->setFlashdata('msg', $hasilMidtrans['status_message']);
+            try {
+                $hasilMidtrans = (new \App\Services\Payments\MidtransChargeClient(
+                    $isSandboxCheckout,
+                    $this->paymentServerKey($isSandboxCheckout)
+                ))->charge($arrPostField);
+            } catch (\Throwable $error) {
+                log_message('error', 'Midtrans checkout charge deferred: {type}', ['type' => get_class($error)]);
+                session()->setFlashdata('msg', 'Pembayaran belum berhasil diproses. Periksa status pesanan sebelum mencoba kembali.');
                 return redirect()->to('/checkout');
             }
         }
@@ -4743,17 +4714,66 @@ class Pages extends BaseController
         }
         $this->verifyBuyerPaymentRequest();
         $target = '/order/' . rawurlencode((string)$order_id);
-        if (!in_array($order['status'], ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) {
-            return redirect()->to($target)->with('msg', 'Status pesanan sudah berubah. Pembatalan hanya tersedia sebelum pembayaran.');
+        $result = $this->performCustomerOrderCancellation($order);
+        return redirect()->to($target)->with('msg', $result['message']);
+    }
+
+    /** Native API cancellation uses the same payment verification and transactional effects as web cancellation. */
+    public function cancelOrderApi(string $order_id)
+    {
+        $email = strtolower(trim($this->request->getHeaderLine('X-Lunarea-Authenticated-Customer')));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->response->setStatusCode(401)->setJSON([
+                'success' => false, 'error' => ['code' => 'UNAUTHENTICATED', 'message' => 'Sesi aplikasi berakhir. Silakan masuk kembali.'],
+            ]);
         }
-        $mid = json_decode($order['data_mid'], true) ?: [];
+        $throttler = service('throttler');
+        $customerKey = 'lunarea-api-cancel-customer-' . hash('sha256', $email);
+        $orderKey = 'lunarea-api-cancel-order-' . hash('sha256', $email . '|' . $order_id);
+        if (!$throttler->check($customerKey, 8, 60) || !$throttler->check($orderKey, 3, 60)) {
+            return $this->response->setStatusCode(429)->setJSON([
+                'success' => false, 'error' => ['code' => 'RATE_LIMITED', 'message' => 'Permintaan pembatalan terlalu sering. Coba lagi sebentar.'],
+            ]);
+        }
+        $order = $this->pemesananModel->where(['id_midtrans' => $order_id, 'email_cus' => $email])->first();
+        if (!$order) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'success' => false, 'error' => ['code' => 'ORDER_NOT_FOUND', 'message' => 'Pesanan tidak ditemukan.'],
+            ]);
+        }
+        $result = $this->performCustomerOrderCancellation($order);
+        $status = $result['success'] ? 200 : ($result['code'] === 'CANCELLATION_UNAVAILABLE' ? 503 : 409);
+        if ($result['success']) {
+            return $this->response->setStatusCode($status)->setJSON([
+                'success' => true, 'data' => ['order_id' => (string)$order_id, 'status' => $result['status'], 'message' => $result['message']],
+            ]);
+        }
+        return $this->response->setStatusCode($status)->setJSON([
+            'success' => false, 'error' => ['code' => $result['code'], 'message' => $result['message']],
+            'data' => ['order_id' => (string)$order_id, 'status' => $result['status']],
+        ]);
+    }
+
+    /** @return array{success:bool,code:string,message:string,status:string} */
+    protected function performCustomerOrderCancellation(array $order): array
+    {
+        $orderId = (string)($order['id_midtrans'] ?? '');
+        $status = (string)($order['status'] ?? '');
+        if (!in_array($status, ['Menunggu Pembayaran', 'Menunggu Pembayaran Rekening'], true)) {
+            return ['success'=>false, 'code'=>'ORDER_NOT_CANCELLABLE', 'message'=>'Status pesanan sudah berubah. Pembatalan hanya tersedia sebelum pembayaran.', 'status'=>$status];
+        }
+        $mid = json_decode((string)($order['data_mid'] ?? ''), true) ?: [];
         if (($mid['payment_type'] ?? '') === 'rekening') {
             if (!empty($order['bukti_bayar'])) {
-                return redirect()->to($target)->with('msg', 'Bukti pembayaran sedang diperiksa. Hubungi layanan pelanggan untuk pembatalan.');
+                return ['success'=>false, 'code'=>'PAYMENT_REVIEW_PENDING', 'message'=>'Bukti pembayaran sedang diperiksa. Hubungi layanan pelanggan untuk pembatalan.', 'status'=>$status];
             }
             $mid['transaction_status'] = 'cancel';
             $result = $this->applyVerifiedPaymentUpdate($order, $mid, $this->isSandboxOrder($order));
-            return redirect()->to($target)->with('msg', $result['success'] ? 'Status pembatalan pesanan telah diperbarui.' : 'Pembatalan belum tersimpan. Muat ulang dan periksa status pesanan.');
+            $fresh = $this->pemesananModel->getPemesanan($orderId) ?: $order;
+            $cancelled = ($fresh['status'] ?? '') === 'Dibatalkan';
+            return ['success'=>$cancelled, 'code'=>$cancelled ? 'CANCELLED' : 'CANCELLATION_UNAVAILABLE',
+                'message'=>$cancelled ? 'Pesanan berhasil dibatalkan.' : 'Pembatalan belum tersimpan. Muat ulang dan periksa status pesanan.',
+                'status'=>(string)($fresh['status'] ?? $status)];
         }
         try {
             // Read the provider first: a delayed callback must not allow cancelling a paid order.
@@ -4761,21 +4781,28 @@ class Pages extends BaseController
             if (!PaymentSafety::validNotification($order, $body, $this->paymentServerKey($this->isSandboxOrder($order)))) throw new \RuntimeException('Invalid payment status');
             $result = $this->applyVerifiedPaymentUpdate($order, $body, $this->isSandboxOrder($order));
             if (!$result['success']) throw new \RuntimeException('Payment reconciliation failed');
-            $order = $this->pemesananModel->getPemesanan($order_id);
+            $order = $this->pemesananModel->getPemesanan($orderId) ?: $order;
             if (($order['status'] ?? '') !== 'Menunggu Pembayaran' || strtolower((string)($body['transaction_status'] ?? '')) !== 'pending') {
-                return redirect()->to($target)->with('msg', 'Status pembayaran sudah diperbarui. Silakan periksa pesanan Anda.');
+                $freshStatus = (string)($order['status'] ?? '');
+                if ($freshStatus === 'Dibatalkan') {
+                    return ['success'=>true, 'code'=>'CANCELLED', 'message'=>'Pesanan sudah dibatalkan.', 'status'=>$freshStatus];
+                }
+                return ['success'=>false, 'code'=>'ORDER_NOT_CANCELLABLE', 'message'=>'Status pembayaran sudah diperbarui. Silakan periksa pesanan Anda.', 'status'=>$freshStatus];
             }
             try { $this->paymentRemoteRequest($order, 'cancel'); }
             catch (\Throwable $error) { log_message('error', 'Cancellation result needs status confirmation.'); }
             // Even a successful cancel HTTP response is followed by a verified status read.
             $order = $this->reconcilePendingOrder($order, true);
-            $message = ($order['status'] ?? '') === 'Dibatalkan' ? 'Pesanan berhasil dibatalkan.'
-                : 'Pembatalan belum terkonfirmasi. Periksa status pesanan, lalu coba kembali bila masih menunggu pembayaran.';
+            $cancelled = ($order['status'] ?? '') === 'Dibatalkan';
+            return ['success'=>$cancelled, 'code'=>$cancelled ? 'CANCELLED' : 'CANCELLATION_UNAVAILABLE',
+                'message'=>$cancelled ? 'Pesanan berhasil dibatalkan.' : 'Pembatalan belum terkonfirmasi. Periksa status pesanan, lalu coba kembali bila masih menunggu pembayaran.',
+                'status'=>(string)($order['status'] ?? '')];
         } catch (\Throwable $error) {
             log_message('error', 'Order cancellation deferred: {type}', ['type'=>get_class($error)]);
-            $message = 'Status pembayaran belum berhasil diperiksa. Pesanan tidak diubah; silakan coba kembali beberapa saat lagi.';
+            return ['success'=>false, 'code'=>'CANCELLATION_UNAVAILABLE',
+                'message'=>'Status pembayaran belum berhasil diperiksa. Pesanan tidak diubah; silakan coba kembali beberapa saat lagi.',
+                'status'=>(string)($order['status'] ?? '')];
         }
-        return redirect()->to($target)->with('msg', $message);
     }
 
     public function tracking($tipe, $resi)
@@ -4992,9 +5019,7 @@ class Pages extends BaseController
 
     private function normalizeTrackingAwb($awb)
     {
-        $awb = strtoupper(trim((string)$awb));
-        $awb = preg_replace('/[^A-Z0-9]/', '', $awb);
-        return $awb ?: '';
+        return \App\Services\Shipping\BinderByteTrackingProvider::normalizeAwb((string)$awb);
     }
 
     private function trackingCourierOptions()
@@ -5018,130 +5043,14 @@ class Pages extends BaseController
 
     private function resolveCourierCode($courierText)
     {
-        $text = strtolower(trim($courierText));
-        $text = str_replace(['&amp;', '&'], ['and', 'and'], $text);
-        $map = [
-            'sicepat' => 'sicepat',
-            'si cepat' => 'sicepat',
-            'anteraja' => 'anteraja',
-            'anter aja' => 'anteraja',
-            'j&t' => 'jnt',
-            'jnt' => 'jnt',
-            'j and t' => 'jnt',
-            'jne' => 'jne',
-            'tiki' => 'tiki',
-            'pos' => 'pos',
-            'wahana' => 'wahana',
-            'ninja' => 'ninja',
-            'lion' => 'lion',
-            'indah' => 'indah',
-            'dakota' => 'dakota',
-            'sap' => 'sap',
-            'id express' => 'ide',
-            'idexpress' => 'ide',
-            'shopee' => 'spx',
-            'spx' => 'spx',
-        ];
-
-        foreach ($map as $needle => $code) {
-            if (strpos($text, $needle) !== false) return $code;
-        }
-
-        return '';
+        return \App\Services\Shipping\BinderByteTrackingProvider::resolveCourierCode((string)$courierText);
     }
 
     private function fetchBinderByteTracking($courier, $awb)
     {
-        $apiKey = $this->getBinderByteApiKey();
-        if (!$apiKey) {
-            return [
-                'success' => false,
-                'message' => 'Layanan lacak pengiriman sedang dalam penyesuaian. Silakan coba kembali beberapa saat lagi atau hubungi admin Lunarea.',
-            ];
-        }
-
-        $baseUrl = rtrim($this->getBinderByteBaseUrl(), '/');
-        $url = $baseUrl . '/v1/track?api_key=' . rawurlencode($apiKey) . '&courier=' . rawurlencode($courier) . '&awb=' . rawurlencode($this->normalizeTrackingAwb($awb));
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 20,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-        ]);
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        if ($err) {
-            return [
-                'success' => false,
-                'message' => 'Layanan lacak pengiriman sedang sibuk. Silakan coba kembali beberapa saat lagi.',
-            ];
-        }
-
-        $decoded = json_decode((string)$response, true);
-        if (!is_array($decoded)) {
-            return [
-                'success' => false,
-                'message' => 'Informasi pengiriman belum tersedia saat ini. Silakan coba kembali beberapa saat lagi.',
-            ];
-        }
-
-        if ($httpCode >= 400 || (isset($decoded['status']) && (int)$decoded['status'] !== 200)) {
-            $providerMessage = trim((string)($decoded['message'] ?? ''));
-            $message = $providerMessage !== '' ? $providerMessage : 'Pengiriman belum bisa dilacak saat ini. Pastikan nomor resi sudah benar, lalu coba kembali beberapa saat lagi.';
-            if (stripos($message, 'data not found') !== false || stripos($message, 'not found') !== false) {
-                $message = 'Pengiriman belum bisa dilacak saat ini. Pastikan nomor resi sudah benar, lalu coba kembali beberapa saat lagi. Jika masih belum muncul, silakan hubungi admin Lunarea untuk dibantu pengecekan.';
-            }
-
-            return [
-                'success' => false,
-                'message' => $message,
-                'raw' => $decoded,
-            ];
-        }
-
-        $data = $decoded['data'] ?? [];
-        return [
-            'success' => true,
-            'provider' => 'BinderByte',
-            'summary' => $data['summary'] ?? [],
-            'detail' => $data['detail'] ?? [],
-            'history' => $data['history'] ?? [],
-            'raw' => $decoded,
-        ];
+        return (new \App\Services\Shipping\BinderByteTrackingProvider())->track((string)$courier, (string)$awb);
     }
 
-    private function getBinderByteApiKey()
-    {
-        $keys = [
-            'BINDERBYTE_API_KEY',
-            'binderbyte.apiKey',
-            'api_key_binderbyte',
-            'BINDERBYTE_KEY',
-        ];
-
-        foreach ($keys as $key) {
-            $value = getenv($key) ?: env($key);
-            if (!empty($value)) {
-                return trim((string)$value);
-            }
-        }
-
-        return '';
-    }
-
-    private function getBinderByteBaseUrl()
-    {
-        $value = getenv('BINDERBYTE_BASE_URL') ?: env('BINDERBYTE_BASE_URL');
-        $value = trim((string)$value);
-        return $value !== '' ? $value : 'https://api.binderbyte.com';
-    }
     public function transaction()
     {
         $email = session()->get("email");
@@ -5726,8 +5635,17 @@ class Pages extends BaseController
                 }
 
             }
+            if ($oldStatus !== $status && !$isSandboxOrder && $db->tableExists('customer_push_notifications')
+                && filter_var((string)($dataTransaksiFulDariDatabase['email_cus'] ?? ''), FILTER_VALIDATE_EMAIL)) {
+                $queued = (new \App\Services\Notifications\CustomerPushNotifications($db))->enqueue(
+                    (string)$dataTransaksiFulDariDatabase['email_cus'], 'payment_status', 'Pembaruan pembayaran',
+                    'Status pembayaran pesanan ' . $order_id . ' diperbarui: ' . $status . '.',
+                    ['order_id' => $order_id, 'status' => $status], 'payment:' . $order_id . ':' . $status
+                );
+                if (!$queued) throw new \RuntimeException('Payment status notification was not recorded.');
+            }
             if (!$db->transStatus()) throw new \RuntimeException('Payment effects failed');
-            $db->transCommit();
+            if (!$db->transCommit()) throw new \RuntimeException('Payment effects commit failed');
         } catch (\Throwable $error) {
             $db->transRollback();
             log_message('error', 'Payment notification failed for {order}: {message}', ['order'=>$order_id, 'message'=>$error->getMessage()]);
@@ -7843,7 +7761,10 @@ class Pages extends BaseController
             $savedMid = json_decode((string)($saved['data_mid'] ?? ''), true) ?: [];
             $processedByTcp = ($savedMid['_app_luna_fulfillment']['stage'] ?? '') === 'processed';
             $synced = (!$preparing || $processedByTcp) && $this->syncShippingToLunaSistem($saved, $result['shipment']);
-            if ($result['changed'] && $saved['status'] === 'Dikirim') {
+            $shippingStatus = (string)($result['shipment']['shipping_status'] ?? ($saved['status'] === 'Dikirim' ? 'Dalam Pengiriman' : ($saved['status'] === 'Selesai' ? 'Terkirim' : 'Disiapkan')));
+            $shippingStatusChanged = $result['changed']
+                && (string)($result['previous_shipping_status'] ?? '') !== $shippingStatus;
+            if ($shippingStatusChanged && $shippingStatus === 'Dalam Pengiriman') {
                 try {
                     $this->kirimPesanEmail($saved['email_cus'], 'Lunarea Store - Pembaruan pengiriman pesanan',
                         '<p>Pesanan <b>' . esc($id) . '</b></p><p>Pengiriman: ' . esc($saved['kurir']) . '</p>'

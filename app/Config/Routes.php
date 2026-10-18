@@ -6,6 +6,58 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Pages::index');
+
+// Versioned JSON API for the native Android client. Authentication uses opaque
+// bearer tokens; state-changing API calls do not rely on browser cookies/CSRF.
+$routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
+    $routes->post('auth/login', 'Api\\V1\\AuthController::login');
+    $routes->post('auth/refresh', 'Api\\V1\\AuthController::refresh');
+    $routes->post('auth/register', 'Api\\V1\\AuthController::register');
+    $routes->post('auth/verify-email', 'Api\\V1\\AuthController::verifyEmail');
+    $routes->post('auth/verification/resend', 'Api\\V1\\AuthController::resendVerification');
+    $routes->post('auth/password-reset/request', 'Api\\V1\\AuthController::requestPasswordReset');
+    $routes->post('auth/password-reset/complete', 'Api\\V1\\AuthController::completePasswordReset');
+    $routes->get('catalog/products', 'Api\\V1\\CatalogController::products');
+    $routes->get('catalog/products/(:segment)', 'Api\\V1\\CatalogController::product/$1');
+    $routes->get('catalog/categories', 'Api\\V1\\CatalogController::categories');
+    $routes->get('regions/provinces', 'Api\\V1\\RegionController::provinces');
+    $routes->get('regions/cities', 'Api\\V1\\RegionController::cities');
+    $routes->get('regions/districts', 'Api\\V1\\RegionController::districts');
+    $routes->get('regions/villages', 'Api\\V1\\RegionController::villages');
+
+    $routes->group('', ['filter' => 'apiCustomer'], static function ($routes) {
+        $routes->post('auth/logout', 'Api\\V1\\AuthController::logout');
+        $routes->post('auth/password/change', 'Api\\V1\\AuthController::changePassword');
+        $routes->post('auth/email/change/request', 'Api\\V1\\AuthController::requestEmailChange');
+        $routes->post('auth/email/change/confirm', 'Api\\V1\\AuthController::confirmEmailChange');
+        $routes->get('me', 'Api\\V1\\AuthController::me');
+        $routes->patch('me', 'Api\\V1\\ProfileController::update');
+        $routes->get('wishlist', 'Api\\V1\\WishlistController::index');
+        $routes->post('wishlist/items', 'Api\\V1\\WishlistController::add');
+        $routes->delete('wishlist/items', 'Api\\V1\\WishlistController::delete');
+        $routes->get('cart', 'Api\\V1\\CartController::index');
+        $routes->post('cart/items', 'Api\\V1\\CartController::add');
+        $routes->patch('cart/items', 'Api\\V1\\CartController::update');
+        $routes->delete('cart/items', 'Api\\V1\\CartController::delete');
+        $routes->get('addresses', 'Api\\V1\\AddressController::index');
+        $routes->post('addresses', 'Api\\V1\\AddressController::save');
+        $routes->put('addresses', 'Api\\V1\\AddressController::save');
+        $routes->delete('addresses/(:num)', 'Api\\V1\\AddressController::delete/$1');
+        $routes->post('addresses/(:num)/default', 'Api\\V1\\AddressController::setDefault/$1');
+        $routes->post('shipping/quotes', 'Api\\V1\\ShippingController::quote');
+        $routes->post('checkout/preview', 'Api\\V1\\CheckoutController::preview');
+        $routes->post('checkout/orders', 'Api\\V1\\CheckoutController::createOrder');
+        $routes->get('orders', 'Api\\V1\\OrderController::index');
+        $routes->post('orders/(:segment)/cancel', 'Pages::cancelOrderApi/$1');
+        $routes->post('orders/(:segment)/payment-proof', 'Api\\V1\\PaymentProofController::upload/$1');
+        $routes->get('orders/(:segment)/payment-status', 'Api\\V1\\OrderController::paymentStatus/$1');
+        $routes->get('orders/(:segment)', 'Api\\V1\\OrderController::show/$1');
+        $routes->get('orders/(:segment)/tracking', 'Api\\V1\\OrderController::tracking/$1');
+        $routes->post('push/devices', 'Api\\V1\\PushDeviceController::register');
+        $routes->delete('push/devices', 'Api\\V1\\PushDeviceController::unregister');
+    });
+});
+
 $routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
 $routes->get('/kirimemail', 'Pages::kirimEmail', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');

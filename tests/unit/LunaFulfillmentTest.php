@@ -13,6 +13,7 @@ final class LunaFulfillmentTest extends CIUnitTestCase
         parent::setUp();
         $this->db = \Config\Database::connect(['DBDriver'=>'SQLite3', 'database'=>':memory:', 'DBPrefix'=>'', 'DBDebug'=>true], false);
         $this->db->query('CREATE TABLE pemesanan (id INTEGER PRIMARY KEY, id_midtrans TEXT, email_cus TEXT, status TEXT, resi TEXT, data_mid TEXT)');
+        $this->db->query('CREATE TABLE customer_push_notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, email_user TEXT NOT NULL, notification_type TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, payload TEXT, dedupe_key TEXT UNIQUE NOT NULL, status TEXT NOT NULL, attempts INTEGER NOT NULL, next_attempt_at TEXT NOT NULL, sent_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)');
         $this->db->table('pemesanan')->insert(['id_midtrans'=>'LTEST', 'email_cus'=>'buyer@example.test', 'status'=>'Proses', 'resi'=>'',
             'data_mid'=>json_encode(['_app_payment_environment'=>'production', 'gross_amount'=>'123456.00', 'transaction_time'=>'2026-01-01 12:00:00'])]);
         $this->service = new LunaFulfillment($this->db);
@@ -30,6 +31,7 @@ final class LunaFulfillmentTest extends CIUnitTestCase
         $processed = $this->row();
         $this->service->record('LTEST', $this->event(), []);
         $this->service->record('LTEST', $this->event('received'), []);
+        $this->assertSame(1, $this->db->table('customer_push_notifications')->countAllResults());
         $this->assertSame($processed, $this->row());
         $this->assertSame('Proses', $processed['status']); $this->assertSame('', $processed['resi']);
         $mid = json_decode($processed['data_mid'], true);
@@ -59,6 +61,16 @@ final class LunaFulfillmentTest extends CIUnitTestCase
         $this->service->record('LTEST', $this->event(), []);
         $event = $this->event(); $event['sale_id'] = 'different';
         $this->expectException(DomainException::class); $this->service->record('LTEST', $event, []);
+    }
+    public function testFailedOutboxInsertRollsBackProcessedAcknowledgement(): void
+    {
+        $this->db->query("CREATE TRIGGER reject_customer_push BEFORE INSERT ON customer_push_notifications BEGIN SELECT RAISE(ABORT, 'synthetic outbox failure'); END");
+        try { $this->service->record('LTEST', $this->event(), []); $this->fail('Acknowledgement committed without push outbox.'); }
+        catch (RuntimeException $error) {
+            $mid = json_decode($this->row()['data_mid'], true);
+            $this->assertArrayNotHasKey('_app_luna_fulfillment', $mid);
+            $this->assertSame(0, $this->db->table('customer_push_notifications')->countAllResults());
+        }
     }
     public function testInvalidAndMissingProcessTimeIsRejected(): void
     {

@@ -4,7 +4,7 @@ namespace App\Services\Auth;
 
 use CodeIgniter\Database\BaseConnection;
 
-final class CustomerEmailChanges
+class CustomerEmailChanges
 {
     private BaseConnection $db;
 
@@ -105,10 +105,12 @@ final class CustomerEmailChanges
             throw new \DomainException('Email tersebut sudah digunakan akun lain.');
         }
         $newEmail = (string)$row['pending_email'];
-        $this->db->transBegin();
+        if (!$this->db->transBegin()) throw new \RuntimeException('Email change transaction could not start');
         try {
-            $this->db->table('user')->where('email', $email)->update(['email' => $newEmail]);
-            $this->db->table('pembeli')->where('email_user', $email)->update(['email_user' => $newEmail]);
+            $userUpdated = $this->db->table('user')->where('email', $email)->update(['email' => $newEmail]);
+            if (!$userUpdated || $this->db->affectedRows() !== 1) throw new \RuntimeException('Account email could not be updated');
+            $buyerUpdated = $this->db->table('pembeli')->where('email_user', $email)->update(['email_user' => $newEmail]);
+            if (!$buyerUpdated || $this->db->affectedRows() !== 1) throw new \RuntimeException('Customer email could not be updated');
 
             // Re-key only known account-owned references. Orders remain visible in the account history.
             foreach ([
@@ -120,12 +122,24 @@ final class CustomerEmailChanges
                 'rating' => 'email_cus', 'pemesanan' => 'email_cus',
             ] as $table => $column) {
                 if ($this->db->tableExists($table) && in_array($column, $this->db->getFieldNames($table), true)) {
-                    $this->db->table($table)->where($column, $email)->update([$column => $newEmail]);
+                    if (!$this->db->table($table)->where($column, $email)->update([$column => $newEmail])) {
+                        throw new \RuntimeException('Account reference could not be updated');
+                    }
+                }
+            }
+            if ($this->db->tableExists('customer_api_tokens')
+                && in_array('email_user', $this->db->getFieldNames('customer_api_tokens'), true)
+                && in_array('revoked_at', $this->db->getFieldNames('customer_api_tokens'), true)) {
+                if (!$this->db->table('customer_api_tokens')->where('email_user', $email)->where('revoked_at', null)
+                    ->update(['revoked_at' => gmdate('Y-m-d H:i:s')])) {
+                    throw new \RuntimeException('Active API sessions could not be revoked');
                 }
             }
             // Pending recovery codes are revoked at the identity change boundary.
             if ($this->db->tableExists('customer_password_reset_codes')) {
-                $this->db->table('customer_password_reset_codes')->where('email_user', $email)->delete();
+                if (!$this->db->table('customer_password_reset_codes')->where('email_user', $email)->delete()) {
+                    throw new \RuntimeException('Pending recovery codes could not be revoked');
+                }
             }
 
             // Voucher redeem stores a JSON email list; preserve all other entries exactly.
@@ -143,24 +157,30 @@ final class CustomerEmailChanges
                         }
                     }
                     unset($entry);
-                    if ($changed) $this->db->table('voucher_redeem')->where('code', $voucher['code'])->update(['email_user' => json_encode($list, JSON_UNESCAPED_UNICODE)]);
+                    if ($changed && !$this->db->table('voucher_redeem')->where('code', $voucher['code'])->update(['email_user' => json_encode($list, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)])) {
+                        throw new \RuntimeException('Voucher ownership could not be updated');
+                    }
                 }
             }
-            $this->db->table('customer_email_changes')->where('email_user', $email)->update([
+            $changeUpdated = $this->db->table('customer_email_changes')->where('email_user', $email)->update([
                 'email_user' => $newEmail, 'pending_email' => null, 'otp_hash' => null, 'request_id' => null,
                 'expires_at' => null, 'attempts' => 0, 'changed_at' => gmdate('Y-m-d H:i:s'), 'updated_at' => gmdate('Y-m-d H:i:s'),
             ]);
+            if (!$changeUpdated || $this->db->affectedRows() !== 1) throw new \RuntimeException('Email change state could not be finalized');
             if ($this->db->tableExists('customer_password_sessions')) {
                 $sessions = $this->db->table('customer_password_sessions');
                 $version = bin2hex(random_bytes(32));
                 $existing = $sessions->where('email_user', $newEmail)->get()->getRowArray();
-                if ($existing) $sessions->where('email_user', $newEmail)->update(['version' => $version]);
-                else $sessions->insert(['email_user' => $newEmail, 'version' => $version]);
+                if ($existing) {
+                    if (!$sessions->where('email_user', $newEmail)->update(['version' => $version])) throw new \RuntimeException('Password session could not be rotated');
+                } elseif (!$sessions->insert(['email_user' => $newEmail, 'version' => $version])) {
+                    throw new \RuntimeException('Password session could not be created');
+                }
             }
             if ($this->db->transStatus() === false) throw new \RuntimeException('Email change transaction failed');
-            $this->db->transCommit();
+            if (!$this->db->transCommit()) throw new \RuntimeException('Email change transaction commit failed');
         } catch (\Throwable $e) {
-            $this->db->transRollback();
+            if ((int)$this->db->transDepth > 0) $this->db->transRollback();
             if ($e instanceof \DomainException) throw $e;
             throw new \RuntimeException('Email change transaction failed');
         }
@@ -168,9 +188,9 @@ final class CustomerEmailChanges
         return $newEmail;
     }
 
-    private function sendCode(string $to, string $code): bool { return $this->deliver($to, 'Verifikasi email baru Lunarea', '<p>Kode verifikasi email Anda:</p><p style="font-size:28px;font-weight:700;letter-spacing:6px">' . esc($code) . '</p><p>Kode berlaku 10 menit dan maksimal 5 kali percobaan. Abaikan jika Anda tidak meminta perubahan.</p>'); }
-    private function sendNotice(string $to): bool { return $this->deliver($to, 'Pemberitahuan perubahan email Lunarea', '<p>Email akun Lunarea Anda baru saja diubah.</p><p>Jika Anda tidak melakukan perubahan ini, segera gunakan pemulihan sandi dan hubungi layanan pelanggan.</p>'); }
-    private function deliver(string $to, string $subject, string $body): bool
+    protected function sendCode(string $to, string $code): bool { return $this->deliver($to, 'Verifikasi email baru Lunarea', '<p>Kode verifikasi email Anda:</p><p style="font-size:28px;font-weight:700;letter-spacing:6px">' . esc($code) . '</p><p>Kode berlaku 10 menit dan maksimal 5 kali percobaan. Abaikan jika Anda tidak meminta perubahan.</p>'); }
+    protected function sendNotice(string $to): bool { return $this->deliver($to, 'Pemberitahuan perubahan email Lunarea', '<p>Email akun Lunarea Anda baru saja diubah.</p><p>Jika Anda tidak melakukan perubahan ini, segera gunakan pemulihan sandi dan hubungi layanan pelanggan.</p>'); }
+    protected function deliver(string $to, string $subject, string $body): bool
     {
         $mail = null;
         try {

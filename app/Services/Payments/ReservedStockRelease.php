@@ -21,9 +21,11 @@ final class ReservedStockRelease
                 $stocks[0] = (string)((int)$stocks[0] + $quantity);
             } else {
                 $variants = json_decode($product['varian'] ?? '', true) ?: [];
-                $index = array_search(trim($parts[2] ?? ''), array_map('trim', $variants), true);
-                if ($index === false || !array_key_exists($index, $stocks)) throw new \RuntimeException('Reserved variant needs review');
-                $stocks[$index] = (string)((int)$stocks[$index] + $quantity);
+                $names = array_map([InventoryOrderReservation::class, 'variantName'], $variants);
+                $index = array_search(trim($parts[2] ?? ''), $names, true);
+                $stockIndex = count($names) > count($stocks) ? 0 : $index;
+                if ($index === false || !array_key_exists($stockIndex, $stocks)) throw new \RuntimeException('Reserved variant needs review');
+                $stocks[$stockIndex] = (string)((int)$stocks[$stockIndex] + $quantity);
             }
             $db->table('barang')->where('id', $product['id'])->update(['stok'=>implode(',', $stocks)]);
         }
