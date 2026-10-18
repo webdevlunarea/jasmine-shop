@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.Lunarea.Splash" parent="Theme.Lunarea">
+        <item name="android:windowSplashScreenBackground">@color/lunarea_splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/lunarea_splash_mark</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/lunarea_brand_green</item>
+        <item name="android:windowSplashScreenAnimationDuration">450</item>
+    </style>
+</resources>

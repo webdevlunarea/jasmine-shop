@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "919844880619",
+    "project_id": "lunarea-7d277",
+    "storage_bucket": "lunarea-7d277.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919844880619:android:f541c4f73cd399f36dbeae",
+        "android_client_info": {
+          "package_name": "com.lunareafurniture.lunarea"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBheCWuRgFQ-CvgwFXq-a0LPgi2OQNIesg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
