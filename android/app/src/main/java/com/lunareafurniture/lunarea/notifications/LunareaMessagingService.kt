@@ -28,6 +28,10 @@ class LunareaMessagingService : FirebaseMessagingService() {
     }
 
     private fun showNotification(title: String, body: String) {
+        // Do not surface account-specific updates after the user has signed out.
+        val optedIn = getSharedPreferences("lunarea_notification_settings", MODE_PRIVATE)
+            .getBoolean("push_opt_in", false)
+        if (!optedIn || SecureTokenStore(this).read() == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) return

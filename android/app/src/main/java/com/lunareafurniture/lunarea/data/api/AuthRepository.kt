@@ -3,6 +3,8 @@ package com.lunareafurniture.lunarea.data.api
 import android.content.Context
 import com.lunareafurniture.lunarea.data.security.SecureTokenStore
 import com.lunareafurniture.lunarea.notifications.PushDeviceRegistration
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class AuthRepository(context: Context) {
     private val appContext = context.applicationContext
@@ -24,8 +26,21 @@ class AuthRepository(context: Context) {
 
     suspend fun logout(): Result<Unit> = runCatching {
         try {
-            PushDeviceRegistration(appContext).unregisterBeforeSignOut()
-            api.logout()
+            // Both calls need the current bearer token. Run them concurrently so a
+            // slow push endpoint does not add its latency to the logout request.
+            coroutineScope {
+                val unregister = async { PushDeviceRegistration(appContext).unregisterBeforeSignOut() }
+                val revokeSession = async {
+                    runCatching {
+                        val response = api.logout()
+                        check(response.isSuccessful && response.body()?.success == true) {
+                            response.customerError("Sesi lokal sudah ditutup; server akan menyelaraskan sesi saat tersedia.")
+                        }
+                    }
+                }
+                unregister.await()
+                revokeSession.await().getOrThrow()
+            }
         } finally {
             tokenStore.clear()
         }

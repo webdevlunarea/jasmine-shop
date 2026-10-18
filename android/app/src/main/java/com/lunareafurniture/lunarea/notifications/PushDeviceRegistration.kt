@@ -24,6 +24,13 @@ class PushDeviceRegistration(context: Context) {
     fun isOptedIn(): Boolean = consentStore.getBoolean("push_opt_in", false)
     fun isExplicitlyDisabled(): Boolean = consentStore.getBoolean("push_explicitly_disabled", false)
 
+    /** Stop account-scoped pushes locally as soon as the customer signs out. */
+    fun stopForSignOut() {
+        consentStore.edit().putBoolean("push_opt_in", false).putBoolean("push_explicitly_disabled", true).apply()
+        WorkManager.getInstance(appContext).cancelUniqueWork(RegisterPushDeviceWorker.UNIQUE_NAME)
+        androidx.core.app.NotificationManagerCompat.from(appContext).cancelAll()
+    }
+
     /** System permission approval is the customer's explicit consent on Android 13+. */
     fun rememberPermissionConsent() {
         if (notificationsAllowed()) consentStore.edit()

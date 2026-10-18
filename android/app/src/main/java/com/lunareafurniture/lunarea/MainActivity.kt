@@ -421,11 +421,22 @@ private fun LunareaApp() {
                     }
                 },
                 onLogout = {
+                    if (busy) return@AccountScreen
+                    // Tear down account-specific UI immediately; network revocation
+                    // continues in the background and the user sees clear feedback.
+                    PushDeviceRegistration(context).stopForSignOut()
+                    signedIn = false
+                    accountSection = AccountSection.MENU
+                    cartItems = emptyList()
+                    cartSubtotal = 0L
+                    cartMessage = null
+                    notificationMessage = null
+                    notificationsEnabled = false
+                    message = "Sedang keluar dari akun…"
                     scope.launch {
                         busy = true
-                        auth.logout()
-                        signedIn = false
-                        message = "Anda telah keluar dari akun."
+                        val result = auth.logout()
+                        message = if (result.isSuccess) "Anda telah keluar dari akun." else "Anda telah keluar. Sinkronisasi notifikasi perangkat akan diperbarui saat koneksi tersedia."
                         busy = false
                     }
                 },
