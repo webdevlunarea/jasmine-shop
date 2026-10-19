@@ -44,6 +44,8 @@ class Email extends BaseConfig
         parent::__construct();
 
         // Keep SMTP credentials in the environment; never commit them to config.
+        $this->SMTPUser = (string) env('SMTP_USER', $this->SMTPUser);
+        $this->fromEmail = (string) env('SMTP_FROM_EMAIL', $this->SMTPUser);
         $this->SMTPPass = (string) env('SMTP_PASS', '');
     }
 
