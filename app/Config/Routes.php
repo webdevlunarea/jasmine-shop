@@ -20,6 +20,7 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
     $routes->get('catalog/products', 'Api\\V1\\CatalogController::products');
     $routes->get('catalog/products/(:segment)', 'Api\\V1\\CatalogController::product/$1');
     $routes->get('catalog/categories', 'Api\\V1\\CatalogController::categories');
+    $routes->get('vouchers/promotions', 'Api\\V1\\VoucherController::promotions');
     $routes->get('regions/provinces', 'Api\\V1\\RegionController::provinces');
     $routes->get('regions/cities', 'Api\\V1\\RegionController::cities');
     $routes->get('regions/districts', 'Api\\V1\\RegionController::districts');

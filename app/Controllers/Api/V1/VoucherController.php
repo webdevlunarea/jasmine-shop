@@ -7,6 +7,39 @@ use App\Models\VoucherClaimedModel;
 /** Read-only list of the authenticated customer's currently usable claims. */
 final class VoucherController extends ApiController
 {
+    /** Public, non-sensitive promotion details for the Android launch offer. */
+    public function promotions()
+    {
+        try {
+            $model = new \App\Models\VoucherModel();
+            $rows = $model
+                ->select('id, nama, satuan, nominal, jenis, keterangan, all_user, auto_claimed, kuota, jadwal, max_potongan')
+                ->getVoucher();
+
+            $result = [];
+            foreach ($rows as $voucher) {
+                // Only globally available campaigns are suitable for a public response.
+                if ((string)($voucher['all_user'] ?? '0') !== '1') continue;
+                if ((int)($voucher['kuota'] ?? 0) === 0) continue;
+                $result[] = [
+                    'voucher_id' => (int)$voucher['id'],
+                    'name' => (string)($voucher['nama'] ?? 'Promo Lunarea'),
+                    'type' => (string)($voucher['jenis'] ?? ''),
+                    'unit' => (string)($voucher['satuan'] ?? ''),
+                    'nominal' => (int)($voucher['nominal'] ?? 0),
+                    'description' => (string)($voucher['keterangan'] ?? ''),
+                    'max_discount' => (int)($voucher['max_potongan'] ?? 0),
+                    'requires_login' => true,
+                ];
+            }
+
+            return $this->success(['promotions' => $result]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API public voucher promotions failed: ' . get_class($e));
+            return $this->failure('VOUCHER_PROMOTIONS_UNAVAILABLE', 'Informasi promo belum dapat dimuat.', 503);
+        }
+    }
+
     public function index()
     {
         try {

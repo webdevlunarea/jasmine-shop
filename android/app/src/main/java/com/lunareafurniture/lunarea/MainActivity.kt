@@ -2744,22 +2744,36 @@ private fun CatalogScreen(
         }
     }
 
-    // The API returns active vouchers already claimed by the authenticated customer.
-    // Fetch once per app composition when Home is first opened; never invent public offers.
+    // Show only server-published, globally available promotions; members also see their claimed vouchers.
     LaunchedEffect(signedIn, tab) {
-        if (!signedIn || tab != AppTab.HOME || launchVoucherCheckDone) return@LaunchedEffect
+        if (tab != AppTab.HOME || launchVoucherCheckDone) return@LaunchedEffect
         launchVoucherCheckDone = true
         try {
-            val response = ApiClient.get(context).availableVouchers()
-            val rows = response.body()?.data?.getAsJsonArray("vouchers")
-            if (response.isSuccessful && response.body()?.success == true && rows != null) {
-                launchVouchers = rows.mapNotNull { item ->
+            val api = ApiClient.get(context)
+            val publicResponse = api.voucherPromotions()
+            val publicRows = if (publicResponse.isSuccessful && publicResponse.body()?.success == true) {
+                publicResponse.body()?.data?.getAsJsonArray("promotions")?.mapNotNull { item ->
                     item.takeIf { it.isJsonObject }?.asJsonObject
-                }
-                showLaunchVouchers = launchVouchers.isNotEmpty()
+                }.orEmpty()
+            } else emptyList()
+            val claimedRows = if (signedIn) {
+                val response = api.availableVouchers()
+                if (response.isSuccessful && response.body()?.success == true) {
+                    response.body()?.data?.getAsJsonArray("vouchers")?.mapNotNull { item ->
+                        item.takeIf { it.isJsonObject }?.asJsonObject
+                    }.orEmpty()
+                } else emptyList()
+            } else emptyList()
+            launchVouchers = (publicRows + claimedRows).distinctBy { voucher ->
+                listOf(
+                    voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().trim().lowercase(Locale.ROOT),
+                    voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty().lowercase(Locale.ROOT),
+                    voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                ).joinToString("|")
             }
+            showLaunchVouchers = launchVouchers.isNotEmpty()
         } catch (_: Exception) {
-            // Voucher promotion is optional and must not block the home screen.
+            // Promotions are optional and must never block the home screen.
         }
     }
 
@@ -2849,6 +2863,57 @@ private fun CatalogScreen(
     }
 
     fun favoriteProduct(product: ProductSummary) {
+        if (!signedIn) { actionMessage = null; onLoginRequired(); return }
+
+        val productPrefix = product.id + "\u001f"
+        val savedVariantKeys = favoriteKeys
+            .filter { it.startsWith(productPrefix) }
+            .map { it.substringAfter(productPrefix) }
+            .distinct()
+
+        // The card heart represents the product, so tapping an already-filled heart
+        // removes the saved variant(s) instead of always adding another favorite.
+        if (savedVariantKeys.isNotEmpty()) {
+            scope.launch {
+                actionBusy = true
+                actionMessage = null
+                var remainingKeys = favoriteKeys
+                var failed = false
+                try {
+                    val api = ApiClient.get(context)
+                    for (savedKey in savedVariantKeys) {
+                        val exactVariant = product.variants
+                            .mapNotNull { it.name?.takeIf(String::isNotBlank) }
+                            .firstOrNull { it.trim().lowercase(Locale.ROOT) == savedKey }
+                            ?: when (savedKey) {
+                                "default" -> "Default"
+                                else -> savedKey
+                            }
+                        val payload = JsonObject().apply {
+                            addProperty("product_id", product.id)
+                            addProperty("variant", exactVariant)
+                        }
+                        val response = api.deleteWishlistItem(payload)
+                        if (response.isSuccessful && response.body()?.success == true) {
+                            remainingKeys = remainingKeys - favoriteKey(product.id, savedKey)
+                            onFavoriteKeysChange(remainingKeys)
+                        } else {
+                            failed = true
+                            actionMessage = response.body()?.error?.message
+                                ?: "Favorit belum berhasil dihapus. Coba lagi."
+                            break
+                        }
+                    }
+                    if (!failed) showToast("Dihapus dari Favorit")
+                } catch (_: Exception) {
+                    actionMessage = "Koneksi belum tersedia. Favorit belum berhasil diubah."
+                } finally {
+                    actionBusy = false
+                }
+            }
+            return
+        }
+
         val variantNames = product.variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
         if (variantNames.size > 1) {
             detailProductSummary = product
@@ -3080,56 +3145,80 @@ private fun CatalogScreen(
           }
       }
       if (showLaunchVouchers && tab == AppTab.HOME) {
-          AlertDialog(
+          Dialog(
               onDismissRequest = { showLaunchVouchers = false },
-              icon = {
-                  Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(48.dp)) {
-                      Box(contentAlignment = Alignment.Center) {
-                          Text("%", color = LunareaGreenText, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                      }
-                  }
-              },
-              title = { Text("Voucher untuk Anda", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) },
-              text = {
-                  Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                      Text("Gunakan voucher yang tersedia saat checkout.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                      launchVouchers.take(3).forEach { voucher ->
-                          val name = voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().ifBlank { "Voucher Lunarea" }
-                          val nominal = runCatching { voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
-                          val unit = voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                          val discount = if (unit.equals("persen", ignoreCase = true) || unit.equals("percent", ignoreCase = true)) {
-                              "Diskon ${nominal}%"
-                          } else {
-                              "Potongan ${formatRupiah(nominal)}"
+              properties = DialogProperties(usePlatformDefaultWidth = false)
+          ) {
+              Surface(
+                  modifier = Modifier.fillMaxWidth(.92f),
+                  shape = RoundedCornerShape(26.dp),
+                  color = MaterialTheme.colorScheme.surface,
+                  tonalElevation = 5.dp,
+                  shadowElevation = 16.dp
+              ) {
+                  Column {
+                      Box(
+                          Modifier.fillMaxWidth().background(
+                              Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))
+                          ).padding(start = 20.dp, top = 18.dp, end = 12.dp, bottom = 20.dp)
+                      ) {
+                          Column(Modifier.align(Alignment.CenterStart).padding(end = 42.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                              Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surface.copy(alpha = .18f)) {
+                                  Text("PROMO LUNAREA", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                              }
+                              Text("Belanja lebih hemat", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                              Text("Temukan penawaran yang cocok untuk rumah Anda.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .92f))
                           }
-                          val description = voucher.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                          Surface(
-                              shape = RoundedCornerShape(14.dp),
-                              color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .55f),
-                              modifier = Modifier.fillMaxWidth()
-                          ) {
-                              Column(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                  Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-                                  Text(discount, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = LunareaGreenText)
-                                  if (description.isNotBlank()) Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                          IconButton(onClick = { showLaunchVouchers = false }, modifier = Modifier.align(Alignment.TopEnd).size(40.dp)) {
+                              Text("×", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.headlineSmall)
+                          }
+                      }
+                      Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                          Text("Voucher pilihan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                          Column(Modifier.heightIn(max = 250.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                              launchVouchers.take(5).forEach { voucher ->
+                                  val name = voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().ifBlank { "Promo Lunarea" }
+                                  val nominal = runCatching { voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
+                                  val unit = voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                  val discount = if (unit.equals("persen", true) || unit.equals("percent", true)) "${nominal}%" else formatRupiah(nominal)
+                                  val description = voucher.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                  val cap = runCatching { voucher.get("max_discount")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
+                                  Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .52f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
+                                      Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                          Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(58.dp)) {
+                                              Box(contentAlignment = Alignment.Center) {
+                                                  Text(discount, color = LunareaGreenText, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                                              }
+                                          }
+                                          Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                              Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                              if (description.isNotBlank()) Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                              if (cap > 0) Text("Maksimal potongan ${formatRupiah(cap)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                          }
+                                      }
+                                  }
                               }
                           }
-                      }
-                      if (launchVouchers.size > 3) {
-                          Text("dan ${launchVouchers.size - 3} voucher lainnya tersedia di checkout.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                          Text(
+                              if (signedIn) "Voucher yang dapat digunakan akan diperiksa kembali saat checkout." else "Masuk atau daftar untuk memeriksa ketersediaan voucher pada akun Anda.",
+                              style = MaterialTheme.typography.bodySmall,
+                              color = MaterialTheme.colorScheme.onSurfaceVariant
+                          )
+                          Button(
+                              onClick = {
+                                  showLaunchVouchers = false
+                                  if (!signedIn) onLoginRequired()
+                              },
+                              modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                              shape = RoundedCornerShape(14.dp)
+                          ) { Text(if (signedIn) "Mulai belanja" else "Masuk atau daftar") }
+                          TextButton(onClick = { showLaunchVouchers = false }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                              Text("Nanti saja", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                          }
                       }
                   }
-              },
-              confirmButton = {
-                  Button(onClick = { showLaunchVouchers = false }, shape = RoundedCornerShape(12.dp)) {
-                      Text("Mengerti")
-                  }
-              },
-              dismissButton = {
-                  TextButton(onClick = { showLaunchVouchers = false }) { Text("Nanti saja") }
-              },
-              shape = RoundedCornerShape(24.dp)
-          )
+              }
+          }
       }
       productDetail?.let { response ->
           val currentVariant = selectedDetailVariant ?: "Default"

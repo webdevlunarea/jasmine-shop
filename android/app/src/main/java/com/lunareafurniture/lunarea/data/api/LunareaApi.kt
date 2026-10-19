@@ -121,6 +121,9 @@ interface LunareaApi {
     @GET("vouchers/available")
     suspend fun availableVouchers(): Response<ApiEnvelope<JsonObject>>
 
+    @GET("vouchers/promotions")
+    suspend fun voucherPromotions(): Response<ApiEnvelope<JsonObject>>
+
     @POST("checkout/preview")
     suspend fun checkoutPreview(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 
