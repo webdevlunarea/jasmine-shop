@@ -326,28 +326,49 @@ private fun LunareaApp() {
     }
 
     authPromptMessage?.let { prompt ->
-        AlertDialog(
-            onDismissRequest = { authPromptMessage = null },
-            icon = {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(52.dp)) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(painterResource(R.drawable.ic_nav_account), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(24.dp))
+        Dialog(onDismissRequest = { authPromptMessage = null }) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.92f).widthIn(max = 360.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp,
+                shadowElevation = 12.dp
+            ) {
+                Column(
+                    Modifier.padding(horizontal = 24.dp, vertical = 22.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Surface(shape = RoundedCornerShape(15.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(46.dp)) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(painterResource(R.drawable.ic_nav_account), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(22.dp))
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text("AKUN LUNAREA", style = MaterialTheme.typography.labelSmall, color = LunareaGreenText, fontWeight = FontWeight.Bold, letterSpacing = .8.sp)
+                            Text("Lanjutkan dengan akun", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    Text(prompt, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 22.sp)
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Button(
+                            onClick = {
+                                authPromptMessage = null
+                                message = null
+                                accountSection = AccountSection.MENU
+                                tab = AppTab.ACCOUNT
+                            },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                            shape = RoundedCornerShape(14.dp)
+                        ) { Text("Masuk atau daftar", fontWeight = FontWeight.SemiBold) }
+                        TextButton(
+                            onClick = { authPromptMessage = null },
+                            modifier = Modifier.align(Alignment.CenterHorizontally).heightIn(min = 44.dp)
+                        ) { Text("Jelajahi dulu", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                 }
-            },
-            title = { Text("Masuk untuk melanjutkan", fontWeight = FontWeight.SemiBold) },
-            text = { Text(prompt, color = MaterialTheme.colorScheme.onSurfaceVariant) },
-            confirmButton = {
-                Button(onClick = {
-                    authPromptMessage = null
-                    message = null
-                    accountSection = AccountSection.MENU
-                    tab = AppTab.ACCOUNT
-                }, shape = RoundedCornerShape(12.dp)) { Text("Masuk atau daftar") }
-            },
-            dismissButton = { TextButton(onClick = { authPromptMessage = null }) { Text("Nanti saja") } },
-            shape = RoundedCornerShape(24.dp)
-        )
+            }
+        }
     }
 
     if (showLogoutConfirmation) {
@@ -2793,23 +2814,49 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
     val discount = if (unit.equals("persen", true) || unit.equals("percent", true)) "${nominal}%" else formatRupiah(nominal)
     val description = voucher.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
     val cap = runCatching { voucher.get("max_discount")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
+    val posterUrl = voucher.get("poster_url")?.takeUnless { it.isJsonNull }?.asString?.takeIf { it.isNotBlank() }
+    var posterFailed by remember(posterUrl) { mutableStateOf(false) }
+    var posterAspect by remember(posterUrl) { mutableFloatStateOf(1.2f) }
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(modifier = Modifier.fillMaxWidth(.91f), shape = RoundedCornerShape(26.dp), color = MaterialTheme.colorScheme.surface, shadowElevation = 12.dp) {
             Column {
-                Box(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))).padding(start = 22.dp, top = 20.dp, end = 16.dp, bottom = 22.dp)) {
-                    Column(Modifier.fillMaxWidth().padding(end = 38.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .14f)) {
-                            Text("PENAWARAN KHUSUS", Modifier.padding(horizontal = 11.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = .7.sp)
+                if (!posterUrl.isNullOrBlank() && !posterFailed) {
+                    Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)) {
+                        Box(Modifier.fillMaxWidth().aspectRatio(posterAspect).background(rememberLunareaShimmerBrush()))
+                        AsyncImage(
+                            model = posterUrl,
+                            contentDescription = "Poster promo: $name",
+                            modifier = Modifier.fillMaxWidth().aspectRatio(posterAspect),
+                            contentScale = ContentScale.Fit,
+                            onSuccess = { result ->
+                                val drawable = result.result.drawable
+                                if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
+                                    posterAspect = (drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight).coerceIn(.62f, 2.2f)
+                                }
+                            },
+                            onError = { posterFailed = true }
+                        )
+                        Surface(Modifier.align(Alignment.TopEnd).padding(10.dp), shape = CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = .92f)) {
+                            IconButton(onClick = onDismiss, modifier = Modifier.size(44.dp)) { Text("×", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.headlineSmall) }
                         }
-                        Text("Rumah nyaman, belanja lebih hemat", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, lineHeight = 30.sp)
-                        Text("Pilihan promo untuk melengkapi rumah Anda.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .88f))
                     }
-                    IconButton(onClick = onDismiss, modifier = Modifier.align(Alignment.TopEnd).size(44.dp)) {
-                        Text("×", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.headlineSmall)
+                } else {
+                    Box(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))).padding(start = 22.dp, top = 20.dp, end = 58.dp, bottom = 22.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                            Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .14f)) {
+                                Text("PROMO LUNAREA", Modifier.padding(horizontal = 11.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = .7.sp)
+                            }
+                            Text(name, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, lineHeight = 30.sp)
+                            if (description.isNotBlank()) Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .9f))
+                        }
+                        IconButton(onClick = onDismiss, modifier = Modifier.align(Alignment.TopEnd).size(44.dp)) {
+                            Text("×", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.headlineSmall)
+                        }
                     }
                 }
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    if (!posterUrl.isNullOrBlank() && !posterFailed) Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
                     Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .58f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
                         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             Surface(shape = RoundedCornerShape(15.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(72.dp)) {
@@ -2825,9 +2872,8 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
                             }
                         }
                     }
-                    Text("Promo yang dapat digunakan akan diverifikasi kembali saat checkout.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(15.dp)) {
-                        Text("Jelajahi furnitur", fontWeight = FontWeight.SemiBold)
+                        Text("Coba sekarang", fontWeight = FontWeight.SemiBold)
                     }
                     TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterHorizontally).heightIn(min = 44.dp)) { Text("Lihat nanti", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
@@ -3421,6 +3467,7 @@ private fun ProductDetailScreen(
         }
     }
     val galleryFailed = remember(productId, image) { mutableStateListOf<String>() }
+    val galleryLoaded = remember(productId, image) { mutableStateListOf<String>() }
     val galleryAspectRatios = remember(productId) { mutableStateMapOf<String, Float>() }
     val availableGallery = galleryCandidates.filterNot { it in galleryFailed }
     val pagerState = rememberPagerState(pageCount = { availableGallery.size })
@@ -3431,6 +3478,7 @@ private fun ProductDetailScreen(
     val galleryScope = rememberCoroutineScope()
     LaunchedEffect(galleryCandidates) {
         galleryFailed.clear()
+        galleryLoaded.clear()
     }
     LaunchedEffect(availableGallery.size) {
         if (availableGallery.isNotEmpty() && pagerState.currentPage >= availableGallery.size) {
@@ -3481,19 +3529,28 @@ private fun ProductDetailScreen(
                         pageSpacing = 12.dp
                     ) { page ->
                         val photo = availableGallery[page]
-                        AsyncImage(
-                            model = photo,
-                            contentDescription = "$name, foto ${page + 1} dari ${availableGallery.size}",
-                            modifier = Modifier.fillMaxSize().clickable { galleryFullscreen = true },
-                            contentScale = ContentScale.Fit,
-                            onError = { if (photo !in galleryFailed) galleryFailed.add(photo) },
-                            onSuccess = { result ->
-                                val drawable = result.result.drawable
-                                val width = drawable.intrinsicWidth
-                                val height = drawable.intrinsicHeight
-                                if (width > 0 && height > 0) galleryAspectRatios[photo] = width.toFloat() / height.toFloat()
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            if (photo !in galleryLoaded) {
+                                Box(Modifier.fillMaxSize().background(rememberLunareaShimmerBrush()))
                             }
-                        )
+                            AsyncImage(
+                                model = photo,
+                                contentDescription = "$name, foto ${page + 1} dari ${availableGallery.size}",
+                                modifier = Modifier.fillMaxSize().clickable { galleryFullscreen = true },
+                                contentScale = ContentScale.Fit,
+                                onError = {
+                                    galleryLoaded.add(photo)
+                                    if (photo !in galleryFailed) galleryFailed.add(photo)
+                                },
+                                onSuccess = { result ->
+                                    galleryLoaded.add(photo)
+                                    val drawable = result.result.drawable
+                                    val width = drawable.intrinsicWidth
+                                    val height = drawable.intrinsicHeight
+                                    if (width > 0 && height > 0) galleryAspectRatios[photo] = width.toFloat() / height.toFloat()
+                                }
+                            )
+                        }
                     } else Image(
                         painter = painterResource(R.drawable.logo_lunarea),
                         contentDescription = "Lunarea Furniture",

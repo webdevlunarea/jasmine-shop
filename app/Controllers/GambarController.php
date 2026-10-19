@@ -157,10 +157,19 @@ class GambarController extends BaseController
     }
     public function voucherPoster($idVoucher)
     {
-        $gambar = $this->voucherModel->where(['id' => $idVoucher])->first();
-        $gambarSelected = $gambar['poster'];
-        $this->response->setHeader('Content-Type', 'image/webp');
-        echo $gambarSelected;
+        $gambar = $this->voucherModel->select('poster')->where(['id' => $idVoucher])->first();
+        $bytes = $gambar['poster'] ?? null;
+        $image = is_string($bytes) && $bytes !== '' ? @getimagesizefromstring($bytes) : false;
+        $mime = $image['mime'] ?? '';
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/avif'], true)) {
+            return $this->response->setStatusCode(404)->setHeader('Cache-Control', 'no-store')->setBody('');
+        }
+        return $this->response
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Cache-Control', 'public, max-age=300, must-revalidate')
+            ->setHeader('ETag', '"' . hash('sha256', $bytes) . '"')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setBody($bytes);
     }
     public function voucherPosterEmail($idVoucher)
     {

@@ -13,7 +13,7 @@ final class VoucherController extends ApiController
         try {
             $model = new \App\Models\VoucherModel();
             $rows = $model
-                ->select('id, nama, satuan, nominal, jenis, keterangan, all_user, auto_claimed, kuota, jadwal, max_potongan')
+                ->select('id, nama, satuan, nominal, jenis, keterangan, all_user, auto_claimed, kuota, jadwal, max_potongan, (poster IS NOT NULL AND OCTET_LENGTH(poster) > 0) AS has_poster', false)
                 ->getVoucher();
 
             $result = [];
@@ -29,6 +29,7 @@ final class VoucherController extends ApiController
                     'nominal' => (int)($voucher['nominal'] ?? 0),
                     'description' => (string)($voucher['keterangan'] ?? ''),
                     'max_discount' => (int)($voucher['max_potongan'] ?? 0),
+                    'poster_url' => !empty($voucher['has_poster']) ? site_url('imgvoucher/' . (int)$voucher['id']) : null,
                     'requires_login' => true,
                 ];
             }
@@ -66,6 +67,7 @@ final class VoucherController extends ApiController
                     'unit' => (string)($claim['satuan'] ?? ''),
                     'nominal' => (int)($claim['nominal'] ?? 0),
                     'max_discount' => (int)($claim['max_potongan'] ?? 0),
+                    'poster_url' => !empty($claim['poster']) ? site_url('imgvoucher/' . (int)$claim['id_voucher']) : null,
                     'expires_at' => (string)($claim['kadaluarsa'] ?? ''),
                 ];
             }
