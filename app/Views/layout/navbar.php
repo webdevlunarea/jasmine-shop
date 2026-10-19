@@ -12,7 +12,9 @@ if ($isAdminNav) {
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
-        ['group'=>'Pengaturan', 'label' => 'Tes notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'match' => ['notificationtestadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Broadcast & notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'match' => ['notificationtestadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
         ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
         ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
         ['group'=>'Katalog', 'label' => 'Pemetaan MyLuna', 'icon' => 'compare_arrows', 'url' => '/lunamappingadmin', 'match' => ['lunamappingadmin']],
@@ -23,8 +25,6 @@ if ($isAdminNav) {
         ['group'=>'Promosi & konten', 'label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'match' => ['listredeem']],
         ['group'=>'Promosi & konten', 'label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
         ['group'=>'Promosi & konten', 'label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
-        ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
-        ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
     ];
 ?>
 <input type="checkbox" id="admin-menu-toggle" class="d-none">

@@ -223,6 +223,7 @@ $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin'])
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->post('/notificationtestadmin/send', 'PushNotificationAdmin::sendTest', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/notificationtestadmin/broadcast', 'PushNotificationAdmin::sendBroadcast', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/domain/remove', 'CustomerModerationAdmin::removeDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdmin::deleteExpiredUnverified', ['filter' => ['harusAdmin', 'csrf']]);

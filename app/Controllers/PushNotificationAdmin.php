@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\Notifications\FirebaseMessaging;
+use App\Services\Notifications\CustomerPushBroadcasts;
 use Config\Database;
 
 /** Sends a real, bounded test push to a registered customer device. */
@@ -10,11 +11,47 @@ class PushNotificationAdmin extends BaseController
 {
     public function index()
     {
+        $recipientCount = 0;
+        try {
+            $recipientCount = (new CustomerPushBroadcasts(Database::connect()))->activeAndroidRecipientCount();
+        } catch (\Throwable $e) {
+            log_message('error', 'Push broadcast audience count failed: ' . get_class($e));
+        }
+
         return view('pages/pushNotificationAdmin', [
-            'title' => 'Tes notifikasi',
+            'title' => 'Notifikasi pelanggan',
             'msg' => session()->getFlashdata('msg'),
             'email' => session()->getFlashdata('push_test_email') ?? '',
+            'broadcastMsg' => session()->getFlashdata('push_broadcast_msg'),
+            'broadcastRecipientCount' => $recipientCount,
         ]);
+    }
+
+    /** Queue a broadcast for opted-in Android installations; delivery remains async via notifications:dispatch. */
+    public function sendBroadcast()
+    {
+        $title = trim((string) $this->request->getPost('title'));
+        $body = trim((string) $this->request->getPost('body'));
+        $kind = trim((string) $this->request->getPost('kind'));
+        if (!in_array($kind, ['voucher', 'flash_sale', 'event', 'general'], true) || $title === '' || $body === '' || mb_strlen($title) > 100 || mb_strlen($body) > 240) {
+            return $this->backBroadcast('Periksa kategori dan isi pesan. Judul maksimal 100 karakter, pesan maksimal 240 karakter.');
+        }
+
+        $remaining = 60 - (time() - (int) session('push_broadcast_last_sent'));
+        if ((int) session('push_broadcast_last_sent') > 0 && $remaining > 0) {
+            return $this->backBroadcast("Tunggu {$remaining} detik sebelum membuat broadcast berikutnya.");
+        }
+
+        try {
+            $queued = (new CustomerPushBroadcasts(Database::connect()))->queue($kind, $title, $body);
+            if ($queued < 1) return $this->backBroadcast('Belum ada perangkat Android aktif dengan akun penerima valid.');
+            session()->set('push_broadcast_last_sent', time());
+
+            return $this->backBroadcast($queued . ' penerima masuk antrean. Pengiriman diproses bertahap oleh layanan notifikasi.');
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin push broadcast enqueue failed: ' . get_class($e));
+            return $this->backBroadcast('Broadcast belum berhasil dijadwalkan. Periksa kesiapan tabel dan log server.');
+        }
     }
 
     public function sendTest()
@@ -94,5 +131,11 @@ class PushNotificationAdmin extends BaseController
     {
         return redirect()->to('/notificationtestadmin')->withCookies()
             ->with('msg', $message)->with('push_test_email', $email);
+    }
+
+    private function backBroadcast(string $message)
+    {
+        return redirect()->to('/notificationtestadmin')->withCookies()
+            ->with('push_broadcast_msg', $message);
     }
 }

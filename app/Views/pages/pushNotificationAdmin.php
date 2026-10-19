@@ -43,6 +43,61 @@
                 </div>
             </form>
         </section>
+
+        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-4">
+            <div class="d-flex align-items-start gap-3 mb-3">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:48px;height:48px;background:#f5f3ee;color:#2f2d20;">
+                    <i class="material-icons" aria-hidden="true">campaign</i>
+                </span>
+                <div>
+                    <h2 class="h5 fw-bold mb-1">Broadcast untuk pengguna Android</h2>
+                    <p class="text-secondary mb-0">Sampaikan kabar voucher, Flash Sale, atau acara Lunarea kepada pelanggan yang mengaktifkan notifikasi.</p>
+                </div>
+            </div>
+
+            <?php if (!empty($broadcastMsg)) { ?>
+                <div class="alert alert-info rounded-3" role="status"><?= esc($broadcastMsg); ?></div>
+            <?php } ?>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-3 p-3 mb-3" style="background:#faf9f6;">
+                <span class="text-secondary">Akun dengan perangkat Android aktif</span>
+                <strong class="fs-5" style="color:#2f2d20;"><?= number_format((int) ($broadcastRecipientCount ?? 0), 0, ',', '.'); ?></strong>
+            </div>
+
+            <div class="alert alert-light border rounded-3" role="note">
+                Pesan hanya masuk antrean untuk akun dengan perangkat Android aktif. Tidak ada pesan yang dikirim ke perangkat yang belum terdaftar. Worker notifikasi perlu dijalankan terjadwal agar antrean dikirim bertahap.
+            </div>
+
+            <form method="post" action="/notificationtestadmin/broadcast" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> akun Android aktif? Pastikan isi pesan dan promonya sudah benar.">
+                <?= csrf_field(); ?>
+                <div class="row g-3">
+                    <div class="col-12 col-md-5">
+                        <label class="form-label fw-semibold" for="broadcast-kind">Jenis informasi</label>
+                        <select class="form-select" id="broadcast-kind" name="kind" required>
+                            <option value="voucher">Voucher</option>
+                            <option value="flash_sale">Flash Sale</option>
+                            <option value="event">Acara / event</option>
+                            <option value="general">Informasi lainnya</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold" for="broadcast-title">Judul notifikasi</label>
+                        <input class="form-control" id="broadcast-title" name="title" maxlength="100" required placeholder="Contoh: Voucher spesial untuk Anda">
+                        <div class="form-text">Maksimal 100 karakter.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold" for="broadcast-body">Isi pesan</label>
+                        <textarea class="form-control" id="broadcast-body" name="body" rows="3" maxlength="240" required placeholder="Tulis informasi singkat, jelas, dan sesuai promo yang sedang berlangsung."></textarea>
+                        <div class="form-text">Maksimal 240 karakter. Hindari mencantumkan data pribadi atau informasi yang belum berlaku.</div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="btn btn-primary1 px-4" type="submit" <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'disabled' : ''; ?>>
+                            <i class="material-icons align-middle me-1" aria-hidden="true">send</i>Jadwalkan broadcast
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
     </div>
 </main>
 <?= $this->endSection(); ?>
