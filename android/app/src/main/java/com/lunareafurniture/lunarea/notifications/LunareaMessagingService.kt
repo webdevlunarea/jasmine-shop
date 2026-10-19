@@ -18,6 +18,7 @@ import com.lunareafurniture.lunarea.data.security.SecureTokenStore
 class LunareaMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         SecureTokenStore(this).savePushToken(token)
+        PushDeviceRegistration(this).markUnregistered()
         PushDeviceRegistration.enqueueRetry(this)
     }
 

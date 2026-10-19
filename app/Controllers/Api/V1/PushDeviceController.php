@@ -25,19 +25,20 @@ class PushDeviceController extends ApiController
         if (strlen($token) < 40 || strlen($token) > 4096 || $platform !== 'android') {
             return $this->failure('VALIDATION_ERROR', 'Token perangkat atau platform tidak valid.', 422);
         }
-        $db = $this->connection();
-        if (!$db->tableExists('customer_push_devices')) return $this->failure('PUSH_NOT_READY', 'Pendaftaran notifikasi belum disiapkan.', 503);
-        $hash = hash('sha256', $token);
-        try { $encryptedToken = $this->encryptDeviceToken($token); }
-        catch (\Throwable $e) { return $this->failure('PUSH_NOT_READY', 'Penyimpanan perangkat belum dikonfigurasi.', 503); }
-        $now = gmdate('Y-m-d H:i:s');
-        $existing = $db->table('customer_push_devices')->where('device_token_hash', $hash)->get()->getRowArray();
-        $data = [
-            'email_user' => $this->authEmail(), 'device_token_hash' => $hash, 'device_token' => $encryptedToken,
-            'platform' => 'android', 'device_name' => $deviceName === '' ? null : mb_substr($deviceName, 0, 100),
-            'is_active' => 1, 'last_seen_at' => $now, 'updated_at' => $now,
-        ];
         try {
+            $db = $this->connection();
+            if (!$db->tableExists('customer_push_devices')) {
+                return $this->failure('PUSH_NOT_READY', 'Pendaftaran notifikasi belum disiapkan.', 503);
+            }
+            $hash = hash('sha256', $token);
+            $encryptedToken = $this->encryptDeviceToken($token);
+            $now = gmdate('Y-m-d H:i:s');
+            $existing = $db->table('customer_push_devices')->where('device_token_hash', $hash)->get()->getRowArray();
+            $data = [
+                'email_user' => $this->authEmail(), 'device_token_hash' => $hash, 'device_token' => $encryptedToken,
+                'platform' => 'android', 'device_name' => $deviceName === '' ? null : mb_substr($deviceName, 0, 100),
+                'is_active' => 1, 'last_seen_at' => $now, 'updated_at' => $now,
+            ];
             if ($existing) {
                 $saved = $db->table('customer_push_devices')->where('id', $existing['id'])->update($data);
                 if (!$saved) throw new \RuntimeException('Device update failed.');

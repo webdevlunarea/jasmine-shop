@@ -50,6 +50,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -175,7 +177,7 @@ private fun LunareaApp() {
     var busy by remember { mutableStateOf(false) }
     var notificationMessage by remember { mutableStateOf<String?>(null) }
     var authPromptMessage by remember { mutableStateOf<String?>(null) }
-    var notificationsEnabled by remember { mutableStateOf(PushDeviceRegistration(context).isOptedIn()) }
+    var notificationsEnabled by remember { mutableStateOf(PushDeviceRegistration(context).isRegistered()) }
     var showNotificationIntro by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
     var pendingCartRemoval by remember { mutableStateOf<CartLine?>(null) }
@@ -191,6 +193,8 @@ private fun LunareaApp() {
     var accountSection by remember { mutableStateOf(AccountSection.MENU) }
     var authFlowEmail by remember { mutableStateOf("") }
     var detailOpen by remember { mutableStateOf(false) }
+    var chromeVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(tab, detailOpen) { chromeVisible = true }
 
     fun loadProducts(search: String = query, category: String? = selectedCategory, page: Int = 1, append: Boolean = false) {
         if (append && loading) return
@@ -286,14 +290,14 @@ private fun LunareaApp() {
                 scope.launch {
                     val registration = PushDeviceRegistration(context)
                     val result = registration.enableAndRegister()
-                    notificationsEnabled = registration.isOptedIn()
+                    notificationsEnabled = registration.isRegistered()
                     if (result.isFailure) PushDeviceRegistration.enqueueRetry(context)
                     notificationMessage = if (result.isSuccess && result.getOrNull() == true) "Notifikasi pesanan telah diaktifkan." else result.exceptionOrNull()?.message ?: "Notifikasi belum dapat diaktifkan."
                 }
             } else {
                 val registration = PushDeviceRegistration(context)
                 registration.rememberPermissionConsent()
-                notificationsEnabled = registration.isOptedIn()
+                notificationsEnabled = registration.isRegistered()
                 notificationMessage = "Izin notifikasi sudah diberikan. Masuk ke akun lalu aktifkan pemberitahuan pesanan."
             }
         } else notificationMessage = "Izin notifikasi belum diberikan."
@@ -439,7 +443,7 @@ private fun LunareaApp() {
             // Also repairs installs that granted Android permission in an earlier app build
             // but never completed server-side device registration.
             registration.rememberPermissionConsent()
-            notificationsEnabled = registration.isOptedIn()
+            notificationsEnabled = registration.isRegistered()
             val result = registration.registerAfterOptIn()
             if (result.isFailure) PushDeviceRegistration.enqueueRetry(context)
             else if (result.getOrNull() == true) notificationMessage = "Notifikasi pesanan telah terhubung ke perangkat ini."
@@ -483,7 +487,12 @@ private fun LunareaApp() {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            if (!detailOpen) NavigationBar(
+            AnimatedVisibility(
+                visible = !detailOpen && chromeVisible,
+                enter = slideInVertically(initialOffsetY = { it / 2 }, animationSpec = tween(150)) + fadeIn(animationSpec = tween(130)),
+                exit = slideOutVertically(targetOffsetY = { it / 2 }, animationSpec = tween(130)) + fadeOut(animationSpec = tween(110))
+            ) {
+              NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp
             ) {
@@ -526,9 +535,10 @@ private fun LunareaApp() {
                             }
                         },
                         label = { Text(item.label, maxLines = 1, fontSize = 10.sp, lineHeight = 12.sp, fontWeight = FontWeight.Medium) },
-                        alwaysShowLabel = true
+                        alwaysShowLabel = false
                     )
                 }
+              }
             }
         }
     ) { insets ->
@@ -554,6 +564,8 @@ private fun LunareaApp() {
                 onOpenCart = { detailOpen = false; tab = AppTab.CART },
                 unreadNotificationCount = unreadNotificationCount,
                 onOpenNotifications = { notificationInboxOpen = true },
+                chromeVisible = chromeVisible,
+                onChromeVisibilityChange = { chromeVisible = it },
                 onPromoAction = { tab = AppTab.CATALOG },
                 onLoginRequired = { reason -> authPromptMessage = reason },
                 categories = categories, selectedCategory = selectedCategory,
@@ -2822,7 +2834,12 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
         Surface(modifier = Modifier.fillMaxWidth(.91f), shape = RoundedCornerShape(26.dp), color = MaterialTheme.colorScheme.surface, shadowElevation = 12.dp) {
             Column {
                 if (!posterUrl.isNullOrBlank() && !posterFailed) {
-                    Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable(onClick = onAction)
+                            .semantics { contentDescription = "Pilih promo $name" }
+                    ) {
                         Box(Modifier.fillMaxWidth().aspectRatio(posterAspect).background(rememberLunareaShimmerBrush()))
                         AsyncImage(
                             model = posterUrl,
@@ -2842,7 +2859,13 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
                         }
                     }
                 } else {
-                    Box(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))).padding(start = 22.dp, top = 20.dp, end = 58.dp, bottom = 22.dp)) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .background(Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary)))
+                            .clickable(onClick = onAction)
+                            .semantics { contentDescription = "Pilih promo $name" }
+                            .padding(start = 22.dp, top = 20.dp, end = 58.dp, bottom = 22.dp)
+                    ) {
                         Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
                             Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .14f)) {
                                 Text("PROMO LUNAREA", Modifier.padding(horizontal = 11.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = .7.sp)
@@ -2872,10 +2895,6 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
                             }
                         }
                     }
-                    Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(15.dp)) {
-                        Text("Coba sekarang", fontWeight = FontWeight.SemiBold)
-                    }
-                    TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterHorizontally).heightIn(min = 44.dp)) { Text("Lihat nanti", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
             }
         }
@@ -2888,7 +2907,9 @@ private fun CatalogScreen(
     signedIn: Boolean, favoriteKeys: Set<String>, cartItemCount: Int,
     onFavoriteKeysChange: (Set<String>) -> Unit, onCartChanged: () -> Unit,
     onOpenCart: () -> Unit, onLoginRequired: (String) -> Unit,
-    unreadNotificationCount: Int, onOpenNotifications: () -> Unit, onPromoAction: () -> Unit,
+    unreadNotificationCount: Int, onOpenNotifications: () -> Unit,
+    chromeVisible: Boolean, onChromeVisibilityChange: (Boolean) -> Unit,
+    onPromoAction: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
     products: List<ProductSummary>, loading: Boolean, message: String?, canLoadMore: Boolean,
     onSearch: () -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
@@ -2909,10 +2930,38 @@ private fun CatalogScreen(
     var launchVoucherCheckDone by remember { mutableStateOf(false) }
     val latestLoading by rememberUpdatedState(loading)
     val latestOnRefresh by rememberUpdatedState(onRefresh)
+    val latestOnChromeVisibilityChange by rememberUpdatedState(onChromeVisibilityChange)
     val pullRefreshConnection = remember(gridState, refreshThresholdPx) {
+        var chromeScroll = 0f
+        val chromeThreshold = with(density) { 56.dp.toPx() }
+        val revealThreshold = with(density) { 32.dp.toPx() }
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val atTop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
+                if (available.y < 0f) {
+                    if (chromeVisible) {
+                        chromeScroll += -available.y
+                        if (chromeScroll >= chromeThreshold) {
+                            latestOnChromeVisibilityChange(false)
+                            chromeScroll = 0f
+                        }
+                    } else {
+                        chromeScroll = 0f
+                    }
+                } else if (available.y > 0f) {
+                    if (atTop) {
+                        if (!chromeVisible) latestOnChromeVisibilityChange(true)
+                        chromeScroll = 0f
+                    } else if (!chromeVisible) {
+                        chromeScroll += available.y
+                        if (chromeScroll >= revealThreshold) {
+                            latestOnChromeVisibilityChange(true)
+                            chromeScroll = 0f
+                        }
+                    } else {
+                        chromeScroll = 0f
+                    }
+                }
                 if (available.y > 0f && atTop) {
                     pullDistance = (pullDistance + available.y).coerceAtMost(refreshThresholdPx * 1.5f)
                     if (pullDistance >= refreshThresholdPx && !refreshTriggered && !latestLoading) {
@@ -3188,6 +3237,14 @@ private fun CatalogScreen(
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.weight(1f))
+                if (!chromeVisible) {
+                    IconButton(
+                        onClick = { onChromeVisibilityChange(true) },
+                        modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                    ) {
+                        Icon(painterResource(R.drawable.ic_search), contentDescription = "Tampilkan pencarian", tint = LunareaGreenText, modifier = Modifier.size(22.dp))
+                    }
+                }
                 BadgedBox(badge = {
                     if (unreadNotificationCount > 0) Badge {
                         Text(if (unreadNotificationCount > 99) "99+" else unreadNotificationCount.toString())
@@ -3206,15 +3263,23 @@ private fun CatalogScreen(
                     }
                 }
             }
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = query, onValueChange = onQueryChange, modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Cari furnitur...") }, singleLine = true,
-                shape = RoundedCornerShape(14.dp), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onSearch() }),
-                leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null, tint = LunareaGreenText) },
-                trailingIcon = { TextButton(onClick = onSearch) { Text("Cari") } }
-            )
+            AnimatedVisibility(
+                visible = chromeVisible,
+                enter = fadeIn(animationSpec = tween(130)),
+                exit = fadeOut(animationSpec = tween(110))
+            ) {
+                Column {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = query, onValueChange = onQueryChange, modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Cari furnitur...") }, singleLine = true,
+                        shape = RoundedCornerShape(14.dp), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+                        leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null, tint = LunareaGreenText) },
+                        trailingIcon = { TextButton(onClick = onSearch) { Text("Cari") } }
+                    )
+                }
+            }
             if (tab == AppTab.HOME) {
                 Spacer(Modifier.height(10.dp))
                 val bannerPager = rememberPagerState(pageCount = { homeBannerUrls.size })

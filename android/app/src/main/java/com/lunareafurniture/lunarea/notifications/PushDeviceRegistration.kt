@@ -13,6 +13,7 @@ import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonObject
 import com.lunareafurniture.lunarea.data.api.ApiClient
+import com.lunareafurniture.lunarea.data.api.customerError
 import com.lunareafurniture.lunarea.data.security.SecureTokenStore
 import kotlinx.coroutines.tasks.await
 
@@ -22,11 +23,18 @@ class PushDeviceRegistration(context: Context) {
     private val consentStore = appContext.getSharedPreferences("lunarea_notification_settings", Context.MODE_PRIVATE)
 
     fun isOptedIn(): Boolean = consentStore.getBoolean("push_opt_in", false)
+    /** True only after the API confirms this installation is persisted for the signed-in account. */
+    fun isRegistered(): Boolean = consentStore.getBoolean("push_device_registered", false)
     fun isExplicitlyDisabled(): Boolean = consentStore.getBoolean("push_explicitly_disabled", false)
+
+    fun markUnregistered() {
+        consentStore.edit().putBoolean("push_device_registered", false).apply()
+    }
 
     /** Stop account-scoped pushes locally as soon as the customer signs out. */
     fun stopForSignOut() {
-        consentStore.edit().putBoolean("push_opt_in", false).putBoolean("push_explicitly_disabled", true).apply()
+        consentStore.edit().putBoolean("push_opt_in", false).putBoolean("push_explicitly_disabled", true)
+            .putBoolean("push_device_registered", false).apply()
         WorkManager.getInstance(appContext).cancelUniqueWork(RegisterPushDeviceWorker.UNIQUE_NAME)
         androidx.core.app.NotificationManagerCompat.from(appContext).cancelAll()
     }
@@ -40,13 +48,15 @@ class PushDeviceRegistration(context: Context) {
     }
 
     suspend fun enableAndRegister(): Result<Boolean> {
-        consentStore.edit().putBoolean("push_opt_in", true).putBoolean("push_explicitly_disabled", false).apply()
+        consentStore.edit().putBoolean("push_opt_in", true).putBoolean("push_explicitly_disabled", false)
+            .putBoolean("push_device_registered", false).apply()
         // Keep consent after transient network/API failures so login or WorkManager can retry.
         return registerAfterOptIn()
     }
 
     suspend fun disableAndUnregister(): Result<Unit> {
-        consentStore.edit().putBoolean("push_opt_in", false).putBoolean("push_explicitly_disabled", true).apply()
+        consentStore.edit().putBoolean("push_opt_in", false).putBoolean("push_explicitly_disabled", true)
+            .putBoolean("push_device_registered", false).apply()
         return unregisterBeforeSignOut()
     }
 
@@ -54,6 +64,7 @@ class PushDeviceRegistration(context: Context) {
         if (!isOptedIn()) return@runCatching false
         if (!notificationsAllowed()) return@runCatching false
         check(SecureTokenStore(appContext).read() != null) { "Masuk diperlukan sebelum mengaktifkan notifikasi akun." }
+        markUnregistered()
         val token = FirebaseMessaging.getInstance().token.await()
         require(token.length in 40..4096) { "Token Firebase belum valid." }
         val tokenStore = SecureTokenStore(appContext)
@@ -66,9 +77,13 @@ class PushDeviceRegistration(context: Context) {
         }
         val response = ApiClient.get(appContext).registerPushDevice(body)
         val payload = response.body()
-        check(response.isSuccessful && payload?.success == true) {
-            payload?.error?.message ?: "Perangkat belum terdaftar untuk notifikasi."
+        if (!response.isSuccessful) {
+            throw PushDeviceRegistrationException(response.code(), response.customerError("Pendaftaran notifikasi gagal (HTTP ${response.code()}). Coba lagi."))
         }
+        check(payload?.success == true && payload.data?.get("registered")?.asBoolean == true) {
+            payload?.error?.message ?: "Server belum mengonfirmasi pendaftaran perangkat. Coba lagi."
+        }
+        consentStore.edit().putBoolean("push_device_registered", true).apply()
         true
     }
 
@@ -84,6 +99,7 @@ class PushDeviceRegistration(context: Context) {
             }
             tokenStore.clearPushToken()
         }
+        markUnregistered()
     }
 
     fun notificationsAllowed(): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
@@ -101,3 +117,5 @@ class PushDeviceRegistration(context: Context) {
         }
     }
 }
+
+class PushDeviceRegistrationException(val httpStatus: Int, message: String) : IllegalStateException(message)
