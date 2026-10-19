@@ -6,12 +6,17 @@ import android.app.Activity
 import android.text.Html
 import android.net.Uri
 import android.content.Intent
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.graphics.Bitmap
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -29,6 +34,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -59,6 +66,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -91,11 +99,14 @@ import com.lunareafurniture.lunarea.security.AndroidRecaptcha
 import com.lunareafurniture.lunarea.ui.theme.LunareaTheme
 import com.lunareafurniture.lunarea.ui.theme.LunareaGreenText
 import com.lunareafurniture.lunarea.ui.theme.LunareaSpacing
+import com.lunareafurniture.lunarea.ui.splash.LunareaStartup
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.collect
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -103,9 +114,27 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.text.NumberFormat
 import java.text.Normalizer
 import java.util.Locale
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 private enum class AppTab(val label: String) { HOME("Beranda"), CATALOG("Katalog"), CART("Keranjang"), ACCOUNT("Akun"), CHECKOUT("Checkout") }
-private enum class AccountSection { MENU, ORDERS, FAVORITES, ADDRESSES, PROFILE, SECURITY, CHECKOUT, REGISTER, VERIFY_EMAIL, RECOVERY }
+private enum class AccountSection { MENU, ORDERS, FAVORITES, ADDRESSES, PROFILE, SECURITY, POINTS, CHECKOUT, REGISTER, VERIFY_EMAIL, RECOVERY }
+private data class PushTap(val type: String, val orderId: String, val productId: String, val campaignId: String) {
+    companion object {
+        fun from(intent: Intent?): PushTap? {
+            if (intent == null) return null
+            val type = intent.getStringExtra("push_type") ?: intent.getStringExtra("type") ?: return null
+            return PushTap(
+                type = type,
+                orderId = intent.getStringExtra("push_order_id") ?: intent.getStringExtra("order_id").orEmpty(),
+                productId = intent.getStringExtra("push_product_id") ?: intent.getStringExtra("product_id").orEmpty(),
+                campaignId = intent.getStringExtra("push_campaign_id") ?: intent.getStringExtra("campaign_id").orEmpty()
+            )
+        }
+    }
+}
 private data class RegionOption(val id: Int, val label: String, val postal: String = "")
 private data class ShippingOption(val token: String, val courier: String, val service: String, val cost: Long, val eta: String?)
 private data class CartLine(val id: String, val name: String, val variant: String, val quantity: Int, val price: Long, val image: String?)
@@ -152,14 +181,30 @@ private fun normalizeRegionLabel(value: String): String = Normalizer.normalize(v
     .trim()
 
 class MainActivity : ComponentActivity() {
+    private var pendingPushTap by mutableStateOf<PushTap?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        setContent { LunareaTheme { LunareaApp() } }
+        pendingPushTap = PushTap.from(intent)
+        setContent {
+            LunareaTheme {
+                LunareaStartup { startupComplete ->
+                    LunareaApp(startupComplete, pendingPushTap) { pendingPushTap = null }
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingPushTap = PushTap.from(intent)
     }
 }
 
 @Composable
-private fun LunareaApp() {
+private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHandled: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -189,6 +234,7 @@ private fun LunareaApp() {
     var cartItems by remember { mutableStateOf<List<CartLine>>(emptyList()) }
     var cartSubtotal by remember { mutableLongStateOf(0L) }
     var cartLoading by remember { mutableStateOf(false) }
+
     var cartMessage by remember { mutableStateOf<String?>(null) }
     var cartRefreshVersion by remember { mutableIntStateOf(0) }
     var favoriteKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -196,6 +242,32 @@ private fun LunareaApp() {
     var authFlowEmail by remember { mutableStateOf("") }
     var detailOpen by remember { mutableStateOf(false) }
     var chromeVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(pushTap) {
+        val tap = pushTap ?: return@LaunchedEffect
+        notificationInboxOpen = false
+        when {
+            tap.orderId.isNotBlank() -> {
+                tab = AppTab.ACCOUNT
+                accountSection = AccountSection.ORDERS
+                notificationsRefreshVersion++
+            }
+            tap.type == "back_in_stock" && tap.productId.isNotBlank() -> {
+                tab = AppTab.ACCOUNT
+                accountSection = AccountSection.FAVORITES
+            }
+            tap.productId.isNotBlank() -> {
+                tab = AppTab.CATALOG
+                query = tap.productId
+            }
+            else -> {
+                // Campaign and account-wide announcements open the inbox so the
+                // exact title and message remain available after dismissing the push.
+                notificationInboxOpen = true
+                notificationsRefreshVersion++
+            }
+        }
+        onPushTapHandled()
+    }
     LaunchedEffect(tab, detailOpen) { chromeVisible = true }
 
     fun loadProducts(search: String = query, category: String? = selectedCategory, page: Int = 1, append: Boolean = false) {
@@ -563,6 +635,7 @@ private fun LunareaApp() {
             )
         } else when (tab) {
             AppTab.HOME, AppTab.CATALOG -> CatalogScreen(
+                startupComplete = startupComplete,
                 modifier = Modifier.padding(insets), tab = tab, query = query, onQueryChange = { query = it.take(120) },
                 signedIn = signedIn,
                 favoriteKeys = favoriteKeys,
@@ -607,7 +680,7 @@ private fun LunareaApp() {
                     else { tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU; message = "Masuk terlebih dahulu sebelum melanjutkan ke pembayaran." }
                 }
             )
-            AppTab.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { tab = AppTab.CART }, onOpenOrders = { tab = AppTab.ACCOUNT; accountSection = AccountSection.ORDERS })
+            AppTab.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { tab = AppTab.CART }, onOpenOrders = { tab = AppTab.ACCOUNT; accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
             AppTab.ACCOUNT -> when (accountSection) {
                 AccountSection.MENU -> AccountScreen(
                 modifier = Modifier.padding(insets), signedIn = signedIn, busy = busy,
@@ -665,7 +738,7 @@ private fun LunareaApp() {
                 AccountSection.PROFILE -> ProfileScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
                 AccountSection.SECURITY -> SecurityScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false })
                 AccountSection.POINTS -> PointsScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS })
+                AccountSection.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
                 AccountSection.REGISTER -> NativeRegistrationScreen(
                     Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
                     onRegistered = { email -> authFlowEmail = email; accountSection = AccountSection.VERIFY_EMAIL }
@@ -785,9 +858,7 @@ private fun NotificationInboxScreen(
                 Text("Pemberitahuan", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Text("Kabar terbaru tentang akun dan pesanan Anda", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(onClick = onRefresh, enabled = !loading, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
-                Icon(painterResource(R.drawable.ic_refresh), contentDescription = "Muat ulang", tint = LunareaGreenText, modifier = Modifier.size(20.dp))
-            }
+            Spacer(Modifier.width(8.dp))
         }
 
         when {
@@ -853,7 +924,7 @@ private fun NotificationInboxScreen(
                             Text(item.get("body")?.asString.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                if (status == "awaiting_device") "Tersimpan di akun" else item.get("created_at")?.asString.orEmpty(),
+                                if (status == "awaiting_device") "Tersimpan di akun" else formatLunareaDateTime(item.get("created_at")?.asString.orEmpty()),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1122,7 +1193,18 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
     var stage by remember { mutableIntStateOf(0) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
+    var resendAvailableAt by rememberSaveable { mutableLongStateOf(0L) }
+    var countdownNow by rememberSaveable { mutableLongStateOf(System.currentTimeMillis()) }
+    val resendSeconds = ((resendAvailableAt - countdownNow).coerceAtLeast(0L) / 1000L).toInt()
     val newPasswordValid = newPassword.length >= 8 && newPassword.toByteArray().size <= 72 && newPassword.any(Char::isDigit)
+
+    LaunchedEffect(stage, resendAvailableAt) {
+        while (stage == 1 && System.currentTimeMillis() < resendAvailableAt) {
+            delay(1_000)
+            countdownNow = System.currentTimeMillis()
+        }
+        countdownNow = System.currentTimeMillis()
+    }
 
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         AuthFlowHeader(if (stage == 0) "Pulihkan akun" else "Buat kata sandi baru", if (stage == 0) "Kami akan mengirim kode ke email terdaftar jika data akun cocok." else "Masukkan kode dari email dan tentukan kata sandi baru.", onBack)
@@ -1130,6 +1212,7 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
             OutlinedTextField(identity, { identity = it.take(254) }, modifier = Modifier.fillMaxWidth(), label = { Text("Email atau username") }, singleLine = true, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = androidx.compose.ui.text.input.ImeAction.Done))
         } else {
             Text("Kode dikirim untuk akun ${maskIdentity(identity)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Periksa kotak masuk dan folder spam. Kode berlaku selama 10 menit.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, modifier = Modifier.fillMaxWidth(), label = { Text("Kode verifikasi") }, singleLine = true, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
             PasswordInputField(newPassword, { newPassword = it }, "Kata sandi baru", imeAction = ImeAction.Next, supportingText = "Minimal 8 karakter, mengandung angka, maksimal 72 byte.", isError = newPassword.isNotEmpty() && !newPasswordValid)
             PasswordInputField(confirmation, { confirmation = it }, "Ulangi kata sandi baru", supportingText = if (confirmation.isNotEmpty() && confirmation != newPassword) "Kata sandi belum sama." else null, isError = confirmation.isNotEmpty() && confirmation != newPassword)
@@ -1149,6 +1232,8 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
                         val response = api.requestPasswordReset(payload)
                         if (response.isSuccessful && response.body()?.success == true) {
                             stage = 1
+                            resendAvailableAt = System.currentTimeMillis() + 60_000L
+                            countdownNow = System.currentTimeMillis()
                             message = "Jika data cocok dan batas permintaan terpenuhi, kode akan dikirim ke email terdaftar."
                         } else message = response.customerError("Permintaan pemulihan belum dapat diproses.")
                     } else {
@@ -1167,20 +1252,28 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
             modifier = Modifier.fillMaxWidth().height(50.dp), shape = MaterialTheme.shapes.medium) {
             if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text(if (stage == 0) "Kirim kode pemulihan" else "Simpan kata sandi baru")
         }
-        if (stage == 1) TextButton(enabled = !busy, onClick = {
-            scope.launch {
-                busy = true
-                try {
-                    val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "password_reset_request")
-                    val response = ApiClient.get(context).requestPasswordReset(JsonObject().apply {
-                        addProperty("identity", identity.trim())
-                        addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
-                    })
-                    message = if (response.isSuccessful && response.body()?.success == true) "Jika data cocok dan jeda permintaan terpenuhi, kode baru akan dikirim." else response.customerError("Kode belum dapat dikirim ulang.")
-                } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Coba lagi nanti." }
-                finally { busy = false }
+        if (stage == 1) {
+            TextButton(enabled = !busy && resendSeconds == 0, onClick = {
+                scope.launch {
+                    busy = true
+                    try {
+                        val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "password_reset_request")
+                        val response = ApiClient.get(context).requestPasswordReset(JsonObject().apply {
+                            addProperty("identity", identity.trim())
+                            addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
+                        })
+                        if (response.isSuccessful && response.body()?.success == true) {
+                            resendAvailableAt = System.currentTimeMillis() + 60_000L
+                            countdownNow = System.currentTimeMillis()
+                            message = "Jika data cocok dan jeda permintaan terpenuhi, kode baru akan dikirim."
+                        } else message = response.customerError("Kode belum dapat dikirim ulang.")
+                    } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Coba kirim lagi nanti." }
+                    finally { busy = false }
+                }
+            }) {
+                Text(if (resendSeconds > 0) "Kirim ulang dalam ${resendSeconds / 60}:${(resendSeconds % 60).toString().padStart(2, '0')}" else "Kirim ulang kode")
             }
-        }) { Text("Kirim ulang kode") }
+        }
     }
 }
 
@@ -1191,6 +1284,98 @@ private fun maskIdentity(value: String): String {
     val name = email.substring(0, at)
     val masked = if (name.length <= 1) "*" else name.take(1) + "*".repeat(minOf(name.length - 1, 8))
     return masked + email.substring(at)
+}
+
+@Composable
+private fun CopyablePaymentValue(label: String, value: String) {
+    val context = LocalContext.current
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        }
+        OutlinedButton(
+            onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText(label, value))
+                Toast.makeText(context, "$label berhasil disalin", Toast.LENGTH_SHORT).show()
+            },
+            shape = RoundedCornerShape(12.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Icon(painterResource(R.drawable.ic_payment_copy), contentDescription = null, modifier = Modifier.size(17.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Salin")
+        }
+    }
+}
+
+private fun createPaymentQrBitmap(contents: String, size: Int = 840): Bitmap? = runCatching {
+    val hints = mapOf(
+        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+        EncodeHintType.MARGIN to 2,
+        EncodeHintType.CHARACTER_SET to "UTF-8"
+    )
+    val matrix = MultiFormatWriter().encode(contents, BarcodeFormat.QR_CODE, size, size, hints)
+    val pixels = IntArray(size * size) { index ->
+        if (matrix[index % size, index / size]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+    }
+    Bitmap.createBitmap(pixels, size, size, Bitmap.Config.ARGB_8888)
+}.getOrNull()
+
+@Composable
+private fun PaymentQrCard(qrString: String) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val qrBitmap by produceState<Bitmap?>(null, qrString) {
+        value = withContext(Dispatchers.Default) { createPaymentQrBitmap(qrString) }
+    }
+    val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
+        val bitmap = qrBitmap
+        if (uri != null && bitmap != null) scope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openOutputStream(uri)?.use { output ->
+                        if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) error("PNG encoding failed")
+                    } ?: error("Destination unavailable")
+                }.isSuccess
+            }
+            Toast.makeText(context, if (saved) "QRIS berhasil disimpan" else "QRIS belum berhasil disimpan", Toast.LENGTH_SHORT).show()
+        }
+    }
+    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(18.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Pindai QRIS", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.Start))
+            if (qrBitmap == null) {
+                CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 2.dp)
+            } else {
+                Image(
+                    bitmap = qrBitmap!!.asImageBitmap(), contentDescription = "Kode QRIS untuk pembayaran",
+                    modifier = Modifier.size(224.dp).background(Color.White, RoundedCornerShape(12.dp)).padding(8.dp)
+                )
+                OutlinedButton(
+                    onClick = { saveLauncher.launch("Lunarea-QRIS.png") },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(13.dp)
+                ) {
+                    Icon(painterResource(R.drawable.ic_payment_download), contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp)); Text("Simpan QRIS")
+                }
+            }
+            Text("Buka aplikasi pembayaran yang mendukung QRIS, lalu pindai kode ini.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+private fun paymentGuidance(method: String, bank: String = ""): String {
+    if (method == "rekening") return "Transfer tepat sesuai total ke rekening Lunarea. Setelah transfer, buka detail pesanan dan unggah bukti pembayaran untuk diperiksa admin."
+    return when (method.lowercase()) {
+        "qris" -> "Bayar dengan memindai QRIS melalui aplikasi mobile banking atau dompet digital yang mendukung QRIS. Pastikan nominal sesuai sebelum mengonfirmasi."
+        "echannel" -> "Gunakan Mandiri Online atau ATM Mandiri, pilih menu pembayaran Multipayment, lalu masukkan kode perusahaan dan kode tagihan yang tertera."
+        "cstore" -> "Tunjukkan kode pembayaran kepada kasir gerai yang dipilih dan selesaikan pembayaran sebelum batas waktu."
+        "bank_transfer" -> if (bank.isNotBlank()) "Buka aplikasi atau ATM bank ${bank.uppercase()}, pilih transfer ke Virtual Account, masukkan nomor VA, lalu konfirmasi nominal." else "Buka mobile banking atau ATM, pilih pembayaran Virtual Account, masukkan nomor VA, lalu konfirmasi nominal."
+        "gopay" -> "Selesaikan pembayaran melalui aplikasi GoPay sesuai instruksi yang muncul setelah tombol pembayaran dibuka."
+        else -> "Ikuti petunjuk pada metode pembayaran yang dipilih. Pastikan nominal dan batas waktu pembayaran sesuai informasi pesanan."
+    }
 }
 
 @Composable
@@ -1207,6 +1392,7 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
     var checkingPayment by remember { mutableStateOf(false) }
     var trackingLoading by remember { mutableStateOf(false) }
     var cancelOrderId by remember { mutableStateOf<String?>(null) }
+    var cancellingOrderId by remember { mutableStateOf<String?>(null) }
     var refresh by remember { mutableIntStateOf(0) }
     var orderPage by remember { mutableIntStateOf(1) }
     var orderPages by remember { mutableIntStateOf(1) }
@@ -1247,24 +1433,27 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
             onDismissRequest = { cancelOrderId = null },
             icon = { Icon(painterResource(R.drawable.ic_dialog_warning), contentDescription = null) },
             title = { Text("Batalkan pesanan?") },
-            text = { Text("Kami akan memeriksa status pembayaran terlebih dahulu sebelum membatalkan pesanan $id.") },
+            text = { Text("Status pembayaran akan diperiksa terlebih dahulu. Jika pembayaran sudah berhasil atau bukti transfer sedang diverifikasi, pesanan tidak dapat dibatalkan dari aplikasi.") },
             confirmButton = {
-                TextButton(enabled = !loading, onClick = {
+                TextButton(enabled = cancellingOrderId != id, onClick = {
                     scope.launch {
-                        loading = true
+                        cancellingOrderId = id
+                        message = null
                         try {
                             val result = ApiClient.get(context).cancelOrder(id)
                             if (result.isSuccessful && result.body()?.success == true) {
                                 message = "Pesanan berhasil dibatalkan."
-                                cancelOrderId = null
                                 selectedOrder = null
                                 orderPage = 1
                                 refresh++
-                            } else message = result.body()?.error?.message ?: "Pesanan belum dapat dibatalkan. Muat ulang statusnya."
-                        } catch (_: Exception) { message = "Pembatalan belum dapat dipastikan. Muat ulang pesanan." }
-                        finally { loading = false }
+                            } else message = result.body()?.error?.message ?: "Pesanan belum dapat dibatalkan. Periksa status pembayaran dan coba lagi."
+                        } catch (_: Exception) { message = "Koneksi terputus. Status pembatalan belum dapat dipastikan; muat ulang pesanan sebelum mencoba lagi." }
+                        finally { cancellingOrderId = null; cancelOrderId = null }
                     }
-                }) { Text("Ya, batalkan", color = MaterialTheme.colorScheme.error) }
+                }) {
+                    if (cancellingOrderId == id) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                    else Text("Ya, batalkan", color = MaterialTheme.colorScheme.error)
+                }
             },
             dismissButton = { TextButton(onClick = { cancelOrderId = null }) { Text("Kembali") } },
             shape = RoundedCornerShape(22.dp)
@@ -1330,7 +1519,9 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
     if (detailPage == "detail" && order != null) {
         val paymentInfo = order.getAsJsonObject("payment")
         val vaNumbers = paymentInfo?.getAsJsonArray("va_numbers")
-        val canCancel = order.get("status")?.asString.orEmpty().let(::isUnpaidOrderStatus)
+        val paymentType = paymentInfo?.get("type")?.asString.orEmpty()
+        val hasPaymentProof = order.get("has_payment_proof")?.takeUnless { it.isJsonNull }?.asBoolean == true
+        val canCancel = order.get("status")?.asString.orEmpty().let(::isUnpaidOrderStatus) && !(paymentType == "rekening" && hasPaymentProof)
         Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
                 LunareaScreenHeader("Detail pesanan", { detailPage = "list"; selectedOrder = null }, order.get("id")?.asString.orEmpty())
@@ -1350,18 +1541,34 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                     Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text("Pembayaran", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            OrderInfoRow("Metode", paymentInfo?.get("type")?.asString?.replace('_', ' ')?.uppercase()?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
-                            OrderInfoRow("Status", paymentInfo?.get("status")?.asString?.replace('_', ' ')?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
+                            OrderInfoRow("Metode", when (paymentType) {
+                                "rekening" -> "Transfer manual · BRI"
+                                "bank_transfer" -> "Transfer bank · Virtual Account"
+                                "echannel" -> "Mandiri Bill"
+                                else -> paymentType.replace('_', ' ').uppercase().ifBlank { "Belum tersedia" }
+                            })
+                            OrderInfoRow("Status", paymentStatusLabel(paymentInfo?.stringOrNull("status")))
+                            Text(
+                                paymentGuidance(paymentType, vaNumbers?.firstOrNull()?.takeIf { it.isJsonObject }?.asJsonObject?.get("bank")?.asString.orEmpty()),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                             vaNumbers?.forEach { raw ->
                                 if (raw.isJsonObject) {
                                     val va = raw.asJsonObject
-                                    OrderInfoRow(va.get("bank")?.asString?.uppercase()?.ifBlank { "Virtual Account" } ?: "Virtual Account", va.get("number")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
+                                    val label = if (paymentType == "rekening") "Rekening BRI Lunarea" else va.get("bank")?.asString?.uppercase()?.ifBlank { "Virtual Account" } ?: "Virtual Account"
+                                    CopyablePaymentValue(label, va.get("number")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
                                 }
                             }
-                            listOf("payment_code" to "Kode pembayaran", "bill_key" to "Kode tagihan", "biller_code" to "Kode penyedia").forEach { (field, label) ->
-                                paymentInfo?.get(field)?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow(label, it) }
+                            if (paymentType == "rekening") {
+                                paymentInfo?.get("account_name")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Atas nama", it) }
+                                Text(if (hasPaymentProof) "Bukti transfer sudah diterima dan menunggu pemeriksaan admin." else "Transfer tepat sesuai total, lalu unggah bukti transfer melalui tombol di bawah.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            paymentInfo?.get("expiry_time")?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Batas pembayaran", it) }
+                            listOf("payment_code" to "Kode pembayaran", "bill_key" to "Kode tagihan", "biller_code" to "Kode penyedia").forEach { (field, label) ->
+                                paymentInfo?.get(field)?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { CopyablePaymentValue(label, it) }
+                            }
+                            paymentInfo?.get("expiry_time")?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Batas pembayaran", formatLunareaDateTime(it)) }
+                            paymentInfo?.stringOrNull("qr_string")?.takeIf { paymentType == "qris" && it.isNotBlank() }?.let { PaymentQrCard(it) }
                             val actions = paymentInfo?.getAsJsonArray("actions")
                             actions?.forEach { raw ->
                                 if (raw.isJsonObject) {
@@ -1408,9 +1615,32 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                     try {
                                         val result = ApiClient.get(context).paymentStatus(id)
                                         if (result.isSuccessful && result.body()?.success == true) {
-                                            val updated = ApiClient.get(context).order(id)
-                                            selectedOrder = updated.body()?.data?.getAsJsonObject("order") ?: order
-                                            message = "Status pembayaran sudah diperbarui."
+                                            val snapshot = result.body()?.data?.objectOrNull("payment")
+                                            if (snapshot == null) {
+                                                message = "Status pembayaran belum dapat dibaca. Coba lagi."
+                                            } else {
+                                                // The status endpoint returns a verified provider snapshot. The order
+                                                // endpoint may still contain the older webhook-backed DB state.
+                                                val latestOrder = runCatching {
+                                                    ApiClient.get(context).order(id).takeIf { it.isSuccessful }
+                                                        ?.body()?.data?.objectOrNull("order")
+                                                }.getOrNull()
+                                                val refreshed = (latestOrder ?: order).deepCopy()
+                                                snapshot.stringOrNull("status")?.let { refreshed.addProperty("status", it) }
+                                                val payment = refreshed.objectOrNull("payment") ?: JsonObject().also { refreshed.add("payment", it) }
+                                                snapshot.stringOrNull("payment_status")?.let { payment.addProperty("status", it) }
+                                                snapshot.stringOrNull("payment_type")?.let { payment.addProperty("type", it) }
+                                                snapshot.stringOrNull("expiry_time")?.let { payment.addProperty("expiry_time", it) }
+                                                snapshot.longOrNull("amount")?.let { payment.addProperty("gross_amount", it) }
+                                                listOf("va_numbers", "payment_code", "bill_key", "biller_code", "qr_string").forEach { key ->
+                                                    snapshot.get(key)?.takeUnless { it.isJsonNull }?.let { payment.add(key, it.deepCopy()) }
+                                                }
+                                                selectedOrder = refreshed
+                                                val label = paymentStatusLabel(snapshot.stringOrNull("payment_status"))
+                                                message = if (snapshot.stringOrNull("source") == "gateway") {
+                                                    "Status pembayaran berhasil diperiksa: $label."
+                                                } else "Status pembayaran: $label."
+                                            }
                                         } else message = result.body()?.error?.message ?: "Status pembayaran belum dapat diperiksa."
                                     } catch (_: Exception) { message = "Koneksi belum tersedia. Status pesanan tidak berubah." }
                                     finally { checkingPayment = false }
@@ -1419,9 +1649,10 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                         ) { if (checkingPayment) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Periksa pembayaran") }
                         if (canCancel) OutlinedButton(onClick = { cancelOrderId = order.get("id")?.asString }, modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(13.dp)) { Text("Batalkan") }
                     }
-                    if (paymentInfo?.get("type")?.asString.orEmpty() == "bank_transfer" && canCancel) {
+                    if (paymentType == "rekening" && canCancel) {
                         TextButton(onClick = { selectedOrderId = order.get("id")?.asString; proofPicker.launch("image/*") }, modifier = Modifier.fillMaxWidth()) { Text("Kirim bukti transfer") }
                     }
+                    if (paymentType == "rekening" && hasPaymentProof) Text("Pembatalan dinonaktifkan selama bukti pembayaran diperiksa.", modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     message?.let { Text(it, modifier = Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = if (it.contains("diperbarui", true)) LunareaGreenText else MaterialTheme.colorScheme.error) }
                 }
             }
@@ -1449,7 +1680,7 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                             OrderInfoRow("Kurir", live.stringOrNull("courier")?.ifBlank { "Belum ditentukan" } ?: "Belum ditentukan")
                             OrderInfoRow("Nomor resi", live.stringOrNull("tracking_number")?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
                             OrderInfoRow("Status pesanan", live.stringOrNull("order_status")?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
-                            live.stringOrNull("updated_at")?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Pembaruan terakhir", it) }
+                            live.stringOrNull("updated_at")?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Pembaruan terakhir", formatLunareaDateTime(it)) }
                         }
                     }
                 }
@@ -1477,8 +1708,14 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                         .firstNotNullOfOrNull { key -> entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank) }
                                     Column(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(description ?: "Pembaruan pengiriman", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                                        listOf("date", "time", "datetime", "manifest_date").firstNotNullOfOrNull { key -> entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank) }
-                                            ?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                        val eventDate = listOf("datetime", "manifest_date").firstNotNullOfOrNull { key ->
+                                            entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                        } ?: run {
+                                            val date = entry.get("date")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                            val time = entry.get("time")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                            listOfNotNull(date, time).joinToString(" ").ifBlank { null }
+                                        }
+                                        eventDate?.let { Text(formatLunareaDateTime(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                                     }
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
                                 }
@@ -1509,19 +1746,38 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
         return
     }
 
-    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 18.dp)) {
-        LunareaScreenHeader("Pesanan saya", onBack, "Pembayaran dan perkembangan pengiriman")
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
+        LunareaScreenHeader("Pesanan saya", onBack, "Pantau pembayaran dan pengiriman")
         if (loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        message?.let { EmptyState(it, { orderPage = 1; refresh++ }, "Muat ulang") }
+        message?.let { EmptyState(it, {}, "") }
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
             items(rows, key = { it.get("id")?.asString.orEmpty() }) { order ->
                 val id = order.get("id")?.asString.orEmpty()
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Pesanan $id", fontWeight = FontWeight.SemiBold)
-                        Text(order.get("status")?.asString ?: "Status diperbarui", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(formatRupiah(order.get("amount")?.asLong ?: 0L), color = LunareaGreenText, fontWeight = FontWeight.Bold)
-                        TextButton(onClick = {
+                val status = order.get("status")?.asString ?: "Status diperbarui"
+                val statusLower = status.lowercase(Locale.ROOT)
+                val statusTint = when {
+                    statusLower.contains("batal") || statusLower.contains("gagal") || statusLower.contains("kedaluwarsa") -> MaterialTheme.colorScheme.error
+                    statusLower.contains("selesai") || statusLower.contains("diterima") || statusLower.contains("proses") -> LunareaGreenText
+                    else -> MaterialTheme.colorScheme.tertiary
+                }
+                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text("Nomor pesanan", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(id, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                            Surface(shape = RoundedCornerShape(50), color = statusTint.copy(alpha = .10f)) {
+                                Text(status, Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = statusTint, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text("Total pesanan", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(formatRupiah(order.get("amount")?.asLong ?: 0L), style = MaterialTheme.typography.titleMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                            }
+                            TextButton(onClick = {
                             scope.launch {
                                 try {
                                     val response = ApiClient.get(context).order(id)
@@ -1534,8 +1790,9 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                     } else message = response.body()?.error?.message ?: "Detail pesanan belum dapat dimuat."
                                 } catch (_: Exception) { message = "Detail pesanan belum dapat dimuat." }
                             }
-                        }) { Text("Detail & pembayaran") }
-                        TextButton(onClick = {
+                            }) { Text("Detail") }
+                        }
+                        OutlinedButton(onClick = {
                             scope.launch {
                                 trackingLoading = true
                                 try {
@@ -1549,7 +1806,7 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                 } catch (_: Exception) { message = "Informasi pengiriman belum dapat dimuat." }
                                 finally { trackingLoading = false }
                             }
-                        }, enabled = !trackingLoading) { Text(if (trackingLoading) "Memuat pengiriman…" else "Lihat pengiriman") }
+                        }, enabled = !trackingLoading, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp), shape = RoundedCornerShape(12.dp)) { Text(if (trackingLoading) "Memuat pengiriman…" else "Lihat pengiriman") }
                     }
                 }
             }
@@ -1594,22 +1851,26 @@ private fun FavoritesScreen(modifier: Modifier, onBack: () -> Unit) {
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba muat ulang." }
         finally { loading = false }
     }
-    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 18.dp)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
         LunareaScreenHeader("Produk favorit", onBack, "Koleksi furnitur yang Anda simpan")
         if (loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        message?.let { EmptyState(it, { refresh++ }, "Muat ulang") }
+        message?.let { EmptyState(it, {}, "") }
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(rows, key = { it.get("product_id")?.asString.orEmpty() + it.get("variant")?.asString.orEmpty() }) { product ->
                 val id = product.get("product_id")?.asString.orEmpty()
                 val variant = product.get("variant")?.asString.orEmpty()
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        if (product.has("image_url")) AsyncImage(model = product.get("image_url").asString, contentDescription = product.get("name")?.asString, modifier = Modifier.size(66.dp), contentScale = ContentScale.Crop)
-                        Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                            Text(product.get("name")?.asString ?: "Produk Lunarea", fontWeight = FontWeight.SemiBold)
-                            Text(formatRupiah(product.get("price")?.asLong ?: 0L), color = LunareaGreenText)
+                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Surface(shape = RoundedCornerShape(13.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.size(82.dp)) {
+                            if (product.has("image_url") && !product.get("image_url").isJsonNull) {
+                                AsyncImage(model = product.get("image_url").asString, contentDescription = product.get("name")?.asString, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                            } else Box(contentAlignment = Alignment.Center) { Text("L", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText, fontWeight = FontWeight.Bold) }
                         }
-                        TextButton(onClick = {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Text(product.get("name")?.asString ?: "Produk Lunarea", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            if (variant.isNotBlank()) Text(variant, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(formatRupiah(product.get("price")?.asLong ?: 0L), style = MaterialTheme.typography.titleSmall, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                            TextButton(onClick = {
                             scope.launch {
                                 try {
                                     val payload = JsonObject().apply { addProperty("product_id", id); addProperty("variant", variant) }
@@ -1618,7 +1879,8 @@ private fun FavoritesScreen(modifier: Modifier, onBack: () -> Unit) {
                                     else message = response.body()?.error?.message ?: "Produk belum dapat dihapus dari favorit."
                                 } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
                             }
-                        }) { Text("Hapus") }
+                            }, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp), modifier = Modifier.heightIn(min = 36.dp)) { Text("Hapus dari favorit", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge) }
+                        }
                     }
                 }
             }
@@ -1937,7 +2199,6 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
                     cityError?.let { error ->
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                            TextButton(onClick = { province?.let(::loadCities) }, enabled = province != null && !loadingCities) { Text("Muat ulang") }
                         }
                     }
                     RegionSelector("Kecamatan", district, districts, city != null && !loadingDistricts && districts.isNotEmpty(), loadingDistricts) { selected ->
@@ -1948,14 +2209,12 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
                     districtError?.let { error ->
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                            TextButton(onClick = { city?.let(::loadDistricts) }, enabled = city != null && !loadingDistricts) { Text("Muat ulang") }
                         }
                     }
                     RegionSelector("Kelurahan", village, villages, district != null && !loadingVillages && villages.isNotEmpty(), loadingVillages) { village = it }
                     villageError?.let { error ->
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(error, Modifier.weight(1f), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                            TextButton(onClick = { district?.let(::loadVillages) }, enabled = district != null && !loadingVillages) { Text("Muat ulang") }
                         }
                     }
                     OutlinedTextField(detail, { detail = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Jalan, nomor rumah, dan patokan *") }, minLines = 2, enabled = !busy)
@@ -2133,7 +2392,7 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
 }
 
 @Composable
-private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders: () -> Unit) {
+private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders: () -> Unit, onCheckoutConfirmed: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var addresses by remember { mutableStateOf<List<com.google.gson.JsonObject>>(emptyList()) }
@@ -2142,6 +2401,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var quote by remember { mutableStateOf<ShippingOption?>(null) }
     var shippingWeightGrams by remember { mutableIntStateOf(0) }
     var payment by remember { mutableStateOf("bca") }
+    var lastGatewayPayment by remember { mutableStateOf("bca") }
     var paymentMenu by remember { mutableStateOf(false) }
     var quoteMenu by remember { mutableStateOf(false) }
     var usePoints by remember { mutableStateOf(false) }
@@ -2163,6 +2423,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var paymentInstructions by remember { mutableStateOf<com.google.gson.JsonObject?>(null) }
     var checkoutOrderId by remember { mutableStateOf<String?>(null) }
     var checkoutNeedsReview by remember { mutableStateOf(false) }
+    var checkoutStatusUnknown by remember { mutableStateOf(false) }
     var refreshAddress by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(refreshAddress) {
@@ -2264,6 +2525,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     paymentInstructions?.let { instructions ->
         val virtualAccounts = instructions.get("va_numbers")?.takeIf { it.isJsonArray }?.asJsonArray
         val paymentActions = instructions.get("actions")?.takeIf { it.isJsonArray }?.asJsonArray
+        val manualPayment = instructions.get("type")?.asString.orEmpty() == "rekening"
         Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
                 LunareaScreenHeader("Instruksi pembayaran", { paymentInstructions = null }, "Pesanan ${checkoutOrderId.orEmpty()}")
@@ -2272,13 +2534,13 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 item {
                     Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Pesanan berhasil dibuat", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = LunareaGreenText)
-                            Text("Selesaikan pembayaran sesuai informasi berikut.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(if (manualPayment) "Pesanan transfer manual dibuat" else "Pesanan berhasil dibuat", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                            Text(if (manualPayment) "Transfer sesuai nominal ke rekening berikut. Setelah itu, kirim bukti melalui detail pesanan." else "Selesaikan pembayaran sesuai informasi berikut.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(formatRupiah(instructions.get("gross_amount")?.asLong ?: preview?.get("total")?.asLong ?: 0L), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                             OrderInfoRow("Nomor pesanan", checkoutOrderId.orEmpty())
-                            OrderInfoRow("Metode", instructions.get("type")?.asString?.uppercase()?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
+                            OrderInfoRow("Metode", if (manualPayment) "Transfer manual · BRI" else instructions.get("type")?.asString?.uppercase()?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
                             OrderInfoRow("Status", instructions.get("transaction_status")?.asString?.ifBlank { "Menunggu pembayaran" } ?: "Menunggu pembayaran")
-                            instructions.get("expiry_time")?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Batas pembayaran", it) }
+                            instructions.get("expiry_time")?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Batas pembayaran", formatLunareaDateTime(it)) }
                         }
                     }
                 }
@@ -2288,17 +2550,25 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             Text("Nomor pembayaran", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                             virtualAccounts?.forEach { raw -> if (raw.isJsonObject) {
                                 val va = raw.asJsonObject
-                                OrderInfoRow(va.get("bank")?.asString?.uppercase()?.ifBlank { "Virtual Account" } ?: "Virtual Account", va.get("va_number")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
+                                CopyablePaymentValue(if (manualPayment) "Nomor rekening Lunarea" else va.get("bank")?.asString?.uppercase()?.ifBlank { "Virtual Account" } ?: "Virtual Account", va.get("va_number")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
                             } }
+                            if (manualPayment) instructions.get("account_name")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Atas nama", it) }
                         }
                     }
+                }
+                item {
+                    val method = instructions.get("type")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                    instructions.stringOrNull("qr_string")?.takeIf { method == "qris" && it.isNotBlank() }?.let { PaymentQrCard(it) }
                 }
                 item {
                     Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text("Petunjuk pembayaran", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            val method = instructions.get("type")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                            val bank = virtualAccounts?.firstOrNull()?.takeIf { it.isJsonObject }?.asJsonObject?.get("bank")?.asString.orEmpty()
+                            Text(paymentGuidance(method, bank), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             listOf("payment_code" to "Kode pembayaran", "bill_key" to "Kode tagihan", "biller_code" to "Kode penyedia").forEach { (field, label) ->
-                                instructions.get(field)?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow(label, it) }
+                                instructions.get(field)?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { CopyablePaymentValue(label, it) }
                             }
                             paymentActions?.forEach { raw -> if (raw.isJsonObject) {
                                 val action = raw.asJsonObject
@@ -2306,11 +2576,80 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                 val label = action.get("name")?.asString?.replace('_', ' ')?.replaceFirstChar(Char::uppercase) ?: "Buka pembayaran"
                                 if (url.startsWith("https://", ignoreCase = true)) OutlinedButton(onClick = { openWebsite(context, url) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(13.dp)) { Text(label) }
                             } }
-                            Text("Informasi pembayaran juga tersedia kembali pada detail pesanan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(if (manualPayment) "Batas pembayaran 1 jam. Bukti transfer diunggah dari detail pesanan dan akan diperiksa admin." else "Informasi pembayaran juga tersedia kembali pada detail pesanan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
-                item { Button(onClick = onOpenOrders, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) { Text("Buka pesanan saya") } }
+                item { Button(onClick = onOpenOrders, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) { Text(if (manualPayment) "Buka pesanan & kirim bukti" else "Buka pesanan saya") } }
+            }
+        }
+        return
+    }
+
+    if (checkoutNeedsReview) {
+        BackHandler { onBack() }
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
+                LunareaScreenHeader("Konfirmasi pesanan", onBack, checkoutOrderId?.let { "Pesanan $it" } ?: "Status permintaan")
+            }
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.size(72.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(Modifier.size(30.dp), strokeWidth = 3.dp, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+                Text(
+                    if (checkoutStatusUnknown) "Kami sedang memastikan status pesanan" else "Pesanan sedang diproses",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Text(
+                    if (checkoutStatusUnknown)
+                        "Respons sistem belum lengkap. Pesanan mungkin sudah tercatat. Periksa daftar pesanan terlebih dahulu sebelum mencoba lagi."
+                    else
+                        "Permintaan pesanan sudah diterima, tetapi konfirmasi pembayaran belum tersedia. Buka daftar pesanan untuk melihat pembaruan dan instruksi berikutnya.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 23.sp
+                )
+                checkoutOrderId?.takeIf(String::isNotBlank)?.let { orderId ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    ) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Text("Nomor referensi", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(orderId, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+                Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.errorContainer.copy(alpha = .45f)) {
+                    Text(
+                        "Jangan membuat pesanan atau pembayaran baru sampai status ini diperiksa.",
+                        Modifier.fillMaxWidth().padding(14.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+                Button(onClick = onOpenOrders, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) {
+                    Text("Lihat Pesanan Saya")
+                }
+                TextButton(onClick = onBack, modifier = Modifier.heightIn(min = 44.dp)) {
+                    Text("Kembali tanpa membuat pesanan baru")
+                }
             }
         }
         return
@@ -2318,25 +2657,9 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
 
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
-            LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Tinjau alamat, ongkir, dan total pesanan")
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
-                    Text("1", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
-                }
-                Text("Alamat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
-                    Text("2", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
-                }
-                Text("Pengiriman", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
-                    Text("3", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium)
-                }
-                Text("Bayar", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Periksa pilihan dan total pesanan")
         }
-        LazyColumn(Modifier.weight(1f).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(top = 14.dp, bottom = 16.dp)) {
+        LazyColumn(Modifier.weight(1f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(top = 10.dp, bottom = 14.dp)) {
             item {
                 CheckoutSectionHeading("Alamat penerima")
                 if (addresses.isEmpty()) {
@@ -2344,7 +2667,6 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(if (busy) "Memuat alamat…" else "Belum ada alamat pengiriman", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                             Text("Tambahkan alamat tersimpan melalui menu Akun untuk melihat pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            TextButton(onClick = { refreshAddress++ }, enabled = !busy) { Text("Muat ulang alamat") }
                         }
                     }
                 }
@@ -2356,11 +2678,8 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface,
                             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
-                            Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
-                                    Box(contentAlignment = Alignment.Center) { Text("⌖", color = MaterialTheme.colorScheme.onSecondaryContainer, style = MaterialTheme.typography.titleMedium) }
-                                }
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                     Text(selectedAddress?.get("label")?.asString?.ifBlank { "Alamat pengiriman" } ?: "Pilih alamat", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                     Text(selectedAddress?.let { "${it.get("recipient_name")?.asString.orEmpty()} · ${it.get("recipient_phone")?.asString.orEmpty()}" } ?: "Pilih alamat tersimpan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     val savedRegion = selectedAddress?.getAsJsonObject("address")
@@ -2376,7 +2695,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 }
             }
             item {
-                CheckoutSectionHeading("Metode pengiriman", "Tarif mengikuti keranjang dan alamat yang dipilih")
+                CheckoutSectionHeading("Pengiriman", "Pilih layanan dan periksa tarifnya")
                 if (quoteLoading) {
                     LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
                     Text("Menghitung pilihan pengiriman…", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -2384,17 +2703,12 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 if (quotes.isNotEmpty()) {
                     if (shippingWeightGrams > 0) {
                         Text(
-                            "Berat dasar perhitungan ongkir: ${"%.2f".format(Locale("id", "ID"), shippingWeightGrams / 1000.0)} kg",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            "Tarif otomatis menggunakan berat. Ukuran produk ditampilkan sebagai informasi dan belum menjadi dasar tarif.",
+                            "Berat produk ${"%.2f".format(Locale("id", "ID"), shippingWeightGrams / 1000.0)} kg",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         quotes.forEach { option ->
                             val selected = quote?.token == option.token
                             val selectionColor by animateColorAsState(
@@ -2404,13 +2718,13 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             )
                             Surface(
                                 onClick = { quote = option },
-                                shape = RoundedCornerShape(14.dp), color = selectionColor,
+                                shape = RoundedCornerShape(12.dp), color = selectionColor,
                                 border = androidx.compose.foundation.BorderStroke(
                                     1.dp,
                                     if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant
                                 )
                             ) {
-                                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 13.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp), horizontalArrangement = Arrangement.spacedBy(9.dp), verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(selected = selected, onClick = { quote = option }, modifier = Modifier.size(24.dp))
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(option.courier.ifBlank { "Pengiriman" }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -2421,11 +2735,9 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             }
                         }
                     }
-                    TextButton(
-                        onClick = { refreshQuotes++ },
-                        enabled = !quoteLoading,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)
-                    ) { Text("Perbarui pilihan pengiriman", fontSize = 12.sp) }
+                    TextButton(onClick = { refreshQuotes++ }, enabled = !quoteLoading, modifier = Modifier.heightIn(min = 40.dp)) {
+                        Text("Perbarui tarif", fontSize = 12.sp)
+                    }
                 } else if (!quoteLoading) {
                     Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -2438,19 +2750,54 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             }
             item {
                 CheckoutSectionHeading("Metode pembayaran")
-                Box {
-                    OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(12.dp)) {
-                        Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode pembayaran", modifier = Modifier.weight(1f))
-                        Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
-                    }
-                    DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
-                        nativePaymentMethods.forEach { (method, label) ->
-                            DropdownMenuItem(
-                                text = { Text(label) },
-                                onClick = { payment = method; paymentMenu = false }
-                            )
+                val manualSelected = payment == "rekening"
+                listOf(
+                    Triple("rekening", "Transfer manual", "Unggah bukti setelah transfer"),
+                    Triple("midtrans", "Pembayaran otomatis", "VA, QRIS, dan dompet digital")
+                ).forEach { (mode, title, description) ->
+                    val selected = if (mode == "rekening") manualSelected else !manualSelected
+                    Surface(
+                        onClick = {
+                            if (mode == "rekening") {
+                                if (!manualSelected) lastGatewayPayment = payment
+                                payment = "rekening"
+                            } else if (manualSelected) payment = lastGatewayPayment
+                        },
+                        shape = RoundedCornerShape(13.dp),
+                        color = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f) else MaterialTheme.colorScheme.surface,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .65f) else MaterialTheme.colorScheme.outlineVariant
+                        )
+                    ) {
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(selected = selected, onClick = {
+                                if (mode == "rekening") {
+                                    if (!manualSelected) lastGatewayPayment = payment
+                                    payment = "rekening"
+                                } else if (manualSelected) payment = lastGatewayPayment
+                            })
+                            Column(Modifier.weight(1f).padding(start = 8.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
+                }
+                if (!manualSelected) {
+                    Box {
+                        OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
+                            Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode otomatis", modifier = Modifier.weight(1f))
+                            Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
+                        }
+                        DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
+                            nativePaymentMethods.forEach { (method, label) ->
+                                DropdownMenuItem(text = { Text(label) }, onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false })
+                            }
+                        }
+                    }
+                } else {
+                    Text("Bukti transfer akan dikirim dari halaman detail pesanan. Pesanan dikonfirmasi setelah admin memeriksa pembayaran.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             if (availableVouchers.isNotEmpty()) item {
@@ -2511,11 +2858,15 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Text("Subtotal produk: ${formatRupiah(summary.get("subtotal")?.asLong ?: 0L)}")
+                            val shippingSummary = summary.getAsJsonObject("shipping")
+                            Text(
+                                "Ongkir${shippingSummary?.get("courier")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}: ${formatRupiah(shippingSummary?.get("cost")?.asLong ?: 0L)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
                             summary.get("voucher_discount")?.asLong?.takeIf { it > 0 }?.let { Text("Diskon voucher: −${formatRupiah(it)}") }
                             summary.get("points_applied")?.asLong?.takeIf { it > 0 }?.let { Text("Luna Point: −${formatRupiah(it)}") }
                             summary.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let { Text("Proteksi kaca: ${formatRupiah(it)}") }
-                            val shippingSummary = summary.getAsJsonObject("shipping")
-                            Text("Pengiriman${shippingSummary?.get("courier")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}: ${formatRupiah(shippingSummary?.get("cost")?.asLong ?: 0L)}")
                             Text("Biaya administrasi: ${formatRupiah(summary.get("admin_fee")?.asLong ?: 0L)}")
                             HorizontalDivider()
                             Text("Total: ${formatRupiah(summary.get("total")?.asLong ?: 0L)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LunareaGreenText)
@@ -2523,11 +2874,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                     }
                 }
                 message?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
-                orderResult?.let { Text(it, color = if (checkoutNeedsReview) MaterialTheme.colorScheme.error else LunareaGreenText, fontWeight = FontWeight.SemiBold) }
-                if (checkoutNeedsReview) {
-                    Text("Jangan kirim pembayaran ulang. Periksa dahulu apakah pesanan sudah tercatat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    OutlinedButton(onClick = onOpenOrders, modifier = Modifier.fillMaxWidth().heightIn(min = 46.dp), shape = RoundedCornerShape(12.dp)) { Text("Periksa pesanan saya") }
-                }
+                orderResult?.let { Text(it, color = LunareaGreenText, fontWeight = FontWeight.SemiBold) }
             }
         }
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
@@ -2547,7 +2894,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 if (idempotencyKey.isBlank() || savedSignature != signature) idempotencyKey = java.util.UUID.randomUUID().toString()
                 val key = idempotencyKey
                 checkoutPrefs.edit().putString("idempotency_key", key).putString("request_signature", signature).apply()
-                busy = true; orderResult = null; checkoutNeedsReview = false
+                busy = true; orderResult = null; checkoutNeedsReview = false; checkoutStatusUnknown = false
                 scope.launch {
                     try {
                         val payload = JsonObject().apply {
@@ -2561,20 +2908,31 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             val order = data?.getAsJsonObject("order")
                             val orderId = order?.get("id")?.asString ?: data?.get("order_id")?.asString
                             checkoutOrderId = orderId
-                            orderResult = if (response.code() == 202) "Pesanan $orderId sedang dipastikan. Periksa menu Pesanan saya; jangan buat pembayaran baru." else "Pesanan $orderId berhasil dibuat. Lihat instruksi pembayaran pada detail pesanan."
-                            if (response.code() == 202) checkoutNeedsReview = true
+                            orderResult = if (response.code() == 202) "Pesanan sedang diproses. Silakan lihat statusnya di Pesanan Saya." else "Pesanan berhasil dibuat. Lihat instruksi pembayaran pada halaman berikutnya."
+                            if (response.code() == 202) {
+                                checkoutNeedsReview = true
+                                checkoutStatusUnknown = false
+                            }
                             if (response.code() != 202) {
+                                onCheckoutConfirmed()
                                 paymentInstructions = order?.get("payment")?.takeIf { it.isJsonObject }?.asJsonObject
                                 checkoutPrefs.edit().remove("idempotency_key").remove("request_signature").apply()
                                 idempotencyKey = ""
                             }
                         } else {
                             val errorMessage = response.customerError("Pesanan belum berhasil dibuat. Periksa Pesanan saya sebelum mencoba lagi.")
+                            val errorCode = response.body()?.error?.code
                             val incident = response.body()?.error?.request_id?.takeIf { it.matches(Regex("^[a-f0-9]{16}$")) }
                             message = if (incident != null) "$errorMessage (Kode: $incident)" else errorMessage
-                            if (response.code() == 503 || response.code() == 202) {
+                            if (response.code() == 202 || errorCode == "CHECKOUT_UNAVAILABLE") {
                                 checkoutNeedsReview = true
-                                orderResult = "Status pembuatan pesanan belum dapat dipastikan."
+                                checkoutStatusUnknown = true
+                                checkoutOrderId = null
+                                orderResult = "Status permintaan belum dapat dipastikan. Periksa Pesanan Saya sebelum mencoba kembali."
+                            }
+                            if (errorCode == "CHECKOUT_NOT_ENABLED") {
+                                checkoutPrefs.edit().remove("idempotency_key").remove("request_signature").apply()
+                                idempotencyKey = ""
                             }
                             if (response.code() == 422 && Regex("ongkir|pengiriman|quote|alamat", RegexOption.IGNORE_CASE).containsMatchIn(errorMessage)) {
                                 // Refresh stale delivery data before allowing another payment attempt.
@@ -2588,7 +2946,10 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             }
                         }
                     } catch (_: Exception) {
-                        orderResult = "Respons belum dapat dipastikan. Gunakan tombol yang sama agar kunci permintaan tetap sama; jangan buat permintaan baru."
+                        checkoutNeedsReview = true
+                        checkoutStatusUnknown = true
+                        checkoutOrderId = null
+                        orderResult = "Koneksi terputus sebelum status pesanan terkonfirmasi. Periksa Pesanan Saya terlebih dahulu."
                     } finally { busy = false }
                 }
             }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)
@@ -2671,11 +3032,12 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
         finally { busy = false }
     }
-    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Profil saya", onBack, "Kelola informasi akun Anda")
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(88.dp)) {
+        Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+          Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(76.dp)) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "L", style = MaterialTheme.typography.headlineMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
                     photoUrl?.let { url ->
@@ -2691,13 +3053,17 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                     else Text(if (photoUrl.isNullOrBlank()) "Tambah foto profil" else "Ganti foto profil")
                 }
             }
+          }
         }
-        Text("JPG, PNG, atau WebP · Maksimal 2 MB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Text("Informasi pribadi", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        OutlinedTextField(email, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Email") }, enabled = false, singleLine = true)
-        OutlinedTextField(name, { name = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama") }, singleLine = true)
-        OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
+        Text("JPG, PNG, atau WebP · Maksimal 2 MB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp))
+        Text("Informasi pribadi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp, start = 4.dp))
+        Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
+          Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(email, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Email") }, enabled = false, singleLine = true, shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(name, { name = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama") }, singleLine = true, shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true, shape = RoundedCornerShape(12.dp))
+          }
+        }
         Button(enabled = !busy && name.isNotBlank() && phone.isNotBlank(), onClick = {
             scope.launch {
                 busy = true
@@ -2708,7 +3074,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                 } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
                 finally { busy = false }
             }
-        }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
+        }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
         message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = 13.sp) }
     }
 }
@@ -2813,7 +3179,7 @@ private fun CartScreen(
         } else if (loading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
         } else if (message != null) {
-            EmptyState(message, onReload, "Muat ulang")
+            EmptyState(message, {}, "")
         } else if (items.isEmpty()) {
             EmptyState("Keranjang Anda masih kosong.", onBrowse, "Jelajahi katalog")
         } else {
@@ -2896,7 +3262,9 @@ private fun EmptyState(text: String, onAction: () -> Unit, action: String) {
                 }
             }
             Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = MaterialTheme.shapes.medium) { Text(action) }
+            if (action.isNotBlank()) {
+                Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = MaterialTheme.shapes.medium) { Text(action) }
+            }
         }
     }
 }
@@ -2986,7 +3354,7 @@ private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss:
 
 @Composable
 private fun CatalogScreen(
-    modifier: Modifier, tab: AppTab, query: String, onQueryChange: (String) -> Unit,
+    startupComplete: Boolean, modifier: Modifier, tab: AppTab, query: String, onQueryChange: (String) -> Unit,
     signedIn: Boolean, favoriteKeys: Set<String>, cartItemCount: Int,
     onFavoriteKeysChange: (Set<String>) -> Unit, onCartChanged: () -> Unit,
     onOpenCart: () -> Unit, onLoginRequired: (String) -> Unit,
@@ -3018,8 +3386,25 @@ private fun CatalogScreen(
     val latestOnChromeVisibilityChange by rememberUpdatedState(onChromeVisibilityChange)
     val latestChromeVisible by rememberUpdatedState(chromeVisible)
     LaunchedEffect(gridState) {
+        var previousIndex = gridState.firstVisibleItemIndex
+        var previousOffset = gridState.firstVisibleItemScrollOffset
+        snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                val movedDown = index > previousIndex || (index == previousIndex && offset > previousOffset)
+                if (movedDown) searchExpanded = false
+                previousIndex = index
+                previousOffset = offset
+            }
+    }
+    LaunchedEffect(gridState) {
         snapshotFlow { gridState.isScrollInProgress }.collect { scrolling ->
-            if (!scrolling) latestOnChromeVisibilityChange(true)
+            if (scrolling) {
+                // Close the expanded search field as soon as catalog scrolling starts;
+                // the compact search icon remains available in the header.
+                searchExpanded = false
+            } else {
+                latestOnChromeVisibilityChange(true)
+            }
         }
     }
     val pullRefreshConnection = remember(gridState, refreshThresholdPx) {
@@ -3121,8 +3506,8 @@ private fun CatalogScreen(
     }
 
     // Show only server-published, globally available promotions; members also see their claimed vouchers.
-    LaunchedEffect(signedIn, tab) {
-        if (tab != AppTab.HOME || launchVoucherCheckDone) return@LaunchedEffect
+    LaunchedEffect(signedIn, tab, startupComplete) {
+        if (!startupComplete || tab != AppTab.HOME || launchVoucherCheckDone) return@LaunchedEffect
         launchVoucherCheckDone = true
         try {
             val api = ApiClient.get(context)
@@ -3435,7 +3820,6 @@ private fun CatalogScreen(
             Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(message, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
-                TextButton(onClick = onRefresh) { Text("Muat ulang") }
             }
         }
         if (detailLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
@@ -4223,7 +4607,6 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("‹  Akun") }
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = { page = 1; refreshKey++ }, enabled = !loading) { Text("Muat ulang") }
         }
         Text("Luna Poin", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
         Text("Pantau saldo, masa berlaku, dan aktivitas poin Anda.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
@@ -4287,7 +4670,7 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                     Text(row?.stringOrNull("label").orEmpty().ifBlank { "Perubahan poin" }, fontWeight = FontWeight.Medium)
                                     row?.stringOrNull("description")?.takeIf(String::isNotBlank)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                    row?.stringOrNull("date")?.takeIf(String::isNotBlank)?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                    row?.stringOrNull("date")?.takeIf(String::isNotBlank)?.let { Text(formatLunareaDateTime(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                                 }
                                 Text("${if (amount > 0) "+" else ""}${formatRupiah(amount)}", fontWeight = FontWeight.SemiBold,
                                     color = if (amount < 0) MaterialTheme.colorScheme.error else LunareaGreenText)
@@ -4417,11 +4800,67 @@ private fun JsonObject.arrayOrNull(key: String): com.google.gson.JsonArray? =
 private fun JsonObject.longOrNull(key: String): Long? =
     get(key)?.takeUnless { it.isJsonNull }?.let { runCatching { it.asLong }.getOrNull() }
 
+private fun formatLunareaDateTime(raw: String): String {
+    val value = raw.trim()
+    if (value.isEmpty()) return value
+
+    val localeId = Locale("id", "ID")
+    val jakarta = java.util.TimeZone.getTimeZone("Asia/Jakarta")
+    val dateOnly = Regex("^\\d{4}-\\d{2}-\\d{2}$").matches(value)
+    val epoch = value.toLongOrNull()?.let { timestamp ->
+        when (value.length) {
+            10 -> java.util.Date(timestamp * 1_000L)
+            13 -> java.util.Date(timestamp)
+            else -> null
+        }
+    }
+    val parsed = epoch ?: run {
+        val patterns = listOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+            "yyyy-MM-dd'T'HH:mm:ssXXX",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd HH:mm:ss.SSS",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",
+            "dd/MM/yyyy HH:mm:ss",
+            "dd/MM/yyyy HH:mm",
+            "yyyy-MM-dd"
+        )
+        patterns.firstNotNullOfOrNull { pattern ->
+            runCatching {
+                val parser = java.text.SimpleDateFormat(pattern, Locale.US).apply {
+                    isLenient = false
+                    timeZone = if (value.endsWith("Z", ignoreCase = true)) java.util.TimeZone.getTimeZone("UTC") else jakarta
+                }
+                val position = java.text.ParsePosition(0)
+                parser.parse(value, position)?.takeIf { position.index == value.length }
+            }.getOrNull()
+        }
+    } ?: return value
+
+    val outputPattern = if (dateOnly) "dd MMMM yyyy" else "dd MMMM yyyy HH:mm 'WIB'"
+    return java.text.SimpleDateFormat(outputPattern, localeId).apply { timeZone = jakarta }.format(parsed)
+}
+
 private fun formatRupiah(amount: Long): String = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(amount).replace(",00", "")
 
 private fun isUnpaidOrderStatus(status: String): Boolean {
     val normalized = status.trim().lowercase(Locale.ROOT)
     return normalized.contains("pending") || normalized.contains("menunggu pembayaran") || normalized.contains("belum dibayar") || normalized.contains("unpaid")
+}
+
+private fun paymentStatusLabel(status: String?): String = when (status?.trim()?.lowercase(Locale.ROOT)) {
+    "settlement", "capture", "proses", "paid" -> "Pembayaran berhasil"
+    "pending", "pending-rekening", "menunggu pembayaran", "unpaid" -> "Menunggu pembayaran"
+    "expire", "expired", "kadaluarsa" -> "Kedaluwarsa"
+    "cancel", "cancelled", "canceled", "dibatalkan" -> "Dibatalkan"
+    "deny", "denied", "ditolak" -> "Ditolak"
+    "failure", "failed", "gagal" -> "Pembayaran gagal"
+    null, "" -> "Belum tersedia"
+    else -> status.replace('_', ' ').replace('-', ' ').replaceFirstChar(Char::uppercase)
 }
 
 private fun checkoutRequestSignature(addressId: Long, quote: String, payment: String, points: Boolean, glass: Boolean, voucherClaimId: Long = 0L): String {

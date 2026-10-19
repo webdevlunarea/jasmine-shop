@@ -6,7 +6,9 @@
     <application
         android:name=".LunareaApplication"
         android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
         android:label="Lunarea Furniture"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lunarea.Splash">
         <meta-data
@@ -18,7 +20,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/lunarea_brand_green" />
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Lunarea.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
