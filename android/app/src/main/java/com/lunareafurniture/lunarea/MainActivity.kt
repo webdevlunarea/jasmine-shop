@@ -488,12 +488,17 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                     cartMessage = null
                     notificationMessage = null
                     notificationsEnabled = false
-                    message = "Sedang keluar dari akun…"
+                    message = null
                     scope.launch {
                         busy = true
-                        val result = auth.logout()
-                        message = if (result.isSuccess) "Anda telah keluar dari akun." else "Anda telah keluar. Sinkronisasi notifikasi perangkat akan diperbarui saat koneksi tersedia."
-                        busy = false
+                        try {
+                            auth.logout()
+                        } finally {
+                            // Local sign-out already completed. Do not leave a success
+                            // banner in the signed-out screen or retain stale account state.
+                            message = null
+                            busy = false
+                        }
                     }
                 },
                     shape = RoundedCornerShape(14.dp),
