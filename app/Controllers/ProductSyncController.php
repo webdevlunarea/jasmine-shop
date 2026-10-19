@@ -14,6 +14,7 @@ class ProductSyncController extends BaseController
     protected $barangModel;
     protected $stokModel;
     protected $konstantaModel;
+    private array $backInStockEvents = [];
 
     public function __construct()
     {
@@ -73,6 +74,7 @@ class ProductSyncController extends BaseController
         ];
 
         $db = db_connect();
+        $this->backInStockEvents = [];
         $lockName = 'lunarea_catalog_identity_' . substr(hash('sha256', $db->getDatabase()), 0, 24);
         $locked = (int)($db->query('SELECT GET_LOCK(?, 5) AS acquired', [$lockName])->getRowArray()['acquired'] ?? 0);
         if ($locked !== 1) return $this->response->setStatusCode(409)->setJSON(['success'=>false, 'message'=>'Sinkron katalog sedang berjalan. Coba kembali setelah selesai.']);
@@ -175,6 +177,16 @@ class ProductSyncController extends BaseController
 
         if (!$dryRun) {
             if ($db->transStatus() === false || !$db->transCommit()) throw new \RuntimeException('Catalog transaction failed');
+            foreach ($this->backInStockEvents as $event) {
+                try {
+                    (new \App\Services\Notifications\BackInStockNotificationService())->notify(
+                        $event['product_id'], $event['name'], $event['variant'], $event['event_id']
+                    );
+                } catch (\Throwable $e) {
+                    // Notification delivery is optional and must not roll back authoritative inventory.
+                    log_message('warning', 'Back-in-stock notification enqueue failed for product {product}.', ['product' => $event['product_id']]);
+                }
+            }
         }
         } catch (\Throwable $error) {
             if (!$dryRun) $db->transRollback();
@@ -322,7 +334,7 @@ class ProductSyncController extends BaseController
             if ($previousStock === $currentStock) continue;
 
             $this->persistStockRow([
-                'id' => random_int(1000000000, 2147483647),
+                'id' => $stockEventId = random_int(1000000000, 2147483647),
                 'id_barang' => $existing['id'],
                 'nama' => $syncData['nama'],
                 'varian' => $variantName,
@@ -332,6 +344,12 @@ class ProductSyncController extends BaseController
                 'stok_akhir' => $currentStock,
                 'tanggal' => date('Y-m-d H:i:s'),
             ], $dryRun);
+            if (!$dryRun && $previousStock <= 0 && $currentStock > 0 && (string)($syncData['active'] ?? '1') === '1') {
+                $this->backInStockEvents[] = [
+                    'product_id' => (string)$existing['id'], 'name' => (string)$syncData['nama'],
+                    'variant' => (string)$variantName, 'event_id' => (string)$stockEventId,
+                ];
+            }
         }
     }
 

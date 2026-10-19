@@ -69,7 +69,7 @@ class LunaMappingAdmin extends BaseController
         \Config\Services::security()->verify($this->request);
         $id = $this->request->getPost('website_id');
         $target = '/lunamappingadmin';
-        $db = null; $locked = false; $begun = false;
+        $db = null; $locked = false; $begun = false; $backInStockEvents = [];
         try {
             if (!is_string($id) || !preg_match('/^[A-Za-z0-9_-]{1,15}$/D', $id)) throw new \DomainException('ID produk website tidak valid.');
             $target .= '?product=' . rawurlencode($id);
@@ -108,8 +108,9 @@ class LunaMappingAdmin extends BaseController
                     $previous = (int)($oldStocks[$index] ?? 0);
                     $current = (int)$entry['stock'];
                     if ($previous === $current) continue;
+                    $stockEventId = (string)random_int(1000000000, 2147483647);
                     $record = [
-                        'id'=>(string)random_int(1000000000, 2147483647),
+                        'id'=>$stockEventId,
                         'id_barang'=>$id,
                         'nama'=>(string)$row['nama'],
                         'varian'=>(string)$entry['variant'],
@@ -121,11 +122,27 @@ class LunaMappingAdmin extends BaseController
                     ];
                     LunaCatalogSchema::stock($record, $nameCapacity);
                     if (!$history->insert($record)) throw new \RuntimeException('Stock history insert failed');
+                    if ($previous <= 0 && $current > 0 && (string)($row['active'] ?? '1') === '1') {
+                        $backInStockEvents[] = [
+                            'product_id' => (string)$id, 'name' => (string)$row['nama'],
+                            'variant' => (string)$entry['variant'], 'event_id' => $stockEventId,
+                        ];
+                    }
                 }
             }
             $model->saveLunaProductIdentity($id, $identity);
             if (!$db->transStatus() || !$db->transCommit()) throw new \RuntimeException('Commit failed');
             $begun = false;
+            foreach ($backInStockEvents as $event) {
+                try {
+                    (new \App\Services\Notifications\BackInStockNotificationService())->notify(
+                        $event['product_id'], $event['name'], $event['variant'], $event['event_id']
+                    );
+                } catch (\Throwable $e) {
+                    // Stock mapping has committed; an optional push queue failure must not undo it.
+                    log_message('warning', 'Back-in-stock notification enqueue failed for product {product}.', ['product' => $event['product_id']]);
+                }
+            }
             log_message('info', 'Admin menyimpan pemetaan MyLuna untuk produk {product}.', ['product'=>$id]);
             $message = 'Pasangan produk dan varian tersimpan. Stok Lunarea diselaraskan dari MyLuna; gambar, harga, ID, dan pesanan lama tetap utuh.';
         } catch (\DomainException $e) { $message = $e->getMessage(); }
