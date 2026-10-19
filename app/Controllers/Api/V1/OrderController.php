@@ -43,6 +43,10 @@ class OrderController extends ApiController
                 'gross_amount' => max(0, (int)($payment['gross_amount'] ?? 0)),
                 'expiry_time' => $payment['expiry_time'] ?? null,
                 'va_numbers' => $this->safeVaNumbers($payment),
+                'payment_code' => $payment['payment_code'] ?? null,
+                'bill_key' => $payment['bill_key'] ?? null,
+                'biller_code' => $payment['biller_code'] ?? null,
+                'actions' => $this->safePaymentActions($payment),
             ],
         ]]);
     }
@@ -133,6 +137,21 @@ class OrderController extends ApiController
             $result[] = ['bank' => (string)($entry['bank'] ?? ''), 'number' => (string)($entry['va_number'] ?? '')];
         }
         if (!empty($payment['permata_va_number'])) $result[] = ['bank' => 'permata', 'number' => (string)$payment['permata_va_number']];
+        return $result;
+    }
+
+    private function safePaymentActions(array $payment): array
+    {
+        $result = [];
+        foreach (($payment['actions'] ?? []) as $action) {
+            if (!is_array($action)) continue;
+            $url = (string)($action['url'] ?? '');
+            if (strtolower((string)parse_url($url, PHP_URL_SCHEME)) !== 'https') continue;
+            $result[] = [
+                'name' => substr((string)($action['name'] ?? 'payment'), 0, 60),
+                'url' => $url,
+            ];
+        }
         return $result;
     }
 }

@@ -23,8 +23,11 @@ final class CheckoutController extends ApiController
 
     public function createOrder()
     {
-        $throttler = service('throttler');
         $email = $this->authEmail();
+        if (!\App\Services\Payments\PaymentSafety::nativeCheckoutEnabledFor($email)) {
+            return $this->failure('CHECKOUT_NOT_ENABLED', 'Pembayaran melalui aplikasi belum diaktifkan.', 503);
+        }
+        $throttler = service('throttler');
         if (!$throttler->check('lunarea-api-checkout-' . hash('sha256', $email), 5, 60)) {
             return $this->failure('RATE_LIMITED', 'Checkout terlalu sering diminta. Coba lagi sebentar.', 429);
         }
@@ -38,8 +41,24 @@ final class CheckoutController extends ApiController
         } catch (DomainException $e) {
             return $this->failure('CHECKOUT_VALIDATION_FAILED', $e->getMessage(), 422);
         } catch (\Throwable $e) {
-            log_message('error', 'Customer API order creation deferred: ' . get_class($e));
-            return $this->failure('CHECKOUT_UNAVAILABLE', 'Checkout belum dapat diproses. Periksa status pesanan sebelum mencoba lagi.', 503);
+            $incidentId = bin2hex(random_bytes(8));
+            // Keep database/provider exception text out of customer responses and
+            // logs (it may contain SQL values), while retaining a traceable cause.
+            log_message('error', 'Customer API order creation deferred [{incident}]: {type} code={code} at {file}:{line}', [
+                'incident' => $incidentId,
+                'type' => get_class($e),
+                'code' => (string)$e->getCode(),
+                'file' => basename($e->getFile()),
+                'line' => (string)$e->getLine(),
+            ]);
+            return $this->response->setStatusCode(503)->setJSON([
+                'success' => false,
+                'error' => [
+                    'code' => 'CHECKOUT_UNAVAILABLE',
+                    'message' => 'Checkout belum dapat dipastikan. Periksa pesanan saya sebelum mencoba lagi.',
+                    'request_id' => $incidentId,
+                ],
+            ]);
         }
     }
 }
