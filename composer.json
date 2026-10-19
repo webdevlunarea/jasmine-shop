@@ -10,9 +10,10 @@
         "slack": "https://codeigniterchat.slack.com"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "codeigniter4/framework": "^4.0",
         "dompdf/dompdf": "~3.1.0",
+        "google/apiclient": "^2.18",
         "kiriminaja/kiriminaja-php": "^1.2",
         "midtrans/midtrans-php": "^2.5",
         "textalk/websocket": "^1.5"

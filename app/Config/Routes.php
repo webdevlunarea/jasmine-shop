@@ -11,6 +11,7 @@ $routes->get('/', 'Pages::index');
 // bearer tokens; state-changing API calls do not rely on browser cookies/CSRF.
 $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
     $routes->post('auth/login', 'Api\\V1\\AuthController::login');
+    $routes->post('auth/google', 'Api\\V1\\AuthController::googleLogin');
     $routes->post('auth/refresh', 'Api\\V1\\AuthController::refresh');
     $routes->post('auth/register', 'Api\\V1\\AuthController::register');
     $routes->post('auth/verify-email', 'Api\\V1\\AuthController::verifyEmail');

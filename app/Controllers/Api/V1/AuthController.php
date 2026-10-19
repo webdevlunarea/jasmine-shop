@@ -5,6 +5,7 @@ namespace App\Controllers\Api\V1;
 use App\Models\PembeliModel;
 use App\Models\UserModel;
 use App\Services\Auth\CustomerApiTokens;
+use App\Services\Auth\GoogleCustomerAuthenticator;
 use App\Services\Auth\CustomerEmailChanges;
 use App\Services\Auth\CustomerRegistrationService;
 use App\Services\Auth\CustomerPasswordChange;
@@ -146,6 +147,31 @@ class AuthController extends ApiController
                 'phone' => (string)($profile['nohp'] ?? ''),
             ],
         ]);
+    }
+
+    public function googleLogin()
+    {
+        $input = $this->payload();
+        $idToken = $input['id_token'] ?? null;
+        if (!is_string($idToken) || $idToken === '' || strlen($idToken) > 8192) {
+            return $this->failure('VALIDATION_ERROR', 'Token Google tidak valid.', 422);
+        }
+        if (!$this->allowAuthAttempt('google-login', hash('sha256', $idToken), 8, 300)) {
+            return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan masuk dengan Google. Coba lagi nanti.', 429);
+        }
+        try {
+            $customer = (new GoogleCustomerAuthenticator())->authenticate($idToken);
+            $tokens = (new CustomerApiTokens())->issue(
+                $customer['email'],
+                is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android'
+            );
+        } catch (\DomainException $e) {
+            return $this->failure('GOOGLE_LOGIN_REJECTED', $e->getMessage(), 401);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API Google login failed: ' . get_class($e));
+            return $this->failure('GOOGLE_LOGIN_UNAVAILABLE', 'Masuk dengan Google sementara terganggu. Coba lagi nanti.', 503);
+        }
+        return $this->success(['tokens' => $tokens, 'customer' => $customer]);
     }
 
     public function changePassword()
