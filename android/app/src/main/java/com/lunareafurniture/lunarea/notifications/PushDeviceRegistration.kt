@@ -26,6 +26,10 @@ class PushDeviceRegistration(context: Context) {
     /** True only after the API confirms this installation is persisted for the signed-in account. */
     fun isRegistered(): Boolean = consentStore.getBoolean("push_device_registered", false)
     fun isExplicitlyDisabled(): Boolean = consentStore.getBoolean("push_explicitly_disabled", false)
+    fun shouldRefreshRegistration(now: Long = System.currentTimeMillis()): Boolean {
+        val lastSuccess = consentStore.getLong("push_registration_success_at", 0L)
+        return lastSuccess <= 0L || now - lastSuccess >= REGISTRATION_REFRESH_INTERVAL_MS
+    }
 
     fun markUnregistered() {
         consentStore.edit().putBoolean("push_device_registered", false).apply()
@@ -51,7 +55,9 @@ class PushDeviceRegistration(context: Context) {
         consentStore.edit().putBoolean("push_opt_in", true).putBoolean("push_explicitly_disabled", false)
             .putBoolean("push_device_registered", false).apply()
         // Keep consent after transient network/API failures so login or WorkManager can retry.
-        return registerAfterOptIn()
+        val result = registerAfterOptIn()
+        if (result.isFailure) enqueueRetry(appContext)
+        return result
     }
 
     suspend fun disableAndUnregister(): Result<Unit> {
@@ -83,7 +89,10 @@ class PushDeviceRegistration(context: Context) {
         check(payload?.success == true && payload.data?.get("registered")?.asBoolean == true) {
             payload?.error?.message ?: "Server belum mengonfirmasi pendaftaran perangkat. Coba lagi."
         }
-        consentStore.edit().putBoolean("push_device_registered", true).apply()
+        consentStore.edit()
+            .putBoolean("push_device_registered", true)
+            .putLong("push_registration_success_at", System.currentTimeMillis())
+            .apply()
         true
     }
 
@@ -106,6 +115,8 @@ class PushDeviceRegistration(context: Context) {
         ContextCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
     companion object {
+        private const val REGISTRATION_REFRESH_INTERVAL_MS = 24L * 60L * 60L * 1000L
+
         fun enqueueRetry(context: Context) {
             val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             val work = OneTimeWorkRequestBuilder<RegisterPushDeviceWorker>().setConstraints(constraints).build()

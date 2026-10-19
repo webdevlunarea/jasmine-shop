@@ -68,7 +68,7 @@ jobs:
             -o ServerAliveInterval=15 \
             -o ServerAliveCountMax=3 \
             "${VPS_USER}@${VPS_IP}" \
-            "cd /mine/lunareafurniture.com/jasmine-shop && git pull"
+            "cd /mine/lunareafurniture.com/jasmine-shop && { grep -Eq '^[[:space:]]*encryption\\.key[[:space:]]*=[[:space:]]*hex2bin:[0-9a-fA-F]{64}[[:space:]]*$' .env || { echo 'Deploy dibatalkan: encryption.key produksi belum tersedia; periksa .env.'; exit 1; }; } && { runuser -u nobody -- grep -Eq '^[[:space:]]*encryption\\.key[[:space:]]*=[[:space:]]*hex2bin:[0-9a-fA-F]{64}[[:space:]]*$' .env || { echo 'Deploy dibatalkan: user web tidak dapat membaca encryption.key.'; exit 1; }; } && git pull"
           then
             echo "Deploy success"
             exit 0
