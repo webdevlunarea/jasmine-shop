@@ -15,13 +15,18 @@ android {
         versionName = "0.1.0"
         buildConfigField("String", "API_BASE_URL", "\"https://lunareafurniture.com/api/v1/\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"520531202813-voubv1urfgrmeg8l813i4d3qh9r8i2g6.apps.googleusercontent.com\"")
+        buildConfigField("String", "RECAPTCHA_ANDROID_KEY_ID", "\"6LdhT_YtAAAAAPXNKQu3-4owL1D6Yb97D4qZzIW_\"")
     }
     buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+}
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -35,6 +40,7 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.coil.compose)
+    implementation(libs.google.recaptcha)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

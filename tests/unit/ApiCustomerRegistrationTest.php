@@ -28,7 +28,7 @@ final class ApiCustomerRegistrationTest extends CIUnitTestCase
                 $error = $this->captchaError;
                 return new class($error) extends RecaptchaVerifier {
                     public function __construct(private ?string $error) {}
-                    public function error($token): ?string { return $this->error; }
+                    public function error($token, string $platform = 'web', string $expectedAction = ''): ?string { return $this->error; }
                 };
             }
             protected function customerRegistrations(): CustomerRegistrationService

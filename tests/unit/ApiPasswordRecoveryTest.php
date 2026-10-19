@@ -29,7 +29,7 @@ final class ApiPasswordRecoveryTest extends CIUnitTestCase
                 return new class($message) extends RecaptchaVerifier {
                     private ?string $message;
                     public function __construct(?string $message) { $this->message = $message; }
-                    public function error($token): ?string { return $this->message; }
+                    public function error($token, string $platform = 'web', string $expectedAction = ''): ?string { return $this->message; }
                 };
             }
         };

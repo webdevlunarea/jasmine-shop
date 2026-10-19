@@ -13,6 +13,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.lunareafurniture.lunarea.BuildConfig
 import com.lunareafurniture.lunarea.data.security.SecureTokenStore
 import com.lunareafurniture.lunarea.notifications.PushDeviceRegistration
+import com.lunareafurniture.lunarea.security.AndroidRecaptcha
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -22,7 +23,8 @@ class AuthRepository(context: Context) {
     private val api get() = ApiClient.get(appContext)
 
     suspend fun login(identifier: String, password: String): Result<Unit> = runCatching {
-        val response = api.login(LoginRequest(identifier.trim(), password))
+        val captchaToken = AndroidRecaptcha.token(appContext as android.app.Application, "login")
+        val response = api.login(LoginRequest(identifier.trim(), password, captcha_token = captchaToken))
         val body = response.body()
         val pair = body?.data?.tokens
         check(response.isSuccessful && body?.success == true && pair != null) {

@@ -87,6 +87,7 @@ import com.lunareafurniture.lunarea.data.resolveCurrentAddress
 import com.google.gson.JsonObject
 import com.lunareafurniture.lunarea.notifications.PushDeviceRegistration
 import com.lunareafurniture.lunarea.notifications.rememberNotificationPermissionRequester
+import com.lunareafurniture.lunarea.security.AndroidRecaptcha
 import com.lunareafurniture.lunarea.ui.theme.LunareaTheme
 import com.lunareafurniture.lunarea.ui.theme.LunareaGreenText
 import com.lunareafurniture.lunarea.ui.theme.LunareaSpacing
@@ -1036,16 +1037,18 @@ private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onR
                 scope.launch {
                     busy = true; message = null
                     try {
+                        val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "signup")
                         val payload = JsonObject().apply {
                             addProperty("name", name.trim()); addProperty("email", email.trim().lowercase(Locale.ROOT))
                             addProperty("phone", phone.trim()); addProperty("password", password)
                             addProperty("password_confirmation", confirmation); addProperty("consent", true)
+                            addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
                         }
                         val response = ApiClient.get(context).register(payload)
                         val body = response.body()
                         if (response.isSuccessful && body?.success == true) onRegistered(email.trim().lowercase(Locale.ROOT))
                         else message = response.customerError("Pendaftaran belum berhasil. Periksa kembali data Anda.")
-                    } catch (_: Exception) { message = "Koneksi belum tersedia. Data belum terkirim; coba lagi." }
+                    } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Data belum terkirim; coba lagi." }
                     finally { busy = false }
                 }
             },
@@ -1092,10 +1095,14 @@ private fun NativeVerificationScreen(modifier: Modifier, initialEmail: String, o
             scope.launch {
                 busy = true; message = null
                 try {
-                    val payload = JsonObject().apply { addProperty("email", email.trim().lowercase(Locale.ROOT)) }
+                    val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "verification_resend")
+                    val payload = JsonObject().apply {
+                        addProperty("email", email.trim().lowercase(Locale.ROOT))
+                        addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
+                    }
                     val response = ApiClient.get(context).resendVerification(payload)
                     message = if (response.isSuccessful && response.body()?.success == true) "Jika akun menunggu verifikasi dan jeda terpenuhi, kode baru akan dikirim." else response.customerError("Kode belum dapat dikirim ulang.")
-                } catch (_: Exception) { message = "Koneksi belum tersedia. Coba kirim ulang nanti." }
+                } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Coba kirim ulang nanti." }
                 finally { busy = false }
             }
         }, enabled = !busy && email.contains('@'), modifier = Modifier.fillMaxWidth().height(48.dp), shape = MaterialTheme.shapes.medium) { Text("Kirim ulang kode") }
@@ -1132,7 +1139,11 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
                 try {
                     val api = ApiClient.get(context)
                     if (stage == 0) {
-                        val payload = JsonObject().apply { addProperty("identity", identity.trim()) }
+                        val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "password_reset_request")
+                        val payload = JsonObject().apply {
+                            addProperty("identity", identity.trim())
+                            addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
+                        }
                         val response = api.requestPasswordReset(payload)
                         if (response.isSuccessful && response.body()?.success == true) {
                             stage = 1
@@ -1147,7 +1158,7 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
                         if (response.isSuccessful && response.body()?.success == true) onCompleted(identity.trim())
                         else message = response.customerError("Kode tidak valid atau sandi belum dapat diubah.")
                     }
-                } catch (_: Exception) { message = "Koneksi belum tersedia. Data belum terkirim; coba lagi." }
+                } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Data belum terkirim; coba lagi." }
                 finally { busy = false }
             }
         }, enabled = !busy && if (stage == 0) identity.trim().isNotEmpty() else code.length == 6 && newPasswordValid && confirmation == newPassword,
@@ -1158,9 +1169,13 @@ private fun NativeRecoveryScreen(modifier: Modifier, onBack: () -> Unit, onCompl
             scope.launch {
                 busy = true
                 try {
-                    val response = ApiClient.get(context).requestPasswordReset(JsonObject().apply { addProperty("identity", identity.trim()) })
+                    val captchaToken = AndroidRecaptcha.token(context.applicationContext as android.app.Application, "password_reset_request")
+                    val response = ApiClient.get(context).requestPasswordReset(JsonObject().apply {
+                        addProperty("identity", identity.trim())
+                        addProperty("captcha_token", captchaToken); addProperty("captcha_platform", "android")
+                    })
                     message = if (response.isSuccessful && response.body()?.success == true) "Jika data cocok dan jeda permintaan terpenuhi, kode baru akan dikirim." else response.customerError("Kode belum dapat dikirim ulang.")
-                } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi nanti." }
+                } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Coba lagi nanti." }
                 finally { busy = false }
             }
         }) { Text("Kirim ulang kode") }

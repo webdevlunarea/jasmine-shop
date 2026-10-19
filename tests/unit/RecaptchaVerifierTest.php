@@ -151,4 +151,79 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
         $this->assertStringContainsString("'Pages::actionSignup', ['filter' => ['harusLogout', 'csrf']]", $routes);
         $this->assertStringContainsString("$"."routes->post('/updatetransaction', 'Pages::updateTransaction');", $routes);
     }
+
+    public function testAndroidAssessmentValidatesTokenActionPackageAndScore(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'lunarea-recaptcha-');
+        file_put_contents($path, '{}');
+        try {
+            $config = new Recaptcha();
+            $config->androidEnabled = true;
+            $config->androidProjectId = 'test-project';
+            $config->androidSiteKey = 'test-key';
+            $config->androidPackageName = 'com.lunareafurniture.lunarea';
+            $config->androidServiceAccountPath = $path;
+            $config->androidMinimumScore = 0.5;
+            $google = new class {
+                public function setAuthConfig(string $path): void {}
+                public function setScopes(array $scopes): void {}
+                public function fetchAccessTokenWithAssertion(): array { return ['access_token' => 'test-access']; }
+            };
+            $http = new class {
+                public array $options = [];
+                public function post(string $url, array $options)
+                {
+                    $this->options = $options;
+                    return new class {
+                        public function getStatusCode(): int { return 200; }
+                        public function getBody(): string
+                        {
+                            return json_encode(['tokenProperties' => ['valid' => true, 'action' => 'signup', 'androidPackageName' => 'com.lunareafurniture.lunarea'], 'riskAnalysis' => ['score' => 0.9]]);
+                        }
+                    };
+                }
+            };
+            $verifier = new RecaptchaVerifier($config, $http, static fn () => $google);
+            $this->assertNull($verifier->error('opaque-token', 'android', 'signup'));
+            $this->assertSame('signup', $http->options['json']['event']['expectedAction']);
+            $this->assertSame('test-key', $http->options['json']['event']['siteKey']);
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    public function testAndroidAssessmentRejectsActionMismatchAndLowScore(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'lunarea-recaptcha-');
+        file_put_contents($path, '{}');
+        try {
+            $config = new Recaptcha();
+            $config->androidEnabled = true;
+            $config->androidProjectId = 'test-project';
+            $config->androidSiteKey = 'test-key';
+            $config->androidPackageName = 'com.lunareafurniture.lunarea';
+            $config->androidServiceAccountPath = $path;
+            $google = new class {
+                public function setAuthConfig(string $path): void {}
+                public function setScopes(array $scopes): void {}
+                public function fetchAccessTokenWithAssertion(): array { return ['access_token' => 'test-access']; }
+            };
+            $http = new class {
+                public function post(string $url, array $options)
+                {
+                    return new class {
+                        public function getStatusCode(): int { return 200; }
+                        public function getBody(): string
+                        {
+                            return json_encode(['tokenProperties' => ['valid' => true, 'action' => 'other_action', 'androidPackageName' => 'com.lunareafurniture.lunarea'], 'riskAnalysis' => ['score' => 0.1]]);
+                        }
+                    };
+                }
+            };
+            $verifier = new RecaptchaVerifier($config, $http, static fn () => $google);
+            $this->assertNotNull($verifier->error('opaque-token', 'android', 'signup'));
+        } finally {
+            @unlink($path);
+        }
+    }
 }

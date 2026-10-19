@@ -47,7 +47,7 @@ class AuthController extends ApiController
         if (!$this->allowAuthAttempt('register', $email, 6, 3600)) {
             return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan pendaftaran. Coba lagi nanti.', 429);
         }
-        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null)) {
+        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null, 'android', 'signup')) {
             return $this->failure('CAPTCHA_REQUIRED', $error, 422);
         }
         try {
@@ -101,7 +101,7 @@ class AuthController extends ApiController
         if (!$this->allowAuthAttempt('resend-verification', $email, 6, 3600)) {
             return $this->failure('RATE_LIMITED', 'Terlalu banyak permintaan kode. Coba lagi nanti.', 429);
         }
-        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null)) {
+        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null, 'android', 'verification_resend')) {
             return $this->failure('CAPTCHA_REQUIRED', $error, 422);
         }
         try { $this->customerRegistrations()->resend($email); }
@@ -122,6 +122,9 @@ class AuthController extends ApiController
         }
         if (!$this->allowAuthAttempt('login', $identifier, 8, 300)) {
             return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan masuk. Coba lagi beberapa menit.', 429);
+        }
+        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null, 'android', 'login')) {
+            return $this->failure('CAPTCHA_REQUIRED', $error, 422);
         }
         $model = new UserModel();
         $isEmail = strpos($identifier, '@') !== false;
@@ -269,7 +272,7 @@ class AuthController extends ApiController
         if ($identity === '' || strlen($identity) > 254) {
             return $this->failure('VALIDATION_ERROR', 'Masukkan email atau username akun.', 422, ['identity' => 'Format tidak valid.']);
         }
-        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null)) {
+        if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null, 'android', 'password_reset_request')) {
             return $this->failure('CAPTCHA_REQUIRED', $error, 422);
         }
         try {
