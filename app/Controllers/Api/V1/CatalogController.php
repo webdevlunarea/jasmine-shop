@@ -4,6 +4,7 @@ namespace App\Controllers\Api\V1;
 
 use App\Models\BarangModel;
 use App\Models\GambarBarangModel;
+use App\Models\RatingModel;
 use App\Services\Api\ApiPagination;
 use App\Services\ProductVariantStock;
 
@@ -54,6 +55,25 @@ class CatalogController extends ApiController
         if (!$row) return $this->failure('PRODUCT_NOT_FOUND', 'Produk tidak ditemukan.', 404);
         $product = $this->publicProduct($row, true);
         $product['images'] = $this->productImageUrls((string)$row['id']);
+        $ratingModel = new RatingModel();
+        $product['review_summary'] = $ratingModel->getStats((string)$row['id']);
+        $product['reviews'] = array_map(static function (array $review): array {
+            $name = trim((string)($review['nama_pembeli'] ?? ''));
+            $parts = preg_split('/\s+/', $name) ?: [];
+            $masked = array_map(static function (string $part): string {
+                $length = mb_strlen($part);
+                if ($length <= 2) return $part;
+                if ($length <= 4) return mb_substr($part, 0, 1) . str_repeat('*', $length - 2) . mb_substr($part, -1);
+                return mb_substr($part, 0, 2) . str_repeat('*', $length - 3) . mb_substr($part, -1);
+            }, $parts);
+
+            return [
+                'rating' => (int)($review['rating'] ?? 0),
+                'name' => $masked ? implode(' ', $masked) : 'Pembeli Lunarea',
+                'comment' => trim((string)($review['komentar'] ?? '')),
+                'created_at' => (string)($review['created_at'] ?? ''),
+            ];
+        }, $ratingModel->where('id_barang', (string)$row['id'])->orderBy('created_at', 'DESC')->findAll(30));
         return $this->success(['product' => $product]);
     }
 

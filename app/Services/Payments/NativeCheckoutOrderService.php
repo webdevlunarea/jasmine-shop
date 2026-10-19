@@ -28,7 +28,8 @@ final class NativeCheckoutOrderService
     {
         $email = strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new DomainException('Akun pelanggan tidak valid.');
-        if (filter_var(env('LUNAREA_ANDROID_CHECKOUT_ENABLED', false), FILTER_VALIDATE_BOOLEAN) !== true) {
+        $sandbox = PaymentSafety::isTestEmail($email, PaymentSafety::testAccountEmails());
+        if (!PaymentSafety::nativeCheckoutEnabledFor($email)) {
             throw new RuntimeException('Checkout aplikasi belum diaktifkan.');
         }
         $this->assertTransactionalStorage((int)($input['voucher_claim_id'] ?? 0) > 0);
@@ -84,9 +85,6 @@ final class NativeCheckoutOrderService
                 $initial, $candidateId, $email, $name, $phone,
                 isset($input['card_token']) ? (string)$input['card_token'] : null
             );
-            $sandbox = PaymentSafety::isTestEmail($email, [
-                'galihsuks123@gmail.com', 'lunareafurniture@gmail.com', 'galih8.4.2001@gmail.com', 'uuua5021@gmail.com',
-            ]);
             $serverKey = trim((string)env($sandbox ? 'MIDTRANS_SANDBOX_KEY' : 'MIDTRANS_PRODUCTION_KEY', ''));
             if ($serverKey === '' || $serverKey === 'DefaultValue') throw new RuntimeException('Payment configuration unavailable');
 

@@ -45,6 +45,14 @@ final class PaymentSafetyTest extends CIUnitTestCase
         $order['data_mid']='{}';$order['email_cus']=' BUYER@EXAMPLE.TEST ';
         $this->assertSame('sandbox',PaymentSafety::environment($order,['buyer@example.test'],'email_cus'));
     }
+    public function testNativeTestingAccountIsRoutedToSandbox(): void
+    {
+        $this->assertTrue(PaymentSafety::isTestEmail('UUUA5032@gmail.com', PaymentSafety::testAccountEmails()));
+        $order = ['email_cus' => 'uuua5032@gmail.com', 'data_mid' => '{}'];
+        $this->assertSame('sandbox', PaymentSafety::environment($order, PaymentSafety::testAccountEmails(), 'email_cus'));
+        $this->assertTrue(PaymentSafety::nativeCheckoutEnabledFor('uuua5032@gmail.com'));
+        $this->assertFalse(PaymentSafety::nativeCheckoutEnabledFor('regular-customer@example.test'));
+    }
     /** @dataProvider transitions */
     public function testStateTransitionPolicy(string $old, ?string $new, bool $allowed): void
     {

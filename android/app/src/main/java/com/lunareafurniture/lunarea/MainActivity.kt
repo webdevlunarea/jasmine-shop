@@ -3171,7 +3171,7 @@ private fun CatalogScreen(
             detailError = null
             try {
                 val response = ApiClient.get(context).product(product.id)
-                val data = response.body()?.data
+                val data = response.body()?.data?.getAsJsonObject("product")
                 if (response.isSuccessful && response.body()?.success == true && data != null) {
                     productDetail = data
                     onDetailVisibility(true)
@@ -3246,7 +3246,7 @@ private fun CatalogScreen(
                 detailError = null
                 try {
                     val response = ApiClient.get(context).product(product.id)
-                    val data = response.body()?.data
+                    val data = response.body()?.data?.getAsJsonObject("product")
                     if (response.isSuccessful && response.body()?.success == true && data != null) {
                         productDetail = data
                         onDetailVisibility(true)
@@ -3812,6 +3812,15 @@ private fun ProductDetailScreen(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
+                    if (sheet == ProductInfoSheet.REVIEWS) {
+                        val summary = runCatching { detail.getAsJsonObject("review_summary") }.getOrNull()
+                        val average = summary?.get("avg")?.takeUnless { it.isJsonNull }?.toString()?.trim('"') ?: "0"
+                        val count = summary?.get("count")?.takeUnless { it.isJsonNull }?.toString()?.trim('"')?.toIntOrNull() ?: 0
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("★ $average", color = LunareaGreenText, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("·  $count ulasan", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
                     if (sheet == ProductInfoSheet.DESCRIPTION) {
                         Column(
@@ -3836,11 +3845,11 @@ private fun ProductDetailScreen(
                                         Column(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             val stars = review.get("rating")?.takeUnless { it.isJsonNull }?.toString()?.trim('"')
                                             if (!stars.isNullOrBlank()) Text("★ $stars / 5", color = LunareaGreenText, style = MaterialTheme.typography.labelLarge)
-                                            val reviewer = review.get("nama")?.takeUnless { it.isJsonNull }?.asString
-                                                ?: review.get("name")?.takeUnless { it.isJsonNull }?.asString
+                                            val reviewer = review.get("name")?.takeUnless { it.isJsonNull }?.asString
+                                                ?: review.get("nama")?.takeUnless { it.isJsonNull }?.asString
                                             if (!reviewer.isNullOrBlank()) Text(reviewer, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Medium)
-                                            val comment = review.get("ulasan")?.takeUnless { it.isJsonNull }?.asString
-                                                ?: review.get("comment")?.takeUnless { it.isJsonNull }?.asString
+                                            val comment = review.get("comment")?.takeUnless { it.isJsonNull }?.asString
+                                                ?: review.get("ulasan")?.takeUnless { it.isJsonNull }?.asString
                                                 ?: review.get("komentar")?.takeUnless { it.isJsonNull }?.asString
                                             if (!comment.isNullOrBlank()) Text(comment, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 22.sp)
                                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
@@ -3854,9 +3863,9 @@ private fun ProductDetailScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text("Ulasan belum tersedia di aplikasi", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                Text("Belum ada ulasan", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                 Text(
-                                    "Informasi ulasan belum dikirim oleh layanan katalog.",
+                                    "Jadilah yang pertama membagikan pengalaman setelah berbelanja.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center

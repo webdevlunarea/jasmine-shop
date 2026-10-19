@@ -5,11 +5,30 @@ namespace App\Services\Payments;
 /** Provider environment and notification rules. No credentials or database schema changes. */
 final class PaymentSafety
 {
+    /** Accounts used for isolated sandbox orders; keep website and native checkout routing aligned. */
+    public static function testAccountEmails(): array
+    {
+        return [
+            'galihsuks123@gmail.com',
+            'lunareafurniture@gmail.com',
+            'galih8.4.2001@gmail.com',
+            'uuua5021@gmail.com',
+            'uuua5032@gmail.com',
+        ];
+    }
+
     public static function normalizeEmail(string $email): string { return strtolower(trim($email)); }
 
     public static function isTestEmail(string $email, array $allowlist): bool
     {
         return in_array(self::normalizeEmail($email), array_map([self::class, 'normalizeEmail'], $allowlist), true);
+    }
+
+    /** Keep checkout closed to customers while allowing explicitly allowlisted accounts to exercise sandbox. */
+    public static function nativeCheckoutEnabledFor(string $email): bool
+    {
+        return filter_var(env('LUNAREA_ANDROID_CHECKOUT_ENABLED', false), FILTER_VALIDATE_BOOLEAN) === true
+            || self::isTestEmail($email, self::testAccountEmails());
     }
 
     public static function environment(array $order, array $allowlist, string $emailField): string
