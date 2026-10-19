@@ -69,8 +69,9 @@ class PushDeviceController extends ApiController
                 ]);
             }
         } catch (\Throwable $e) {
-            log_message('error', 'Customer API push device registration failed: ' . get_class($e));
-            return $this->failure('PUSH_REGISTRATION_FAILED', 'Perangkat belum terdaftar untuk notifikasi. Coba lagi.', 503);
+            $reference = bin2hex(random_bytes(6));
+            log_message('error', 'Customer API push device registration failed: ref=' . $reference . ' exception=' . get_class($e) . ' code=' . (string)$e->getCode());
+            return $this->failure('PUSH_REGISTRATION_FAILED', 'Notifikasi belum terhubung. Coba lagi. Kode bantuan: ' . $reference, 503);
         }
         return $this->success(['registered' => true]);
     }

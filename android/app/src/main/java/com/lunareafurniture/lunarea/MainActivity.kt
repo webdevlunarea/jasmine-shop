@@ -95,6 +95,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -445,8 +446,14 @@ private fun LunareaApp() {
             registration.rememberPermissionConsent()
             notificationsEnabled = registration.isRegistered()
             val result = registration.registerAfterOptIn()
-            if (result.isFailure) PushDeviceRegistration.enqueueRetry(context)
-            else if (result.getOrNull() == true) notificationMessage = "Notifikasi pesanan telah terhubung ke perangkat ini."
+            if (result.isFailure) {
+                PushDeviceRegistration.enqueueRetry(context)
+                notificationMessage = result.exceptionOrNull()?.message
+                    ?: "Notifikasi belum terhubung. Periksa koneksi dan coba lagi."
+            } else if (result.getOrNull() == true) {
+                notificationsEnabled = true
+                notificationMessage = "Notifikasi pesanan telah terhubung ke perangkat ini."
+            }
         }
     }
 
@@ -2931,15 +2938,21 @@ private fun CatalogScreen(
     val latestLoading by rememberUpdatedState(loading)
     val latestOnRefresh by rememberUpdatedState(onRefresh)
     val latestOnChromeVisibilityChange by rememberUpdatedState(onChromeVisibilityChange)
+    val latestChromeVisible by rememberUpdatedState(chromeVisible)
+    LaunchedEffect(gridState) {
+        snapshotFlow { gridState.isScrollInProgress }.collect { scrolling ->
+            if (!scrolling) latestOnChromeVisibilityChange(true)
+        }
+    }
     val pullRefreshConnection = remember(gridState, refreshThresholdPx) {
         var chromeScroll = 0f
         val chromeThreshold = with(density) { 56.dp.toPx() }
-        val revealThreshold = with(density) { 32.dp.toPx() }
+        val revealThreshold = with(density) { 8.dp.toPx() }
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val atTop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
                 if (available.y < 0f) {
-                    if (chromeVisible) {
+                    if (latestChromeVisible) {
                         chromeScroll += -available.y
                         if (chromeScroll >= chromeThreshold) {
                             latestOnChromeVisibilityChange(false)
@@ -2950,9 +2963,9 @@ private fun CatalogScreen(
                     }
                 } else if (available.y > 0f) {
                     if (atTop) {
-                        if (!chromeVisible) latestOnChromeVisibilityChange(true)
+                        if (!latestChromeVisible) latestOnChromeVisibilityChange(true)
                         chromeScroll = 0f
-                    } else if (!chromeVisible) {
+                    } else if (!latestChromeVisible) {
                         chromeScroll += available.y
                         if (chromeScroll >= revealThreshold) {
                             latestOnChromeVisibilityChange(true)
