@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.layout.ContentScale
@@ -35,6 +36,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -59,8 +61,11 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -452,13 +457,27 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
     if (showLogoutConfirmation) {
         AlertDialog(
             onDismissRequest = { showLogoutConfirmation = false },
-            icon = { Icon(painterResource(R.drawable.ic_dialog_warning), contentDescription = null) },
-            title = { Text("Keluar dari akun?") },
-            text = { Text("Anda akan keluar dari akun Lunarea di perangkat ini dan perlu masuk kembali untuk melihat data akun." ) },
+            icon = {
+                Surface(shape = CircleShape, color = Color(0xFFF3E5DF), modifier = Modifier.size(52.dp)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(painterResource(R.drawable.ic_logout), contentDescription = null, tint = Color(0xFFA65A50), modifier = Modifier.size(23.dp))
+                    }
+                }
+            },
+            title = { Text("Keluar dari akun?", color = Color(0xFF262B27), fontWeight = FontWeight.SemiBold) },
+            text = {
+                Text(
+                    "Anda akan keluar dari akun Lunarea di perangkat ini. Masuk kembali untuk melihat pesanan dan informasi akun.",
+                    color = Color(0xFF6B716D),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
             confirmButton = {
-                TextButton(enabled = !busy, onClick = {
+                Button(
+                    enabled = !busy,
+                    onClick = {
                     showLogoutConfirmation = false
-                    if (busy) return@TextButton
+                    if (busy) return@Button
                     PushDeviceRegistration(context).stopForSignOut()
                     signedIn = false
                     favoriteKeys = emptySet()
@@ -476,10 +495,24 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                         message = if (result.isSuccess) "Anda telah keluar dari akun." else "Anda telah keluar. Sinkronisasi notifikasi perangkat akan diperbarui saat koneksi tersedia."
                         busy = false
                     }
-                }) { Text("Ya, keluar", color = MaterialTheme.colorScheme.error) }
+                },
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA65A50), contentColor = Color.White),
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 11.dp)
+                ) { Text("Ya, Keluar", fontWeight = FontWeight.SemiBold) }
             },
-            dismissButton = { TextButton(onClick = { showLogoutConfirmation = false }) { Text("Tetap masuk") } },
-            shape = RoundedCornerShape(22.dp)
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showLogoutConfirmation = false },
+                    shape = RoundedCornerShape(14.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD8D2CA)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF414741)),
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 11.dp)
+                ) { Text("Batal", fontWeight = FontWeight.Medium) }
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = Color(0xFFFAF9F6),
+            tonalElevation = 2.dp
         )
     }
 
@@ -992,16 +1025,27 @@ private fun PasswordInputField(
 
 @Composable
 private fun LunareaScreenHeader(title: String, onBack: () -> Unit, subtitle: String? = null) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(bottom = LunareaSpacing.md),
-        verticalAlignment = Alignment.CenterVertically
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(tween(160, easing = FastOutSlowInEasing)) + slideInVertically(
+            animationSpec = tween(160, easing = FastOutSlowInEasing),
+            initialOffsetY = { it / 14 }
+        )
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
-            Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Kembali", tint = LunareaGreenText)
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
-            subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = LunareaSpacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface, modifier = Modifier.size(42.dp)) {
+                IconButton(onClick = onBack, modifier = Modifier.fillMaxSize()) {
+                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Kembali", tint = LunareaGreenText, modifier = Modifier.size(19.dp))
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+                subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
         }
     }
 }
@@ -2113,7 +2157,7 @@ private fun AddressesScreen(modifier: Modifier, onBack: () -> Unit) {
         )
     }
 
-    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
         LunareaScreenHeader("Alamat tersimpan", onBack, "Atur alamat tujuan pengiriman")
         if (message != null) {
             Surface(
@@ -3093,7 +3137,7 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     var emailStep by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
-    Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Keamanan akun", onBack, "Atur kata sandi atau email akun")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = mode == "password", onClick = { mode = "password"; message = null }, label = { Text("Kata sandi") })
@@ -3610,7 +3654,6 @@ private fun CatalogScreen(
     fun openProductDetail(product: ProductSummary) {
         detailProductSummary = product
         selectedDetailVariant = product.variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct().singleOrNull()
-        onFavoriteKeysChange(emptySet())
         if (signedIn) onCartChanged()
         scope.launch {
             detailLoading = true
@@ -3946,7 +3989,11 @@ private fun CatalogScreen(
               loading = detailLoading,
               busy = actionBusy,
               selectedVariant = selectedDetailVariant,
-              favoriteSelected = favoriteKey(detailProductSummary?.id.orEmpty(), currentVariant) in favoriteKeys,
+              favoriteSelected = if (
+                  selectedDetailVariant == null && detailProductSummary?.variants?.any { !it.name.isNullOrBlank() } == true
+              ) {
+                  favoriteKeys.any { it.substringBefore("\u001f") == detailProductSummary?.id }
+              } else favoriteKey(detailProductSummary?.id.orEmpty(), currentVariant) in favoriteKeys,
               cartItemCount = cartItemCount,
               actionMessage = actionMessage,
               onVariantChange = { selectedDetailVariant = it },
@@ -3960,7 +4007,9 @@ private fun CatalogScreen(
               onFavorite = { detailProductSummary?.let { product ->
                   val hasVariants = product.variants.any { !it.name.isNullOrBlank() }
                   val variant = selectedDetailVariant ?: if (!hasVariants) "Default" else null
-                  if (variant == null) actionMessage = "Pilih varian terlebih dahulu." else {
+                  if (variant == null && favoriteKeys.any { it.substringBefore("\u001f") == product.id }) {
+                      favoriteProduct(product)
+                  } else if (variant == null) actionMessage = "Pilih varian terlebih dahulu." else {
                       val isFavorite = favoriteKey(product.id, variant) in favoriteKeys
                       mutateProduct(product, variant, true, add = !isFavorite)
                   }
@@ -4425,19 +4474,27 @@ private fun HomeProductSection(
 private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected: Boolean, onFavorite: () -> Unit, onDetail: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
     val variants = product.variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
     var productImageReady by remember(product.image_url) { mutableStateOf(false) }
+    val cardInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val cardPressed by cardInteractionSource.collectIsPressedAsState()
+    val cardPressScale by animateFloatAsState(
+        targetValue = if (cardPressed) .992f else 1f,
+        animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing),
+        label = "productCardPress"
+    )
     val discount = product.discount_percent?.coerceIn(0, 100) ?: 0
     Card(
         onClick = onDetail,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().graphicsLayer(scaleX = cardPressScale, scaleY = cardPressScale),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f)),
+        interactionSource = cardInteractionSource
     ) {
         Column(Modifier.fillMaxWidth()) {
             Box(Modifier.fillMaxWidth().aspectRatio(.96f).background(MaterialTheme.colorScheme.surfaceVariant)) {
                 if (!product.image_url.isNullOrBlank()) {
                     if (!productImageReady) {
-                        Box(Modifier.fillMaxSize().background(rememberLunareaShimmerBrush()))
+                        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant))
                     }
                     AsyncImage(
                         model = product.image_url,
@@ -4603,13 +4660,8 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
         }
     }
 
-    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("‹  Akun") }
-            Spacer(Modifier.weight(1f))
-        }
-        Text("Luna Poin", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
-        Text("Pantau saldo, masa berlaku, dan aktivitas poin Anda.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
+        LunareaScreenHeader("Luna Poin", onBack, "Saldo, masa berlaku, dan aktivitas poin")
         Spacer(Modifier.height(18.dp))
 
         if (loading && data == null) {
@@ -4699,8 +4751,25 @@ private fun AccountScreen(
     onOpenProfile: () -> Unit, onOpenSecurity: () -> Unit, onOpenPoints: () -> Unit, onOpenRegistration: () -> Unit, onOpenRecovery: () -> Unit, onOpenVerification: () -> Unit,
     message: String?
 ) {
-    Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        if (signedIn) LunareaSectionTitle("Akun Anda", "Kelola profil, pesanan, dan preferensi")
+    val context = LocalContext.current
+    var accountDisplayName by remember { mutableStateOf("") }
+    var accountPhotoUrl by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(signedIn) {
+        if (!signedIn) {
+            accountDisplayName = ""
+            accountPhotoUrl = null
+            return@LaunchedEffect
+        }
+        runCatching {
+            val response = ApiClient.get(context).profile()
+            val customer = response.body()?.data?.getAsJsonObject("customer")
+            if (response.isSuccessful && response.body()?.success == true && customer != null) {
+                accountDisplayName = customer.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                accountPhotoUrl = customer.get("photo_url")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)
+            }
+        }
+    }
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (!signedIn) {
             AuthFlowHeader("Selamat datang", "Masuk untuk melanjutkan belanja dan melihat pesanan Anda.", onOpenRegistration, showBack = false)
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -4743,39 +4812,95 @@ private fun AccountScreen(
                 TextButton(onClick = onOpenVerification, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("Verifikasi email") }
             }
         } else {
-            Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Layanan akun", fontWeight = FontWeight.SemiBold)
-                    AccountActionRow("Profil saya", "Nama dan nomor ponsel", onOpenProfile)
-                    AccountActionRow("Keamanan akun", "Kata sandi dan email", onOpenSecurity)
-                    AccountActionRow("Pesanan saya", "Pembayaran dan status pengiriman", onOpenOrders)
-                    AccountActionRow("Luna Poin", "Saldo, masa berlaku, dan riwayat poin", onOpenPoints)
-                    AccountActionRow("Produk favorit", "Daftar furnitur pilihan", onOpenFavorites)
-                    AccountActionRow("Alamat tersimpan", "Atur alamat pengiriman", onOpenAddresses)
-                    AccountActionRow(
-                        if (notificationsEnabled) "Matikan notifikasi" else "Aktifkan notifikasi pesanan",
-                        if (notificationsEnabled) "Preferensi pemberitahuan perangkat" else "Dapatkan kabar terbaru pesanan",
-                        if (notificationsEnabled) onDisableNotifications else onEnableNotifications
-                    )
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    TextButton(onClick = onLogout, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Keluar dari akun", color = MaterialTheme.colorScheme.error) }
+            Column(Modifier.fillMaxWidth().padding(top = 2.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("RUANG AKUN", style = MaterialTheme.typography.labelMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
+                Text("Akun Anda", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+                Text("Kelola profil, pesanan, dan preferensi dalam satu tempat.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 17.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = .88f), modifier = Modifier.size(48.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            if (!accountPhotoUrl.isNullOrBlank()) {
+                                AsyncImage(
+                                    model = accountPhotoUrl,
+                                    contentDescription = "Foto profil ${accountDisplayName.ifBlank { "pengguna" }}",
+                                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    accountDisplayName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "L",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = LunareaGreenText,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(
+                            accountDisplayName.ifBlank { "Selamat datang kembali" },
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text("Kelola akun Lunarea Anda", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
+                    }
                 }
             }
+            AccountSettingsGroup("Profil & preferensi") {
+                AccountActionRow("Profil saya", "Nama, nomor ponsel, dan foto", onOpenProfile)
+                HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                AccountActionRow("Keamanan akun", "Kata sandi dan alamat email", onOpenSecurity)
+                HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                AccountActionRow("Alamat tersimpan", "Kelola tujuan pengiriman", onOpenAddresses)
+            }
+            AccountSettingsGroup("Aktivitas belanja") {
+                AccountActionRow("Pesanan saya", "Pembayaran dan status pengiriman", onOpenOrders)
+                HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                AccountActionRow("Luna Poin", "Saldo dan riwayat poin", onOpenPoints)
+                HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                AccountActionRow("Produk favorit", "Furnitur yang Anda simpan", onOpenFavorites)
+            }
+            AccountSettingsGroup("Pemberitahuan") {
+                AccountActionRow(
+                    if (notificationsEnabled) "Notifikasi aktif" else "Aktifkan notifikasi pesanan",
+                    if (notificationsEnabled) "Pemberitahuan pesanan dikirim ke perangkat ini" else "Dapatkan kabar terbaru tentang pesanan",
+                    if (notificationsEnabled) onDisableNotifications else onEnableNotifications
+                )
+            }
+            OutlinedButton(
+                onClick = onLogout,
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = .35f))
+            ) { Text("Keluar dari akun", fontWeight = FontWeight.SemiBold) }
         }
     }
 }
 
 @Composable
 private fun AccountActionRow(title: String, subtitle: String, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed) .988f else 1f,
+        animationSpec = tween(durationMillis = 120, easing = FastOutSlowInEasing),
+        label = "accountActionPress"
+    )
+    Row(
+        Modifier.fillMaxWidth().graphicsLayer(scaleX = pressScale, scaleY = pressScale)
+            .clip(RoundedCornerShape(12.dp)).clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(title, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                Text(title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
             Icon(
@@ -4784,6 +4909,20 @@ private fun AccountActionRow(title: String, subtitle: String, onClick: () -> Uni
                 tint = LunareaGreenText,
                 modifier = Modifier.size(20.dp)
             )
+    }
+}
+
+@Composable
+private fun AccountSettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(start = 4.dp))
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(content = content)
         }
     }
 }
