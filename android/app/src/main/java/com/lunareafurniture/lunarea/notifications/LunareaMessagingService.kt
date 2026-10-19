@@ -25,10 +25,10 @@ class LunareaMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         val title = message.notification?.title ?: message.data["title"] ?: "Pembaruan Lunarea"
         val body = message.notification?.body ?: message.data["body"] ?: return
-        showNotification(title, body)
+        showNotification(title, body, message.data)
     }
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(title: String, body: String, data: Map<String, String>) {
         // Do not surface account-specific updates after the user has signed out.
         val optedIn = getSharedPreferences("lunarea_notification_settings", MODE_PRIVATE)
             .getBoolean("push_opt_in", false)
@@ -44,10 +44,16 @@ class LunareaMessagingService : FirebaseMessagingService() {
             )
         }
 
+        val tapIntent = Intent(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        // Preserve only routing metadata; never put credentials or personal data in an intent.
+        listOf("type", "order_id", "product_id", "variant", "campaign_id").forEach { key ->
+            data[key]?.takeIf(String::isNotBlank)?.let { tapIntent.putExtra("push_$key", it) }
+        }
         val openApp = PendingIntent.getActivity(
             this,
-            0,
-            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            (data["campaign_id"] ?: data["order_id"] ?: data["product_id"] ?: System.currentTimeMillis().toString()).hashCode(),
+            tapIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -58,7 +64,8 @@ class LunareaMessagingService : FirebaseMessagingService() {
             .setContentIntent(openApp)
             .setAutoCancel(true)
             .build()
-        NotificationManagerCompat.from(this).notify((System.currentTimeMillis() % Int.MAX_VALUE).toInt(), notification)
+        val notificationId = (data["campaign_id"] ?: data["order_id"] ?: data["product_id"] ?: System.currentTimeMillis().toString()).hashCode()
+        NotificationManagerCompat.from(this).notify(notificationId, notification)
     }
 
     companion object {

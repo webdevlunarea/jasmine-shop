@@ -1277,6 +1277,56 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
     }
 
     val order = selectedOrder
+    val paymentCheckInProgress by rememberUpdatedState(checkingPayment)
+    LaunchedEffect(detailPage, order?.get("id")?.asString) {
+        val id = order?.get("id")?.asString?.takeIf(String::isNotBlank)
+        if (detailPage != "detail" || id == null) return@LaunchedEffect
+
+        // Poll only while a pending gateway payment's detail is visible. The API
+        // limits checks to four per order per minute, so keep this to two/minute.
+        while (true) {
+            delay(30_000)
+            val current = selectedOrder ?: break
+            if (paymentCheckInProgress || current.get("id")?.asString != id) continue
+            val currentPayment = current.objectOrNull("payment")
+            if (!isUnpaidOrderStatus(current.stringOrNull("status").orEmpty())) break
+
+            try {
+                if (currentPayment?.stringOrNull("type") == "rekening") {
+                    // Manual transfers are confirmed by the store, not Midtrans.
+                    val latest = ApiClient.get(context).order(id)
+                        .takeIf { it.isSuccessful && it.body()?.success == true }
+                        ?.body()?.data?.objectOrNull("order")
+                    if (latest != null) selectedOrder = latest
+                    if (latest != null && !isUnpaidOrderStatus(latest.stringOrNull("status").orEmpty())) break
+                    continue
+                }
+                val result = ApiClient.get(context).paymentStatus(id)
+                val snapshot = result.body()?.data?.objectOrNull("payment")
+                if (!result.isSuccessful || result.body()?.success != true || snapshot == null) continue
+
+                val latestOrder = runCatching {
+                    ApiClient.get(context).order(id).takeIf { it.isSuccessful }
+                        ?.body()?.data?.objectOrNull("order")
+                }.getOrNull()
+                val refreshed = (latestOrder ?: current).deepCopy()
+                snapshot.stringOrNull("status")?.let { refreshed.addProperty("status", it) }
+                val payment = refreshed.objectOrNull("payment") ?: JsonObject().also { refreshed.add("payment", it) }
+                snapshot.stringOrNull("payment_status")?.let { payment.addProperty("status", it) }
+                snapshot.stringOrNull("payment_type")?.let { payment.addProperty("type", it) }
+                snapshot.stringOrNull("expiry_time")?.let { payment.addProperty("expiry_time", it) }
+                snapshot.longOrNull("amount")?.let { payment.addProperty("gross_amount", it) }
+                listOf("va_numbers", "payment_code", "bill_key", "biller_code", "qr_string").forEach { key ->
+                    snapshot.get(key)?.takeUnless { it.isJsonNull }?.let { payment.add(key, it.deepCopy()) }
+                }
+                selectedOrder = refreshed
+                if (isUnpaidOrderStatus(snapshot.stringOrNull("payment_status").orEmpty())) continue
+                break
+            } catch (_: Exception) {
+                // Keep the existing order visible and try again on the next interval.
+            }
+        }
+    }
     if (detailPage == "detail" && order != null) {
         val paymentInfo = order.getAsJsonObject("payment")
         val vaNumbers = paymentInfo?.getAsJsonArray("va_numbers")
