@@ -140,10 +140,20 @@ class GambarController extends BaseController
     }
     public function tampilGambarUser($email_user) //emailnya di base64
     {
-        $email = base64_decode($email_user);
+        $encoded = strtr((string)$email_user, '-_', '+/');
+        $email = base64_decode($encoded, true);
+        if (!is_string($email) || $email === '') return $this->response->setStatusCode(404);
         $getGambarUser = $this->gambarUserModel->getGambar($email);
-        $this->response->setHeader('Content-Type', 'image/webp');
-        echo $getGambarUser['gambar'];
+        $bytes = $getGambarUser['gambar'] ?? null;
+        if (!is_string($bytes) || $bytes === '') return $this->response->setStatusCode(404);
+        $image = @getimagesizefromstring($bytes);
+        $mime = is_array($image) && in_array($image['mime'] ?? '', ['image/jpeg', 'image/png', 'image/webp'], true)
+            ? $image['mime']
+            : 'application/octet-stream';
+        return $this->response
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Cache-Control', 'private, max-age=300')
+            ->setBody($bytes);
     }
     public function voucherPoster($idVoucher)
     {

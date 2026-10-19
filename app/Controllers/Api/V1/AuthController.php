@@ -345,6 +345,7 @@ class AuthController extends ApiController
             'name' => (string)($profile['nama'] ?? ''),
             'phone' => (string)($profile['nohp'] ?? ''),
             'tier' => (string)($profile['tier'] ?? ''),
+            'photo_url' => site_url('imguser/' . rtrim(strtr(base64_encode($email), '+/', '-_'), '=')),
         ]]);
     }
 }

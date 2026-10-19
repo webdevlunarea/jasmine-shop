@@ -20,15 +20,21 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | POST | `/auth/verify-email` | Tidak | Verifikasi OTP; login dilakukan terpisah |
 | POST | `/auth/verification/resend` | Tidak | Kirim ulang OTP secara generik setelah cooldown |
 | POST | `/auth/login` | Tidak | Login pelanggan terverifikasi; memperoleh access/refresh token |
+| POST | `/auth/google` | Tidak | Verifikasi Google ID token di backend; pelanggan Google terverifikasi memperoleh token API Lunarea |
 | POST | `/auth/refresh` | Refresh token di body | Rotasi refresh token; refresh token lama tidak boleh digunakan kembali |
 | POST | `/auth/logout` | Bearer | Cabut seluruh keluarga token sesi saat ini |
 | GET | `/me` | Bearer | Baca profil pengguna |
 | PATCH | `/me` | Bearer | Perbarui nama dan nomor ponsel |
+| POST | `/me/photo` | Bearer, multipart | Unggah foto profil JPG/PNG/WebP maksimal 2 MiB |
+
+`GET /me` mengembalikan `data.customer.photo_url`. Unggah foto memeriksa format MIME, ukuran, dan dimensi, lalu menyimpan blob profil serta referensi foto pelanggan dalam satu transaksi.
 | POST | `/auth/password/change` | Bearer | Ganti sandi dengan sandi lama; seluruh sesi dicabut dan login ulang diperlukan |
 | POST | `/auth/email/change/request` | Bearer | Minta perubahan email dengan sandi saat ini; kode dikirim ke email baru |
 | POST | `/auth/email/change/confirm` | Bearer | Konfirmasi kode dan sandi saat ini; ubah identitas akun dan wajib login ulang |
 | POST | `/auth/password-reset/request` | Tidak | Minta OTP pemulihan dengan respons anti-enumerasi |
 | POST | `/auth/password-reset/complete` | Tidak | Reset sandi dengan OTP; login ulang diperlukan |
+| GET | `/notifications` | Bearer | Ambil maksimal 50 pemberitahuan akun dan jumlah yang belum dibaca |
+| POST | `/notifications/read` | Bearer | Tandai pemberitahuan terkirim milik akun sebagai telah dibaca; body `{}` menandai semua |
 
 Contoh pendaftaran:
 
@@ -52,6 +58,8 @@ Contoh verifikasi: `{"email":"pembeli@example.com","code":"123456"}`. OTP berumu
 
 Contoh login: `{"identifier":"pembeli@example.com","password":"SandiAman123","device_name":"Android"}`. Token ada di `data.tokens`: `access_token`, `refresh_token`, `token_type`, `expires_in`, dan `refresh_expires_in`.
 
+Login Google native mengirim `{"id_token":"<Google ID token>","device_name":"Lunarea Android"}` ke `/auth/google`. Server wajib memiliki `GOOGLE_CLIENT_ID` berisi **Web OAuth Client ID** yang sama dengan `GOOGLE_WEB_CLIENT_ID` di aplikasi. ID token diverifikasi server-side; email biasa dari aplikasi tidak dipercaya. Client Secret tidak dikirim ke APK. Akun admin, token tidak valid, dan email Google yang belum terverifikasi ditolak. Akun pelanggan Google baru dibuat dengan profil Lunarea dan voucher auto-claim yang aktif; akun pelanggan dengan email terverifikasi yang sama ditautkan sesuai alur Google website existing.
+
 Contoh refresh: `{"refresh_token":"..."}`. Simpan token baru secara atomik; token refresh lama sudah tidak berlaku. Replay refresh lama mencabut keluarga sesi.
 
 Reset sandi memakai body request `{"identity":"email-atau-username","captcha_token":"..."}` lalu penyelesaian `{"identity":"...","code":"123456","password":"...","password_confirmation":"..."}`. Permintaan reset mengembalikan HTTP 202 generik untuk akun dikenal maupun tidak dikenal.
@@ -64,7 +72,7 @@ Perubahan email memakai `POST /auth/email/change/request` dengan `{"current_pass
 
 | Method | Path | Query | Isi respons utama |
 |---|---|---|---|
-| GET | `/catalog/products` | `page` (default 1, maksimum 10.000), `per_page` (default 20, maks 40), opsional `q`, `category` | `data.products`; metadata paging di `meta`; parameter pagination tidak valid menghasilkan HTTP 422 |
+| GET | `/catalog/products` | `page` (default 1, maksimum 10.000), `per_page` (default 20, maks 40), opsional `q`, `category`, `sort` (`default`, `popular`, `newest`) | `data.products`; metadata paging di `meta`; urutan `popular` berdasarkan angka terjual yang ditampilkan, `newest` mengikuti ID produk aktif terbaru per slug; parameter tidak valid menghasilkan HTTP 422 |
 | GET | `/catalog/products/{id}` | — | `data.product`, termasuk deskripsi dan ketersediaan layanan kaca |
 | GET | `/catalog/categories` | — | `data.categories` |
 | GET | `/regions/provinces` | — | `data.regions` |
@@ -72,7 +80,7 @@ Perubahan email memakai `POST /auth/email/change/request` dengan `{"current_pass
 | GET | `/regions/districts?city_id={id}` | City wajib | Kecamatan dalam kota/kabupaten |
 | GET | `/regions/villages?district_id={id}` | District wajib | Kelurahan dan kode pos |
 
-Harga dan stok dikirim sebagai integer IDR/unit. Produk membawa `variants` dengan `name` serta `stock`; URL gambar berasal dari server. Produk tanpa varian menampilkan satu opsi `Default`. Pada data lama ketika jumlah opsi varian melebihi jumlah nilai stok, nilai stok pertama adalah stok bersama dan tidak dijumlahkan berulang. Jangan menganggap URL gambar sebagai berkas lokal.
+Harga dan stok dikirim sebagai integer IDR/unit. Produk membawa `variants` dengan `name` serta `stock`, `sold_count` (angka terjual yang ditampilkan), dan URL gambar dari server. Produk tanpa varian menampilkan satu opsi `Default`. Pada data lama ketika jumlah opsi varian melebihi jumlah nilai stok, nilai stok pertama adalah stok bersama dan tidak dijumlahkan berulang. Jangan menganggap URL gambar sebagai berkas lokal.
 
 ## Profil, alamat, keranjang, dan favorit
 
@@ -120,14 +128,14 @@ Status order yang tersimpan dan `payment.transaction_status` dari provider adala
 
 Metode checkout yang dibangun oleh payload Midtrans: `bca`, `bri`, `bni`, `cimb`, `permata`, `mandiri`, `qris`, `gopay`, `shopeepay`, dan `card`. Pembayaran kartu membutuhkan `card_token`. Jangan kirim nominal ongkir atau total buatan klien sebagai nilai otoritatif. Pembuatan pesanan tetap tidak aktif sampai kedua feature flag dinyalakan setelah pengujian staging.
 
-Replay dengan idempotency key yang sama tidak menagih ulang. HTTP 202 berarti status provider masih perlu dipastikan: jangan membuat key baru untuk order yang sama sebelum memeriksa riwayat dan status pesanan.
+Replay dengan idempotency key yang sama tidak menagih ulang. HTTP 202 berarti status provider masih perlu dipastikan: jangan membuat key baru untuk order yang sama sebelum memeriksa riwayat dan status pesanan. HTTP 503 `CHECKOUT_UNAVAILABLE` menyertakan `error.request_id`; tampilkan tindakan untuk membuka Pesanan Saya dan gunakan ID tersebut untuk mencocokkan log server. Jangan membuat key baru atau mengulang pembayaran hanya karena pesan gangguan muncul.
 
 ## Pesanan, pembayaran, bukti transfer, dan tracking
 
 | Method | Path | Keterangan |
 |---|---|---|
 | GET | `/orders?page=1&per_page=10` | Daftar milik akun, maks 30 per halaman dan `page` maksimum 10.000; parameter pagination tidak valid menghasilkan HTTP 422 |
-| GET | `/orders/{id}` | Detail hanya jika order dimiliki akun; termasuk item dan ringkasan metode pembayaran |
+| GET | `/orders/{id}` | Detail hanya jika order dimiliki akun; termasuk item, status pembayaran, instruksi pembayaran yang aman, dan tautan pembayaran HTTPS |
 | POST | `/orders/{id}/cancel` | Meminta pembatalan pesanan unpaid; status Midtrans diverifikasi dan efek stok/voucher/poin memakai rekonsiliasi pembayaran website |
 | GET | `/orders/{id}/payment-status` | Poll status, dibatasi per akun dan per order; sumber Midtrans hanya untuk transaksi yang memenuhi syarat |
 | POST | `/orders/{id}/payment-proof` | Unggah gambar transfer melalui multipart field `proof`, maks 5 MB, JPEG/PNG/WebP |
@@ -158,7 +166,13 @@ Token perangkat disimpan terenkripsi, sedangkan fingerprint SHA-256 dipakai untu
 - `422 VALIDATION_ERROR` atau `CHECKOUT_VALIDATION_FAILED`: tampilkan pesan validasi; data server tetap otoritatif.
 - `429 RATE_LIMITED`: hormati retry/backoff; jangan membuat polling rapat.
 - `503 API_NOT_ENABLED`: API master flag masih OFF. `503` lain berarti dependensi/integrasi belum tersedia; jangan ubah status lokal seolah operasi berhasil.
+- `503 CHECKOUT_NOT_ENABLED`: pembuatan pesanan dari aplikasi belum diaktifkan; ringkasan checkout tetap dapat dimuat, tetapi jangan menawarkan aksi pembayaran aplikasi.
+- `503 SHIPPING_UNAVAILABLE`: tidak ada tarif yang dapat dihitung karena konfigurasi/provider/lokasi bermasalah. Jangan mengganti ongkir dengan Rp0; pengguna harus mencoba kembali atau memilih metode internal yang memang eligible.
 - Timeout saat POST order: gunakan kembali `Idempotency-Key` yang sama dan cek order sebelum mencoba tindakan baru.
+
+Respons `POST /shipping/quotes` juga mengembalikan `external_status` yang aman untuk diagnostik UI (`available`, `no_rates`, `disabled`, `missing_api_key`, `invalid_weight`, `location_unavailable`, `provider_error`, atau `not_checked`). Field ini tidak berisi API key maupun respons mentah provider. Quote internal yang valid tetap dikembalikan meskipun provider eksternal gagal.
+
+Akun uji yang secara eksplisit terdaftar pada `PaymentSafety::testAccountEmails()` dapat membuat pesanan sandbox saat checkout aplikasi umum masih OFF. Pesanan tetap dicatat sebagai pesanan uji pada basis data Lunarea, tidak memesan stok, memakai `MIDTRANS_SANDBOX_KEY`, dan tidak boleh diteruskan ke MyLuna produksi. Seluruh akun lain tetap memerlukan `LUNAREA_ANDROID_CHECKOUT_ENABLED=true`.
 
 ## Catatan kesiapan
 

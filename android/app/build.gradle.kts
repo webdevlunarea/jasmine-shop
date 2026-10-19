@@ -14,6 +14,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "API_BASE_URL", "\"https://lunareafurniture.com/api/v1/\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"520531202813-voubv1urfgrmeg8l813i4d3qh9r8i2g6.apps.googleusercontent.com\"")
     }
     buildFeatures { compose = true; buildConfig = true }
     compileOptions {
@@ -30,6 +31,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

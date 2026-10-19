@@ -1,6 +1,16 @@
 package com.lunareafurniture.lunarea.data.api
 
 import android.content.Context
+import android.app.Activity
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.lunareafurniture.lunarea.BuildConfig
 import com.lunareafurniture.lunarea.data.security.SecureTokenStore
 import com.lunareafurniture.lunarea.notifications.PushDeviceRegistration
 import kotlinx.coroutines.async
@@ -24,6 +34,36 @@ class AuthRepository(context: Context) {
         if (pushRegistration.isFailure) PushDeviceRegistration.enqueueRetry(appContext)
     }
 
+    suspend fun loginWithGoogle(activity: Activity): Result<Unit> = runCatching {
+        check(BuildConfig.GOOGLE_WEB_CLIENT_ID.isNotBlank()) { "Login Google belum dikonfigurasi di aplikasi." }
+        val option = GetSignInWithGoogleOption.Builder(BuildConfig.GOOGLE_WEB_CLIENT_ID).build()
+        val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
+        val credentialResponse = try {
+            CredentialManager.create(activity).getCredential(activity, request)
+        } catch (_: GetCredentialCancellationException) {
+            throw IllegalStateException("Proses masuk Google dibatalkan.")
+        } catch (_: NoCredentialException) {
+            throw IllegalStateException("Akun Google belum tersedia di perangkat ini. Tambahkan akun Google lalu coba lagi.")
+        }
+        val credential = credentialResponse.credential as? CustomCredential
+            ?: throw IllegalStateException("Respons akun Google tidak dikenali.")
+        check(credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            "Jenis kredensial Google tidak didukung."
+        }
+        val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+        check(idToken.isNotBlank()) { "Token Google tidak diterima. Coba lagi." }
+
+        val response = api.googleLogin(GoogleLoginRequest(idToken))
+        val body = response.body()
+        val pair = body?.data?.tokens
+        check(response.isSuccessful && body?.success == true && pair != null) {
+            response.customerError("Masuk dengan Google belum berhasil. Coba lagi.")
+        }
+        tokenStore.save(pair.access_token, pair.refresh_token)
+        val pushRegistration = PushDeviceRegistration(appContext).registerAfterOptIn()
+        if (pushRegistration.isFailure) PushDeviceRegistration.enqueueRetry(appContext)
+    }
+
     suspend fun logout(): Result<Unit> = runCatching {
         try {
             // Both calls need the current bearer token. Run them concurrently so a
@@ -43,6 +83,9 @@ class AuthRepository(context: Context) {
             }
         } finally {
             tokenStore.clear()
+            runCatching {
+                CredentialManager.create(appContext).clearCredentialState(ClearCredentialStateRequest())
+            }
         }
     }
 

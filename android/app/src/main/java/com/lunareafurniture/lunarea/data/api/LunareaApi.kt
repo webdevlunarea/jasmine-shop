@@ -22,6 +22,9 @@ interface LunareaApi {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<ApiEnvelope<AuthTokensResponse>>
 
+    @POST("auth/google")
+    suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<ApiEnvelope<AuthTokensResponse>>
+
     @POST("auth/register")
     suspend fun register(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 
@@ -78,6 +81,10 @@ interface LunareaApi {
 
     @PATCH("me")
     suspend fun updateProfile(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
+    @Multipart
+    @POST("me/photo")
+    suspend fun uploadProfilePhoto(@Part photo: MultipartBody.Part): Response<ApiEnvelope<JsonObject>>
 
     @GET("addresses")
     suspend fun addresses(): Response<ApiEnvelope<JsonObject>>

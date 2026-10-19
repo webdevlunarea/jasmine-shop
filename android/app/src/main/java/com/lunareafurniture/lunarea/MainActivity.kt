@@ -2,6 +2,7 @@ package com.lunareafurniture.lunarea
 
 import android.os.Bundle
 import android.os.Build
+import android.app.Activity
 import android.text.Html
 import android.net.Uri
 import android.content.Intent
@@ -448,6 +449,16 @@ private fun LunareaApp() {
         }
     }
 
+    val accountNotice = if (tab == AppTab.ACCOUNT && accountSection == AccountSection.MENU) {
+        message ?: notificationMessage
+    } else null
+    LaunchedEffect(accountNotice) {
+        val shownNotice = accountNotice ?: return@LaunchedEffect
+        delay(3_200)
+        if (message == shownNotice) message = null
+        if (notificationMessage == shownNotice) notificationMessage = null
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -500,6 +511,7 @@ private fun LunareaApp() {
             }
         }
     ) { insets ->
+        Box(Modifier.fillMaxSize()) {
         if (notificationInboxOpen) {
             NotificationInboxScreen(
                 modifier = Modifier.padding(insets),
@@ -521,6 +533,7 @@ private fun LunareaApp() {
                 onOpenCart = { detailOpen = false; tab = AppTab.CART },
                 unreadNotificationCount = unreadNotificationCount,
                 onOpenNotifications = { notificationInboxOpen = true },
+                onPromoAction = { tab = AppTab.CATALOG },
                 onLoginRequired = { reason -> authPromptMessage = reason },
                 categories = categories, selectedCategory = selectedCategory,
                 onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
@@ -569,6 +582,19 @@ private fun LunareaApp() {
                         busy = false
                     }
                 },
+                onGoogleLogin = {
+                    val activity = context as? Activity
+                    if (activity == null) {
+                        message = "Layar masuk Google belum dapat dibuka. Coba lagi."
+                    } else scope.launch {
+                        busy = true
+                        val result = auth.loginWithGoogle(activity)
+                        signedIn = auth.isSignedIn()
+                        message = result.exceptionOrNull()?.message ?: if (result.isSuccess) "Berhasil masuk dengan Google." else "Masuk dengan Google belum berhasil."
+                        if (result.isSuccess) { password = ""; loadProducts("") }
+                        busy = false
+                    }
+                },
                 onLogout = {
                     if (!busy) showLogoutConfirmation = true
                 },
@@ -589,7 +615,6 @@ private fun LunareaApp() {
                 onOpenRegistration = { accountSection = AccountSection.REGISTER },
                 onOpenRecovery = { accountSection = AccountSection.RECOVERY },
                 onOpenVerification = { authFlowEmail = identifier; accountSection = AccountSection.VERIFY_EMAIL },
-                notificationMessage = notificationMessage,
                 message = message
                 )
                 AccountSection.ORDERS -> OrdersScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
@@ -610,6 +635,37 @@ private fun LunareaApp() {
                     Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
                     onCompleted = { identity -> identifier = identity; password = ""; accountSection = AccountSection.MENU; message = "Kata sandi berhasil diperbarui. Silakan masuk." }
                 )
+            }
+        }
+            AnimatedVisibility(
+                visible = accountNotice != null,
+                enter = slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(240)) + fadeIn(tween(180)),
+                exit = slideOutHorizontally(targetOffsetX = { it / 2 }, animationSpec = tween(180)) + fadeOut(tween(140)),
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, start = 16.dp, end = 12.dp).zIndex(20f)
+            ) {
+                accountNotice?.let { notice ->
+                    val isError = listOf("gagal", "belum", "tidak", "periksa", "gangguan", "error")
+                        .any { notice.contains(it, ignoreCase = true) }
+                    val container = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inverseSurface
+                    val content = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.inverseOnSurface
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().widthIn(max = 420.dp)
+                            .clickable { if (message == notice) message = null; if (notificationMessage == notice) notificationMessage = null }
+                            .semantics { liveRegion = LiveRegionMode.Polite },
+                        shape = RoundedCornerShape(16.dp),
+                        color = container,
+                        shadowElevation = 4.dp
+                    ) {
+                        Row(
+                            Modifier.padding(horizontal = 16.dp, vertical = 13.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(if (isError) "!" else "✓", color = content, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text(notice, color = content, style = MaterialTheme.typography.bodyMedium, lineHeight = 20.sp)
+                        }
+                    }
+                }
             }
         }
     }
@@ -914,13 +970,13 @@ private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onR
 
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AuthFlowHeader("Buat akun Lunarea", "Daftar langsung di aplikasi untuk menyimpan alamat dan memantau pesanan.", onBack)
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
-        ) {
-          Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            repeat(2) { index ->
+                Box(Modifier.weight(1f).height(4.dp).background(if (index == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(50)))
+            }
+        }
+        Text("1 dari 2 · Informasi akun", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(11.dp)) {
             OutlinedTextField(name, { name = it.take(120) }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama lengkap") }, singleLine = true, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Words, imeAction = androidx.compose.ui.text.input.ImeAction.Next))
             OutlinedTextField(email, { email = it.take(254) }, modifier = Modifier.fillMaxWidth(), label = { Text("Email aktif") }, singleLine = true, isError = email.isNotBlank() && !emailValid, supportingText = if (email.isNotBlank() && !emailValid) ({ Text("Masukkan alamat email yang valid.") }) else null, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
             OutlinedTextField(phone, { phone = it.filter { ch -> ch.isDigit() || ch == '+' }.take(18) }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel Indonesia") }, singleLine = true, supportingText = { Text("Gunakan nomor aktif, minimal 10 digit.") }, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next))
@@ -957,9 +1013,10 @@ private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onR
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = MaterialTheme.shapes.medium
             ) { if (busy) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp) else Text("Daftar dan kirim kode") }
-          }
         }
-        Text("Kode verifikasi dikirim ke email dan berlaku selama 10 menit.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .55f), shape = RoundedCornerShape(14.dp)) {
+            Text("Kode verifikasi akan dikirim ke email Anda dan berlaku selama 10 menit.", Modifier.fillMaxWidth().padding(14.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 
@@ -2459,21 +2516,69 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var photoUrl by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(true) }
+    var photoBusy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
+    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) scope.launch {
+            photoBusy = true
+            message = null
+            try {
+                val mime = context.contentResolver.getType(uri) ?: "image/jpeg"
+                require(mime in setOf("image/jpeg", "image/png", "image/webp")) { "Pilih foto JPG, PNG, atau WebP." }
+                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: throw IllegalStateException("Foto belum dapat dibaca.")
+                require(bytes.size <= 2 * 1024 * 1024) { "Ukuran foto maksimal 2 MB." }
+                val request = bytes.toRequestBody(mime.toMediaTypeOrNull())
+                val part = MultipartBody.Part.createFormData("photo", "foto-profil", request)
+                val response = ApiClient.get(context).uploadProfilePhoto(part)
+                val body = response.body()
+                val customer = body?.data?.getAsJsonObject("customer")
+                if (response.isSuccessful && body?.success == true) {
+                    photoUrl = customer?.get("photo_url")?.asString?.let { "$it?v=${System.currentTimeMillis()}" }
+                    message = "Foto profil berhasil diperbarui."
+                } else message = response.customerError("Foto profil belum dapat disimpan.")
+            } catch (e: Exception) {
+                message = e.message?.takeIf { it.isNotBlank() } ?: "Foto profil belum dapat diperbarui. Coba lagi."
+            } finally { photoBusy = false }
+        }
+    }
     LaunchedEffect(Unit) {
         try {
             val response = ApiClient.get(context).profile()
             val customer = response.body()?.data?.getAsJsonObject("customer")
             if (response.isSuccessful && response.body()?.success == true && customer != null) {
                 name = customer.get("name")?.asString.orEmpty(); phone = customer.get("phone")?.asString.orEmpty(); email = customer.get("email")?.asString.orEmpty()
+                photoUrl = customer.get("photo_url")?.asString?.takeIf { it.isNotBlank() }
             } else message = response.body()?.error?.message ?: "Profil belum dapat dimuat."
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
         finally { busy = false }
     }
-    Column(modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         LunareaScreenHeader("Profil saya", onBack, "Kelola informasi akun Anda")
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(88.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "L", style = MaterialTheme.typography.headlineMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                    photoUrl?.let { url ->
+                        AsyncImage(model = url, contentDescription = "Foto profil", modifier = Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
+                    }
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(name.ifBlank { "Akun Lunarea" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("Foto membantu Anda mengenali akun", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                TextButton(onClick = { photoPicker.launch("image/*") }, enabled = !photoBusy, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)) {
+                    if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                    else Text(if (photoUrl.isNullOrBlank()) "Tambah foto profil" else "Ganti foto profil")
+                }
+            }
+        }
+        Text("JPG, PNG, atau WebP · Maksimal 2 MB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Text("Informasi pribadi", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         OutlinedTextField(email, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Email") }, enabled = false, singleLine = true)
         OutlinedTextField(name, { name = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama") }, singleLine = true)
         OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
@@ -2488,7 +2593,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                 finally { busy = false }
             }
         }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
-        message?.let { Text(it, color = LunareaGreenText, fontSize = 13.sp) }
+        message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = 13.sp) }
     }
 }
 
@@ -2681,12 +2786,63 @@ private fun EmptyState(text: String, onAction: () -> Unit, action: String) {
 }
 
 @Composable
+private fun VoucherCampaignPopup(voucher: com.google.gson.JsonObject, onDismiss: () -> Unit, onAction: () -> Unit) {
+    val name = voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().ifBlank { "Voucher pilihan" }
+    val nominal = runCatching { voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
+    val unit = voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+    val discount = if (unit.equals("persen", true) || unit.equals("percent", true)) "${nominal}%" else formatRupiah(nominal)
+    val description = voucher.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+    val cap = runCatching { voucher.get("max_discount")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
+
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(modifier = Modifier.fillMaxWidth(.91f), shape = RoundedCornerShape(26.dp), color = MaterialTheme.colorScheme.surface, shadowElevation = 12.dp) {
+            Column {
+                Box(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))).padding(start = 22.dp, top = 20.dp, end = 16.dp, bottom = 22.dp)) {
+                    Column(Modifier.fillMaxWidth().padding(end = 38.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .14f)) {
+                            Text("PENAWARAN KHUSUS", Modifier.padding(horizontal = 11.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = .7.sp)
+                        }
+                        Text("Rumah nyaman, belanja lebih hemat", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, lineHeight = 30.sp)
+                        Text("Pilihan promo untuk melengkapi rumah Anda.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .88f))
+                    }
+                    IconButton(onClick = onDismiss, modifier = Modifier.align(Alignment.TopEnd).size(44.dp)) {
+                        Text("×", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.headlineSmall)
+                    }
+                }
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .58f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
+                        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Surface(shape = RoundedCornerShape(15.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(72.dp)) {
+                                Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                    Text("HEMAT", style = MaterialTheme.typography.labelSmall, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                                    Text(discount, style = MaterialTheme.typography.titleMedium, color = LunareaGreenText, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                                }
+                            }
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text(name, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                if (description.isNotBlank()) Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                if (cap > 0) Text("Potongan hingga ${formatRupiah(cap)}", style = MaterialTheme.typography.labelSmall, color = LunareaGreenText, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                    }
+                    Text("Promo yang dapat digunakan akan diverifikasi kembali saat checkout.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(15.dp)) {
+                        Text("Jelajahi furnitur", fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterHorizontally).heightIn(min = 44.dp)) { Text("Lihat nanti", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun CatalogScreen(
     modifier: Modifier, tab: AppTab, query: String, onQueryChange: (String) -> Unit,
     signedIn: Boolean, favoriteKeys: Set<String>, cartItemCount: Int,
     onFavoriteKeysChange: (Set<String>) -> Unit, onCartChanged: () -> Unit,
     onOpenCart: () -> Unit, onLoginRequired: (String) -> Unit,
-    unreadNotificationCount: Int, onOpenNotifications: () -> Unit,
+    unreadNotificationCount: Int, onOpenNotifications: () -> Unit, onPromoAction: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
     products: List<ProductSummary>, loading: Boolean, message: String?, canLoadMore: Boolean,
     onSearch: () -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
@@ -3185,80 +3341,10 @@ private fun CatalogScreen(
               }
           }
       }
-      if (showLaunchVouchers && tab == AppTab.HOME) {
-          Dialog(
-              onDismissRequest = { showLaunchVouchers = false },
-              properties = DialogProperties(usePlatformDefaultWidth = false)
-          ) {
-              Surface(
-                  modifier = Modifier.fillMaxWidth(.92f),
-                  shape = RoundedCornerShape(26.dp),
-                  color = MaterialTheme.colorScheme.surface,
-                  tonalElevation = 5.dp,
-                  shadowElevation = 16.dp
-              ) {
-                  Column {
-                      Box(
-                          Modifier.fillMaxWidth().background(
-                              Brush.linearGradient(listOf(LunareaGreenText, MaterialTheme.colorScheme.primary))
-                          ).padding(start = 20.dp, top = 18.dp, end = 12.dp, bottom = 20.dp)
-                      ) {
-                          Column(Modifier.align(Alignment.CenterStart).padding(end = 42.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                              Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surface.copy(alpha = .18f)) {
-                                  Text("PROMO LUNAREA", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                              }
-                              Text("Belanja lebih hemat", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
-                              Text("Temukan penawaran yang cocok untuk rumah Anda.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .92f))
-                          }
-                          IconButton(onClick = { showLaunchVouchers = false }, modifier = Modifier.align(Alignment.TopEnd).size(40.dp)) {
-                              Text("×", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.headlineSmall)
-                          }
-                      }
-                      Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                          Text("Voucher pilihan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-                          Column(Modifier.heightIn(max = 250.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                              launchVouchers.take(5).forEach { voucher ->
-                                  val name = voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().ifBlank { "Promo Lunarea" }
-                                  val nominal = runCatching { voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
-                                  val unit = voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                                  val discount = if (unit.equals("persen", true) || unit.equals("percent", true)) "${nominal}%" else formatRupiah(nominal)
-                                  val description = voucher.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                                  val cap = runCatching { voucher.get("max_discount")?.takeUnless { it.isJsonNull }?.asLong ?: 0L }.getOrDefault(0L)
-                                  Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .52f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
-                                      Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                          Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(58.dp)) {
-                                              Box(contentAlignment = Alignment.Center) {
-                                                  Text(discount, color = LunareaGreenText, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                                              }
-                                          }
-                                          Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                              Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                              if (description.isNotBlank()) Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                              if (cap > 0) Text("Maksimal potongan ${formatRupiah(cap)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                          }
-                                      }
-                                  }
-                              }
-                          }
-                          Text(
-                              if (signedIn) "Voucher yang dapat digunakan akan diperiksa kembali saat checkout." else "Masuk atau daftar untuk memeriksa ketersediaan voucher pada akun Anda.",
-                              style = MaterialTheme.typography.bodySmall,
-                              color = MaterialTheme.colorScheme.onSurfaceVariant
-                          )
-                          Button(
-                              onClick = {
-                                  showLaunchVouchers = false
-                                  if (!signedIn) onLoginRequired("Masuk atau buat akun untuk melihat promo dan voucher yang tersedia untuk akun Anda.")
-                              },
-                              modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                              shape = RoundedCornerShape(14.dp)
-                          ) { Text(if (signedIn) "Mulai belanja" else "Masuk atau daftar") }
-                          TextButton(onClick = { showLaunchVouchers = false }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                              Text("Nanti saja", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                          }
-                      }
-                  }
-              }
+      if (showLaunchVouchers && tab == AppTab.HOME && launchVouchers.isNotEmpty()) {
+          VoucherCampaignPopup(launchVouchers.first(), onDismiss = { showLaunchVouchers = false }) {
+              showLaunchVouchers = false
+              onPromoAction()
           }
       }
       productDetail?.let { response ->
@@ -3880,34 +3966,51 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
 @Composable
 private fun AccountScreen(
     modifier: Modifier, signedIn: Boolean, busy: Boolean, identifier: String, password: String,
-    onIdentifier: (String) -> Unit, onPassword: (String) -> Unit, onLogin: () -> Unit, onLogout: () -> Unit,
+    onIdentifier: (String) -> Unit, onPassword: (String) -> Unit, onLogin: () -> Unit, onGoogleLogin: () -> Unit, onLogout: () -> Unit,
     onEnableNotifications: () -> Unit, notificationsEnabled: Boolean, onDisableNotifications: () -> Unit,
     onOpenOrders: () -> Unit, onOpenFavorites: () -> Unit, onOpenAddresses: () -> Unit,
     onOpenProfile: () -> Unit, onOpenSecurity: () -> Unit, onOpenRegistration: () -> Unit, onOpenRecovery: () -> Unit, onOpenVerification: () -> Unit,
-    notificationMessage: String?, message: String?
+    message: String?
 ) {
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (signedIn) LunareaSectionTitle("Akun Anda", "Kelola profil, pesanan, dan preferensi")
         if (!signedIn) {
             AuthFlowHeader("Selamat datang", "Masuk untuk melanjutkan belanja dan melihat pesanan Anda.", onOpenRegistration, showBack = false)
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
-            ) {
-                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(identifier, onIdentifier, modifier = Modifier.fillMaxWidth(), label = { Text("Email atau username") }, singleLine = true, shape = RoundedCornerShape(12.dp), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next))
                     PasswordInputField(password, onPassword, "Kata sandi")
                     Button(onClick = onLogin, enabled = !busy && identifier.isNotBlank() && password.isNotBlank(), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(12.dp)) {
                         if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Masuk")
+                    }
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+                        Text("atau", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                    OutlinedButton(
+                        onClick = onGoogleLogin,
+                        enabled = !busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                            containerColor = androidx.compose.ui.graphics.Color.White,
+                            contentColor = androidx.compose.ui.graphics.Color(0xFF3C4043)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFDADCE0))
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.google_logo),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text("Lanjutkan dengan Google", color = androidx.compose.ui.graphics.Color(0xFF3C4043), fontWeight = FontWeight.Medium)
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                         Text("Belum punya akun?", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         TextButton(onClick = onOpenRegistration, contentPadding = PaddingValues(horizontal = 6.dp)) { Text("Daftar") }
                     }
                 }
-            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = onOpenRecovery, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("Lupa kata sandi?") }
                 TextButton(onClick = onOpenVerification, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("Verifikasi email") }
@@ -3928,23 +4031,6 @@ private fun AccountScreen(
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                     TextButton(onClick = onLogout, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Keluar dari akun", color = MaterialTheme.colorScheme.error) }
-                }
-            }
-        }
-        message?.let { Text(it, color = LunareaGreenText, fontSize = 13.sp) }
-        notificationMessage?.let { status ->
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer
-            ) {
-                Row(
-                    Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(painterResource(R.drawable.ic_dialog_info), contentDescription = null, modifier = Modifier.size(20.dp))
-                    Text(status, color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 13.sp, lineHeight = 18.sp)
                 }
             }
         }

@@ -22,6 +22,7 @@ data class TokenPair(
 data class AuthTokensResponse(val tokens: TokenPair)
 
 data class LoginRequest(val identifier: String, val password: String, val device_name: String = "Android")
+data class GoogleLoginRequest(val id_token: String, val device_name: String = "Lunarea Android")
 data class RefreshRequest(val refresh_token: String)
 data class LogoutResponse(val logged_out: Boolean? = null)
 
