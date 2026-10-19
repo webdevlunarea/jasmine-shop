@@ -653,6 +653,7 @@ private fun LunareaApp() {
                 onOpenAddresses = { accountSection = AccountSection.ADDRESSES },
                 onOpenProfile = { accountSection = AccountSection.PROFILE },
                 onOpenSecurity = { accountSection = AccountSection.SECURITY },
+                onOpenPoints = { accountSection = AccountSection.POINTS },
                 onOpenRegistration = { accountSection = AccountSection.REGISTER },
                 onOpenRecovery = { accountSection = AccountSection.RECOVERY },
                 onOpenVerification = { authFlowEmail = identifier; accountSection = AccountSection.VERIFY_EMAIL },
@@ -663,6 +664,7 @@ private fun LunareaApp() {
                 AccountSection.ADDRESSES -> AddressesScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
                 AccountSection.PROFILE -> ProfileScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
                 AccountSection.SECURITY -> SecurityScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false })
+                AccountSection.POINTS -> PointsScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
                 AccountSection.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS })
                 AccountSection.REGISTER -> NativeRegistrationScreen(
                     Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
@@ -2421,7 +2423,16 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                     }
                 }
             }
-            item { Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(usePoints, { usePoints = it }); Text("Gunakan Luna Point") } }
+            item {
+                val availablePoints = preview?.get("points_available")?.takeUnless { it.isJsonNull }?.asLong ?: 0L
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = usePoints, onCheckedChange = { usePoints = it }, enabled = availablePoints > 0 && !previewLoading)
+                    Column {
+                        Text("Gunakan Luna Poin")
+                        Text("Saldo tersedia ${formatRupiah(availablePoints)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
             item { Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(includeGlass, { includeGlass = it }); Text("Tambahkan proteksi kaca jika tersedia") } }
             item {
                 if (previewLoading) {
@@ -4129,12 +4140,130 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
 }
 
 @Composable
+private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
+    val context = LocalContext.current
+    var refreshKey by remember { mutableIntStateOf(0) }
+    var page by remember { mutableIntStateOf(1) }
+    var data by remember { mutableStateOf<JsonObject?>(null) }
+    var history by remember { mutableStateOf<List<com.google.gson.JsonElement>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(refreshKey, page) {
+        loading = true
+        error = null
+        try {
+            val response = ApiClient.get(context).points(page)
+            if (response.isSuccessful && response.body()?.success == true) {
+                val payload = response.body()?.data
+                data = payload
+                val rows = payload?.arrayOrNull("history")?.toList().orEmpty()
+                history = if (page == 1) rows else (history + rows).distinctBy { it.asJsonObject.get("id")?.asString }
+            } else {
+                error = response.customerError("Informasi Luna Poin belum dapat dimuat.")
+            }
+        } catch (_: Exception) {
+            error = "Koneksi belum tersedia. Periksa internet lalu coba lagi."
+        } finally {
+            loading = false
+        }
+    }
+
+    Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) { Text("‹  Akun") }
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = { page = 1; refreshKey++ }, enabled = !loading) { Text("Muat ulang") }
+        }
+        Text("Luna Poin", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+        Text("Pantau saldo, masa berlaku, dan aktivitas poin Anda.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(18.dp))
+
+        if (loading && data == null) {
+            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        } else if (error != null && data == null) {
+            Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Text(error.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                TextButton(onClick = { refreshKey++ }) { Text("Coba lagi") }
+            }
+        } else {
+            val balance = data?.longOrNull("balance") ?: 0L
+            Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("SALDO TERSEDIA", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(formatRupiah(balance), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    data?.stringOrNull("next_expiry")?.takeIf(String::isNotBlank)?.let {
+                        Text("Poin terdekat kedaluwarsa: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
+                }
+            }
+            val tier = data?.objectOrNull("tier")
+            if (tier != null) {
+                Spacer(Modifier.height(12.dp))
+                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Luna Rewards · ${tier.stringOrNull("label") ?: "Bronze"}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        val progress = ((tier.longOrNull("progress") ?: 0L).toFloat() / 100f).coerceIn(0f, 1f)
+                        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                        val spend = tier.longOrNull("spend") ?: 0L
+                        val next = tier.longOrNull("next_minimum")
+                        Text(if (next == null) "Total belanja tier: ${formatRupiah(spend)} · Tier tertinggi" else "Total belanja tier: ${formatRupiah(spend)} dari ${formatRupiah(next)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        data?.arrayOrNull("benefits")?.takeIf { it.size() > 0 }?.let { benefits ->
+                            benefits.forEach { benefit ->
+                                val item = benefit.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+                                Text("• ${item.stringOrNull("name").orEmpty()} — ${item.stringOrNull("description").orEmpty()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                        if (data?.get("birthday_registered")?.takeUnless { it.isJsonNull }?.asBoolean == false) {
+                            Text("Lengkapi tanggal lahir di profil untuk benefit ulang tahun.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            Text("Riwayat poin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(8.dp))
+            if (history.isEmpty()) {
+                Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+                    Text("Belum ada aktivitas Luna Poin.", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else {
+                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                    items(history) { item ->
+                        val row = item.takeIf { it.isJsonObject }?.asJsonObject
+                        val amount = row?.longOrNull("amount") ?: 0L
+                        Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface) {
+                            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Text(row?.stringOrNull("label").orEmpty().ifBlank { "Perubahan poin" }, fontWeight = FontWeight.Medium)
+                                    row?.stringOrNull("description")?.takeIf(String::isNotBlank)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                    row?.stringOrNull("date")?.takeIf(String::isNotBlank)?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                }
+                                Text("${if (amount > 0) "+" else ""}${formatRupiah(amount)}", fontWeight = FontWeight.SemiBold,
+                                    color = if (amount < 0) MaterialTheme.colorScheme.error else LunareaGreenText)
+                            }
+                        }
+                    }
+                    if (history.size < (data?.longOrNull("total_history") ?: 0L)) {
+                        item {
+                            TextButton(onClick = { if (!loading) page++ }, enabled = !loading, modifier = Modifier.fillMaxWidth()) {
+                                if (loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Muat riwayat sebelumnya")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun AccountScreen(
     modifier: Modifier, signedIn: Boolean, busy: Boolean, identifier: String, password: String,
     onIdentifier: (String) -> Unit, onPassword: (String) -> Unit, onLogin: () -> Unit, onGoogleLogin: () -> Unit, onLogout: () -> Unit,
     onEnableNotifications: () -> Unit, notificationsEnabled: Boolean, onDisableNotifications: () -> Unit,
     onOpenOrders: () -> Unit, onOpenFavorites: () -> Unit, onOpenAddresses: () -> Unit,
-    onOpenProfile: () -> Unit, onOpenSecurity: () -> Unit, onOpenRegistration: () -> Unit, onOpenRecovery: () -> Unit, onOpenVerification: () -> Unit,
+    onOpenProfile: () -> Unit, onOpenSecurity: () -> Unit, onOpenPoints: () -> Unit, onOpenRegistration: () -> Unit, onOpenRecovery: () -> Unit, onOpenVerification: () -> Unit,
     message: String?
 ) {
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -4187,6 +4316,7 @@ private fun AccountScreen(
                     AccountActionRow("Profil saya", "Nama dan nomor ponsel", onOpenProfile)
                     AccountActionRow("Keamanan akun", "Kata sandi dan email", onOpenSecurity)
                     AccountActionRow("Pesanan saya", "Pembayaran dan status pengiriman", onOpenOrders)
+                    AccountActionRow("Luna Poin", "Saldo, masa berlaku, dan riwayat poin", onOpenPoints)
                     AccountActionRow("Produk favorit", "Daftar furnitur pilihan", onOpenFavorites)
                     AccountActionRow("Alamat tersimpan", "Atur alamat pengiriman", onOpenAddresses)
                     AccountActionRow(

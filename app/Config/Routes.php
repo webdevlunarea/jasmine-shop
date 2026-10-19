@@ -49,6 +49,7 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->post('addresses/(:num)/default', 'Api\\V1\\AddressController::setDefault/$1');
         $routes->post('shipping/quotes', 'Api\\V1\\ShippingController::quote');
         $routes->get('vouchers/available', 'Api\\V1\\VoucherController::index');
+        $routes->get('points', 'Api\\V1\\PointsController::index');
         $routes->post('checkout/preview', 'Api\\V1\\CheckoutController::preview');
         $routes->post('checkout/orders', 'Api\\V1\\CheckoutController::createOrder');
         $routes->get('orders', 'Api\\V1\\OrderController::index');

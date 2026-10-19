@@ -149,6 +149,14 @@ Respons tracking memisahkan `status` (status pengiriman tersimpan) dari `order_s
 
 Polling `payment-status` bersifat baca-saja dan bukan pengganti webhook/reconciliation backend. Status/manual transfer ditampilkan dari data tersimpan. Detail nomor VA dan data pembayaran yang dikirim dibatasi pada data pelanggan.
 
+## Luna Poin
+
+| Method | Path | Auth | Keterangan |
+|---|---|---|---|
+| GET | `/points?page=1` | Bearer | Saldo aktif, masa berlaku terdekat, tier/benefit, dan riwayat poin terpaginasikan (30 per halaman) |
+
+Saldo dan tier dibaca dari data akun Lunarea; endpoint hanya-baca dan tidak mengubah atau menghapus batch poin kedaluwarsa. Pemakaian poin saat checkout dikirim sebagai `use_points` pada `POST /checkout/preview` dan `POST /checkout/orders`; backend menghitung saldo/potongan, menyimpan penggunaan pada pesanan, dan mengelola pengembalian poin sesuai alur status pesanan. Nilai poin dari aplikasi bukan sumber kebenaran.
+
 ## Push notification
 
 | Method | Path | Body |
