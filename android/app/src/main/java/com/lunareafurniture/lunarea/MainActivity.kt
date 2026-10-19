@@ -2926,6 +2926,8 @@ private fun CatalogScreen(
     val scope = rememberCoroutineScope()
     val gridState = rememberLazyGridState()
     val density = androidx.compose.ui.platform.LocalDensity.current
+    // Keep every catalog/home search compact by default; users open it on demand.
+    var searchExpanded by remember(tab) { mutableStateOf(false) }
     val refreshThresholdPx = with(density) { 88.dp.toPx() }
     var pullDistance by remember { mutableFloatStateOf(0f) }
     var refreshTriggered by remember { mutableStateOf(false) }
@@ -2950,6 +2952,7 @@ private fun CatalogScreen(
         val revealThreshold = with(density) { 8.dp.toPx() }
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y != 0f) searchExpanded = false
                 val atTop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
                 if (available.y < 0f) {
                     if (latestChromeVisible) {
@@ -3250,9 +3253,12 @@ private fun CatalogScreen(
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.weight(1f))
-                if (!chromeVisible) {
+                if (!searchExpanded) {
                     IconButton(
-                        onClick = { onChromeVisibilityChange(true) },
+                        onClick = {
+                            searchExpanded = true
+                            onChromeVisibilityChange(true)
+                        },
                         modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
                     ) {
                         Icon(painterResource(R.drawable.ic_search), contentDescription = "Tampilkan pencarian", tint = LunareaGreenText, modifier = Modifier.size(22.dp))
@@ -3277,7 +3283,7 @@ private fun CatalogScreen(
                 }
             }
             AnimatedVisibility(
-                visible = chromeVisible,
+                visible = searchExpanded,
                 enter = fadeIn(animationSpec = tween(130)),
                 exit = fadeOut(animationSpec = tween(110))
             ) {
