@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.play.services)
+    implementation(libs.play.services.location)
     implementation(libs.datastore.preferences)
     implementation(libs.work.runtime.ktx)
     debugImplementation(libs.androidx.compose.ui.tooling)

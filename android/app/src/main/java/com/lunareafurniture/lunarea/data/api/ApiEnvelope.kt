@@ -9,7 +9,7 @@ data class ApiEnvelope<T>(
     val error: ApiError? = null
 )
 
-data class ApiError(val code: String? = null, val message: String? = null)
+data class ApiError(val code: String? = null, val message: String? = null, val request_id: String? = null)
 
 data class TokenPair(
     val access_token: String,
@@ -39,6 +39,7 @@ data class ProductSummary(
     val category: String? = null,
     val weight_kg: Double? = null,
     val stock: Int? = null,
+    val sold_count: Int? = null,
     val variants: List<ProductVariant> = emptyList()
 )
 

@@ -51,7 +51,8 @@ interface LunareaApi {
         @Query("page") page: Int = 1,
         @Query("per_page") perPage: Int = 20,
         @Query("q") query: String? = null,
-        @Query("category") category: String? = null
+        @Query("category") category: String? = null,
+        @Query("sort") sort: String? = null
     ): Response<ApiEnvelope<ProductPage>>
 
     @GET("catalog/categories")
