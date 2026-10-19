@@ -13,7 +13,6 @@ final class PaymentSafety
             'lunareafurniture@gmail.com',
             'galih8.4.2001@gmail.com',
             'uuua5021@gmail.com',
-            'uuua5032@gmail.com',
         ];
     }
 
