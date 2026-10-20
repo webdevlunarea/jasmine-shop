@@ -82,6 +82,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.semantics.Role
@@ -793,7 +797,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
                 products = products, loading = loading, message = message,
                 canLoadMore = catalogPage < catalogPages,
-                onSearch = { loadProducts(query.trim(), selectedCategory, 1, false) },
+                onSearch = { search -> loadProducts(search.trim(), selectedCategory, 1, false) },
                 onLoadMore = { loadProducts(query, selectedCategory, catalogPage + 1, true) },
                 onRefresh = { loadProducts(query, selectedCategory, 1, false) },
                 onDetailVisibility = { detailOpen = it }
@@ -3930,7 +3934,7 @@ private fun CatalogScreen(
     onPromoAction: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
     products: List<ProductSummary>, loading: Boolean, message: String?, canLoadMore: Boolean,
-    onSearch: () -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
+    onSearch: (String) -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
     onDetailVisibility: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
@@ -3939,6 +3943,16 @@ private fun CatalogScreen(
     val density = androidx.compose.ui.platform.LocalDensity.current
     // Keep every catalog/home search compact by default; users open it on demand.
     var searchExpanded by remember(tab) { mutableStateOf(false) }
+    var searchInput by remember(tab) { mutableStateOf("") }
+    val searchFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    val searchPreferences = remember(context) {
+        context.getSharedPreferences("lunarea_search_history", android.content.Context.MODE_PRIVATE)
+    }
+    var recentSearches by remember(searchPreferences) {
+        mutableStateOf(searchPreferences.getString("queries", "").orEmpty().lines().filter(String::isNotBlank).take(5))
+    }
     val refreshThresholdPx = with(density) { 88.dp.toPx() }
     var pullDistance by remember { mutableFloatStateOf(0f) }
     var refreshTriggered by remember { mutableStateOf(false) }
@@ -3962,6 +3976,29 @@ private fun CatalogScreen(
                 previousIndex = index
                 previousOffset = offset
             }
+    }
+    LaunchedEffect(searchExpanded) {
+        if (searchExpanded) {
+            delay(120)
+            runCatching { searchFocusRequester.requestFocus() }
+            keyboardController?.show()
+        } else {
+            keyboardController?.hide()
+            focusManager.clearFocus()
+        }
+    }
+    fun submitSearch(term: String = searchInput) {
+        val normalized = term.trim().take(120)
+        if (normalized.isBlank()) return
+        val updated = (listOf(normalized) + recentSearches.filterNot { it.equals(normalized, ignoreCase = true) }).take(5)
+        recentSearches = updated
+        searchPreferences.edit().putString("queries", updated.joinToString("\n")).apply()
+        onQueryChange(normalized)
+        onSearch(normalized)
+        // Clear only the editable field; the submitted query/results remain active.
+        searchInput = ""
+        keyboardController?.hide()
+        focusManager.clearFocus()
     }
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.isScrollInProgress }.collect { scrolling ->
@@ -4334,14 +4371,50 @@ private fun CatalogScreen(
             ) {
                 Column {
                     Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = query, onValueChange = onQueryChange, modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Cari furnitur...") }, singleLine = true,
-                        shape = RoundedCornerShape(14.dp), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
-                        leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null, tint = LunareaGreenText) },
-                        trailingIcon = { TextButton(onClick = onSearch) { Text("Cari") } }
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedTextField(
+                            value = searchInput,
+                            onValueChange = { searchInput = it.take(120) },
+                            modifier = Modifier.weight(1f).focusRequester(searchFocusRequester),
+                            placeholder = { Text("Cari furnitur, meja, kursi…") },
+                            singleLine = true,
+                            shape = RoundedCornerShape(16.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { submitSearch() }),
+                            leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null, tint = LunareaGreenText) },
+                            trailingIcon = {
+                                if (searchInput.isNotBlank()) {
+                                    IconButton(onClick = { searchInput = "" }, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
+                                        Text("×", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.titleLarge)
+                                    }
+                                }
+                            }
+                        )
+                        IconButton(
+                            onClick = { searchExpanded = false },
+                            modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                        ) { Text("×", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.titleLarge) }
+                    }
+                    if (searchInput.isBlank() && recentSearches.isNotEmpty()) {
+                        Spacer(Modifier.height(10.dp))
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("PENCARIAN TERAKHIR", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold, letterSpacing = .6.sp)
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = {
+                                recentSearches = emptyList()
+                                searchPreferences.edit().remove("queries").apply()
+                            }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Hapus") }
+                        }
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            recentSearches.forEach { recent ->
+                                AssistChip(
+                                    onClick = { submitSearch(recent) },
+                                    label = { Text(recent, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                )
+                            }
+                        }
+                    }
                 }
             }
             if (tab == AppTab.HOME) {
