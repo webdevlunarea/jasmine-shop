@@ -26,6 +26,8 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | GET | `/me` | Bearer | Baca profil pengguna |
 | PATCH | `/me` | Bearer | Perbarui nama dan nomor ponsel |
 | POST | `/me/photo` | Bearer, multipart | Unggah foto profil JPG/PNG/WebP maksimal 2 MiB |
+| GET | `/me/username` | Bearer | Baca username dan jadwal perubahan berikutnya |
+| PUT | `/me/username` | Bearer | Atur/perbarui username; perubahan berikutnya dibatasi 6 bulan |
 
 `GET /me` mengembalikan `data.customer.photo_url`. Unggah foto memeriksa format MIME, ukuran, dan dimensi, lalu menyimpan blob profil serta referensi foto pelanggan dalam satu transaksi.
 | POST | `/auth/password/change` | Bearer | Ganti sandi dengan sandi lama; seluruh sesi dicabut dan login ulang diperlukan |

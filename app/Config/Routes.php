@@ -35,6 +35,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->get('me', 'Api\\V1\\AuthController::me');
         $routes->patch('me', 'Api\\V1\\ProfileController::update');
         $routes->post('me/photo', 'Api\\V1\\ProfileController::uploadPhoto');
+        $routes->get('me/username', 'Api\\V1\\UsernameController::show');
+        $routes->put('me/username', 'Api\\V1\\UsernameController::save');
         $routes->get('wishlist', 'Api\\V1\\WishlistController::index');
         $routes->post('wishlist/items', 'Api\\V1\\WishlistController::add');
         $routes->delete('wishlist/items', 'Api\\V1\\WishlistController::delete');

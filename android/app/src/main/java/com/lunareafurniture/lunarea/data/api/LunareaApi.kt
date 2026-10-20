@@ -86,6 +86,12 @@ interface LunareaApi {
     @POST("me/photo")
     suspend fun uploadProfilePhoto(@Part photo: MultipartBody.Part): Response<ApiEnvelope<JsonObject>>
 
+    @GET("me/username")
+    suspend fun usernameSettings(): Response<ApiEnvelope<JsonObject>>
+
+    @PUT("me/username")
+    suspend fun saveUsername(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
     @GET("addresses")
     suspend fun addresses(): Response<ApiEnvelope<JsonObject>>
 

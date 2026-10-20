@@ -184,6 +184,43 @@ private val nativePaymentMethods = listOf(
     "gopay" to "GoPay",
     "shopeepay" to "ShopeePay"
 )
+
+@Composable
+private fun PaymentMethodLogo(method: String, modifier: Modifier = Modifier) {
+    val resource = when (method.trim().lowercase()) {
+        "bri", "rekening" -> R.drawable.payment_bri
+        "bca" -> R.drawable.payment_bca
+        "bni" -> R.drawable.payment_bni
+        "cimb" -> R.drawable.payment_cimb
+        "permata", "permatabank" -> R.drawable.payment_permata
+        "mandiri", "echannel" -> R.drawable.payment_mandiri
+        "qris" -> R.drawable.payment_qris
+        "gopay" -> R.drawable.payment_gopay
+        "shopeepay" -> R.drawable.payment_shopeepay
+        else -> null
+    } ?: return
+    val label = when (method.trim().lowercase()) {
+        "rekening" -> "BRI"
+        "echannel" -> "Mandiri"
+        else -> method.uppercase()
+    }
+    Surface(
+        modifier = modifier.size(width = 56.dp, height = 34.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = Color.White,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(resource),
+                contentDescription = "Logo $label",
+                modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp, vertical = 4.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+}
+
 private val homeBannerUrls = (1..5).map { index ->
     "${BuildConfig.API_BASE_URL.removeSuffix("/api/v1/")}/img/benner/$index.webp"
 }
@@ -2644,6 +2681,9 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var checkoutNeedsReview by remember { mutableStateOf(false) }
     var checkoutStatusUnknown by remember { mutableStateOf(false) }
     var refreshAddress by remember { mutableIntStateOf(0) }
+    val cheapestQuotes = remember(quotes) {
+        quotes.sortedWith(compareBy<ShippingOption> { it.cost }.thenBy { it.courier }.thenBy { it.service }).take(5)
+    }
 
     LaunchedEffect(refreshAddress) {
         busy = true
@@ -2951,9 +2991,16 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
                             Text("Menghitung pilihan pengiriman…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (quotes.isNotEmpty()) {
+                        if (cheapestQuotes.isNotEmpty()) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                quotes.forEach { option ->
+                                if (quotes.size > cheapestQuotes.size) {
+                                    Text(
+                                        "Menampilkan ${cheapestQuotes.size} tarif termurah dari ${quotes.size} pilihan.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                cheapestQuotes.forEach { option ->
                                     val selected = quote?.token == option.token
                                     val selectionColor by animateColorAsState(
                                         targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f) else MaterialTheme.colorScheme.surface,
@@ -3008,6 +3055,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                             ) {
                                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                     RadioButton(selected = selected, onClick = null)
+                                    PaymentMethodLogo(if (mode == "rekening") "rekening" else payment)
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                         Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                         Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -3018,12 +3066,22 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         if (!manualSelected) {
                             Box {
                                 OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) {
+                                    PaymentMethodLogo(payment)
+                                    Spacer(Modifier.width(10.dp))
                                     Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode otomatis", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     Icon(painterResource(R.drawable.ic_expand_more), contentDescription = "Pilih metode pembayaran")
                                 }
                                 DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
                                     nativePaymentMethods.forEach { (method, label) ->
-                                        DropdownMenuItem(text = { Text(label) }, onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false })
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                                    PaymentMethodLogo(method)
+                                                    Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                }
+                                            },
+                                            onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false }
+                                        )
                                     }
                                 }
                             }
@@ -3246,6 +3304,13 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var usernameInput by remember { mutableStateOf("") }
+    var usernameCanChange by remember { mutableStateOf(false) }
+    var usernameNextChangeLabel by remember { mutableStateOf<String?>(null) }
+    var usernameAvailable by remember { mutableStateOf(false) }
+    var usernameBusy by remember { mutableStateOf(false) }
+    var usernameMessage by remember { mutableStateOf<String?>(null) }
     var photoUrl by remember { mutableStateOf<String?>(null) }
     var photoChangeAvailableAt by remember { mutableStateOf<Instant?>(null) }
     var busy by remember { mutableStateOf(true) }
@@ -3283,6 +3348,23 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             } else message = response.body()?.error?.message ?: "Profil belum dapat dimuat."
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
         finally { busy = false }
+    }
+    LaunchedEffect(Unit) {
+        try {
+            val response = ApiClient.get(context).usernameSettings()
+            val settings = response.body()?.data?.getAsJsonObject("username")
+            if (response.isSuccessful && response.body()?.success == true && settings != null) {
+                usernameAvailable = true
+                username = settings.get("username")?.asString.orEmpty()
+                usernameInput = username
+                usernameCanChange = settings.get("can_change")?.asBoolean ?: false
+                usernameNextChangeLabel = settings.get("next_change_label")?.takeIf { !it.isJsonNull }?.asString
+            } else {
+                usernameMessage = response.customerError("Pengaturan username belum tersedia.")
+            }
+        } catch (_: Exception) {
+            usernameMessage = "Pengaturan username belum dapat dimuat. Coba lagi nanti."
+        }
     }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Profil saya", onBack, "Kelola informasi akun Anda")
@@ -3326,6 +3408,63 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             }
         }
         Text("JPG, PNG, atau WebP · Maksimal 2 MB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp))
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Username untuk masuk", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("Gunakan username atau email dengan sandi akun yang sama.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (usernameAvailable) {
+                    if (username.isNotBlank() && !usernameCanChange) {
+                        OutlinedTextField(username, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Username saat ini") }, enabled = false, singleLine = true, shape = RoundedCornerShape(12.dp))
+                        usernameNextChangeLabel?.let { Text("Dapat diubah kembali mulai $it.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    } else {
+                        OutlinedTextField(
+                            usernameInput,
+                            { value -> usernameInput = value.filter { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '_' }.take(30).lowercase() },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(if (username.isBlank()) "Buat username" else "Username baru") },
+                            supportingText = { Text("3–30 karakter, diawali huruf; huruf, angka, dan _.") },
+                            singleLine = true,
+                            enabled = !usernameBusy,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    usernameBusy = true
+                                    usernameMessage = null
+                                    try {
+                                        val payload = JsonObject().apply { addProperty("username", usernameInput.trim()) }
+                                        val response = ApiClient.get(context).saveUsername(payload)
+                                        val settings = response.body()?.data?.getAsJsonObject("username")
+                                        if (response.isSuccessful && response.body()?.success == true && settings != null) {
+                                            username = settings.get("username")?.asString.orEmpty()
+                                            usernameInput = username
+                                            usernameCanChange = settings.get("can_change")?.asBoolean ?: false
+                                            usernameNextChangeLabel = settings.get("next_change_label")?.takeIf { !it.isJsonNull }?.asString
+                                            usernameMessage = "Username berhasil disimpan."
+                                        } else usernameMessage = response.customerError("Username belum dapat disimpan.")
+                                    } catch (_: Exception) {
+                                        usernameMessage = "Koneksi belum tersedia. Username belum dapat disimpan."
+                                    } finally { usernameBusy = false }
+                                }
+                            },
+                            enabled = !usernameBusy && usernameInput.length in 3..30 && usernameInput.firstOrNull()?.isLetter() == true && usernameInput != username,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            if (usernameBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                            else Text(if (username.isBlank()) "Simpan username" else "Ubah username")
+                        }
+                    }
+                }
+                usernameMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error) }
+            }
+        }
         Column(verticalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.padding(top = 4.dp, start = 4.dp)) {
             Text("Informasi pribadi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text("Pastikan detail kontak Anda selalu terbaru.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
