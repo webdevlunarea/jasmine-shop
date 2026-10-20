@@ -4471,7 +4471,7 @@ private fun CatalogScreen(
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp).heightIn(min = 44.dp)
                 ) {
-                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = lunareaResponsiveFontSize(13.sp), fontWeight = FontWeight.SemiBold)
+                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
           }
