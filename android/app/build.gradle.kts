@@ -6,16 +6,23 @@ plugins {
 }
 android {
     namespace = "com.lunareafurniture.lunarea"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.lunareafurniture.lunarea"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "0.1.1"
         buildConfigField("String", "API_BASE_URL", "\"https://lunareafurniture.com/api/v1/\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"520531202813-voubv1urfgrmeg8l813i4d3qh9r8i2g6.apps.googleusercontent.com\"")
         buildConfigField("String", "RECAPTCHA_ANDROID_KEY_ID", "\"6LdhT_YtAAAAAPXNKQu3-4owL1D6Yb97D4qZzIW_\"")
+    }
+    buildTypes {
+        getByName("release") {
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
+        }
     }
     buildFeatures { compose = true; buildConfig = true }
     compileOptions {

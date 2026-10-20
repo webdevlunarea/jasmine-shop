@@ -5,15 +5,20 @@ import android.os.Build
 import android.app.Activity
 import android.text.Html
 import android.net.Uri
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -23,6 +28,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.*
@@ -46,6 +52,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -118,6 +125,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.text.NumberFormat
 import java.text.Normalizer
+import java.io.ByteArrayOutputStream
 import java.util.Locale
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -143,7 +151,27 @@ private data class PushTap(val type: String, val orderId: String, val productId:
 private data class RegionOption(val id: Int, val label: String, val postal: String = "")
 private data class ShippingOption(val token: String, val courier: String, val service: String, val cost: Long, val eta: String?)
 private data class CartLine(val id: String, val name: String, val variant: String, val quantity: Int, val price: Long, val image: String?)
-private enum class ProductInfoSheet { DESCRIPTION, REVIEWS }
+private enum class ProductInfoSheet { DESCRIPTION, REVIEWS, PURCHASE_NOTES, COMPLAINT_TERMS }
+
+private val productPurchaseNotes = listOf(
+    "Produk dikirim dalam keadaan belum dirakit. Perakitan dilakukan oleh pelanggan.",
+    "Saat pesanan tiba, periksa nama, warna, dan kode produk sebelum membuka kemasan.",
+    "Rekam video sejak kemasan dibuka sebagai bukti jika ditemukan kerusakan, cacat, atau komponen yang tidak sesuai.",
+    "Petunjuk perakitan tersedia di dalam kardus. Panduan video juga dapat dilihat di kanal YouTube Lunarea Furniture sesuai nama produk.",
+    "Pengiriman diproses 1 hari setelah pembayaran selesai. Jika bertepatan dengan hari libur nasional atau libur Lebaran, pesanan diproses pada hari kerja berikutnya.",
+    "Pengiriman menuju alamat tujuan menggunakan jasa mitra ekspedisi.",
+    "Gratis ongkir berlaku untuk wilayah Jawa, Madura, dan Bali. Alamat di luar wilayah tersebut mendapatkan subsidi ongkir sesuai ketentuan.",
+    "Warna produk dapat terlihat berbeda karena pencahayaan dan pengaturan layar. Informasi pada website menyebut toleransi kemiripan warna sebesar 85%."
+)
+
+private val productComplaintTerms = listOf(
+    "Pengajuan komplain wajib menyertakan video unboxing dan foto nomor produksi pada produk (misalnya MBMR 168 atau AO42).",
+    "Jika komponen rusak saat pengiriman, segera hubungi layanan pelanggan. Pengiriman komponen pengganti diperkirakan memerlukan sekitar 14 hari kerja.",
+    "Jika aksesori rusak akibat pengiriman, kirimkan kembali aksesori yang rusak agar dapat diproses penggantiannya.",
+    "Estimasi pengiriman ulang paling lambat 14 hari kerja untuk komponen dan 7 hari kerja untuk aksesori.",
+    "Batas pengajuan komplain maksimal 14 hari kerja setelah produk diterima dan maksimal 2 kali pengajuan.",
+    "Jika kerusakan mencapai 50% atau produk tidak dapat digunakan sebagaimana mestinya, produk dapat diganti dengan produk baru. Produk lama harus dikembalikan dan ongkos kirim pengembalian ditanggung Lunarea."
+)
 private val nativePaymentMethods = listOf(
     "bca" to "BCA Virtual Account",
     "bri" to "BRI Virtual Account",
@@ -164,13 +192,12 @@ private fun readableProductDescription(raw: String): String {
         .replace('\u00A0', ' ')
         .replace("\r\n", "\n")
         .replace('\r', '\n')
-    return decoded.lineSequence()
-        .map(String::trim)
-        .fold(mutableListOf<String>()) { lines, line ->
-            if (line.isNotEmpty() || lines.lastOrNull()?.isNotEmpty() == true) lines.add(line)
-            lines
-        }
-        .joinToString("\n")
+    return decoded
+        .replace(Regex("[\\t\\x0B\\f ]+"), " ")
+        .replace(Regex("[ \\t]*\\n[ \\t]*"), "\n")
+        .replace(Regex("\\n{3,}"), "\n\n")
+        .replace(Regex("\\s+(?=\\d{1,2}[.)]\\s)"), "\n")
+        .replace(Regex("(?m)^\\s*[-*]\\s+"), "• ")
         .trim()
         .ifBlank { "Informasi produk belum tersedia." }
 }
@@ -392,20 +419,42 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
         }
     }
 
-    if (showNotificationIntro) {
-        AlertDialog(
-            onDismissRequest = { showNotificationIntro = false },
-            icon = { Icon(painterResource(R.drawable.ic_dialog_info), contentDescription = null) },
-            title = { Text("Tetap terhubung dengan pesanan") },
-            text = { Text("Izinkan notifikasi agar Anda mendapat kabar saat status pesanan atau pengiriman berubah. Pengaturan ini dapat diubah kapan saja.") },
-            confirmButton = {
-                Button(onClick = { showNotificationIntro = false; requestNotificationPermission() }, shape = RoundedCornerShape(12.dp)) {
-                    Text("Lanjutkan")
+    // Keep the first-run permission explainer behind the brand splash until the
+    // application surface is ready; permission timing and callbacks stay intact.
+    if (showNotificationIntro && startupComplete) {
+        Dialog(onDismissRequest = { showNotificationIntro = false }) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.92f).widthIn(max = 400.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
+            ) {
+                Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(52.dp)) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(painterResource(R.drawable.ic_notifications), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(24.dp))
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("LUNAREA · KABAR PESANAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .6.sp)
+                            Text("Tetap terhubung", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    Text("Aktifkan notifikasi untuk menerima pembaruan status pesanan dan pengiriman.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Izin ini dapat diubah kapan saja melalui pengaturan perangkat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                    Button(
+                        onClick = { showNotificationIntro = false; requestNotificationPermission() },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) { Text("Lanjutkan") }
+                    TextButton(onClick = { showNotificationIntro = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                        Text("Nanti saja")
+                    }
                 }
-            },
-            dismissButton = { TextButton(onClick = { showNotificationIntro = false }) { Text("Nanti saja") } },
-            shape = RoundedCornerShape(24.dp)
-        )
+            }
+        }
     }
 
     authPromptMessage?.let { prompt ->
@@ -660,10 +709,17 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
             }
         }
     ) { insets ->
-        Box(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+        // Keep reading width comfortable on tablets and foldables, while leaving
+        // compact phones completely edge-to-edge within their existing gutters.
+        val pageContentMaxWidth = if (maxWidth >= 600.dp) 960.dp else maxWidth
+        val adaptivePageModifier = Modifier.padding(insets)
+            .widthIn(max = pageContentMaxWidth)
+            .fillMaxWidth()
+            .align(Alignment.TopCenter)
         if (notificationInboxOpen) {
             NotificationInboxScreen(
-                modifier = Modifier.padding(insets),
+                modifier = adaptivePageModifier,
                 signedIn = signedIn,
                 refreshVersion = notificationsRefreshVersion,
                 onRefresh = { notificationsRefreshVersion++ },
@@ -674,7 +730,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
         } else when (tab) {
             AppTab.HOME, AppTab.CATALOG -> CatalogScreen(
                 startupComplete = startupComplete,
-                modifier = Modifier.padding(insets), tab = tab, query = query, onQueryChange = { query = it.take(120) },
+                modifier = adaptivePageModifier, tab = tab, query = query, onQueryChange = { query = it.take(120) },
                 signedIn = signedIn,
                 favoriteKeys = favoriteKeys,
                 cartItemCount = cartItems.sumOf { it.quantity },
@@ -697,7 +753,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 onDetailVisibility = { detailOpen = it }
             )
             AppTab.CART -> CartScreen(
-                modifier = Modifier.padding(insets), signedIn = signedIn, items = cartItems,
+                modifier = adaptivePageModifier, signedIn = signedIn, items = cartItems,
                 subtotal = cartSubtotal, loading = cartLoading, message = cartMessage,
                 onLogin = { tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU; message = "Masuk untuk melihat keranjang akun Anda." },
                 onReload = { cartRefreshVersion++ },
@@ -718,10 +774,10 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                     else { tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU; message = "Masuk terlebih dahulu sebelum melanjutkan ke pembayaran." }
                 }
             )
-            AppTab.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { tab = AppTab.CART }, onOpenOrders = { tab = AppTab.ACCOUNT; accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
+            AppTab.CHECKOUT -> CheckoutScreen(adaptivePageModifier, onBack = { tab = AppTab.CART }, onOpenOrders = { tab = AppTab.ACCOUNT; accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
             AppTab.ACCOUNT -> when (accountSection) {
                 AccountSection.MENU -> AccountScreen(
-                modifier = Modifier.padding(insets), signedIn = signedIn, busy = busy,
+                modifier = adaptivePageModifier, signedIn = signedIn, busy = busy,
                 identifier = identifier, password = password,
                 onIdentifier = { identifier = it }, onPassword = { password = it },
                 onLogin = {
@@ -770,23 +826,23 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 onOpenVerification = { authFlowEmail = identifier; accountSection = AccountSection.VERIFY_EMAIL },
                 message = message
                 )
-                AccountSection.ORDERS -> OrdersScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.FAVORITES -> FavoritesScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.ADDRESSES -> AddressesScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.PROFILE -> ProfileScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.SECURITY -> SecurityScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false })
-                AccountSection.POINTS -> PointsScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU })
-                AccountSection.CHECKOUT -> CheckoutScreen(Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
+                AccountSection.ORDERS -> OrdersScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.FAVORITES -> FavoritesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.ADDRESSES -> AddressesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.PROFILE -> ProfileScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.SECURITY -> SecurityScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false })
+                AccountSection.POINTS -> PointsScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.CHECKOUT -> CheckoutScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
                 AccountSection.REGISTER -> NativeRegistrationScreen(
-                    Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
+                    adaptivePageModifier, onBack = { accountSection = AccountSection.MENU },
                     onRegistered = { email -> authFlowEmail = email; accountSection = AccountSection.VERIFY_EMAIL }
                 )
                 AccountSection.VERIFY_EMAIL -> NativeVerificationScreen(
-                    Modifier.padding(insets), initialEmail = authFlowEmail, onBack = { accountSection = AccountSection.MENU },
+                    adaptivePageModifier, initialEmail = authFlowEmail, onBack = { accountSection = AccountSection.MENU },
                     onVerified = { email -> identifier = email; password = ""; accountSection = AccountSection.MENU; message = "Email terverifikasi. Silakan masuk dengan akun Anda." }
                 )
                 AccountSection.RECOVERY -> NativeRecoveryScreen(
-                    Modifier.padding(insets), onBack = { accountSection = AccountSection.MENU },
+                    adaptivePageModifier, onBack = { accountSection = AccountSection.MENU },
                     onCompleted = { identity -> identifier = identity; password = ""; accountSection = AccountSection.MENU; message = "Kata sandi berhasil diperbarui. Silakan masuk." }
                 )
             }
@@ -914,25 +970,23 @@ private fun NotificationInboxScreen(
                 Button(onClick = onLogin, shape = RoundedCornerShape(14.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Masuk ke akun") }
             }
             loading && notifications.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = LunareaGreenText)
+                LoadingStatePanel("Memuat pemberitahuan…", Modifier.fillMaxWidth().padding(20.dp))
             }
-            error != null && notifications.isEmpty() -> Column(
-                Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(error.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(12.dp))
-                OutlinedButton(onClick = onRefresh, modifier = Modifier.heightIn(min = 48.dp)) { Text("Coba lagi") }
-            }
+            error != null && notifications.isEmpty() -> StatePanel(
+                title = "Pemberitahuan belum dapat dimuat", message = error.orEmpty(), isError = true,
+                actionLabel = "Coba lagi", onAction = onRefresh,
+                modifier = Modifier.fillMaxSize().padding(20.dp)
+            )
             notifications.isEmpty() -> Column(
                 Modifier.fillMaxSize().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(painterResource(R.drawable.ic_notifications), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(34.dp))
-                Spacer(Modifier.height(12.dp))
-                Text("Belum ada pemberitahuan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(4.dp))
-                Text("Pembaruan pesanan Anda akan muncul di sini.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                StatePanel(
+                    title = "Belum ada pemberitahuan",
+                    message = "Pembaruan pesanan Anda akan muncul di sini.",
+                    icon = R.drawable.ic_notifications,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -1068,6 +1122,15 @@ private fun CheckoutSectionHeading(title: String, subtitle: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
         subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
+}
+
+@Composable
+private fun CheckoutAmountRow(label: String, amount: String, amountColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(12.dp))
+        Text(amount, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, color = amountColor)
     }
 }
 
@@ -1579,10 +1642,15 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                 item {
                     Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Status pesanan", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(order.get("status")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = LunareaGreenText)
-                            Text("Total pembayaran", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(formatRupiah(order.get("amount")?.asLong ?: 0L), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Status pesanan", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                StatusChip(order.get("status")?.asString?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("Total pembayaran", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(formatRupiah(order.get("amount")?.asLong ?: 0L), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                            }
                         }
                     }
                 }
@@ -1596,7 +1664,10 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                 "echannel" -> "Mandiri Bill"
                                 else -> paymentType.replace('_', ' ').uppercase().ifBlank { "Belum tersedia" }
                             })
-                            OrderInfoRow("Status", paymentStatusLabel(paymentInfo?.stringOrNull("status")))
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Status pembayaran", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                StatusChip(paymentStatusLabel(paymentInfo?.stringOrNull("status")))
+                            }
                             Text(
                                 paymentGuidance(paymentType, vaNumbers?.firstOrNull()?.takeIf { it.isJsonObject }?.asJsonObject?.get("bank")?.asString.orEmpty()),
                                 style = MaterialTheme.typography.bodySmall,
@@ -1702,7 +1773,7 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                         TextButton(onClick = { selectedOrderId = order.get("id")?.asString; proofPicker.launch("image/*") }, modifier = Modifier.fillMaxWidth()) { Text("Kirim bukti transfer") }
                     }
                     if (paymentType == "rekening" && hasPaymentProof) Text("Pembatalan dinonaktifkan selama bukti pembayaran diperiksa.", modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    message?.let { Text(it, modifier = Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = if (it.contains("diperbarui", true)) LunareaGreenText else MaterialTheme.colorScheme.error) }
+                    message?.let { InlineStatusMessage(it, isError = !it.contains("berhasil", true) && !it.contains("status pembayaran:", true) && !it.contains("diperiksa:", true)) }
                 }
             }
         }
@@ -1722,10 +1793,16 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
             }
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 18.dp, top = 16.dp, end = 18.dp, bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item {
-                    Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                            Text("Status pengiriman", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(live.stringOrNull("status")?.ifBlank { "Menunggu informasi pengiriman" } ?: "Menunggu informasi pengiriman", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(Modifier.weight(1f).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text("PERJALANAN PESANAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .8.sp)
+                                Text("Status pengiriman", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            }
+                            StatusChip(live.stringOrNull("status")?.ifBlank { "Menunggu informasi pengiriman" } ?: "Menunggu informasi pengiriman")
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             OrderInfoRow("Kurir", live.stringOrNull("courier")?.ifBlank { "Belum ditentukan" } ?: "Belum ditentukan")
                             OrderInfoRow("Nomor resi", live.stringOrNull("tracking_number")?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
                             OrderInfoRow("Status pesanan", live.stringOrNull("order_status")?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
@@ -1734,9 +1811,11 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                     }
                 }
                 item {
-                    Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                            Text("Perkembangan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Column(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text("Perjalanan kurir", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                                Text("LINIMASA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .7.sp)
+                            }
                             val summaryObject = liveData?.objectOrNull("summary")
                             val summary = summaryObject?.entrySet()?.mapNotNull { (key, value) ->
                                 if (value.isJsonNull || value.isJsonObject || value.isJsonArray) null
@@ -1750,25 +1829,48 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                 else -> Text("Belum ada pembaruan perjalanan dari kurir.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             val history = liveData?.arrayOrNull("history")
-                            history?.forEach { event ->
+                            if (history == null || history.size() == 0) {
+                                Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text("Riwayat perjalanan belum tersedia", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                    Text(
+                                        if (live.stringOrNull("tracking_number").isNullOrBlank()) "Perkembangan kurir akan tampil setelah nomor resi tersedia."
+                                        else "Belum ada pembaruan perjalanan dari kurir.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            history?.forEachIndexed { eventIndex, event ->
                                 if (event.isJsonObject) {
                                     val entry = event.asJsonObject
                                     val description = listOf("description", "status", "activity", "manifest_description")
                                         .firstNotNullOfOrNull { key -> entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank) }
-                                    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                        Text(description ?: "Pembaruan pengiriman", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                                        val eventDate = listOf("datetime", "manifest_date").firstNotNullOfOrNull { key ->
-                                            entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
-                                        } ?: run {
-                                            val date = entry.get("date")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
-                                            val time = entry.get("time")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
-                                            listOfNotNull(date, time).joinToString(" ").ifBlank { null }
+                                    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Column(Modifier.width(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(14.dp)) {
+                                                Box(contentAlignment = Alignment.Center) {
+                                                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(6.dp)) {}
+                                                }
+                                            }
+                                            if (eventIndex < history.size() - 1) {
+                                                Box(Modifier.padding(top = 4.dp).width(1.dp).height(32.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                                            }
                                         }
-                                        eventDate?.let { Text(formatLunareaDateTime(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                        Column(Modifier.weight(1f).padding(bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            Text(description ?: "Pembaruan pengiriman", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                            val eventDate = listOf("datetime", "manifest_date").firstNotNullOfOrNull { key ->
+                                                entry.get(key)?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                            } ?: run {
+                                                val date = entry.get("date")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                                val time = entry.get("time")?.takeIf { !it.isJsonNull }?.toString()?.trim('"')?.takeIf(String::isNotBlank)
+                                                listOfNotNull(date, time).joinToString(" ").ifBlank { null }
+                                            }
+                                            eventDate?.let { Text(formatLunareaDateTime(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                        }
                                     }
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
                                 }
                             }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
                             val id = live.stringOrNull("order_id").orEmpty()
                             OutlinedButton(onClick = {
                                 if (id.isBlank()) return@OutlinedButton
@@ -1786,8 +1888,7 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                     finally { trackingLoading = false }
                                 }
                             }, enabled = !trackingLoading, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(13.dp)) { Text("Perbarui status") }
-                            message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-                        }
+                            message?.let { InlineStatusMessage(it, isError = true) }
                     }
                 }
             }
@@ -1797,9 +1898,34 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
 
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
         LunareaScreenHeader("Pesanan saya", onBack, "Pantau pembayaran dan pengiriman")
-        if (loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        message?.let { EmptyState(it, {}, "") }
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
+        if (loading && rows.isEmpty()) LoadingStatePanel("Memuat pesanan…", Modifier.fillMaxWidth().weight(1f))
+        else message?.let {
+            if (rows.isEmpty() && it != "Belum ada pesanan.") StatePanel(
+                title = "Pesanan belum dapat dimuat", message = it,
+                icon = R.drawable.ic_refresh, isError = true, actionLabel = "Coba lagi",
+                onAction = { orderPage = 1; refresh++ },
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) else if (rows.isEmpty()) StatePanel(
+                title = "Belum ada pesanan",
+                message = "Pesanan Anda akan tampil di sini setelah checkout.",
+                icon = R.drawable.ic_nav_cart,
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) else InlineStatusMessage(it, isError = it.contains("belum", true) || it.contains("koneksi", true))
+        }
+        if (rows.isNotEmpty()) LazyColumn(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+        ) {
+            if (rows.isNotEmpty()) item {
+                Row(Modifier.fillMaxWidth().padding(bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text("RIWAYAT BELANJA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.1.sp)
+                        Text("${rows.size} pesanan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                }
+            }
             items(rows, key = { it.get("id")?.asString.orEmpty() }) { order ->
                 val id = order.get("id")?.asString.orEmpty()
                 val status = order.get("status")?.asString ?: "Status diperbarui"
@@ -1809,19 +1935,24 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                     statusLower.contains("selesai") || statusLower.contains("diterima") || statusLower.contains("proses") -> LunareaGreenText
                     else -> MaterialTheme.colorScheme.tertiary
                 }
-                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                Text("Nomor pesanan", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("PESANAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
                                 Text(id, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             Surface(shape = RoundedCornerShape(50), color = statusTint.copy(alpha = .10f)) {
-                                Text(status, Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = statusTint, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                                Text(status, Modifier.padding(horizontal = 11.dp, vertical = 7.dp), color = statusTint, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                         }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                 Text("Total pesanan", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(formatRupiah(order.get("amount")?.asLong ?: 0L), style = MaterialTheme.typography.titleMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
@@ -1839,9 +1970,10 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                     } else message = response.body()?.error?.message ?: "Detail pesanan belum dapat dimuat."
                                 } catch (_: Exception) { message = "Detail pesanan belum dapat dimuat." }
                             }
-                            }) { Text("Detail") }
+                            }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Detail") }
                         }
-                        OutlinedButton(onClick = {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                          OutlinedButton(onClick = {
                             scope.launch {
                                 trackingLoading = true
                                 try {
@@ -1855,7 +1987,8 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
                                 } catch (_: Exception) { message = "Informasi pengiriman belum dapat dimuat." }
                                 finally { trackingLoading = false }
                             }
-                        }, enabled = !trackingLoading, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp), shape = RoundedCornerShape(12.dp)) { Text(if (trackingLoading) "Memuat pengiriman…" else "Lihat pengiriman") }
+                          }, enabled = !trackingLoading, modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) { Text(if (trackingLoading) "Memuat…" else "Lacak pesanan") }
+                        }
                     }
                 }
             }
@@ -1902,24 +2035,56 @@ private fun FavoritesScreen(modifier: Modifier, onBack: () -> Unit) {
     }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
         LunareaScreenHeader("Produk favorit", onBack, "Koleksi furnitur yang Anda simpan")
-        if (loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        message?.let { EmptyState(it, {}, "") }
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (loading && rows.isEmpty()) LoadingStatePanel("Memuat produk favorit…", Modifier.fillMaxWidth().weight(1f))
+        else message?.let {
+            if (rows.isEmpty() && it != "Belum ada produk favorit.") StatePanel(
+                title = "Favorit belum dapat dimuat", message = it,
+                icon = R.drawable.ic_refresh, isError = true, actionLabel = "Coba lagi",
+                onAction = { refresh++ }, modifier = Modifier.fillMaxWidth().weight(1f)
+            ) else if (rows.isEmpty()) StatePanel(
+                title = "Belum ada produk favorit",
+                message = "Simpan produk yang Anda sukai agar mudah ditemukan kembali.",
+                icon = R.drawable.ic_dialog_info, modifier = Modifier.fillMaxWidth().weight(1f)
+            ) else InlineStatusMessage(it, isError = true)
+        }
+        if (rows.isNotEmpty()) LazyColumn(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+        ) {
+            if (rows.isNotEmpty()) item {
+                Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text("KOLEKSI ANDA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.1.sp)
+                        Text("${rows.size} produk tersimpan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                }
+            }
             items(rows, key = { it.get("product_id")?.asString.orEmpty() + it.get("variant")?.asString.orEmpty() }) { product ->
                 val id = product.get("product_id")?.asString.orEmpty()
                 val variant = product.get("variant")?.asString.orEmpty()
-                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
-                    Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Surface(shape = RoundedCornerShape(13.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.size(82.dp)) {
+                val productName = product.get("name")?.asString ?: "Produk Lunarea"
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.size(width = 92.dp, height = 100.dp)) {
                             if (product.has("image_url") && !product.get("image_url").isJsonNull) {
-                                AsyncImage(model = product.get("image_url").asString, contentDescription = product.get("name")?.asString, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                AsyncImage(model = product.get("image_url").asString, contentDescription = "Foto $productName", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                             } else Box(contentAlignment = Alignment.Center) { Text("L", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText, fontWeight = FontWeight.Bold) }
                         }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text(product.get("name")?.asString ?: "Produk Lunarea", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            if (variant.isNotBlank()) Text(variant, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(formatRupiah(product.get("price")?.asLong ?: 0L), style = MaterialTheme.typography.titleSmall, color = LunareaGreenText, fontWeight = FontWeight.Bold)
-                            TextButton(onClick = {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("FURNITUR", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .8.sp, maxLines = 1)
+                            Text(productName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            if (variant.isNotBlank()) Text(variant, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(formatRupiah(product.get("price")?.asLong ?: 0L), style = MaterialTheme.typography.titleSmall, color = LunareaGreenText, fontWeight = FontWeight.Bold, maxLines = 1)
+                        }
+                        IconButton(
+                            onClick = {
                             scope.launch {
                                 try {
                                     val payload = JsonObject().apply { addProperty("product_id", id); addProperty("variant", variant) }
@@ -1928,7 +2093,10 @@ private fun FavoritesScreen(modifier: Modifier, onBack: () -> Unit) {
                                     else message = response.body()?.error?.message ?: "Produk belum dapat dihapus dari favorit."
                                 } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
                             }
-                            }, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp), modifier = Modifier.heightIn(min = 36.dp)) { Text("Hapus dari favorit", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge) }
+                            },
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(painterResource(R.drawable.ic_favorite_filled), contentDescription = "Hapus $productName dari favorit", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(21.dp))
                         }
                     }
                 }
@@ -2458,6 +2626,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var voucherClaimId by remember { mutableLongStateOf(0L) }
     var voucherMenu by remember { mutableStateOf(false) }
     var includeGlass by remember { mutableStateOf(false) }
+    var showCheckoutItems by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<com.google.gson.JsonObject?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -2581,16 +2750,39 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             }
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 18.dp, top = 18.dp, end = 18.dp, bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item {
-                    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(if (manualPayment) "Pesanan transfer manual dibuat" else "Pesanan berhasil dibuat", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                    val paymentStatus = instructions.get("transaction_status")?.takeUnless { it.isJsonNull }?.asString?.ifBlank { "Menunggu pembayaran" } ?: "Menunggu pembayaran"
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(tween(200)) + slideInVertically(tween(200)) { it / 24 }
+                    ) {
+                    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(48.dp)) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text("✓", color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Text(if (manualPayment) "Pesanan transfer manual dibuat" else "Pesanan berhasil dibuat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        if (manualPayment) "Lanjutkan dengan transfer manual" else "Status pembayaran: ${paymentStatusLabel(paymentStatus)}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
                             Text(if (manualPayment) "Transfer sesuai nominal ke rekening berikut. Setelah itu, kirim bukti melalui detail pesanan." else "Selesaikan pembayaran sesuai informasi berikut.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(formatRupiah(instructions.get("gross_amount")?.asLong ?: preview?.get("total")?.asLong ?: 0L), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("TOTAL PEMBAYARAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .8.sp)
+                                Text(formatRupiah(instructions.get("gross_amount")?.asLong ?: preview?.get("total")?.asLong ?: 0L), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
                             OrderInfoRow("Nomor pesanan", checkoutOrderId.orEmpty())
                             OrderInfoRow("Metode", if (manualPayment) "Transfer manual · BRI" else instructions.get("type")?.asString?.uppercase()?.ifBlank { "Belum tersedia" } ?: "Belum tersedia")
-                            OrderInfoRow("Status", instructions.get("transaction_status")?.asString?.ifBlank { "Menunggu pembayaran" } ?: "Menunggu pembayaran")
+                            OrderInfoRow("Status pembayaran", paymentStatusLabel(paymentStatus))
                             instructions.get("expiry_time")?.takeIf { !it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { OrderInfoRow("Batas pembayaran", formatLunareaDateTime(it)) }
-                        }
+                    }
                     }
                 }
                 if (virtualAccounts != null && virtualAccounts.size() > 0) item {
@@ -2642,24 +2834,27 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 LunareaScreenHeader("Konfirmasi pesanan", onBack, checkoutOrderId?.let { "Pesanan $it" } ?: "Status permintaan")
             }
             Column(
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    .fillMaxWidth().widthIn(max = 540.dp).align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.size(72.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(Modifier.size(30.dp), strokeWidth = 3.dp, color = MaterialTheme.colorScheme.primary)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(48.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(Modifier.size(23.dp), strokeWidth = 2.5.dp, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text("LUNAREA · PESANAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .7.sp)
+                        Text("Pemeriksaan status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 Text(
                     if (checkoutStatusUnknown) "Kami sedang memastikan status pesanan" else "Pesanan sedang diproses",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     if (checkoutStatusUnknown)
@@ -2668,30 +2863,30 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         "Permintaan pesanan sudah diterima, tetapi konfirmasi pembayaran belum tersedia. Buka daftar pesanan untuk melihat pembaruan dan instruksi berikutnya.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     lineHeight = 23.sp
                 )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
                 checkoutOrderId?.takeIf(String::isNotBlank)?.let { orderId ->
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f)
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text("Nomor referensi", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("NOMOR REFERENSI", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .6.sp)
                             Text(orderId, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
-                Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.errorContainer.copy(alpha = .45f)) {
-                    Text(
-                        "Jangan membuat pesanan atau pembayaran baru sampai status ini diperiksa.",
-                        Modifier.fillMaxWidth().padding(14.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.errorContainer.copy(alpha = .45f)) {
+                    Row(Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.ic_dialog_warning), contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.size(20.dp))
+                        Text(
+                            "Jangan membuat pesanan atau pembayaran baru sampai status ini diperiksa.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
                 }
                 Button(onClick = onOpenOrders, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) {
                     Text("Lihat Pesanan Saya")
@@ -2706,180 +2901,182 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
 
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp, vertical = 10.dp)) {
-            LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Periksa pilihan dan total pesanan")
+            LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Pilih alamat, layanan, dan pembayaran")
         }
-        LazyColumn(Modifier.weight(1f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(top = 10.dp, bottom = 14.dp)) {
+        LazyColumn(Modifier.weight(1f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(top = 12.dp, bottom = 16.dp)) {
             item {
-                CheckoutSectionHeading("Alamat penerima")
-                if (addresses.isEmpty()) {
-                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(if (busy) "Memuat alamat…" else "Belum ada alamat pengiriman", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                            Text("Tambahkan alamat tersimpan melalui menu Akun untuk melihat pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
-                else {
-                    val selectedAddress = addresses.firstOrNull { (it.get("id")?.asLong ?: 0L) == addressId }
-                    Box {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth().clickable { quoteMenu = true },
-                            shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                        ) {
-                            Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    Text(selectedAddress?.get("label")?.asString?.ifBlank { "Alamat pengiriman" } ?: "Pilih alamat", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                    Text(selectedAddress?.let { "${it.get("recipient_name")?.asString.orEmpty()} · ${it.get("recipient_phone")?.asString.orEmpty()}" } ?: "Pilih alamat tersimpan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    val savedRegion = selectedAddress?.getAsJsonObject("address")
-                                    Text(savedRegion?.let { listOf("add", "desa", "kec", "kab", "prov", "kodepos").mapNotNull { key -> it.get(key)?.takeUnless { value -> value.isJsonNull }?.asString?.takeIf(String::isNotBlank) }.joinToString(", ") }?.takeIf(String::isNotBlank) ?: "Ketuk untuk memilih alamat", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
-                                }
-                                Text("Ubah", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        CheckoutSectionHeading("Alamat penerima", "Tujuan pengiriman pesanan")
+                        if (addresses.isEmpty()) {
+                            Column(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(if (busy) "Memuat alamat…" else "Belum ada alamat pengiriman", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                Text("Tambahkan alamat tersimpan melalui menu Akun untuk melihat pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                        }
-                        DropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(.92f).heightIn(max = 360.dp)) {
-                            addresses.forEach { addr -> DropdownMenuItem(text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}") }, onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }) }
-                        }
-                    }
-                }
-            }
-            item {
-                CheckoutSectionHeading("Pengiriman", "Pilih layanan dan periksa tarifnya")
-                if (quoteLoading) {
-                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
-                    Text("Menghitung pilihan pengiriman…", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                if (quotes.isNotEmpty()) {
-                    if (shippingWeightGrams > 0) {
-                        Text(
-                            "Berat produk ${"%.2f".format(Locale("id", "ID"), shippingWeightGrams / 1000.0)} kg",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        quotes.forEach { option ->
-                            val selected = quote?.token == option.token
-                            val selectionColor by animateColorAsState(
-                                targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .48f) else MaterialTheme.colorScheme.surface,
-                                animationSpec = tween(durationMillis = 180),
-                                label = "shipping-option-selection"
-                            )
-                            Surface(
-                                onClick = { quote = option },
-                                shape = RoundedCornerShape(12.dp), color = selectionColor,
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.dp,
-                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant
-                                )
-                            ) {
-                                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp), horizontalArrangement = Arrangement.spacedBy(9.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    RadioButton(selected = selected, onClick = { quote = option }, modifier = Modifier.size(24.dp))
-                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                        Text(option.courier.ifBlank { "Pengiriman" }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                        Text(option.service + (option.eta?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else {
+                            val selectedAddress = addresses.firstOrNull { (it.get("id")?.asLong ?: 0L) == addressId }
+                            Box {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable { quoteMenu = true },
+                                    shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .35f),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
+                                ) {
+                                    Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                            Text(selectedAddress?.get("label")?.asString?.ifBlank { "Alamat pengiriman" } ?: "Pilih alamat", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(selectedAddress?.let { "${it.get("recipient_name")?.asString.orEmpty()} · ${it.get("recipient_phone")?.asString.orEmpty()}" } ?: "Pilih alamat tersimpan", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            val savedRegion = selectedAddress?.getAsJsonObject("address")
+                                            Text(savedRegion?.let { listOf("add", "desa", "kec", "kab", "prov", "kodepos").mapNotNull { key -> it.get(key)?.takeUnless { value -> value.isJsonNull }?.asString?.takeIf(String::isNotBlank) }.joinToString(", ") }?.takeIf(String::isNotBlank) ?: "Ketuk untuk memilih alamat", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                        }
+                                        Text("Ubah", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                                     }
-                                    Text(if (option.cost == 0L) "Gratis" else formatRupiah(option.cost), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = if (option.cost == 0L) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                }
+                                DropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(.92f).heightIn(max = 360.dp)) {
+                                    addresses.forEach { addr -> DropdownMenuItem(text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}", maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }) }
                                 }
                             }
-                        }
-                    }
-                    TextButton(onClick = { refreshQuotes++ }, enabled = !quoteLoading, modifier = Modifier.heightIn(min = 40.dp)) {
-                        Text("Perbarui tarif", fontSize = 12.sp)
-                    }
-                } else if (!quoteLoading) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text(if (addressId <= 0) "Pilih alamat untuk melihat tarif" else "Pilihan pengiriman belum tersedia", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                            Text(message ?: "Periksa alamat dan coba perbarui pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            TextButton(onClick = { refreshQuotes++ }, enabled = addressId > 0, modifier = Modifier.heightIn(min = 44.dp)) { Text("Coba lagi") }
                         }
                     }
                 }
             }
             item {
-                CheckoutSectionHeading("Metode pembayaran")
-                val manualSelected = payment == "rekening"
-                listOf(
-                    Triple("rekening", "Transfer manual", "Unggah bukti setelah transfer"),
-                    Triple("midtrans", "Pembayaran otomatis", "VA, QRIS, dan dompet digital")
-                ).forEach { (mode, title, description) ->
-                    val selected = if (mode == "rekening") manualSelected else !manualSelected
-                    Surface(
-                        onClick = {
-                            if (mode == "rekening") {
-                                if (!manualSelected) lastGatewayPayment = payment
-                                payment = "rekening"
-                            } else if (manualSelected) payment = lastGatewayPayment
-                        },
-                        shape = RoundedCornerShape(13.dp),
-                        color = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f) else MaterialTheme.colorScheme.surface,
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .65f) else MaterialTheme.colorScheme.outlineVariant
-                        )
-                    ) {
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = selected, onClick = {
-                                if (mode == "rekening") {
-                                    if (!manualSelected) lastGatewayPayment = payment
-                                    payment = "rekening"
-                                } else if (manualSelected) payment = lastGatewayPayment
-                            })
-                            Column(Modifier.weight(1f).padding(start = 8.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        CheckoutSectionHeading("Pengiriman", "Pilih layanan dan periksa tarifnya")
+                        if (shippingWeightGrams > 0) {
+                            Text("Berat produk ${"%.2f".format(Locale("id", "ID"), shippingWeightGrams / 1000.0)} kg", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (quoteLoading) {
+                            LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
+                            Text("Menghitung pilihan pengiriman…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (quotes.isNotEmpty()) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                quotes.forEach { option ->
+                                    val selected = quote?.token == option.token
+                                    val selectionColor by animateColorAsState(
+                                        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f) else MaterialTheme.colorScheme.surface,
+                                        animationSpec = tween(durationMillis = 160), label = "shipping-option-selection"
+                                    )
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).selectable(selected = selected, role = Role.RadioButton) { quote = option },
+                                        shape = RoundedCornerShape(14.dp), color = selectionColor,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .65f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f))
+                                    ) {
+                                        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            RadioButton(selected = selected, onClick = null)
+                                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                                Text(option.courier.ifBlank { "Pengiriman" }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                Text(option.service + (option.eta?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                            }
+                                            Text(if (option.cost == 0L) "Gratis" else formatRupiah(option.cost), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = if (option.cost == 0L) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (!quoteLoading) {
+                            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(if (addressId <= 0) "Pilih alamat untuk melihat tarif" else "Pilihan pengiriman belum tersedia", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                Text(message ?: "Periksa alamat dan coba lagi.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                TextButton(onClick = { refreshQuotes++ }, enabled = addressId > 0, modifier = Modifier.heightIn(min = 44.dp)) { Text("Coba lagi") }
                             }
                         }
                     }
-                }
-                if (!manualSelected) {
-                    Box {
-                        OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
-                            Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode otomatis", modifier = Modifier.weight(1f))
-                            Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
-                        }
-                        DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
-                            nativePaymentMethods.forEach { (method, label) ->
-                                DropdownMenuItem(text = { Text(label) }, onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false })
-                            }
-                        }
-                    }
-                } else {
-                    Text("Bukti transfer akan dikirim dari halaman detail pesanan. Pesanan dikonfirmasi setelah admin memeriksa pembayaran.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            if (availableVouchers.isNotEmpty()) item {
-                CheckoutSectionHeading("Voucher", "Opsional")
-                Box {
-                    OutlinedButton(onClick = { voucherMenu = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-                        val selectedVoucher = availableVouchers.firstOrNull { (it.get("claim_id")?.asLong ?: 0L) == voucherClaimId }
-                        Text(selectedVoucher?.get("name")?.asString ?: "Pilih voucher (opsional)", modifier = Modifier.weight(1f))
-                        Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
-                    }
-                    DropdownMenu(expanded = voucherMenu, onDismissRequest = { voucherMenu = false }, modifier = Modifier.fillMaxWidth(.9f).heightIn(max = 320.dp)) {
-                        DropdownMenuItem(text = { Text("Tanpa voucher") }, onClick = { voucherClaimId = 0L; voucherMenu = false })
-                        availableVouchers.forEach { voucher ->
-                            val claimId = voucher.get("claim_id")?.asLong ?: 0L
-                            val nominal = voucher.get("nominal")?.asLong ?: 0L
-                            val unit = voucher.get("unit")?.asString.orEmpty()
-                            val amount = if (unit == "persen") "$nominal%" else formatRupiah(nominal)
-                            DropdownMenuItem(text = { Text("${voucher.get("name")?.asString.orEmpty()} · $amount") }, onClick = { voucherClaimId = claimId; voucherMenu = false })
+            item {
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CheckoutSectionHeading("Pembayaran", "Pilih cara pembayaran")
+                        val manualSelected = payment == "rekening"
+                        listOf(
+                            Triple("rekening", "Transfer manual", "Kirim bukti setelah transfer"),
+                            Triple("midtrans", "Pembayaran otomatis", "Virtual account, QRIS, atau dompet digital")
+                        ).forEach { (mode, title, subtitle) ->
+                            val selected = if (mode == "rekening") manualSelected else !manualSelected
+                            Surface(
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).selectable(selected = selected, role = Role.RadioButton) {
+                                    if (mode == "rekening") {
+                                        if (!manualSelected) lastGatewayPayment = payment
+                                        payment = "rekening"
+                                    } else if (manualSelected) payment = lastGatewayPayment
+                                },
+                                shape = RoundedCornerShape(14.dp),
+                                color = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f) else MaterialTheme.colorScheme.surface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .65f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f))
+                            ) {
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    RadioButton(selected = selected, onClick = null)
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        }
+                        if (!manualSelected) {
+                            Box {
+                                OutlinedButton(onClick = { paymentMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) {
+                                    Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode otomatis", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Icon(painterResource(R.drawable.ic_expand_more), contentDescription = "Pilih metode pembayaran")
+                                }
+                                DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
+                                    nativePaymentMethods.forEach { (method, label) ->
+                                        DropdownMenuItem(text = { Text(label) }, onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false })
+                                    }
+                                }
+                            }
+                        } else {
+                            Text("Bukti transfer dikirim melalui detail pesanan setelah pembayaran.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
             }
             item {
                 val availablePoints = preview?.get("points_available")?.takeUnless { it.isJsonNull }?.asLong ?: 0L
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = usePoints, onCheckedChange = { usePoints = it }, enabled = availablePoints > 0 && !previewLoading)
-                    Column {
-                        Text("Gunakan Luna Poin")
-                        Text("Saldo tersedia ${formatRupiah(availablePoints)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CheckoutSectionHeading("Promo & tambahan", "Opsional untuk pesanan ini")
+                        Column(Modifier.fillMaxWidth()) {
+                            if (availableVouchers.isNotEmpty()) {
+                                Box {
+                                    TextButton(onClick = { voucherMenu = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                                        val selectedVoucher = availableVouchers.firstOrNull { (it.get("claim_id")?.asLong ?: 0L) == voucherClaimId }
+                                        Text(selectedVoucher?.get("name")?.asString ?: "Pilih voucher", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start)
+                                        Icon(painterResource(R.drawable.ic_expand_more), contentDescription = "Pilih voucher")
+                                    }
+                                    DropdownMenu(expanded = voucherMenu, onDismissRequest = { voucherMenu = false }, modifier = Modifier.fillMaxWidth(.9f).heightIn(max = 320.dp)) {
+                                        DropdownMenuItem(text = { Text("Tanpa voucher") }, onClick = { voucherClaimId = 0L; voucherMenu = false })
+                                        availableVouchers.forEach { voucher ->
+                                            val claimId = voucher.get("claim_id")?.asLong ?: 0L
+                                            val nominal = voucher.get("nominal")?.asLong ?: 0L
+                                            val unit = voucher.get("unit")?.asString.orEmpty()
+                                            val amount = if (unit == "persen") "$nominal%" else formatRupiah(nominal)
+                                            DropdownMenuItem(text = { Text("${voucher.get("name")?.asString.orEmpty()} · $amount") }, onClick = { voucherClaimId = claimId; voucherMenu = false })
+                                        }
+                                    }
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
+                            }
+                            Row(Modifier.fillMaxWidth().heightIn(min = 54.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(checked = usePoints, onCheckedChange = { usePoints = it }, enabled = availablePoints > 0 && !previewLoading)
+                                Column(Modifier.weight(1f)) {
+                                    Text("Gunakan Luna Poin", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                    Text("Saldo ${formatRupiah(availablePoints)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
+                            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(checked = includeGlass, onCheckedChange = { includeGlass = it }, enabled = !previewLoading)
+                                Text("Proteksi kaca jika tersedia", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                                preview?.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let {
+                                    Text(formatRupiah(it), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
                     }
                 }
             }
-            item { Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(includeGlass, { includeGlass = it }); Text("Tambahkan proteksi kaca jika tersedia") } }
             item {
                 if (previewLoading) {
                     Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -2888,37 +3085,43 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                     }
                 }
                 preview?.let { summary ->
-                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+                    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
                         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             CheckoutSectionHeading("Ringkasan pesanan")
-                            summary.getAsJsonArray("items")?.forEach { raw ->
-                                if (raw.isJsonObject) {
-                                    val item = raw.asJsonObject
-                                    val itemName = item.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                                    val variant = item.get("variant")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                                    val qty = item.get("quantity")?.takeUnless { it.isJsonNull }?.asInt ?: 1
-                                    val weight = item.get("weight_kg")?.takeUnless { it.isJsonNull }?.asDouble ?: 0.0
-                                    val dimensions = item.get("dimensions")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                        Text("$itemName${variant.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()} × $qty", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                                        Text("Berat ${"%.2f".format(Locale("id", "ID"), weight)} kg/unit${dimensions.takeIf(String::isNotBlank)?.let { " · Ukuran $it cm" }.orEmpty()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val checkoutItems = summary.getAsJsonArray("items")
+                            TextButton(onClick = { showCheckoutItems = !showCheckoutItems }, modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp), contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)) {
+                                Text("${if (showCheckoutItems) "Sembunyikan" else "Rincian produk & berat"} · ${checkoutItems?.size() ?: 0} produk", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start, style = MaterialTheme.typography.labelLarge)
+                                Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null, modifier = Modifier.rotate(if (showCheckoutItems) 180f else 0f).size(18.dp))
+                            }
+                            AnimatedVisibility(visible = showCheckoutItems) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    checkoutItems?.forEach { raw ->
+                                        if (raw.isJsonObject) {
+                                            val item = raw.asJsonObject
+                                            val itemName = item.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                            val variant = item.get("variant")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                            val qty = item.get("quantity")?.takeUnless { it.isJsonNull }?.asInt ?: 1
+                                            val weight = item.get("weight_kg")?.takeUnless { it.isJsonNull }?.asDouble ?: 0.0
+                                            val dimensions = item.get("dimensions")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                                Text("$itemName${variant.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()} × $qty", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                                Text("${"%.2f".format(Locale("id", "ID"), weight)} kg/unit${dimensions.takeIf(String::isNotBlank)?.let { " · $it cm" }.orEmpty()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            }
+                                        }
                                     }
                                 }
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            Text("Subtotal produk: ${formatRupiah(summary.get("subtotal")?.asLong ?: 0L)}")
+                            CheckoutAmountRow("Subtotal produk", formatRupiah(summary.get("subtotal")?.asLong ?: 0L))
                             val shippingSummary = summary.getAsJsonObject("shipping")
-                            Text(
-                                "Ongkir${shippingSummary?.get("courier")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}: ${formatRupiah(shippingSummary?.get("cost")?.asLong ?: 0L)}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
+                            CheckoutAmountRow(
+                                "Ongkir${shippingSummary?.get("courier")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
+                                formatRupiah(shippingSummary?.get("cost")?.asLong ?: 0L)
                             )
-                            summary.get("voucher_discount")?.asLong?.takeIf { it > 0 }?.let { Text("Diskon voucher: −${formatRupiah(it)}") }
-                            summary.get("points_applied")?.asLong?.takeIf { it > 0 }?.let { Text("Luna Point: −${formatRupiah(it)}") }
-                            summary.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let { Text("Proteksi kaca: ${formatRupiah(it)}") }
-                            Text("Biaya administrasi: ${formatRupiah(summary.get("admin_fee")?.asLong ?: 0L)}")
-                            HorizontalDivider()
-                            Text("Total: ${formatRupiah(summary.get("total")?.asLong ?: 0L)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LunareaGreenText)
+                            summary.get("voucher_discount")?.asLong?.takeIf { it > 0 }?.let { CheckoutAmountRow("Diskon voucher", "−${formatRupiah(it)}", MaterialTheme.colorScheme.primary) }
+                            summary.get("points_applied")?.asLong?.takeIf { it > 0 }?.let { CheckoutAmountRow("Luna Point", "−${formatRupiah(it)}", MaterialTheme.colorScheme.primary) }
+                            summary.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let { CheckoutAmountRow("Proteksi kaca", formatRupiah(it)) }
+                            CheckoutAmountRow("Biaya administrasi", formatRupiah(summary.get("admin_fee")?.asLong ?: 0L))
                         }
                     }
                 }
@@ -3046,18 +3249,14 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
     var busy by remember { mutableStateOf(true) }
     var photoBusy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
         if (uri != null) scope.launch {
             photoBusy = true
             message = null
             try {
-                val mime = context.contentResolver.getType(uri) ?: "image/jpeg"
-                require(mime in setOf("image/jpeg", "image/png", "image/webp")) { "Pilih foto JPG, PNG, atau WebP." }
-                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?: throw IllegalStateException("Foto belum dapat dibaca.")
-                require(bytes.size <= 2 * 1024 * 1024) { "Ukuran foto maksimal 2 MB." }
+                val (bytes, mime) = withContext(Dispatchers.IO) { optimizeProfilePhoto(context.contentResolver, uri) }
                 val request = bytes.toRequestBody(mime.toMediaTypeOrNull())
-                val part = MultipartBody.Part.createFormData("photo", "foto-profil", request)
+                val part = MultipartBody.Part.createFormData("photo", "foto-profil.webp", request)
                 val response = ApiClient.get(context).uploadProfilePhoto(part)
                 val body = response.body()
                 val customer = body?.data?.getAsJsonObject("customer")
@@ -3084,30 +3283,49 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Profil saya", onBack, "Kelola informasi akun Anda")
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
-          Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(76.dp)) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "L", style = MaterialTheme.typography.headlineMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
-                    photoUrl?.let { url ->
-                        AsyncImage(model = url, contentDescription = "Foto profil", modifier = Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(76.dp)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "L", style = MaterialTheme.typography.headlineMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                        photoUrl?.let { url ->
+                            AsyncImage(model = url, contentDescription = "Foto profil", modifier = Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
+                        }
+                    }
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("AKUN LUNAREA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
+                    Text(name.ifBlank { "Akun Lunarea" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(email.ifBlank { "Email belum tersedia" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    TextButton(
+                        onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                        enabled = !photoBusy,
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                        modifier = Modifier.heightIn(min = 44.dp)
+                    ) {
+                        if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        else Text(if (photoUrl.isNullOrBlank()) "Tambahkan foto" else "Ganti foto")
                     }
                 }
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(name.ifBlank { "Akun Lunarea" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("Foto membantu Anda mengenali akun", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                TextButton(onClick = { photoPicker.launch("image/*") }, enabled = !photoBusy, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)) {
-                    if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                    else Text(if (photoUrl.isNullOrBlank()) "Tambah foto profil" else "Ganti foto profil")
-                }
-            }
-          }
         }
         Text("JPG, PNG, atau WebP · Maksimal 2 MB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp))
-        Text("Informasi pribadi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp, start = 4.dp))
-        Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
-          Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.padding(top = 4.dp, start = 4.dp)) {
+            Text("Informasi pribadi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text("Pastikan detail kontak Anda selalu terbaru.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             OutlinedTextField(email, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Email") }, enabled = false, singleLine = true, shape = RoundedCornerShape(12.dp))
             OutlinedTextField(name, { name = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama") }, singleLine = true, shape = RoundedCornerShape(12.dp))
             OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true, shape = RoundedCornerShape(12.dp))
@@ -3125,6 +3343,63 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             }
         }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
         message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = 13.sp) }
+    }
+}
+
+/** Decodes large gallery images at a bounded size and uploads only a square WebP avatar. */
+private fun optimizeProfilePhoto(resolver: ContentResolver, uri: Uri): Pair<ByteArray, String> {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        ?: throw IllegalStateException("Foto belum dapat dibaca.")
+    val sourceWidth = bounds.outWidth
+    val sourceHeight = bounds.outHeight
+    require(sourceWidth > 0 && sourceHeight > 0 && sourceWidth.toLong() * sourceHeight <= 100_000_000L) {
+        "Resolusi foto tidak didukung. Pilih foto lain."
+    }
+
+    var sample = 1
+    while (maxOf(sourceWidth / sample, sourceHeight / sample) > 1024) sample *= 2
+    val decoded = resolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply {
+            inSampleSize = sample
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        })
+    } ?: throw IllegalStateException("Foto belum dapat diproses. Pilih file lain.")
+
+    val bitmaps = linkedSetOf(decoded)
+    try {
+        val orientation = resolver.openInputStream(uri)?.use { input ->
+            ExifInterface(input).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        } ?: ExifInterface.ORIENTATION_NORMAL
+        val transform = Matrix().apply {
+            when (orientation) {
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> postScale(-1f, 1f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> postRotate(180f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> postScale(1f, -1f)
+                ExifInterface.ORIENTATION_TRANSPOSE -> { postRotate(90f); postScale(-1f, 1f) }
+                ExifInterface.ORIENTATION_ROTATE_90 -> postRotate(90f)
+                ExifInterface.ORIENTATION_TRANSVERSE -> { postRotate(270f); postScale(-1f, 1f) }
+                ExifInterface.ORIENTATION_ROTATE_270 -> postRotate(270f)
+            }
+        }
+        val oriented = if (transform.isIdentity) decoded else Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, transform, true).also(bitmaps::add)
+        val side = minOf(oriented.width, oriented.height)
+        val cropped = Bitmap.createBitmap(oriented, (oriented.width - side) / 2, (oriented.height - side) / 2, side, side).also(bitmaps::add)
+        val avatar = if (cropped.width == 512) cropped else Bitmap.createScaledBitmap(cropped, 512, 512, true).also(bitmaps::add)
+
+        val format = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) Bitmap.CompressFormat.WEBP_LOSSY else Bitmap.CompressFormat.WEBP
+        var output: ByteArray? = null
+        for (quality in listOf(84, 78, 72, 66)) {
+            val stream = ByteArrayOutputStream()
+            check(avatar.compress(format, quality, stream)) { "Foto belum dapat dikompres. Coba foto lain." }
+            output = stream.toByteArray()
+            if (output.size <= 500 * 1024) break
+        }
+        val optimized = output ?: throw IllegalStateException("Foto belum dapat dikompres.")
+        require(optimized.size <= 500 * 1024) { "Foto masih terlalu besar setelah dikompres. Pilih foto lain." }
+        return optimized to "image/webp"
+    } finally {
+        bitmaps.forEach { if (!it.isRecycled) it.recycle() }
     }
 }
 
@@ -3226,11 +3501,21 @@ private fun CartScreen(
                     TextButton(onClick = onBrowse, modifier = Modifier.heightIn(min = 44.dp)) { Text("Jelajahi katalog", color = LunareaGreenText) }
                 }
         } else if (loading) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
+            LoadingStatePanel("Memuat keranjang…", Modifier.weight(1f).fillMaxWidth())
         } else if (message != null) {
-            EmptyState(message, {}, "")
+            StatePanel(
+                title = "Keranjang belum dapat dimuat", message = message,
+                icon = R.drawable.ic_refresh, isError = true,
+                actionLabel = "Coba lagi", onAction = onReload,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
         } else if (items.isEmpty()) {
-            EmptyState("Keranjang Anda masih kosong.", onBrowse, "Jelajahi katalog")
+            StatePanel(
+                title = "Keranjang Anda masih kosong",
+                message = "Jelajahi pilihan furnitur dan simpan yang Anda suka di sini.",
+                icon = R.drawable.ic_nav_cart, actionLabel = "Jelajahi katalog", onAction = onBrowse,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
         } else {
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(items, key = { it.id + it.variant }) { item ->
@@ -3295,26 +3580,98 @@ private fun CartScreen(
 
 @Composable
 private fun EmptyState(text: String, onAction: () -> Unit, action: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+    StatePanel(
+        title = text,
+        icon = R.drawable.ic_dialog_info,
+        actionLabel = action.takeIf(String::isNotBlank),
+        onAction = onAction,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
+    )
+}
+
+@Composable
+private fun StatePanel(
+    title: String,
+    message: String? = null,
+    icon: Int = R.drawable.ic_dialog_info,
+    isError: Boolean = false,
+    actionLabel: String? = null,
+    onAction: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val iconSurface = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+    val iconTint = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
+    Surface(
+        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 30.dp),
+            Modifier.fillMaxWidth().widthIn(max = 440.dp).padding(horizontal = 22.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(56.dp)) {
+            Surface(shape = CircleShape, color = iconSurface, modifier = Modifier.size(52.dp)) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(painterResource(R.drawable.ic_dialog_info), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(24.dp))
+                    Icon(painterResource(icon), contentDescription = null, tint = iconTint, modifier = Modifier.size(23.dp))
                 }
             }
-            Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            if (action.isNotBlank()) {
-                Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = MaterialTheme.shapes.medium) { Text(action) }
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            message?.takeIf(String::isNotBlank)?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            }
+            actionLabel?.takeIf(String::isNotBlank)?.let {
+                if (isError) OutlinedButton(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(it) }
+                else Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = MaterialTheme.shapes.medium) { Text(it) }
             }
         }
+    }
+}
+
+@Composable
+private fun LoadingStatePanel(label: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 2.5.dp)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    }
+}
+
+@Composable
+private fun InlineStatusMessage(message: String, isError: Boolean) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        color = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(
+            message,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+}
+
+@Composable
+private fun StatusChip(value: String) {
+    Surface(
+        modifier = Modifier.widthIn(max = 190.dp),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Text(
+            value,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -3863,18 +4220,22 @@ private fun CatalogScreen(
                 }
             }
         }
-        if (loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
-        if (message != null) {
-            Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(message, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(8.dp))
-            }
-        }
+        if (loading && products.isEmpty()) LoadingStatePanel("Memuat produk…", Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+        if (message != null && products.isEmpty() && !loading) StatePanel(
+            title = "Produk belum dapat ditampilkan", message = message,
+            icon = R.drawable.ic_dialog_info,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        else if (message != null) InlineStatusMessage(message, isError = true)
         if (detailLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
-        (actionMessage ?: detailError)?.let { Text(it, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), color = LunareaGreenText, fontSize = 13.sp) }
+        detailError?.let { InlineStatusMessage(it, isError = true) }
+        actionMessage?.let {
+            val isError = it.contains("gagal", true) || it.contains("belum", true) || it.contains("koneksi", true) || it.contains("pilih", true)
+            InlineStatusMessage(it, isError = isError)
+        }
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
           LazyVerticalGrid(
-            columns = if (maxWidth < 600.dp) GridCells.Fixed(2) else GridCells.Adaptive(200.dp),
+            columns = if (maxWidth < 600.dp) GridCells.Fixed(2) else GridCells.Adaptive(220.dp),
             state = gridState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullRefreshConnection),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -4090,6 +4451,9 @@ private fun ProductDetailScreen(
         if (galleryFullscreen && availableGallery.isNotEmpty()) pagerState.scrollToPage(fullscreenPagerState.currentPage)
     }
     val price = runCatching { detail.get("price")?.takeUnless { it.isJsonNull }?.asLong }.getOrNull() ?: summary?.price
+    val discountPercent = runCatching { detail.get("discount_percent")?.takeUnless { it.isJsonNull }?.asInt }
+        .getOrNull()?.coerceIn(0, 100) ?: (summary?.discount_percent ?: 0).coerceIn(0, 100)
+    val discountedPrice = price?.let { discountedProductPrice(it, discountPercent) }
     val description = readableProductDescription(
         detail.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
     )
@@ -4196,7 +4560,19 @@ private fun ProductDetailScreen(
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text("Harga", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(price?.let(::formatRupiah) ?: "Hubungi kami untuk informasi harga", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText, fontWeight = FontWeight.Bold)
+                        Text(discountedPrice?.let(::formatRupiah) ?: "Hubungi kami untuk informasi harga", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (discountPercent > 0 && price != null && discountedPrice != null) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                Text(
+                                    formatRupiah(price),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                    maxLines = 1
+                                )
+                                Text("Diskon $discountPercent%", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
                     }
                     val stockLabel = if (stock == null) "Cek stok" else if (stock > 0) "Tersedia" else "Stok habis"
                     Text(stockLabel, color = if (stock != null && stock <= 0) MaterialTheme.colorScheme.error else LunareaGreenText, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Medium)
@@ -4230,6 +4606,12 @@ private fun ProductDetailScreen(
                     modifier = Modifier.heightIn(min = 40.dp)
                 ) {
                     Text("Lihat ulasan produk")
+                }
+                ProductInfoActionRow("Perhatian sebelum membeli") {
+                    infoSheet = ProductInfoSheet.PURCHASE_NOTES
+                }
+                ProductInfoActionRow("Syarat & ketentuan komplain") {
+                    infoSheet = ProductInfoSheet.COMPLAINT_TERMS
                 }
                 if (!weight.isNullOrBlank()) Text("Berat produk  ·  $weight kg", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val variants = summary?.variants.orEmpty().filter { !it.name.isNullOrBlank() }.distinctBy { it.name }
@@ -4280,7 +4662,17 @@ private fun ProductDetailScreen(
         Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Harga", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(price?.let(::formatRupiah) ?: "Hubungi kami", style = MaterialTheme.typography.titleMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(discountedPrice?.let(::formatRupiah) ?: "Hubungi kami", style = MaterialTheme.typography.titleMedium, color = LunareaGreenText, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (discountPercent > 0 && price != null) {
+                    Text(
+                        formatRupiah(price),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             OutlinedButton(onClick = onFavorite, enabled = !busy, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), contentPadding = PaddingValues(0.dp), shape = RoundedCornerShape(14.dp)) {
                 Icon(painterResource(if (favoriteSelected) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_outline), contentDescription = if (favoriteSelected) "Hapus dari favorit" else "Simpan ke favorit", tint = if (favoriteSelected) MaterialTheme.colorScheme.error else LunareaGreenText)
@@ -4307,7 +4699,12 @@ private fun ProductDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
-                        if (sheet == ProductInfoSheet.DESCRIPTION) "Deskripsi produk" else "Ulasan produk",
+                        when (sheet) {
+                            ProductInfoSheet.DESCRIPTION -> "Deskripsi produk"
+                            ProductInfoSheet.REVIEWS -> "Ulasan produk"
+                            ProductInfoSheet.PURCHASE_NOTES -> "Perhatian sebelum membeli"
+                            ProductInfoSheet.COMPLAINT_TERMS -> "Syarat & ketentuan komplain"
+                        },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -4329,7 +4726,7 @@ private fun ProductDetailScreen(
                             Text(name, style = MaterialTheme.typography.titleSmall, color = LunareaGreenText, fontWeight = FontWeight.Medium)
                             Text(description, style = MaterialTheme.typography.bodyLarge, lineHeight = 26.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                    } else {
+                    } else if (sheet == ProductInfoSheet.REVIEWS) {
                         val reviewItems = sequenceOf("reviews", "ratings", "rating_list")
                             .mapNotNull { key -> runCatching { detail.getAsJsonArray(key) }.getOrNull() }
                             .firstOrNull()
@@ -4369,6 +4766,42 @@ private fun ProductDetailScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
+                            }
+                        }
+                    } else {
+                        val policyItems = if (sheet == ProductInfoSheet.PURCHASE_NOTES) productPurchaseNotes else productComplaintTerms
+                        Column(
+                            Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            policyItems.forEachIndexed { index, item ->
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                (index + 1).toString(),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        item,
+                                        Modifier.weight(1f).padding(top = 3.dp),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        lineHeight = 22.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -4439,6 +4872,26 @@ private fun ProductDetailScreen(
 }
 
 @Composable
+private fun ProductInfoActionRow(title: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+    ) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(title, Modifier.weight(1f), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Medium)
+            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = LunareaGreenText, modifier = Modifier.size(20.dp))
+        }
+    }
+}
+
+@Composable
 private fun HomeProductSection(
     title: String,
     products: List<ProductSummary>,
@@ -4455,20 +4908,28 @@ private fun HomeProductSection(
             if (loading && products.isEmpty()) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
         }
         if (products.isEmpty()) {
-            LazyRow(contentPadding = PaddingValues(horizontal = 1.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(3) { ProductCardSkeleton(Modifier.width(168.dp)) }
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val cardWidth = (maxWidth * .44f).coerceIn(156.dp, 240.dp)
+                LazyRow(contentPadding = PaddingValues(horizontal = 1.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(3) { ProductCardSkeleton(Modifier.width(cardWidth)) }
+                }
             }
         } else {
-            LazyRow(contentPadding = PaddingValues(horizontal = 1.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(products, key = { it.id }) { product ->
-                    ProductCard(
-                        product = product,
-                        busy = busy,
-                        favoriteSelected = favoriteKeys.any { it.substringBefore("\u001f") == product.id },
-                        onFavorite = { onFavorite(product) },
-                        onDetail = { onDetail(product) },
-                        modifier = Modifier.width(168.dp)
-                    )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                // Scale horizontal cards with available width: compact phones keep
+                // multiple products visible; tablets get a more readable card size.
+                val cardWidth = (maxWidth * .44f).coerceIn(156.dp, 240.dp)
+                LazyRow(contentPadding = PaddingValues(horizontal = 1.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(products, key = { it.id }) { product ->
+                        ProductCard(
+                            product = product,
+                            busy = busy,
+                            favoriteSelected = favoriteKeys.any { it.substringBefore("\u001f") == product.id },
+                            onFavorite = { onFavorite(product) },
+                            onDetail = { onDetail(product) },
+                            modifier = Modifier.width(cardWidth)
+                        )
+                    }
                 }
             }
         }
@@ -4477,37 +4938,30 @@ private fun HomeProductSection(
 
 @Composable
 private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected: Boolean, onFavorite: () -> Unit, onDetail: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
-    val variants = product.variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
-    var productImageReady by remember(product.image_url) { mutableStateOf(false) }
-    val cardInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-    val cardPressed by cardInteractionSource.collectIsPressedAsState()
-    val cardPressScale by animateFloatAsState(
-        targetValue = if (cardPressed) .992f else 1f,
-        animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing),
-        label = "productCardPress"
-    )
+    val variants = remember(product.id, product.variants) {
+        product.variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
+    }
     val discount = product.discount_percent?.coerceIn(0, 100) ?: 0
+    val discountedPrice = product.price?.let { discountedProductPrice(it, discount) }
     Card(
         onClick = onDetail,
-        modifier = modifier.fillMaxWidth().graphicsLayer(scaleX = cardPressScale, scaleY = cardPressScale),
+        // Keep list scrolling cheap on older GPUs: Material's native ripple gives
+        // press feedback without an animated graphics layer on every recycled card.
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f)),
-        interactionSource = cardInteractionSource
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
     ) {
         Column(Modifier.fillMaxWidth()) {
             Box(Modifier.fillMaxWidth().aspectRatio(.96f).background(MaterialTheme.colorScheme.surfaceVariant)) {
                 if (!product.image_url.isNullOrBlank()) {
-                    if (!productImageReady) {
-                        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant))
-                    }
                     AsyncImage(
                         model = product.image_url,
                         contentDescription = "${product.name}, gambar produk",
-                        modifier = Modifier.fillMaxSize().padding(4.dp),
-                        contentScale = ContentScale.Fit,
-                        onSuccess = { productImageReady = true },
-                        onError = { productImageReady = true }
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        // The colored parent is an inexpensive loading/error fallback;
+                        // avoid a per-card state write/recomposition when decoding finishes.
                     )
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -4589,8 +5043,9 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    minLines = 2
+                    maxLines = 1,
+                    minLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (variants.isNotEmpty()) {
                     Text(
@@ -4603,14 +5058,32 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
                 } else {
                     Spacer(Modifier.height(13.dp))
                 }
-                Text(
-                    product.price?.let(::formatRupiah) ?: "Hubungi kami",
-                    color = LunareaGreenText,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(
+                        discountedPrice?.let(::formatRupiah) ?: "Hubungi kami",
+                        color = LunareaGreenText,
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (discount > 0 && product.price != null) {
+                        Text(
+                            formatRupiah(product.price),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 10.sp,
+                            lineHeight = 13.sp,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    } else {
+                        // Reserve the same second price line on every card so
+                        // discounted and regular-price products share a height.
+                        Spacer(Modifier.height(13.dp))
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     Box(
                         Modifier.size(6.dp).background(
@@ -4670,12 +5143,14 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
         Spacer(Modifier.height(18.dp))
 
         if (loading && data == null) {
-            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { LoadingStatePanel("Memuat Luna Poin…", Modifier.fillMaxWidth()) }
         } else if (error != null && data == null) {
-            Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Text(error.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                TextButton(onClick = { refreshKey++ }) { Text("Coba lagi") }
-            }
+            StatePanel(
+                title = "Luna Poin belum dapat dimuat", message = error.orEmpty(),
+                icon = R.drawable.ic_refresh, isError = true,
+                actionLabel = "Coba lagi", onAction = { refreshKey++ },
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
         } else {
             val balance = data?.longOrNull("balance") ?: 0L
             Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
@@ -4990,6 +5465,12 @@ private fun formatLunareaDateTime(raw: String): String {
 }
 
 private fun formatRupiah(amount: Long): String = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(amount).replace(",00", "")
+
+/** Mirrors the website's displayed percentage discount; checkout pricing remains server-authoritative. */
+private fun discountedProductPrice(originalPrice: Long, discountPercent: Int): Long {
+    val discount = discountPercent.coerceIn(0, 100)
+    return if (discount == 0) originalPrice else kotlin.math.round(originalPrice.toDouble() * (100 - discount) / 100.0).toLong()
+}
 
 private fun isUnpaidOrderStatus(status: String): Boolean {
     val normalized = status.trim().lowercase(Locale.ROOT)
