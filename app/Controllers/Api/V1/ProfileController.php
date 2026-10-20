@@ -8,6 +8,8 @@ use App\Services\Auth\IndonesianMobileNumber;
 
 final class ProfileController extends ApiController
 {
+    private const PHOTO_CHANGE_INTERVAL = 604800;
+
     public function update()
     {
         $input = $this->payload();
@@ -54,11 +56,34 @@ final class ProfileController extends ApiController
         // Content-addressed versioning prevents Android/Cloudflare caches from
         // showing an older avatar after a successful replacement.
         $revision = substr(hash('sha256', $bytes), 0, 24);
-        $photoPath = '/imguser/' . $encodedEmail . '?v=' . $revision;
-        $photoUrl = site_url('imguser/' . $encodedEmail) . '?v=' . $revision;
         $db = db_connect();
         $db->transBegin();
         try {
+            // Serialize concurrent uploads for this customer and enforce the
+            // cooldown on the server, not just in the Android UI.
+            $profile = $db->query('SELECT foto FROM pembeli WHERE email_user = ? FOR UPDATE', [$email])->getRowArray();
+            if (!$profile) throw new \RuntimeException('Customer profile row is missing.');
+            $lastChangedAt = null;
+            if (preg_match('/(?:\\?|&)at=(\\d{10})(?:&|$)/', (string)($profile['foto'] ?? ''), $match)) {
+                $lastChangedAt = (int)$match[1];
+            }
+            $now = time();
+            if ($lastChangedAt !== null && $now < $lastChangedAt + self::PHOTO_CHANGE_INTERVAL) {
+                $db->transRollback();
+                $availableAt = $lastChangedAt + self::PHOTO_CHANGE_INTERVAL;
+                $availableLabel = (new \DateTimeImmutable('@' . $availableAt))
+                    ->setTimezone(new \DateTimeZone('Asia/Jakarta'))
+                    ->format('d-m-Y H:i') . ' WIB';
+                return $this->failure(
+                    'PHOTO_CHANGE_COOLDOWN',
+                    'Foto profil hanya dapat diganti setiap 7 hari. Anda dapat menggantinya kembali pada ' . $availableLabel . '.',
+                    429,
+                    ['photo_change_available_at' => gmdate('c', $availableAt)]
+                );
+            }
+
+            $photoPath = '/imguser/' . $encodedEmail . '?v=' . $revision . '&at=' . $now;
+            $photoUrl = site_url('imguser/' . $encodedEmail) . '?v=' . $revision;
             $images = new GambarUserModel();
             if ($images->getGambar($email)) {
                 $imageSaved = $images->where('email_user', $email)->set(['gambar' => $bytes])->update();
@@ -76,6 +101,10 @@ final class ProfileController extends ApiController
             return $this->failure('PHOTO_SAVE_FAILED', 'Foto profil belum dapat disimpan. Coba lagi.', 500);
         }
 
-        return $this->success(['customer' => ['photo_url' => $photoUrl]], ['message' => 'Foto profil berhasil diperbarui.']);
+        $availableAt = gmdate('c', $now + self::PHOTO_CHANGE_INTERVAL);
+        return $this->success(['customer' => [
+            'photo_url' => $photoUrl,
+            'photo_change_available_at' => $availableAt,
+        ]], ['message' => 'Foto profil berhasil diperbarui.']);
     }
 }

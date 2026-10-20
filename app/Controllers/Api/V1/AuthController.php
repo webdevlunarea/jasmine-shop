@@ -345,8 +345,12 @@ class AuthController extends ApiController
         if (!$user || !$profile) return $this->failure('CUSTOMER_NOT_FOUND', 'Data akun tidak tersedia.', 404);
         $encodedEmail = rtrim(strtr(base64_encode($email), '+/', '-_'), '=');
         $photoUrl = site_url('imguser/' . $encodedEmail);
+        $photoChangeAvailableAt = null;
         if (preg_match('/(?:\\?|&)v=([a-f0-9]{24})(?:&|$)/i', (string)($profile['foto'] ?? ''), $match)) {
             $photoUrl .= '?v=' . strtolower($match[1]);
+        }
+        if (preg_match('/(?:\\?|&)at=(\\d{10})(?:&|$)/', (string)($profile['foto'] ?? ''), $match)) {
+            $photoChangeAvailableAt = gmdate('c', (int)$match[1] + 604800);
         }
         return $this->success(['customer' => [
             'email' => (string)$user['email'],
@@ -354,6 +358,7 @@ class AuthController extends ApiController
             'phone' => (string)($profile['nohp'] ?? ''),
             'tier' => (string)($profile['tier'] ?? ''),
             'photo_url' => $photoUrl,
+            'photo_change_available_at' => $photoChangeAvailableAt,
         ]]);
     }
 }

@@ -118,6 +118,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
+import java.time.Instant
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.collect
 import okhttp3.MultipartBody
@@ -3246,6 +3247,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var photoUrl by remember { mutableStateOf<String?>(null) }
+    var photoChangeAvailableAt by remember { mutableStateOf<Instant?>(null) }
     var busy by remember { mutableStateOf(true) }
     var photoBusy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
@@ -3262,6 +3264,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                 val customer = body?.data?.getAsJsonObject("customer")
                 if (response.isSuccessful && body?.success == true) {
                     photoUrl = customer?.get("photo_url")?.asString?.takeIf { it.isNotBlank() }
+                    photoChangeAvailableAt = customer?.get("photo_change_available_at")?.asString?.let { runCatching { Instant.parse(it) }.getOrNull() }
                     message = "Foto profil berhasil diperbarui."
                 } else message = response.customerError("Foto profil belum dapat disimpan.")
             } catch (e: Exception) {
@@ -3276,6 +3279,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             if (response.isSuccessful && response.body()?.success == true && customer != null) {
                 name = customer.get("name")?.asString.orEmpty(); phone = customer.get("phone")?.asString.orEmpty(); email = customer.get("email")?.asString.orEmpty()
                 photoUrl = customer.get("photo_url")?.asString?.takeIf { it.isNotBlank() }
+                photoChangeAvailableAt = customer.get("photo_change_available_at")?.takeIf { !it.isJsonNull }?.asString?.let { runCatching { Instant.parse(it) }.getOrNull() }
             } else message = response.body()?.error?.message ?: "Profil belum dapat dimuat."
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
         finally { busy = false }
@@ -3304,12 +3308,19 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                     Text(email.ifBlank { "Email belum tersedia" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     TextButton(
                         onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                        enabled = !photoBusy,
+                        enabled = !photoBusy && photoChangeAvailableAt?.isAfter(Instant.now()) != true,
                         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
                         modifier = Modifier.heightIn(min = 44.dp)
                     ) {
                         if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                         else Text(if (photoUrl.isNullOrBlank()) "Tambahkan foto" else "Ganti foto")
+                    }
+                    photoChangeAvailableAt?.takeIf { it.isAfter(Instant.now()) }?.let { availableAt ->
+                        Text(
+                            "Foto dapat diganti kembali ${formatLunareaDateTime(availableAt.toString())}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

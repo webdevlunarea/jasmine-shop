@@ -6591,6 +6591,8 @@ class Pages extends BaseController
 
         $uploadedPhoto = $this->request->getFile('foto');
         $foto = false;
+        $photoChangedAt = null;
+        $photoTransaction = false;
         if ($uploadedPhoto && $uploadedPhoto->isValid() && !$uploadedPhoto->hasMoved()) {
             $allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
             $mime = (string)$uploadedPhoto->getMimeType();
@@ -6615,6 +6617,28 @@ class Pages extends BaseController
             }
         }
 
+        if (is_string($foto) && $foto !== '' && $role == '0') {
+            $db = db_connect();
+            $db->transBegin();
+            $photoTransaction = true;
+            $lockedProfile = $db->query('SELECT foto FROM pembeli WHERE email_user = ? FOR UPDATE', [$email])->getRowArray();
+            $lastPhotoChange = null;
+            if (preg_match('/(?:\\?|&)at=(\\d{10})(?:&|$)/', (string)($lockedProfile['foto'] ?? ''), $photoTimeMatch)) {
+                $lastPhotoChange = (int)$photoTimeMatch[1];
+            }
+            $now = time();
+            if ($lastPhotoChange !== null && $now < $lastPhotoChange + 604800) {
+                $db->transRollback();
+                $availableAt = $lastPhotoChange + 604800;
+                $availableLabel = (new \DateTimeImmutable('@' . $availableAt))
+                    ->setTimezone(new \DateTimeZone('Asia/Jakarta'))
+                    ->format('d-m-Y H:i') . ' WIB';
+                session()->setFlashdata('msg', 'Foto profil hanya dapat diganti setiap 7 hari. Anda dapat menggantinya kembali pada ' . $availableLabel . '.');
+                return redirect()->to('/account');
+            }
+            $photoChangedAt = $now;
+        }
+
         if ($sandi !== '') {
             $this->userModel->where('email', $email)->set([
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
@@ -6623,6 +6647,9 @@ class Pages extends BaseController
         if ($role == '0') {
             $currentFoto = (string)(session()->get('foto') ?: ($getCurPembeli['foto'] ?? '/imguser/ZGVmYXVsdA=='));
             $localFotoPath = '/imguser/' . base64_encode($email);
+            if (is_string($foto) && $foto !== '' && $photoChangedAt !== null) {
+                $localFotoPath .= '?v=' . substr(hash('sha256', $foto), 0, 24) . '&at=' . $photoChangedAt;
+            }
             $finalFoto = $foto ? $localFotoPath : $currentFoto;
 
             $this->pembeliModel->where('email_user', $email)->set([
@@ -6640,6 +6667,15 @@ class Pages extends BaseController
                 } else {
                     $this->gambarUserModel->insert(['email_user' => $email, 'gambar' => $foto]);
                 }
+            }
+
+            if ($photoTransaction) {
+                if ($db->transStatus() === false) {
+                    $db->transRollback();
+                    session()->setFlashdata('msg', 'Foto profil belum dapat disimpan. Silakan coba kembali.');
+                    return redirect()->to('/account');
+                }
+                $db->transCommit();
             }
 
             session()->set([
