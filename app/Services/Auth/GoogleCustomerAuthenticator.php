@@ -74,11 +74,14 @@ final class GoogleCustomerAuthenticator
 
     private function resolveCustomer(string $email, string $googleId, string $name, string $picture): array
     {
-        if (!$this->db->transBegin()) throw new RuntimeException('Akun Google tidak dapat diproses.');
+        $stage = 'begin_transaction';
         try {
+            if (!$this->db->transBegin()) throw new RuntimeException('Akun Google tidak dapat diproses.');
             // Prefer the immutable Google subject if it was already linked, even if
             // the user later changes their Google email address.
+            $stage = 'find_linked_google_account';
             $byGoogle = $this->db->table('user')->where('google_id', $googleId)->get()->getRowArray();
+            $stage = 'find_email_account';
             $user = $byGoogle ?: $this->users->getUser($email);
 
             if ($user && (string) ($user['role'] ?? '') !== '0') {
@@ -89,6 +92,7 @@ final class GoogleCustomerAuthenticator
             }
 
             if (!$user) {
+                $stage = 'create_customer_account';
                 $emailOwner = $this->users->getUser($email);
                 if ($emailOwner) throw new DomainException('Akun ini belum dapat ditautkan dengan Google.');
                 $this->users->insert([
@@ -99,6 +103,7 @@ final class GoogleCustomerAuthenticator
                 ]);
                 $user = $this->users->getUser($email);
                 if (!$user) throw new RuntimeException('Akun Google tidak berhasil dibuat.');
+                $stage = 'create_customer_profile';
                 $this->profiles->insert([
                     'email_user' => $email,
                     'nama' => mb_substr($name !== '' ? $name : $email, 0, 120),
@@ -107,6 +112,7 @@ final class GoogleCustomerAuthenticator
                     'poin' => json_encode([]), 'tier' => json_encode(['label' => 'bronze', 'data' => []]),
                     'foto' => $picture !== '' ? $picture : '/imguser/ZGVmYXVsdA==',
                 ]);
+                $stage = 'claim_automatic_vouchers';
                 $this->claimAutomaticVouchers($email);
             } else {
                 $accountEmail = strtolower((string) $user['email']);
@@ -115,12 +121,15 @@ final class GoogleCustomerAuthenticator
                     'active' => '1',
                 ];
                 if (($user['auth_provider'] ?? 'email') === 'email') $update['auth_provider'] = 'google';
+                $stage = 'link_google_account';
                 if (!$this->db->table('user')->where('email', $accountEmail)->update($update)) {
                     throw new RuntimeException('Akun Google tidak berhasil diperbarui.');
                 }
                 $user = $this->users->getUser($accountEmail);
+                $stage = 'load_customer_profile';
                 $profile = $this->profiles->getPembeli($accountEmail);
                 if (!$profile) {
+                    $stage = 'create_customer_profile';
                     $this->profiles->insert([
                         'email_user' => $accountEmail,
                         'nama' => mb_substr($name !== '' ? $name : $accountEmail, 0, 120),
@@ -131,21 +140,32 @@ final class GoogleCustomerAuthenticator
                     ]);
                     $profile = $this->profiles->getPembeli($accountEmail);
                 } elseif ($picture !== '' && (($profile['foto'] ?? '') === '' || ($profile['foto'] ?? '') === '/imguser/ZGVmYXVsdA==')) {
+                    $stage = 'update_customer_profile_photo';
                     $this->db->table('pembeli')->where('email_user', $accountEmail)->update(['foto' => $picture]);
                     $profile['foto'] = $picture;
                 }
             }
 
+            $stage = 'verify_customer_profile';
             if (!$user || (string) ($user['role'] ?? '') !== '0') {
                 throw new RuntimeException('Akun pelanggan tidak tersedia.');
             }
             $accountEmail = strtolower((string) $user['email']);
             $profile = $this->profiles->getPembeli($accountEmail);
             if (!$profile || !$this->db->transStatus()) throw new RuntimeException('Profil akun tidak dapat disiapkan.');
+            $stage = 'commit_account_transaction';
             if (!$this->db->transCommit()) throw new RuntimeException('Akun Google tidak berhasil disimpan.');
             return ['email' => $accountEmail, 'name' => $profile['nama'] ?? '', 'phone' => $profile['nohp'] ?? ''];
         } catch (\Throwable $e) {
             if ((int) $this->db->transDepth > 0) $this->db->transRollback();
+            if (!$e instanceof DomainException) {
+                log_message('error', sprintf(
+                    'Google customer resolution failed at %s: %s (code %s).',
+                    $stage,
+                    get_class($e),
+                    (string) $e->getCode()
+                ));
+            }
             throw $e;
         }
     }
