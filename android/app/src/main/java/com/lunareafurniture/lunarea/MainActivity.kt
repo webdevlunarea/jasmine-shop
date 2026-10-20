@@ -5613,6 +5613,19 @@ private fun AccountScreen(
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = .35f))
             ) { Text("Keluar dari akun", fontWeight = FontWeight.SemiBold) }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = { openWebsite(context, "https://lunareafurniture.com/kebijakan-privasi") }) {
+                Text("Kebijakan Privasi", style = MaterialTheme.typography.labelMedium)
+            }
+            Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = { openWebsite(context, "https://lunareafurniture.com/syarat-dan-ketentuan") }) {
+                Text("Syarat & Ketentuan", style = MaterialTheme.typography.labelMedium)
+            }
+        }
     }
 }
 

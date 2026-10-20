@@ -122,6 +122,13 @@ nb-configuration.xml
 /android/.kotlin/
 /android/local.properties
 /android/**/build/
+# Local Play upload credentials, signing material, and generated release bundles.
+/android/keystore.properties
+/android/keyapklunarea
+/android/**/*.jks
+/android/**/*.keystore
+/android/app/client_secret_*.json
+/android/app/release/
 
 # Visual Studio Code
 .vscode/

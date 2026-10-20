@@ -1,9 +1,30 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
 }
+
+val uploadSigningPropertiesFile = rootProject.file("keystore.properties")
+val uploadSigningProperties = Properties().apply {
+    if (uploadSigningPropertiesFile.isFile) {
+        uploadSigningPropertiesFile.inputStream().use { load(it) }
+    }
+}
+val uploadSigningKeys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+val hasUploadSigning = uploadSigningKeys.all { !uploadSigningProperties.getProperty(it).isNullOrBlank() }
+val releaseArtifactRequested = gradle.startParameter.taskNames.any {
+    it.substringAfterLast(':').matches(Regex("(?i)(bundle|assemble|package)Release"))
+}
+if (releaseArtifactRequested && !hasUploadSigning) {
+    throw GradleException(
+        "Release signing is not configured. Create android/keystore.properties using " +
+            "android/keystore.properties.example and your Play upload keystore."
+    )
+}
+
 android {
     namespace = "com.lunareafurniture.lunarea"
     compileSdk = 36
@@ -17,8 +38,19 @@ android {
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"520531202813-voubv1urfgrmeg8l813i4d3qh9r8i2g6.apps.googleusercontent.com\"")
         buildConfigField("String", "RECAPTCHA_ANDROID_KEY_ID", "\"6LdhT_YtAAAAAPXNKQu3-4owL1D6Yb97D4qZzIW_\"")
     }
+    signingConfigs {
+        if (hasUploadSigning) {
+            create("playUpload") {
+                storeFile = rootProject.file(uploadSigningProperties.getProperty("storeFile"))
+                storePassword = uploadSigningProperties.getProperty("storePassword")
+                keyAlias = uploadSigningProperties.getProperty("keyAlias")
+                keyPassword = uploadSigningProperties.getProperty("keyPassword")
+            }
+        }
+    }
     buildTypes {
         getByName("release") {
+            if (hasUploadSigning) signingConfig = signingConfigs.getByName("playUpload")
             ndk {
                 debugSymbolLevel = "FULL"
             }
