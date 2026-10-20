@@ -2676,6 +2676,8 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var voucherClaimId by remember { mutableLongStateOf(0L) }
     var voucherMenu by remember { mutableStateOf(false) }
     var includeGlass by remember { mutableStateOf(false) }
+    var glassPriceEstimate by remember { mutableStateOf<Long?>(null) }
+    var showCheckoutAddressForm by remember { mutableStateOf(false) }
     var showCheckoutItems by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<com.google.gson.JsonObject?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
@@ -2712,7 +2714,6 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         ?: addresses.firstOrNull()?.get("id")?.takeUnless { it.isJsonNull }?.asLong
                         ?: 0L
                 }
-                if (addresses.isEmpty()) message = "Tambahkan alamat pengiriman terlebih dahulu melalui menu Akun."
             } else message = response.body()?.error?.message ?: "Alamat belum dapat dimuat."
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
         finally { busy = false }
@@ -2790,6 +2791,29 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             else message = response.customerError("Ringkasan pembayaran belum tersedia.")
         } catch (_: Exception) { if (requestId == previewRequestGeneration) message = "Ringkasan pembayaran belum dapat dimuat. Periksa koneksi lalu coba lagi." }
         finally { if (requestId == previewRequestGeneration) previewLoading = false }
+    }
+
+    // Ask the existing server-side preview for the authoritative glass fee while
+    // keeping the actual checkout preview and total unchanged until the user opts in.
+    LaunchedEffect(addressId, quote?.token, payment, includeGlass) {
+        val selected = quote
+        glassPriceEstimate = null
+        if (includeGlass || selected == null || addressId <= 0) return@LaunchedEffect
+        try {
+            val response = ApiClient.get(context).checkoutPreview(JsonObject().apply {
+                addProperty("address_id", addressId)
+                addProperty("shipping_quote_token", selected.token)
+                addProperty("payment_method", payment)
+                addProperty("use_points", false)
+                addProperty("include_glass", true)
+            })
+            val data = response.body()?.data?.getAsJsonObject("checkout")
+            if (response.isSuccessful && response.body()?.success == true && data != null) {
+                glassPriceEstimate = data.getAsJsonObject("glass_service")?.get("amount")?.takeUnless { it.isJsonNull }?.asLong?.takeIf { it > 0L }
+            }
+        } catch (_: Exception) {
+            glassPriceEstimate = null
+        }
     }
 
     BackHandler(enabled = paymentInstructions != null) { paymentInstructions = null }
@@ -2964,7 +2988,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         if (addresses.isEmpty()) {
                             Column(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(if (busy) "Memuat alamat…" else "Belum ada alamat pengiriman", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                Text("Tambahkan alamat tersimpan melalui menu Akun untuk melihat pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Tambahkan alamat penerima di sini agar kami dapat menampilkan tarif dan pilihan pengiriman.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         } else {
                             val selectedAddress = addresses.firstOrNull { (it.get("id")?.asLong ?: 0L) == addressId }
@@ -2988,6 +3012,23 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                     addresses.forEach { addr -> DropdownMenuItem(text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}", maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }) }
                                 }
                             }
+                        }
+                        if (showCheckoutAddressForm) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
+                            CheckoutAddressForm(
+                                onCancel = { showCheckoutAddressForm = false },
+                                onSaved = { savedId ->
+                                    showCheckoutAddressForm = false
+                                    if (savedId > 0L) addressId = savedId
+                                    refreshAddress++
+                                }
+                            )
+                        } else {
+                            TextButton(
+                                onClick = { showCheckoutAddressForm = true },
+                                enabled = !busy,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                            ) { Text(if (addresses.isEmpty()) "+ Tambahkan alamat sekarang" else "+ Tambah alamat lain") }
                         }
                     }
                 }
@@ -3137,11 +3178,20 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                 }
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))
-                            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Checkbox(checked = includeGlass, onCheckedChange = { includeGlass = it }, enabled = !previewLoading)
-                                Text("Proteksi kaca jika tersedia", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                preview?.getAsJsonObject("glass_service")?.get("amount")?.asLong?.takeIf { it > 0 }?.let {
-                                    Text(formatRupiah(it), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Column(Modifier.weight(1f).padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text("Proteksi kaca jika tersedia", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                    val fee = if (includeGlass) preview?.getAsJsonObject("glass_service")?.get("amount")?.takeUnless { it.isJsonNull }?.asLong?.takeIf { it > 0L } else glassPriceEstimate
+                                    Text(
+                                        when {
+                                            fee != null -> "Biaya ${if (includeGlass) "ditambahkan" else "jika dipilih"}: ${formatRupiah(fee)}"
+                                            !includeGlass && quote != null -> "Perkiraan biaya muncul jika keranjang berisi produk berkaca yang memenuhi syarat."
+                                            else -> "Biaya ditampilkan setelah alamat dan pengiriman dipilih."
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }
@@ -3278,6 +3328,136 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)
             ) { if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Buat pesanan") }
           }
+        }
+    }
+}
+
+@Composable
+private fun CheckoutAddressForm(onCancel: () -> Unit, onSaved: (Long) -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var label by remember { mutableStateOf("") }
+    var recipient by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var detail by remember { mutableStateOf("") }
+    var provinces by remember { mutableStateOf<List<RegionOption>>(emptyList()) }
+    var cities by remember { mutableStateOf<List<RegionOption>>(emptyList()) }
+    var districts by remember { mutableStateOf<List<RegionOption>>(emptyList()) }
+    var villages by remember { mutableStateOf<List<RegionOption>>(emptyList()) }
+    var province by remember { mutableStateOf<RegionOption?>(null) }
+    var city by remember { mutableStateOf<RegionOption?>(null) }
+    var district by remember { mutableStateOf<RegionOption?>(null) }
+    var village by remember { mutableStateOf<RegionOption?>(null) }
+    var loadingProvinces by remember { mutableStateOf(true) }
+    var loadingCities by remember { mutableStateOf(false) }
+    var loadingDistricts by remember { mutableStateOf(false) }
+    var loadingVillages by remember { mutableStateOf(false) }
+    var saving by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var provinceRequest by remember { mutableIntStateOf(0) }
+    var cityRequest by remember { mutableIntStateOf(0) }
+    var districtRequest by remember { mutableIntStateOf(0) }
+    var villageRequest by remember { mutableIntStateOf(0) }
+
+    fun parseRegions(json: JsonObject?): List<RegionOption> = json?.getAsJsonArray("regions")?.mapNotNull { item ->
+        if (!item.isJsonObject) return@mapNotNull null
+        val row = item.asJsonObject
+        val id = row.get("id")?.takeUnless { it.isJsonNull }?.asInt ?: return@mapNotNull null
+        RegionOption(id, row.get("label")?.takeUnless { it.isJsonNull }?.asString.orEmpty(), row.get("kodepos")?.takeUnless { it.isJsonNull }?.asString.orEmpty())
+    } ?: emptyList()
+
+    LaunchedEffect(Unit) {
+        try {
+            val response = ApiClient.get(context).provinces()
+            if (response.isSuccessful && response.body()?.success == true) provinces = parseRegions(response.body()?.data)
+            else error = response.customerError("Daftar provinsi belum dapat dimuat.")
+        } catch (_: Exception) { error = "Koneksi wilayah belum tersedia. Periksa internet lalu coba lagi." }
+        finally { loadingProvinces = false }
+    }
+
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("Alamat baru", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("Isi alamat di checkout ini. Alamat akan tersimpan untuk pesanan berikutnya.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedTextField(label, { label = it.take(60) }, modifier = Modifier.fillMaxWidth(), label = { Text("Label alamat · Rumah/Kantor") }, singleLine = true, enabled = !saving)
+        OutlinedTextField(recipient, { recipient = it.take(120) }, modifier = Modifier.fillMaxWidth(), label = { Text("Nama penerima") }, singleLine = true, enabled = !saving, keyboardOptions = KeyboardOptions(capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Words, imeAction = androidx.compose.ui.text.input.ImeAction.Next))
+        OutlinedTextField(phone, { phone = it.filter { ch -> ch.isDigit() || ch in "+ ()-" }.take(25) }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, singleLine = true, enabled = !saving, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = androidx.compose.ui.text.input.ImeAction.Next))
+        RegionSelector("Provinsi", province, provinces, !loadingProvinces && provinces.isNotEmpty(), loadingProvinces) { selected ->
+            province = selected; city = null; district = null; village = null
+            cities = emptyList(); districts = emptyList(); villages = emptyList()
+            val request = ++cityRequest
+            loadingCities = true
+            scope.launch {
+                try {
+                    val response = ApiClient.get(context).cities(selected.id)
+                    if (request == cityRequest && province?.id == selected.id) {
+                        if (response.isSuccessful && response.body()?.success == true) cities = parseRegions(response.body()?.data)
+                        else error = response.customerError("Daftar kota/kabupaten belum dapat dimuat.")
+                    }
+                } catch (_: Exception) { if (request == cityRequest) error = "Koneksi wilayah belum tersedia. Coba lagi." }
+                finally { if (request == cityRequest) loadingCities = false }
+            }
+        }
+        RegionSelector("Kota/Kabupaten", city, cities, province != null && !loadingCities && cities.isNotEmpty(), loadingCities) { selected ->
+            city = selected; district = null; village = null; districts = emptyList(); villages = emptyList()
+            val request = ++districtRequest
+            loadingDistricts = true
+            scope.launch {
+                try {
+                    val response = ApiClient.get(context).districts(selected.id)
+                    if (request == districtRequest && city?.id == selected.id) {
+                        if (response.isSuccessful && response.body()?.success == true) districts = parseRegions(response.body()?.data)
+                        else error = response.customerError("Daftar kecamatan belum dapat dimuat.")
+                    }
+                } catch (_: Exception) { if (request == districtRequest) error = "Koneksi wilayah belum tersedia. Coba lagi." }
+                finally { if (request == districtRequest) loadingDistricts = false }
+            }
+        }
+        RegionSelector("Kecamatan", district, districts, city != null && !loadingDistricts && districts.isNotEmpty(), loadingDistricts) { selected ->
+            district = selected; village = null; villages = emptyList()
+            val request = ++villageRequest
+            loadingVillages = true
+            scope.launch {
+                try {
+                    val response = ApiClient.get(context).villages(selected.id)
+                    if (request == villageRequest && district?.id == selected.id) {
+                        if (response.isSuccessful && response.body()?.success == true) villages = parseRegions(response.body()?.data)
+                        else error = response.customerError("Daftar kelurahan/desa belum dapat dimuat.")
+                    }
+                } catch (_: Exception) { if (request == villageRequest) error = "Koneksi wilayah belum tersedia. Coba lagi." }
+                finally { if (request == villageRequest) loadingVillages = false }
+            }
+        }
+        RegionSelector("Kelurahan/Desa", village, villages, district != null && !loadingVillages && villages.isNotEmpty(), loadingVillages) { village = it }
+        OutlinedTextField(detail, { detail = it.take(1000) }, modifier = Modifier.fillMaxWidth(), label = { Text("Alamat lengkap dan patokan") }, minLines = 2, enabled = !saving)
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            TextButton(onClick = onCancel, enabled = !saving, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Batal") }
+            Button(
+                onClick = {
+                    scope.launch {
+                        saving = true; error = null
+                        try {
+                            val payload = JsonObject().apply {
+                                addProperty("label", label.trim()); addProperty("recipient_name", recipient.trim())
+                                addProperty("recipient_phone", phone.trim()); addProperty("address_detail", detail.trim())
+                                addProperty("province_id", province!!.id); addProperty("city_id", city!!.id)
+                                addProperty("district_id", district!!.id); addProperty("village_id", village!!.id)
+                            }
+                            val response = ApiClient.get(context).createAddress(payload)
+                            val body = response.body()
+                            if (response.isSuccessful && body?.success == true) {
+                                val savedId = body.data?.getAsJsonObject("address")?.get("id")?.takeUnless { it.isJsonNull }?.asLong ?: 0L
+                                onSaved(savedId)
+                            } else error = response.customerError("Alamat belum tersimpan.")
+                        } catch (_: Exception) { error = "Koneksi belum tersedia. Periksa internet lalu coba lagi." }
+                        finally { saving = false }
+                    }
+                },
+                enabled = !saving && label.isNotBlank() && recipient.isNotBlank() && phone.isNotBlank() && detail.isNotBlank() && province != null && city != null && district != null && village != null,
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)
+            ) {
+                if (saving) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Simpan & pilih")
+            }
         }
     }
 }
