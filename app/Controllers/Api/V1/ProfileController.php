@@ -51,17 +51,23 @@ final class ProfileController extends ApiController
 
         $email = $this->authEmail();
         $encodedEmail = rtrim(strtr(base64_encode($email), '+/', '-_'), '=');
-        $photoUrl = site_url('imguser/' . $encodedEmail);
+        // Content-addressed versioning prevents Android/Cloudflare caches from
+        // showing an older avatar after a successful replacement.
+        $revision = substr(hash('sha256', $bytes), 0, 24);
+        $photoPath = '/imguser/' . $encodedEmail . '?v=' . $revision;
+        $photoUrl = site_url('imguser/' . $encodedEmail) . '?v=' . $revision;
         $db = db_connect();
         $db->transBegin();
         try {
             $images = new GambarUserModel();
             if ($images->getGambar($email)) {
-                $images->where('email_user', $email)->set(['gambar' => $bytes])->update();
+                $imageSaved = $images->where('email_user', $email)->set(['gambar' => $bytes])->update();
             } else {
-                $images->insert(['email_user' => $email, 'gambar' => $bytes]);
+                $imageSaved = $images->insert(['email_user' => $email, 'gambar' => $bytes]);
             }
-            (new PembeliModel())->where('email_user', $email)->set(['foto' => '/imguser/' . $encodedEmail])->update();
+            if ($imageSaved === false) throw new \RuntimeException('Profile image row was not saved.');
+            $profileSaved = (new PembeliModel())->where('email_user', $email)->set(['foto' => $photoPath])->update();
+            if ($profileSaved === false) throw new \RuntimeException('Profile photo URL was not saved.');
             if ($db->transStatus() === false) throw new \RuntimeException('Profile photo transaction failed.');
             $db->transCommit();
         } catch (\Throwable $e) {

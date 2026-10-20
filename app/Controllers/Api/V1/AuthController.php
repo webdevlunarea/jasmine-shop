@@ -343,12 +343,17 @@ class AuthController extends ApiController
         $user = (new UserModel())->getUser($email);
         $profile = (new PembeliModel())->getPembeli($email);
         if (!$user || !$profile) return $this->failure('CUSTOMER_NOT_FOUND', 'Data akun tidak tersedia.', 404);
+        $encodedEmail = rtrim(strtr(base64_encode($email), '+/', '-_'), '=');
+        $photoUrl = site_url('imguser/' . $encodedEmail);
+        if (preg_match('/(?:\\?|&)v=([a-f0-9]{24})(?:&|$)/i', (string)($profile['foto'] ?? ''), $match)) {
+            $photoUrl .= '?v=' . strtolower($match[1]);
+        }
         return $this->success(['customer' => [
             'email' => (string)$user['email'],
             'name' => (string)($profile['nama'] ?? ''),
             'phone' => (string)($profile['nohp'] ?? ''),
             'tier' => (string)($profile['tier'] ?? ''),
-            'photo_url' => site_url('imguser/' . rtrim(strtr(base64_encode($email), '+/', '-_'), '=')),
+            'photo_url' => $photoUrl,
         ]]);
     }
 }

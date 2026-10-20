@@ -3261,7 +3261,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                 val body = response.body()
                 val customer = body?.data?.getAsJsonObject("customer")
                 if (response.isSuccessful && body?.success == true) {
-                    photoUrl = customer?.get("photo_url")?.asString?.let { "$it?v=${System.currentTimeMillis()}" }
+                    photoUrl = customer?.get("photo_url")?.asString?.takeIf { it.isNotBlank() }
                     message = "Foto profil berhasil diperbarui."
                 } else message = response.customerError("Foto profil belum dapat disimpan.")
             } catch (e: Exception) {

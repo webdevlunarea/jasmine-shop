@@ -150,9 +150,22 @@ class GambarController extends BaseController
         $mime = is_array($image) && in_array($image['mime'] ?? '', ['image/jpeg', 'image/png', 'image/webp'], true)
             ? $image['mime']
             : 'application/octet-stream';
+        $revision = hash('sha256', $bytes);
+        $etag = '"' . $revision . '"';
+        $requestedRevision = (string)$this->request->getGet('v');
+        $isVersioned = preg_match('/^[a-f0-9]{24}$/i', $requestedRevision)
+            && hash_equals(substr($revision, 0, 24), strtolower($requestedRevision));
+        $cacheControl = $isVersioned ? 'private, max-age=31536000, immutable' : 'private, max-age=300';
+        if (trim($this->request->getHeaderLine('If-None-Match')) === $etag) {
+            return $this->response->setStatusCode(304)
+                ->setHeader('ETag', $etag)
+                ->setHeader('Cache-Control', $cacheControl)
+                ->setBody('');
+        }
         return $this->response
             ->setHeader('Content-Type', $mime)
-            ->setHeader('Cache-Control', 'private, max-age=300')
+            ->setHeader('Cache-Control', $cacheControl)
+            ->setHeader('ETag', $etag)
             ->setBody($bytes);
     }
     public function voucherPoster($idVoucher)
