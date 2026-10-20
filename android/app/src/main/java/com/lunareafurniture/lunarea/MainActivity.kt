@@ -3008,8 +3008,16 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                         Text("Ubah", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
-                                DropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(.92f).heightIn(max = 360.dp)) {
-                                    addresses.forEach { addr -> DropdownMenuItem(text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}", maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }) }
+                                LunareaDropdownMenu(expanded = quoteMenu, onDismissRequest = { quoteMenu = false }, modifier = Modifier.fillMaxWidth(.92f).heightIn(max = 360.dp)) {
+                                    addresses.forEach { addr ->
+                                        val selected = (addr.get("id")?.asLong ?: 0L) == addressId
+                                        DropdownMenuItem(
+                                            text = { Text("${addr.get("label")?.asString.orEmpty()} · ${addr.get("recipient_name")?.asString.orEmpty()}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                            trailingIcon = { if (selected) Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                                            onClick = { addressId = addr.get("id")?.asLong ?: 0L; quoteMenu = false }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -3124,7 +3132,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                     Text(nativePaymentMethods.firstOrNull { it.first == payment }?.second ?: "Pilih metode otomatis", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     Icon(painterResource(R.drawable.ic_expand_more), contentDescription = "Pilih metode pembayaran")
                                 }
-                                DropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }) {
+                                LunareaDropdownMenu(expanded = paymentMenu, onDismissRequest = { paymentMenu = false }, modifier = Modifier.fillMaxWidth(.94f).heightIn(max = 360.dp)) {
                                     nativePaymentMethods.forEach { (method, label) ->
                                         DropdownMenuItem(
                                             text = {
@@ -3133,6 +3141,8 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                                     Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                                 }
                                             },
+                                            trailingIcon = { if (payment == method) Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                                             onClick = { payment = method; lastGatewayPayment = method; paymentMenu = false }
                                         )
                                     }
@@ -3157,14 +3167,24 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                         Text(selectedVoucher?.get("name")?.asString ?: "Pilih voucher", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start)
                                         Icon(painterResource(R.drawable.ic_expand_more), contentDescription = "Pilih voucher")
                                     }
-                                    DropdownMenu(expanded = voucherMenu, onDismissRequest = { voucherMenu = false }, modifier = Modifier.fillMaxWidth(.9f).heightIn(max = 320.dp)) {
-                                        DropdownMenuItem(text = { Text("Tanpa voucher") }, onClick = { voucherClaimId = 0L; voucherMenu = false })
+                                    LunareaDropdownMenu(expanded = voucherMenu, onDismissRequest = { voucherMenu = false }, modifier = Modifier.fillMaxWidth(.9f).heightIn(max = 320.dp)) {
+                                        DropdownMenuItem(
+                                            text = { Text("Tanpa voucher") },
+                                            trailingIcon = { if (voucherClaimId == 0L) Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                                            onClick = { voucherClaimId = 0L; voucherMenu = false }
+                                        )
                                         availableVouchers.forEach { voucher ->
                                             val claimId = voucher.get("claim_id")?.asLong ?: 0L
                                             val nominal = voucher.get("nominal")?.asLong ?: 0L
                                             val unit = voucher.get("unit")?.asString.orEmpty()
                                             val amount = if (unit == "persen") "$nominal%" else formatRupiah(nominal)
-                                            DropdownMenuItem(text = { Text("${voucher.get("name")?.asString.orEmpty()} · $amount") }, onClick = { voucherClaimId = claimId; voucherMenu = false })
+                                            DropdownMenuItem(
+                                                text = { Text("${voucher.get("name")?.asString.orEmpty()} · $amount", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                                trailingIcon = { if (voucherClaimId == claimId) Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                                                onClick = { voucherClaimId = claimId; voucherMenu = false }
+                                            )
                                         }
                                     }
                                 }
@@ -3463,6 +3483,26 @@ private fun CheckoutAddressForm(onCancel: () -> Unit, onSaved: (Long) -> Unit) {
 }
 
 @Composable
+private fun LunareaDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 7.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .72f)),
+        content = content
+    )
+}
+
+@Composable
 private fun RegionSelector(
     title: String,
     selected: RegionOption?,
@@ -3483,8 +3523,15 @@ private fun RegionSelector(
             if (loading) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
             else Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 300.dp)) {
-            options.forEach { option -> DropdownMenuItem(text = { Text(option.label) }, onClick = { onSelect(option); expanded = false }) }
+        LunareaDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 300.dp)) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    trailingIcon = { if (selected?.id == option.id) Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    onClick = { onSelect(option); expanded = false }
+                )
+            }
         }
     }
 }
