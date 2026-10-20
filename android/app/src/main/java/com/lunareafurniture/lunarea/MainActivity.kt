@@ -4630,6 +4630,12 @@ private fun CatalogScreen(
                             TextButton(onClick = {
                                 recentSearches = emptyList()
                                 searchPreferences.edit().remove("queries").apply()
+                                // Clearing history also clears the applied keyword/results,
+                                // so a deleted term does not remain visible in the catalog.
+                                searchInput = ""
+                                onQueryChange("")
+                                onSearch("")
+                                scope.launch { gridState.scrollToItem(0) }
                             }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Hapus") }
                         }
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
