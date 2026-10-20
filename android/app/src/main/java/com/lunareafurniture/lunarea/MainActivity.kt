@@ -779,7 +779,15 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 onOpenNotifications = { notificationInboxOpen = true },
                 chromeVisible = chromeVisible,
                 onChromeVisibilityChange = { chromeVisible = it },
-                onPromoAction = { tab = AppTab.CATALOG },
+                onPromoAction = {
+                    if (signedIn) {
+                        tab = AppTab.CATALOG
+                    } else {
+                        tab = AppTab.ACCOUNT
+                        accountSection = AccountSection.MENU
+                        authPromptMessage = "Masuk atau buat akun untuk melanjutkan dan mengklaim promo ini."
+                    }
+                },
                 onLoginRequired = { reason -> authPromptMessage = reason },
                 categories = categories, selectedCategory = selectedCategory,
                 onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
@@ -4064,7 +4072,7 @@ private fun CatalogScreen(
         }
     }
 
-    // Show only server-published, globally available promotions; members also see their claimed vouchers.
+    // Public promotions are loaded for guests too; member-only claimed vouchers are additive.
     LaunchedEffect(signedIn, tab, startupComplete) {
         if (!startupComplete || tab != AppTab.HOME || launchVoucherCheckDone) return@LaunchedEffect
         launchVoucherCheckDone = true
@@ -4084,14 +4092,32 @@ private fun CatalogScreen(
                     }.orEmpty()
                 } else emptyList()
             } else emptyList()
-            launchVouchers = (publicRows + claimedRows).distinctBy { voucher ->
+            val availableRows = (publicRows + claimedRows).distinctBy { voucher ->
                 listOf(
                     voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().trim().lowercase(Locale.ROOT),
                     voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty().lowercase(Locale.ROOT),
                     voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
                 ).joinToString("|")
             }
-            showLaunchVouchers = launchVouchers.isNotEmpty()
+            val preferences = context.getSharedPreferences("lunarea_promo_popup", android.content.Context.MODE_PRIVATE)
+            val now = System.currentTimeMillis()
+            val cooldownMillis = 24L * 60L * 60L * 1000L
+            val nextVoucher = availableRows.firstOrNull { voucher ->
+                val identity = listOf(
+                    voucher.get("voucher_id")?.takeUnless { it.isJsonNull }?.asString.orEmpty(),
+                    voucher.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty().trim().lowercase(Locale.ROOT),
+                    voucher.get("unit")?.takeUnless { it.isJsonNull }?.asString.orEmpty().lowercase(Locale.ROOT),
+                    voucher.get("nominal")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                ).joinToString("|")
+                val key = "shown_${identity.hashCode()}"
+                val lastShown = preferences.getLong(key, 0L)
+                if (lastShown == 0L || now - lastShown >= cooldownMillis) {
+                    preferences.edit().putLong(key, now).apply()
+                    true
+                } else false
+            }
+            launchVouchers = listOfNotNull(nextVoucher)
+            showLaunchVouchers = nextVoucher != null
         } catch (_: Exception) {
             // Promotions are optional and must never block the home screen.
         }
@@ -4445,7 +4471,7 @@ private fun CatalogScreen(
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp).heightIn(min = 44.dp)
                 ) {
-                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = lunareaResponsiveFontSize(13.sp), fontWeight = FontWeight.SemiBold)
                 }
             }
           }
