@@ -3349,8 +3349,11 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
 /** Decodes large gallery images at a bounded size and uploads only a square WebP avatar. */
 private fun optimizeProfilePhoto(resolver: ContentResolver, uri: Uri): Pair<ByteArray, String> {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+    val boundsInput = resolver.openInputStream(uri)
         ?: throw IllegalStateException("Foto belum dapat dibaca.")
+    // decodeStream intentionally returns null when inJustDecodeBounds is true;
+    // the dimensions are communicated through the Options object instead.
+    boundsInput.use { BitmapFactory.decodeStream(it, null, bounds) }
     val sourceWidth = bounds.outWidth
     val sourceHeight = bounds.outHeight
     require(sourceWidth > 0 && sourceHeight > 0 && sourceWidth.toLong() * sourceHeight <= 100_000_000L) {
