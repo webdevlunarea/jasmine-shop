@@ -162,8 +162,10 @@ class AuthController extends ApiController
         if (!$this->allowAuthAttempt('google-login', hash('sha256', $idToken), 8, 300)) {
             return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan masuk dengan Google. Coba lagi nanti.', 429);
         }
+        $stage = 'google_account_resolution';
         try {
             $customer = (new GoogleCustomerAuthenticator())->authenticate($idToken);
+            $stage = 'customer_session_issue';
             $tokens = (new CustomerApiTokens())->issue(
                 $customer['email'],
                 is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android'
@@ -171,7 +173,14 @@ class AuthController extends ApiController
         } catch (\DomainException $e) {
             return $this->failure('GOOGLE_LOGIN_REJECTED', $e->getMessage(), 401);
         } catch (\Throwable $e) {
-            log_message('error', 'Customer API Google login failed: ' . get_class($e));
+            // Keep credentials, tokens, and account data out of logs. The stage
+            // identifies whether failure occurred resolving the account or storing its session.
+            log_message('error', sprintf(
+                'Customer API Google login failed at %s: %s (code %s).',
+                $stage,
+                get_class($e),
+                (string) $e->getCode()
+            ));
             return $this->failure('GOOGLE_LOGIN_UNAVAILABLE', 'Masuk dengan Google sementara terganggu. Coba lagi nanti.', 503);
         }
         return $this->success(['tokens' => $tokens, 'customer' => $customer]);

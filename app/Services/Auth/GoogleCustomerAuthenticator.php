@@ -39,7 +39,13 @@ final class GoogleCustomerAuthenticator
             $client->setClientId($clientId);
             $claims = $client->verifyIdToken($idToken);
         } catch (\Throwable $e) {
-            log_message('error', 'Google ID token verification failed: ' . get_class($e));
+            // Never log the ID token or user claims. The exception class/code is
+            // enough to distinguish Google key-fetch/network failures from app errors.
+            log_message('error', sprintf(
+                'Google ID token verification infrastructure failure (%s, code %s).',
+                get_class($e),
+                (string) $e->getCode()
+            ));
             throw new DomainException('Token Google tidak dapat diverifikasi.');
         }
 
