@@ -123,7 +123,11 @@ class CustomerRegistrationService
         catch (\Throwable $e) { log_message('error', 'Customer verification resend failed: ' . get_class($e)); return false; }
     }
 
-    private function claimAutoVouchers(string $email): void
+    /**
+     * Applies the guarded, collision-resistant welcome-voucher flow to email
+     * registration and Google account creation. The caller owns the transaction.
+     */
+    public function claimAutoVouchers(string $email): void
     {
         if (!$this->db->tableExists('voucher') || !$this->db->tableExists('voucher_claimed')) return;
         $this->assertColumns([

@@ -4,8 +4,6 @@ namespace App\Services\Auth;
 
 use App\Models\PembeliModel;
 use App\Models\UserModel;
-use App\Models\VoucherClaimedModel;
-use App\Models\VoucherModel;
 use CodeIgniter\Database\BaseConnection;
 use DomainException;
 use RuntimeException;
@@ -113,7 +111,7 @@ final class GoogleCustomerAuthenticator
                     'foto' => $picture !== '' ? $picture : '/imguser/ZGVmYXVsdA==',
                 ]);
                 $stage = 'claim_automatic_vouchers';
-                $this->claimAutomaticVouchers($email);
+                (new CustomerRegistrationService($this->db))->claimAutoVouchers($email);
             } else {
                 $accountEmail = strtolower((string) $user['email']);
                 $update = [
@@ -170,23 +168,4 @@ final class GoogleCustomerAuthenticator
         }
     }
 
-    private function claimAutomaticVouchers(string $email): void
-    {
-        if (!$this->db->tableExists('voucher') || !$this->db->tableExists('voucher_claimed')) return;
-        $voucherModel = new VoucherModel($this->db);
-        $claimedModel = new VoucherClaimedModel($this->db);
-        $now = strtotime('+7 Hours');
-        $date = date('Y-m-d', $now);
-        foreach ($voucherModel->where(['active' => true, 'auto_claimed' => true])->findAll() as $index => $voucher) {
-            $expiry = !empty($voucher['durasi'])
-                ? date('Y-m-d', strtotime((string) $voucher['durasi'], $now))
-                : null;
-            $id = (string) ($now + $index);
-            while ($claimedModel->find($id)) $id = (string) ((int) $id + 1);
-            if (!$claimedModel->insert([
-                'id' => $id, 'id_voucher' => $voucher['id'], 'kadaluarsa' => $expiry,
-                'email_user' => $email, 'active' => true,
-            ])) throw new RuntimeException('Voucher akun baru tidak berhasil disiapkan.');
-        }
-    }
 }
