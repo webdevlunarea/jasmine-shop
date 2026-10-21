@@ -16,6 +16,9 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 .buyer-footer a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; padding-block: 8px; color: var(--theme-primary); font-size: .8125rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
 .buyer-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .buyer-footer a:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; border-radius: 2px; }
+.buyer-footer .cookie-preferences-link { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; padding-block: 8px; color: var(--theme-primary); font-size: .8125rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+.buyer-footer .cookie-preferences-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.buyer-footer .cookie-preferences-link:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; border-radius: 2px; }
 .buyer-footer__bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; }
 .buyer-footer--compact .buyer-footer__bottom { padding-top: 12px; border-top: 1px solid var(--theme-soft-2); }
 .buyer-footer .buyer-footer__copyright { font-size: .75rem; line-height: 1.7; }

@@ -311,7 +311,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     }
     </style>
     <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico?v=20261021'); ?>">
-    <link rel="stylesheet" href="/css/cookie-consent.css?v=<?= filemtime(FCPATH . 'css/cookie-consent.css'); ?>">
+    <link rel="stylesheet" href="/css/cookie-consent.css?v=<?= substr(sha1_file(FCPATH . 'css/cookie-consent.css'), 0, 12); ?>">
 </head>
 
 <?php
@@ -637,7 +637,7 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     }, true);
     </script>
     <?= view('partials/cookie_consent', [], ['saveData' => false]); ?>
-    <script defer src="/js/cookie-consent.js?v=<?= filemtime(FCPATH . 'js/cookie-consent.js'); ?>"></script>
+    <script defer src="/js/cookie-consent.js?v=<?= substr(sha1_file(FCPATH . 'js/cookie-consent.js'), 0, 12); ?>"></script>
     <script defer src="/js/image-skeletons.js?v=<?= filemtime(FCPATH . 'js/image-skeletons.js'); ?>"></script>
 </body>
 

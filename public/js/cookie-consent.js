@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var VERSION = '1';
+    var VERSION = '2';
     var STORAGE_KEY = 'lunarea-cookie-choice-v' + VERSION;
     var COOKIE_KEY = 'lunarea_cookie_choice';
     var banner = document.getElementById('cookie-consent');
