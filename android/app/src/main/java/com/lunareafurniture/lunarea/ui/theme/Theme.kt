@@ -5,10 +5,13 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -61,5 +64,48 @@ private val LunareaShapes = Shapes(
 
 @Composable
 fun LunareaTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = LunareaColors, typography = LunareaTypography, shapes = LunareaShapes, content = content)
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val fontScale = responsiveFontScale(screenWidth)
+    val typography = remember(fontScale) { scaleTypography(LunareaTypography, fontScale) }
+    MaterialTheme(colorScheme = LunareaColors, typography = typography, shapes = LunareaShapes, content = content)
+}
+
+/** Scale presentation typography by available width while retaining system font scaling. */
+@Composable
+fun lunareaResponsiveFontSize(size: TextUnit): TextUnit = size * responsiveFontScale(LocalConfiguration.current.screenWidthDp)
+
+private fun responsiveFontScale(widthDp: Int): Float = when {
+    widthDp < 360 -> 0.90f
+    widthDp < 400 -> 0.93f
+    widthDp < 600 -> 0.96f
+    widthDp < 840 -> 1f
+    else -> 1.04f
+}
+
+private fun scaleTypography(base: Typography, scale: Float): Typography {
+    fun scale(style: TextStyle): TextStyle = if (style.fontSize.value >= 13f) {
+        style.copy(
+            fontSize = style.fontSize * scale,
+            lineHeight = style.lineHeight * scale,
+            letterSpacing = style.letterSpacing * scale
+        )
+    } else style
+
+    return Typography(
+        displayLarge = scale(base.displayLarge),
+        displayMedium = scale(base.displayMedium),
+        displaySmall = scale(base.displaySmall),
+        headlineLarge = scale(base.headlineLarge),
+        headlineMedium = scale(base.headlineMedium),
+        headlineSmall = scale(base.headlineSmall),
+        titleLarge = scale(base.titleLarge),
+        titleMedium = scale(base.titleMedium),
+        titleSmall = scale(base.titleSmall),
+        bodyLarge = scale(base.bodyLarge),
+        bodyMedium = scale(base.bodyMedium),
+        bodySmall = scale(base.bodySmall),
+        labelLarge = scale(base.labelLarge),
+        labelMedium = scale(base.labelMedium),
+        labelSmall = scale(base.labelSmall)
+    )
 }

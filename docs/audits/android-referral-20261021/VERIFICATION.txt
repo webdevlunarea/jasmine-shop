@@ -1,0 +1,44 @@
+Task: Android-only referral configuration and Luna Poin reward flow.
+Changed field/branch: payment.data_mid._app_checkout_channel = android and payment.data_mid._app_eligible_subtotal; reward branch on configured completed status Selesai.
+Defaults: program disabled; inviter 5,000 points; eligible net product subtotal Rp300,000; points expire after 365 days.
+
+MODIFIED_FILE: docs/audits/android-referral-20261021/modified/NativeCheckoutOrderService.php
+DIFF_FILE: docs/audits/android-referral-20261021/DIFF_FILE.patch
+VERIFICATION: docs/audits/android-referral-20261021/VERIFICATION.txt
+ROLLBACK: docs/audits/android-referral-20261021/ROLLBACK.sh
+
+BASELINE
+Command: vendor/bin/phpunit
+Input: repository before feature changes.
+Literal result: OK, but incomplete, skipped, or risky tests!; Tests: 732, Assertions: 3353, Skipped: 5.
+Exit status: 0.
+
+MODIFIED
+Command: vendor/bin/phpunit
+Input: full test suite with AndroidReferralProgramTest and admin navigation assertion.
+Literal result: OK, but incomplete, skipped, or risky tests!; Tests: 735, Assertions: 3366, Skipped: 5.
+Exit status: 0.
+Command: vendor/bin/phpunit tests/unit/AndroidReferralProgramTest.php
+Input: isolated SQLite referral settings, attribution, Android production completion, threshold, non-Android, self-referral, and idempotency checks.
+Literal result: OK (3 tests, 12 assertions).
+Exit status: 0.
+Command: .\gradlew.bat :app:compileDebugKotlin
+Input: Android debug Kotlin and resources, including App Links and referral UI.
+Literal result: BUILD SUCCESSFUL in 11s; 16 actionable tasks: 1 executed, 15 up-to-date.
+Exit status: 0. Existing compiler deprecation/unused-assertion warnings remain.
+Command: php -r '$d=json_decode(file_get_contents("public/.well-known/assetlinks.json"),true,512,JSON_THROW_ON_ERROR); echo "assetlinks JSON OK; package=".$d[0]["target"]["package_name"].PHP_EOL;'
+Input: public/.well-known/assetlinks.json.
+Literal result: assetlinks JSON OK; package=com.lunareafurniture.lunarea
+Exit status: 0.
+
+ROLLBACK COPY CHECK
+Command: bash docs/audits/android-referral-20261021/ROLLBACK.sh
+Input: rollback-copy/NativeCheckoutOrderService.php, a separate copy of MODIFIED_FILE.
+Literal result: No syntax errors detected in C:/xampp/htdocs/jasmine-shop/docs/audits/android-referral-20261021/rollback-copy/NativeCheckoutOrderService.php; RESTORED_COPY_OK baseline=dd508fd15511497f2eb1f9f89bd457e6a7af3ca3 restored=dd508fd15511497f2eb1f9f89bd457e6a7af3ca3.
+Exit status: 0.
+Restored behavior/status: source copy hash equals baseline Git blob dd508fd15511497f2eb1f9f89bd457e6a7af3ca3; live feature files remain modified.
+
+Original baseline file blob: dd508fd15511497f2eb1f9f89bd457e6a7af3ca3
+Modified source blob: ebb9eb5f4a21df53d087825dbada8dbf68535af8
+
+Production requirement: run database/android_referral_program.sql once before enabling the feature in /androidreferraladmin. The SQL seeds enabled=0. Production HTTPS deployment must serve public/.well-known/assetlinks.json for Android App Link verification.

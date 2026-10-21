@@ -23,10 +23,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.horizontalScroll
@@ -44,6 +47,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -114,6 +120,7 @@ import com.lunareafurniture.lunarea.notifications.PushDeviceRegistration
 import com.lunareafurniture.lunarea.notifications.rememberNotificationPermissionRequester
 import com.lunareafurniture.lunarea.security.AndroidRecaptcha
 import com.lunareafurniture.lunarea.ui.theme.LunareaTheme
+import com.lunareafurniture.lunarea.ui.theme.lunareaResponsiveFontSize
 import com.lunareafurniture.lunarea.ui.theme.LunareaGreenText
 import com.lunareafurniture.lunarea.ui.theme.LunareaSpacing
 import com.lunareafurniture.lunarea.ui.splash.LunareaStartup
@@ -226,10 +233,6 @@ private fun PaymentMethodLogo(method: String, modifier: Modifier = Modifier) {
     }
 }
 
-private val homeBannerUrls = (1..5).map { index ->
-    "${BuildConfig.API_BASE_URL.removeSuffix("/api/v1/")}/img/benner/$index.webp"
-}
-
 private fun readableProductDescription(raw: String): String {
     val decoded = Html.fromHtml(raw, Html.FROM_HTML_MODE_COMPACT).toString()
         .replace('\u00A0', ' ')
@@ -257,15 +260,32 @@ private fun normalizeRegionLabel(value: String): String = Normalizer.normalize(v
 
 class MainActivity : ComponentActivity() {
     private var pendingPushTap by mutableStateOf<PushTap?>(null)
+    private var pendingReferralCode by mutableStateOf<String?>(null)
+
+    private fun referralCodeFrom(intent: Intent?): String? {
+        val uri = intent?.data ?: return null
+        if (uri.scheme != "https" || uri.host != "lunareafurniture.com") return null
+        val parts = uri.pathSegments
+        return parts.takeIf { it.size == 2 && it[0] == "ref" }?.get(1)
+            ?.uppercase(Locale.ROOT)?.takeIf { it.matches(Regex("[A-Z0-9]{6,12}")) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         pendingPushTap = PushTap.from(intent)
+        pendingReferralCode = referralCodeFrom(intent)
+            ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
+        pendingReferralCode?.let { code ->
+            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code).apply()
+        }
         setContent {
             LunareaTheme {
                 LunareaStartup { startupComplete ->
-                    LunareaApp(startupComplete, pendingPushTap) { pendingPushTap = null }
+                    LunareaApp(startupComplete, pendingPushTap, pendingReferralCode, { pendingPushTap = null }, {
+                        pendingReferralCode = null
+                        getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().remove("pending_code").apply()
+                    })
                 }
             }
         }
@@ -275,11 +295,17 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingPushTap = PushTap.from(intent)
+        pendingReferralCode = referralCodeFrom(intent)
+            ?: pendingReferralCode
+            ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
+        pendingReferralCode?.let { code ->
+            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code).apply()
+        }
     }
 }
 
 @Composable
-private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHandled: () -> Unit) {
+private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -316,6 +342,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
     var cartRefreshVersion by remember { mutableIntStateOf(0) }
     var favoriteKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
     var accountSection by remember { mutableStateOf(AccountSection.MENU) }
+    var pushOrderId by remember { mutableStateOf<String?>(null) }
     var authFlowEmail by remember { mutableStateOf("") }
     var detailOpen by remember { mutableStateOf(false) }
     var chromeVisible by remember { mutableStateOf(true) }
@@ -326,6 +353,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
             tap.orderId.isNotBlank() -> {
                 tab = AppTab.ACCOUNT
                 accountSection = AccountSection.ORDERS
+                pushOrderId = tap.orderId
                 notificationsRefreshVersion++
             }
             tap.type == "back_in_stock" && tap.productId.isNotBlank() -> {
@@ -336,14 +364,32 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 tab = AppTab.CATALOG
                 query = tap.productId
             }
-            else -> {
+            tap.type == "notification_inbox" || tap.campaignId.isNotBlank() || tap.type.startsWith("broadcast_") || tap.type == "admin_test" -> {
                 // Campaign and account-wide announcements open the inbox so the
                 // exact title and message remain available after dismissing the push.
                 notificationInboxOpen = true
                 notificationsRefreshVersion++
             }
+            else -> {
+                notificationInboxOpen = true
+                notificationsRefreshVersion++
+            }
         }
         onPushTapHandled()
+    }
+    LaunchedEffect(signedIn, referralCode) {
+        val code = referralCode ?: return@LaunchedEffect
+        if (!signedIn) return@LaunchedEffect
+        try {
+            val response = ApiClient.get(context).attributeReferral(JsonObject().apply { addProperty("code", code) })
+            if (response.isSuccessful && response.body()?.success == true) {
+                message = "Kode ajak teman berhasil ditautkan. Pesanan pertama perlu dibuat melalui aplikasi Android."
+                onReferralHandled()
+            } else if (response.code() in 400..499) {
+                message = response.customerError("Kode ajak teman tidak dapat digunakan untuk akun ini.")
+                onReferralHandled()
+            }
+        } catch (_: Exception) { /* Retain link code for a later app launch if temporarily offline. */ }
     }
     LaunchedEffect(tab, detailOpen) { chromeVisible = true }
 
@@ -908,7 +954,12 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 onOpenVerification = { authFlowEmail = identifier; accountSection = AccountSection.VERIFY_EMAIL },
                 message = message
                 )
-                AccountSection.ORDERS -> OrdersScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
+                AccountSection.ORDERS -> OrdersScreen(
+                    adaptivePageModifier,
+                    initialOrderId = pushOrderId,
+                    onInitialOrderHandled = { pushOrderId = null },
+                    onBack = { pushOrderId = null; accountSection = AccountSection.MENU }
+                )
                 AccountSection.FAVORITES -> FavoritesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
                 AccountSection.ADDRESSES -> AddressesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
                 AccountSection.PROFILE -> ProfileScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
@@ -953,7 +1004,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(if (isError) "!" else "✓", color = content, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text(if (isError) "!" else "✓", color = content, fontWeight = FontWeight.Bold, fontSize = lunareaResponsiveFontSize(18.sp))
                             Text(notice, color = content, style = MaterialTheme.typography.bodyMedium, lineHeight = 20.sp)
                         }
                     }
@@ -977,7 +1028,6 @@ private fun NotificationInboxScreen(
     var notifications by remember { mutableStateOf<List<JsonObject>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-
     LaunchedEffect(signedIn, refreshVersion) {
         if (!signedIn) {
             notifications = emptyList()
@@ -1573,7 +1623,12 @@ private fun paymentGuidance(method: String, bank: String = ""): String {
 }
 
 @Composable
-private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
+private fun OrdersScreen(
+    modifier: Modifier,
+    initialOrderId: String? = null,
+    onInitialOrderHandled: () -> Unit = {},
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var rows by remember { mutableStateOf<List<com.google.gson.JsonObject>>(emptyList()) }
@@ -1621,6 +1676,25 @@ private fun OrdersScreen(modifier: Modifier, onBack: () -> Unit) {
             } else message = body?.error?.message ?: "Pesanan belum dapat dimuat."
         } catch (_: Exception) { message = "Koneksi belum tersedia. Coba muat ulang." }
         finally { loading = false }
+    }
+    LaunchedEffect(initialOrderId) {
+        val id = initialOrderId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
+        try {
+            val response = ApiClient.get(context).order(id)
+            val loaded = response.body()?.data?.getAsJsonObject("order")
+            if (response.isSuccessful && response.body()?.success == true && loaded != null) {
+                selectedOrder = loaded
+                selectedOrderId = id
+                detailPage = "detail"
+                message = null
+            } else {
+                message = response.body()?.error?.message ?: "Detail pesanan dari notifikasi belum dapat dimuat."
+            }
+        } catch (_: Exception) {
+            message = "Koneksi belum tersedia. Detail pesanan belum dapat dimuat."
+        } finally {
+            onInitialOrderHandled()
+        }
     }
     cancelOrderId?.let { id ->
         AlertDialog(
@@ -3298,7 +3372,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         }
                     }
                 }
-                message?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
+                message?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = lunareaResponsiveFontSize(13.sp)) }
                 orderResult?.let { Text(it, color = LunareaGreenText, fontWeight = FontWeight.SemiBold) }
             }
         }
@@ -3763,7 +3837,7 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
                 finally { busy = false }
             }
         }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
-        message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = 13.sp) }
+        message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = lunareaResponsiveFontSize(13.sp)) }
     }
 }
 
@@ -3841,6 +3915,7 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     var emailStep by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
+    var confirmRevokeOtherSessions by remember { mutableStateOf(false) }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Keamanan akun", onBack, "Atur kata sandi atau email akun")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3891,8 +3966,53 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
                 }
             }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) { Text("Konfirmasi perubahan email") }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Text("Sesi perangkat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            "Keluarkan akun Lunarea dari perangkat lain yang masih memiliki sesi aktif. Perangkat ini tetap masuk.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        OutlinedButton(
+            enabled = !busy,
+            onClick = { confirmRevokeOtherSessions = true },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            shape = MaterialTheme.shapes.medium
+        ) { Text("Keluar dari perangkat lain") }
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        message?.let { Text(it, color = LunareaGreenText, fontSize = 13.sp) }
+        message?.let { Text(it, color = LunareaGreenText, fontSize = lunareaResponsiveFontSize(13.sp)) }
+    }
+    if (confirmRevokeOtherSessions) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) confirmRevokeOtherSessions = false },
+            title = { Text("Keluarkan perangkat lain?") },
+            text = { Text("Sesi akun di perangkat lain akan dicabut. Perangkat ini tetap masuk.") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    confirmRevokeOtherSessions = false
+                    scope.launch {
+                        busy = true
+                        try {
+                            val response = ApiClient.get(context).revokeOtherSessions()
+                            val body = response.body()
+                            if (response.isSuccessful && body?.success == true) {
+                                message = body.data?.get("message")?.asString
+                                    ?: "Sesi perangkat lain telah dikeluarkan."
+                            } else {
+                                message = body?.error?.message ?: "Sesi perangkat lain belum dapat dikeluarkan."
+                            }
+                        } catch (_: Exception) {
+                            message = "Koneksi belum tersedia. Coba lagi."
+                        } finally {
+                            busy = false
+                        }
+                    }
+                }) { Text("Ya, keluarkan") }
+            },
+            dismissButton = {
+                TextButton(enabled = !busy, onClick = { confirmRevokeOtherSessions = false }) { Text("Batal") }
+            }
+        )
     }
 }
 
@@ -4812,7 +4932,7 @@ private fun CatalogScreen(
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp).heightIn(min = 44.dp)
                 ) {
-                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(if (loading) "Memuat produk…" else "Lihat produk lainnya", fontSize = lunareaResponsiveFontSize(13.sp), fontWeight = FontWeight.SemiBold)
                 }
             }
           }
@@ -4905,7 +5025,7 @@ private fun CatalogScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun ProductDetailScreen(
     modifier: Modifier,
@@ -4978,18 +5098,22 @@ private fun ProductDetailScreen(
         detail.get("description")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
     )
     var infoSheet by remember(productId) { mutableStateOf<ProductInfoSheet?>(null) }
-    Column(modifier.background(MaterialTheme.colorScheme.background)) {
+    Column(
+        modifier
+            .background(MaterialTheme.colorScheme.background)
+            // This screen is drawn over the catalog. Keep taps on non-interactive
+            // detail content (including the price area) from reaching cards below.
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) awaitPointerEvent()
+                }
+            }
+    ) {
         Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
                 Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Kembali", tint = LunareaGreenText)
             }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
-                    painter = painterResource(R.drawable.logo_lunarea),
-                    contentDescription = "Lunarea Furniture",
-                    modifier = Modifier.width(112.dp).height(14.dp),
-                    contentScale = ContentScale.Fit
-                )
                 Text("Detail produk", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
             }
             BadgedBox(badge = {
@@ -5099,14 +5223,24 @@ private fun ProductDetailScreen(
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .75f))
                 val weight = detail.get("weight_kg")?.takeUnless { it.isJsonNull }?.toString()?.trim('"') ?: summary?.weight_kg?.toString()
-                Text("Tentang produk", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "TENTANG PRODUK",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 1.1.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 var descriptionOverflows by remember(description) { mutableStateOf(false) }
                 Text(
                     text = description,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 24.sp,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = lunareaResponsiveFontSize(14.sp),
+                        lineHeight = 22.sp,
+                        letterSpacing = 0.05.sp
+                    ),
                     maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
                     onTextLayout = { layout ->
                         descriptionOverflows = layout.hasVisualOverflow
                     }
@@ -5244,7 +5378,15 @@ private fun ProductDetailScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(name, style = MaterialTheme.typography.titleSmall, color = LunareaGreenText, fontWeight = FontWeight.Medium)
-                            Text(description, style = MaterialTheme.typography.bodyLarge, lineHeight = 26.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                description,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = lunareaResponsiveFontSize(14.sp),
+                                    lineHeight = 23.sp,
+                                    letterSpacing = 0.05.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     } else if (sheet == ProductInfoSheet.REVIEWS) {
                         val reviewItems = sequenceOf("reviews", "ratings", "rating_list")
@@ -5363,15 +5505,62 @@ private fun ProductDetailScreen(
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             pageSpacing = 12.dp
                         ) { page ->
+                            var zoom by remember(productId, page) { mutableFloatStateOf(1f) }
+                            var pan by remember(productId, page) { mutableStateOf(Offset.Zero) }
+                            var imageBounds by remember(productId, page) { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+                            val transformState = rememberTransformableState { zoomChange, panChange, _ ->
+                                val nextZoom = (zoom * zoomChange).coerceIn(1f, 4f)
+                                zoom = nextZoom
+                                if (nextZoom <= 1f) {
+                                    pan = Offset.Zero
+                                } else {
+                                    val maxX = imageBounds.width * (nextZoom - 1f) / 2f
+                                    val maxY = imageBounds.height * (nextZoom - 1f) / 2f
+                                    pan = Offset(
+                                        x = (pan.x + panChange.x).coerceIn(-maxX, maxX),
+                                        y = (pan.y + panChange.y).coerceIn(-maxY, maxY)
+                                    )
+                                }
+                            }
                             AsyncImage(
                                 model = availableGallery[page],
                                 contentDescription = "$name, foto ${page + 1} dari ${availableGallery.size}",
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .onSizeChanged { imageBounds = it }
+                                    .graphicsLayer {
+                                        scaleX = zoom
+                                        scaleY = zoom
+                                        translationX = pan.x
+                                        translationY = pan.y
+                                    }
+                                    .transformable(state = transformState, canPan = { zoom > 1f })
+                                    .pointerInput(productId, page, zoom) {
+                                        detectTapGestures(onDoubleTap = {
+                                            if (zoom > 1f) {
+                                                zoom = 1f
+                                                pan = Offset.Zero
+                                            } else {
+                                                zoom = 2.25f
+                                            }
+                                        })
+                                    },
                                 contentScale = ContentScale.Fit
                             )
                         }
                         Row(
                             Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Cubit untuk memperbesar · ketuk dua kali untuk mengatur ulang",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Row(
+                            Modifier.fillMaxWidth().heightIn(min = 36.dp),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -5582,8 +5771,8 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
                     Text(
                         discountedPrice?.let(::formatRupiah) ?: "Hubungi kami",
                         color = LunareaGreenText,
-                        fontSize = 13.sp,
-                        lineHeight = 17.sp,
+                        fontSize = lunareaResponsiveFontSize(13.sp),
+                        lineHeight = lunareaResponsiveFontSize(17.sp),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -5628,15 +5817,23 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var refreshKey by remember { mutableIntStateOf(0) }
     var page by remember { mutableIntStateOf(1) }
+    var showTierBenefits by rememberSaveable { mutableStateOf(false) }
     var data by remember { mutableStateOf<JsonObject?>(null) }
     var history by remember { mutableStateOf<List<com.google.gson.JsonElement>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    var referral by remember { mutableStateOf<JsonObject?>(null) }
+    var referralDialog by rememberSaveable { mutableStateOf(false) }
+    var referralInput by rememberSaveable { mutableStateOf("") }
+    var referralMessage by remember { mutableStateOf<String?>(null) }
+    var referralBusy by remember { mutableStateOf(false) }
 
     LaunchedEffect(refreshKey, page) {
         loading = true
@@ -5655,6 +5852,12 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
             error = "Koneksi belum tersedia. Periksa internet lalu coba lagi."
         } finally {
             loading = false
+        }
+        if (page == 1) {
+            try {
+                val referralResponse = ApiClient.get(context).referrals()
+                if (referralResponse.isSuccessful && referralResponse.body()?.success == true) referral = referralResponse.body()?.data
+            } catch (_: Exception) { }
         }
     }
 
@@ -5694,14 +5897,51 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
                         val next = tier.longOrNull("next_minimum")
                         Text(if (next == null) "Total belanja tier: ${formatRupiah(spend)} · Tier tertinggi" else "Total belanja tier: ${formatRupiah(spend)} dari ${formatRupiah(next)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         data?.arrayOrNull("benefits")?.takeIf { it.size() > 0 }?.let { benefits ->
-                            benefits.forEach { benefit ->
-                                val item = benefit.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
-                                Text("• ${item.stringOrNull("name").orEmpty()} — ${item.stringOrNull("description").orEmpty()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            benefits.forEachIndexed benefitLoop@{ index, benefit ->
+                                val item = benefit.takeIf { it.isJsonObject }?.asJsonObject ?: return@benefitLoop
+                                RewardBenefitRow(
+                                    name = item.stringOrNull("name").orEmpty(),
+                                    description = item.stringOrNull("description").orEmpty(),
+                                    iconIndex = index
+                                )
                             }
                         }
                         if (data?.get("birthday_registered")?.takeUnless { it.isJsonNull }?.asBoolean == false) {
                             Text("Lengkapi tanggal lahir di profil untuk benefit ulang tahun.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
                         }
+                        if ((data?.arrayOrNull("tier_levels")?.size() ?: 0) > 0) {
+                            TextButton(
+                                onClick = { showTierBenefits = true },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                            ) { Text("Lihat benefit semua level") }
+                        }
+                    }
+                }
+            }
+            referral?.takeIf { it.get("enabled")?.asBoolean == true }?.let { program ->
+                Spacer(Modifier.height(16.dp))
+                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                        Text("Ajak teman", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        val rewardPoints = program.longOrNull("reward_points") ?: 5000L
+                        Text("Kamu mendapat ${String.format(Locale.forLanguageTag("id-ID"), "%,d", rewardPoints)} Luna Poin setelah pesanan Android teman selesai dan memenuhi syarat. 1 poin bernilai Rp1.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Kode referral", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(program.stringOrNull("code").orEmpty(), Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+                            FilledTonalButton(onClick = {
+                                val shareText = "Coba belanja di Lunarea Furniture. Buka tautan ini, lalu masukkan kode referral ${program.stringOrNull("code").orEmpty()} di aplikasi Android sebelum pesanan pertamamu: ${program.stringOrNull("share_url").orEmpty()}"
+                                val intent = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, shareText) }
+                                context.startActivity(Intent.createChooser(intent, "Ajak teman ke Lunarea"))
+                            }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Bagikan") }
+                        }
+                        val stats = program.objectOrNull("stats")
+                        Text("${stats?.longOrNull("successful") ?: 0} teman berhasil · ${stats?.longOrNull("invited") ?: 0} kode terhubung", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (program.stringOrNull("attributed_by") != null) {
+                            Text("Akun ini sudah memakai kode referral.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        } else {
+                            OutlinedButton(onClick = { referralInput = ""; referralDialog = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Punya kode teman?") }
+                        }
+                        referralMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
                     }
                 }
             }
@@ -5740,6 +5980,126 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
             }
         }
     }
+    val tierLevels = data?.arrayOrNull("tier_levels")?.toList().orEmpty()
+    if (showTierBenefits && tierLevels.isNotEmpty()) {
+        ModalBottomSheet(onDismissRequest = { showTierBenefits = false }) {
+            Column(
+                Modifier.fillMaxHeight(.82f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Text("Benefit Luna Rewards", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+                Text("Kenali keuntungan yang tersedia di setiap level.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                tierLevels.forEachIndexed { tierIndex, tierElement ->
+                    val tierRow = tierElement.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEachIndexed
+                    val tierKey = tierRow.stringOrNull("key").orEmpty()
+                    val tierLabel = tierRow.stringOrNull("label").orEmpty()
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.large,
+                        color = MaterialTheme.colorScheme.surface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                    ) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Image(
+                                    painter = painterResource(tierBadgeResource(tierKey)),
+                                    contentDescription = "Lencana level $tierLabel",
+                                    modifier = Modifier.size(38.dp),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        when (tierKey.lowercase()) {
+                                            "silver" -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            "gold" -> MaterialTheme.colorScheme.tertiary
+                                            "platinum" -> MaterialTheme.colorScheme.secondary
+                                            else -> MaterialTheme.colorScheme.primary
+                                        }
+                                    )
+                                )
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text(tierLabel, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                    val minimum = tierRow.longOrNull("minimum") ?: 0L
+                                    Text(
+                                        if (tierIndex == tierLevels.lastIndex) "Level tertinggi · mulai ${formatRupiah(minimum)}"
+                                        else "Mulai ${formatRupiah(minimum)} belanja terkumpul",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (tierKey == data?.objectOrNull("tier")?.stringOrNull("key")) {
+                                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                                        Text("Level Anda", modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                    }
+                                }
+                            }
+                            tierRow.arrayOrNull("benefits")?.forEachIndexed benefitLoop@{ benefitIndex, benefitElement ->
+                                val benefit = benefitElement.takeIf { it.isJsonObject }?.asJsonObject ?: return@benefitLoop
+                                RewardBenefitRow(
+                                    name = benefit.stringOrNull("name").orEmpty(),
+                                    description = benefit.stringOrNull("description").orEmpty(),
+                                    iconIndex = benefitIndex
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+    if (referralDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!referralBusy) referralDialog = false },
+            title = { Text("Masukkan kode referral") },
+            text = { OutlinedTextField(value = referralInput, onValueChange = { referralInput = it.uppercase().take(12) }, singleLine = true, label = { Text("Kode teman") }, modifier = Modifier.fillMaxWidth()) },
+            confirmButton = { TextButton(enabled = !referralBusy && referralInput.isNotBlank(), onClick = {
+                scope.launch {
+                    referralBusy = true
+                    try {
+                        val body = JsonObject().apply { addProperty("code", referralInput.trim()) }
+                        val response = ApiClient.get(context).attributeReferral(body)
+                        if (response.isSuccessful && response.body()?.success == true) {
+                            referralMessage = "Kode berhasil ditautkan. Pastikan pesanan pertama dibuat melalui aplikasi Android."
+                            referralDialog = false
+                            refreshKey++
+                        } else referralMessage = response.customerError("Kode referral belum dapat ditautkan.")
+                    } catch (_: Exception) { referralMessage = "Koneksi belum tersedia. Coba lagi nanti." }
+                    finally { referralBusy = false }
+                }
+            }) { Text(if (referralBusy) "Memeriksa…" else "Tautkan") } },
+            dismissButton = { TextButton(enabled = !referralBusy, onClick = { referralDialog = false }) { Text("Batal") } }
+        )
+    }
+}
+
+@Composable
+private fun RewardBenefitRow(name: String, description: String, iconIndex: Int) {
+    val icon = when {
+        name.contains("ulang tahun", ignoreCase = true) || name.contains("birthday", ignoreCase = true) -> R.drawable.ic_reward_gift
+        name.contains("diskon", ignoreCase = true) -> R.drawable.ic_reward_tag
+        name.contains("promo", ignoreCase = true) || name.contains("early", ignoreCase = true) -> R.drawable.ic_reward_spark
+        else -> if (iconIndex % 2 == 0) R.drawable.ic_reward_points else R.drawable.ic_reward_gift
+    }
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(11.dp)
+    ) {
+        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(38.dp)) {
+            Box(contentAlignment = Alignment.Center) {
+                Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(20.dp), colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer))
+            }
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+private fun tierBadgeResource(tierKey: String): Int = when (tierKey.lowercase()) {
+    "silver" -> R.drawable.ic_reward_spark
+    "gold" -> R.drawable.ic_reward_gift
+    "platinum" -> R.drawable.ic_reward_tag
+    else -> R.drawable.ic_reward_points
 }
 
 @Composable
@@ -6020,7 +6380,7 @@ private fun AccountActionRow(title: String, subtitle: String, onClick: () -> Uni
         verticalAlignment = Alignment.CenterVertically
     ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(title, fontWeight = FontWeight.SemiBold, fontSize = lunareaResponsiveFontSize(14.sp), color = MaterialTheme.colorScheme.onSurface)
                 Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
             Icon(

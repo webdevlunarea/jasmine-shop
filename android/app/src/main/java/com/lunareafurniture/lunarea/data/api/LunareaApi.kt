@@ -49,6 +49,9 @@ interface LunareaApi {
     @POST("auth/logout")
     suspend fun logout(): Response<ApiEnvelope<LogoutResponse>>
 
+    @POST("auth/sessions/revoke-others")
+    suspend fun revokeOtherSessions(): Response<ApiEnvelope<JsonObject>>
+
     @GET("catalog/products")
     suspend fun products(
         @Query("page") page: Int = 1,
@@ -153,6 +156,12 @@ interface LunareaApi {
 
     @GET("points")
     suspend fun points(@Query("page") page: Int = 1): Response<ApiEnvelope<JsonObject>>
+
+    @GET("referrals")
+    suspend fun referrals(): Response<ApiEnvelope<JsonObject>>
+
+    @POST("referrals/attribute")
+    suspend fun attributeReferral(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 
     @GET("vouchers/promotions")
     suspend fun voucherPromotions(): Response<ApiEnvelope<JsonObject>>

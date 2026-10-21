@@ -32,7 +32,7 @@ android {
         applicationId = "com.lunareafurniture.lunarea"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
+        versionCode = 3
         versionName = "0.1.1"
         buildConfigField("String", "API_BASE_URL", "\"https://lunareafurniture.com/api/v1/\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"520531202813-voubv1urfgrmeg8l813i4d3qh9r8i2g6.apps.googleusercontent.com\"")

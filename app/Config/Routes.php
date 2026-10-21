@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Pages::index');
+$routes->get('/ref/(:segment)', 'AndroidReferralLink::show/$1');
 
 // Versioned JSON API for the native Android client. Authentication uses opaque
 // bearer tokens; state-changing API calls do not rely on browser cookies/CSRF.
@@ -57,6 +58,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->post('shipping/quotes', 'Api\\V1\\ShippingController::quote');
         $routes->get('vouchers/available', 'Api\\V1\\VoucherController::index');
         $routes->get('points', 'Api\\V1\\PointsController::index');
+        $routes->get('referrals', 'Api\\V1\\ReferralController::index');
+        $routes->post('referrals/attribute', 'Api\\V1\\ReferralController::attribute');
         $routes->post('checkout/preview', 'Api\\V1\\CheckoutController::preview');
         $routes->post('checkout/orders', 'Api\\V1\\CheckoutController::createOrder');
         $routes->get('orders', 'Api\\V1\\OrderController::index');
@@ -230,6 +233,8 @@ $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);
+$routes->get('/androidreferraladmin', 'AndroidReferralAdmin::index', ['filter' => 'harusAdmin']);
+$routes->post('/androidreferraladmin', 'AndroidReferralAdmin::save', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/notificationtestadmin/send', 'PushNotificationAdmin::sendTest', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/notificationtestadmin/broadcast', 'PushNotificationAdmin::sendBroadcast', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain', ['filter' => ['harusAdmin', 'csrf']]);

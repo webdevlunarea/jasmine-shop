@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.lunareafurniture.lunarea",
+      "sha256_cert_fingerprints": [
+        "7C:DD:55:FF:3C:7A:D3:F4:EC:45:92:02:40:41:CE:DE:33:26:76:68:27:1B:9A:89:B5:76:18:BC:C2:76:C5:17",
+        "EF:41:DD:E9:FC:F8:D3:04:D0:60:C9:88:82:50:0E:1D:8A:9E:65:2B:18:8B:F2:48:F4:AD:CB:1A:ED:F5:62:D0"
+      ]
+    }
+  }
+]

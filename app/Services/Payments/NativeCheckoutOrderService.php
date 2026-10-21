@@ -151,6 +151,13 @@ final class NativeCheckoutOrderService
                         'payment_type' => $manualTransfer ? 'rekening' : (string)$payload['payment_type'],
                         'transaction_status' => $manualTransfer ? 'pending-rekening' : 'pending',
                         '_app_payment_environment' => $sandbox ? 'sandbox' : 'production',
+                        '_app_checkout_channel' => 'android',
+                        '_app_eligible_subtotal' => max(0,
+                            (int)($initial['subtotal'] ?? array_sum(array_map(
+                                static fn(array $item): int => max(0, (int)($item['unit_price'] ?? 0)) * max(0, (int)($item['quantity'] ?? 0)),
+                                $initial['items'] ?? []
+                            ))) - (int)($initial['voucher_discount'] ?? 0) - (int)($initial['preorder_discount'] ?? 0)
+                        ),
                         '_app_inventory_reserved' => !$sandbox, '_app_payment_effects_applied' => false,
                     ];
                     if ($manualTransfer) {

@@ -26,11 +26,25 @@ class LunareaApplication : Application() {
             PushDeviceRegistration.enqueueRetry(this)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getSystemService(NotificationManager::class.java).createNotificationChannel(
-                NotificationChannel(
-                    LunareaMessagingService.CHANNEL_ID,
-                    "Pembaruan pesanan",
-                    NotificationManager.IMPORTANCE_DEFAULT
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannels(
+                listOf(
+                    // Keep this ID stable so existing users retain their channel preferences.
+                    NotificationChannel(
+                        LunareaMessagingService.CHANNEL_ID,
+                        "Pembaruan pesanan",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    ),
+                    NotificationChannel(
+                        LunareaMessagingService.PROMOTIONS_CHANNEL_ID,
+                        "Promo dan produk",
+                        NotificationManager.IMPORTANCE_LOW
+                    ).apply { description = "Info voucher, acara, dan produk favorit." },
+                    NotificationChannel(
+                        LunareaMessagingService.ACCOUNT_CHANNEL_ID,
+                        "Akun dan keamanan",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    ).apply { description = "Info keamanan dan pembaruan akun Lunarea." }
                 )
             )
         }

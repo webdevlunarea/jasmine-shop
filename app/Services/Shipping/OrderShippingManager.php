@@ -78,6 +78,10 @@ class OrderShippingManager
             } else {
                 $shippingUpdatedAt = date('Y-m-d H:i:s');
             }
+            if ($next === 'Selesai') {
+                (new \App\Services\Referrals\AndroidReferralProgram($this->db))
+                    ->rewardCompletedOrder(array_merge($order, $changes));
+            }
             if ($previousShippingStatus !== $shippingStatus && $this->db->tableExists('customer_push_notifications')) {
                 $pushCopy = \App\Services\Notifications\ShippingStatusNotification::for($shippingStatus, $orderId);
                 if ($pushCopy !== null && filter_var((string)($order['email_cus'] ?? ''), FILTER_VALIDATE_EMAIL)) {

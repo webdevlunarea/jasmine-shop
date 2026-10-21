@@ -13,6 +13,7 @@ if ($isAdminNav) {
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
         ['group'=>'Pengaturan', 'label' => 'Broadcast & notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'match' => ['notificationtestadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Referral Android', 'icon' => 'group_add', 'url' => '/androidreferraladmin', 'match' => ['androidreferraladmin']],
         ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
         ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
         ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
