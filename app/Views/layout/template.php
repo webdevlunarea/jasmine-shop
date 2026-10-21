@@ -64,6 +64,10 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
         $seoDescription = 'Lunarea Furniture menghadirkan pilihan lemari, meja, rak, dan kursi untuk rumah Anda. Temukan furnitur fungsional, pilihan produk, serta penawaran terbaru di toko resmi Lunarea.';
     }
     $seoCanonical = site_url(trim((string) service('uri')->getPath(), '/'));
+    $seoShareImage = 'https://lunareafurniture.com/img/logo%20icon.png';
+    if (isset($produk['id']) && trim((string) $produk['id']) !== '') {
+        $seoShareImage = base_url('imgpic/' . rawurlencode((string) $produk['id']));
+    }
     $seoPath = trim((string) service('uri')->getPath(), '/');
     $seoIsHome = $seoPath === '';
     $seoNoindexPaths = ['login', 'signup', 'cart', 'checkout', 'account', 'wishlist', 'voucher', 'point', 'transaction', 'order', 'invoice'];
@@ -124,7 +128,8 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <meta data-rh="true" property="og:site_name" content="Lunarea Furniture">
     <meta data-rh="true" property="og:url" content="<?= esc($seoCanonical, 'attr'); ?>">
     <meta data-rh="true" property="og:description" content="<?= esc($seoDescription, 'attr'); ?>">
-    <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/img/logo%20icon.png">
+    <meta data-rh="true" property="og:image" content="<?= esc($seoShareImage, 'attr'); ?>">
+    <meta property="og:image:alt" content="<?= esc($seoTitle, 'attr'); ?>">
     <?php if ($seoProductData !== null) { ?>
     <meta property="product:price:currency" content="IDR">
     <meta property="product:price:amount" content="<?= esc((string) $seoProductData['offers']['price'], 'attr'); ?>">
@@ -134,7 +139,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta name="twitter:description" content="<?= esc($seoDescription, 'attr'); ?>">
-    <meta name="twitter:image" content="https://lunareafurniture.com/img/logo%20icon.png">
+    <meta name="twitter:image" content="<?= esc($seoShareImage, 'attr'); ?>">
     <?php if ($seoIsHome) { ?>
     <script type="application/ld+json">
     <?= json_encode([

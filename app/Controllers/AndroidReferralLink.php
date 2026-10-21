@@ -14,15 +14,27 @@ final class AndroidReferralLink extends BaseController
             $code = strtoupper($code);
             session()->set('affiliate_referral_code', $code);
             $slug = strtolower(trim((string)$this->request->getGet('product')));
+            $product = null;
             if ($slug !== '' && preg_match('/^[a-z0-9-]{1,120}$/', $slug)) {
                 $product = (new \App\Models\BarangModel())->where(['path' => $slug, 'active' => '1'])->first();
-                if ($product) return redirect()->to('/product/' . rawurlencode($slug));
             }
+            $settings = $program->settings();
+            $productName = is_array($product) ? trim(strip_tags((string)($product['nama'] ?? ''))) : '';
+            $productImageUrl = is_array($product) && !empty($product['id'])
+                ? base_url('imgpic/' . rawurlencode((string)$product['id']))
+                : base_url('img/logo%20icon.png');
+            $productUrl = is_array($product)
+                ? base_url('product/' . rawurlencode($slug) . '?ref=' . rawurlencode($code))
+                : base_url('/all');
             return view('pages/androidReferralLink', [
-                'code' => $code, 'title' => 'Afiliasi Lunarea',
-                'productName' => '',
-                'commissionPercent' => (float)$program->settings()['commission_percent'],
-                'minimumSubtotal' => (int)$program->settings()['minimum_subtotal'],
+                'code' => $code,
+                'title' => $productName !== '' ? $productName . ' | Lunarea Furniture' : 'Afiliasi Lunarea Furniture',
+                'productName' => $productName,
+                'productImageUrl' => $productImageUrl,
+                'productUrl' => $productUrl,
+                'sharePageUrl' => current_url() . '?' . http_build_query($this->request->getGet()),
+                'commissionPercent' => (float)$settings['commission_percent'],
+                'minimumSubtotal' => (int)$settings['minimum_subtotal'],
                 'browseUrl' => base_url('/all'),
             ]);
         } catch (\Throwable $e) {

@@ -5094,9 +5094,9 @@ private fun CatalogScreen(
                                   val shareUrl = Uri.parse(baseShareUrl).buildUpon()
                                       .appendQueryParameter("product", product.slug.orEmpty())
                                       .appendQueryParameter("product_id", product.id)
+                                      .appendQueryParameter("preview", "2")
                                       .build().toString()
-                                  val percent = affiliate.get("commission_percent")?.takeUnless { it.isJsonNull }?.asDouble ?: 3.0
-                                  val text = "Lihat ${product.name} di Lunarea Furniture: $shareUrl\n\nJika pesananmu selesai dan memenuhi ketentuan program, pengundang mendapat komisi ${String.format(Locale.forLanguageTag("id-ID"), "%.1f", percent)}% dalam Luna Poin."
+                                  val text = "Lagi cari furnitur? Aku menemukan ${product.name} dari Lunarea Furniture—lihat foto, detail, dan harganya di sini:\n$shareUrl\n\nYuk, cek produknya. Siapa tahu cocok untuk ruangmu!"
                                   val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }
                                   context.startActivity(Intent.createChooser(send, "Bagikan tautan afiliasi"))
                                   actionMessage = null
