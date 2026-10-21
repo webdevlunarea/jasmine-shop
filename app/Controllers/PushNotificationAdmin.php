@@ -41,7 +41,8 @@ class PushNotificationAdmin extends BaseController
         $imageUrl = null;
         $storedImagePath = null;
         if ($image && $image->getError() !== UPLOAD_ERR_NO_FILE) {
-            $maxBytes = 1024 * 1024;
+            // Keep each public promo asset small to limit disk, transfer, and device-memory costs.
+            $maxBytes = 512 * 1024;
             $mime = strtolower((string) $image->getMimeType());
             $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
             $imageInfo = $image->isValid() ? @getimagesize($image->getTempName()) : false;
@@ -49,9 +50,9 @@ class PushNotificationAdmin extends BaseController
             $size = (int) $image->getSize();
             if (!$image->isValid() || $image->hasMoved() || $size < 1 || $size >= $maxBytes
                 || !isset($extensions[$mime]) || !$imageInfo || ($imageTypes[$imageInfo[2] ?? 0] ?? null) !== $mime
-                || (int) ($imageInfo[0] ?? 0) > 6000 || (int) ($imageInfo[1] ?? 0) > 6000
-                || (int) ($imageInfo[0] ?? 0) * (int) ($imageInfo[1] ?? 0) > 25000000) {
-                return $this->backBroadcast('Gambar harus berupa JPG, PNG, atau WebP dan berukuran kurang dari 1 MB.');
+                || (int) ($imageInfo[0] ?? 0) > 1920 || (int) ($imageInfo[1] ?? 0) > 1920
+                || (int) ($imageInfo[0] ?? 0) * (int) ($imageInfo[1] ?? 0) > 4000000) {
+                return $this->backBroadcast('Gambar harus berupa JPG, PNG, atau WebP, berukuran kurang dari 512 KB, dan maksimal 1920 × 1920 piksel.');
             }
 
             $directory = FCPATH . 'uploads/push-broadcasts';

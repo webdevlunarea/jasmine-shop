@@ -122,8 +122,8 @@ class NotificationImageWorker(context: Context, parameters: WorkerParameters) : 
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0 ||
-                bounds.outWidth > 6000 || bounds.outHeight > 6000 ||
-                bounds.outWidth.toLong() * bounds.outHeight.toLong() > 25_000_000L
+                bounds.outWidth > 1920 || bounds.outHeight > 1920 ||
+                bounds.outWidth.toLong() * bounds.outHeight.toLong() > 4_000_000L
             ) return null
             val sample = maxOf(1, maxOf(bounds.outWidth, bounds.outHeight) / MAX_BITMAP_EDGE)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
@@ -141,7 +141,7 @@ class NotificationImageWorker(context: Context, parameters: WorkerParameters) : 
         private const val KEY_CHANNEL = "notification_channel"
         private const val ALLOWED_HOST = "lunareafurniture.com"
         private const val ALLOWED_PATH = "/uploads/push-broadcasts/"
-        private const val MAX_IMAGE_BYTES = 1024 * 1024
+        private const val MAX_IMAGE_BYTES = 512 * 1024
         private const val MAX_BITMAP_EDGE = 1024
 
         fun enqueue(
