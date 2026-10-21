@@ -9,7 +9,7 @@
             </div>
             <div class="cookie-consent__actions">
                 <button type="button" class="cookie-consent__button cookie-consent__button--quiet" id="cookie-only-required">Hanya wajib</button>
-                <button type="button" class="cookie-consent__button cookie-consent__button--primary" id="cookie-allow-optional">Izinkan pilihan</button>
+                <button type="button" class="cookie-consent__button cookie-consent__button--primary" id="cookie-allow-optional">Izinkan</button>
                 <button type="button" class="cookie-consent__settings-link" id="cookie-open-settings" aria-expanded="false" aria-controls="cookie-settings">Atur pilihan</button>
             </div>
             <div id="cookie-settings" class="cookie-consent__settings" hidden>
