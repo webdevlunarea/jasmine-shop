@@ -185,7 +185,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                             <?php } ?>
                         <?php } else { ?>
                             <a class="btn btn-primary1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
-                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Hapus produk</button>
                         <?php } ?>
                     <?php } else { ?>
                         <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" class="d-flex gap-2 align-items-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
@@ -234,7 +234,7 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
                             <?php } ?>
                         <?php } else { ?>
                             <a class="btn btn-primary1 flex-grow-1" href="/editproduct/<?= $produk['id']; ?>">Edit produk</a>
-                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Delete produk</button>
+                            <button class="btn btn-danger" onclick="triggerToast('Produk <?= $produk['nama']; ?> akan dihapus?','/delproduct/<?= $produk['id']; ?>')">Hapus produk</button>
                         <?php } ?>
                     <?php } else { ?>
                         <a href="/login?redirect=<?= rawurlencode('/product/' . $produk['path']); ?>" style="width: 100%" class="d-flex gap-2 align-items-center justify-content-center btn btn-primary1 <?= array_sum(array_map('intval', explode(',', $produk['stok']))) > 0 ? "" : "disabled"; ?>">
