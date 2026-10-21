@@ -14,7 +14,8 @@
     function readCookie() {
         var prefix = COOKIE_KEY + '=';
         var entry = document.cookie.split('; ').find(function (part) { return part.indexOf(prefix) === 0; });
-        return entry ? decodeURIComponent(entry.substring(prefix.length)) : '';
+        if (!entry) return '';
+        try { return decodeURIComponent(entry.substring(prefix.length)); } catch (_) { return ''; }
     }
 
     function readChoice() {
@@ -73,9 +74,10 @@
         control.addEventListener('click', function (event) {
             event.preventDefault();
             banner.hidden = false;
-            settings.hidden = true;
+            settings.hidden = false;
+            settingsButton.setAttribute('aria-expanded', 'true');
             toggle.checked = readChoice() === 'optional';
-            document.getElementById('cookie-open-settings').focus();
+            toggle.focus();
         });
     });
 

@@ -101,6 +101,7 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
             <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. Hak cipta dilindungi.</p>
             <nav class="buyer-footer__legal" aria-label="Kebijakan toko">
                 <a href="/kebijakan-privasi">Kebijakan Privasi</a>
+                <button type="button" class="cookie-preferences-link" data-cookie-settings-open>Pengaturan cookie</button>
                 <a href="/syarat-dan-ketentuan">Syarat &amp; Ketentuan</a>
             </nav>
         </div>
