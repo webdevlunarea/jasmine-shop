@@ -14,15 +14,14 @@
             </div>
             <div id="cookie-settings" class="cookie-consent__settings" hidden>
                 <div class="cookie-consent__always-on">
-                    <span class="material-icons" aria-hidden="true">verified_user</span>
-                    <span><strong>Cookie wajib</strong><small>Selalu aktif untuk login, keamanan, dan fungsi inti website.</small></span>
-                    <span class="cookie-consent__status">Aktif</span>
+                    <span><strong>Wajib</strong><small>Untuk login &amp; keamanan.</small></span>
+                    <span class="cookie-consent__status">Selalu aktif</span>
                 </div>
                 <label class="cookie-consent__toggle">
+                    <span><strong>Pilihan</strong><small>Membantu meningkatkan pengalaman situs.</small></span>
                     <input type="checkbox" id="cookie-optional-toggle">
-                    <span><strong>Cookie pilihan</strong><small>Memuat layanan Google untuk membantu Lunarea memahami penggunaan website. Anda bisa mengubah pilihan kapan saja.</small></span>
                 </label>
-                <button type="button" class="cookie-consent__button cookie-consent__button--primary" id="cookie-save-settings">Simpan pilihan</button>
+                <button type="button" class="cookie-consent__button cookie-consent__button--primary" id="cookie-save-settings">Simpan</button>
             </div>
         </div>
     </div>
