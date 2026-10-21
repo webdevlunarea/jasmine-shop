@@ -68,7 +68,7 @@
                 Pesan hanya masuk antrean untuk akun dengan perangkat Android aktif. Tidak ada pesan yang dikirim ke perangkat yang belum terdaftar. Worker notifikasi perlu dijalankan terjadwal agar antrean dikirim bertahap.
             </div>
 
-            <form method="post" action="/notificationtestadmin/broadcast" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> akun Android aktif? Pastikan isi pesan dan promonya sudah benar.">
+            <form method="post" action="/notificationtestadmin/broadcast" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> akun Android aktif? Pastikan isi pesan dan promonya sudah benar.">
                 <?= csrf_field(); ?>
                 <div class="row g-3">
                     <div class="col-12 col-md-5">
@@ -90,8 +90,15 @@
                         <textarea class="form-control" id="broadcast-body" name="body" rows="3" maxlength="240" required placeholder="Tulis informasi singkat, jelas, dan sesuai promo yang sedang berlangsung."></textarea>
                         <div class="form-text">Maksimal 240 karakter. Hindari mencantumkan data pribadi atau informasi yang belum berlaku.</div>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold" for="broadcast-image">Gambar notifikasi <span class="text-secondary fw-normal">(opsional)</span></label>
+                        <input class="form-control" id="broadcast-image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                        <div class="form-text">JPG, PNG, atau WebP; ukuran wajib kurang dari 1 MB. Gambar tampil saat notifikasi promosi diperluas.</div>
+                        <div id="broadcast-image-error" class="small text-danger mt-1" role="alert" hidden></div>
+                        <img id="broadcast-image-preview" class="mt-2 rounded-3 border" alt="Pratinjau gambar notifikasi" style="display:none;max-width:240px;max-height:140px;object-fit:cover">
+                    </div>
                     <div class="col-12 d-flex justify-content-end">
-                        <button class="btn btn-primary1 px-4" type="submit" <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'disabled' : ''; ?>>
+                        <button id="broadcast-submit" class="btn btn-primary1 px-4" type="submit" <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'disabled' : ''; ?>>
                             <i class="material-icons align-middle me-1" aria-hidden="true">send</i>Jadwalkan broadcast
                         </button>
                     </div>
@@ -100,4 +107,37 @@
         </section>
     </div>
 </main>
+<script>
+(() => {
+    const input = document.getElementById('broadcast-image');
+    const error = document.getElementById('broadcast-image-error');
+    const preview = document.getElementById('broadcast-image-preview');
+    const submit = document.getElementById('broadcast-submit');
+    if (!input || !error || !preview || !submit) return;
+    let previewUrl = '';
+    input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        error.hidden = true;
+        error.textContent = '';
+        preview.style.display = 'none';
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = '';
+        if (!file) { submit.disabled = <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'true' : 'false'; ?>; return; }
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (file.size >= 1024 * 1024 || !allowed.includes(file.type)) {
+            error.textContent = file.size >= 1024 * 1024
+                ? 'Ukuran gambar harus kurang dari 1 MB.'
+                : 'Pilih gambar JPG, PNG, atau WebP.';
+            error.hidden = false;
+            input.value = '';
+            submit.disabled = true;
+            return;
+        }
+        submit.disabled = <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'true' : 'false'; ?>;
+        previewUrl = URL.createObjectURL(file);
+        preview.src = previewUrl;
+        preview.style.display = 'block';
+    });
+})();
+</script>
 <?= $this->endSection(); ?>

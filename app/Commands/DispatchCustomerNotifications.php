@@ -60,13 +60,24 @@ class DispatchCustomerNotifications extends BaseCommand
                 continue;
             }
             $data = json_decode((string)$row['payload'], true) ?: [];
+            $notification = ['title' => $row['title'], 'body' => $row['body']];
+            $imageUrl = (string) ($data['image_url'] ?? '');
+            $imageParts = $imageUrl !== '' ? parse_url($imageUrl) : false;
+            $baseHost = strtolower((string) parse_url(base_url(), PHP_URL_HOST));
+            if (str_starts_with((string) $row['notification_type'], 'broadcast_')
+                && is_array($imageParts)
+                && strtolower((string) ($imageParts['scheme'] ?? '')) === 'https'
+                && strtolower((string) ($imageParts['host'] ?? '')) === $baseHost
+                && str_starts_with((string) ($imageParts['path'] ?? ''), '/uploads/push-broadcasts/')) {
+                $notification['image'] = $imageUrl;
+            }
             $hasDevice = false; $allOk = true; $invalid = [];
             try {
                 foreach ($devices as $device) {
                     $hasDevice = true;
                     try { $deviceToken = $this->decryptDeviceToken((string)$device['device_token']); }
                     catch (\Throwable $e) { $invalid[] = $device['id']; $allOk = false; continue; }
-                    $result = $sender->send((string)$deviceToken, ['title' => $row['title'], 'body' => $row['body']], $data + ['type' => $row['notification_type']]);
+                    $result = $sender->send((string)$deviceToken, $notification, $data + ['type' => $row['notification_type']]);
                     if (!$result['ok']) {
                         $allOk = false;
                         if ($result['error_code'] === 'UNREGISTERED') $invalid[] = $device['id'];

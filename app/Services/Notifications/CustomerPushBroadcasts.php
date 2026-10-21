@@ -32,7 +32,7 @@ final class CustomerPushBroadcasts
         return (int) ($row['total'] ?? 0);
     }
 
-    public function queue(string $kind, string $title, string $body): int
+    public function queue(string $kind, string $title, string $body, ?string $imageUrl = null): int
     {
         $kind = trim($kind);
         $title = trim($title);
@@ -58,10 +58,22 @@ final class CustomerPushBroadcasts
         $now = gmdate('Y-m-d H:i:s');
         $campaignId = bin2hex(random_bytes(16));
         $type = self::TYPES[$kind];
-        $payload = json_encode([
+        $payloadData = [
             'type' => $type,
             'campaign_id' => $campaignId,
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        ];
+        if ($imageUrl !== null && $imageUrl !== '') {
+            $parts = parse_url($imageUrl);
+            $baseHost = strtolower((string) parse_url(base_url(), PHP_URL_HOST));
+            if (!is_array($parts)
+                || strtolower((string) ($parts['scheme'] ?? '')) !== 'https'
+                || strtolower((string) ($parts['host'] ?? '')) !== $baseHost
+                || !str_starts_with((string) ($parts['path'] ?? ''), '/uploads/push-broadcasts/')) {
+                throw new InvalidArgumentException('Broadcast image URL is not an approved Lunarea HTTPS image.');
+            }
+            $payloadData['image_url'] = $imageUrl;
+        }
+        $payload = json_encode($payloadData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         $rows = [];
         foreach (array_keys($recipients) as $email) {
             $rows[] = [

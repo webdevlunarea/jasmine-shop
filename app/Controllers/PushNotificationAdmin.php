@@ -37,18 +37,60 @@ class PushNotificationAdmin extends BaseController
             return $this->backBroadcast('Periksa kategori dan isi pesan. Judul maksimal 100 karakter, pesan maksimal 240 karakter.');
         }
 
+        $image = $this->request->getFile('image');
+        $imageUrl = null;
+        $storedImagePath = null;
+        if ($image && $image->getError() !== UPLOAD_ERR_NO_FILE) {
+            $maxBytes = 1024 * 1024;
+            $mime = strtolower((string) $image->getMimeType());
+            $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $imageInfo = $image->isValid() ? @getimagesize($image->getTempName()) : false;
+            $imageTypes = [IMAGETYPE_JPEG => 'image/jpeg', IMAGETYPE_PNG => 'image/png', IMAGETYPE_WEBP => 'image/webp'];
+            $size = (int) $image->getSize();
+            if (!$image->isValid() || $image->hasMoved() || $size < 1 || $size >= $maxBytes
+                || !isset($extensions[$mime]) || !$imageInfo || ($imageTypes[$imageInfo[2] ?? 0] ?? null) !== $mime
+                || (int) ($imageInfo[0] ?? 0) > 6000 || (int) ($imageInfo[1] ?? 0) > 6000
+                || (int) ($imageInfo[0] ?? 0) * (int) ($imageInfo[1] ?? 0) > 25000000) {
+                return $this->backBroadcast('Gambar harus berupa JPG, PNG, atau WebP dan berukuran kurang dari 1 MB.');
+            }
+
+            $directory = FCPATH . 'uploads/push-broadcasts';
+            if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+                return $this->backBroadcast('Folder penyimpanan gambar notifikasi belum tersedia.');
+            }
+            try {
+                $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+                $image->move($directory, $filename);
+                $storedImagePath = $directory . DIRECTORY_SEPARATOR . $filename;
+                $imageUrl = rtrim(base_url(), '/') . '/uploads/push-broadcasts/' . rawurlencode($filename);
+                $imageUrlParts = parse_url($imageUrl);
+                if (!is_array($imageUrlParts) || strtolower((string) ($imageUrlParts['scheme'] ?? '')) !== 'https') {
+                    @unlink($storedImagePath);
+                    return $this->backBroadcast('Alamat situs harus menggunakan HTTPS untuk gambar notifikasi.');
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Admin push broadcast image upload failed: ' . get_class($e));
+                return $this->backBroadcast('Gambar notifikasi belum berhasil disimpan.');
+            }
+        }
+
         $remaining = 60 - (time() - (int) session('push_broadcast_last_sent'));
         if ((int) session('push_broadcast_last_sent') > 0 && $remaining > 0) {
+            if ($storedImagePath) @unlink($storedImagePath);
             return $this->backBroadcast("Tunggu {$remaining} detik sebelum membuat broadcast berikutnya.");
         }
 
         try {
-            $queued = (new CustomerPushBroadcasts(Database::connect()))->queue($kind, $title, $body);
-            if ($queued < 1) return $this->backBroadcast('Belum ada perangkat Android aktif dengan akun penerima valid.');
+            $queued = (new CustomerPushBroadcasts(Database::connect()))->queue($kind, $title, $body, $imageUrl);
+            if ($queued < 1) {
+                if ($storedImagePath) @unlink($storedImagePath);
+                return $this->backBroadcast('Belum ada perangkat Android aktif dengan akun penerima valid.');
+            }
             session()->set('push_broadcast_last_sent', time());
 
             return $this->backBroadcast($queued . ' penerima masuk antrean. Pengiriman diproses bertahap oleh layanan notifikasi.');
         } catch (\Throwable $e) {
+            if ($storedImagePath) @unlink($storedImagePath);
             log_message('error', 'Admin push broadcast enqueue failed: ' . get_class($e));
             return $this->backBroadcast('Broadcast belum berhasil dijadwalkan. Periksa kesiapan tabel dan log server.');
         }
