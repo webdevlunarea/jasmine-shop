@@ -91,9 +91,17 @@
                         <div class="form-text">Maksimal 240 karakter. Hindari mencantumkan data pribadi atau informasi yang belum berlaku.</div>
                     </div>
                     <div class="col-12">
+                        <label class="form-label fw-semibold" for="broadcast-image-size">Ukuran gambar notifikasi</label>
+                        <select class="form-select" id="broadcast-image-size" name="image_size" required>
+                            <option value="800x400" selected>800 × 400 px — Banner kecil, 2:1</option>
+                            <option value="1024x512">1024 × 512 px — Lebih tajam, 2:1</option>
+                        </select>
+                        <div class="form-text">Pilih ukuran yang sama dengan dimensi file gambar yang akan diunggah.</div>
+                    </div>
+                    <div class="col-12">
                         <label class="form-label fw-semibold" for="broadcast-image">Gambar notifikasi <span class="text-secondary fw-normal">(opsional)</span></label>
                         <input class="form-control" id="broadcast-image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG, PNG, atau WebP; kurang dari 512 KB dan maksimal 1920 × 1920 piksel. Batas kecil ini membantu menjaga pemakaian server dan data seluler.</div>
+                        <div class="form-text">Boleh dikosongkan untuk mengirim notifikasi tanpa gambar. Jika diisi: JPG, PNG, atau WebP, kurang dari 512 KB, dan dimensinya harus sama dengan pilihan di atas.</div>
                         <div id="broadcast-image-error" class="small text-danger mt-1" role="alert" hidden></div>
                         <div class="mt-3 p-3 rounded-3" style="max-width:400px;background:#f5f3ee;">
                             <div class="small fw-semibold text-secondary mb-2">Pratinjau notifikasi Android · tampilan diperluas</div>
@@ -106,7 +114,7 @@
                                 </div>
                                 <div id="broadcast-preview-title" class="fw-semibold text-dark text-break">Judul notifikasi</div>
                                 <div id="broadcast-preview-body" class="small text-secondary text-break mt-1">Isi pesan akan terlihat seperti ini.</div>
-                                <div id="broadcast-preview-image-frame" class="mt-2 rounded-2 overflow-hidden" style="display:none;width:100%;max-width:340px;aspect-ratio:16/9;background:#f5f3ee;">
+                                <div id="broadcast-preview-image-frame" class="mt-2 rounded-2 overflow-hidden" style="display:none;width:100%;max-width:340px;aspect-ratio:2/1;background:#f5f3ee;">
                                     <img id="broadcast-image-preview" alt="Pratinjau gambar pada notifikasi Android" style="display:block;width:100%;height:100%;object-fit:cover;">
                                 </div>
                             </div>
@@ -132,6 +140,7 @@
     const previewTitle = document.getElementById('broadcast-preview-title');
     const previewBody = document.getElementById('broadcast-preview-body');
     const imageMeta = document.getElementById('broadcast-image-meta');
+    const imageSizeSelect = document.getElementById('broadcast-image-size');
     const titleInput = document.getElementById('broadcast-title');
     const bodyInput = document.getElementById('broadcast-body');
     const submit = document.getElementById('broadcast-submit');
@@ -169,19 +178,29 @@
         previewUrl = URL.createObjectURL(file);
         previewFrame.style.display = 'block';
         preview.onload = () => {
-            const tooManyPixels = preview.naturalWidth * preview.naturalHeight > 4000000;
-            const tooWide = preview.naturalWidth > 1920 || preview.naturalHeight > 1920;
+            const selectedSize = imageSizeSelect?.value || '800x400';
+            const [targetWidth, targetHeight] = selectedSize.split('x').map(Number);
+            const wrongDimensions = preview.naturalWidth !== targetWidth || preview.naturalHeight !== targetHeight;
             if (imageMeta) {
                 const sizeKb = (file.size / 1024).toFixed(0);
-                imageMeta.textContent = `${sizeKb} KB · ${preview.naturalWidth} × ${preview.naturalHeight} px · pratinjau dibatasi 340 × 191 px.`;
+                imageMeta.textContent = `${sizeKb} KB · ${preview.naturalWidth} × ${preview.naturalHeight} px · pratinjau dibatasi 340 × 170 px.`;
             }
-            if (tooWide || tooManyPixels) {
-                error.textContent = 'Resolusi gambar maksimal 1.920 × 1.920 piksel dan 4 MP.';
+            if (wrongDimensions) {
+                error.textContent = `Dimensi file harus tepat ${targetWidth} × ${targetHeight} px sesuai ukuran yang dipilih.`;
                 error.hidden = false;
                 submit.disabled = true;
             }
         };
         preview.src = previewUrl;
+    });
+    imageSizeSelect?.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file || !preview.naturalWidth) return;
+        const [targetWidth, targetHeight] = (imageSizeSelect.value || '800x400').split('x').map(Number);
+        const wrongDimensions = preview.naturalWidth !== targetWidth || preview.naturalHeight !== targetHeight;
+        error.textContent = wrongDimensions ? `Dimensi file harus tepat ${targetWidth} × ${targetHeight} px sesuai ukuran yang dipilih.` : '';
+        error.hidden = !wrongDimensions;
+        submit.disabled = wrongDimensions || <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'true' : 'false'; ?>;
     });
     updateCopyPreview();
 })();

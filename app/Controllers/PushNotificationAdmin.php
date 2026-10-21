@@ -38,6 +38,15 @@ class PushNotificationAdmin extends BaseController
         }
 
         $image = $this->request->getFile('image');
+        $imageSize = trim((string) $this->request->getPost('image_size'));
+        $allowedImageSizes = [
+            '800x400' => [800, 400],
+            '1024x512' => [1024, 512],
+        ];
+        if ($imageSize === '') $imageSize = '800x400';
+        if (!isset($allowedImageSizes[$imageSize])) {
+            return $this->backBroadcast('Pilih salah satu ukuran gambar notifikasi yang tersedia.');
+        }
         $imageUrl = null;
         $storedImagePath = null;
         if ($image && $image->getError() !== UPLOAD_ERR_NO_FILE) {
@@ -50,9 +59,9 @@ class PushNotificationAdmin extends BaseController
             $size = (int) $image->getSize();
             if (!$image->isValid() || $image->hasMoved() || $size < 1 || $size >= $maxBytes
                 || !isset($extensions[$mime]) || !$imageInfo || ($imageTypes[$imageInfo[2] ?? 0] ?? null) !== $mime
-                || (int) ($imageInfo[0] ?? 0) > 1920 || (int) ($imageInfo[1] ?? 0) > 1920
-                || (int) ($imageInfo[0] ?? 0) * (int) ($imageInfo[1] ?? 0) > 4000000) {
-                return $this->backBroadcast('Gambar harus berupa JPG, PNG, atau WebP, berukuran kurang dari 512 KB, dan maksimal 1920 × 1920 piksel.');
+                || (int) ($imageInfo[0] ?? 0) !== $allowedImageSizes[$imageSize][0]
+                || (int) ($imageInfo[1] ?? 0) !== $allowedImageSizes[$imageSize][1]) {
+                return $this->backBroadcast("Gambar harus JPG, PNG, atau WebP, kurang dari 512 KB, dan berdimensi {$imageSize} sesuai ukuran yang dipilih.");
             }
 
             $directory = FCPATH . 'uploads/push-broadcasts';
