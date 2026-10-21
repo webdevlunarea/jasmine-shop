@@ -105,6 +105,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Velocity
 import com.lunareafurniture.lunarea.data.api.ApiClient
 import com.lunareafurniture.lunarea.data.api.AuthRepository
+import com.lunareafurniture.lunarea.data.api.HomeBanner
 import com.lunareafurniture.lunarea.data.api.ProductSummary
 import com.lunareafurniture.lunarea.data.api.customerError
 import com.lunareafurniture.lunarea.data.resolveCurrentAddress
@@ -286,7 +287,9 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
     var signedIn by remember { mutableStateOf(auth.isSignedIn()) }
     var products by remember { mutableStateOf<List<ProductSummary>>(emptyList()) }
     var categories by remember { mutableStateOf<List<String>>(emptyList()) }
+    var homeBanners by remember { mutableStateOf<List<HomeBanner>>(emptyList()) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var hasEnteredHome by remember { mutableStateOf(false) }
     var catalogPage by remember { mutableIntStateOf(1) }
     var catalogPages by remember { mutableIntStateOf(1) }
     var catalogRequestGeneration by remember { mutableIntStateOf(0) }
@@ -407,6 +410,34 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 }
             }
         } catch (_: Exception) { /* Kategori bukan penghalang katalog utama. */ }
+    }
+    LaunchedEffect(tab) {
+        if (tab != AppTab.HOME) return@LaunchedEffect
+        if (hasEnteredHome) {
+            loadProducts(query, selectedCategory, 1, false)
+            try {
+                val result = ApiClient.get(context).categories()
+                val rows = result.body()?.data?.getAsJsonArray("categories")
+                if (result.isSuccessful && result.body()?.success == true && rows != null) {
+                    categories = rows.mapNotNull { raw ->
+                        raw.takeIf { it.isJsonObject }?.asJsonObject?.get("name")?.asString?.trim()?.takeIf(String::isNotEmpty)
+                    }
+                }
+            } catch (_: Exception) { /* Keep the most recent successful categories. */ }
+        } else {
+            hasEnteredHome = true
+        }
+        try {
+            val response = ApiClient.get(context).homeBanners()
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true) {
+                homeBanners = body.data?.banners.orEmpty()
+                    .filter { it.image_url.isNotBlank() }
+                    .sortedBy { it.order ?: 0 }
+            }
+        } catch (_: Exception) {
+            // Keep the last successful banner set during a temporary connection loss.
+        }
     }
     LaunchedEffect(tab, signedIn, cartRefreshVersion) {
         if (signedIn && (tab == AppTab.CART || cartRefreshVersion > 0)) {
@@ -794,6 +825,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, onPushTapHan
                 },
                 onLoginRequired = { reason -> authPromptMessage = reason },
                 categories = categories, selectedCategory = selectedCategory,
+                homeBanners = homeBanners,
                 onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
                 products = products, loading = loading, message = message,
                 canLoadMore = catalogPage < catalogPages,
@@ -4160,6 +4192,7 @@ private fun CatalogScreen(
     chromeVisible: Boolean, onChromeVisibilityChange: (Boolean) -> Unit,
     onPromoAction: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
+    homeBanners: List<HomeBanner>,
     products: List<ProductSummary>, loading: Boolean, message: String?, canLoadMore: Boolean,
     onSearch: (String) -> Unit, onLoadMore: () -> Unit, onRefresh: () -> Unit,
     onDetailVisibility: (Boolean) -> Unit
@@ -4650,37 +4683,39 @@ private fun CatalogScreen(
                     }
                 }
             }
-            if (tab == AppTab.HOME) {
+            if (tab == AppTab.HOME && homeBanners.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                val bannerPager = rememberPagerState(pageCount = { homeBannerUrls.size })
+                val bannerPager = rememberPagerState(pageCount = { homeBanners.size })
                 val bannerAspectRatios = remember { mutableStateMapOf<String, Float>() }
                 val loadedBannerUrls = remember { mutableStateListOf<String>() }
-                LaunchedEffect(tab) {
-                    if (tab == AppTab.HOME) {
-                        while (true) {
-                            delay(4_500)
-                            if (!bannerPager.isScrollInProgress && homeBannerUrls.size > 1) {
-                                bannerPager.animateScrollToPage((bannerPager.currentPage + 1) % homeBannerUrls.size)
-                            }
+                LaunchedEffect(tab, homeBanners.size) {
+                    while (tab == AppTab.HOME && homeBanners.size > 1) {
+                        delay(4_500)
+                        if (!bannerPager.isScrollInProgress) {
+                            bannerPager.animateScrollToPage((bannerPager.currentPage + 1) % homeBanners.size)
                         }
                     }
                 }
-                val activeBanner = homeBannerUrls[bannerPager.currentPage]
+                val safePage = bannerPager.currentPage.coerceIn(homeBanners.indices)
+                val activeBanner = homeBanners[safePage]
                 HorizontalPager(
                     state = bannerPager,
                     modifier = Modifier.fillMaxWidth()
-                        .aspectRatio(bannerAspectRatios[activeBanner] ?: 3.45f)
+                        .aspectRatio(bannerAspectRatios[activeBanner.image_url] ?: 3.45f)
                         .clip(RoundedCornerShape(14.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     pageSpacing = 8.dp
                 ) { page ->
-                    val bannerUrl = homeBannerUrls[page]
+                    val banner = homeBanners[page]
+                    val bannerUrl = banner.image_url
                     if (bannerUrl !in loadedBannerUrls) {
                         Box(Modifier.fillMaxSize().background(rememberLunareaShimmerBrush()))
                     }
                     AsyncImage(
                         model = bannerUrl,
-                        contentDescription = "Banner Lunarea ${page + 1}",
+                        contentDescription = banner.alt?.takeIf(String::isNotBlank)
+                            ?: banner.title?.takeIf(String::isNotBlank)
+                            ?: "Banner Lunarea ${page + 1}",
                         modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)),
                         contentScale = ContentScale.Fit,
                         onSuccess = { result ->
