@@ -33,10 +33,10 @@
             Indonesia.
         </p>
         <p>
-            Dengan mengunjungi dan menggunakan situs Lunarea Furniture, Anda
-            dianggap telah setuju dengan persyaratan yang tercantum dalam
-            kebijakan privasi. Maka dari itu, dimohon kepada pelanggan untuk
-            membaca dan menelaah kebijakan privasi ini dengan seksama.
+            Kebijakan ini menjelaskan cara Lunarea Furniture memproses data
+            saat Anda menggunakan website. Jika suatu pemrosesan memerlukan
+            persetujuan, pilihan tersebut diminta secara terpisah dan dapat
+            ditarik sesuai ketentuan yang berlaku.
         </p>
         <h2 class="jdl-section mt-5">Informasi Yang Kami Butuhkan</h2>
         <p>
@@ -102,6 +102,26 @@
             Kami kumpulkan secara online hanya akan digunakan secara
             internal dalam Perusahaan Kami untuk melayani Anda sebagai
             konsumen dengan lebih baik.
+        </p>
+        <h2 class="jdl-section mt-5">Cookie dan teknologi serupa</h2>
+        <p>
+            Website menggunakan cookie yang diperlukan untuk menjaga sesi,
+            keamanan formulir, dan fungsi inti. Cookie sesi website umumnya
+            berlaku selama 2 jam; cookie keamanan formulir memiliki masa
+            berlaku yang ditetapkan sistem. Pilihan cookie Anda disimpan
+            selama 1 tahun agar preferensi tidak diminta berulang kali.
+            Tautan referral dapat disimpan dalam sesi browser untuk
+            menghubungkan kunjungan ke pesanan yang memenuhi ketentuan.
+        </p>
+        <p>
+            Dengan izin Anda, website memuat Google Analytics dan Google Tag
+            Manager untuk pengukuran penggunaan dan peningkatan layanan.
+            Layanan tersebut dapat memproses informasi penggunaan website
+            sesuai konfigurasi tag dan kebijakan penyedia. Jika Anda memilih
+            "Hanya cookie wajib", tag pilihan tidak dimuat. Anda dapat
+            mengubah pilihan kapan saja melalui tautan Pengaturan cookie di
+            footer website. Menghapus cookie atau penyimpanan browser juga
+            akan menghapus pilihan yang tersimpan.
         </p>
         <h2 class="jdl-section mt-5">Promosi</h2>
         <p>

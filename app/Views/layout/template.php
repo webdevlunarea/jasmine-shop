@@ -23,36 +23,28 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 <html lang="id">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K134RFDV6Z"></script>
+    <!-- Optional third-party tags are deferred until the visitor enables optional cookies. -->
     <script>
-    window.dataLayer = window.dataLayer || [];
+    window.lunareaLoadOptionalTags = function() {
+        if (window.__lunareaOptionalTagsLoaded) return;
+        window.__lunareaOptionalTagsLoaded = true;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function() { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        window.gtag('config', 'G-K134RFDV6Z');
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
+        var gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-K134RFDV6Z';
+        document.head.appendChild(gtagScript);
 
-    gtag('config', 'G-K134RFDV6Z');
+        window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+        var gtmScript = document.createElement('script');
+        gtmScript.async = true;
+        gtmScript.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-WMVCNHX5';
+        document.head.appendChild(gtmScript);
+    };
     </script>
-    <!-- Google Tag Manager -->
-    <script>
-    (function(w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-            'gtm.start': new Date().getTime(),
-            event: 'gtm.js'
-        });
-        var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s),
-            dl = l != 'dataLayer' ? '&l=' + l : '';
-        j.async = true;
-        j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-        f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-WMVCNHX5');
-    </script>
-    <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Lunarea Furniture">
@@ -319,6 +311,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     }
     </style>
     <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico?v=20261021'); ?>">
+    <link rel="stylesheet" href="/css/cookie-consent.css?v=<?= filemtime(FCPATH . 'css/cookie-consent.css'); ?>">
 </head>
 
 <?php
@@ -335,10 +328,6 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
 ?>
 
 <body class="<?= $isAdminLayout ? 'admin-body' : ($isAuthPage ? 'buyer-layout buyer-auth-body' : 'buyer-layout'); ?>">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMVCNHX5" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <div class="toast confirm-dialog start-50 translate-middle" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-message" aria-live="polite">
         <div class="toast-body confirm-dialog__body">
             <div class="confirm-dialog__icon">
@@ -647,6 +636,8 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
         }
     }, true);
     </script>
+    <?= view('partials/cookie_consent', [], ['saveData' => false]); ?>
+    <script defer src="/js/cookie-consent.js?v=<?= filemtime(FCPATH . 'js/cookie-consent.js'); ?>"></script>
     <script defer src="/js/image-skeletons.js?v=<?= filemtime(FCPATH . 'js/image-skeletons.js'); ?>"></script>
 </body>
 

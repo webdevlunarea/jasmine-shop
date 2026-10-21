@@ -31,6 +31,7 @@ $footerPayment = !empty($footerPayment);
                 <a href="/faq">Pertanyaan Umum</a>
                 <?php } ?>
                 <a href="/kebijakan-privasi"<?= $footerPayment ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>Kebijakan Privasi</a>
+                <button type="button" class="cookie-preferences-link" data-cookie-settings-open>Pengaturan cookie</button>
                 <a href="/syarat-dan-ketentuan"<?= $footerPayment ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>Syarat &amp; Ketentuan</a>
             </nav>
         </div>
