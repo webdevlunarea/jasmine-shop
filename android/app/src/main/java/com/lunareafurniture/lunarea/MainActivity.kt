@@ -5754,6 +5754,7 @@ private fun AccountScreen(
     val context = LocalContext.current
     var accountDisplayName by remember { mutableStateOf("") }
     var accountPhotoUrl by remember { mutableStateOf<String?>(null) }
+    var showDisableNotificationsConfirmation by remember { mutableStateOf(false) }
     LaunchedEffect(signedIn) {
         if (!signedIn) {
             accountDisplayName = ""
@@ -5866,11 +5867,81 @@ private fun AccountScreen(
                 AccountActionRow("Produk favorit", "Furnitur yang Anda simpan", onOpenFavorites)
             }
             AccountSettingsGroup("Pemberitahuan") {
-                AccountActionRow(
-                    if (notificationsEnabled) "Notifikasi aktif" else "Aktifkan notifikasi pesanan",
-                    if (notificationsEnabled) "Pemberitahuan pesanan dikirim ke perangkat ini" else "Dapatkan kabar terbaru tentang pesanan",
-                    if (notificationsEnabled) onDisableNotifications else onEnableNotifications
-                )
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            if (notificationsEnabled) showDisableNotificationsConfirmation = true
+                            else onEnableNotifications()
+                        }
+                        .padding(horizontal = 14.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = if (notificationsEnabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_notifications),
+                                contentDescription = null,
+                                tint = if (notificationsEnabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(
+                            "Notifikasi pesanan",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = lunareaResponsiveFontSize(14.sp),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            if (notificationsEnabled) "Aktif di perangkat ini · ketuk untuk mengatur"
+                            else "Belum aktif · ketuk untuk menerima kabar pesanan",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 12.sp,
+                            lineHeight = 17.sp
+                        )
+                    }
+                    if (notificationsEnabled) {
+                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer) {
+                            Text("AKTIF", Modifier.padding(horizontal = 9.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.errorContainer) {
+                            Text("NONAKTIF", Modifier.padding(horizontal = 9.dp, vertical = 5.dp), color = MaterialTheme.colorScheme.onErrorContainer, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                if (!notificationsEnabled) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = .48f)
+                    ) {
+                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                            Text(
+                                "Jangan lewatkan kabar pesanan",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "Aktifkan notifikasi agar pembaruan pembayaran dan pengiriman lebih mudah diketahui. Anda tetap dapat memeriksa status kapan saja di menu Pesanan saya.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                lineHeight = 18.sp
+                            )
+                            TextButton(
+                                onClick = onEnableNotifications,
+                                modifier = Modifier.align(Alignment.End).heightIn(min = 44.dp)
+                            ) { Text("Aktifkan sekarang", fontWeight = FontWeight.SemiBold) }
+                        }
+                    }
+                }
             }
             OutlinedButton(
                 onClick = onLogout,
@@ -5894,6 +5965,42 @@ private fun AccountScreen(
                 Text("Syarat & Ketentuan", style = MaterialTheme.typography.labelMedium)
             }
         }
+    }
+    if (showDisableNotificationsConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDisableNotificationsConfirmation = false },
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_notifications),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(25.dp)
+                )
+            },
+            title = { Text("Nonaktifkan notifikasi pesanan?", fontWeight = FontWeight.SemiBold) },
+            text = {
+                Text(
+                    "Anda mungkin melewatkan kabar pembayaran dan pengiriman jika notifikasi dimatikan. Status pesanan tetap bisa dilihat di menu Pesanan saya. Yakin ingin menonaktifkannya?",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDisableNotificationsConfirmation = false }) {
+                    Text("Tetap aktif", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDisableNotificationsConfirmation = false
+                    onDisableNotifications()
+                }) {
+                    Text("Ya, nonaktifkan", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 }
 
