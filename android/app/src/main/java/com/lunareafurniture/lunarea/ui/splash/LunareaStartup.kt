@@ -7,14 +7,17 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
@@ -166,7 +171,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                     contentAlignment = Alignment.Center
                 ) {
                     logo?.let { bitmap ->
-                        OriginalMark(bitmap, markAlpha.value, markScale.value)
+                        WhiteBrandMark(markAlpha.value, markScale.value)
                         OriginalWordmark(bitmap, wordmarkProgress.value)
                     }
                 }
@@ -184,28 +189,46 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                 )
             }
         }
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 28.dp)
+                .graphicsLayer { alpha = overlayAlpha.value },
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Part of",
+                color = Color(0xFF6B716D),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 9.sp,
+                letterSpacing = 0.35.sp
+            )
+            Image(
+                painter = painterResource(R.drawable.ilena_wordmark),
+                contentDescription = "Ilena",
+                modifier = Modifier.width(36.dp).height(11.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
     }
 }
 
-/** Draws the N-circle pixels from the original image; no recreated or retouched logo. */
+/** Uses the same white-N launcher mark for a consistent native splash identity. */
 @Composable
-private fun OriginalMark(logo: ImageBitmap, alpha: Float, scale: Float) {
-    Canvas(Modifier.width(78.dp).aspectRatio(1f)) {
-        val srcLeft = (logo.width * 0.281f).roundToInt()
-        val srcRight = (logo.width * 0.391f).roundToInt()
-        val cropWidth = srcRight - srcLeft
-        val cropHeight = logo.height
-        val side = size.minDimension * scale
-        val inset = (size.minDimension - side) / 2f
-        drawImage(
-            image = logo,
-            srcOffset = IntOffset(srcLeft, 0),
-            srcSize = IntSize(cropWidth, cropHeight),
-            dstOffset = IntOffset(inset.roundToInt(), inset.roundToInt()),
-            dstSize = IntSize(side.roundToInt(), side.roundToInt()),
-            alpha = alpha
-        )
-    }
+private fun WhiteBrandMark(alpha: Float, scale: Float) {
+    Image(
+        painter = painterResource(R.drawable.ic_launcher_foreground_white),
+        contentDescription = "Logo Lunarea",
+        modifier = Modifier
+            .width(78.dp)
+            .aspectRatio(1f)
+            .graphicsLayer {
+                this.alpha = alpha
+                scaleX = scale
+                scaleY = scale
+            }
+    )
 }
 
 /** Reveals the supplied wordmark as equal-width slices, preserving original pixels and proportions. */
