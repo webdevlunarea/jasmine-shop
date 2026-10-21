@@ -83,12 +83,12 @@
                     <div class="col-12">
                         <label class="form-label fw-semibold" for="broadcast-title">Judul notifikasi</label>
                         <input class="form-control" id="broadcast-title" name="title" maxlength="100" required placeholder="Contoh: Voucher spesial untuk Anda">
-                        <div class="form-text">Maksimal 100 karakter.</div>
+                        <div class="form-text">Maksimal 100 karakter. Emoji dapat digunakan.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold" for="broadcast-body">Isi pesan</label>
                         <textarea class="form-control" id="broadcast-body" name="body" rows="3" maxlength="240" required placeholder="Tulis informasi singkat, jelas, dan sesuai promo yang sedang berlangsung."></textarea>
-                        <div class="form-text">Maksimal 240 karakter. Hindari mencantumkan data pribadi atau informasi yang belum berlaku.</div>
+                        <div class="form-text">Maksimal 240 karakter; emoji dapat digunakan. Hindari mencantumkan data pribadi atau informasi yang belum berlaku.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold" for="broadcast-image-size">Ukuran gambar notifikasi</label>

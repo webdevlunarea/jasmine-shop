@@ -59,8 +59,9 @@ class Database extends Config
         'DBPrefix'    => 'db_',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS
         'pConnect'    => false,
         'DBDebug'     => true,
-        'charset'     => 'utf8',
-        'DBCollat'    => 'utf8_general_ci',
+        // utf8 (utf8mb3) cannot round-trip 4-byte Unicode such as emoji.
+        'charset'     => 'utf8mb4',
+        'DBCollat'    => 'utf8mb4_unicode_ci',
         'swapPre'     => '',
         'encrypt'     => false,
         'compress'    => false,
