@@ -12,6 +12,7 @@ class CreateAndroidReferralProgram extends Migration
             `id` TINYINT UNSIGNED NOT NULL,
             `enabled` TINYINT(1) NOT NULL DEFAULT 0,
             `referrer_reward_points` INT UNSIGNED NOT NULL DEFAULT 5000,
+            `commission_percent` DECIMAL(5,2) NOT NULL DEFAULT 3.00,
             `minimum_subtotal` BIGINT UNSIGNED NOT NULL DEFAULT 300000,
             `reward_trigger_status` VARCHAR(16) NOT NULL DEFAULT 'Selesai',
             `point_expiry_days` SMALLINT UNSIGNED NOT NULL DEFAULT 365,
@@ -32,6 +33,8 @@ class CreateAndroidReferralProgram extends Migration
             `invitee_email` VARCHAR(254) NOT NULL,
             `referral_code` CHAR(10) NOT NULL,
             `referrer_reward_points` INT UNSIGNED NOT NULL,
+            `commission_percent` DECIMAL(5,2) NOT NULL DEFAULT 3.00,
+            `channel` VARCHAR(16) NOT NULL DEFAULT 'android',
             `minimum_subtotal` BIGINT UNSIGNED NOT NULL,
             `reward_trigger_status` VARCHAR(16) NOT NULL,
             `point_expiry_days` SMALLINT UNSIGNED NOT NULL,
@@ -46,11 +49,12 @@ class CreateAndroidReferralProgram extends Migration
             `invitee_email` VARCHAR(254) NOT NULL,
             `points` INT UNSIGNED NOT NULL,
             `eligible_subtotal` BIGINT UNSIGNED NOT NULL,
+            `commission_percent` DECIMAL(5,2) NOT NULL DEFAULT 3.00,
+            `channel` VARCHAR(16) NOT NULL DEFAULT 'android',
             `state` VARCHAR(16) NOT NULL DEFAULT 'awarded',
             `created_at` DATETIME NOT NULL,
             `awarded_at` DATETIME NULL,
             PRIMARY KEY (`id`), UNIQUE KEY `uq_android_referral_reward_order` (`order_id`),
-            UNIQUE KEY `uq_android_referral_reward_invitee` (`invitee_email`),
             KEY `idx_android_referral_reward_owner` (`referrer_email`,`state`,`created_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }

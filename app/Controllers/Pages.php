@@ -4510,16 +4510,29 @@ class Pages extends BaseController
         // Persist and reserve stock before contacting the payment provider.
         // Both website and Android use the same locked product rows.
         $initialStatus = $pembayaran === 'rekening' ? 'Menunggu Pembayaran Rekening' : 'Menunggu Pembayaran';
+        $affiliateSnapshot = null;
+        $affiliateCode = trim((string)session()->get('affiliate_referral_code'));
+        if ($affiliateCode !== '' && !$isSandboxCheckout) {
+            try {
+                $affiliateSnapshot = (new \App\Services\Referrals\AndroidReferralProgram())
+                    ->snapshotForOrder($email, $affiliateCode, 'website', max(0, (int)$subtotal - (int)$data['diskonVoucher'] - (int)$potonganPreorder));
+            } catch (\Throwable $error) {
+                log_message('warning', 'Website affiliate snapshot unavailable: {type}', ['type' => get_class($error)]);
+            }
+        }
         $initialPayment = [
             'order_id' => $orderId,
             'gross_amount' => (int)$arrPostField['transaction_details']['gross_amount'],
             'payment_type' => (string)$arrPostField['payment_type'],
             'transaction_status' => $pembayaran === 'rekening' ? 'pending-rekening' : 'pending',
             '_app_payment_environment' => $isSandboxCheckout ? 'sandbox' : 'production',
+            '_app_checkout_channel' => 'website',
+            '_app_eligible_subtotal' => max(0, (int)$subtotal - (int)$data['diskonVoucher'] - (int)$potonganPreorder),
             '_app_inventory_reserved' => !$isSandboxCheckout,
             '_app_payment_effects_applied' => false,
             '_app_glass_service' => ['selected' => $gantiKaca, 'amount' => $gantiKaca ? (int)$totalkaca : 0, 'unit_price' => 25000],
         ];
+        if (is_array($affiliateSnapshot)) $initialPayment['_app_referral'] = $affiliateSnapshot;
         $reservedOrder = [
             'email_cus' => $email, 'nama_pen' => $nama, 'hp_pen' => $nohp,
             'alamat_pen' => $alamatLengkap, 'resi' => 'Menunggu pengiriman',
@@ -4545,7 +4558,7 @@ class Pages extends BaseController
                 function (\CodeIgniter\Database\BaseConnection $db) use (
                     $sessionEmail, $email, $isSandboxCheckout, $voucher, $poinDipakai,
                     $reservedOrder, $shippingQuoteToken, $shippingQuote, $shippingCost,
-                    $orderId, $shippingSelectionRequired
+                    $orderId, $shippingSelectionRequired, $affiliateSnapshot
                 ): array {
                     if ($sessionEmail !== 'tamu' && !$isSandboxCheckout) {
                         \App\Services\Payments\CustomerPendingOrderGuard::lockAndAssertNoPending($db, $email);
@@ -4594,6 +4607,9 @@ class Pages extends BaseController
                         }
                     }
 
+                    if (is_array($affiliateSnapshot)) {
+                        (new \App\Services\Referrals\AndroidReferralProgram($db))->persistOrderAttribution($email, $affiliateSnapshot);
+                    }
                     if (!$db->table('pemesanan')->insert($reservedOrder) || $db->transStatus() === false) {
                         throw new \RuntimeException('Pesanan tidak dapat disimpan.');
                     }
@@ -6913,6 +6929,16 @@ class Pages extends BaseController
     }
     public function product($nama = false)
     {
+        $affiliateCode = trim((string)$this->request->getGet('ref'));
+        if ($affiliateCode !== '') {
+            try {
+                if ((new \App\Services\Referrals\AndroidReferralProgram())->publicCode($affiliateCode)) {
+                    session()->set('affiliate_referral_code', strtoupper($affiliateCode));
+                }
+            } catch (\Throwable $error) {
+                log_message('warning', 'Affiliate link capture deferred: {type}', ['type' => get_class($error)]);
+            }
+        }
         $produk = $this->barangModel->getBarangNama($nama);
         if (!$produk) return redirect()->to('/all');
         $produksekategori = $this->barangModel->where(['active' => '1', 'subkategori' => $produk['subkategori']])->where('id !=', $produk['id'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);

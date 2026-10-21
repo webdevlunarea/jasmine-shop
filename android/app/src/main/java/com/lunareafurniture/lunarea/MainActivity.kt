@@ -261,6 +261,7 @@ private fun normalizeRegionLabel(value: String): String = Normalizer.normalize(v
 class MainActivity : ComponentActivity() {
     private var pendingPushTap by mutableStateOf<PushTap?>(null)
     private var pendingReferralCode by mutableStateOf<String?>(null)
+    private var pendingReferralProductId by mutableStateOf<String?>(null)
 
     private fun referralCodeFrom(intent: Intent?): String? {
         val uri = intent?.data ?: return null
@@ -270,21 +271,31 @@ class MainActivity : ComponentActivity() {
             ?.uppercase(Locale.ROOT)?.takeIf { it.matches(Regex("[A-Z0-9]{6,12}")) }
     }
 
+    private fun referralProductIdFrom(intent: Intent?): String? {
+        val uri = intent?.data ?: return null
+        if (uri.scheme != "https" || uri.host != "lunareafurniture.com" || uri.pathSegments.firstOrNull() != "ref") return null
+        return uri.getQueryParameter("product_id")?.takeIf { it.matches(Regex("[A-Za-z0-9_-]{1,64}")) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         pendingPushTap = PushTap.from(intent)
-        pendingReferralCode = referralCodeFrom(intent)
-            ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
+        val referralIntentCode = referralCodeFrom(intent)
+        pendingReferralCode = referralIntentCode ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
+        pendingReferralProductId = if (referralIntentCode != null) referralProductIdFrom(intent)
+            else getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_product_id", null)
         pendingReferralCode?.let { code ->
-            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code).apply()
+            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code)
+                .putString("pending_product_id", pendingReferralProductId).apply()
         }
         setContent {
             LunareaTheme {
                 LunareaStartup { startupComplete ->
-                    LunareaApp(startupComplete, pendingPushTap, pendingReferralCode, { pendingPushTap = null }, {
+                    LunareaApp(startupComplete, pendingPushTap, pendingReferralCode, pendingReferralProductId, { pendingPushTap = null }, {
                         pendingReferralCode = null
-                        getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().remove("pending_code").apply()
+                        pendingReferralProductId = null
+                        getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().remove("pending_code").remove("pending_product_id").apply()
                     })
                 }
             }
@@ -295,17 +306,20 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingPushTap = PushTap.from(intent)
-        pendingReferralCode = referralCodeFrom(intent)
-            ?: pendingReferralCode
+        val referralIntentCode = referralCodeFrom(intent)
+        pendingReferralCode = referralIntentCode ?: pendingReferralCode
             ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
+        if (referralIntentCode != null) pendingReferralProductId = referralProductIdFrom(intent)
+        else if (pendingReferralProductId == null) pendingReferralProductId = getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_product_id", null)
         pendingReferralCode?.let { code ->
-            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code).apply()
+            getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().putString("pending_code", code)
+                .putString("pending_product_id", pendingReferralProductId).apply()
         }
     }
 }
 
 @Composable
-private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit) {
+private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, referralProductId: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -343,6 +357,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var favoriteKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
     var accountSection by remember { mutableStateOf(AccountSection.MENU) }
     var pushOrderId by remember { mutableStateOf<String?>(null) }
+    var affiliateProductToOpen by remember { mutableStateOf<String?>(null) }
     var authFlowEmail by remember { mutableStateOf("") }
     var detailOpen by remember { mutableStateOf(false) }
     var chromeVisible by remember { mutableStateOf(true) }
@@ -383,13 +398,25 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
         try {
             val response = ApiClient.get(context).attributeReferral(JsonObject().apply { addProperty("code", code) })
             if (response.isSuccessful && response.body()?.success == true) {
-                message = "Kode ajak teman berhasil ditautkan. Pesanan pertama perlu dibuat melalui aplikasi Android."
+                message = "Tautan afiliasi berhasil dibuka. Komisi dihitung setelah pesanan memenuhi syarat selesai."
+                affiliateProductToOpen = referralProductId
+                if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
                 onReferralHandled()
             } else if (response.code() in 400..499) {
                 message = response.customerError("Kode ajak teman tidak dapat digunakan untuk akun ini.")
+                affiliateProductToOpen = referralProductId
+                if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
                 onReferralHandled()
+            } else {
+                affiliateProductToOpen = referralProductId
+                if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
+                message = "Produk berhasil dibuka, tetapi kode afiliasi belum dapat ditautkan. Coba lagi dari Luna Poin."
             }
-        } catch (_: Exception) { /* Retain link code for a later app launch if temporarily offline. */ }
+        } catch (_: Exception) {
+            affiliateProductToOpen = referralProductId
+            if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
+            message = "Produk berhasil dibuka. Kode afiliasi disimpan untuk dicoba kembali saat koneksi tersedia."
+        }
     }
     LaunchedEffect(tab, detailOpen) { chromeVisible = true }
 
@@ -857,6 +884,8 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 onCartChanged = { cartRefreshVersion++ },
                 onOpenCart = { detailOpen = false; tab = AppTab.CART },
                 unreadNotificationCount = unreadNotificationCount,
+                affiliateProductToOpen = affiliateProductToOpen,
+                onAffiliateProductOpened = { affiliateProductToOpen = null },
                 onOpenNotifications = { notificationInboxOpen = true },
                 chromeVisible = chromeVisible,
                 onChromeVisibilityChange = { chromeVisible = it },
@@ -4309,6 +4338,7 @@ private fun CatalogScreen(
     onFavoriteKeysChange: (Set<String>) -> Unit, onCartChanged: () -> Unit,
     onOpenCart: () -> Unit, onLoginRequired: (String) -> Unit,
     unreadNotificationCount: Int, onOpenNotifications: () -> Unit,
+    affiliateProductToOpen: String?, onAffiliateProductOpened: () -> Unit,
     chromeVisible: Boolean, onChromeVisibilityChange: (Boolean) -> Unit,
     onPromoAction: () -> Unit,
     categories: List<String>, selectedCategory: String?, onCategoryChange: (String?) -> Unit,
@@ -4625,6 +4655,46 @@ private fun CatalogScreen(
                 } else detailError = response.body()?.error?.message ?: "Detail produk belum dapat dimuat."
             } catch (_: Exception) { detailError = "Koneksi belum tersedia. Coba lagi." }
             finally { detailLoading = false }
+        }
+    }
+
+    LaunchedEffect(affiliateProductToOpen) {
+        val productId = affiliateProductToOpen ?: return@LaunchedEffect
+        if (!productId.matches(Regex("[A-Za-z0-9_-]{1,64}"))) {
+            onAffiliateProductOpened()
+            return@LaunchedEffect
+        }
+        detailLoading = true
+        try {
+            val response = ApiClient.get(context).product(productId)
+            val product = response.body()?.data?.getAsJsonObject("product")
+            if (response.isSuccessful && response.body()?.success == true && product != null) {
+                val variants = product.arrayOrNull("variants")?.mapNotNull { element ->
+                    element.takeIf { it.isJsonObject }?.asJsonObject?.let { row ->
+                        com.lunareafurniture.lunarea.data.api.ProductVariant(
+                            name = row.stringOrNull("name"), stock = row.longOrNull("stock")?.toInt()
+                        )
+                    }
+                }.orEmpty()
+                detailProductSummary = ProductSummary(
+                    id = product.stringOrNull("id") ?: productId,
+                    name = product.stringOrNull("name") ?: "Produk Lunarea",
+                    slug = product.stringOrNull("slug"),
+                    price = product.longOrNull("price"),
+                    image_url = product.stringOrNull("image_url"),
+                    discount_percent = product.longOrNull("discount_percent")?.toInt(),
+                    category = product.stringOrNull("category"),
+                    variants = variants
+                )
+                selectedDetailVariant = variants.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct().singleOrNull()
+                productDetail = product
+                onDetailVisibility(true)
+            } else detailError = "Produk dari tautan afiliasi belum tersedia."
+        } catch (_: Exception) {
+            detailError = "Produk belum dapat dibuka. Periksa koneksi lalu coba lagi."
+        } finally {
+            detailLoading = false
+            onAffiliateProductOpened()
         }
     }
 
@@ -5005,6 +5075,40 @@ private fun CatalogScreen(
               onVariantChange = { selectedDetailVariant = it },
               onBack = { productDetail = null; onDetailVisibility(false) },
               onOpenCart = { productDetail = null; onDetailVisibility(false); onOpenCart() },
+              onShare = {
+                  val product = detailProductSummary
+                  if (!signedIn) {
+                      onLoginRequired("Masuk untuk membuat tautan afiliasi produk dan melihat komisi Luna Poin.")
+                  } else if (product == null) {
+                      actionMessage = "Informasi produk belum siap dibagikan."
+                  } else {
+                      scope.launch {
+                          actionBusy = true
+                          try {
+                              val response = ApiClient.get(context).referrals()
+                              val affiliate = response.body()?.data
+                              val baseShareUrl = affiliate?.stringOrNull("share_url").orEmpty()
+                              if (response.isSuccessful && response.body()?.success == true
+                                  && affiliate?.get("enabled")?.takeUnless { it.isJsonNull }?.asBoolean == true
+                                  && baseShareUrl.isNotBlank()) {
+                                  val shareUrl = Uri.parse(baseShareUrl).buildUpon()
+                                      .appendQueryParameter("product", product.slug.orEmpty())
+                                      .appendQueryParameter("product_id", product.id)
+                                      .build().toString()
+                                  val percent = affiliate.get("commission_percent")?.takeUnless { it.isJsonNull }?.asDouble ?: 3.0
+                                  val text = "Lihat ${product.name} di Lunarea Furniture: $shareUrl\n\nJika pesananmu selesai dan memenuhi ketentuan program, pengundang mendapat komisi ${String.format(Locale.forLanguageTag("id-ID"), "%.1f", percent)}% dalam Luna Poin."
+                                  val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }
+                                  context.startActivity(Intent.createChooser(send, "Bagikan tautan afiliasi"))
+                                  actionMessage = null
+                              } else if (response.isSuccessful && response.body()?.success == true) {
+                                  actionMessage = "Program afiliasi sedang tidak aktif. Tautan belum dapat dibuat."
+                              } else actionMessage = response.customerError("Tautan afiliasi belum tersedia.")
+                          } catch (_: Exception) {
+                              actionMessage = "Tautan afiliasi belum dapat dibuat. Periksa koneksi lalu coba lagi."
+                          } finally { actionBusy = false }
+                      }
+                  }
+              },
               onAddCart = { detailProductSummary?.let { product ->
                   val hasVariants = product.variants.any { !it.name.isNullOrBlank() }
                   val variant = selectedDetailVariant ?: if (!hasVariants) "Default" else null
@@ -5037,6 +5141,7 @@ private fun ProductDetailScreen(
     favoriteSelected: Boolean,
     cartItemCount: Int,
     actionMessage: String?,
+    onShare: () -> Unit,
     onVariantChange: (String) -> Unit,
     onBack: () -> Unit,
     onOpenCart: () -> Unit,
@@ -5044,6 +5149,7 @@ private fun ProductDetailScreen(
     onFavorite: () -> Unit
 ) {
     BackHandler(onBack = onBack)
+    var shareMenuExpanded by rememberSaveable { mutableStateOf(false) }
     val name = detail.get("name")?.takeUnless { it.isJsonNull }?.asString ?: summary?.name ?: "Detail produk"
     val image = detail.get("image_url")?.takeUnless { it.isJsonNull }?.asString ?: summary?.image_url
     val productId = detail.get("id")?.takeUnless { it.isJsonNull }?.asString ?: summary?.id.orEmpty()
@@ -5121,6 +5227,18 @@ private fun ProductDetailScreen(
             }) {
                 IconButton(onClick = onOpenCart, modifier = Modifier.size(48.dp)) {
                     Icon(painterResource(R.drawable.ic_nav_cart), contentDescription = "Buka keranjang, $cartItemCount barang", tint = LunareaGreenText, modifier = Modifier.size(23.dp))
+                }
+            }
+            Box {
+                IconButton(onClick = { shareMenuExpanded = true }, modifier = Modifier.size(48.dp)) {
+                    Icon(painterResource(R.drawable.ic_more_vert), contentDescription = "Opsi produk", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(23.dp))
+                }
+                DropdownMenu(expanded = shareMenuExpanded, onDismissRequest = { shareMenuExpanded = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Bagikan tautan afiliasi") },
+                        onClick = { shareMenuExpanded = false; onShare() },
+                        leadingIcon = { Icon(painterResource(R.drawable.ic_share), contentDescription = null, modifier = Modifier.size(20.dp)) }
+                    )
                 }
             }
         }
@@ -5817,6 +5935,25 @@ private fun ProductCard(product: ProductSummary, busy: Boolean, favoriteSelected
     }
 }
 
+@Composable
+private fun AffiliateHistoryRow(row: JsonObject) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(row.stringOrNull("customer").orEmpty().ifBlank { "Pengguna Lunarea" }, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+            val channel = if (row.stringOrNull("channel") == "website") "Website" else "Android"
+            val status = if (row.stringOrNull("status") == "rewarded") "Pesanan selesai · komisi masuk" else "Menunggu pesanan selesai"
+            Text("$channel · $status", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if ((row.longOrNull("commission_points") ?: 0L) > 0) {
+            Text("+${formatRupiah(row.longOrNull("commission_points") ?: 0L)}", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = LunareaGreenText)
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
@@ -5834,6 +5971,7 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
     var referralInput by rememberSaveable { mutableStateOf("") }
     var referralMessage by remember { mutableStateOf<String?>(null) }
     var referralBusy by remember { mutableStateOf(false) }
+    var showAllAffiliateHistory by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(refreshKey, page) {
         loading = true
@@ -5923,19 +6061,36 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
                 Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         Text("Ajak teman", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        val rewardPoints = program.longOrNull("reward_points") ?: 5000L
-                        Text("Kamu mendapat ${String.format(Locale.forLanguageTag("id-ID"), "%,d", rewardPoints)} Luna Poin setelah pesanan Android teman selesai dan memenuhi syarat. 1 poin bernilai Rp1.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val commissionPercent = program.get("commission_percent")?.takeUnless { it.isJsonNull }?.asDouble ?: 3.0
+                        val minimumSubtotal = program.longOrNull("minimum_subtotal") ?: 300000L
+                        Text("Dapatkan komisi ${String.format(Locale.forLanguageTag("id-ID"), "%.1f", commissionPercent)}% dalam Luna Poin setelah pesanan teman selesai. Berlaku untuk website dan Android; minimum produk ${formatRupiah(minimumSubtotal)}. 1 poin = Rp1.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("Kode referral", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(program.stringOrNull("code").orEmpty(), Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
                             FilledTonalButton(onClick = {
-                                val shareText = "Coba belanja di Lunarea Furniture. Buka tautan ini, lalu masukkan kode referral ${program.stringOrNull("code").orEmpty()} di aplikasi Android sebelum pesanan pertamamu: ${program.stringOrNull("share_url").orEmpty()}"
+                                val shareText = "Belanja furnitur pilihanmu di Lunarea Furniture. Pesanan website dan Android bisa memakai tautan afiliasiku: ${program.stringOrNull("share_url").orEmpty()}"
                                 val intent = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, shareText) }
-                                context.startActivity(Intent.createChooser(intent, "Ajak teman ke Lunarea"))
+                                context.startActivity(Intent.createChooser(intent, "Bagikan tautan afiliasi"))
                             }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Bagikan") }
                         }
                         val stats = program.objectOrNull("stats")
-                        Text("${stats?.longOrNull("successful") ?: 0} teman berhasil · ${stats?.longOrNull("invited") ?: 0} kode terhubung", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${stats?.longOrNull("successful") ?: 0} teman sudah berbelanja · ${stats?.longOrNull("invited") ?: 0} kode terhubung · ${formatRupiah(stats?.longOrNull("commission_points") ?: 0L)} komisi", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val affiliateHistory = program.arrayOrNull("history")?.toList().orEmpty()
+                        if (affiliateHistory.isNotEmpty()) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
+                            Text("Riwayat pengguna dari tautanmu", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                            affiliateHistory.take(5).forEach { item ->
+                                val row = item.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+                                AffiliateHistoryRow(row)
+                            }
+                            if (affiliateHistory.size > 5) {
+                                TextButton(onClick = { showAllAffiliateHistory = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                                    Text("Lihat semua ${affiliateHistory.size} pengguna")
+                                }
+                            }
+                        } else {
+                            Text("Pengguna yang mendaftar melalui tautanmu akan muncul di riwayat ini.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                         if (program.stringOrNull("attributed_by") != null) {
                             Text("Akun ini sudah memakai kode referral.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                         } else {
@@ -5975,6 +6130,26 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
                                 if (loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Muat riwayat sebelumnya")
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+    val affiliateHistory = referral?.arrayOrNull("history")?.toList().orEmpty()
+    if (showAllAffiliateHistory) {
+        ModalBottomSheet(onDismissRequest = { showAllAffiliateHistory = false }) {
+            Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Riwayat pengguna", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text("Pengguna yang menggunakan tautan afiliasimu", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                LazyColumn(
+                    Modifier.fillMaxWidth().weight(1f).heightIn(max = 560.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+                    items(affiliateHistory.size) { index ->
+                        val row = affiliateHistory[index].takeIf { it.isJsonObject }?.asJsonObject ?: return@items
+                        AffiliateHistoryRow(row)
+                        if (index < affiliateHistory.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .45f))
                     }
                 }
             }
