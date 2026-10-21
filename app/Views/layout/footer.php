@@ -90,7 +90,7 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
             </section>
             <?php if ($showAndroidPlayStoreBadge) : ?>
                 <section class="buyer-footer__app-download" aria-labelledby="footer-app-heading">
-                    <h2 id="footer-app-heading">Aplikasi Lunarea</h2>
+                    <h2 id="footer-app-heading">Kami juga tersedia di</h2>
                     <a href="<?= esc($androidPlayStoreUrl, 'attr'); ?>" target="_blank" rel="noopener noreferrer" aria-label="Download Lunarea Furniture di Google Play">
                         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/id_badge_web_generic.png" width="162" height="48" alt="Dapatkan di Google Play" loading="lazy" decoding="async">
                     </a>

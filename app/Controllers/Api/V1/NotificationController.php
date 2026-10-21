@@ -6,6 +6,19 @@ use Config\Database;
 
 class NotificationController extends ApiController
 {
+    private static function utcIso8601(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') return null;
+
+        try {
+            return (new \DateTimeImmutable($value, new \DateTimeZone('UTC')))
+                ->setTimezone(new \DateTimeZone('UTC'))
+                ->format('Y-m-d\\TH:i:s\\Z');
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     public function index()
     {
         $db = Database::connect();
@@ -34,8 +47,9 @@ class NotificationController extends ApiController
                 'title' => (string)$row['title'],
                 'body' => (string)$row['body'],
                 'status' => (string)$row['status'],
-                'created_at' => (string)$row['created_at'],
-                'sent_at' => $row['sent_at'] === null ? null : (string)$row['sent_at'],
+                // Stored in UTC; include the zone so Android can render it as WIB.
+                'created_at' => self::utcIso8601((string)$row['created_at']),
+                'sent_at' => self::utcIso8601($row['sent_at'] === null ? null : (string)$row['sent_at']),
             ], $rows),
             'unread_count' => (int)$unread,
         ]);
@@ -61,7 +75,7 @@ class NotificationController extends ApiController
             ->where('email_user', $this->authEmail())
             ->where('status', 'sent');
         if ($ids) $builder->whereIn('id', $ids);
-        $builder->update(['status' => 'read', 'updated_at' => date('Y-m-d H:i:s')]);
+        $builder->update(['status' => 'read', 'updated_at' => gmdate('Y-m-d H:i:s')]);
 
         return $this->success(['marked_read' => $db->affectedRows()]);
     }
