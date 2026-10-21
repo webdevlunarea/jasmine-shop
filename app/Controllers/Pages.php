@@ -8617,6 +8617,7 @@ class Pages extends BaseController
                 'link'=>$this->normalizeBannerLink($this->request->getPost('link')),
                 'gambar'=>$bytes, 'urutan'=>(int)$this->request->getPost('urutan'),
                 'active'=>$this->request->getPost('active') ? 1 : 0,
+                'visibility'=>BannerModel::normalizeVisibility($this->request->getPost('visibility')),
             ]);
             if ($saved === false) throw new \RuntimeException('Banner insert failed');
             return redirect()->to('/listbanner')->with('msg', 'Banner berhasil ditambahkan.');
@@ -8651,6 +8652,7 @@ class Pages extends BaseController
                 'judul'=>$this->request->getPost('judul'), 'alt'=>$this->request->getPost('alt') ?: $this->request->getPost('judul'),
                 'link'=>$this->normalizeBannerLink($this->request->getPost('link')), 'urutan'=>(int)$this->request->getPost('urutan'),
                 'active'=>$this->request->getPost('active') ? 1 : 0,
+                'visibility'=>BannerModel::normalizeVisibility($this->request->getPost('visibility')),
             ];
             if ($bytes !== null) $update['gambar'] = $bytes;
             if ($this->bannerModel->where(['id'=>$id])->set($update)->update() === false) throw new \RuntimeException('Banner update failed');

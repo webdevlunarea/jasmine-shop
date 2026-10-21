@@ -10,7 +10,7 @@ final class BannerController extends ApiController
     public function index()
     {
         try {
-            $rows = (new BannerModel())->getActiveBanner();
+            $rows = (new BannerModel())->getActiveAndroidBanners();
             $banners = [];
 
             foreach ($rows as $row) {

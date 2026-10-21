@@ -15,6 +15,7 @@ class BannerModel extends Model
         'gambar',
         'urutan',
         'active',
+        'visibility',
         'created_at',
         'updated_at'
     ];
@@ -22,6 +23,21 @@ class BannerModel extends Model
 
     public function getActiveBanner()
     {
-        return $this->where(['active' => '1'])->orderBy('urutan', 'asc')->orderBy('id', 'asc')->findAll();
+        return $this->where('active', 1)
+            ->whereIn('visibility', ['both', 'website'])
+            ->orderBy('urutan', 'asc')->orderBy('id', 'asc')->findAll();
+    }
+
+    public function getActiveAndroidBanners(): array
+    {
+        return $this->where('active', 1)
+            ->whereIn('visibility', ['both', 'android'])
+            ->orderBy('urutan', 'asc')->orderBy('id', 'asc')->findAll();
+    }
+
+    public static function normalizeVisibility($value): string
+    {
+        $visibility = strtolower(trim((string)$value));
+        return in_array($visibility, ['both', 'website', 'android'], true) ? $visibility : 'both';
     }
 }

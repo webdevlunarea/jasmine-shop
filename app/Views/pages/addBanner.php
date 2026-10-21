@@ -41,6 +41,15 @@
                 <label class="form-label">Urutan</label>
                 <input type="number" class="form-control" name="urutan" value="<?= old('urutan') !== null ? old('urutan') : 0; ?>">
             </div>
+            <div class="mb-3">
+                <label class="form-label" for="banner-visibility">Tampilkan di</label>
+                <select class="form-select" name="visibility" id="banner-visibility">
+                    <option value="both" <?= old('visibility', 'both') === 'both' ? 'selected' : ''; ?>>Website dan Android</option>
+                    <option value="website" <?= old('visibility') === 'website' ? 'selected' : ''; ?>>Website saja</option>
+                    <option value="android" <?= old('visibility') === 'android' ? 'selected' : ''; ?>>Android saja</option>
+                </select>
+                <p class="text-secondary mb-0 mt-1" style="font-size:small">Mengatur kanal tampil tanpa menggandakan gambar banner.</p>
+            </div>
             <div class="mb-2 admin-image-field" data-max-bytes="4194304">
                 <label class="form-label" for="banner-image">Gambar banner</label>
                 <input type="file" class="form-control" id="banner-image" name="gambar" accept=".webp,.avif,image/webp,image/avif" data-image-input aria-describedby="banner-image-feedback" required>

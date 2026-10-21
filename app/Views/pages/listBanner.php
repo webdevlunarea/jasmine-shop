@@ -44,6 +44,7 @@
                     <div style="flex: 2" class="text-end">Action</div>
                 </div>
                 <?php foreach ($banner as $b) { ?>
+                    <?php $targetLabel = ['website' => 'Website saja', 'android' => 'Android saja', 'both' => 'Website dan Android'][$b['visibility'] ?? 'both'] ?? 'Website dan Android'; ?>
                     <div class="w-100 gap-3 d-flex py-3 banner-row">
                         <div style="flex: 2" class="d-flex align-items-center">
                             <img class="banner-preview" src="/imgbanner/<?= $b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: $b['id']; ?>" alt="<?= esc($b['alt'] ?: $b['judul']); ?>">
@@ -51,6 +52,7 @@
                         <div style="flex: 3" class="d-flex flex-column justify-content-center">
                             <p class="m-0 fw-bold"><?= esc($b['judul']); ?></p>
                             <p class="m-0 text-secondary"><?= $b['link'] ? esc($b['link']) : 'Tanpa link'; ?></p>
+                            <small class="text-secondary">Tampil di: <?= esc($targetLabel); ?></small>
                         </div>
                         <div style="flex: 1" class="d-flex align-items-center justify-content-center">
                             <p class="m-0"><?= (int)$b['urutan']; ?></p>
@@ -70,10 +72,12 @@
 
             <div class="hide-ke-show-flex flex-column gap-3">
                 <?php foreach ($banner as $b) { ?>
+                    <?php $targetLabel = ['website' => 'Website saja', 'android' => 'Android saja', 'both' => 'Website dan Android'][$b['visibility'] ?? 'both'] ?? 'Website dan Android'; ?>
                     <div class="border-bottom pb-3">
                         <img class="banner-preview mb-2" src="/imgbanner/<?= $b['id']; ?>?v=<?= strtotime($b['updated_at'] ?? '') ?: $b['id']; ?>" alt="<?= esc($b['alt'] ?: $b['judul']); ?>">
                         <p class="m-0 fw-bold"><?= esc($b['judul']); ?></p>
                         <p class="m-0 text-secondary"><?= $b['link'] ? esc($b['link']) : 'Tanpa link'; ?></p>
+                        <p class="m-0 text-secondary">Tampil di: <?= esc($targetLabel); ?></p>
                         <p class="m-0 text-secondary">Urutan: <?= (int)$b['urutan']; ?></p>
                         <div class="d-flex mt-2 align-items-center justify-content-between">
                             <div class="bg-light border border-dark rounded-5 p-1 d-flex justify-content-<?= $b['active'] ? 'end' : 'start' ?>" style="width: 60px; height: 20px; cursor:pointer;" onclick="triggerToast('Banner <?= esc($b['judul']); ?> akan di<?= $b['active'] ? 'non aktifkan' : 'aktifkan'; ?>?', '/activebanner/<?= $b['id']; ?>')">

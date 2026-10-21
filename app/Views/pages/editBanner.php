@@ -41,6 +41,16 @@
                 <label class="form-label">Urutan</label>
                 <input type="number" class="form-control" name="urutan" value="<?= (int)$banner['urutan']; ?>">
             </div>
+            <div class="mb-3">
+                <label class="form-label" for="banner-visibility">Tampilkan di</label>
+                <?php $visibility = $banner['visibility'] ?? 'both'; ?>
+                <select class="form-select" name="visibility" id="banner-visibility">
+                    <option value="both" <?= $visibility === 'both' ? 'selected' : ''; ?>>Website dan Android</option>
+                    <option value="website" <?= $visibility === 'website' ? 'selected' : ''; ?>>Website saja</option>
+                    <option value="android" <?= $visibility === 'android' ? 'selected' : ''; ?>>Android saja</option>
+                </select>
+                <p class="text-secondary mb-0 mt-1" style="font-size:small">Mengatur kanal tampil tanpa menggandakan gambar banner.</p>
+            </div>
             <div class="mb-2 admin-image-field" data-max-bytes="4194304">
                 <label class="form-label" for="banner-image">Gambar banner</label>
                 <img id="banner-preview" data-image-preview class="banner-form-preview d-block mb-2" src="/imgbanner/<?= $banner['id']; ?>?v=<?= strtotime($banner['updated_at'] ?? '') ?: $banner['id']; ?>" alt="<?= esc($banner['alt'] ?: $banner['judul']); ?>">
