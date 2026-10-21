@@ -41,10 +41,10 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 .buyer-footer--full .buyer-footer__socials { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
 .buyer-footer--full .buyer-footer__socials a { display: inline-flex; justify-content: center; width: 44px; height: 44px; padding: 0; }
 .buyer-footer--full .buyer-footer__social-icon { display: block; flex-shrink: 0; width: 17px; height: 17px; fill: currentColor; }
-.buyer-footer--full .buyer-footer__caption { font-size: .75rem; color: #737373; }
-.buyer-footer--full .buyer-footer__brands > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 4px; }
-.buyer-footer--full .buyer-footer__brand-link { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 0; }
-.buyer-footer--full .buyer-footer__brand-link img { display: block; width: auto; max-width: 152px; height: 16px; object-fit: contain; }
+.buyer-footer--full .buyer-footer__caption { margin-bottom: 8px; font-size: .6875rem; color: #737373; }
+.buyer-footer--full .buyer-footer__brands > div { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; margin-top: 2px; }
+.buyer-footer--full .buyer-footer__brand-link { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 6px 0; }
+.buyer-footer--full .buyer-footer__brand-link img { display: block; width: auto; max-width: 128px; height: 13px; object-fit: contain; }
 .buyer-footer--full .buyer-footer__full-menu { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 16px; }
 .buyer-footer--full .buyer-footer__full-menu a { align-self: start; }
 .buyer-footer--full .buyer-footer__hours { margin-bottom: 12px; }
