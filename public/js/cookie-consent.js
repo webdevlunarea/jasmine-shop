@@ -72,27 +72,35 @@
         closeBanner();
     }
 
-    document.getElementById('cookie-only-required').addEventListener('click', function () { save('required'); });
-    document.getElementById('cookie-allow-optional').addEventListener('click', function () { save('optional'); });
-    settingsButton.addEventListener('click', function () {
-        settings.hidden = !settings.hidden;
-        settingsButton.setAttribute('aria-expanded', String(!settings.hidden));
-        toggle.checked = readChoice() === 'optional';
-        if (!settings.hidden) toggle.focus();
-    });
-    document.getElementById('cookie-save-settings').addEventListener('click', function () {
-        save(toggle.checked ? 'optional' : 'required');
-    });
+    // Delegate clicks from document so footer controls still work when layouts
+    // render or replace their footer after this script has initialized.
+    document.addEventListener('click', function (event) {
+        var target = event.target instanceof Element ? event.target : null;
+        if (!target) return;
 
-    document.querySelectorAll('[data-cookie-settings-open]').forEach(function (control) {
-        control.addEventListener('click', function (event) {
+        var preferenceControl = target.closest('[data-cookie-settings-open]');
+        if (preferenceControl) {
             event.preventDefault();
             banner.hidden = false;
             settings.hidden = false;
             settingsButton.setAttribute('aria-expanded', 'true');
             toggle.checked = readChoice() === 'optional';
             toggle.focus();
-        });
+            return;
+        }
+
+        if (target.closest('#cookie-only-required')) {
+            save('required');
+        } else if (target.closest('#cookie-allow-optional')) {
+            save('optional');
+        } else if (target.closest('#cookie-open-settings')) {
+            settings.hidden = !settings.hidden;
+            settingsButton.setAttribute('aria-expanded', String(!settings.hidden));
+            toggle.checked = readChoice() === 'optional';
+            if (!settings.hidden) toggle.focus();
+        } else if (target.closest('#cookie-save-settings')) {
+            save(toggle.checked ? 'optional' : 'required');
+        }
     });
 
     var choice = readChoice();
