@@ -244,9 +244,16 @@ if ($isAdminNav) {
 
 <nav class="navbar buyer-desktop-header navbar-expand-lg show-ke-hide mb-2">
     <div class="container">
-        <a class="navbar-brand buyer-desktop-brand" href="/" aria-label="Lunarea Furniture — Beranda">
-            <img src="<?= base_url('/img/Logo Lunarea Bg Terang.png'); ?>" class="buyer-desktop-logo" width="180" height="19" alt="Lunarea Furniture" decoding="async">
-        </a>
+        <div class="buyer-desktop-brand-cluster">
+            <a class="navbar-brand buyer-desktop-brand" href="/" aria-label="Lunarea Furniture — Beranda">
+                <img src="<?= base_url('/img/Logo Lunarea Bg Terang.png'); ?>" class="buyer-desktop-logo" width="180" height="19" alt="Lunarea Furniture" decoding="async">
+            </a>
+            <div class="buyer-brand-partnership" aria-label="Lunarea bagian dari Ilena">
+                <span class="buyer-brand-partnership__divider" aria-hidden="true"></span>
+                <span class="buyer-brand-partnership__label">Part of</span>
+                <img src="<?= base_url('/img/logoilena.avif'); ?>" class="buyer-brand-partnership__logo" alt="Ilena" decoding="async">
+            </div>
+        </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
