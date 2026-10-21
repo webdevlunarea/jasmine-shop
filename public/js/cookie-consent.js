@@ -42,6 +42,18 @@
         });
     }
 
+    function updateOptionalConsent(granted) {
+        window['ga-disable-G-K134RFDV6Z'] = !granted;
+        if (typeof window.gtag === 'function') {
+            window.gtag('consent', 'update', {
+                analytics_storage: granted ? 'granted' : 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+            });
+        }
+    }
+
     function closeBanner() {
         banner.hidden = true;
         settings.hidden = true;
@@ -51,8 +63,10 @@
     function save(choice) {
         storeChoice(choice);
         if (choice === 'optional') {
+            updateOptionalConsent(true);
             if (typeof window.lunareaLoadOptionalTags === 'function') window.lunareaLoadOptionalTags();
         } else {
+            updateOptionalConsent(false);
             removeOptionalCookies();
         }
         closeBanner();
