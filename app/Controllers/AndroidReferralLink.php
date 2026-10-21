@@ -26,6 +26,11 @@ final class AndroidReferralLink extends BaseController
             $productUrl = is_array($product)
                 ? base_url('product/' . rawurlencode($slug) . '?ref=' . rawurlencode($code))
                 : base_url('/all');
+            $userAgent = $this->request->getUserAgent()->getAgentString();
+            $isLinkPreviewBot = preg_match('/facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Slackbot|Discordbot|LinkedInBot|Google-InspectionTool|Googlebot|bingbot/i', $userAgent) === 1;
+            if (is_array($product) && !$isLinkPreviewBot) {
+                return redirect()->to($productUrl);
+            }
             return view('pages/androidReferralLink', [
                 'code' => $code,
                 'title' => $productName !== '' ? $productName . ' | Lunarea Furniture' : 'Afiliasi Lunarea Furniture',

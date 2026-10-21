@@ -66,7 +66,8 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     $seoCanonical = site_url(trim((string) service('uri')->getPath(), '/'));
     $seoShareImage = 'https://lunareafurniture.com/img/logo%20icon.png';
     if (isset($produk['id']) && trim((string) $produk['id']) !== '') {
-        $seoShareImage = base_url('imgpic/' . rawurlencode((string) $produk['id']));
+        $seoShareImage = base_url('imgshare/' . rawurlencode((string) $produk['id']))
+            . '?v=' . substr(hash('sha256', (string) ($produk['gambar'] ?? '')), 0, 16);
     }
     $seoPath = trim((string) service('uri')->getPath(), '/');
     $seoIsHome = $seoPath === '';
