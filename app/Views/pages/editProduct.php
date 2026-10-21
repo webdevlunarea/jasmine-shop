@@ -291,22 +291,25 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
                         <div class="admin-form-section__head"><span>4</span><div><h5>Deskripsi &amp; pencarian</h5><p>Konten khusus halaman produk dan pencarian Lunarea.</p></div></div>
                         <div class="admin-field-grid">
                             <div class="admin-field admin-field--full">
-                                <label class="form-label" for="deskripsi">Deskripsi HTML</label>
-                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi"><?= esc($deskripsiProduk); ?></textarea>
-                                <small>Tulis/edit seperti di artikel. Admin bisa bold, list, heading, dan link tanpa mengetik tag HTML manual.</small>
+                                <label class="form-label" for="deskripsi">Deskripsi produk</label>
+                                <textarea id="deskripsi" class="form-control admin-description-input" name="deskripsi" placeholder="Ceritakan bahan, ukuran, fungsi, dan keunggulan produk dengan bahasa yang mudah dipahami."><?= esc($deskripsiProduk); ?></textarea>
+                                <small>Ketik seperti biasa. Tekan Enter untuk membuat paragraf baru (dengan jarak), atau Shift+Enter untuk pindah baris. Pilih paragraf/judul dan gunakan tombol format di editor—tidak perlu menulis kode.</small>
                             </div>
-                            <div class="admin-field admin-field--full">
-                                <label class="form-label" for="deskripsi_nonhtml">Deskripsi tanpa HTML</label>
-                                <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml"><?= esc($deskripsiNonhtmlProduk); ?></textarea>
-                                <small>Otomatis bisa mengikuti deskripsi tanpa format HTML, tetap bisa diedit manual.</small>
-                            </div>
-                            <div class="admin-field admin-field--full">
-                                <label class="form-label" for="pencarian">Keyword pencarian</label>
-                                <div class="input-group">
-                                    <input id="pencarian" type="text" class="form-control" value="<?= esc($pencarianProduk); ?>" name="pencarian" placeholder="lemari pakaian minimalis modern putih murah">
-                                    <button class="btn btn-outline-dark" type="button" id="generateSearchKeyword">Generate</button>
+                            <details class="admin-description-advanced admin-field--full">
+                                <summary>Pengaturan lanjutan: teks deskripsi untuk pencarian</summary>
+                                <div class="admin-field">
+                                    <label class="form-label" for="deskripsi_nonhtml">Teks deskripsi tanpa format</label>
+                                    <textarea id="deskripsi_nonhtml" class="form-control" name="deskripsi_nonhtml" placeholder="Versi teks biasa dari deskripsi produk."><?= esc($deskripsiNonhtmlProduk); ?></textarea>
+                                    <small>Biasanya terisi otomatis dari deskripsi produk. Ubah hanya jika teks pencarian perlu disesuaikan.</small>
                                 </div>
-                                <small>Bisa otomatis dibuat dari nama, kategori, subkategori, varian, dan deskripsi.</small>
+                            </details>
+                            <div class="admin-field admin-field--full">
+                                <label class="form-label" for="pencarian">Kata kunci pencarian</label>
+                                <div class="input-group">
+                                    <input id="pencarian" type="text" class="form-control" value="<?= esc($pencarianProduk); ?>" name="pencarian" placeholder="Contoh: lemari pakaian, minimalis, putih">
+                                    <button class="btn btn-outline-dark" type="button" id="generateSearchKeyword">Buat otomatis</button>
+                                </div>
+                                <small>Opsional. Klik “Buat otomatis” untuk menyusun kata kunci dari nama, kategori, varian, dan deskripsi produk.</small>
                             </div>
                         </div>
                     </section>
@@ -447,11 +450,15 @@ $variantImageMap = is_array($variantImageMap ?? null) ? $variantImageMap : [];
     if (window.tinymce) {
         tinymce.init({
             selector: '#deskripsi',
-            height: 320,
+            height: 460,
+            min_height: 460,
+            resize: false,
             menubar: false,
             readonly: false,
             plugins: 'lists link',
             toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link | removeformat',
+            block_formats: 'Paragraf=p; Judul bagian=h2; Subjudul=h3; Judul kecil=h4',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.7; } p { margin: 0 0 1em; } h2, h3, h4 { line-height: 1.35; margin: 1em 0 .45em; }',
             setup: function(editor) {
                 editor.on('input change keyup setcontent', function() {
                     syncPlainDescription();
