@@ -303,7 +303,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
         color: rgba(var(--theme-primary-rgb), var(--bs-text-opacity, 1)) !important;
     }
     </style>
-    <link rel="icon" href="<?= base_url('img/logo icon.png'); ?>">
+    <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico?v=20261021'); ?>">
 </head>
 
 <?php
