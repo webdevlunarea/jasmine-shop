@@ -42,6 +42,54 @@ class GambarController extends BaseController
         );
     }
 
+    /** JPEG social preview for link unfurlers that do not decode WebP/AVIF reliably. */
+    public function tampilGambarShare($idBarang)
+    {
+        $product = $this->barangModel->select('gambar')->where(['id' => $idBarang, 'active' => '1'])->first();
+        $bytes = $product['gambar'] ?? null;
+        $info = is_string($bytes) && $bytes !== '' ? @getimagesizefromstring($bytes) : false;
+        $width = (int)($info[0] ?? 0);
+        $height = (int)($info[1] ?? 0);
+        if (!$info || $width < 1 || $height < 1 || $width > 6000 || $height > 6000 || $width * $height > 25000000) {
+            return $this->response->setStatusCode(404)->setHeader('Cache-Control', 'no-store')->setBody('');
+        }
+
+        $source = @imagecreatefromstring($bytes);
+        if ($source === false) return $this->response->setStatusCode(404)->setHeader('Cache-Control', 'no-store')->setBody('');
+        $canvas = imagecreatetruecolor(1200, 630);
+        if ($canvas === false) {
+            imagedestroy($source);
+            return $this->response->setStatusCode(503)->setHeader('Cache-Control', 'no-store')->setBody('');
+        }
+
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 250, 249, 246));
+        $scale = min(1160 / $width, 590 / $height);
+        $targetWidth = max(1, (int)round($width * $scale));
+        $targetHeight = max(1, (int)round($height * $scale));
+        $targetX = (1200 - $targetWidth) >> 1;
+        $targetY = (630 - $targetHeight) >> 1;
+        imagecopyresampled($canvas, $source, $targetX, $targetY, 0, 0, $targetWidth, $targetHeight, $width, $height);
+        imagedestroy($source);
+
+        ob_start();
+        imagejpeg($canvas, null, 84);
+        $jpeg = ob_get_clean();
+        imagedestroy($canvas);
+        if (!is_string($jpeg) || $jpeg === '') return $this->response->setStatusCode(500)->setHeader('Cache-Control', 'no-store')->setBody('');
+
+        $etag = '"' . hash('sha256', $jpeg) . '"';
+        if (trim($this->request->getHeaderLine('If-None-Match')) === $etag) {
+            return $this->response->setStatusCode(304)->setHeader('ETag', $etag)
+                ->setHeader('Cache-Control', 'public, max-age=2592000, immutable')->setBody('');
+        }
+        return $this->response->setHeader('Content-Type', 'image/jpeg')
+            ->setHeader('Content-Length', (string)strlen($jpeg))
+            ->setHeader('Cache-Control', 'public, max-age=2592000, immutable')
+            ->setHeader('ETag', $etag)
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setBody($jpeg);
+    }
+
     public function tampilFotoProduk($idBarang, $slot)
     {
         if (!ctype_digit((string)$slot) || (int)$slot < 1 || (int)$slot > 50) {

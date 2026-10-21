@@ -21,7 +21,7 @@ final class AndroidReferralLink extends BaseController
             $settings = $program->settings();
             $productName = is_array($product) ? trim(strip_tags((string)($product['nama'] ?? ''))) : '';
             $productImageUrl = is_array($product) && !empty($product['id'])
-                ? base_url('imgpic/' . rawurlencode((string)$product['id']))
+                ? base_url('imgshare/' . rawurlencode((string)$product['id'])) . '?v=' . substr(hash('sha256', (string)($product['gambar'] ?? '')), 0, 16)
                 : base_url('img/logo%20icon.png');
             $productUrl = is_array($product)
                 ? base_url('product/' . rawurlencode($slug) . '?ref=' . rawurlencode($code))

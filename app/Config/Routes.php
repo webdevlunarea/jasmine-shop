@@ -294,6 +294,7 @@ $routes->get('/apiauto/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['fil
 $routes->get('/apiauto/schedule', 'Pages::scheduleVoucher', ['filter' => 'corsFilter']);
 
 // GambarController
+$routes->get('/imgshare/(:any)', 'GambarController::tampilGambarShare/$1');
 $routes->get('/imgpic/(:any)', 'GambarController::tampilGambarBarang/$1');
 $routes->get('/imgproduct/(:segment)/(:num)', 'GambarController::tampilFotoProduk/$1/$2');
 $routes->get('/imgart/(:any)', 'GambarController::tampilGambarArtikel/$1');

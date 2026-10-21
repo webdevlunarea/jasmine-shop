@@ -11,6 +11,7 @@
   <meta property="og:url" content="<?= esc($sharePageUrl, 'attr'); ?>">
   <meta property="og:image" content="<?= esc($productImageUrl, 'attr'); ?>">
   <meta property="og:image:alt" content="<?= esc($productName !== '' ? $productName : 'Lunarea Furniture', 'attr'); ?>">
+  <?php if ($productName !== '') { ?><meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><?php } ?>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<?= esc($title, 'attr'); ?>">
   <meta name="twitter:description" content="<?= esc($productName !== '' ? 'Lihat foto, detail, dan harga ' . $productName . ' di Lunarea Furniture.' : 'Temukan furnitur pilihan untuk ruangmu di Lunarea Furniture.', 'attr'); ?>">
