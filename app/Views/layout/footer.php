@@ -1,3 +1,13 @@
+<?php
+$androidPlayStoreUrl = trim((string) env('ANDROID_PLAY_STORE_URL', ''));
+$androidPlayStoreParts = parse_url($androidPlayStoreUrl);
+$androidPlayStoreQuery = [];
+parse_str((string) ($androidPlayStoreParts['query'] ?? ''), $androidPlayStoreQuery);
+$showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme'] ?? '')) === 'https'
+    && strtolower((string) ($androidPlayStoreParts['host'] ?? '')) === 'play.google.com'
+    && ($androidPlayStoreParts['path'] ?? '') === '/store/apps/details'
+    && ($androidPlayStoreQuery['id'] ?? '') === 'com.lunareafurniture.lunarea';
+?>
 <footer class="buyer-footer buyer-footer--full d-print-none" aria-label="Informasi dan bantuan Lunarea">
     <div class="container">
         <div class="buyer-footer__main-grid">
@@ -55,7 +65,7 @@
                 </nav>
             </section>
         </div>
-        <div class="buyer-footer__commerce">
+        <div class="buyer-footer__commerce<?= $showAndroidPlayStoreBadge ? ' buyer-footer__commerce--with-app' : ''; ?>">
             <section aria-labelledby="footer-payment-heading">
                 <h2 id="footer-payment-heading">Metode pembayaran</h2>
                 <div class="buyer-footer__payment-logos">
@@ -78,6 +88,14 @@
                     <a href="https://www.tiktok.com/@lunareafurnitureofficial" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di TikTok"><img src="/img/logo/tiktok.webp" alt="TikTok" loading="lazy" decoding="async"></a>
                 </nav>
             </section>
+            <?php if ($showAndroidPlayStoreBadge) : ?>
+                <section class="buyer-footer__app-download" aria-labelledby="footer-app-heading">
+                    <h2 id="footer-app-heading">Aplikasi Lunarea</h2>
+                    <a href="<?= esc($androidPlayStoreUrl, 'attr'); ?>" target="_blank" rel="noopener noreferrer" aria-label="Download Lunarea Furniture di Google Play">
+                        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/id_badge_web_generic.png" width="162" height="48" alt="Dapatkan di Google Play" loading="lazy" decoding="async">
+                    </a>
+                </section>
+            <?php endif; ?>
         </div>
         <div class="buyer-footer__bottom">
             <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. Hak cipta dilindungi.</p>
