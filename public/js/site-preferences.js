@@ -60,6 +60,33 @@
         settingsButton.setAttribute('aria-expanded', 'false');
     }
 
+    function revealWhenFooterIsViewed() {
+        var footer = document.querySelector('.buyer-footer');
+        if (!footer) return;
+
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+                banner.hidden = false;
+                observer.disconnect();
+            }, { threshold: 0.01 });
+            observer.observe(footer);
+            return;
+        }
+
+        function checkFooterVisibility() {
+            var rect = footer.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                banner.hidden = false;
+                window.removeEventListener('scroll', checkFooterVisibility);
+                window.removeEventListener('resize', checkFooterVisibility);
+            }
+        }
+        window.addEventListener('scroll', checkFooterVisibility, { passive: true });
+        window.addEventListener('resize', checkFooterVisibility);
+        checkFooterVisibility();
+    }
+
     function save(choice) {
         storeChoice(choice);
         if (choice === 'optional') {
@@ -107,6 +134,6 @@
     if (choice === 'optional' && typeof window.lunareaLoadOptionalTags === 'function') {
         window.lunareaLoadOptionalTags();
     } else if (!choice) {
-        banner.hidden = false;
+        revealWhenFooterIsViewed();
     }
 }());
