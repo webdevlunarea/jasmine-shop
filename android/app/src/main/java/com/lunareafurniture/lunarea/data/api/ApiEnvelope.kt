@@ -36,6 +36,65 @@ data class ProductPage(
     val products: List<ProductSummary> = emptyList()
 )
 
+data class HomeBannerPage(
+    val banners: List<HomeBanner> = emptyList()
+)
+
+data class HomeBanner(
+    val id: String,
+    val title: String? = null,
+    val alt: String? = null,
+    val image_url: String,
+    val link: String? = null,
+    val order: Int? = null
+)
+
+data class FlashSalePage(val flash_sale: FlashSale? = null)
+
+data class FlashSale(
+    val enabled: Boolean = false,
+    val mode: String = "auto",
+    val title: String = "",
+    val subtitle: String = "",
+    val kicker: String = "",
+    val end_time: String = "",
+    val ends_at: String = "",
+    val remaining_seconds: Long = 0,
+    val products: List<ProductSummary> = emptyList()
+)
+
+data class ArticleListPage(val articles: List<ArticleSummary> = emptyList())
+
+data class ArticleDetailPage(val article: ArticleDetail? = null)
+
+data class ArticleSummary(
+    val id: String = "",
+    val title: String = "",
+    val slug: String = "",
+    val author: String = "",
+    val published_at: String = "",
+    val category: String = "",
+    val excerpt: String = "",
+    val image_url: String? = null,
+    val likes: Int = 0,
+    val shares: Int = 0
+)
+
+data class ArticleDetail(
+    val id: String = "",
+    val title: String = "",
+    val slug: String = "",
+    val author: String = "",
+    val published_at: String = "",
+    val category: String = "",
+    val excerpt: String = "",
+    val image_url: String? = null,
+    val content: String = "",
+    val keywords: String = "",
+    val likes: Int = 0,
+    val shares: Int = 0
+)
+
 data class ProductSummary(
     val id: String,
     val name: String,

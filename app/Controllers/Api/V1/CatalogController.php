@@ -81,7 +81,17 @@ class CatalogController extends ApiController
     {
         $rows = (new BarangModel())->select('kategori')->where('active', '1')->groupBy('kategori')->orderBy('kategori', 'ASC')->findAll();
         $items = array_values(array_filter(array_map(static fn($row) => trim((string)$row['kategori']), $rows)));
-        return $this->success(['categories' => array_map(static fn($name) => ['name' => $name], $items)]);
+        $images = (new \App\Models\KonstantaModel())->getCategoryImages();
+        $categories = array_map(static function (string $name) use ($images): array {
+            $slug = trim(preg_replace('/-+/', '-', preg_replace('/[^a-z0-9]+/', '-', mb_strtolower($name))), '-');
+            $image = (string)($images[$slug] ?? $images['all'] ?? '');
+            $imageUrl = '';
+            if ($image !== '') {
+                $imageUrl = preg_match('~^https://~i', $image) ? $image : base_url(ltrim($image, '/'));
+            }
+            return ['name' => $name, 'slug' => $slug, 'image_url' => $imageUrl];
+        }, $items);
+        return $this->success(['categories' => $categories]);
     }
 
     private function publicProduct(array $row, bool $detail = false): array

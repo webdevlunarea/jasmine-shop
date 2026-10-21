@@ -61,6 +61,23 @@ interface LunareaApi {
     @GET("catalog/categories")
     suspend fun categories(): Response<ApiEnvelope<JsonObject>>
 
+    @GET("home/banners")
+    suspend fun homeBanners(): Response<ApiEnvelope<HomeBannerPage>>
+
+    @GET("home/flash-sale")
+    suspend fun flashSale(): Response<ApiEnvelope<FlashSalePage>>
+
+    @GET("articles")
+    suspend fun articles(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 10,
+        @Query("category") category: String? = null,
+        @Query("q") query: String? = null
+    ): Response<ApiEnvelope<ArticleListPage>>
+
+    @GET("articles/{slug}")
+    suspend fun article(@Path("slug") slug: String): Response<ApiEnvelope<ArticleDetailPage>>
+
     @GET("catalog/products/{id}")
     suspend fun product(@Path("id") id: String): Response<ApiEnvelope<JsonObject>>
 
