@@ -5,7 +5,7 @@
             <div class="cookie-consent__copy">
                 <p class="cookie-consent__eyebrow">Privasi Anda</p>
                 <h2>Cookie di Lunarea</h2>
-                <p>Cookie wajib menjaga login dan keranjang. Cookie pilihan membantu menyempurnakan website. Belanja tetap bisa tanpa cookie pilihan. <a href="/kebijakan-privasi">Info</a>.</p>
+                <p>Cookie wajib menjaga login dan keranjang. Cookie pilihan membantu menyempurnakan situs. Pilihan ini tidak memengaruhi belanja. <a href="/kebijakan-privasi">Info</a>.</p>
             </div>
             <div class="cookie-consent__actions">
                 <button type="button" class="cookie-consent__button cookie-consent__button--quiet" id="cookie-only-required">Hanya wajib</button>
