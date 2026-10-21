@@ -44,7 +44,7 @@ final class CustomerOrderPaymentStatus
         if ($status === null) throw new RuntimeException('Payment status is not recognized');
         $payment = array_merge($payment, array_intersect_key($remote, array_flip([
             'transaction_status', 'transaction_time', 'transaction_id', 'payment_type', 'gross_amount',
-            'expiry_time', 'va_numbers', 'permata_va_number', 'payment_code', 'bill_key', 'biller_code',
+            'expiry_time', 'va_numbers', 'permata_va_number', 'payment_code', 'bill_key', 'biller_code', 'qr_string',
         ])));
         return $this->snapshot($order, $payment, 'gateway', $status);
     }
@@ -69,6 +69,7 @@ final class CustomerOrderPaymentStatus
             'payment_code' => $payment['payment_code'] ?? null,
             'bill_key' => $payment['bill_key'] ?? null,
             'biller_code' => $payment['biller_code'] ?? null,
+            'qr_string' => $payment['qr_string'] ?? null,
             'source' => $source,
         ];
     }

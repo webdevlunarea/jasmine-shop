@@ -662,6 +662,16 @@
         "step": "",
         "maxlength": "",
         "multiple": ""
+      },
+      {
+        "name": "visibility",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
       }
     ]
   },
@@ -727,6 +737,16 @@
       {
         "name": "active",
         "type": "checkbox",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "visibility",
+        "type": "",
         "value": "",
         "min": "",
         "max": "",

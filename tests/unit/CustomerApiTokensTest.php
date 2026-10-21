@@ -62,6 +62,36 @@ final class CustomerApiTokensTest extends CIUnitTestCase
         $this->assertSame(2, $this->connection->table('customer_api_tokens')->where('revoked_at IS NOT NULL')->countAllResults());
     }
 
+    public function testRevokingOtherSessionsKeepsCurrentDeviceSessionActive(): void
+    {
+        $current = $this->tokens->issue('buyer@example.test', 'Perangkat ini');
+        $other = $this->tokens->issue('buyer@example.test', 'Perangkat lain');
+        $previousVersion = (new \App\Services\Auth\PasswordSessionVersions($this->connection))->current('buyer@example.test');
+        $otherAccess = $this->connection->table('customer_api_tokens')
+            ->where('token_hash', hash('sha256', $other['access_token']))->get()->getRowArray();
+
+        $this->assertSame(1, $this->tokens->revokeOtherSessionsForAccess($current['access_token']));
+        $versions = new \App\Services\Auth\PasswordSessionVersions($this->connection);
+        $this->assertNotSame($previousVersion, $versions->current('buyer@example.test'));
+        $this->assertFalse($versions->matches('buyer@example.test', $previousVersion));
+        $this->assertNotNull($this->tokens->authenticate($current['access_token']));
+        $this->assertNull($this->tokens->authenticate($other['access_token']));
+        $this->assertSame(2, $this->connection->table('customer_api_tokens')
+            ->where('family_id', $otherAccess['family_id'])
+            ->where('revoked_at IS NOT NULL')->countAllResults());
+    }
+
+    public function testRevokingOtherSessionsAlsoInvalidatesBrowserSessionsWithoutOtherAppDevices(): void
+    {
+        $current = $this->tokens->issue('buyer@example.test', 'Perangkat ini');
+        $previousVersion = (new \App\Services\Auth\PasswordSessionVersions($this->connection))->current('buyer@example.test');
+
+        $this->assertSame(0, $this->tokens->revokeOtherSessionsForAccess($current['access_token']));
+        $versions = new \App\Services\Auth\PasswordSessionVersions($this->connection);
+        $this->assertFalse($versions->matches('buyer@example.test', $previousVersion));
+        $this->assertNotNull($this->tokens->authenticate($current['access_token']));
+    }
+
     public function testInactiveAndNonCustomerAccountsCannotReceiveTokens(): void
     {
         foreach ([['inactive@example.test', '0', '0'], ['admin@example.test', '1', '1']] as [$email, $role, $active]) {

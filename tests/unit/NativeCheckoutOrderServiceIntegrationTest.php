@@ -101,6 +101,82 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
         self::assertSame('completed', $this->db->table('customer_checkout_requests')->get()->getRowArray()['state']);
     }
 
+    public function testAllowlistedSandboxAccountDoesNotReserveOrReduceProductStock(): void
+    {
+        $email = 'uuua5021@gmail.com';
+        $this->db->table('pembeli')->where('email_user', 'android-buyer@example.test')->update(['email_user' => $email]);
+        $this->db->table('customer_addresses')->where('email_user', 'android-buyer@example.test')->update(['email_user' => $email]);
+        $this->db->table('shipping_quotes')->where('token', 'quote-token-123')->update(['email_user' => $email]);
+        $preview = $this->preview($email);
+        $service = new NativeCheckoutOrderService(
+            $this->db,
+            static fn() => $preview,
+            static fn() => new class {
+                public function charge(array $payload): array
+                {
+                    return [
+                        'order_id' => $payload['transaction_details']['order_id'],
+                        'gross_amount' => $payload['transaction_details']['gross_amount'],
+                        'payment_type' => 'bank_transfer', 'transaction_status' => 'pending',
+                        'va_numbers' => [['bank' => 'bca', 'va_number' => '9876543210']],
+                    ];
+                }
+            }
+        );
+
+        $oldSandboxKey = getenv('MIDTRANS_SANDBOX_KEY');
+        putenv('MIDTRANS_SANDBOX_KEY=isolated-test-key');
+        try {
+            $result = $service->create($email, [
+                'address_id' => 1, 'shipping_quote_token' => 'quote-token-123', 'payment_method' => 'bca',
+            ], 'android-sandbox-stock-test-key');
+        } finally {
+            putenv($oldSandboxKey === false ? 'MIDTRANS_SANDBOX_KEY' : 'MIDTRANS_SANDBOX_KEY=' . $oldSandboxKey);
+        }
+
+        self::assertSame(201, $result['http_status']);
+        self::assertSame('5', (string)$this->db->table('barang')->where('id', 'P1')->get()->getRowArray()['stok']);
+        self::assertSame('[]', (string)$this->db->table('pembeli')->where('email_user', $email)->get()->getRowArray()['keranjang']);
+        $order = $this->db->table('pemesanan')->where('email_cus', $email)->get()->getRowArray();
+        $payment = json_decode((string)$order['data_mid'], true);
+        self::assertSame('sandbox', $payment['_app_payment_environment']);
+        self::assertFalse($payment['_app_inventory_reserved']);
+    }
+
+    public function testManualTransferCreatesOrderAndInstructionsWithoutCallingMidtrans(): void
+    {
+        $email = 'android-buyer@example.test';
+        $preview = $this->preview($email, 'rekening');
+        $charges = 0;
+        $service = new NativeCheckoutOrderService(
+            $this->db,
+            static fn() => $preview,
+            static function () use (&$charges) {
+                $charges++;
+                throw new \RuntimeException('Manual transfer must never call the gateway.');
+            }
+        );
+
+        $created = $service->create($email, [
+            'address_id' => 1, 'shipping_quote_token' => 'quote-token-123', 'payment_method' => 'rekening',
+        ], 'android-manual-transfer-test-key');
+        $replayed = $service->create($email, [
+            'address_id' => 1, 'shipping_quote_token' => 'quote-token-123', 'payment_method' => 'rekening',
+        ], 'android-manual-transfer-test-key');
+
+        self::assertSame(201, $created['http_status']);
+        self::assertSame('Menunggu Pembayaran Rekening', $created['result']['order']['status']);
+        self::assertSame('rekening', $created['result']['order']['payment']['type']);
+        self::assertSame('003401001574304', $created['result']['order']['payment']['va_numbers'][0]['va_number']);
+        self::assertSame('Catur Bhakti Mandiri', $created['result']['order']['payment']['account_name']);
+        self::assertSame(0, $charges);
+        self::assertSame(200, $replayed['http_status']);
+        self::assertTrue($replayed['result']['replayed']);
+        self::assertSame(1, $this->db->table('pemesanan')->countAllResults());
+        self::assertSame('completed', $this->db->table('customer_checkout_requests')->get()->getRowArray()['state']);
+        self::assertSame('[]', (string)$this->db->table('pembeli')->where('email_user', $email)->get()->getRowArray()['keranjang']);
+    }
+
     public function testExpiredQuoteRollsBackStockAndPersistsNoOrderOrCharge(): void
     {
         $this->db->table('shipping_quotes')->where('token', 'quote-token-123')->update([
@@ -166,14 +242,15 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
         self::assertSame('processing', $this->db->table('customer_checkout_requests')->get()->getRowArray()['state']);
     }
 
-    private function preview(string $email): object
+    private function preview(string $email, string $method = 'bca'): object
     {
         $cart = [['id' => 'P1', 'varian' => 'Default', 'jumlah' => 2]];
         $cartFingerprint = CheckoutIdempotencyLedger::fingerprint($cart);
-        return new class($email, $cartFingerprint) {
+        return new class($email, $cartFingerprint, $method) {
             private string $email;
             private string $fingerprint;
-            public function __construct(string $email, string $fingerprint) { $this->email = $email; $this->fingerprint = $fingerprint; }
+            private string $method;
+            public function __construct(string $email, string $fingerprint, string $method) { $this->email = $email; $this->fingerprint = $fingerprint; $this->method = $method; }
             public function preview(string $email, array $input): array
             {
                 if ($email !== $this->email) throw new \RuntimeException('Unexpected customer.');
@@ -186,7 +263,7 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
                     'shipping' => ['courier' => 'JNE', 'service' => 'REG', 'cost' => 100],
                     'voucher_discount' => 0, 'voucher_id' => 0, 'voucher_claim_id' => 0,
                     'cashback_after_order' => 0, 'points_applied' => 0, 'total' => 1100,
-                    'payment_method' => 'bca',
+                    'payment_method' => $this->method,
                     'midtrans_item_details' => [
                         ['id' => 'P1', 'name' => 'Kursi Uji (Default)', 'price' => 500, 'quantity' => 2],
                         ['id' => 'Ongkir', 'name' => 'Ongkir JNE', 'price' => 100, 'quantity' => 1],

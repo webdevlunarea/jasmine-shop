@@ -23,6 +23,7 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | POST | `/auth/google` | Tidak | Verifikasi Google ID token di backend; pelanggan Google terverifikasi memperoleh token API Lunarea |
 | POST | `/auth/refresh` | Refresh token di body | Rotasi refresh token; refresh token lama tidak boleh digunakan kembali |
 | POST | `/auth/logout` | Bearer | Cabut seluruh keluarga token sesi saat ini |
+| POST | `/auth/sessions/revoke-others` | Bearer | Cabut seluruh sesi perangkat lain; sesi perangkat pemanggil tetap aktif |
 | GET | `/me` | Bearer | Baca profil pengguna |
 | PATCH | `/me` | Bearer | Perbarui nama dan nomor ponsel |
 | POST | `/me/photo` | Bearer, multipart | Unggah foto profil JPG/PNG/WebP maksimal 2 MiB |
@@ -63,6 +64,8 @@ Contoh login: `{"identifier":"pembeli@example.com","password":"SandiAman123","de
 Login Google native mengirim `{"id_token":"<Google ID token>","device_name":"Lunarea Android"}` ke `/auth/google`. Server wajib memiliki `GOOGLE_CLIENT_ID` berisi **Web OAuth Client ID** yang sama dengan `GOOGLE_WEB_CLIENT_ID` di aplikasi. ID token diverifikasi server-side; email biasa dari aplikasi tidak dipercaya. Client Secret tidak dikirim ke APK. Akun admin, token tidak valid, dan email Google yang belum terverifikasi ditolak. Akun pelanggan Google baru dibuat dengan profil Lunarea dan voucher auto-claim yang aktif; akun pelanggan dengan email terverifikasi yang sama ditautkan sesuai alur Google website existing.
 
 Contoh refresh: `{"refresh_token":"..."}`. Simpan token baru secara atomik; token refresh lama sudah tidak berlaku. Replay refresh lama mencabut keluarga sesi.
+
+Keluar dari perangkat lain memakai `POST /auth/sessions/revoke-others` tanpa body. Server menentukan akun dan sesi pemanggil dari bearer token yang valid, lalu mencabut keluarga token aktif milik akun yang sama selain sesi pemanggil. Endpoint dibatasi 3 permintaan per 15 menit. Perubahan kata sandi/email dan logout biasa tetap mengikuti perilaku pencabutan sesi masing-masing.
 
 Reset sandi memakai body request `{"identity":"email-atau-username","captcha_token":"..."}` lalu penyelesaian `{"identity":"...","code":"123456","password":"...","password_confirmation":"..."}`. Permintaan reset mengembalikan HTTP 202 generik untuk akun dikenal maupun tidak dikenal.
 
@@ -157,7 +160,7 @@ Polling `payment-status` bersifat baca-saja dan bukan pengganti webhook/reconcil
 |---|---|---|---|
 | GET | `/points?page=1` | Bearer | Saldo aktif, masa berlaku terdekat, tier/benefit, dan riwayat poin terpaginasikan (30 per halaman) |
 
-Saldo dan tier dibaca dari data akun Lunarea; endpoint hanya-baca dan tidak mengubah atau menghapus batch poin kedaluwarsa. Pemakaian poin saat checkout dikirim sebagai `use_points` pada `POST /checkout/preview` dan `POST /checkout/orders`; backend menghitung saldo/potongan, menyimpan penggunaan pada pesanan, dan mengelola pengembalian poin sesuai alur status pesanan. Nilai poin dari aplikasi bukan sumber kebenaran.
+Saldo dan tier dibaca dari data akun Lunarea; endpoint hanya-baca dan tidak mengubah atau menghapus batch poin kedaluwarsa. Respons `tier_levels` menyediakan level, ambang belanja, serta benefit yang sama dengan matriks benefit backend agar aplikasi dapat menampilkan seluruh benefit tanpa menyalin aturan bisnis ke klien. Pemakaian poin saat checkout dikirim sebagai `use_points` pada `POST /checkout/preview` dan `POST /checkout/orders`; backend menghitung saldo/potongan, menyimpan penggunaan pada pesanan, dan mengelola pengembalian poin sesuai alur status pesanan. Nilai poin dari aplikasi bukan sumber kebenaran.
 
 ## Push notification
 

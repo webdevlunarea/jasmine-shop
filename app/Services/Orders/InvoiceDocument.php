@@ -40,6 +40,13 @@ final class InvoiceDocument
                 $known -= $discount;
             }
         }
+        $glass = is_array($payment['_app_glass_service'] ?? null) ? $payment['_app_glass_service'] : [];
+        $glassSelected = filter_var($glass['selected'] ?? false, FILTER_VALIDATE_BOOLEAN) === true;
+        $glassAmount = $glassSelected ? max(0, (int)round((float)($glass['amount'] ?? 0))) : 0;
+        if ($glassAmount > 0) {
+            $rows[] = ['label'=>'Proteksi kaca', 'amount'=>$glassAmount];
+            $known += $glassAmount;
+        }
         if ($shipment !== null && isset($shipment['shipping_cost'])) {
             $shipping = max(0, (int)$shipment['shipping_cost']);
             $rows[] = ['label'=>'Biaya pengiriman', 'amount'=>$shipping];

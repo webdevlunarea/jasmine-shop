@@ -65,6 +65,16 @@ final class PointsController extends ApiController
                     ['amount' => '50k', 'name' => 'Diskon Khusus', 'description' => 'Diskon khusus senilai Rp50.000 per bulan dengan minimum pembelian.'],
                 ],
             ];
+            $tierCatalog = [];
+            foreach ($tierRules as $key => $rule) {
+                $tierCatalog[] = [
+                    'key' => $key,
+                    'label' => $rule['label'],
+                    'minimum' => $rule['min'],
+                    'next_minimum' => $rule['next'],
+                    'benefits' => $benefits[$key],
+                ];
+            }
 
             $historyModel = new PointHistoryModel();
             $page = max(1, min(1000, (int)$this->request->getGet('page')));
@@ -88,7 +98,8 @@ final class PointsController extends ApiController
                     'next_minimum' => $tierRules[$tierLabel]['next'],
                     'progress' => $tierRules[$tierLabel]['next'] === null ? 100 : max(0, min(100,
                         (int)round(($tierSpend - $tierRules[$tierLabel]['min']) / max(1, $tierRules[$tierLabel]['next'] - $tierRules[$tierLabel]['min']) * 100)))],
-                'benefits' => $benefits[$tierLabel], 'birthday_registered' => !empty($customer['tgl_lahir']),
+                    'benefits' => $benefits[$tierLabel], 'birthday_registered' => !empty($customer['tgl_lahir']),
+                'tier_levels' => $tierCatalog,
                 'page' => $page, 'per_page' => $perPage, 'total_history' => $total]);
         } catch (\Throwable $e) {
             log_message('error', 'Customer API Luna points read failed: ' . get_class($e));

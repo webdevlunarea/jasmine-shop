@@ -44,7 +44,11 @@ class ShippingController extends ApiController
             if ($index === false) return $this->failure('VARIANT_UNAVAILABLE', 'Varian produk di keranjang sudah tidak tersedia.', 422);
             $stock = ProductVariantStock::stockForIndex($variants, (string)$product['stok'], (int)$index);
             if ($quantity > $stock) return $this->failure('INSUFFICIENT_STOCK', 'Stok produk berubah. Perbarui keranjang.', 422);
-            $weight += max(0, (float)str_replace(',', '.', (string)($product['berat'] ?? 0))) * $quantity;
+            $productWeight = (float)str_replace(',', '.', (string)($product['berat'] ?? 0));
+            if (!is_finite($productWeight) || $productWeight <= 0) {
+                return $this->failure('PRODUCT_WEIGHT_REQUIRED', 'Berat produk belum tersedia. Hubungi admin sebelum memilih pengiriman.', 422);
+            }
+            $weight += $productWeight * $quantity;
         }
         $db = Database::connect();
         $address = [
@@ -63,8 +67,19 @@ class ShippingController extends ApiController
         $address['kecamatan_label'] = (string)$district['label'];
         try {
             $weightGrams = max(1000, (int)ceil($weight * 1000));
-            $quotes = (new ShippingService())->getQuotes($email, $cart, $address, $weightGrams);
-            return $this->success(['quotes' => $quotes, 'weight_grams' => $weightGrams]);
+            $result = (new ShippingService())->getQuotesDetailed($email, $cart, $address, $weightGrams);
+            $quotes = $result['quotes'];
+            $externalUnavailable = in_array($result['external_status'], [
+                'missing_api_key', 'invalid_weight', 'location_unavailable', 'provider_error',
+            ], true);
+            if (!$quotes && $externalUnavailable) {
+                return $this->failure('SHIPPING_UNAVAILABLE', 'Pilihan pengiriman belum dapat dihitung. Periksa alamat atau coba lagi nanti.', 503);
+            }
+            return $this->success([
+                'quotes' => $quotes,
+                'weight_grams' => $weightGrams,
+                'external_status' => $result['external_status'],
+            ]);
         } catch (\Throwable $e) {
             log_message('error', 'Customer API shipping quote failed: ' . get_class($e));
             return $this->failure('SHIPPING_UNAVAILABLE', 'Ongkir sementara tidak tersedia. Coba lagi nanti.', 503);

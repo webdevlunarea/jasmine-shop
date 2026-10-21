@@ -30,6 +30,13 @@ final class InventoryOrderReservation
         try {
             if ($validate !== null) $validate($this->db);
             if ($reserveInventory) {
+                // Acquire product-row locks in a stable order to reduce deadlocks
+                // when two carts contain the same products in different orders.
+                usort($items, static function ($left, $right): int {
+                    $leftKey = (string)($left['product_id'] ?? $left['id'] ?? '') . "\0" . (string)($left['variant'] ?? '');
+                    $rightKey = (string)($right['product_id'] ?? $right['id'] ?? '') . "\0" . (string)($right['variant'] ?? '');
+                    return strcmp($leftKey, $rightKey);
+                });
                 foreach ($items as $item) $this->reserveItem($item);
             }
             $result = $persist($this->db);

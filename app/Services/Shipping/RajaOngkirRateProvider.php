@@ -7,6 +7,7 @@ use App\Models\ShippingMethodModel;
 class RajaOngkirRateProvider
 {
     protected ShippingMethodModel $methodModel;
+    private string $lastStatus = 'not_checked';
 
     public function __construct(?ShippingMethodModel $methodModel = null)
     {
@@ -39,13 +40,16 @@ class RajaOngkirRateProvider
 
     public function getQuotes(array $address, int $weightGrams): array
     {
+        $this->lastStatus = 'not_checked';
         $method = $this->methodModel->getByCode('rajaongkir_domestic');
         if (!$method || (int)($method['is_active'] ?? 0) !== 1) {
+            $this->lastStatus = 'disabled';
             return [];
         }
 
         $apiKey = (string)(env('RAJAONGKIR_API_KEY') ?: env('KOMERCE_RAJAONGKIR_API_KEY') ?: '');
         if ($apiKey === '') {
+            $this->lastStatus = 'missing_api_key';
             return [];
         }
 
@@ -54,6 +58,7 @@ class RajaOngkirRateProvider
         $couriers = $settings['couriers'] ?? ['jne', 'jnt', 'sicepat', 'tiki', 'pos', 'sentral'];
 
         if ($weightGrams <= 0) {
+            $this->lastStatus = 'invalid_weight';
             return [];
         }
 
@@ -73,6 +78,7 @@ class RajaOngkirRateProvider
             $originId = $this->resolveOriginId($client, $apiKey, $settings);
 
             if ($originId === '' || $destinationId === '') {
+                $this->lastStatus = 'location_unavailable';
                 log_message('warning', 'RajaOngkir quote skipped: origin_id or destination_id is empty. origin=' . $originId . ' destination=' . $destinationId);
                 return [];
             }
@@ -90,7 +96,10 @@ class RajaOngkirRateProvider
             $payload = $this->remember($cacheKey, 60, fn() => $this->requestRatePayload(
                 $client, $apiKey, $originId, $destinationId, $weightGrams, $courier
             ));
-            if (!is_array($payload) || empty($payload['data']) || !is_array($payload['data'])) return [];
+            if (!is_array($payload) || !isset($payload['data']) || !is_array($payload['data'])) {
+                $this->lastStatus = 'provider_error';
+                return [];
+            }
 
             $quotes = [];
             foreach ($payload['data'] as $item) {
@@ -117,11 +126,20 @@ class RajaOngkirRateProvider
 
             usort($quotes, static fn($a, $b) => ((int)$a['cost']) <=> ((int)$b['cost']));
 
+            $this->lastStatus = $quotes ? 'available' : 'no_rates';
+
             return $quotes;
         } catch (\Throwable $e) {
+            $this->lastStatus = 'provider_error';
             log_message('error', 'RajaOngkir quote error: ' . get_class($e));
             return [];
         }
+    }
+
+    /** Diagnostic for the server-side quote endpoint; never contains credentials or raw provider data. */
+    public function lastStatus(): ?string
+    {
+        return $this->lastStatus;
     }
 
     protected function requestRatePayload($client, string $apiKey, string $originId, string $destinationId, int $weightGrams, string $courier): ?array

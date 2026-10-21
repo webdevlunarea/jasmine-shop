@@ -135,6 +135,75 @@ class CustomerApiTokens
         if ($row) $this->db->table('customer_api_tokens')->where('family_id', $row['family_id'])->where('revoked_at', null)->update(['revoked_at' => $this->now()]);
     }
 
+    /** Revoke every other device session while keeping the calling session active. */
+    public function revokeOtherSessionsForAccess(string $plainToken): int
+    {
+        if (strlen($plainToken) < 32 || strlen($plainToken) > 128) {
+            throw new RuntimeException('Sesi aktif tidak valid.');
+        }
+        $current = $this->db->table('customer_api_tokens')
+            ->where([
+                'token_hash' => hash('sha256', $plainToken),
+                'token_type' => 'access',
+                'revoked_at' => null,
+            ])
+            ->where('expires_at >', $this->now())
+            ->get()->getRowArray();
+        if (!$current || !$this->passwordVersions->matches((string)$current['email_user'], (string)($current['password_version'] ?? ''))) {
+            throw new RuntimeException('Sesi aktif tidak dapat diverifikasi.');
+        }
+
+        $email = (string)$current['email_user'];
+        $currentFamily = (string)$current['family_id'];
+        $this->requirePasswordVersionStore();
+        if (!$this->db->transBegin()) throw new RuntimeException('Sesi lain belum dapat dikeluarkan.');
+        try {
+            // Website sessions are cookie-based rather than rows in customer_api_tokens.
+            // Rotating this shared version invalidates them on their next request while
+            // updating this app's family keeps the requesting device signed in.
+            $newVersion = bin2hex(random_bytes(32));
+            $versionRow = $this->db->table('customer_password_sessions')
+                ->where('email_user', $email)->get()->getRowArray();
+            if ($versionRow) {
+                $ok = $this->db->table('customer_password_sessions')
+                    ->where('email_user', $email)->update(['version' => $newVersion]);
+            } else {
+                $ok = $this->db->table('customer_password_sessions')->insert([
+                    'email_user' => $email,
+                    'version' => $newVersion,
+                ]);
+            }
+            if (!$ok) throw new RuntimeException('Versi sesi tidak dapat diperbarui.');
+
+            $this->db->table('customer_api_tokens')
+                ->where(['email_user' => $email, 'family_id' => $currentFamily, 'revoked_at' => null])
+                ->update(['password_version' => $newVersion]);
+            if ($this->db->affectedRows() < 1) throw new RuntimeException('Sesi perangkat ini tidak dapat dipertahankan.');
+
+            $otherFamilies = $this->db->table('customer_api_tokens')
+                ->select('family_id')->distinct()
+                ->where('email_user', $email)
+                ->where('family_id !=', $currentFamily)
+                ->where('revoked_at', null)
+                ->get()->getResultArray();
+            $familyIds = array_values(array_filter(array_unique(array_column($otherFamilies, 'family_id')), 'is_string'));
+            if ($familyIds) {
+                $this->db->table('customer_api_tokens')
+                    ->where('email_user', $email)
+                    ->whereIn('family_id', $familyIds)
+                    ->where('revoked_at', null)
+                    ->update(['revoked_at' => $this->now()]);
+            }
+            if ($this->db->transStatus() === false || !$this->db->transCommit()) {
+                throw new RuntimeException('Pencabutan sesi lain tidak berhasil disimpan.');
+            }
+            return count($familyIds);
+        } catch (\Throwable $error) {
+            if ((int)$this->db->transDepth > 0) $this->db->transRollback();
+            throw $error;
+        }
+    }
+
     private function createToken(string $email, string $familyId, string $type, int $ttl, ?string $deviceName): array
     {
         $token = rtrim(strtr(base64_encode(random_bytes(48)), '+/', '-_'), '=');

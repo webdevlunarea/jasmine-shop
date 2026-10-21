@@ -54,9 +54,28 @@ final class FirebaseMessaging implements FirebaseMessageSender
         if ($project === '') throw new RuntimeException('FCM project is not configured');
         $payloadData = [];
         foreach ($data as $key => $value) $payloadData[(string)$key] = is_scalar($value) ? (string)$value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $type = strtolower((string)($payloadData['type'] ?? ''));
+        $channelId = match (true) {
+            str_starts_with($type, 'broadcast_'), $type === 'back_in_stock' => 'lunarea_promotions_v1',
+            in_array($type, ['admin_test', 'account_security', 'account_update'], true) => 'lunarea_account_v1',
+            default => 'lunarea_order_updates',
+        };
         $response = Services::curlrequest()->post('https://fcm.googleapis.com/v1/projects/' . rawurlencode($project) . '/messages:send', [
             'headers' => ['Authorization' => 'Bearer ' . $this->accessToken(), 'Content-Type' => 'application/json'],
-            'json' => ['message' => ['token' => $deviceToken, 'notification' => $notification, 'data' => $payloadData, 'android' => ['priority' => 'HIGH']]],
+            'json' => ['message' => [
+                'token' => $deviceToken,
+                'notification' => $notification,
+                'data' => $payloadData,
+                'android' => [
+                    'priority' => 'HIGH',
+                    'notification' => [
+                        'channel_id' => $channelId,
+                        'icon' => 'ic_notification_small',
+                        'color' => '#03AC0E',
+                        'visibility' => 'PRIVATE',
+                    ],
+                ],
+            ]],
             'timeout' => 10, 'connect_timeout' => 4, 'http_errors' => false,
             'verify' => true, 'allow_redirects' => false,
         ]);

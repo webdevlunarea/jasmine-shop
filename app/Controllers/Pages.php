@@ -800,8 +800,8 @@ class Pages extends BaseController
             'flashSaleRemaining' => $flashSaleRemaining,
             'flashSaleSettings' => $flashSaleSettings,
             'banner' => $banner,
-            'metaKeyword' => 'lunarea furniture,toko furniture,
-            lemari dewasa lunarea semarang,lemari anak lunarea semarang,meja rias lunarea semarang,meja belajar lunarea semarang,meja tv lunarea semarang,meja tulis lunarea semarang,meja komputer lunarea semarang,rak sepatu lunarea semarang,rak besi lunarea semarang,rak serbaguna lunarea semarang,kursi lunarea semarang',
+            'metaDeskripsi' => 'Belanja furniture dan perlengkapan rumah dari Lunarea Furniture. Temukan lemari, meja, kursi, dan rak dengan informasi produk serta promo terbaru.',
+            'metaKeyword' => 'Lunarea Furniture, furniture rumah, lemari, meja, kursi, rak',
             'msg_active' => $msgActive,
             'msg_event' => session()->get('role') == '1' ? false : $msgEvent,
             'counterEvent' => $counterEvent,
@@ -2958,6 +2958,7 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
             return redirect()->to('/checkout');
         }
+
         $code = $this->request->getVar('code');
         $redeemData = $this->voucherRedeemModel->where(['code' => $code])->first();
         if (!$redeemData) {
@@ -3549,6 +3550,12 @@ class Pages extends BaseController
         $ppn = ((float)$this->konstantaModel->getKonstantaById(1)['value']) / 100;
         $biayaAdmin = 4000 + (4000 * $ppn);
 
+        $gantiKaca = \App\Services\Payments\GlassProtectionSelection::resolve(
+            null,
+            session()->get('gantiKaca'),
+            (int)$totalkaca
+        );
+
         $data = [
             'title' => 'Check Out',
             'addressBook' => $addressBook,
@@ -3586,9 +3593,15 @@ class Pages extends BaseController
             'usepoin' => session()->get('usepoin'),
             'biayaAdmin' => $biayaAdmin,
             'totalkaca' => $totalkaca,
-            'gantiKaca' => session()->get('gantiKaca') ? session()->get('gantiKaca') : false,
+            'gantiKaca' => $gantiKaca,
         ];
         // return view('pages/' . (in_array($email, $this->emailUjiCoba) ? 'checkoutcore' : 'checkout'), $data);
+        $checkoutKey = (string) session()->get('website_checkout_idempotency_key');
+        if (!preg_match('/^[a-f0-9]{64}$/D', $checkoutKey)) {
+            $checkoutKey = bin2hex(random_bytes(32));
+            session()->set('website_checkout_idempotency_key', $checkoutKey);
+        }
+        $data['checkoutIdempotencyKey'] = $checkoutKey;
         return view('pages/checkoutcorecc', $data);
     }
     public function getBiayaAdminMidtrans()
@@ -4075,6 +4088,7 @@ class Pages extends BaseController
         $alamatLengkap = $this->request->getVar('alamat');
         $note = $this->request->getVar('note');
         $keranjang = session()->get('keranjang');
+        $checkoutCartFingerprint = \App\Services\Payments\CheckoutIdempotencyLedger::fingerprint(is_array($keranjang) ? $keranjang : []);
         $tokencc = $this->request->getVar('tokencc');
         $shippingQuoteToken = trim((string)$this->request->getVar('shipping_quote_token'));
 
@@ -4242,41 +4256,17 @@ class Pages extends BaseController
                 'name' => 'Luna Point',
             ]);
 
-            if (!$isSandboxCheckout) {
-            //update poin di pembeli
-            $poinCounter = 0;
-            $poinArrIndexTerpakai = [];
-            $poinIndexAkhirHapus = null;
-            foreach ($poinSession as $ind_p => $p) {
-                $poinCounter += (int)$p['nominal'];
-                if ($poinCounter >= $poinDipakai) {
-                    $poinSblm = $poinCounter - (int)$p['nominal'];
-                    $penambahnya = $poinDipakai - $poinSblm;
-                    $sisa = (int)$p['nominal'] - $penambahnya;
-                    $poinSession[$ind_p]['nominal'] = $sisa;
-                    if ($sisa == 0) {
-                        $poinIndexAkhirHapus = $ind_p;
-                    }
-                    break;
-                } else {
-                    array_push($poinArrIndexTerpakai, $ind_p);
-                }
-            }
-            if ($poinIndexAkhirHapus !== null) {
-                $poinSession[$poinIndexAkhirHapus]['active'] = false;
-            }
-            foreach ($poinArrIndexTerpakai as $p) {
-                $poinSession[$p]['active'] = false;
-            }
-            $this->pembeliModel->where(['email_user' => $email])->set(['poin' => json_encode($poinSession)])->update();
-
-            //update poin di session
-            session()->set('poin', $poinSession);
-            }
+            // Production point deduction is deferred to the same locked DB
+            // transaction that reserves stock and persists the order.
         }
 
-        // penambahan jika ada kaca
-        $gantiKaca = $this->request->getVar('ganti-kaca');
+        // The form submits an explicit boolean; fall back to the server-side choice for legacy clients.
+        // Strict parsing prevents the string "false" from being treated as enabled by PHP.
+        $gantiKaca = \App\Services\Payments\GlassProtectionSelection::resolve(
+            $this->request->getPost('ganti-kaca'),
+            session()->get('gantiKaca'),
+            (int)$totalkaca
+        );
         if ($gantiKaca) {
             array_push($itemDetails, [
                 'id' => 'Ganti Kaca',
@@ -4314,9 +4304,9 @@ class Pages extends BaseController
             ]);
         }
 
-        $pesananke = $this->pemesananModel->orderBy('id', 'desc')->first();
-        $idFix = "L" . (sprintf("%08d", $pesananke ? ((int)$pesananke['id'] + 1) : 1));
-        $randomId = "L" . rand();
+        // Globally unique order IDs prevent concurrent web checkout sessions
+        // from deriving the same sequence value from the latest row.
+        $orderId = 'L' . bin2hex(random_bytes(16));
         // $customField = json_encode([
         //     'e' => $email,
         //     'n' => $nama,
@@ -4361,7 +4351,7 @@ class Pages extends BaseController
 
         $arrPostField = [
             "transaction_details" => [
-                "order_id" => $isSandboxCheckout ? $randomId : $idFix,
+                "order_id" => $orderId,
                 "gross_amount" => (int)$gross_amount,
             ],
             'customer_details' => array(
@@ -4470,7 +4460,169 @@ class Pages extends BaseController
 
         // dd($arrPostField);
 
+        // Durable website checkout claim. A repeated POST (including a browser
+        // retry after a timeout) must replay the original order, never call
+        // Midtrans again with a new transaction ID.
+        $checkoutIdempotencyKey = trim((string) $this->request->getPost('checkout_idempotency_key'));
+        if (!preg_match('/^[a-f0-9]{64}$/D', $checkoutIdempotencyKey)) {
+            session()->setFlashdata('msg', 'Sesi checkout tidak valid. Muat ulang halaman sebelum melanjutkan.');
+            return redirect()->to('/checkout')->withInput();
+        }
+        $idempotencyIntent = $this->request->getPost();
+        unset($idempotencyIntent['checkout_idempotency_key'], $idempotencyIntent['tokencc']);
+        $csrfTokenName = (string) config('Security')->tokenName;
+        if ($csrfTokenName !== '') unset($idempotencyIntent[$csrfTokenName]);
+        $checkoutRequestHash = \App\Services\Payments\CheckoutIdempotencyLedger::fingerprint([
+            'email' => $email,
+            'cart' => $checkoutCartFingerprint,
+            'intent' => $idempotencyIntent,
+        ]);
+        $db = \Config\Database::connect();
+        $checkoutLedger = new \App\Services\Payments\CheckoutIdempotencyLedger($db);
+        try {
+            $claim = $checkoutLedger->claim($email, $checkoutIdempotencyKey, $checkoutRequestHash, $orderId);
+        } catch (\Throwable $error) {
+            log_message('error', 'Website checkout idempotency claim failed: {type}', ['type' => get_class($error)]);
+            session()->setFlashdata('msg', 'Checkout sedang diperiksa. Jangan mengirim pembayaran lagi; periksa Pesanan Saya.');
+            return redirect()->to('/checkout')->withInput();
+        }
+        if (($claim['result'] ?? '') === 'replay') {
+            $originalId = (string) ($claim['order_id'] ?? '');
+            if (($claim['state'] ?? '') === 'failed') {
+                session()->set('website_checkout_idempotency_key', bin2hex(random_bytes(32)));
+                session()->setFlashdata('msg', 'Percobaan checkout sebelumnya berhenti sebelum pembayaran dikirim. Periksa keranjang dan buat percobaan baru.');
+                return redirect()->to('/checkout');
+            }
+            if (($claim['state'] ?? '') === 'completed') {
+                $original = $this->pemesananModel->where(['id_midtrans' => $originalId, 'email_cus' => $email])->first();
+                $originalStatus = (string) ($original['status'] ?? '');
+                if (in_array($originalStatus, ['Kadaluarsa', 'Ditolak', 'Gagal', 'Dibatalkan'], true)) {
+                    $freshKey = bin2hex(random_bytes(32));
+                    session()->set('website_checkout_idempotency_key', $freshKey);
+                    session()->setFlashdata('msg', 'Pembayaran sebelumnya sudah berakhir. Periksa status pesanan, lalu buat checkout baru jika diperlukan.');
+                    return redirect()->to('/checkout');
+                }
+            }
+            session()->setFlashdata('msg', 'Pesanan sedang dipastikan atau sudah tercatat. Periksa statusnya sebelum mencoba lagi.');
+            return redirect()->to('/order/' . rawurlencode($originalId));
+        }
+
+        // Persist and reserve stock before contacting the payment provider.
+        // Both website and Android use the same locked product rows.
+        $initialStatus = $pembayaran === 'rekening' ? 'Menunggu Pembayaran Rekening' : 'Menunggu Pembayaran';
+        $initialPayment = [
+            'order_id' => $orderId,
+            'gross_amount' => (int)$arrPostField['transaction_details']['gross_amount'],
+            'payment_type' => (string)$arrPostField['payment_type'],
+            'transaction_status' => $pembayaran === 'rekening' ? 'pending-rekening' : 'pending',
+            '_app_payment_environment' => $isSandboxCheckout ? 'sandbox' : 'production',
+            '_app_inventory_reserved' => !$isSandboxCheckout,
+            '_app_payment_effects_applied' => false,
+            '_app_glass_service' => ['selected' => $gantiKaca, 'amount' => $gantiKaca ? (int)$totalkaca : 0, 'unit_price' => 25000],
+        ];
+        $reservedOrder = [
+            'email_cus' => $email, 'nama_pen' => $nama, 'hp_pen' => $nohp,
+            'alamat_pen' => $alamatLengkap, 'resi' => 'Menunggu pengiriman',
+            'items' => json_encode($produk, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'kurir' => $shippingQuote
+                ? trim(($shippingQuote['courier_name'] ?? 'Pengiriman') . ' - ' . ($shippingQuote['service_name'] ?? $shippingQuote['service_code'] ?? '') . ' - Rp ' . number_format($shippingCost, 0, ',', '.'))
+                : 'kosong',
+            'id_midtrans' => $orderId, 'status' => $initialStatus,
+            'data_mid' => json_encode($initialPayment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'note' => $note, 'diskonVoucher' => $data['diskonVoucher'],
+            'idVoucher' => $voucher ? (int)$voucher['id_voucher'] : 0,
+            'cashback' => $cashback, 'pakai_poin' => $poinDipakai,
+        ];
+        $reservationItems = array_map(static fn(array $item) => [
+            'product_id' => (string)($item['id'] ?? ''),
+            'variant' => (string)($item['varian'] ?? ''),
+            'quantity' => (int)($item['jumlah'] ?? 0),
+        ], is_array($keranjang) ? $keranjang : []);
+        $db = \Config\Database::connect();
+        try {
+            (new \App\Services\Payments\InventoryOrderReservation($db))->reserveAndPersist(
+                $reservationItems,
+                function (\CodeIgniter\Database\BaseConnection $db) use (
+                    $sessionEmail, $email, $isSandboxCheckout, $voucher, $poinDipakai,
+                    $reservedOrder, $shippingQuoteToken, $shippingQuote, $shippingCost,
+                    $orderId, $shippingSelectionRequired
+                ): array {
+                    if ($sessionEmail !== 'tamu' && !$isSandboxCheckout) {
+                        \App\Services\Payments\CustomerPendingOrderGuard::lockAndAssertNoPending($db, $email);
+                        $claimId = $voucher ? (int)$voucher['id'] : 0;
+                        $reservation = (new \App\Services\Payments\CustomerCheckoutReservation($db))->reserve(
+                            $email, $claimId, $poinDipakai, null, false
+                        );
+                        $reservedOrder['idVoucher'] = (int)$reservation['voucher_id'];
+                    }
+
+                    if ($shippingSelectionRequired && $shippingQuoteToken === '') {
+                        throw new \DomainException('Silakan pilih metode pengiriman terlebih dahulu.');
+                    }
+                    if ($shippingQuoteToken !== '') {
+                        if (!$db->tableExists('shipping_quotes') || !$db->tableExists('order_shipments')) {
+                            throw new \RuntimeException('Penyimpanan pengiriman belum tersedia.');
+                        }
+                        $quoteSql = $db->table('shipping_quotes')->where([
+                            'token' => $shippingQuoteToken, 'email_user' => $email, 'used_at' => null,
+                        ])->getCompiledSelect();
+                        $lockedQuote = $db->query($quoteSql . ($db->DBDriver === 'SQLite3' ? '' : ' FOR UPDATE'))->getRowArray();
+                        if (!$lockedQuote || strtotime((string)$lockedQuote['expires_at']) < time()
+                            || (int)$lockedQuote['cost'] !== (int)$shippingCost) {
+                            throw new \DomainException('Pilihan pengiriman berubah atau kedaluwarsa. Pilih ulang pengiriman.');
+                        }
+                        $marked = $db->table('shipping_quotes')->where(['id' => $lockedQuote['id'], 'used_at' => null])
+                            ->update(['used_at' => date('Y-m-d H:i:s')]);
+                        if (!$marked || $db->affectedRows() !== 1) {
+                            throw new \DomainException('Pilihan pengiriman sudah dipakai. Pilih ulang pengiriman.');
+                        }
+                        $shipment = [
+                            'id_midtrans' => $orderId, 'shipping_quote_token' => $shippingQuoteToken,
+                            'shipping_method_code' => (string)$lockedQuote['shipping_method_code'],
+                            'provider' => (string)$lockedQuote['provider'],
+                            'courier_code' => $lockedQuote['courier_code'], 'courier_name' => $lockedQuote['courier_name'],
+                            'service_code' => $lockedQuote['service_code'], 'service_name' => $lockedQuote['service_name'],
+                            'shipping_cost' => (int)$lockedQuote['cost'], 'etd' => $lockedQuote['etd'],
+                            'tracking_number' => null, 'shipping_status' => 'Menunggu pengiriman',
+                        ];
+                        if (\App\Services\Shipping\ShippingSubsidyPolicy::storageReady($db)) {
+                            $pricing = \App\Services\Shipping\ShippingSubsidyPolicy::snapshot($shippingQuote);
+                            if ($pricing) $shipment['shipping_pricing'] = json_encode($pricing, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        }
+                        if (!$db->table('order_shipments')->insert($shipment)) {
+                            throw new \RuntimeException('Informasi pengiriman tidak dapat disimpan.');
+                        }
+                    }
+
+                    if (!$db->table('pemesanan')->insert($reservedOrder) || $db->transStatus() === false) {
+                        throw new \RuntimeException('Pesanan tidak dapat disimpan.');
+                    }
+                    return $reservedOrder;
+                },
+                null,
+                !$isSandboxCheckout
+            );
+        } catch (\DomainException $error) {
+            $checkoutLedger->failBeforeCharge($email, $checkoutIdempotencyKey, $orderId);
+            session()->set('website_checkout_idempotency_key', bin2hex(random_bytes(32)));
+            session()->setFlashdata('msg', $error->getMessage());
+            return redirect()->to('/checkout')->withInput();
+        } catch (\Throwable $error) {
+            $checkoutLedger->failBeforeCharge($email, $checkoutIdempotencyKey, $orderId);
+            session()->set('website_checkout_idempotency_key', bin2hex(random_bytes(32)));
+            log_message('error', 'Website checkout stock reservation failed: {type}', ['type' => get_class($error)]);
+            session()->setFlashdata('msg', 'Stok atau status checkout berubah. Perbarui keranjang dan coba kembali.');
+            return redirect()->to('/checkout')->withInput();
+        }
+
         if ($pembayaran == 'rekening') {
+            // Manual transfer has no remote charge call; the durable order is
+            // the final result for this idempotency key.
+            if (!$checkoutLedger->complete($email, $checkoutIdempotencyKey, $orderId)) {
+                session()->setFlashdata('msg', 'Pesanan tersimpan dan sedang dipastikan. Periksa status pesanan sebelum mencoba lagi.');
+                return redirect()->to('/order/' . rawurlencode($orderId));
+            }
+            session()->set('website_checkout_idempotency_key', bin2hex(random_bytes(32)));
             $manualNow = new \DateTimeImmutable('now', new \DateTimeZone('Asia/Jakarta'));
             $transaction_time = $manualNow->format('Y-m-d H:i:s');
             $expiry_time = $manualNow->modify('+1 hour')->format('Y-m-d H:i:s');
@@ -4506,8 +4658,8 @@ class Pages extends BaseController
                 ))->charge($arrPostField);
             } catch (\Throwable $error) {
                 log_message('error', 'Midtrans checkout charge deferred: {type}', ['type' => get_class($error)]);
-                session()->setFlashdata('msg', 'Pembayaran belum berhasil diproses. Periksa status pesanan sebelum mencoba kembali.');
-                return redirect()->to('/checkout');
+                session()->setFlashdata('msg', 'Status pembayaran sedang dipastikan. Periksa pesanan ini sebelum mencoba pembayaran lagi.');
+                return redirect()->to('/order/' . rawurlencode($orderId));
             }
         }
 
@@ -4548,83 +4700,70 @@ class Pages extends BaseController
                 break;
         }
         $hasilMidtrans['_app_payment_environment'] = $isSandboxCheckout ? 'sandbox' : 'production';
+        $hasilMidtrans['_app_inventory_reserved'] = !$isSandboxCheckout;
         $hasilMidtrans['_app_payment_effects_applied'] = false;
-        $insertDataPemesanan = [
-            'email_cus' => $email,
-            'nama_pen' => $nama,
-            'hp_pen' => $nohp,
-            'alamat_pen' => $alamatLengkap,
-            'resi' => 'Menunggu pengiriman',
-            'items' => json_encode($produk),
-            'kurir' => $shippingQuote
-                ? trim(($shippingQuote['courier_name'] ?? 'Pengiriman') . ' - ' . ($shippingQuote['service_name'] ?? $shippingQuote['service_code'] ?? '') . ' - Rp ' . number_format($shippingCost, 0, ',', '.'))
-                : 'kosong',
-            'id_midtrans' => $arrPostField['transaction_details']['order_id'],
-            'status' => $status,
-            'data_mid' => json_encode($hasilMidtrans),
-            'note' => $note,
-            'diskonVoucher' => $data['diskonVoucher'],
-            'idVoucher' => $voucher ? $voucher['id_voucher'] : 0,
-            'cashback' => $cashback,
-            'pakai_poin' => $poinDipakai
+        $hasilMidtrans['_app_glass_service'] = [
+            'selected' => $gantiKaca,
+            'amount' => $gantiKaca ? (int)$totalkaca : 0,
+            'unit_price' => 25000,
         ];
-        $this->pemesananModel->insert($insertDataPemesanan);
-
-        if ($shippingQuote) {
-            $shipmentData = [
-                'id_midtrans' => $arrPostField['transaction_details']['order_id'],
-                'shipping_quote_token' => $shippingQuoteToken,
-                'shipping_method_code' => $shippingQuote['shipping_method_code'] ?? '',
-                'provider' => $shippingQuote['provider'] ?? '',
-                'courier_code' => $shippingQuote['courier_code'] ?? null,
-                'courier_name' => $shippingQuote['courier_name'] ?? null,
-                'service_code' => $shippingQuote['service_code'] ?? null,
-                'service_name' => $shippingQuote['service_name'] ?? null,
-                'shipping_cost' => $shippingCost,
-                'etd' => $shippingQuote['etd'] ?? null,
-                'tracking_number' => null,
-                'shipping_status' => 'Menunggu pengiriman',
-            ];
-            if (\App\Services\Shipping\ShippingSubsidyPolicy::storageReady(\Config\Database::connect())) {
-                $pricing = \App\Services\Shipping\ShippingSubsidyPolicy::snapshot($shippingQuote);
-                if ($pricing) $shipmentData['shipping_pricing'] = json_encode($pricing);
+        $db->transBegin();
+        try {
+            $lockedOrder = PaymentSafety::lockedOrder($db, $orderId);
+            if (!$lockedOrder) throw new \RuntimeException('Order reservation disappeared');
+            $storedPayment = json_decode((string)$lockedOrder['data_mid'], true) ?: [];
+            $nextStatus = (string)$lockedOrder['status'];
+            if ($nextStatus !== 'Proses' && PaymentSafety::canTransition($nextStatus, $status)) $nextStatus = $status;
+            $mergedPayment = array_merge($storedPayment, $hasilMidtrans);
+            $mergedPayment['_app_payment_environment'] = $isSandboxCheckout ? 'sandbox' : 'production';
+            $mergedPayment['_app_inventory_reserved'] = !$isSandboxCheckout;
+            if (($storedPayment['_app_payment_effects_applied'] ?? false) === true) $mergedPayment['_app_payment_effects_applied'] = true;
+            $updated = $db->table('pemesanan')->where('id_midtrans', $orderId)->update([
+                'status' => $nextStatus,
+                'data_mid' => json_encode($mergedPayment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+            if (!$updated || $db->transStatus() === false) {
+                throw new \RuntimeException('Provider response persistence deferred');
             }
-            $this->orderShipmentModel->insert($shipmentData);
-            $this->shippingQuoteModel->markUsed($shippingQuoteToken);
+            if (!$checkoutLedger->complete($email, $checkoutIdempotencyKey, $orderId)) {
+                throw new \RuntimeException('Checkout idempotency completion deferred');
+            }
+            if (!$db->transCommit()) throw new \RuntimeException('Provider response commit deferred');
+            session()->set('website_checkout_idempotency_key', bin2hex(random_bytes(32)));
+            $status = $nextStatus;
+            $hasilMidtrans = $mergedPayment;
+        } catch (\Throwable $error) {
+            if ((int)$db->transDepth > 0) $db->transRollback();
+            log_message('error', 'Website checkout payment response persistence deferred: {type}', ['type' => get_class($error)]);
+            session()->setFlashdata('msg', 'Pesanan tersimpan dan status pembayaran sedang dipastikan. Periksa Pesanan Saya sebelum mencoba lagi.');
+            return redirect()->to('/order/' . rawurlencode($orderId));
         }
 
+        $insertDataPemesanan = $this->pemesananModel->where('id_midtrans', $orderId)->first();
+
         if (!$isSandboxCheckout && $insertDataPemesanan['idVoucher'] > 0) {
-            $this->voucherClaimedModel->where(['id' => $voucher['id']])->set(['active' => false])->update();
             session()->remove('voucher');
         }
         session()->remove('usepoin');
 
-        session()->set(['keranjang' => []]);
         $cekMember = $this->pembeliModel->getPembeli($email);
-        if ($cekMember) $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode([])])->update();
+        if ($cekMember) {
+            $storedCartRaw = (string)($cekMember['keranjang'] ?? '[]');
+            $storedCart = json_decode($storedCartRaw, true);
+            if (is_array($storedCart) && hash_equals(
+                $checkoutCartFingerprint,
+                \App\Services\Payments\CheckoutIdempotencyLedger::fingerprint($storedCart)
+            )) {
+                $db->table('pembeli')->where(['email_user' => $email, 'keranjang' => $storedCartRaw])
+                    ->update(['keranjang' => json_encode([])]);
+                if ($db->affectedRows() === 1) session()->set(['keranjang' => []]);
+            }
+        } else session()->set(['keranjang' => []]);
 
         if (!$isSandboxCheckout) {
-        //pengurangan stok produk
         $dataTransaksiFulDariDatabase = $this->pemesananModel->where('id_midtrans', $arrPostField['transaction_details']['order_id'])->first();
         if ($dataTransaksiFulDariDatabase && $status === 'Proses') {
             $this->kirimEmailStatusPembayaran($dataTransaksiFulDariDatabase, $status);
-        }
-        $dataTransaksiFulDariDatabase_items = json_decode($dataTransaksiFulDariDatabase['items'], true);
-        foreach ($dataTransaksiFulDariDatabase_items as $item) {
-            $barangCurr = $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->first();
-            $varianSelected = rtrim(explode("(", $item['name'])[1], ")");
-            if (count(json_decode($barangCurr['varian'], true)) > count(explode(",", $barangCurr['stok']))) {
-                $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                    'stok' => (int)$barangCurr['stok'] - $item['quantity']
-                ])->update();
-            } else {
-                $stokTerbaru = explode(",", $barangCurr['stok']);
-                $stokSelected = $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))];
-                $stokTerbaru[array_search($varianSelected, json_decode($barangCurr['varian'], true))] = (int)$stokSelected - $item['quantity'];
-                $this->barangModel->where('nama', rtrim(explode("(", $item['name'])[0]))->set([
-                    'stok' => implode(",", $stokTerbaru)
-                ])->update();
-            }
         }
         }
         $this->broadcastOrderUpdate();
@@ -5618,7 +5757,14 @@ class Pages extends BaseController
                 }
                 //reset jumlah produk
                 if ($status == 'Kadaluarsa' || $status == 'Ditolak' || $status == 'Gagal' || $status == "Dibatalkan") {
-                    \App\Services\Payments\ReservedStockRelease::release($db, $dataTransaksiFulDariDatabase);
+                    $paymentSnapshot = json_decode((string)($dataTransaksiFulDariDatabase['data_mid'] ?? ''), true) ?: [];
+                    if (($paymentSnapshot['_app_inventory_reserved'] ?? false) === true) {
+                        \App\Services\Payments\ReservedStockRelease::release($db, $dataTransaksiFulDariDatabase);
+                        $paymentSnapshot['_app_inventory_reserved'] = false;
+                        $db->table('pemesanan')->where('id_midtrans', $order_id)->update([
+                            'data_mid' => json_encode($paymentSnapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        ]);
+                    }
 
                     //aktifkan kemabli voucher claimednya
                     if ($dataTransaksiFulDariDatabase['idVoucher'] != 0) {
@@ -6811,8 +6957,16 @@ class Pages extends BaseController
             }
         }
 
+        $produkSeoDescription = preg_replace('/\s+/u', ' ', trim(strip_tags((string)($produk['deskripsi_nonhtml'] ?? $produk['deskripsi'] ?? ''))));
+        if ($produkSeoDescription === '') {
+            $produkSeoDescription = 'Lihat detail, harga, varian, dan ketersediaan ' . (string)$produk['nama'] . ' di Lunarea Furniture.';
+        } elseif (mb_strlen($produkSeoDescription, 'UTF-8') > 160) {
+            $produkSeoDescription = rtrim(mb_substr($produkSeoDescription, 0, 157, 'UTF-8')) . '...';
+        }
+
         $data = [
             'title' => $produk['nama'],
+            'metaDeskripsi' => $produkSeoDescription,
             'produk' => $produk,
             'gambar' => $gambarnya,
             'varian' => $varian,

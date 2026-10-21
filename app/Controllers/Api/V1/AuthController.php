@@ -346,6 +346,25 @@ class AuthController extends ApiController
         return $this->success(['logged_out' => true]);
     }
 
+    public function revokeOtherSessions()
+    {
+        $email = $this->authEmail();
+        if (!$this->allowAuthAttempt('revoke-other-sessions', $email, 3, 900)) {
+            return $this->failure('RATE_LIMITED', 'Terlalu banyak permintaan. Coba lagi nanti.', 429);
+        }
+        $token = preg_replace('/^Bearer\\s+/i', '', trim($this->request->getHeaderLine('Authorization')));
+        try {
+            $revoked = (new CustomerApiTokens())->revokeOtherSessionsForAccess((string)$token);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API revoke other sessions failed: ' . get_class($e));
+            return $this->failure('SESSION_REVOCATION_UNAVAILABLE', 'Perangkat lain belum dapat dikeluarkan. Coba lagi nanti.', 503);
+        }
+        return $this->success([
+            'revoked_sessions' => $revoked,
+            'message' => 'Sesi login lain telah dinonaktifkan. Perangkat ini tetap masuk.',
+        ]);
+    }
+
     public function me()
     {
         $email = $this->authEmail();

@@ -67,6 +67,7 @@ final class NativeCheckoutOrderService
             }
             $previewService = ($this->previewFactory)();
             $initial = $previewService->preview($email, $input);
+            $manualTransfer = ($initial['payment_method'] ?? '') === 'rekening';
             $addressId = filter_var($input['address_id'] ?? null, FILTER_VALIDATE_INT);
             $address = $addressId ? (new CustomerAddressModel())->owned($email, (int)$addressId) : null;
             $buyer = (new PembeliModel())->getPembeli($email);
@@ -81,12 +82,12 @@ final class NativeCheckoutOrderService
                 'phone' => (string)($address['recipient_phone'] ?? ''), 'address_data' => $addressData,
             ]);
 
-            $payload = (new MidtransCheckoutRequest())->build(
+            $payload = $manualTransfer ? null : (new MidtransCheckoutRequest())->build(
                 $initial, $candidateId, $email, $name, $phone,
                 isset($input['card_token']) ? (string)$input['card_token'] : null
             );
-            $serverKey = trim((string)env($sandbox ? 'MIDTRANS_SANDBOX_KEY' : 'MIDTRANS_PRODUCTION_KEY', ''));
-            if ($serverKey === '' || $serverKey === 'DefaultValue') throw new RuntimeException('Payment configuration unavailable');
+            $serverKey = $manualTransfer ? '' : trim((string)env($sandbox ? 'MIDTRANS_SANDBOX_KEY' : 'MIDTRANS_PRODUCTION_KEY', ''));
+            if (!$manualTransfer && ($serverKey === '' || $serverKey === 'DefaultValue')) throw new RuntimeException('Payment configuration unavailable');
 
             $items = array_map(static fn(array $item) => [
                 'id' => (string)$item['product_id'],
@@ -111,7 +112,7 @@ final class NativeCheckoutOrderService
                 'email_cus' => $email, 'nama_pen' => mb_substr($name, 0, 255), 'hp_pen' => mb_substr($phone, 0, 15),
                 'alamat_pen' => mb_substr($addressLabel, 0, 255), 'resi' => 'Menunggu pengiriman',
                 'id_midtrans' => $candidateId, 'items' => json_encode($items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                'status' => 'Menunggu Pembayaran', 'kurir' => $shippingText, 'note' => $note,
+                'status' => $manualTransfer ? 'Menunggu Pembayaran Rekening' : 'Menunggu Pembayaran', 'kurir' => $shippingText, 'note' => $note,
                 'diskonVoucher' => (int)$initial['voucher_discount'],
                 'idVoucher' => (int)$initial['voucher_id'], 'cashback' => (int)$initial['cashback_after_order'],
                 'pakai_poin' => (int)$initial['points_applied'],
@@ -125,7 +126,7 @@ final class NativeCheckoutOrderService
         try {
             $transactionData = (new InventoryOrderReservation($this->db))->reserveAndPersist(
                 $initial['items'],
-                function (BaseConnection $db) use ($email, $input, $initial, $candidateId, $orderData, $payload, $sandbox, $addressFingerprint, $addressId): array {
+                function (BaseConnection $db) use ($email, $input, $initial, $candidateId, $orderData, $payload, $sandbox, $addressFingerprint, $addressId, $manualTransfer): array {
                     $addressBuilder = $db->table('customer_addresses')->where(['id' => (int)$addressId, 'email_user' => $email]);
                     $addressSql = $addressBuilder->getCompiledSelect();
                     $lockedAddress = $db->query($addressSql . ($db->DBDriver === 'SQLite3' ? '' : ' FOR UPDATE'))->getRowArray();
@@ -135,6 +136,9 @@ final class NativeCheckoutOrderService
                         'id' => (int)$lockedAddress['id'], 'name' => (string)($lockedAddress['recipient_name'] ?? ''),
                         'phone' => (string)($lockedAddress['recipient_phone'] ?? ''), 'address_data' => $lockedAddressData,
                     ]))) throw new DomainException('Alamat pengiriman berubah. Perbarui checkout.');
+                    // Re-check while holding the buyer row lock. The earlier
+                    // preflight alone races when web and Android submit together.
+                    CustomerPendingOrderGuard::lockAndAssertNoPending($db, $email);
                     if (!$sandbox) {
                         $reservation = (new CustomerCheckoutReservation($db))->reserve(
                             $email, (int)$initial['voucher_claim_id'], (int)$initial['points_applied'],
@@ -144,10 +148,18 @@ final class NativeCheckoutOrderService
                     }
                     $payment = [
                         'order_id' => $candidateId, 'gross_amount' => (int)$initial['total'],
-                        'payment_type' => (string)$payload['payment_type'], 'transaction_status' => 'pending',
+                        'payment_type' => $manualTransfer ? 'rekening' : (string)$payload['payment_type'],
+                        'transaction_status' => $manualTransfer ? 'pending-rekening' : 'pending',
                         '_app_payment_environment' => $sandbox ? 'sandbox' : 'production',
                         '_app_inventory_reserved' => !$sandbox, '_app_payment_effects_applied' => false,
                     ];
+                    if ($manualTransfer) {
+                        $payment['transaction_time'] = (new \DateTimeImmutable('now', new \DateTimeZone('Asia/Jakarta')))->format('Y-m-d H:i:s');
+                        $payment['expiry_time'] = (new \DateTimeImmutable('+1 hour', new \DateTimeZone('Asia/Jakarta')))->format('Y-m-d H:i:s');
+                        // Match the current website's manual transfer destination.
+                        $payment['va_numbers'] = [['bank' => 'bri', 'va_number' => '003401001574304']];
+                        $payment['account_name'] = 'Catur Bhakti Mandiri';
+                    }
                     $orderData['data_mid'] = json_encode($payment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                     if (!$db->table('pemesanan')->insert($orderData) || $db->transStatus() === false) {
                         throw new RuntimeException('Order persistence failed');
@@ -178,7 +190,7 @@ final class NativeCheckoutOrderService
                         ];
                         if (!$db->table('order_shipments')->insert($shipment)) throw new RuntimeException('Shipment persistence failed');
                     }
-                    return ['id_midtrans' => $candidateId, 'email_cus' => $email, 'status' => 'Menunggu Pembayaran', 'data_mid' => $orderData['data_mid']];
+                    return ['id_midtrans' => $candidateId, 'email_cus' => $email, 'status' => $manualTransfer ? 'Menunggu Pembayaran Rekening' : 'Menunggu Pembayaran', 'data_mid' => $orderData['data_mid']];
                 },
                 function () use ($previewService, $email, $input, $initial): void {
                     $fresh = $previewService->preview($email, $input);
@@ -191,6 +203,25 @@ final class NativeCheckoutOrderService
         } catch (\Throwable $e) {
             $ledger->failBeforeCharge($email, $idempotencyKey, $candidateId);
             throw $e;
+        }
+
+        if ($manualTransfer) {
+            try {
+                if (!$this->db->transBegin()) throw new RuntimeException('Manual checkout completion transaction could not start');
+                $this->clearCartIfUnchanged($email, (string)$initial['cart_fingerprint']);
+                if (!$ledger->complete($email, $idempotencyKey, $candidateId) || $this->db->transStatus() === false) {
+                    throw new RuntimeException('Manual checkout completion persistence deferred');
+                }
+                if (!$this->db->transCommit()) throw new RuntimeException('Manual checkout completion commit deferred');
+                return ['http_status' => 201, 'result' => ['replayed' => false, 'order' => $this->orderResult($transactionData)]];
+            } catch (\Throwable $e) {
+                if ((int)$this->db->transDepth > 0) $this->db->transRollback();
+                log_message('error', 'Native manual checkout completion deferred: {type}', ['type' => get_class($e)]);
+                return ['http_status' => 202, 'result' => [
+                    'replayed' => false, 'state' => 'processing', 'order_id' => $candidateId,
+                    'message' => 'Pesanan transfer manual tersimpan dan sedang dipastikan. Periksa Pesanan Saya sebelum mencoba lagi.',
+                ]];
+            }
         }
 
         try {
@@ -318,12 +349,14 @@ final class NativeCheckoutOrderService
             'payment' => [
                 'type' => (string)($payment['payment_type'] ?? ''),
                 'transaction_status' => (string)($payment['transaction_status'] ?? ''),
+                'account_name' => $payment['account_name'] ?? null,
                 'expiry_time' => $payment['expiry_time'] ?? null,
                 'va_numbers' => $payment['va_numbers'] ?? [],
                 'permata_va_number' => $payment['permata_va_number'] ?? null,
                 'payment_code' => $payment['payment_code'] ?? null,
                 'bill_key' => $payment['bill_key'] ?? null,
                 'biller_code' => $payment['biller_code'] ?? null,
+                'qr_string' => $payment['qr_string'] ?? null,
                 'actions' => $payment['actions'] ?? [],
             ],
         ];

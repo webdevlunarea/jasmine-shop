@@ -25,6 +25,12 @@ class ShippingService
 
     public function getQuotes(string $email, array $cart, array $address, int $weightGrams): array
     {
+        return $this->getQuotesDetailed($email, $cart, $address, $weightGrams)['quotes'];
+    }
+
+    /** @return array{quotes:array,external_status:string} */
+    public function getQuotesDetailed(string $email, array $cart, array $address, int $weightGrams): array
+    {
         $cartHash = $this->cartHash($cart, $weightGrams);
         $addressHash = $this->addressHash($address);
         $quotes = [];
@@ -37,9 +43,11 @@ class ShippingService
             $quotes[] = $this->persistQuote($email, $quote, $address, $weightGrams, $cartHash, $addressHash);
         }
 
+        $externalStatus = $this->rajaOngkirProvider->lastStatus() ?? 'not_checked';
+
         usort($quotes, static fn($a, $b) => ((int)($a['cost'] ?? 0)) <=> ((int)($b['cost'] ?? 0)));
 
-        return $quotes;
+        return ['quotes' => $quotes, 'external_status' => $externalStatus];
     }
 
     public function validateQuoteToken(string $token, string $email, array $cart, array $address, int $weightGrams): ?array

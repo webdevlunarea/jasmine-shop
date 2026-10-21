@@ -96,6 +96,33 @@ final class InventoryOrderReservationTest extends TestCase
         self::assertSame(1, $this->db->table('test_orders')->where('id', 'SANDBOX1')->countAllResults());
     }
 
+    public function testTwoCheckoutsCannotReserveTheSameLastUnit(): void
+    {
+        $this->product('P6', '["Default"]', '1');
+        $reservation = new InventoryOrderReservation($this->db);
+        $reservation->reserveAndPersist([
+            ['product_id' => 'P6', 'variant' => 'Default', 'quantity' => 1],
+        ], function ($db) {
+            $db->table('test_orders')->insert(['id' => 'FIRST']);
+            return 'FIRST';
+        });
+
+        try {
+            $reservation->reserveAndPersist([
+                ['product_id' => 'P6', 'variant' => 'Default', 'quantity' => 1],
+            ], function ($db) {
+                $db->table('test_orders')->insert(['id' => 'SECOND']);
+                return 'SECOND';
+            });
+            self::fail('The second checkout must not reserve an already reserved last unit.');
+        } catch (DomainException $error) {
+            self::assertSame('Stok salah satu produk berubah. Perbarui keranjang.', $error->getMessage());
+        }
+
+        self::assertSame('0', $this->stock('P6'));
+        self::assertSame(1, $this->db->table('test_orders')->countAllResults());
+    }
+
     private function product(string $id, string $variants, string $stock): void
     {
         $this->db->table('barang')->insert(['id' => $id, 'nama' => 'Produk ' . $id, 'active' => 1, 'stok' => $stock, 'varian' => $variants]);

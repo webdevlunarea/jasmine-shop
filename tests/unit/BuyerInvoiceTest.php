@@ -57,6 +57,26 @@ final class BuyerInvoiceTest extends CIUnitTestCase
         $this->assertStringNotContainsString('1970', $html);
     }
 
+    public function testGlassProtectionSnapshotIsNamedAndReconcilesInvoiceTotal(): void
+    {
+        $order = $this->order();
+        $payment = json_decode($order['data_mid'], true);
+        $payment['_app_glass_service'] = ['selected'=>true, 'amount'=>50000, 'unit_price'=>25000];
+        $payment['gross_amount'] = 2125000;
+        $order['data_mid'] = json_encode($payment);
+
+        $doc = InvoiceDocument::build($order, ['shipping_cost'=>125000,'courier_name'=>'JNE','service_name'=>'REG']);
+        $labels = array_column($doc['rows'], 'label');
+        $this->assertContains('Proteksi kaca', $labels);
+        $this->assertSame(50000, $doc['rows'][array_search('Proteksi kaca', $labels, true)]['amount']);
+        $this->assertSame($doc['total'], array_sum(array_column($doc['rows'], 'amount')));
+
+        $payment['_app_glass_service']['selected'] = 'false';
+        $order['data_mid'] = json_encode($payment);
+        $withoutGlass = InvoiceDocument::build($order, ['shipping_cost'=>125000]);
+        $this->assertNotContains('Proteksi kaca', array_column($withoutGlass['rows'], 'label'));
+    }
+
     public function testViewEscapesCustomerContentAndPdfHasNoExternalDependencies(): void
     {
         $order = $this->order();

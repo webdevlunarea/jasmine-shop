@@ -66,6 +66,8 @@
             <p>Lengkapi alamat dan pilih pengiriman sebelum melanjutkan pembayaran.</p>
         </header>
         <form class="w-100" id="form-checkout" action="/actionpaycore" method="post" data-confirm-submit data-confirm-message="Pastikan alamat, pilihan pengiriman, dan metode pembayaran sudah sesuai sebelum melanjutkan pesanan.">
+            <input type="hidden" name="checkout_idempotency_key" value="<?= esc((string) ($checkoutIdempotencyKey ?? '')); ?>">
+            <input type="hidden" name="ganti-kaca" value="<?= !empty($gantiKaca) && (int)$totalkaca > 0 ? 'true' : 'false'; ?>">
             <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
             <div id="modal-metode-bayar" role="dialog" aria-modal="true" aria-labelledby="checkout-payment-title" class="d-none p-2 justify-content-center align-items-center"
                 style="z-index: 12; background-color: rgba(0, 0, 0, 0.5); position:fixed; left: 0; top: 0; height: 100svh; width: 100vw;">

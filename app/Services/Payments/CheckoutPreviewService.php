@@ -46,6 +46,10 @@ final class CheckoutPreviewService
             if ($id === '' || $quantity < 1 || $quantity > 99) throw new DomainException('Keranjang memiliki item yang perlu diperiksa.');
             $product = $productModel->select('id,nama,path,harga,diskon,stok,varian,berat,dimensi,kaca,active')->where(['id' => $id, 'active' => '1'])->first();
             if (!$product) throw new DomainException('Salah satu produk sudah tidak tersedia.');
+            $productWeightKg = (float)str_replace(',', '.', (string)($product['berat'] ?? 0));
+            if (!is_finite($productWeightKg) || $productWeightKg <= 0) {
+                throw new DomainException('Berat salah satu produk belum tersedia. Hubungi admin sebelum melanjutkan checkout.');
+            }
             $variants = ProductVariantStock::variants((string)$product['varian']);
             $variantNames = ProductVariantStock::names($variants);
             $variantIndex = array_search($variant, $variantNames, true);
@@ -57,7 +61,7 @@ final class CheckoutPreviewService
             $unitPrice = (int)round(((100 - (int)$product['diskon']) / 100) * (int)$product['harga']);
             $lineTotal = $unitPrice * $quantity;
             $subtotal += $lineTotal;
-            $weightKg += max(0, (float)str_replace(',', '.', (string)$product['berat'])) * $quantity;
+            $weightKg += $productWeightKg * $quantity;
             if (!empty($product['kaca'])) $glassTotal += $quantity * 25000;
             foreach ($preorders as $preorder) {
                 if ((string)$preorder['id_barang'] === $id) $preorderDiscount += ((int)$product['harga'] - (int)$preorder['harga']) * $quantity;
@@ -65,7 +69,7 @@ final class CheckoutPreviewService
             $items[] = [
                 'product_id' => $id, 'name' => (string)$product['nama'], 'variant' => $variant,
                 'quantity' => $quantity, 'unit_price' => $unitPrice, 'line_total' => $lineTotal,
-                'stock_available' => $stock, 'weight_kg' => (float)$product['berat'],
+                'stock_available' => $stock, 'weight_kg' => $productWeightKg,
                 'dimensions' => (string)$product['dimensi'], 'image_url' => base_url('imgpic/' . rawurlencode($id)),
             ];
             $products[] = [
@@ -142,7 +146,8 @@ final class CheckoutPreviewService
         }
 
         $method = strtolower(trim((string)($input['payment_method'] ?? '')));
-        $allowedMethods = MidtransCheckoutRequest::supportedMethods();
+        // First-party manual transfer bypasses the gateway and has no gateway fee.
+        $allowedMethods = array_merge(MidtransCheckoutRequest::supportedMethods(), ['rekening']);
         if (!in_array($method, $allowedMethods, true)) throw new DomainException('Metode pembayaran belum dipilih.');
         $tax = in_array($method, ['bca', 'bri', 'bni', 'mandiri', 'permata', 'cimb'], true)
             ? (float)((new KonstantaModel())->getKonstantaById(1)['value'] ?? 0) : 0.0;

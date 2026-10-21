@@ -78,10 +78,12 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     $seoProductData = null;
     if (isset($produk['nama'], $produk['id'], $produk['harga'])) {
         $seoPriceRaw = trim((string) $produk['harga']);
-        $seoPrice = preg_replace('/[^0-9]/', '', $seoPriceRaw);
+        $seoPrice = (int) preg_replace('/[^0-9]/', '', $seoPriceRaw);
+        $seoDiscount = max(0, min(100, (int) ($produk['diskon'] ?? 0)));
+        if ($seoDiscount > 0) $seoPrice = (int) round($seoPrice * (100 - $seoDiscount) / 100);
         $seoName = trim(strip_tags((string) $produk['nama']));
         $seoDescriptionProduct = trim(strip_tags((string) ($produk['deskripsi_nonhtml'] ?? $produk['deskripsi'] ?? '')));
-        if ($seoName !== '' && $seoPrice !== '' && (int) $seoPrice > 0) {
+        if ($seoName !== '' && $seoPrice > 0) {
             $seoProductData = [
                 '@context' => 'https://schema.org',
                 '@type' => 'Product',
@@ -93,7 +95,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
                     '@type' => 'Offer',
                     'url' => $seoCanonical,
                     'priceCurrency' => 'IDR',
-                    'price' => (int) $seoPrice,
+                    'price' => $seoPrice,
                     'itemCondition' => 'https://schema.org/NewCondition',
                 ],
             ];
@@ -122,7 +124,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <meta data-rh="true" property="og:site_name" content="Lunarea Furniture">
     <meta data-rh="true" property="og:url" content="<?= esc($seoCanonical, 'attr'); ?>">
     <meta data-rh="true" property="og:description" content="<?= esc($seoDescription, 'attr'); ?>">
-    <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/logo icon.png">
+    <meta data-rh="true" property="og:image" content="https://lunareafurniture.com/img/logo%20icon.png">
     <?php if ($seoProductData !== null) { ?>
     <meta property="product:price:currency" content="IDR">
     <meta property="product:price:amount" content="<?= esc((string) $seoProductData['offers']['price'], 'attr'); ?>">
@@ -132,7 +134,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= esc($seoTitle, 'attr'); ?>">
     <meta name="twitter:description" content="<?= esc($seoDescription, 'attr'); ?>">
-    <meta name="twitter:image" content="https://lunareafurniture.com/logo icon.png">
+    <meta name="twitter:image" content="https://lunareafurniture.com/img/logo%20icon.png">
     <?php if ($seoIsHome) { ?>
     <script type="application/ld+json">
     <?= json_encode([
@@ -152,6 +154,13 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
                 '@id' => 'https://lunareafurniture.com/#organization',
                 'name' => 'Lunarea Furniture',
                 'url' => 'https://lunareafurniture.com/',
+                'logo' => 'https://lunareafurniture.com/img/logo%20icon.png',
+                'slogan' => 'always your choice, always your furniture.',
+                'sameAs' => [
+                    'https://www.instagram.com/Lunareafurniture.official',
+                    'https://www.tiktok.com/@lunareafurnitureofficial',
+                    'https://www.threads.net/@lunareafurniture.official',
+                ],
             ],
         ],
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>

@@ -178,7 +178,7 @@ final class PendingPaymentLifecycleTest extends CIUnitTestCase
 
     public function testManualUnpaidProductionExpiryRestoresReservationExactlyOnce(): void
     {
-        $this->change(['status'=>'Menunggu Pembayaran Rekening'],['payment_type'=>'rekening','_app_payment_environment'=>'production']);
+        $this->change(['status'=>'Menunggu Pembayaran Rekening'],['payment_type'=>'rekening','_app_payment_environment'=>'production','_app_inventory_reserved'=>true]);
         $controller=$this->controller();
         $this->assertSame('Kadaluarsa',$controller->reconcile($this->saved())['status']);
         $this->assertSame('10',$this->db->table('barang')->get()->getRowArray()['stok']);
@@ -237,7 +237,7 @@ final class PendingPaymentLifecycleTest extends CIUnitTestCase
 
     public function testRenamedProductStillRestoresByStoredIdAndCorrectVariant(): void
     {
-        $this->change(['status'=>'Menunggu Pembayaran Rekening'],['payment_type'=>'rekening','_app_payment_environment'=>'production']);
+        $this->change(['status'=>'Menunggu Pembayaran Rekening'],['payment_type'=>'rekening','_app_payment_environment'=>'production','_app_inventory_reserved'=>true]);
         $this->db->table('barang')->where('id','B1')->update(['nama'=>'Nama baru','varian'=>'["Putih","Cokelat"]','stok'=>'8,5']);
         $this->assertSame('Kadaluarsa',$this->controller()->reconcile($this->saved())['status']);
         $this->assertSame('10,5',$this->db->table('barang')->get()->getRowArray()['stok']);
@@ -247,7 +247,7 @@ final class PendingPaymentLifecycleTest extends CIUnitTestCase
     {
         $this->db->table('pembeli')->insert(['email_user'=>'buyer@example.test','poin'=>'[{"nominal":0,"active":false,"kadaluarsa":"2027-01-01"},{"nominal":2000,"active":true,"kadaluarsa":"2027-02-01"}]']);
         $this->db->table('voucher_claimed')->insert(['id_voucher'=>7,'email_user'=>'buyer@example.test','active'=>0]);
-        $this->change(['status'=>'Menunggu Pembayaran Rekening','idVoucher'=>7,'pakai_poin'=>10000],['payment_type'=>'rekening','_app_payment_environment'=>'production']);
+        $this->change(['status'=>'Menunggu Pembayaran Rekening','idVoucher'=>7,'pakai_poin'=>10000],['payment_type'=>'rekening','_app_payment_environment'=>'production','_app_inventory_reserved'=>true]);
         $controller=$this->controller();
         $controller->reconcile($this->saved());$controller->reconcile($this->saved());
         $this->assertSame('Kadaluarsa',$this->saved()['status']);

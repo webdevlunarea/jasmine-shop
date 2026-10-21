@@ -14,6 +14,7 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
     public function testCheckoutKeepsControlsAndRendersClearSections(string $state): void
     {
         $guest = $state === 'guest';
+        $glassAvailable = $state !== 'no-glass';
         $email = $guest ? 'tamu' : 'buyer@example.test';
         session()->set(['isLogin' => true, 'role' => 0, 'email' => $email]);
         $address = ['prov_id' => '33', 'prov' => 'Jawa Tengah', 'kab_id' => '3374', 'kab' => 'Semarang', 'kec_id' => '337401', 'kec' => 'Ngaliyan', 'desa' => 'Ngaliyan', 'kodepos' => '50181', 'add' => 'Jalan Contoh Nomor 12', 'alamat' => 'Jalan Contoh Nomor 12, Ngaliyan, Semarang'];
@@ -25,7 +26,7 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
             'produk' => [['nama' => 'Lemari pakaian minimalis dua pintu dengan laci tambahan', 'harga' => 1000000, 'diskon' => 10]],
             'keranjang' => [['varian' => 'Putih natural']], 'jumlah' => [2], 'subtotal' => 1800000, 'total' => 1800000,
             'diskonVoucher' => in_array($state, ['member', 'all-discounts'], true) ? 50000 : 0, 'potonganPreorder' => $state === 'all-discounts' ? 100000 : 0,
-            'gantiKaca' => true, 'totalkaca' => 25000, 'poin' => $guest ? 0 : 20000, 'usepoin' => $state === 'all-discounts', 'biayaAdmin' => 4000,
+            'gantiKaca' => $glassAvailable, 'totalkaca' => $glassAvailable ? 25000 : 0, 'poin' => $guest ? 0 : 20000, 'usepoin' => $state === 'all-discounts', 'biayaAdmin' => 4000,
             'voucher' => $guest || $state === 'no-voucher' ? [] : [$voucher], 'voucherSelected' => $state === 'member' ? $voucher : null,
             'activeVoucher' => $state === 'member' ? 2 : 0, 'shippingWeightGrams' => 40000,
             'shippingWeightDetails' => [['name' => 'Lemari pakaian minimalis dua pintu', 'variant' => 'Putih natural', 'quantity' => 2, 'dimension' => '120 x 45 x 180', 'weight_kg' => 20, 'total_weight_kg' => 40]],
@@ -57,9 +58,10 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
         $this->assertSame(1, $xp->query('//section[contains(@class,"checkout-delivery")]//*[@id="shipping-options"]')->length);
         $this->assertSame(0, $xp->query('//aside//*[@id="shipping-options"]')->length);
         $this->assertSame(1, $xp->query('//form[@id="form-checkout" and @action="/actionpaycore" and @method="post"]')->length);
-        foreach (['shipping_quote_token', 'nama', 'nohp', 'alamat_add', 'alamat', 'provinsi', 'kota', 'kecamatan', 'kodepos', 'note'] as $name) {
+        foreach (['shipping_quote_token', 'ganti-kaca', 'nama', 'nohp', 'alamat_add', 'alamat', 'provinsi', 'kota', 'kecamatan', 'kodepos', 'note'] as $name) {
             $this->assertSame(1, $xp->query('//*[@name="' . $name . '"]')->length, $name);
         }
+        $this->assertSame($glassAvailable ? 'true' : 'false', $xp->query('//form[@id="form-checkout"]//input[@name="ganti-kaca"]')->item(0)->getAttribute('value'));
         foreach (['checkout-name', 'checkout-phone', 'checkout-street', 'checkout-province', 'checkout-city', 'checkout-district', 'checkout-village', 'checkout-note'] as $id) {
             $this->assertSame(1, $xp->query('//*[@id="' . $id . '"]')->length);
             $this->assertSame(1, $xp->query('//label[@for="' . $id . '"]')->length);
@@ -94,5 +96,5 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
         }
     }
 
-    public static function checkoutStates(): array { return [['member'], ['guest'], ['no-voucher'], ['all-discounts']]; }
+    public static function checkoutStates(): array { return [['member'], ['guest'], ['no-voucher'], ['all-discounts'], ['no-glass']]; }
 }

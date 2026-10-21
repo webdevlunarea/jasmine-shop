@@ -40,12 +40,14 @@ class OrderController extends ApiController
             'payment' => [
                 'type' => (string)($payment['payment_type'] ?? ''),
                 'status' => (string)($payment['transaction_status'] ?? ''),
+                'account_name' => $payment['account_name'] ?? null,
                 'gross_amount' => max(0, (int)($payment['gross_amount'] ?? 0)),
                 'expiry_time' => $payment['expiry_time'] ?? null,
                 'va_numbers' => $this->safeVaNumbers($payment),
                 'payment_code' => $payment['payment_code'] ?? null,
                 'bill_key' => $payment['bill_key'] ?? null,
                 'biller_code' => $payment['biller_code'] ?? null,
+                'qr_string' => $payment['qr_string'] ?? null,
                 'actions' => $this->safePaymentActions($payment),
             ],
         ]]);
@@ -126,6 +128,7 @@ class OrderController extends ApiController
             'created_at' => $payment['transaction_time'] ?? null,
             'amount' => max(0, (int)($payment['gross_amount'] ?? 0)),
             'courier' => (string)($order['kurir'] ?? ''), 'tracking_number' => (string)($order['resi'] ?? ''),
+            'has_payment_proof' => !empty($order['bukti_bayar']),
         ];
     }
 
