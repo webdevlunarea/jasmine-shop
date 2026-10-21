@@ -5092,11 +5092,9 @@ private fun CatalogScreen(
                                   && affiliate?.get("enabled")?.takeUnless { it.isJsonNull }?.asBoolean == true
                                   && baseShareUrl.isNotBlank()) {
                                   val shareUrl = Uri.parse(baseShareUrl).buildUpon()
-                                      .appendQueryParameter("product", product.slug.orEmpty())
                                       .appendQueryParameter("product_id", product.id)
-                                      .appendQueryParameter("preview", "2")
                                       .build().toString()
-                                  val text = "Lagi cari furnitur? Aku menemukan ${product.name} dari Lunarea Furniture—lihat foto, detail, dan harganya di sini:\n$shareUrl\n\nYuk, cek produknya. Siapa tahu cocok untuk ruangmu!"
+                                  val text = "Ada yang menarik dari Lunarea Furniture ✨\n\nSedang mencari furniture untuk melengkapi rumah? Siapa tahu ${product.name} bisa jadi pilihan yang tepat untuk ruanganmu.\n\nYuk, lihat detail dan inspirasinya di sini:\n$shareUrl\n\nAlways your choice, always your furniture."
                                   val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }
                                   context.startActivity(Intent.createChooser(send, "Bagikan tautan afiliasi"))
                                   actionMessage = null

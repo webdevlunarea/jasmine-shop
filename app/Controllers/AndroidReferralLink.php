@@ -15,8 +15,13 @@ final class AndroidReferralLink extends BaseController
             session()->set('affiliate_referral_code', $code);
             $slug = strtolower(trim((string)$this->request->getGet('product')));
             $product = null;
+            $productId = trim((string)$this->request->getGet('product_id'));
+            if ($productId !== '' && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $productId)) {
+                $product = (new \App\Models\BarangModel())->where(['id' => $productId, 'active' => '1'])->first();
+                if (is_array($product)) $slug = strtolower(trim((string)($product['path'] ?? '')));
+            }
             if ($slug !== '' && preg_match('/^[a-z0-9-]{1,120}$/', $slug)) {
-                $product = (new \App\Models\BarangModel())->where(['path' => $slug, 'active' => '1'])->first();
+                $product ??= (new \App\Models\BarangModel())->where(['path' => $slug, 'active' => '1'])->first();
             }
             $settings = $program->settings();
             $productName = is_array($product) ? trim(strip_tags((string)($product['nama'] ?? ''))) : '';
