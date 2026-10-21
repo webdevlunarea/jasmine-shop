@@ -35,13 +35,16 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 .buyer-footer--full .buyer-footer__main-grid { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr); gap: 40px; padding-bottom: 28px; }
 .buyer-footer--full :is(section,nav,div) { min-width: 0; }
 .buyer-footer--full h2 { margin: 0 0 12px; font-family: 'Plus Jakarta Sans',sans-serif; font-size: .875rem; font-weight: 500; line-height: 1.6; color: var(--theme-primary); }
-.buyer-footer--full .buyer-footer__wordmark { min-height: 44px; padding: 0; font-family: 'Montserrat','Plus Jakarta Sans',sans-serif; font-size: 1.25rem; font-weight: 600; letter-spacing: .075em; text-transform: uppercase; }
-.buyer-footer--full .buyer-footer__description { max-width: 260px; margin-top: 6px; color: #626262; font-size: .8125rem; line-height: 1.8; }
+.buyer-footer--full .buyer-footer__wordmark { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+.buyer-footer--full .buyer-footer__wordmark img { display: block; width: 180px; max-width: 100%; height: auto; object-fit: contain; }
+.buyer-footer--full .buyer-footer__description { max-width: 300px; margin-top: 6px; color: #626262; font-size: .8125rem; line-height: 1.8; }
 .buyer-footer--full .buyer-footer__socials { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
 .buyer-footer--full .buyer-footer__socials a { display: inline-flex; justify-content: center; width: 44px; height: 44px; padding: 0; }
 .buyer-footer--full .buyer-footer__social-icon { display: block; flex-shrink: 0; width: 17px; height: 17px; fill: currentColor; }
 .buyer-footer--full .buyer-footer__caption { font-size: .75rem; color: #737373; }
-.buyer-footer--full .buyer-footer__brands > div { display: flex; flex-wrap: wrap; gap: 0 16px; }
+.buyer-footer--full .buyer-footer__brands > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 4px; }
+.buyer-footer--full .buyer-footer__brand-link { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 0; }
+.buyer-footer--full .buyer-footer__brand-link img { display: block; width: auto; max-width: 152px; height: 16px; object-fit: contain; }
 .buyer-footer--full .buyer-footer__full-menu { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 16px; }
 .buyer-footer--full .buyer-footer__full-menu a { align-self: start; }
 .buyer-footer--full .buyer-footer__hours { margin-bottom: 12px; }

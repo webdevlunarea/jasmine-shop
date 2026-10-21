@@ -133,7 +133,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-brand-partnership__logo { display: block; width: auto; height: 17px; max-width: 126px; object-fit: contain; }
     .buyer-desktop-header .navbar-collapse { flex: 1 1 auto; min-width: 0; gap: 20px; align-items: center; }
     .buyer-desktop-header.navbar .navbar-nav { flex: 1 1 auto; justify-content: center; align-items: center; gap: 6px; margin: 0 !important; }
-    .buyer-desktop-header.navbar .nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 10px !important; font-size: .8125rem; font-weight: 500; white-space: nowrap; color: var(--theme-primary); }
+    .buyer-desktop-header.navbar .nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 10px !important; font-size: .75rem; font-weight: 500; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; color: var(--theme-primary); }
     .buyer-desktop-header.navbar .nav-link::after { left: 10px; right: 10px; height: 1px; }
     .buyer-desktop-header.navbar .search-box { flex: 0 1 280px; width: clamp(180px, 20vw, 280px); min-width: 160px; margin-left: auto; }
     .buyer-desktop-header .search-box .input-group { flex-wrap: nowrap; min-height: 44px; border: 1px solid var(--theme-soft-2); border-radius: 6px; background: var(--theme-soft); box-shadow: none; overflow: hidden; }
