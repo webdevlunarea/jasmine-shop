@@ -129,7 +129,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-brand-cluster { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 12px; min-width: 0; }
     .buyer-desktop-header.navbar .buyer-desktop-brand { flex: 0 0 auto; min-height: 44px; margin: 0; padding: 0; }
     .buyer-desktop-header.navbar .buyer-desktop-logo { display: block; width: 154px; max-width: 100%; height: auto; object-fit: contain; }
-    .buyer-brand-partnership { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .buyer-brand-partnership { display: inline-flex; align-items: center; gap: 12px; white-space: nowrap; }
     .buyer-brand-partnership__divider { display: block; width: 1px; height: 28px; background: #77766f; }
     .buyer-brand-partnership__stack { display: inline-flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; transform: translateY(2px); }
     .buyer-brand-partnership__label { color: #696963; font-size: .5rem; letter-spacing: .12em; line-height: 1; text-transform: uppercase; }
@@ -186,7 +186,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-header.navbar > .container { gap: 12px; }
     .buyer-desktop-brand-cluster { gap: 8px; }
     .buyer-desktop-header.navbar .buyer-desktop-logo { width: 128px; }
-    .buyer-brand-partnership { gap: 5px; }
+    .buyer-brand-partnership { gap: 9px; }
     .buyer-brand-partnership__divider { height: 25px; }
     .buyer-brand-partnership__label { font-size: .4375rem; letter-spacing: .1em; }
     .buyer-brand-partnership__logo { height: 9px; max-width: 68px; }
