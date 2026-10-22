@@ -35,10 +35,10 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
                             </svg></a>
                 </nav>
                 <div class="buyer-footer__brands">
-                    <p class="buyer-footer__caption">Kenali brand kami</p>
+                    <p class="buyer-footer__caption">Brand kami</p>
                     <div>
-                        <a class="buyer-footer__brand-link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Ilena Furniture"><img src="/img/logoilena.png" width="128" height="18" alt="Ilena Furniture" loading="lazy" decoding="async"></a>
                         <a class="buyer-footer__brand-link" href="https://lunareafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Lunarea Furniture"><img src="/img/Logo Lunarea Bg Terang.png" width="152" height="16" alt="Lunarea Furniture" loading="lazy" decoding="async"></a>
+                        <a class="buyer-footer__brand-link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Ilena Furniture"><img src="/img/logoilena.png" width="128" height="18" alt="Ilena Furniture" loading="lazy" decoding="async"></a>
                     </div>
                 </div>
             </section>

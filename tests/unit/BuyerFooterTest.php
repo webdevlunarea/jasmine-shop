@@ -54,7 +54,8 @@ final class BuyerFooterTest extends CIUnitTestCase
         $this->assertStringNotContainsString('Periksa rincian pesanan', $auth);
         $full = view('layout/buyer_footer', ['footerVariant' => 'full'], ['saveData' => false]);
         $this->assertStringContainsString('Metode pembayaran', $full);
-        $this->assertStringContainsString('Kenali brand kami', $full);
+        $this->assertStringContainsString('Brand kami', $full);
+        $this->assertStringNotContainsString('Kenali brand kami', $full);
         $fallback = view('layout/buyer_footer', ['footerVariant' => '<invalid>'], ['saveData' => false]);
         $this->assertSame(preg_replace('/<!--.*?-->/s', '', $full), preg_replace('/<!--.*?-->/s', '', $fallback));
     }
