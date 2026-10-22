@@ -5,7 +5,7 @@
 
     const desktopHeader = document.querySelector('.buyer-desktop-header');
     const promoBanners = document.querySelectorAll('.buyer-promo-banner');
-    const mobile = window.matchMedia('(max-width: 599.98px)');
+    const mobile = window.matchMedia('(max-width: 991.98px)');
     const toggle = document.getElementById('buyer-account-toggle');
     const menu = document.getElementById('buyer-account-menu');
     const root = document.documentElement;

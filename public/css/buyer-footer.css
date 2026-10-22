@@ -35,15 +35,18 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 
 /* Full storefront footer: flat groups, restrained typography, no logo cards. */
 .buyer-footer--full { margin-top: 40px; padding-block: 40px 16px; }
-.buyer-footer--full .buyer-footer__main-grid { display: grid; grid-template-columns: minmax(0,1.1fr) repeat(3,minmax(0,1fr)); gap: clamp(20px,2.4vw,36px); padding-bottom: 28px; }
+.buyer-footer--full .buyer-footer__main-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); grid-template-areas: "policies care shopping" "policies care social"; align-items: start; gap: 12px clamp(20px,2.4vw,36px); padding-bottom: 28px; }
 .buyer-footer--full :is(section,nav,div) { min-width: 0; }
 .buyer-footer--full h2 { margin: 0 0 12px; font-family: 'Plus Jakarta Sans',sans-serif; font-size: .875rem; font-weight: 500; line-height: 1.6; color: var(--theme-primary); }
-.buyer-footer--full .buyer-footer__intro { align-self: start; }
+.buyer-footer--full .buyer-footer__intro { grid-area: social; align-self: start; }
 .buyer-footer--full .buyer-footer__socials { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
 .buyer-footer--full .buyer-footer__socials a { display: inline-flex; justify-content: center; width: 44px; height: 44px; padding: 0; }
 .buyer-footer--full .buyer-footer__social-icon { display: block; flex-shrink: 0; width: 17px; height: 17px; fill: currentColor; }
 .buyer-footer--full .buyer-footer__brand-line { display: flex; justify-content: center; padding: 2px 16px 24px; text-align: center; }
-.buyer-footer--full .buyer-footer__description { max-width: 100%; margin: 0; color: #626262; font-size: .875rem; font-style: italic; font-weight: 600; line-height: 1.65; }
+.buyer-footer--full .buyer-footer__description { max-width: 100%; margin: 0; color: #626262; font-size: 1.0625rem; font-style: italic; font-weight: 650; line-height: 1.65; }
+.buyer-footer--full .buyer-footer__shopping { grid-area: shopping; }
+.buyer-footer--full .buyer-footer__policies { grid-area: policies; }
+.buyer-footer--full .buyer-footer__customer-care { grid-area: care; }
 .buyer-footer--full .buyer-footer__full-menu { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; }
 .buyer-footer--full .buyer-footer__full-menu a { align-self: start; min-height: 40px; padding-block: 5px; }
 .buyer-footer--full .buyer-footer__hours { margin-bottom: 12px; }
@@ -64,14 +67,14 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 .buyer-footer--full .buyer-footer__marketplaces img { display: block; width: 72px; max-width: 100%; height: 24px; object-fit: contain; }
 .buyer-footer--full .buyer-footer__bottom { padding-top: 16px; }
 @media (max-width: 991.98px) and (min-width: 576px) {
-    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px 32px; }
+    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: "policies care" "shopping social"; gap: 24px 32px; }
     .buyer-footer--full .buyer-footer__commerce,
     .buyer-footer--full .buyer-footer__commerce--with-app { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 32px; }
     .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
 }
 @media (max-width: 575.98px) {
     .buyer-footer--full { margin-top: 28px; padding-top: 28px; }
-    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 16px; }
+    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: "social social" "shopping policies" "care care"; gap: 20px 16px; }
     .buyer-footer--full .buyer-footer__intro { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; }
     .buyer-footer--full .buyer-footer__intro h2 { text-align: center; }
     .buyer-footer--full .buyer-footer__socials { justify-content: center; }
