@@ -2,6 +2,7 @@ package com.lunareafurniture.lunarea.data.api
 
 import android.content.Context
 import android.app.Activity
+import android.os.Build
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -21,10 +22,15 @@ class AuthRepository(context: Context) {
     private val appContext = context.applicationContext
     private val tokenStore = SecureTokenStore(appContext)
     private val api get() = ApiClient.get(appContext)
+    private val deviceName: String by lazy {
+        listOf(Build.MANUFACTURER, Build.MODEL)
+            .map { it.trim() }.filter { it.isNotBlank() }.distinct().joinToString(" ")
+            .take(100).ifBlank { "Android" }
+    }
 
     suspend fun login(identifier: String, password: String): Result<Unit> = runCatching {
         val captchaToken = AndroidRecaptcha.token(appContext as android.app.Application, "login")
-        val response = api.login(LoginRequest(identifier.trim(), password, captcha_token = captchaToken))
+        val response = api.login(LoginRequest(identifier.trim(), password, device_name = deviceName, captcha_token = captchaToken))
         val body = response.body()
         val pair = body?.data?.tokens
         check(response.isSuccessful && body?.success == true && pair != null) {
@@ -55,7 +61,7 @@ class AuthRepository(context: Context) {
         val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
         check(idToken.isNotBlank()) { "Token Google tidak diterima. Coba lagi." }
 
-        val response = api.googleLogin(GoogleLoginRequest(idToken))
+        val response = api.googleLogin(GoogleLoginRequest(idToken, device_name = deviceName))
         val body = response.body()
         val pair = body?.data?.tokens
         check(response.isSuccessful && body?.success == true && pair != null) {

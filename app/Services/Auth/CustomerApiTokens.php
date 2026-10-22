@@ -204,6 +204,123 @@ class CustomerApiTokens
         }
     }
 
+    /** Return safe metadata for active Android sessions owned by the bearer session. */
+    public function activeSessionsForAccess(string $plainToken): array
+    {
+        $current = $this->activeAccessRow($plainToken);
+        if (!$current) throw new RuntimeException('Sesi aktif tidak dapat diverifikasi.');
+
+        $email = (string) $current['email_user'];
+        $currentFamily = (string) $current['family_id'];
+        $rows = $this->db->table('customer_api_tokens')
+            ->select('family_id, device_name, created_at, expires_at, password_version')
+            ->where(['email_user' => $email, 'token_type' => 'refresh', 'revoked_at' => null])
+            ->where('expires_at >', $this->now())
+            ->orderBy('created_at', 'DESC')
+            ->limit(30)
+            ->get()->getResultArray();
+
+        $active = [];
+        foreach ($rows as $row) {
+            if (!$this->passwordVersions->matches($email, (string) ($row['password_version'] ?? ''))) continue;
+            $family = (string) $row['family_id'];
+            $active[$family] = [
+                'session_id' => $family,
+                'device_name' => trim((string) ($row['device_name'] ?? '')) ?: 'Perangkat Android',
+                'created_at' => $this->utcIso((string) $row['created_at']) ?? '',
+                'expires_at' => $this->utcIso((string) $row['expires_at']) ?? '',
+                'is_current' => hash_equals($currentFamily, $family),
+                'last_active_at' => null,
+            ];
+        }
+
+        if (!isset($active[$currentFamily])) {
+            $active[$currentFamily] = [
+                'session_id' => $currentFamily,
+                'device_name' => trim((string) ($current['device_name'] ?? '')) ?: 'Perangkat Android',
+                'created_at' => $this->utcIso((string) $current['created_at']) ?? '',
+                'expires_at' => $this->utcIso((string) $current['expires_at']) ?? '',
+                'is_current' => true,
+                'last_active_at' => $this->utcIso($current['last_used_at'] ?? null),
+            ];
+        }
+
+        if ($active) {
+            $activity = $this->db->table('customer_api_tokens')
+                ->select('family_id, MAX(last_used_at) AS last_active_at')
+                ->where('email_user', $email)
+                ->where('token_type', 'access')
+                ->whereIn('family_id', array_keys($active))
+                ->groupBy('family_id')->get()->getResultArray();
+            foreach ($activity as $row) {
+                $family = (string) $row['family_id'];
+                if (isset($active[$family])) $active[$family]['last_active_at'] = $this->utcIso($row['last_active_at'] ?? null);
+            }
+        }
+
+        return array_values($active);
+    }
+
+    /** Revoke only a different active Android session belonging to this account. */
+    public function revokeSessionForAccess(string $plainToken, string $sessionId): void
+    {
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $sessionId)) {
+            throw new \DomainException('Sesi perangkat tidak ditemukan. Muat ulang daftar sesi.');
+        }
+        $current = $this->activeAccessRow($plainToken);
+        if (!$current) throw new RuntimeException('Sesi aktif tidak dapat diverifikasi.');
+        if (hash_equals((string) $current['family_id'], $sessionId)) {
+            throw new \DomainException('Perangkat yang sedang digunakan tidak dapat dikeluarkan dari sini.');
+        }
+
+        $email = (string) $current['email_user'];
+        $target = $this->db->table('customer_api_tokens')->where([
+            'email_user' => $email,
+            'family_id' => $sessionId,
+            'token_type' => 'refresh',
+            'revoked_at' => null,
+        ])->where('expires_at >', $this->now())->get()->getRowArray();
+        if (!$target || !$this->passwordVersions->matches($email, (string) ($target['password_version'] ?? ''))) {
+            throw new \DomainException('Sesi perangkat tidak aktif atau sudah dikeluarkan.');
+        }
+
+        if (!$this->db->transBegin()) throw new RuntimeException('Sesi perangkat belum dapat dikeluarkan.');
+        try {
+            $updated = $this->db->table('customer_api_tokens')
+                ->where(['email_user' => $email, 'family_id' => $sessionId, 'revoked_at' => null])
+                ->update(['revoked_at' => $this->now()]);
+            if (!$updated || $this->db->affectedRows() < 1 || $this->db->transStatus() === false || !$this->db->transCommit()) {
+                throw new RuntimeException('Pencabutan sesi perangkat tidak berhasil disimpan.');
+            }
+        } catch (\Throwable $error) {
+            if ((int) $this->db->transDepth > 0) $this->db->transRollback();
+            if ($error instanceof \DomainException) throw $error;
+            throw new RuntimeException('Sesi perangkat belum dapat dikeluarkan.');
+        }
+    }
+
+    private function activeAccessRow(string $plainToken): ?array
+    {
+        if (strlen($plainToken) < 32 || strlen($plainToken) > 128) return null;
+        $row = $this->db->table('customer_api_tokens')->where([
+            'token_hash' => hash('sha256', $plainToken),
+            'token_type' => 'access',
+            'revoked_at' => null,
+        ])->where('expires_at >', $this->now())->get()->getRowArray();
+        if (!$row || !$this->passwordVersions->matches(
+            (string) $row['email_user'],
+            (string) ($row['password_version'] ?? '')
+        )) return null;
+        return $row;
+    }
+
+    private function utcIso(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') return null;
+        $timestamp = strtotime(trim($value) . ' UTC');
+        return $timestamp === false ? null : gmdate('Y-m-d\TH:i:s\Z', $timestamp);
+    }
+
     private function createToken(string $email, string $familyId, string $type, int $ttl, ?string $deviceName): array
     {
         $token = rtrim(strtr(base64_encode(random_bytes(48)), '+/', '-_'), '=');

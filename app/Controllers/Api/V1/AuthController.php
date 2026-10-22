@@ -365,6 +365,37 @@ class AuthController extends ApiController
         ]);
     }
 
+    public function sessions()
+    {
+        $token = preg_replace('/^Bearer\s+/i', '', trim($this->request->getHeaderLine('Authorization')));
+        try {
+            return $this->success([
+                'sessions' => (new CustomerApiTokens())->activeSessionsForAccess((string) $token),
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API session list failed: ' . get_class($e));
+            return $this->failure('SESSION_LIST_UNAVAILABLE', 'Daftar perangkat belum dapat dimuat. Coba lagi nanti.', 503);
+        }
+    }
+
+    public function revokeSession(string $sessionId)
+    {
+        $email = $this->authEmail();
+        if (!$this->allowAuthAttempt('revoke-session', $email, 10, 900)) {
+            return $this->failure('RATE_LIMITED', 'Terlalu banyak permintaan. Coba lagi nanti.', 429);
+        }
+        $token = preg_replace('/^Bearer\s+/i', '', trim($this->request->getHeaderLine('Authorization')));
+        try {
+            (new CustomerApiTokens())->revokeSessionForAccess((string) $token, $sessionId);
+            return $this->success(['revoked' => true, 'message' => 'Sesi perangkat telah dikeluarkan.']);
+        } catch (\DomainException $e) {
+            return $this->failure('SESSION_NOT_REVOCABLE', $e->getMessage(), 422);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API session revocation failed: ' . get_class($e));
+            return $this->failure('SESSION_REVOCATION_UNAVAILABLE', 'Sesi perangkat belum dapat dikeluarkan. Coba lagi nanti.', 503);
+        }
+    }
+
     public function me()
     {
         $email = $this->authEmail();

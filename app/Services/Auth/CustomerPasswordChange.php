@@ -55,6 +55,15 @@ class CustomerPasswordChange
             if ($e instanceof DomainException) throw $e;
             throw new RuntimeException('Password change failed');
         }
+
+        // A successful password change is security-sensitive. Deliver the notice
+        // after the transaction so a mail outage never rolls back the credential
+        // update or leaves the customer uncertain about whether it succeeded.
+        try {
+            (new CustomerSecurityMailer())->passwordChanged($email);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer password-change security notice failed: ' . get_class($e));
+        }
     }
 
     private function requireInnoDb(array $tables): void

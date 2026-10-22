@@ -23,6 +23,8 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | POST | `/auth/google` | Tidak | Verifikasi Google ID token di backend; pelanggan Google terverifikasi memperoleh token API Lunarea |
 | POST | `/auth/refresh` | Refresh token di body | Rotasi refresh token; refresh token lama tidak boleh digunakan kembali |
 | POST | `/auth/logout` | Bearer | Cabut seluruh keluarga token sesi saat ini |
+| GET | `/auth/sessions` | Bearer | Daftar sesi aktif aplikasi Android milik akun; tanpa token atau alamat IP |
+| POST | `/auth/sessions/{session_id}/revoke` | Bearer | Cabut satu sesi Android lain milik akun; sesi pemanggil tidak dapat dicabut |
 | POST | `/auth/sessions/revoke-others` | Bearer | Cabut seluruh sesi perangkat lain; sesi perangkat pemanggil tetap aktif |
 | GET | `/me` | Bearer | Baca profil pengguna |
 | PATCH | `/me` | Bearer | Perbarui nama dan nomor ponsel |
@@ -59,7 +61,9 @@ Permintaan berhasil mengembalikan HTTP 202 dengan `verification_required`, `veri
 
 Contoh verifikasi: `{"email":"pembeli@example.com","code":"123456"}`. OTP berumur 10 menit. Respons sukses menyatakan `verified: true` dan `login_required: true`.
 
-Contoh login: `{"identifier":"pembeli@example.com","password":"SandiAman123","device_name":"Android"}`. Token ada di `data.tokens`: `access_token`, `refresh_token`, `token_type`, `expires_in`, dan `refresh_expires_in`.
+Contoh login: `{"identifier":"pembeli@example.com","password":"SandiAman123","device_name":"Google Pixel 9"}`. Aplikasi mengirim label pabrikan/model generik tanpa ID perangkat. Token ada di `data.tokens`: `access_token`, `refresh_token`, `token_type`, `expires_in`, dan `refresh_expires_in`.
+
+`GET /auth/sessions` mengembalikan `data.sessions` berisi `session_id`, `device_name`, `created_at`, `last_active_at`, `expires_at`, dan `is_current`. Waktu menggunakan ISO-8601 UTC. Respons tidak pernah memuat bearer token, refresh token, hash token, atau alamat IP. Pencabutan satu sesi memvalidasi kepemilikan akun di server dan menolak sesi yang sedang dipakai.
 
 Login Google native mengirim `{"id_token":"<Google ID token>","device_name":"Lunarea Android"}` ke `/auth/google`. Server wajib memiliki `GOOGLE_CLIENT_ID` berisi **Web OAuth Client ID** yang sama dengan `GOOGLE_WEB_CLIENT_ID` di aplikasi. ID token diverifikasi server-side; email biasa dari aplikasi tidak dipercaya. Client Secret tidak dikirim ke APK. Akun admin, token tidak valid, dan email Google yang belum terverifikasi ditolak. Akun pelanggan Google baru dibuat dengan profil Lunarea dan voucher auto-claim yang aktif; akun pelanggan dengan email terverifikasi yang sama ditautkan sesuai alur Google website existing.
 

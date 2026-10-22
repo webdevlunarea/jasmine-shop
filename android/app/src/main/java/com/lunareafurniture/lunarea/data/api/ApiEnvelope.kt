@@ -32,6 +32,16 @@ data class GoogleLoginRequest(val id_token: String, val device_name: String = "L
 data class RefreshRequest(val refresh_token: String)
 data class LogoutResponse(val logged_out: Boolean? = null)
 
+data class CustomerSessionPage(val sessions: List<CustomerSession> = emptyList())
+data class CustomerSession(
+    val session_id: String = "",
+    val device_name: String = "Perangkat Android",
+    val created_at: String = "",
+    val last_active_at: String? = null,
+    val expires_at: String = "",
+    val is_current: Boolean = false
+)
+
 data class ProductPage(
     val products: List<ProductSummary> = emptyList()
 )

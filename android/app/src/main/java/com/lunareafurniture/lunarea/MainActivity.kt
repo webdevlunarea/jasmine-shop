@@ -111,6 +111,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Velocity
 import com.lunareafurniture.lunarea.data.api.ApiClient
 import com.lunareafurniture.lunarea.data.api.AuthRepository
+import com.lunareafurniture.lunarea.data.api.CustomerSession
 import com.lunareafurniture.lunarea.data.api.HomeBanner
 import com.lunareafurniture.lunarea.data.api.ProductSummary
 import com.lunareafurniture.lunarea.data.api.customerError
@@ -901,7 +902,14 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 onLoginRequired = { reason -> authPromptMessage = reason },
                 categories = categories, selectedCategory = selectedCategory,
                 homeBanners = homeBanners,
-                onCategoryChange = { selectedCategory = it; loadProducts(query, it, 1, false) },
+                onCategoryChange = { category ->
+                    selectedCategory = category
+                    // "Semua" is the clear-filters action: remove both category
+                    // and submitted search terms so the complete catalog returns.
+                    val search = if (category == null) "" else query
+                    if (category == null) query = ""
+                    loadProducts(search, category, 1, false)
+                },
                 products = products, loading = loading, message = message,
                 canLoadMore = catalogPage < catalogPages,
                 onSearch = { search -> loadProducts(search.trim(), selectedCategory, 1, false) },
@@ -3945,6 +3953,25 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var confirmRevokeOtherSessions by remember { mutableStateOf(false) }
+    var activeSessions by remember { mutableStateOf<List<CustomerSession>>(emptyList()) }
+    var sessionsLoading by remember { mutableStateOf(true) }
+    var sessionsError by remember { mutableStateOf<String?>(null) }
+    var sessionToRevoke by remember { mutableStateOf<CustomerSession?>(null) }
+    LaunchedEffect(Unit) {
+        try {
+            val response = ApiClient.get(context).sessions()
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true) {
+                activeSessions = body.data?.sessions.orEmpty()
+            } else {
+                sessionsError = response.customerError("Daftar perangkat belum dapat dimuat.")
+            }
+        } catch (_: Exception) {
+            sessionsError = "Koneksi belum tersedia. Daftar perangkat tidak dapat dimuat."
+        } finally {
+            sessionsLoading = false
+        }
+    }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Keamanan akun", onBack, "Atur kata sandi atau email akun")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3996,18 +4023,59 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
             }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) { Text("Konfirmasi perubahan email") }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Text("Sesi perangkat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("Perangkat Android yang masuk", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
-            "Keluarkan akun Lunarea dari perangkat lain yang masih memiliki sesi aktif. Perangkat ini tetap masuk.",
+            "Daftar ini menampilkan sesi aplikasi Android. Keluarkan perangkat yang tidak Anda kenali.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (sessionsLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        } else if (sessionsError != null) {
+            Text(sessionsError.orEmpty(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        } else if (activeSessions.isEmpty()) {
+            Text("Tidak ada sesi aktif.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        } else {
+            activeSessions.forEach { session ->
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                session.device_name.ifBlank { "Perangkat Android" },
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (session.is_current) {
+                                Text("Perangkat ini", color = LunareaGreenText, style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        val activity = session.last_active_at?.takeIf(String::isNotBlank)
+                            ?.let(::formatLunareaDateTime) ?: "Aktivitas belum tercatat"
+                        Text("Terakhir aktif: $activity", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        if (!session.is_current) {
+                            TextButton(
+                                onClick = { sessionToRevoke = session },
+                                modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp)
+                            ) { Text("Keluarkan perangkat") }
+                        }
+                    }
+                }
+            }
+        }
         OutlinedButton(
             enabled = !busy,
             onClick = { confirmRevokeOtherSessions = true },
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             shape = MaterialTheme.shapes.medium
-        ) { Text("Keluar dari perangkat lain") }
+        ) { Text("Keluarkan semua sesi lain") }
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         message?.let { Text(it, color = LunareaGreenText, fontSize = lunareaResponsiveFontSize(13.sp)) }
     }
@@ -4025,6 +4093,7 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
                             val response = ApiClient.get(context).revokeOtherSessions()
                             val body = response.body()
                             if (response.isSuccessful && body?.success == true) {
+                                activeSessions = activeSessions.filter { it.is_current }
                                 message = body.data?.get("message")?.asString
                                     ?: "Sesi perangkat lain telah dikeluarkan."
                             } else {
@@ -4040,6 +4109,38 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
             },
             dismissButton = {
                 TextButton(enabled = !busy, onClick = { confirmRevokeOtherSessions = false }) { Text("Batal") }
+            }
+        )
+    }
+    sessionToRevoke?.let { target ->
+        AlertDialog(
+            onDismissRequest = { if (!busy) sessionToRevoke = null },
+            title = { Text("Keluarkan perangkat?") },
+            text = { Text("${target.device_name} akan keluar dari akun Lunarea. Perangkat ini tetap masuk.") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    sessionToRevoke = null
+                    scope.launch {
+                        busy = true
+                        try {
+                            val response = ApiClient.get(context).revokeSession(target.session_id)
+                            val body = response.body()
+                            if (response.isSuccessful && body?.success == true) {
+                                activeSessions = activeSessions.filterNot { it.session_id == target.session_id }
+                                message = "Sesi ${target.device_name} telah dikeluarkan."
+                            } else {
+                                message = body?.error?.message ?: "Sesi perangkat belum dapat dikeluarkan."
+                            }
+                        } catch (_: Exception) {
+                            message = "Koneksi belum tersedia. Sesi perangkat belum dapat dikeluarkan."
+                        } finally {
+                            busy = false
+                        }
+                    }
+                }) { Text("Ya, keluarkan") }
+            },
+            dismissButton = {
+                TextButton(enabled = !busy, onClick = { sessionToRevoke = null }) { Text("Batal") }
             }
         )
     }

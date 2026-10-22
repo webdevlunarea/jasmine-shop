@@ -49,6 +49,12 @@ interface LunareaApi {
     @POST("auth/logout")
     suspend fun logout(): Response<ApiEnvelope<LogoutResponse>>
 
+    @GET("auth/sessions")
+    suspend fun sessions(): Response<ApiEnvelope<CustomerSessionPage>>
+
+    @POST("auth/sessions/{sessionId}/revoke")
+    suspend fun revokeSession(@Path("sessionId") sessionId: String): Response<ApiEnvelope<JsonObject>>
+
     @POST("auth/sessions/revoke-others")
     suspend fun revokeOtherSessions(): Response<ApiEnvelope<JsonObject>>
 

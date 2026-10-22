@@ -92,6 +92,50 @@ final class CustomerApiTokensTest extends CIUnitTestCase
         $this->assertNotNull($this->tokens->authenticate($current['access_token']));
     }
 
+    public function testActiveSessionListReturnsSafeMetadataAndMarksCurrentDevice(): void
+    {
+        $current = $this->tokens->issue('buyer@example.test', 'Pixel 9');
+        $other = $this->tokens->issue('buyer@example.test', 'Galaxy S24');
+        $currentRow = $this->connection->table('customer_api_tokens')
+            ->where('token_hash', hash('sha256', $current['access_token']))->get()->getRowArray();
+        $this->connection->table('customer_api_tokens')->where('id', $currentRow['id'])
+            ->update(['last_used_at' => gmdate('Y-m-d H:i:s')]);
+
+        $sessions = $this->tokens->activeSessionsForAccess($current['access_token']);
+        $this->assertCount(2, $sessions);
+        $byName = array_column($sessions, null, 'device_name');
+        $this->assertTrue($byName['Pixel 9']['is_current']);
+        $this->assertFalse($byName['Galaxy S24']['is_current']);
+        $this->assertNotEmpty($byName['Pixel 9']['last_active_at']);
+        foreach ($sessions as $session) {
+            $this->assertArrayNotHasKey('token', $session);
+            $this->assertArrayNotHasKey('token_hash', $session);
+            $this->assertArrayNotHasKey('refresh_token', $session);
+        }
+        $this->assertNotSame('', $other['access_token']);
+    }
+
+    public function testSingleSessionRevocationKeepsCurrentSessionAndRejectsCurrentFamily(): void
+    {
+        $current = $this->tokens->issue('buyer@example.test', 'Pixel 9');
+        $other = $this->tokens->issue('buyer@example.test', 'Galaxy S24');
+        $otherRow = $this->connection->table('customer_api_tokens')
+            ->where('token_hash', hash('sha256', $other['access_token']))->get()->getRowArray();
+
+        $this->tokens->revokeSessionForAccess($current['access_token'], $otherRow['family_id']);
+        $this->assertNotNull($this->tokens->authenticate($current['access_token']));
+        $this->assertNull($this->tokens->authenticate($other['access_token']));
+
+        $currentRow = $this->connection->table('customer_api_tokens')
+            ->where('token_hash', hash('sha256', $current['access_token']))->get()->getRowArray();
+        try {
+            $this->tokens->revokeSessionForAccess($current['access_token'], $currentRow['family_id']);
+            $this->fail('Current session must not be revocable from this endpoint');
+        } catch (\DomainException $error) {
+            $this->assertStringContainsString('sedang digunakan', $error->getMessage());
+        }
+    }
+
     public function testInactiveAndNonCustomerAccountsCannotReceiveTokens(): void
     {
         foreach ([['inactive@example.test', '0', '0'], ['admin@example.test', '1', '1']] as [$email, $role, $active]) {

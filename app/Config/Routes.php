@@ -34,6 +34,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
 
     $routes->group('', ['filter' => 'apiCustomer'], static function ($routes) {
         $routes->post('auth/logout', 'Api\\V1\\AuthController::logout');
+        $routes->get('auth/sessions', 'Api\\V1\\AuthController::sessions');
+        $routes->post('auth/sessions/(:segment)/revoke', 'Api\\V1\\AuthController::revokeSession/$1');
         $routes->post('auth/sessions/revoke-others', 'Api\\V1\\AuthController::revokeOtherSessions');
         $routes->post('auth/password/change', 'Api\\V1\\AuthController::changePassword');
         $routes->post('auth/email/change/request', 'Api\\V1\\AuthController::requestEmailChange');
