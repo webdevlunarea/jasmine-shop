@@ -288,18 +288,32 @@ if ($isAdminNav) {
             <div class="buyer-desktop-actions">
             <?php if (session()->get('isLogin')) { ?>
                 <?php if (session()->get('role') == 0) { ?>
-                    <a href="/wishlist" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Daftar Favorit" aria-label="Daftar Favorit">
-                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-                        <?php if ($title != 'Wishlist') { ?>
-                            <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
-                        <?php } ?>
-                    </a>
-                    <a href="/cart" class="btn position-relative" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keranjang" aria-label="Keranjang">
-                        <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
-                        <?php if ($title != 'Keranjang') { ?>
-                            <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
-                        <?php } ?>
-                    </a>
+                    <div class="buyer-desktop-favorite-wrap">
+                        <a href="/wishlist" class="btn position-relative" aria-label="Daftar Favorit">
+                            <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+                            <?php if ($title != 'Wishlist') { ?>
+                                <span style="top: 2px; right: 5px;" class="notif-wishlist d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                            <?php } ?>
+                        </a>
+                        <div class="buyer-action-popover buyer-favorite-popover">
+                            <p class="buyer-action-popover__eyebrow">Produk favorit</p>
+                            <p class="buyer-action-popover__copy">Simpan dan temukan lagi furnitur yang kamu sukai.</p>
+                            <a href="/wishlist">Lihat produk favorit</a>
+                        </div>
+                    </div>
+                    <div class="buyer-desktop-cart-wrap">
+                        <a href="/cart" class="btn position-relative" aria-label="Keranjang">
+                            <svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l2 14H4L6 7Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                            <?php if ($title != 'Keranjang') { ?>
+                                <span style="top: 2px; right: 5px;" class="notif-cart d-none position-absolute p-1 bg-danger rounded-circle"></span>
+                            <?php } ?>
+                        </a>
+                        <div class="buyer-action-popover buyer-cart-popover">
+                            <p class="buyer-action-popover__eyebrow">Keranjang belanja</p>
+                            <p class="buyer-action-popover__copy">Tinjau pilihan furnitur sebelum melanjutkan pesanan.</p>
+                            <a href="/cart">Buka keranjang</a>
+                        </div>
+                    </div>
                     <?php if (session()->get('email') == 'tamu') { ?>
                         <a data-buyer-logout href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keluar" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
                     <?php } else { ?>
