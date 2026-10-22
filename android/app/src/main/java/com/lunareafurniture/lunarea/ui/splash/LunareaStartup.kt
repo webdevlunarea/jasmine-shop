@@ -194,20 +194,20 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 28.dp)
                 .graphicsLayer { alpha = overlayAlpha.value },
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Part of",
+                text = "PART OF",
                 color = Color(0xFF6B716D),
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 11.sp,
-                letterSpacing = 0.4.sp
+                fontSize = 10.sp,
+                letterSpacing = 1.1.sp
             )
             Image(
                 painter = painterResource(R.drawable.ilena_wordmark),
                 contentDescription = "Ilena",
-                modifier = Modifier.width(64.dp).height(20.dp),
+                modifier = Modifier.width(74.dp).height(24.dp),
                 contentScale = ContentScale.Fit
             )
         }

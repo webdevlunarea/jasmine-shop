@@ -5123,6 +5123,7 @@ private fun CatalogScreen(
     val refreshThresholdPx = with(density) { 88.dp.toPx() }
     var pullDistance by remember { mutableFloatStateOf(0f) }
     var refreshTriggered by remember { mutableStateOf(false) }
+    var lastCatalogFilter by remember { mutableStateOf(query to selectedCategory) }
     var popularHomeProducts by remember { mutableStateOf<List<ProductSummary>>(emptyList()) }
     var newestHomeProducts by remember { mutableStateOf<List<ProductSummary>>(emptyList()) }
     var homeHighlightsLoading by remember { mutableStateOf(false) }
@@ -5134,6 +5135,15 @@ private fun CatalogScreen(
     val latestOnRefresh by rememberUpdatedState(onRefresh)
     val latestOnChromeVisibilityChange by rememberUpdatedState(onChromeVisibilityChange)
     val latestChromeVisible by rememberUpdatedState(chromeVisible)
+    LaunchedEffect(query, selectedCategory) {
+        val filter = query to selectedCategory
+        if (filter != lastCatalogFilter) {
+            lastCatalogFilter = filter
+            pullDistance = 0f
+            refreshTriggered = false
+            gridState.scrollToItem(0)
+        }
+    }
     LaunchedEffect(gridState) {
         var previousIndex = gridState.firstVisibleItemIndex
         var previousOffset = gridState.firstVisibleItemScrollOffset
@@ -5213,10 +5223,6 @@ private fun CatalogScreen(
                 }
                 if (available.y > 0f && atTop) {
                     pullDistance = (pullDistance + available.y).coerceAtMost(refreshThresholdPx * 1.5f)
-                    if (pullDistance >= refreshThresholdPx && !refreshTriggered && !latestLoading) {
-                        refreshTriggered = true
-                        latestOnRefresh()
-                    }
                 } else if (available.y < 0f) {
                     pullDistance = 0f
                     refreshTriggered = false
@@ -5225,8 +5231,14 @@ private fun CatalogScreen(
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                val shouldRefresh = pullDistance >= refreshThresholdPx && !refreshTriggered && !latestLoading
                 pullDistance = 0f
-                if (!latestLoading) refreshTriggered = false
+                if (shouldRefresh) {
+                    refreshTriggered = true
+                    latestOnRefresh()
+                } else if (!latestLoading) {
+                    refreshTriggered = false
+                }
                 return Velocity.Zero
             }
         }
@@ -5769,19 +5781,35 @@ private fun CatalogScreen(
                 }
             }
           }
-          if (pullDistance > 0f && !loading) {
+          if (pullDistance > 0f || refreshTriggered) {
               Surface(
                   modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                   shape = RoundedCornerShape(50),
                   color = MaterialTheme.colorScheme.surface,
                   shadowElevation = 4.dp
               ) {
-                  Text(
-                      if (refreshTriggered) "Memperbarui katalog…" else "Tarik untuk memperbarui",
+                  Row(
                       modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                      style = MaterialTheme.typography.labelMedium,
-                      color = LunareaGreenText
-                  )
+                      horizontalArrangement = Arrangement.spacedBy(8.dp),
+                      verticalAlignment = Alignment.CenterVertically
+                  ) {
+                      if (refreshTriggered && loading) {
+                          CircularProgressIndicator(
+                              modifier = Modifier.size(15.dp),
+                              color = LunareaGreenText,
+                              strokeWidth = 2.dp
+                          )
+                      }
+                      Text(
+                          when {
+                              refreshTriggered && loading -> "Memperbarui katalog…"
+                              pullDistance >= refreshThresholdPx -> "Lepaskan untuk memperbarui"
+                              else -> "Tarik untuk memperbarui"
+                          },
+                          style = MaterialTheme.typography.labelMedium,
+                          color = LunareaGreenText
+                      )
+                  }
               }
           }
         }
