@@ -101,6 +101,30 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
         self::assertSame('completed', $this->db->table('customer_checkout_requests')->get()->getRowArray()['state']);
     }
 
+    public function testCheckoutRequiresGenderBeforeAnyPaymentCharge(): void
+    {
+        $this->db->table('pembeli')->where('email_user', 'android-buyer@example.test')->update(['gender' => null]);
+        $charges = 0;
+        $service = new NativeCheckoutOrderService(
+            $this->db,
+            fn() => $this->preview('android-buyer@example.test'),
+            static function () use (&$charges) { $charges++; throw new \RuntimeException('Must not charge without gender.'); }
+        );
+
+        try {
+            $service->create('android-buyer@example.test', [
+                'address_id' => 1, 'shipping_quote_token' => 'quote-token-123', 'payment_method' => 'bca',
+            ], 'gender-required-checkout-key');
+            self::fail('Checkout must require the customer gender profile.');
+        } catch (\DomainException $error) {
+            self::assertSame('Pilih jenis kelamin di profil Anda sebelum melanjutkan pembelian.', $error->getMessage());
+        }
+
+        self::assertSame(0, $charges);
+        self::assertSame(0, $this->db->table('pemesanan')->countAllResults());
+        self::assertSame('5', (string)$this->db->table('barang')->where('id', 'P1')->get()->getRowArray()['stok']);
+    }
+
     public function testAllowlistedSandboxAccountDoesNotReserveOrReduceProductStock(): void
     {
         $email = 'uuua5021@gmail.com';
@@ -277,7 +301,7 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
     {
         $p = $this->prefix;
         $this->db->query('CREATE TABLE ' . $p . 'barang (id TEXT PRIMARY KEY, active INTEGER NOT NULL, stok TEXT NOT NULL, varian TEXT NOT NULL)');
-        $this->db->query('CREATE TABLE ' . $p . 'pembeli (email_user TEXT PRIMARY KEY, nama TEXT NOT NULL, nohp TEXT NOT NULL, keranjang TEXT NOT NULL, poin TEXT NOT NULL)');
+        $this->db->query('CREATE TABLE ' . $p . 'pembeli (email_user TEXT PRIMARY KEY, nama TEXT NOT NULL, nohp TEXT NOT NULL, gender TEXT NULL, gender_changed_at TEXT NULL, keranjang TEXT NOT NULL, poin TEXT NOT NULL)');
         $this->db->query('CREATE TABLE ' . $p . 'pemesanan (
             id INTEGER PRIMARY KEY AUTOINCREMENT, email_cus TEXT NOT NULL, nama_pen TEXT NOT NULL, hp_pen TEXT NOT NULL,
             alamat_pen TEXT NOT NULL, resi TEXT NOT NULL, id_midtrans TEXT NOT NULL UNIQUE, items TEXT NOT NULL,
@@ -312,7 +336,7 @@ final class NativeCheckoutOrderServiceIntegrationTest extends TestCase
         $email = 'android-buyer@example.test';
         $address = ['add' => 'Jalan Uji 1', 'desa' => 'Tembalang', 'kec' => 'Tembalang', 'kab' => 'Semarang', 'prov' => 'Jawa Tengah', 'kodepos' => '50275', 'prov_id' => 1, 'kab_id' => 1, 'kec_id' => 1];
         $this->db->table('barang')->insert(['id' => 'P1', 'active' => 1, 'stok' => '5', 'varian' => '["Default"]']);
-        $this->db->table('pembeli')->insert(['email_user' => $email, 'nama' => 'Pembeli Uji', 'nohp' => '081234567890', 'keranjang' => json_encode([['id' => 'P1', 'varian' => 'Default', 'jumlah' => 2]]), 'poin' => '[]']);
+        $this->db->table('pembeli')->insert(['email_user' => $email, 'nama' => 'Pembeli Uji', 'nohp' => '081234567890', 'gender' => 'pria', 'gender_changed_at' => '2026-01-01 00:00:00', 'keranjang' => json_encode([['id' => 'P1', 'varian' => 'Default', 'jumlah' => 2]]), 'poin' => '[]']);
         $this->db->table('customer_addresses')->insert(['id' => 1, 'email_user' => $email, 'recipient_name' => 'Penerima Uji', 'recipient_phone' => '081234567890', 'address_data' => json_encode($address)]);
         $this->db->table('shipping_methods')->insert(['id' => 1, 'code' => 'rajaongkir', 'is_active' => 1, 'settings' => '{}']);
         $this->db->table('shipping_quotes')->insert([

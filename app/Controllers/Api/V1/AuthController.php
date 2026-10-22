@@ -517,6 +517,13 @@ class AuthController extends ApiController
             'email' => (string)$user['email'],
             'name' => (string)($profile['nama'] ?? ''),
             'phone' => (string)($profile['nohp'] ?? ''),
+            'gender' => (string)($profile['gender'] ?? ''),
+            'gender_change_available_at' => !empty($profile['gender_changed_at'])
+                ? (function ($value) {
+                    $last = strtotime((string) $value . ' UTC');
+                    return $last === false ? null : gmdate('c', strtotime('+6 months', $last));
+                })($profile['gender_changed_at'])
+                : null,
             'tier' => (string)($profile['tier'] ?? ''),
             'photo_url' => $photoUrl,
             'photo_change_available_at' => $photoChangeAvailableAt,

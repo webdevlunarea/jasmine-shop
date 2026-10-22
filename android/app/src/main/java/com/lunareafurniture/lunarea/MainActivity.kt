@@ -152,6 +152,21 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 private enum class AppTab(val label: String) { HOME("Beranda"), CATALOG("Katalog"), CART("Keranjang"), ACCOUNT("Akun"), CHECKOUT("Checkout") }
 private enum class AccountSection { MENU, ORDERS, FAVORITES, ADDRESSES, PROFILE, SECURITY, POINTS, CHECKOUT, REGISTER, VERIFY_EMAIL, RECOVERY }
+private enum class LegalDocument(val title: String) { TERMS("Syarat & Ketentuan"), PRIVACY("Kebijakan Privasi") }
+private val lunareaTermsSections = listOf(
+    "Penggunaan layanan" to listOf("Gunakan aplikasi dan akun Lunarea secara wajar serta berikan informasi yang benar. Lengkapi jenis kelamin pada profil sebelum melakukan pembelian; pilihan ini dapat diubah setiap 6 bulan.", "Harga, foto, deskripsi, spesifikasi, promosi, dan ketersediaan produk dapat berubah. Pesanan mengikuti informasi dan harga yang dikonfirmasi saat checkout.", "Jaga kerahasiaan akun dan perangkat Anda. Aktivitas yang melanggar hukum, menipu, atau merugikan pengguna lain dapat ditindak sesuai ketentuan yang berlaku."),
+    "Pesanan, pembayaran, dan pengiriman" to listOf("Pesanan diproses setelah informasi pesanan dan pembayaran dikonfirmasi. Periksa kembali produk, varian, alamat, ongkir, dan total sebelum membuat pesanan.", "Estimasi pengiriman bergantung pada layanan dan mitra pengiriman yang tersedia. Status pesanan dapat dipantau melalui aplikasi.", "Jangan mengirim pembayaran di luar metode yang tercantum pada instruksi pesanan."),
+    "Luna Point dan promosi" to listOf("Perolehan dan penggunaan Luna Point maupun voucher mengikuti syarat program yang berlaku pada saat transaksi.", "Lunarea dapat menyesuaikan atau menghentikan program promosi sesuai ketentuannya. Detail masa berlaku dan batas penggunaan ditampilkan pada program terkait."),
+    "Penerimaan dan komplain" to listOf("Saat barang diterima, periksa produk dan komponennya. Untuk pengajuan komplain, siapkan bukti yang diperlukan, termasuk video unboxing dan foto nomor produksi jika diminta.", "Ketentuan dan batas waktu komplain mengikuti informasi layanan purnajual Lunarea yang berlaku."),
+    "Perubahan ketentuan" to listOf("Syarat & Ketentuan dapat diperbarui untuk mengikuti perubahan layanan dan peraturan. Versi terbaru ditampilkan di aplikasi atau situs Lunarea Furniture.", "Hubungi layanan pelanggan Lunarea melalui kanal resmi pada website jika memerlukan bantuan.")
+)
+private val lunareaPrivacySections = listOf(
+    "Data yang digunakan" to listOf("Lunarea menggunakan data akun seperti nama, email, nomor ponsel, jenis kelamin, alamat, foto profil, serta informasi pesanan dan pembayaran yang diperlukan untuk menyediakan layanan.", "Aplikasi juga dapat memproses data teknis dan token notifikasi perangkat untuk keamanan, operasional, serta pengiriman pemberitahuan yang Anda aktifkan."),
+    "Tujuan pemrosesan" to listOf("Data digunakan untuk mengelola akun, memproses pembayaran dan pengiriman, memberikan dukungan pelanggan, menjaga keamanan, menampilkan riwayat transaksi, dan mengirim pemberitahuan layanan.", "Data hanya digunakan sesuai kebutuhan layanan dan kewajiban hukum. Lunarea tidak menjual data pribadi pelanggan."),
+    "Penyedia layanan dan perlindungan" to listOf("Data yang diperlukan dapat diproses oleh mitra pembayaran, pengiriman, infrastruktur, atau penyedia layanan yang membantu operasional Lunarea. Pemrosesan dilakukan sesuai kebutuhan layanan dan ketentuan yang berlaku.", "Lunarea menerapkan langkah perlindungan yang wajar. Pengiriman data aplikasi ke layanan Lunarea menggunakan koneksi HTTPS."),
+    "Pilihan dan hak Anda" to listOf("Jaga kerahasiaan sandi dan gunakan perangkat yang aman. Anda dapat memperbarui sebagian informasi profil melalui aplikasi.", "Untuk permintaan terkait akses, koreksi, atau penghapusan data dan akun, hubungi layanan pelanggan Lunarea. Sebagian data transaksi dapat tetap disimpan bila diwajibkan oleh hukum atau diperlukan untuk penyelesaian transaksi dan sengketa."),
+    "Kontak dan pembaruan" to listOf("Kebijakan ini dapat diperbarui seiring perubahan layanan atau peraturan. Versi terbaru tersedia melalui aplikasi Lunarea.", "Pertanyaan privasi dapat disampaikan ke cs@lunareafurniture.com.")
+)
 private data class PushTap(val type: String, val orderId: String, val productId: String, val campaignId: String) {
     companion object {
         fun from(intent: Intent?): PushTap? {
@@ -168,7 +183,7 @@ private data class PushTap(val type: String, val orderId: String, val productId:
 }
 private data class RegionOption(val id: Int, val label: String, val postal: String = "")
 private data class ShippingOption(val token: String, val courier: String, val service: String, val cost: Long, val eta: String?)
-private data class CartLine(val id: String, val name: String, val variant: String, val quantity: Int, val price: Long, val image: String?)
+private data class CartLine(val id: String, val name: String, val variant: String, val quantity: Int, val price: Long, val image: String?, val availableStock: Int? = null)
 private enum class ProductInfoSheet { DESCRIPTION, REVIEWS, PURCHASE_NOTES, COMPLAINT_TERMS }
 
 private val productPurchaseNotes = listOf(
@@ -354,6 +369,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var homeBanners by remember { mutableStateOf<List<HomeBanner>>(emptyList()) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     var hasEnteredHome by remember { mutableStateOf(false) }
+    var homeDataFetchedAt by remember { mutableLongStateOf(0L) }
     var catalogPage by remember { mutableIntStateOf(1) }
     var catalogPages by remember { mutableIntStateOf(1) }
     var catalogRequestGeneration by remember { mutableIntStateOf(0) }
@@ -369,6 +385,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var showNotificationIntro by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
     var showMfaLogin by remember { mutableStateOf(false) }
+    var legalDocument by remember { mutableStateOf<LegalDocument?>(null) }
     var pendingCartRemoval by remember { mutableStateOf<CartLine?>(null) }
     var notificationInboxOpen by remember { mutableStateOf(false) }
     var notificationsRefreshVersion by remember { mutableIntStateOf(0) }
@@ -376,11 +393,21 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var cartItems by remember { mutableStateOf<List<CartLine>>(emptyList()) }
     var cartSubtotal by remember { mutableLongStateOf(0L) }
     var cartLoading by remember { mutableStateOf(false) }
+    var cartUpdateKey by remember { mutableStateOf<String?>(null) }
+    var cartNoticeEvent by remember { mutableStateOf<Pair<Int, String>?>(null) }
+    var cartNoticeSequence by remember { mutableIntStateOf(0) }
+    fun showCartNotice(text: String) {
+        cartNoticeSequence++
+        cartNoticeEvent = cartNoticeSequence to text
+    }
 
     var cartMessage by remember { mutableStateOf<String?>(null) }
     var cartRefreshVersion by remember { mutableIntStateOf(0) }
     var favoriteKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
     var accountSection by remember { mutableStateOf(AccountSection.MENU) }
+    var cachedAccountDisplayName by remember { mutableStateOf("") }
+    var cachedAccountPhotoUrl by remember { mutableStateOf<String?>(null) }
+    var accountProfileCached by remember { mutableStateOf(false) }
     var pushOrderId by remember { mutableStateOf<String?>(null) }
     var affiliateProductToOpen by remember { mutableStateOf<String?>(null) }
     var authFlowEmail by remember { mutableStateOf("") }
@@ -511,8 +538,12 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     }
     LaunchedEffect(tab) {
         if (tab != AppTab.HOME) return@LaunchedEffect
+        val now = System.currentTimeMillis()
+        val shouldRefreshHome = homeDataFetchedAt == 0L || now - homeDataFetchedAt >= 5L * 60L * 1000L
         if (hasEnteredHome) {
-            loadProducts(query, selectedCategory, 1, false)
+            if (shouldRefreshHome) loadProducts(query, selectedCategory, 1, false)
+        }
+        if (shouldRefreshHome) {
             try {
                 val result = ApiClient.get(context).categories()
                 val rows = result.body()?.data?.getAsJsonArray("categories")
@@ -522,19 +553,21 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                     }
                 }
             } catch (_: Exception) { /* Keep the most recent successful categories. */ }
-        } else {
-            hasEnteredHome = true
-        }
-        try {
-            val response = ApiClient.get(context).homeBanners()
-            val body = response.body()
-            if (response.isSuccessful && body?.success == true) {
-                homeBanners = body.data?.banners.orEmpty()
-                    .filter { it.image_url.isNotBlank() }
-                    .sortedBy { it.order ?: 0 }
+            try {
+                val response = ApiClient.get(context).homeBanners()
+                val body = response.body()
+                if (response.isSuccessful && body?.success == true) {
+                    homeBanners = body.data?.banners.orEmpty()
+                        .filter { it.image_url.isNotBlank() }
+                        .sortedBy { it.order ?: 0 }
+                }
+            } catch (_: Exception) {
+                // Keep the last successful banner set during a temporary connection loss.
             }
-        } catch (_: Exception) {
-            // Keep the last successful banner set during a temporary connection loss.
+            homeDataFetchedAt = now
+        }
+        if (!hasEnteredHome) {
+            hasEnteredHome = true
         }
     }
     LaunchedEffect(tab, signedIn, cartRefreshVersion) {
@@ -552,7 +585,8 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                         CartLine(
                             id = row.get("product_id")?.asString.orEmpty(), name = row.get("name")?.asString.orEmpty(),
                             variant = row.get("variant")?.asString.orEmpty(), quantity = row.get("quantity")?.asInt ?: 1,
-                            price = row.get("unit_price")?.asLong ?: 0L, image = row.get("image_url")?.asString
+                            price = row.get("unit_price")?.asLong ?: 0L, image = row.get("image_url")?.asString,
+                            availableStock = row.get("available_stock")?.takeUnless { it.isJsonNull }?.asInt
                         )
                     }
                     cartSubtotal = cart.get("subtotal")?.asLong ?: 0L
@@ -561,6 +595,12 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             finally { cartLoading = false }
         }
     }
+    LaunchedEffect(cartNoticeEvent) {
+        val notice = cartNoticeEvent ?: return@LaunchedEffect
+        delay(2_500)
+        if (cartNoticeEvent == notice) cartNoticeEvent = null
+    }
+
     val requestNotificationPermission = rememberNotificationPermissionRequester { granted ->
         if (granted) {
             if (signedIn) {
@@ -769,6 +809,11 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
 
     LaunchedEffect(signedIn) {
         val registration = PushDeviceRegistration(context)
+        if (!signedIn) {
+            cachedAccountDisplayName = ""
+            cachedAccountPhotoUrl = null
+            accountProfileCached = false
+        }
         if (signedIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             registration.notificationsAllowed() && !registration.isExplicitlyDisabled()
         ) {
@@ -776,14 +821,19 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             // but never completed server-side device registration.
             registration.rememberPermissionConsent()
             notificationsEnabled = registration.isRegistered()
-            val result = registration.registerAfterOptIn()
-            if (result.isFailure) {
-                PushDeviceRegistration.enqueueRetry(context)
-                notificationMessage = result.exceptionOrNull()?.message
-                    ?: "Notifikasi belum terhubung. Periksa koneksi dan coba lagi."
-            } else if (result.getOrNull() == true) {
-                notificationsEnabled = true
-                notificationMessage = "Notifikasi pesanan telah terhubung ke perangkat ini."
+            // Avoid registering again on ordinary app/account navigation. Only repair
+            // missing registrations or refresh an existing one after its 24-hour TTL.
+            if (!registration.isRegistered() || registration.shouldRefreshRegistration()) {
+                val result = registration.registerAfterOptIn()
+                if (result.isFailure) {
+                    PushDeviceRegistration.enqueueRetry(context)
+                    notificationMessage = result.exceptionOrNull()?.message
+                        ?: "Notifikasi belum terhubung. Periksa koneksi dan coba lagi."
+                } else if (result.getOrNull() == true) {
+                    notificationsEnabled = true
+                    // Background recovery is silent; success feedback is shown only
+                    // after the user explicitly enables notifications.
+                }
             }
         }
     }
@@ -815,10 +865,14 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     val accountNotice = if (tab == AppTab.ACCOUNT && accountSection == AccountSection.MENU) {
         message ?: notificationMessage
     } else null
-    LaunchedEffect(accountNotice) {
-        val shownNotice = accountNotice ?: return@LaunchedEffect
+    LaunchedEffect(message) {
+        val shownNotice = message ?: return@LaunchedEffect
         delay(3_200)
         if (message == shownNotice) message = null
+    }
+    LaunchedEffect(notificationMessage) {
+        val shownNotice = notificationMessage ?: return@LaunchedEffect
+        delay(3_200)
         if (notificationMessage == shownNotice) notificationMessage = null
     }
 
@@ -944,19 +998,37 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             AppTab.CART -> CartScreen(
                 modifier = adaptivePageModifier, signedIn = signedIn, items = cartItems,
                 subtotal = cartSubtotal, loading = cartLoading, message = cartMessage,
+                updatingKey = cartUpdateKey, onStockLimit = ::showCartNotice,
                 onLogin = { tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU; message = "Masuk untuk melihat keranjang akun Anda." },
                 onReload = { cartRefreshVersion++ },
                 onRemove = { item ->
                     pendingCartRemoval = item
                 },
                 onUpdateQuantity = { item, quantity ->
-                    scope.launch {
-                        try {
-                            val payload = JsonObject().apply { addProperty("product_id", item.id); addProperty("variant", item.variant); addProperty("quantity", quantity) }
-                            val response = ApiClient.get(context).updateCartItem(payload)
-                            if (response.isSuccessful && response.body()?.success == true) cartRefreshVersion++
-                            else cartMessage = response.body()?.error?.message ?: "Jumlah belum dapat diperbarui."
-                        } catch (_: Exception) { cartMessage = "Koneksi belum tersedia. Coba lagi." }
+                    val itemKey = item.id + "|" + item.variant
+                    val stock = item.availableStock
+                    if (stock != null && quantity > stock) {
+                        showCartNotice(if (stock <= 0) "Stok produk sedang habis." else "Stok tersedia hanya $stock unit.")
+                    } else if (cartUpdateKey == null) {
+                        val previousQuantity = item.quantity
+                        cartItems = cartItems.map { line -> if (line.id == item.id && line.variant == item.variant) line.copy(quantity = quantity) else line }
+                        cartSubtotal = cartItems.sumOf { it.price * it.quantity }
+                        scope.launch {
+                            cartUpdateKey = itemKey
+                            try {
+                                val payload = JsonObject().apply { addProperty("product_id", item.id); addProperty("variant", item.variant); addProperty("quantity", quantity) }
+                                val response = ApiClient.get(context).updateCartItem(payload)
+                                if (!response.isSuccessful || response.body()?.success != true) {
+                                    cartItems = cartItems.map { line -> if (line.id == item.id && line.variant == item.variant) line.copy(quantity = previousQuantity) else line }
+                                    cartSubtotal = cartItems.sumOf { it.price * it.quantity }
+                                    showCartNotice(response.body()?.error?.message ?: "Jumlah belum dapat diperbarui.")
+                                }
+                            } catch (_: Exception) {
+                                cartItems = cartItems.map { line -> if (line.id == item.id && line.variant == item.variant) line.copy(quantity = previousQuantity) else line }
+                                cartSubtotal = cartItems.sumOf { it.price * it.quantity }
+                                showCartNotice("Koneksi belum tersedia. Jumlah belum berubah.")
+                            } finally { cartUpdateKey = null }
+                        }
                     }
                 }, onBrowse = { tab = AppTab.CATALOG }, onCheckout = {
                     if (signedIn) { tab = AppTab.ACCOUNT; accountSection = AccountSection.CHECKOUT }
@@ -967,6 +1039,10 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             AppTab.ACCOUNT -> when (accountSection) {
                 AccountSection.MENU -> AccountScreen(
                 modifier = adaptivePageModifier, signedIn = signedIn, busy = busy,
+                cachedDisplayName = cachedAccountDisplayName,
+                cachedPhotoUrl = cachedAccountPhotoUrl,
+                profileCached = accountProfileCached,
+                onProfileLoaded = { name, photo -> cachedAccountDisplayName = name; cachedAccountPhotoUrl = photo; accountProfileCached = true },
                 identifier = identifier, password = password,
                 onIdentifier = { identifier = it }, onPassword = { password = it },
                 onLogin = {
@@ -1013,12 +1089,13 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 onOpenOrders = { accountSection = AccountSection.ORDERS },
                 onOpenFavorites = { accountSection = AccountSection.FAVORITES },
                 onOpenAddresses = { accountSection = AccountSection.ADDRESSES },
-                onOpenProfile = { accountSection = AccountSection.PROFILE },
+                onOpenProfile = { accountProfileCached = false; accountSection = AccountSection.PROFILE },
                 onOpenSecurity = { accountSection = AccountSection.SECURITY },
                 onOpenPoints = { accountSection = AccountSection.POINTS },
                 onOpenRegistration = { accountSection = AccountSection.REGISTER },
                 onOpenRecovery = { accountSection = AccountSection.RECOVERY },
                 onOpenVerification = { authFlowEmail = identifier; accountSection = AccountSection.VERIFY_EMAIL },
+                onOpenLegal = { legalDocument = it },
                 message = message
                 )
                 AccountSection.ORDERS -> OrdersScreen(
@@ -1029,12 +1106,13 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 )
                 AccountSection.FAVORITES -> FavoritesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
                 AccountSection.ADDRESSES -> AddressesScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
-                AccountSection.PROFILE -> ProfileScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
-                AccountSection.SECURITY -> SecurityScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false })
+                AccountSection.PROFILE -> ProfileScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU }, onOpenLegal = { legalDocument = it })
+                AccountSection.SECURITY -> SecurityScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU }, onSessionEnded = { accountSection = AccountSection.MENU; signedIn = false }, onOpenLegal = { legalDocument = it })
                 AccountSection.POINTS -> PointsScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU })
                 AccountSection.CHECKOUT -> CheckoutScreen(adaptivePageModifier, onBack = { accountSection = AccountSection.MENU; tab = AppTab.CART }, onOpenOrders = { accountSection = AccountSection.ORDERS }, onCheckoutConfirmed = { cartRefreshVersion++ })
                 AccountSection.REGISTER -> NativeRegistrationScreen(
                     adaptivePageModifier, onBack = { accountSection = AccountSection.MENU },
+                    onOpenLegal = { legalDocument = it },
                     onRegistered = { email -> authFlowEmail = email; accountSection = AccountSection.VERIFY_EMAIL }
                 )
                 AccountSection.VERIFY_EMAIL -> NativeVerificationScreen(
@@ -1077,6 +1155,21 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                     }
                 }
             }
+        AnimatedVisibility(
+            visible = tab == AppTab.CART && cartNoticeEvent != null,
+            enter = slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(180)) + fadeIn(tween(160)),
+            exit = slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(150)) + fadeOut(tween(130)),
+            modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 12.dp).zIndex(30f)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.84f).widthIn(max = 380.dp).semantics { liveRegion = LiveRegionMode.Polite },
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.inverseSurface,
+                shadowElevation = 5.dp
+            ) {
+                Text(cartNoticeEvent?.second.orEmpty(), Modifier.padding(horizontal = 14.dp, vertical = 12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.inverseOnSurface)
+            }
+        }
         }
     }
     if (appLocked && startupComplete) BiometricAppLock(
@@ -1095,6 +1188,9 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             },
             onDismiss = { auth.clearPendingMfa(); showMfaLogin = false }
         )
+    }
+    legalDocument?.let { document ->
+        LegalDocumentDialog(document = document, onDismiss = { legalDocument = null })
     }
 }
 
@@ -1395,7 +1491,7 @@ private fun ProductCardSkeleton(modifier: Modifier = Modifier.fillMaxWidth()) {
 }
 
 @Composable
-private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onRegistered: (String) -> Unit) {
+private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onOpenLegal: (LegalDocument) -> Unit, onRegistered: (String) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
@@ -1424,13 +1520,16 @@ private fun NativeRegistrationScreen(modifier: Modifier, onBack: () -> Unit, onR
             OutlinedTextField(phone, { phone = it.filter { ch -> ch.isDigit() || ch == '+' }.take(18) }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel Indonesia") }, singleLine = true, supportingText = { Text("Gunakan nomor aktif, minimal 10 digit.") }, shape = MaterialTheme.shapes.medium, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next))
             PasswordInputField(password, { password = it }, "Kata sandi", imeAction = ImeAction.Next, supportingText = "Minimal 8 karakter, mengandung angka, maksimal 72 byte.", isError = password.isNotEmpty() && !passwordValid)
             PasswordInputField(confirmation, { confirmation = it }, "Ulangi kata sandi", imeAction = ImeAction.Done, supportingText = if (confirmation.isNotEmpty() && confirmation != password) "Kata sandi belum sama." else null, isError = confirmation.isNotEmpty() && confirmation != password)
-            Row(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = consent, role = Role.Checkbox, onValueChange = { consent = it }),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Checkbox(checked = consent, onCheckedChange = null)
-                Text("Saya menyetujui Syarat & Ketentuan serta Kebijakan Privasi Lunarea.", style = MaterialTheme.typography.bodySmall)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Checkbox(checked = consent, onCheckedChange = { consent = it }, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("Saya telah membaca dan menyetujui", style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { onOpenLegal(LegalDocument.TERMS) }, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp), modifier = Modifier.heightIn(min = 40.dp)) { Text("Syarat & Ketentuan") }
+                        Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { onOpenLegal(LegalDocument.PRIVACY) }, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp), modifier = Modifier.heightIn(min = 40.dp)) { Text("Kebijakan Privasi") }
+                    }
+                }
             }
             message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
             Button(
@@ -2873,6 +2972,8 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var quoteLoading by remember { mutableStateOf(false) }
+    var quoteResultsAddressId by remember { mutableLongStateOf(0L) }
+    var quoteResultsStale by remember { mutableStateOf(false) }
     var previewLoading by remember { mutableStateOf(false) }
     var refreshQuotes by remember { mutableIntStateOf(0) }
     var quoteRequestGeneration by remember { mutableIntStateOf(0) }
@@ -2885,6 +2986,16 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
     var checkoutNeedsReview by remember { mutableStateOf(false) }
     var checkoutStatusUnknown by remember { mutableStateOf(false) }
     var refreshAddress by remember { mutableIntStateOf(0) }
+    var checkoutGender by remember { mutableStateOf("") }
+    var checkoutGenderAvailable by remember { mutableStateOf(false) }
+    var checkoutProfileLoading by remember { mutableStateOf(true) }
+    var checkoutProfileError by remember { mutableStateOf<String?>(null) }
+    var refreshCheckoutProfile by remember { mutableIntStateOf(0) }
+    var checkoutCustomerName by remember { mutableStateOf("") }
+    var checkoutCustomerPhone by remember { mutableStateOf("") }
+    var checkoutGenderSaved by remember { mutableStateOf(false) }
+    var genderSaving by remember { mutableStateOf(false) }
+    var checkoutGenderMessage by remember { mutableStateOf<String?>(null) }
     val cheapestQuotes = remember(quotes) {
         quotes.sortedWith(compareBy<ShippingOption> { it.cost }.thenBy { it.courier }.thenBy { it.service }).take(5)
     }
@@ -2909,6 +3020,23 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
         finally { busy = false }
     }
 
+    LaunchedEffect(refreshCheckoutProfile) {
+        checkoutProfileLoading = true
+        checkoutProfileError = null
+        try {
+            val profileResponse = ApiClient.get(context).profile()
+            val customer = profileResponse.body()?.data?.getAsJsonObject("customer")
+            if (profileResponse.isSuccessful && profileResponse.body()?.success == true && customer != null) {
+                checkoutGender = customer.get("gender")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                checkoutCustomerName = customer.get("name")?.asString.orEmpty()
+                checkoutCustomerPhone = customer.get("phone")?.asString.orEmpty()
+                checkoutGenderSaved = checkoutGender in listOf("pria", "wanita")
+                checkoutGenderAvailable = true
+            } else checkoutProfileError = profileResponse.customerError("Data profil belum dapat dimuat.")
+        } catch (_: Exception) { checkoutProfileError = "Koneksi belum tersedia. Periksa koneksi lalu coba lagi." }
+        finally { checkoutProfileLoading = false }
+    }
+
     LaunchedEffect(Unit) {
         try {
             val response = ApiClient.get(context).availableVouchers()
@@ -2921,16 +3049,20 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
 
     LaunchedEffect(addressId, refreshQuotes) {
         val requestId = ++quoteRequestGeneration
-        quotes = emptyList()
+        val keepPreviousRatesVisible = addressId > 0L && quoteResultsAddressId == addressId && quotes.isNotEmpty()
+        if (!keepPreviousRatesVisible) quotes = emptyList()
         quote = null
         preview = null
-        shippingWeightGrams = 0
+        if (!keepPreviousRatesVisible) shippingWeightGrams = 0
         if (addressId <= 0) {
             quoteLoading = false
+            quoteResultsStale = false
             message = null
             return@LaunchedEffect
         }
-        quoteLoading = true; quotes = emptyList(); quote = null; preview = null; idempotencyKey = ""; message = null
+        quoteLoading = true
+        quoteResultsStale = keepPreviousRatesVisible
+        quote = null; preview = null; idempotencyKey = ""; message = null
         try {
             val response = ApiClient.get(context).shippingQuotes(JsonObject().apply { addProperty("address_id", addressId) })
             if (requestId != quoteRequestGeneration) return@LaunchedEffect
@@ -2938,7 +3070,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             val list = data?.getAsJsonArray("quotes")
             if (response.isSuccessful && response.body()?.success == true && list != null) {
                 shippingWeightGrams = runCatching { data.get("weight_grams")?.asInt ?: 0 }.getOrDefault(0).coerceAtLeast(0)
-                quotes = list.mapNotNull { item ->
+                val refreshedQuotes = list.mapNotNull { item ->
                     val row = item.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
                     val token = row.stringOrNull("token").orEmpty()
                     val cost = row.longOrNull("cost") ?: return@mapNotNull null
@@ -2950,6 +3082,9 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         eta = row.stringOrNull("etd")
                     )
                 }
+                quotes = refreshedQuotes
+                quoteResultsAddressId = addressId
+                quoteResultsStale = false
                 if (quotes.isEmpty()) message = "Pilihan pengiriman belum tersedia untuk alamat ini."
             } else message = response.customerError("Pilihan pengiriman belum dapat dimuat.")
         } catch (_: Exception) { if (requestId == quoteRequestGeneration) message = "Koneksi pengiriman belum tersedia. Periksa internet lalu coba muat ulang." }
@@ -3171,6 +3306,60 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
             LunareaScreenHeader("Pengiriman & pembayaran", onBack, "Pilih alamat, layanan, dan pembayaran")
         }
         LazyColumn(Modifier.weight(1f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(top = 12.dp, bottom = 16.dp)) {
+            // Keep the profile prompt visible while the user is selecting. A local
+            // chip selection is not saved yet and must not make this section vanish.
+            if (!checkoutGenderAvailable || !checkoutGenderSaved) item {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CheckoutSectionHeading("Lengkapi profil", "Pilih jenis kelamin satu kali sebelum membeli")
+                        if (checkoutProfileLoading) {
+                            Text("Memeriksa data profil…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else if (!checkoutGenderAvailable) {
+                            Text(checkoutProfileError ?: "Data profil belum dapat dimuat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                            TextButton(onClick = { refreshCheckoutProfile++ }) { Text("Coba lagi") }
+                        } else {
+                            Text("Pilih sebelum melanjutkan pembelian. Perubahan berikutnya hanya dapat dilakukan setelah 6 bulan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(selected = checkoutGender == "pria", onClick = { checkoutGender = "pria"; checkoutGenderMessage = null }, label = { Text("Laki-laki") })
+                                FilterChip(selected = checkoutGender == "wanita", onClick = { checkoutGender = "wanita"; checkoutGenderMessage = null }, label = { Text("Perempuan") })
+                            }
+                            checkoutGenderMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                            Button(
+                                enabled = !genderSaving && checkoutGender in listOf("pria", "wanita") && checkoutCustomerName.isNotBlank() && checkoutCustomerPhone.isNotBlank(),
+                                onClick = {
+                                    scope.launch {
+                                        genderSaving = true
+                                        checkoutGenderMessage = null
+                                        try {
+                                            val response = ApiClient.get(context).updateProfile(JsonObject().apply {
+                                                addProperty("name", checkoutCustomerName)
+                                                addProperty("phone", checkoutCustomerPhone)
+                                                addProperty("gender", checkoutGender)
+                                            })
+                                            val customer = response.body()?.data?.getAsJsonObject("customer")
+                                            if (response.isSuccessful && response.body()?.success == true && customer != null) {
+                                                checkoutGender = customer.get("gender")?.asString.orEmpty()
+                                                checkoutGenderSaved = checkoutGender in listOf("pria", "wanita")
+                                                checkoutGenderMessage = if (checkoutGenderSaved) "Jenis kelamin tersimpan di profil." else "Server belum mengonfirmasi pilihan jenis kelamin. Coba lagi."
+                                            } else checkoutGenderMessage = response.customerError("Jenis kelamin belum dapat disimpan.")
+                                        } catch (_: Exception) { checkoutGenderMessage = "Koneksi belum tersedia. Pilihan belum tersimpan." }
+                                        finally { genderSaving = false }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                if (genderSaving) CircularProgressIndicator(Modifier.size(17.dp), strokeWidth = 2.dp)
+                                else Text("Simpan dan lanjutkan")
+                            }
+                        }
+                    }
+                }
+            }
             item {
                 Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -3240,7 +3429,11 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                         }
                         if (quoteLoading) {
                             LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
-                            Text("Menghitung pilihan pengiriman…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(if (cheapestQuotes.isEmpty()) "Menghitung pilihan pengiriman…" else "Memperbarui tarif…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (quoteResultsStale && !quoteLoading && cheapestQuotes.isNotEmpty()) {
+                            Text("Tarif sebelumnya ditampilkan sementara. Perbarui tarif sebelum memilih layanan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(onClick = { refreshQuotes++ }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Perbarui tarif") }
                         }
                         if (cheapestQuotes.isNotEmpty()) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3258,7 +3451,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                                         animationSpec = tween(durationMillis = 160), label = "shipping-option-selection"
                                     )
                                     Surface(
-                                        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).selectable(selected = selected, role = Role.RadioButton) { quote = option },
+                                        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).selectable(selected = selected, enabled = !quoteLoading && !quoteResultsStale, role = Role.RadioButton) { quote = option },
                                         shape = RoundedCornerShape(14.dp), color = selectionColor,
                                         border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .65f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f))
                                     ) {
@@ -3469,7 +3662,7 @@ private fun CheckoutScreen(modifier: Modifier, onBack: () -> Unit, onOpenOrders:
                 }
             }
             Button(
-            enabled = preview != null && !previewLoading && !busy && quote != null,
+            enabled = preview != null && !previewLoading && !busy && quote != null && checkoutGenderAvailable && checkoutGender in listOf("pria", "wanita"),
             onClick = {
                 if (preview == null) return@Button
                 val signature = checkoutRequestSignature(addressId, quote!!.token, payment, usePoints, includeGlass, voucherClaimId)
@@ -3727,11 +3920,13 @@ private fun RegionSelector(
 }
 
 @Composable
-private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
+private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit, onOpenLegal: (LegalDocument) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var genderChangeAvailableAt by remember { mutableStateOf<Instant?>(null) }
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var usernameInput by remember { mutableStateOf("") }
@@ -3772,6 +3967,8 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             val customer = response.body()?.data?.getAsJsonObject("customer")
             if (response.isSuccessful && response.body()?.success == true && customer != null) {
                 name = customer.get("name")?.asString.orEmpty(); phone = customer.get("phone")?.asString.orEmpty(); email = customer.get("email")?.asString.orEmpty()
+                gender = customer.get("gender")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                genderChangeAvailableAt = customer.get("gender_change_available_at")?.takeUnless { it.isJsonNull }?.asString?.let { runCatching { Instant.parse(it) }.getOrNull() }
                 photoUrl = customer.get("photo_url")?.asString?.takeIf { it.isNotBlank() }
                 photoChangeAvailableAt = customer.get("photo_change_available_at")?.takeIf { !it.isJsonNull }?.asString?.let { runCatching { Instant.parse(it) }.getOrNull() }
             } else message = response.body()?.error?.message ?: "Profil belum dapat dimuat."
@@ -3910,18 +4107,47 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit) {
             OutlinedTextField(phone, { phone = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Nomor ponsel") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true, shape = RoundedCornerShape(12.dp))
           }
         }
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Jenis kelamin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("Diperlukan saat melakukan pembelian. Anda dapat mengubah pilihan setiap 6 bulan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val canChangeGender = gender.isBlank() || genderChangeAvailableAt?.isAfter(Instant.now()) != true
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(enabled = canChangeGender && !busy, selected = gender == "pria", onClick = { gender = "pria" }, label = { Text("Laki-laki") })
+                    FilterChip(enabled = canChangeGender && !busy, selected = gender == "wanita", onClick = { gender = "wanita" }, label = { Text("Perempuan") })
+                }
+                if (!canChangeGender) genderChangeAvailableAt?.let {
+                    Text("Pilihan dapat diubah kembali ${formatLunareaDateTime(it.toString())}.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
         Button(enabled = !busy && name.isNotBlank() && phone.isNotBlank(), onClick = {
             scope.launch {
                 busy = true
                 try {
-                    val payload = JsonObject().apply { addProperty("name", name.trim()); addProperty("phone", phone.trim()) }
+                    val payload = JsonObject().apply { addProperty("name", name.trim()); addProperty("phone", phone.trim()); if (gender.isNotBlank()) addProperty("gender", gender) }
                     val response = ApiClient.get(context).updateProfile(payload)
-                    message = response.body()?.error?.message ?: if (response.isSuccessful && response.body()?.success == true) "Profil berhasil diperbarui." else "Profil belum dapat disimpan."
+                    val customer = response.body()?.data?.getAsJsonObject("customer")
+                    if (response.isSuccessful && response.body()?.success == true && customer != null) {
+                        gender = customer.get("gender")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                        genderChangeAvailableAt = customer.get("gender_change_available_at")?.takeUnless { it.isJsonNull }?.asString?.let { runCatching { Instant.parse(it) }.getOrNull() }
+                        message = "Profil berhasil diperbarui."
+                    } else message = response.customerError("Profil belum dapat disimpan.")
                 } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
                 finally { busy = false }
             }
         }, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp), shape = RoundedCornerShape(14.dp)) { Text("Simpan perubahan") }
         message?.let { Text(it, color = if (it.contains("berhasil", true)) LunareaGreenText else MaterialTheme.colorScheme.error, fontSize = lunareaResponsiveFontSize(13.sp)) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = { onOpenLegal(LegalDocument.PRIVACY) }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Kebijakan Privasi") }
+            Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = { onOpenLegal(LegalDocument.TERMS) }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Syarat & Ketentuan") }
+        }
     }
 }
 
@@ -3986,7 +4212,7 @@ private fun optimizeProfilePhoto(resolver: ContentResolver, uri: Uri): Pair<Byte
 }
 
 @Composable
-private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnded: () -> Unit) {
+private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnded: () -> Unit, onOpenLegal: (LegalDocument) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -4420,6 +4646,59 @@ private fun BiometricLockSettings() {
 }
 
 @Composable
+private fun LegalDocumentDialog(document: LegalDocument, onDismiss: () -> Unit) {
+    val sections = if (document == LegalDocument.TERMS) lunareaTermsSections else lunareaPrivacySections
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(.94f).fillMaxHeight(.86f),
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 3.dp
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("LUNAREA FURNITURE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, letterSpacing = .8.sp, fontWeight = FontWeight.Bold)
+                            Text(document.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                        }
+                        TextButton(onClick = onDismiss, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) { Text("Tutup") }
+                    }
+                    Text("Informasi untuk penggunaan aplikasi Lunarea.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Text(
+                            if (document == LegalDocument.TERMS) "Ketentuan penggunaan layanan Lunarea" else "Cara Lunarea menggunakan dan melindungi data Anda",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 22.sp
+                        )
+                    }
+                    items(sections) { (heading, paragraphs) ->
+                        Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text(heading, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                            paragraphs.forEach { paragraph ->
+                                Text("•  $paragraph", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 22.sp)
+                            }
+                        }
+                    }
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End).padding(horizontal = 14.dp, vertical = 6.dp).heightIn(min = 48.dp)) {
+                    Text("Mengerti")
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun BiometricAppLock(onUnlocked: () -> Unit, onLoggedOut: () -> Unit) {
     val context = LocalContext.current
     val activity = context as? FragmentActivity
@@ -4515,12 +4794,17 @@ private fun showBiometricPrompt(
 @Composable
 private fun CartScreen(
     modifier: Modifier, signedIn: Boolean, items: List<CartLine>, subtotal: Long,
-    loading: Boolean, message: String?, onReload: () -> Unit, onRemove: (CartLine) -> Unit,
+    loading: Boolean, message: String?, updatingKey: String?, onStockLimit: (String) -> Unit,
+    onReload: () -> Unit, onRemove: (CartLine) -> Unit,
     onUpdateQuantity: (CartLine, Int) -> Unit, onBrowse: () -> Unit, onCheckout: () -> Unit, onLogin: () -> Unit
 ) {
     Column(modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 18.dp)) {
         LunareaSectionTitle("Keranjang", "Periksa pilihan furnitur Anda sebelum melanjutkan.")
         Spacer(Modifier.height(14.dp))
+        if (signedIn && loading && items.isNotEmpty()) {
+            LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
+        }
+        if (signedIn && message != null && items.isNotEmpty()) InlineStatusMessage(message, isError = true)
         if (!signedIn) {
             Column(
                     Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 42.dp),
@@ -4540,9 +4824,9 @@ private fun CartScreen(
                     Button(onClick = onLogin, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) { Text("Masuk") }
                     TextButton(onClick = onBrowse, modifier = Modifier.heightIn(min = 44.dp)) { Text("Jelajahi katalog", color = LunareaGreenText) }
                 }
-        } else if (loading) {
+        } else if (loading && items.isEmpty()) {
             LoadingStatePanel("Memuat keranjang…", Modifier.weight(1f).fillMaxWidth())
-        } else if (message != null) {
+        } else if (message != null && items.isEmpty()) {
             StatePanel(
                 title = "Keranjang belum dapat dimuat", message = message,
                 icon = R.drawable.ic_refresh, isError = true,
@@ -4585,14 +4869,20 @@ private fun CartScreen(
                                 Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.background) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         IconButton(
-                                            enabled = item.quantity > 1,
-                                            onClick = { onUpdateQuantity(item, item.quantity - 1) },
+                                            enabled = updatingKey != item.id + "|" + item.variant,
+                                            onClick = {
+                                                if (item.quantity <= 1) onRemove(item)
+                                                else onUpdateQuantity(item, item.quantity - 1)
+                                            },
                                             modifier = Modifier.size(48.dp)
                                         ) { Text("−", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText) }
                                         Text(item.quantity.toString(), modifier = Modifier.widthIn(min = 24.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                         IconButton(
-                                            enabled = item.quantity < 99,
-                                            onClick = { if (item.quantity < 99) onUpdateQuantity(item, item.quantity + 1) },
+                                            enabled = item.quantity < 99 && updatingKey != item.id + "|" + item.variant,
+                                            onClick = {
+                                                if (item.quantity >= 99) onStockLimit("Jumlah maksimal pembelian adalah 99 unit.")
+                                                else onUpdateQuantity(item, item.quantity + 1)
+                                            },
                                             modifier = Modifier.size(48.dp)
                                         ) { Text("+", style = MaterialTheme.typography.titleLarge, color = LunareaGreenText) }
                                     }
@@ -4836,6 +5126,7 @@ private fun CatalogScreen(
     var popularHomeProducts by remember { mutableStateOf<List<ProductSummary>>(emptyList()) }
     var newestHomeProducts by remember { mutableStateOf<List<ProductSummary>>(emptyList()) }
     var homeHighlightsLoading by remember { mutableStateOf(false) }
+    var homeHighlightsFetchedAt by remember { mutableLongStateOf(0L) }
     var launchVouchers by remember { mutableStateOf<List<com.google.gson.JsonObject>>(emptyList()) }
     var showLaunchVouchers by remember { mutableStateOf(false) }
     var launchVoucherCheckDone by remember { mutableStateOf(false) }
@@ -5039,11 +5330,11 @@ private fun CatalogScreen(
 
     LaunchedEffect(tab, query, selectedCategory) {
         if (tab != AppTab.HOME || query.isNotBlank()) {
-            popularHomeProducts = emptyList()
-            newestHomeProducts = emptyList()
             homeHighlightsLoading = false
             return@LaunchedEffect
         }
+        val now = System.currentTimeMillis()
+        if (homeHighlightsFetchedAt > 0L && now - homeHighlightsFetchedAt < 5L * 60L * 1000L) return@LaunchedEffect
         homeHighlightsLoading = true
         try {
             val api = ApiClient.get(context)
@@ -5059,10 +5350,15 @@ private fun CatalogScreen(
                 newestHomeProducts = if (newestResponse.isSuccessful && newestResponse.body()?.success == true) {
                     newestResponse.body()?.data?.products.orEmpty().distinctBy { it.id }
                 } else emptyList()
+                if (popularResponse.isSuccessful && popularResponse.body()?.success == true &&
+                    newestResponse.isSuccessful && newestResponse.body()?.success == true
+                ) homeHighlightsFetchedAt = System.currentTimeMillis()
             }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
         } catch (_: Exception) {
-            popularHomeProducts = emptyList()
-            newestHomeProducts = emptyList()
+            // Keep the last successful sections visible during navigation or a
+            // transient network failure instead of swapping them for empty state.
         } finally {
             homeHighlightsLoading = false
         }
@@ -6745,28 +7041,28 @@ private fun tierBadgeResource(tierKey: String): Int = when (tierKey.lowercase())
 @Composable
 private fun AccountScreen(
     modifier: Modifier, signedIn: Boolean, busy: Boolean, identifier: String, password: String,
+    cachedDisplayName: String, cachedPhotoUrl: String?, profileCached: Boolean, onProfileLoaded: (String, String?) -> Unit,
     onIdentifier: (String) -> Unit, onPassword: (String) -> Unit, onLogin: () -> Unit, onGoogleLogin: () -> Unit, onLogout: () -> Unit,
     onEnableNotifications: () -> Unit, notificationsEnabled: Boolean, onDisableNotifications: () -> Unit,
     onOpenOrders: () -> Unit, onOpenFavorites: () -> Unit, onOpenAddresses: () -> Unit,
     onOpenProfile: () -> Unit, onOpenSecurity: () -> Unit, onOpenPoints: () -> Unit, onOpenRegistration: () -> Unit, onOpenRecovery: () -> Unit, onOpenVerification: () -> Unit,
+    onOpenLegal: (LegalDocument) -> Unit,
     message: String?
 ) {
     val context = LocalContext.current
-    var accountDisplayName by remember { mutableStateOf("") }
-    var accountPhotoUrl by remember { mutableStateOf<String?>(null) }
+    val accountDisplayName = cachedDisplayName
+    val accountPhotoUrl = cachedPhotoUrl
     var showDisableNotificationsConfirmation by remember { mutableStateOf(false) }
-    LaunchedEffect(signedIn) {
-        if (!signedIn) {
-            accountDisplayName = ""
-            accountPhotoUrl = null
-            return@LaunchedEffect
-        }
+    LaunchedEffect(signedIn, profileCached) {
+        if (!signedIn || profileCached) return@LaunchedEffect
         runCatching {
             val response = ApiClient.get(context).profile()
             val customer = response.body()?.data?.getAsJsonObject("customer")
             if (response.isSuccessful && response.body()?.success == true && customer != null) {
-                accountDisplayName = customer.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-                accountPhotoUrl = customer.get("photo_url")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)
+                onProfileLoaded(
+                    customer.get("name")?.takeUnless { it.isJsonNull }?.asString.orEmpty(),
+                    customer.get("photo_url")?.takeUnless { it.isJsonNull }?.asString?.takeIf(String::isNotBlank)
+                )
             }
         }
     }
@@ -6957,11 +7253,11 @@ private fun AccountScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = { openWebsite(context, "https://lunareafurniture.com/kebijakan-privasi") }) {
+            TextButton(onClick = { onOpenLegal(LegalDocument.PRIVACY) }) {
                 Text("Kebijakan Privasi", style = MaterialTheme.typography.labelMedium)
             }
             Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick = { openWebsite(context, "https://lunareafurniture.com/syarat-dan-ketentuan") }) {
+            TextButton(onClick = { onOpenLegal(LegalDocument.TERMS) }) {
                 Text("Syarat & Ketentuan", style = MaterialTheme.typography.labelMedium)
             }
         }

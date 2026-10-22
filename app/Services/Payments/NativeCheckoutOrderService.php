@@ -72,6 +72,9 @@ final class NativeCheckoutOrderService
             $address = $addressId ? (new CustomerAddressModel())->owned($email, (int)$addressId) : null;
             $buyer = (new PembeliModel())->getPembeli($email);
             if (!$address || !$buyer) throw new DomainException('Alamat atau profil pelanggan tidak tersedia.');
+            if (!in_array((string)($buyer['gender'] ?? ''), ['pria', 'wanita'], true)) {
+                throw new DomainException('Pilih jenis kelamin di profil Anda sebelum melanjutkan pembelian.');
+            }
             $addressData = json_decode((string)$address['address_data'], true);
             if (!is_array($addressData)) throw new DomainException('Alamat pengiriman perlu diperbarui.');
             $name = trim((string)($address['recipient_name'] ?? $buyer['nama'] ?? ''));

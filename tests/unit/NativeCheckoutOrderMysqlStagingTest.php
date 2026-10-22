@@ -192,7 +192,7 @@ final class NativeCheckoutOrderMysqlStagingTest extends CIUnitTestCase
     {
         $ddl = [
             'CREATE TABLE barang (id VARCHAR(30) PRIMARY KEY, active TINYINT NOT NULL, stok VARCHAR(255) NOT NULL, varian TEXT NOT NULL) ENGINE=InnoDB',
-            'CREATE TABLE pembeli (email_user VARCHAR(254) PRIMARY KEY, nama VARCHAR(120) NOT NULL, nohp VARCHAR(20) NOT NULL, keranjang LONGTEXT NOT NULL, poin LONGTEXT NOT NULL) ENGINE=InnoDB',
+            'CREATE TABLE pembeli (email_user VARCHAR(254) PRIMARY KEY, nama VARCHAR(120) NOT NULL, nohp VARCHAR(20) NOT NULL, gender ENUM(\'pria\',\'wanita\') NULL DEFAULT NULL, gender_changed_at DATETIME NULL DEFAULT NULL, keranjang LONGTEXT NOT NULL, poin LONGTEXT NOT NULL) ENGINE=InnoDB',
             'CREATE TABLE pemesanan (id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, email_cus VARCHAR(254) NOT NULL, nama_pen VARCHAR(255) NOT NULL, hp_pen VARCHAR(15) NOT NULL, alamat_pen VARCHAR(255) NOT NULL, resi VARCHAR(50) NOT NULL, id_midtrans VARCHAR(100) NOT NULL UNIQUE, items LONGTEXT NOT NULL, status VARCHAR(50) NOT NULL, kurir VARCHAR(50) NOT NULL, data_mid LONGTEXT NOT NULL, note VARCHAR(100) NOT NULL, diskonVoucher INT NOT NULL, idVoucher INT NOT NULL, cashback INT NOT NULL, pakai_poin INT NOT NULL, KEY ix_pending_customer (email_cus,status)) ENGINE=InnoDB',
             'CREATE TABLE customer_addresses (id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, email_user VARCHAR(254) NOT NULL, recipient_name VARCHAR(255) NOT NULL, recipient_phone VARCHAR(30) NOT NULL, address_data LONGTEXT NOT NULL, is_default TINYINT NOT NULL DEFAULT 0, created_at DATETIME NULL, updated_at DATETIME NULL, KEY ix_address_owner (email_user,id)) ENGINE=InnoDB',
             'CREATE TABLE shipping_methods (id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, code VARCHAR(50) NOT NULL UNIQUE, is_active TINYINT NOT NULL, settings LONGTEXT NULL) ENGINE=InnoDB',
@@ -208,7 +208,7 @@ final class NativeCheckoutOrderMysqlStagingTest extends CIUnitTestCase
         $email = 'android-mysql-buyer@example.test';
         $address = ['add' => 'Fixture address', 'desa' => 'Tembalang', 'kec' => 'Tembalang', 'kab' => 'Semarang', 'prov' => 'Jawa Tengah', 'kodepos' => '50275'];
         $this->auditDb->table('barang')->insert(['id' => 'P1', 'active' => 1, 'stok' => '5', 'varian' => '["Default"]']);
-        $this->auditDb->table('pembeli')->insert(['email_user' => $email, 'nama' => 'Fixture Buyer', 'nohp' => '081234567890', 'keranjang' => json_encode([['id' => 'P1', 'varian' => 'Default', 'jumlah' => 2]]), 'poin' => '[]']);
+        $this->auditDb->table('pembeli')->insert(['email_user' => $email, 'nama' => 'Fixture Buyer', 'nohp' => '081234567890', 'gender' => 'pria', 'gender_changed_at' => null, 'keranjang' => json_encode([['id' => 'P1', 'varian' => 'Default', 'jumlah' => 2]]), 'poin' => '[]']);
         $this->auditDb->table('customer_addresses')->insert(['id' => 1, 'email_user' => $email, 'recipient_name' => 'Fixture Receiver', 'recipient_phone' => '081234567890', 'address_data' => json_encode($address)]);
         $this->auditDb->table('shipping_methods')->insert(['id' => 1, 'code' => 'rajaongkir', 'is_active' => 1, 'settings' => '{}']);
         $this->auditDb->table('shipping_quotes')->insert([

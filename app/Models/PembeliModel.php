@@ -19,6 +19,8 @@ class PembeliModel extends Model
         'tier',
         'tgl_lahir',
         'batas_tgl_lahir', //stelah tgl ini customer baru bisa ubah tgl lahirnnya lagi
+        'gender',
+        'gender_changed_at',
         'foto'
     ];
 

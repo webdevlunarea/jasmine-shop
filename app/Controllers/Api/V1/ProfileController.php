@@ -15,13 +15,67 @@ final class ProfileController extends ApiController
         $input = $this->payload();
         $name = trim((string)($input['name'] ?? ''));
         $phone = (new IndonesianMobileNumber())->normalize((string)($input['phone'] ?? ''));
+        $gender = array_key_exists('gender', $input) && is_string($input['gender'])
+            ? strtolower(trim($input['gender'])) : null;
         if ($name === '' || mb_strlen($name) > 120 || $phone === null) {
             return $this->failure('VALIDATION_ERROR', 'Nama atau nomor ponsel belum valid.', 422);
         }
-        $model = new PembeliModel();
-        $saved = $model->where('email_user', $this->authEmail())->set(['nama' => $name, 'nohp' => $phone])->update();
-        if (!$saved) return $this->failure('PROFILE_SAVE_FAILED', 'Profil belum tersimpan. Coba lagi.', 500);
-        return $this->success(['customer' => ['name' => $name, 'phone' => $phone]]);
+        if (array_key_exists('gender', $input) && !in_array($gender, ['pria', 'wanita'], true)) {
+            return $this->failure('VALIDATION_ERROR', 'Pilih salah satu jenis kelamin yang tersedia.', 422);
+        }
+
+        $email = $this->authEmail();
+        $db = db_connect();
+        $genderSchemaReady = $db->fieldExists('gender', 'pembeli') && $db->fieldExists('gender_changed_at', 'pembeli');
+        if (!$genderSchemaReady && array_key_exists('gender', $input)) {
+            return $this->failure('PROFILE_SCHEMA_UNAVAILABLE', 'Pengaturan profil belum siap. Coba lagi nanti.', 503);
+        }
+        if (!$genderSchemaReady) {
+            $saved = (new PembeliModel())->where('email_user', $email)->set(['nama' => $name, 'nohp' => $phone])->update();
+            if (!$saved) return $this->failure('PROFILE_SAVE_FAILED', 'Profil belum tersimpan. Coba lagi.', 500);
+            return $this->success(['customer' => ['name' => $name, 'phone' => $phone, 'gender' => '']]);
+        }
+        $db->transBegin();
+        try {
+            $sql = $db->table('pembeli')->select('gender, gender_changed_at')->where('email_user', $email)->getCompiledSelect();
+            $current = $db->query($sql . ($db->DBDriver === 'SQLite3' ? '' : ' FOR UPDATE'))->getRowArray();
+            if (!$current) throw new \RuntimeException('Customer profile row is missing.');
+            $changes = ['nama' => $name, 'nohp' => $phone];
+            $savedGender = $current['gender'] ?? null;
+            $changedAt = $current['gender_changed_at'] ?? null;
+            if ($gender !== null && $gender !== $savedGender) {
+                if ($savedGender !== null && $changedAt) {
+                    $lastChanged = strtotime((string)$changedAt . ' UTC');
+                    $availableAt = $lastChanged === false ? 0 : strtotime('+6 months', $lastChanged);
+                    if ($availableAt > time()) {
+                        $db->transRollback();
+                        return $this->failure(
+                            'GENDER_CHANGE_COOLDOWN',
+                            'Jenis kelamin hanya dapat diubah setiap 6 bulan. Anda dapat mengubahnya kembali pada ' .
+                                (new \DateTimeImmutable('@' . $availableAt))->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format('d-m-Y H:i') . ' WIB.',
+                            429,
+                            ['gender_change_available_at' => gmdate('c', $availableAt)]
+                        );
+                    }
+                }
+                $changes['gender'] = $gender;
+                $changes['gender_changed_at'] = gmdate('Y-m-d H:i:s');
+                $savedGender = $gender;
+                $changedAt = $changes['gender_changed_at'];
+            }
+            $saved = (new PembeliModel())->where('email_user', $email)->set($changes)->update();
+            if ($saved === false || $db->transStatus() === false) throw new \RuntimeException('Customer profile update failed.');
+            $db->transCommit();
+            $availableAt = $changedAt ? strtotime('+6 months', strtotime((string)$changedAt . ' UTC')) : false;
+            return $this->success(['customer' => [
+                'name' => $name, 'phone' => $phone, 'gender' => $savedGender,
+                'gender_change_available_at' => $availableAt ? gmdate('c', $availableAt) : null,
+            ]]);
+        } catch (\Throwable $error) {
+            $db->transRollback();
+            log_message('error', 'Customer profile update failed: ' . get_class($error));
+            return $this->failure('PROFILE_SAVE_FAILED', 'Profil belum tersimpan. Coba lagi.', 500);
+        }
     }
 
     public function uploadPhoto()
