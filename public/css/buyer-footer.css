@@ -35,27 +35,14 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 
 /* Full storefront footer: flat groups, restrained typography, no logo cards. */
 .buyer-footer--full { margin-top: 40px; padding-block: 40px 16px; }
-.buyer-footer--full .buyer-footer__main-grid { display: grid; grid-template-columns: minmax(0,1.15fr) repeat(3,minmax(0,1fr)); gap: 32px; padding-bottom: 28px; }
+.buyer-footer--full .buyer-footer__main-grid { display: grid; grid-template-columns: minmax(0,1.1fr) repeat(3,minmax(0,1fr)); gap: clamp(20px,2.4vw,36px); padding-bottom: 28px; }
 .buyer-footer--full :is(section,nav,div) { min-width: 0; }
 .buyer-footer--full h2 { margin: 0 0 12px; font-family: 'Plus Jakarta Sans',sans-serif; font-size: .875rem; font-weight: 500; line-height: 1.6; color: var(--theme-primary); }
-.buyer-footer--full .buyer-footer__wordmark { display: inline-flex; align-items: center; min-height: 0; padding: 0; line-height: 1; }
-.buyer-footer--full .buyer-footer__wordmark img { display: block; width: 180px; max-width: 100%; height: auto; object-fit: contain; }
-.buyer-footer--full .buyer-footer__description { max-width: 300px; margin-top: 3px; color: #626262; font-size: .8125rem; line-height: 1.6; }
-.buyer-footer--full .buyer-footer__socials { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+.buyer-footer--full .buyer-footer__intro { align-self: start; display: flex; flex-direction: column; align-items: center; }
+.buyer-footer--full .buyer-footer__description { max-width: 320px; margin: 2px 0 12px; color: #626262; font-size: .875rem; font-style: italic; font-weight: 600; line-height: 1.65; text-align: center; }
+.buyer-footer--full .buyer-footer__socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: 8px 0 0; }
 .buyer-footer--full .buyer-footer__socials a { display: inline-flex; justify-content: center; width: 44px; height: 44px; padding: 0; }
 .buyer-footer--full .buyer-footer__social-icon { display: block; flex-shrink: 0; width: 17px; height: 17px; fill: currentColor; }
-.buyer-footer--full .buyer-footer__caption { margin-bottom: 10px; font-size: .6875rem; color: #737373; }
-.buyer-footer--full .buyer-footer__brands > div { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; }
-.buyer-footer--full .buyer-footer__brand-link { display: inline-flex; align-items: center; justify-content: flex-start; min-height: 40px; padding: 4px 0; transition: opacity .18s ease, transform .18s ease; }
-.buyer-footer--full .buyer-footer__brand-link + .buyer-footer__brand-link { border-inline-start: 0; padding-inline-start: 0; }
-.buyer-footer--full .buyer-footer__brand-link img { display: block; width: auto; max-width: 128px; height: 13px; object-fit: contain; }
-.buyer-footer--full .buyer-footer__brand-link:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 4px; }
-@media (hover: hover) {
-    .buyer-footer--full .buyer-footer__brand-link:hover { opacity: .78; transform: translateY(-2px); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .buyer-footer--full .buyer-footer__brand-link { transition: none; }
-}
 .buyer-footer--full .buyer-footer__full-menu { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; }
 .buyer-footer--full .buyer-footer__full-menu a { align-self: start; min-height: 40px; padding-block: 5px; }
 .buyer-footer--full .buyer-footer__hours { margin-bottom: 12px; }
@@ -75,24 +62,38 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 .buyer-footer--full .buyer-footer__marketplaces a { display: inline-flex; justify-content: center; min-width: 44px; }
 .buyer-footer--full .buyer-footer__marketplaces img { display: block; width: 72px; max-width: 100%; height: 24px; object-fit: contain; }
 .buyer-footer--full .buyer-footer__bottom { padding-top: 16px; }
-@media (max-width: 1199.98px) and (min-width: 576px) {
-    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 32px; }
-    .buyer-footer--full .buyer-footer__intro { grid-column: 1 / -1; }
-    .buyer-footer--full .buyer-footer__description { max-width: none; }
-    .buyer-footer--full .buyer-footer__customer-care { grid-column: 1 / -1; }
-}
-@media (max-width: 991.98px) {
+@media (max-width: 991.98px) and (min-width: 576px) {
+    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px 32px; }
+    .buyer-footer--full .buyer-footer__intro { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; }
+    .buyer-footer--full .buyer-footer__description { max-width: 100%; }
     .buyer-footer--full .buyer-footer__commerce,
-    .buyer-footer--full .buyer-footer__commerce--with-app { grid-template-columns: minmax(0,1fr); gap: 24px; }
+    .buyer-footer--full .buyer-footer__commerce--with-app { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 32px; }
+    .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
 }
 @media (max-width: 575.98px) {
     .buyer-footer--full { margin-top: 28px; padding-top: 28px; }
-    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: minmax(0,1fr); gap: 24px; }
-    .buyer-footer--full .buyer-footer__intro { grid-column: auto; }
-    .buyer-footer--full .buyer-footer__customer-care { grid-row: 2; }
-    .buyer-footer--full .buyer-footer__shopping { grid-row: 3; }
-    .buyer-footer--full .buyer-footer__policies { grid-row: 4; }
+    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 16px; }
+    .buyer-footer--full .buyer-footer__intro { grid-column: auto; display: flex; flex-direction: column; align-items: center; }
+    .buyer-footer--full .buyer-footer__intro,
+    .buyer-footer--full .buyer-footer__customer-care,
+    .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
+    .buyer-footer--full .buyer-footer__description { max-width: 30ch; font-size: .8125rem; }
+    .buyer-footer--full .buyer-footer__customer-care { grid-row: auto; }
+    .buyer-footer--full .buyer-footer__shopping,
+    .buyer-footer--full .buyer-footer__policies { grid-row: auto; }
+    .buyer-footer--full .buyer-footer__full-menu a,
+    .buyer-footer--full .buyer-footer__full-contact a { font-size: .75rem; line-height: 1.45; }
+    .buyer-footer--full .buyer-footer__hours p { font-size: .6875rem; line-height: 1.7; }
+    .buyer-footer--full .buyer-footer__commerce,
+    .buyer-footer--full .buyer-footer__commerce--with-app { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 12px; }
+    .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
+    .buyer-footer--full .buyer-footer__commerce:not(.buyer-footer__commerce--with-app) > .buyer-footer__marketplaces { grid-column: 1 / -1; }
+    .buyer-footer--full .buyer-footer__commerce h2 { font-size: .8125rem; }
+    .buyer-footer--full .buyer-footer__payment-logos { gap: 12px 16px; }
+    .buyer-footer--full .buyer-footer__payment-logos img { max-width: 48px; max-height: 24px; }
+    .buyer-footer--full .buyer-footer__marketplaces nav { gap: 4px 8px; }
+    .buyer-footer--full .buyer-footer__marketplaces img { width: 64px; height: 22px; }
+    .buyer-footer--full .buyer-footer__app-download img { width: 140px; }
     .buyer-footer--full .buyer-footer__full-menu a,
     .buyer-footer--full .buyer-footer__full-contact a { min-height: 44px; }
-    .buyer-footer--full .buyer-footer__payment-logos { gap: 20px 24px; }
 }

@@ -13,7 +13,6 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
         <div class="buyer-footer__main-grid">
             <section class="buyer-footer__intro" aria-labelledby="footer-brand-heading">
                 <h2 id="footer-brand-heading" class="visually-hidden">Lunarea Furniture</h2>
-                <a href="/" class="buyer-footer__wordmark" aria-label="Lunarea Furniture — Beranda"><img src="/img/Logo Lunarea Bg Terang.png" width="180" height="19" alt="Lunarea Furniture" loading="lazy" decoding="async"></a>
                 <p class="buyer-footer__description">always your choice, always your furniture.</p>
                 <nav class="buyer-footer__socials" aria-label="Media sosial Lunarea">
                 <a href="https://www.instagram.com/Lunareafurniture.official" target="_blank" rel="noopener noreferrer" aria-label="Instagram Lunarea" title="Instagram"><svg class="buyer-footer__social-icon" aria-hidden="true" focusable="false" viewBox="0 0 17 17">
@@ -35,13 +34,6 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
                                 <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"></path>
                             </svg></a>
                 </nav>
-                <div class="buyer-footer__brands">
-                    <h2 class="buyer-footer__caption">Brand kami</h2>
-                    <div>
-                        <a class="buyer-footer__brand-link" href="https://lunareafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Lunarea Furniture"><img src="/img/Logo Lunarea Bg Terang.png" width="152" height="16" alt="Lunarea Furniture" loading="lazy" decoding="async"></a>
-                        <a class="buyer-footer__brand-link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Ilena Furniture"><img src="/img/logoilena.png" width="128" height="18" alt="Ilena Furniture" loading="lazy" decoding="async"></a>
-                    </div>
-                </div>
             </section>
             <section class="buyer-footer__shopping" aria-labelledby="footer-shopping-heading">
                 <h2 id="footer-shopping-heading">Belanja &amp; bantuan</h2>
