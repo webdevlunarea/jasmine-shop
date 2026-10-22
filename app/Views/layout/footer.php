@@ -66,7 +66,7 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
             </section>
         </div>
         <div class="buyer-footer__brand-line">
-            <p class="buyer-footer__description">always your choice, always your furniture.</p>
+            <p class="buyer-footer__description">always your choice, always your furniture</p>
         </div>
         <div class="buyer-footer__commerce<?= $showAndroidPlayStoreBadge ? ' buyer-footer__commerce--with-app' : ''; ?>">
             <section aria-labelledby="footer-payment-heading">

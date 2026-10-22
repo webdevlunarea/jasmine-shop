@@ -74,17 +74,17 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
 }
 @media (max-width: 575.98px) {
     .buyer-footer--full { margin-top: 28px; padding-top: 28px; }
-    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: "shopping policies" ". social" "care care"; gap: 20px 16px; }
-    .buyer-footer--full .buyer-footer__customer-care,
-    .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
+    .buyer-footer--full .buyer-footer__main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: "shopping policies" "social care"; gap: 18px 12px; }
     .buyer-footer--full .buyer-footer__brand-line { padding: 0 8px 20px; }
     .buyer-footer--full .buyer-footer__description { max-width: 30ch; font-size: .8125rem; }
-    .buyer-footer--full .buyer-footer__customer-care { grid-row: auto; }
-    .buyer-footer--full .buyer-footer__shopping,
-    .buyer-footer--full .buyer-footer__policies { grid-row: auto; }
+    .buyer-footer--full .buyer-footer__main-grid h2 { margin-bottom: 7px; font-size: .75rem; line-height: 1.45; }
     .buyer-footer--full .buyer-footer__full-menu a,
-    .buyer-footer--full .buyer-footer__full-contact a { font-size: .75rem; line-height: 1.45; }
-    .buyer-footer--full .buyer-footer__hours p { font-size: .6875rem; line-height: 1.7; }
+    .buyer-footer--full .buyer-footer__full-contact a { min-height: 36px; padding-block: 4px; font-size: .6875rem; line-height: 1.4; }
+    .buyer-footer--full .buyer-footer__hours { margin-bottom: 6px; }
+    .buyer-footer--full .buyer-footer__hours p { font-size: .625rem; line-height: 1.6; }
+    .buyer-footer--full .buyer-footer__socials { gap: 0; }
+    .buyer-footer--full .buyer-footer__socials a { width: 36px; height: 36px; }
+    .buyer-footer--full .buyer-footer__social-icon { width: 15px; height: 15px; }
     .buyer-footer--full .buyer-footer__commerce,
     .buyer-footer--full .buyer-footer__commerce--with-app { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 12px; }
     .buyer-footer--full .buyer-footer__commerce > section:first-child { grid-column: 1 / -1; }
@@ -95,6 +95,4 @@ body.buyer-layout { display: flex; flex-direction: column; min-height: 100vh; mi
     .buyer-footer--full .buyer-footer__marketplaces nav { gap: 4px 8px; }
     .buyer-footer--full .buyer-footer__marketplaces img { width: 64px; height: 22px; }
     .buyer-footer--full .buyer-footer__app-download img { width: 140px; }
-    .buyer-footer--full .buyer-footer__full-menu a,
-    .buyer-footer--full .buyer-footer__full-contact a { min-height: 44px; }
 }
