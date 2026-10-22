@@ -87,6 +87,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
                 'name' => $seoName,
                 'url' => $seoCanonical,
                 'sku' => (string) $produk['id'],
+                'brand' => ['@type' => 'Brand', 'name' => 'Lunarea Furniture'],
                 'image' => [base_url('imgpic/' . rawurlencode((string) $produk['id']))],
                 'offers' => [
                     '@type' => 'Offer',
@@ -97,6 +98,17 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
                 ],
             ];
             if ($seoDescriptionProduct !== '') $seoProductData['description'] = $seoDescriptionProduct;
+            $seoRatingCount = (int) ($ratingStats['count'] ?? 0);
+            $seoRatingAverage = (float) ($ratingStats['avg'] ?? 0);
+            if ($seoRatingCount > 0 && $seoRatingAverage >= 1 && $seoRatingAverage <= 5) {
+                $seoProductData['aggregateRating'] = [
+                    '@type' => 'AggregateRating',
+                    'ratingValue' => $seoRatingAverage,
+                    'reviewCount' => $seoRatingCount,
+                    'bestRating' => 5,
+                    'worstRating' => 1,
+                ];
+            }
             $stockRaw = trim((string) ($produk['stok'] ?? ''));
             $stockValues = preg_match('/^\d+(?:\s*[,|]\s*\d+)*$/', $stockRaw)
                 ? array_map('intval', preg_split('/[,|]/', $stockRaw) ?: [])

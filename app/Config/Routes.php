@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Pages::index');
+$routes->get('/sitemap.xml', 'SitemapController::index');
 $routes->get('/ref/(:segment)', 'AndroidReferralLink::show/$1');
 
 // Versioned JSON API for the native Android client. Authentication uses opaque

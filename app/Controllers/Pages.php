@@ -915,7 +915,7 @@ class Pages extends BaseController
                 'produkTerkait' => $produkTerkait,
                 'komen' => json_decode($artikel['komen'], true),
                 'komenJson' => $artikel['komen'],
-                'metaDeskripsi' => $artikel['judul'],
+                'metaDeskripsi' => $this->seoExcerpt((string) ($artikel['isi'] ?? ''), (string) $artikel['judul']),
                 'metaKeyword' => $artikel['keywords']
             ];
             return view('pages/artikel', $data);
@@ -9807,6 +9807,21 @@ class Pages extends BaseController
         return $this->response->setJSON([
             'success' => true
         ], false);
+    }
+
+    private function seoExcerpt(string $html, string $fallback): string
+    {
+        $plainText = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $plainText = preg_replace('/\s+/u', ' ', trim($plainText)) ?? '';
+        if ($plainText === '') {
+            $plainText = trim($fallback);
+        }
+
+        if (mb_strlen($plainText, 'UTF-8') > 160) {
+            $plainText = rtrim(mb_substr($plainText, 0, 157, 'UTF-8')) . '...';
+        }
+
+        return $plainText;
     }
 
     public function notFound()
