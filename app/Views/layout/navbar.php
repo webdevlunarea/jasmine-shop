@@ -254,7 +254,7 @@ if ($isAdminNav) {
                 <span class="buyer-brand-partnership__divider" aria-hidden="true"></span>
                 <span class="buyer-brand-partnership__label">Part of</span>
                 <a class="buyer-brand-partnership__link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Kunjungi website Ilena Furniture" title="Kunjungi Ilena Furniture">
-                    <img src="<?= base_url('/img/logoilena.png'); ?>" class="buyer-brand-partnership__logo" alt="Ilena Furniture" decoding="async">
+                    <img src="<?= base_url('/img/logoilena.png'); ?>" class="buyer-brand-partnership__logo" width="114" height="16" alt="Ilena Furniture" decoding="async">
                 </a>
             </div>
         </div>
