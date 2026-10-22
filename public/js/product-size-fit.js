@@ -62,16 +62,19 @@ export function mountSizeFit(root) {
     unitNote.id = 'size-fit-unit-note';
     const diagramWrap = makeElement('div', 'size-fit-diagram-wrap');
     const diagramHeading = makeElement('div', 'size-fit-diagram-heading');
-    diagramHeading.append(
-        makeElement('strong', '', 'Perbandingan tampak atas'),
-        makeElement('span', '', 'Garis putus-putus = area ruang · Hijau = area yang ditempati furnitur')
+    diagramHeading.append(makeElement('strong', '', 'Perbandingan tampak atas'));
+    const legend = makeElement('div', 'size-fit-diagram-legend');
+    legend.setAttribute('aria-label', 'Keterangan diagram');
+    legend.append(
+        makeElement('span', 'size-fit-legend-item size-fit-legend-item--room', 'Ruang'),
+        makeElement('span', 'size-fit-legend-item size-fit-legend-item--furniture', 'Furnitur')
     );
-    const diagram = makeSvg('svg', { viewBox: '0 0 360 230', role: 'img', 'aria-label': 'Perbandingan ukuran furnitur dengan area ruang dari tampak atas' });
-    const diagramHint = makeElement('p', 'size-fit-diagram-hint', 'Isi kedua ukuran ruang untuk melihat perbandingan bentuknya.');
+    const diagram = makeSvg('svg', { viewBox: '0 0 720 250', role: 'img', 'aria-label': 'Perbandingan ukuran furnitur dengan area ruang dari tampak atas' });
+    const diagramHint = makeElement('p', 'size-fit-diagram-hint', 'Masukkan ukuran ruang untuk melihat simulasi.');
     const status = makeElement('p', 'size-fit-status', 'Masukkan ukuran ruang untuk melihat perbandingan.');
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    diagramWrap.append(diagramHeading, diagram, diagramHint);
+    diagramWrap.append(diagramHeading, legend, diagram, diagramHint);
     layout.append(info, form, unitNote, diagramWrap, status);
     root.replaceChildren(layout);
 
@@ -80,10 +83,10 @@ export function mountSizeFit(root) {
         const roomDepth = Number(fields[1].value);
         diagram.replaceChildren();
         if (!(roomWidth >= 10 && roomWidth <= 5000 && roomDepth >= 10 && roomDepth <= 5000)) {
-            const placeholder = makeSvg('text', { x: 180, y: 116, 'text-anchor': 'middle', class: 'size-fit-svg-placeholder' });
-            placeholder.textContent = 'Area ruang akan terlihat di sini';
+            const placeholder = makeSvg('text', { x: 360, y: 126, 'text-anchor': 'middle', class: 'size-fit-svg-placeholder' });
+            placeholder.textContent = 'Masukkan ukuran ruang';
             diagram.append(placeholder);
-            diagramHint.textContent = 'Isi lebar dan kedalaman ruang (10–5.000 cm) untuk melihat perbandingan.';
+            diagramHint.textContent = 'Isi lebar dan kedalaman ruang (10–5.000 cm).';
             status.textContent = 'Belum ada ukuran ruang untuk dibandingkan.';
             status.classList.remove('is-fit', 'is-no-fit');
             return;
@@ -91,35 +94,35 @@ export function mountSizeFit(root) {
 
         // Fit both rectangles in the canvas so an oversized product visibly
         // extends beyond the room outline instead of being clipped.
-        const scale = Math.min(300 / Math.max(roomWidth, width), 160 / Math.max(roomDepth, depth));
+        const scale = Math.min(620 / Math.max(roomWidth, width), 160 / Math.max(roomDepth, depth));
         const roomDrawWidth = roomWidth * scale;
         const roomDrawDepth = roomDepth * scale;
         const furnitureDrawWidth = width * scale;
         const furnitureDrawDepth = depth * scale;
-        const roomX = (360 - roomDrawWidth) / 2;
-        const roomY = 20 + (170 - roomDrawDepth) / 2;
-        const furnitureX = 180 - furnitureDrawWidth / 2;
-        const furnitureY = 105 - furnitureDrawDepth / 2;
-        diagramHint.textContent = `Garis putus-putus menunjukkan ruang ${roomWidth} × ${roomDepth} cm. Bidang hijau menunjukkan area dasar furnitur ${width} × ${depth} cm.`;
+        const roomX = (720 - roomDrawWidth) / 2;
+        const roomY = 22 + (160 - roomDrawDepth) / 2;
+        const furnitureX = 360 - furnitureDrawWidth / 2;
+        const furnitureY = 102 - furnitureDrawDepth / 2;
+        diagramHint.textContent = `Ruang ${roomWidth} × ${roomDepth} cm · Furnitur ${width} × ${depth} cm`;
         diagram.append(
             makeSvg('rect', { x: roomX, y: roomY, width: roomDrawWidth, height: roomDrawDepth, rx: 2, class: 'size-fit-room-outline' }),
             makeSvg('rect', { x: furnitureX, y: furnitureY, width: furnitureDrawWidth, height: furnitureDrawDepth, rx: 3, class: 'size-fit-furniture' })
         );
         if (furnitureDrawWidth >= 56 && furnitureDrawDepth >= 24) {
-            const furnitureLabel = makeSvg('text', { x: 180, y: furnitureY + furnitureDrawDepth / 2 + 4, 'text-anchor': 'middle', class: 'size-fit-svg-furniture-label' });
+            const furnitureLabel = makeSvg('text', { x: 360, y: furnitureY + furnitureDrawDepth / 2 + 4, 'text-anchor': 'middle', class: 'size-fit-svg-furniture-label' });
             furnitureLabel.textContent = 'Furnitur';
             diagram.append(furnitureLabel);
         }
-        const dimensionCaption = makeSvg('text', { x: 180, y: 218, 'text-anchor': 'middle', class: 'size-fit-svg-label' });
+        const dimensionCaption = makeSvg('text', { x: 360, y: 232, 'text-anchor': 'middle', class: 'size-fit-svg-label' });
         dimensionCaption.textContent = `Area ruang: ${roomWidth} cm × ${roomDepth} cm`;
         diagram.append(dimensionCaption);
         const fits = width <= roomWidth && depth <= roomDepth;
         status.textContent = fits
-            ? 'Secara ukuran dasar, furnitur masuk dalam area yang kamu masukkan.'
-            : 'Ukuran dasar furnitur lebih besar dari salah satu sisi area yang kamu masukkan.';
+            ? 'Furnitur muat pada area ini.'
+            : 'Furnitur lebih besar dari salah satu sisi ruang.';
         status.classList.toggle('is-fit', fits);
         status.classList.toggle('is-no-fit', !fits);
-        diagram.setAttribute('aria-label', `Garis putus-putus menunjukkan area ruang ${roomWidth} kali ${roomDepth} sentimeter. Bidang hijau menunjukkan ukuran dasar furnitur ${width} kali ${depth} sentimeter.`);
+        diagram.setAttribute('aria-label', `Area ruang ${roomWidth} kali ${roomDepth} sentimeter dan furnitur ${width} kali ${depth} sentimeter, tampak atas.`);
     };
     fields.forEach(input => input.addEventListener('input', update));
 }
