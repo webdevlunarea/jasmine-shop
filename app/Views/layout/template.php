@@ -638,6 +638,7 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     </script>
     <?= view('partials/cookie_consent', [], ['saveData' => false]); ?>
     <script src="/js/site-preferences.js?v=<?= substr(sha1_file(FCPATH . 'js/site-preferences.js'), 0, 12); ?>"></script>
+    <script defer src="/js/smart-search.js?v=<?= filemtime(FCPATH . 'js/smart-search.js'); ?>"></script>
     <script defer src="/js/image-skeletons.js?v=<?= filemtime(FCPATH . 'js/image-skeletons.js'); ?>"></script>
 </body>
 

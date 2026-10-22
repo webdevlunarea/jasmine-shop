@@ -174,3 +174,21 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
 .buyer-logout-actions [data-logout-confirm] { background: var(--theme-primary, #2f2d20); color: #fff; }
 .buyer-logout-actions button:focus-visible { outline: 2px solid var(--theme-primary, #2f2d20); outline-offset: 3px; }
 .buyer-logout-actions button:disabled { opacity: .6; cursor: wait; }
+.search-box[data-smart-search] { position: relative; }
+.smart-search-results { position: absolute; z-index: 1050; top: calc(100% + 8px); left: 0; right: 0; max-height: min(420px, 70vh); overflow-y: auto; overscroll-behavior: contain; padding: 6px; border: 1px solid var(--theme-soft-2, #e5e7eb); border-radius: 12px; background: var(--theme-background, #fff); box-shadow: 0 16px 40px rgb(38 43 39 / 14%); }
+.smart-search-results[hidden] { display: none !important; }
+.smart-search-item { display: flex; align-items: center; gap: 11px; min-height: 64px; padding: 8px; border-radius: 8px; color: var(--theme-primary, #262b27); text-decoration: none; transition: background-color .14s ease; }
+.smart-search-item:hover, .smart-search-item:focus-visible, .smart-search-item[aria-selected="true"] { outline: none; background: var(--theme-soft, #f5f3ee); }
+.smart-search-item img { width: 48px; height: 48px; flex: 0 0 48px; object-fit: cover; border-radius: 6px; background: var(--theme-soft, #f5f3ee); }
+.smart-search-item__details { display: grid; min-width: 0; flex: 1; gap: 4px; }
+.smart-search-item__name { overflow: hidden; color: inherit; font-size: 13px; font-weight: 600; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.smart-search-item__meta { display: flex; justify-content: space-between; gap: 8px; color: #6b716d; font-size: 11px; line-height: 1.3; }
+.smart-search-item__meta strong { color: var(--theme-primary, #262b27); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.smart-search-empty { margin: 0; padding: 13px 12px; color: #6b716d; font-size: 12px; line-height: 1.5; }
+@media (max-width: 767px) {
+    .buyer-mobile-header .search-box[data-smart-search] { position: relative; }
+    .buyer-mobile-header .smart-search-results { top: calc(100% + 6px); max-height: min(55vh, 380px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .smart-search-item { transition: none; }
+}

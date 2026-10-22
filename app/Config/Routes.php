@@ -86,6 +86,7 @@ $routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
 $routes->get('/kirimemail', 'Pages::kirimEmail', ['filter' => 'harusLogin']);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
+$routes->get('/search/suggest', 'Pages::searchSuggest');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
 $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');

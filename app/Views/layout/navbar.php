@@ -186,11 +186,12 @@ if ($isAdminNav) {
         </div>
     </div>
     <div class="container mobile-search-container" id="buyer-mobile-search" hidden>
-        <form class="d-flex w-100 search-box" role="search">
+        <form class="d-flex w-100 search-box" role="search" data-smart-search data-suggest-url="<?= esc(site_url('/search/suggest')); ?>">
             <div class="input-group">
-                <input required type="text" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk">
+                <input required type="search" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-mobile-search-results">
                 <button class="btn btn-dark" type="submit" aria-label="Cari produk"><i class="material-icons" aria-hidden="true">search</i></button>
             </div>
+            <div class="smart-search-results" id="buyer-mobile-search-results" role="listbox" aria-label="Saran produk" hidden></div>
         </form>
     </div>
 </nav>
@@ -274,11 +275,12 @@ if ($isAdminNav) {
                 <?php } ?>
             </ul>
             <?php if (!str_contains(strtolower($title), 'artikel')) { ?>
-                <form class="d-flex search-box" role="search">
+                <form class="d-flex search-box" role="search" data-smart-search data-suggest-url="<?= esc(site_url('/search/suggest')); ?>">
                     <div class="input-group">
-                        <input required type="text" class="form-control search-input" placeholder="Cari produk" aria-label="Cari produk">
+                        <input required type="search" class="form-control search-input" placeholder="Cari produk" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-desktop-search-results">
                         <button class="btn btn-light" type="submit" aria-label="Cari produk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
                     </div>
+                    <div class="smart-search-results" id="buyer-desktop-search-results" role="listbox" aria-label="Saran produk" hidden></div>
                 </form>
             <?php } ?>
             <div class="buyer-desktop-actions">

@@ -7423,6 +7423,62 @@ class Pages extends BaseController
         return redirect()->to('/manageratingterjual');
     }
 
+    /** Lightweight public autocomplete endpoint for the site-wide product search. */
+    public function searchSuggest()
+    {
+        $query = trim(preg_replace('/\s+/u', ' ', (string)$this->request->getGet('q')) ?? '');
+        if (mb_strlen($query) < 2 || mb_strlen($query) > 100) {
+            return $this->response->setStatusCode(200)->setJSON(['items' => []]);
+        }
+
+        $tokens = array_values(array_unique(array_filter(
+            preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($query)) ?: [],
+            static fn($token) => mb_strlen($token) >= 2
+        )));
+        $tokens = array_slice($tokens, 0, 6);
+        if (!$tokens) return $this->response->setJSON(['items' => []]);
+
+        $db = \Config\Database::connect();
+        $model = $this->barangModel
+            ->select('id,nama,path,harga,diskon,kategori,subkategori,tracking_pop')
+            ->where('active', '1');
+        foreach ($tokens as $token) {
+            $model->groupStart()
+                ->like('nama', $token)
+                ->orLike('pencarian', $token)
+                ->orLike('kategori', $token)
+                ->orLike('subkategori', $token)
+                ->groupEnd();
+        }
+
+        $normalizedQuery = mb_strtolower($query);
+        $escapedExact = $db->escape($normalizedQuery);
+        $escapedPrefix = $db->escape($normalizedQuery . '%');
+        $rows = $model
+            ->orderBy("CASE WHEN LOWER(nama) = {$escapedExact} THEN 0 WHEN LOWER(nama) LIKE {$escapedPrefix} THEN 1 ELSE 2 END", 'ASC', false)
+            ->orderBy('tracking_pop', 'DESC')
+            ->orderBy('nama', 'ASC')
+            ->findAll(8);
+
+        $items = array_map(static function (array $row): array {
+            $digits = preg_replace('/[^0-9]/', '', (string)($row['harga'] ?? '0'));
+            $price = max(0, (int)($digits === '' ? 0 : $digits));
+            return [
+                'name' => (string)($row['nama'] ?? ''),
+                'category' => trim(str_replace('-', ' ', (string)($row['kategori'] ?? ''))),
+                'price' => 'Rp ' . number_format($price, 0, ',', '.'),
+                'discount' => min(100, max(0, (int)($row['diskon'] ?? 0))),
+                'image' => base_url('imgproduct/' . rawurlencode((string)$row['id']) . '/1'),
+                'url' => site_url('product/' . rawurlencode((string)($row['path'] ?? ''))),
+            ];
+        }, $rows);
+
+        return $this->response
+            ->setHeader('Cache-Control', 'public, max-age=20, stale-while-revalidate=40')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setJSON(['items' => $items]);
+    }
+
     public function productFilter($namaDash, $page = 1)
     {
         $nama = str_replace("-", " ", $namaDash);
