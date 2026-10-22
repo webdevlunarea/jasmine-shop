@@ -27,6 +27,7 @@ use App\Models\KonstantaModel;
 use App\Models\RatingModel;
 use App\Models\BannerModel;
 use App\Models\TrackingModel;
+use App\Libraries\TrafficExcelExporter;
 use App\Models\ReturPengajuanModel;
 use App\Models\OrderShipmentModel;
 use App\Models\ShippingInternalCoverageModel;
@@ -8576,17 +8577,52 @@ class Pages extends BaseController
         return view('pages/listBanner', $data);
     }
 
+    private function resolveTrafficDateRange(int $range): array
+    {
+        $timezone = new \DateTimeZone('Asia/Jakarta');
+        $today = new \DateTimeImmutable('today', $timezone);
+        $defaultTo = $today->format('Y-m-d');
+        $defaultFrom = $today->modify('-' . (max(1, $range) - 1) . ' days')->format('Y-m-d');
+        $fromValue = $this->request->getGet('from');
+        $toValue = $this->request->getGet('to');
+        $fromInput = is_string($fromValue) ? trim($fromValue) : '';
+        $toInput = is_string($toValue) ? trim($toValue) : '';
+        if ($fromInput === '' && $toInput === '') return [$defaultFrom, $defaultTo, ''];
+
+        $parseDate = static function (string $value) use ($timezone): ?\DateTimeImmutable {
+            $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $value, $timezone);
+            $issues = \DateTimeImmutable::getLastErrors();
+            return $parsed && ($issues === false || ($issues['warning_count'] === 0 && $issues['error_count'] === 0))
+                && $parsed->format('Y-m-d') === $value ? $parsed : null;
+        };
+        $fromDate = $parseDate($fromInput);
+        $toDate = $parseDate($toInput);
+        $error = '';
+        if (!$fromDate || !$toDate) $error = 'Pilih tanggal awal dan akhir yang valid.';
+        elseif ($fromDate > $toDate) $error = 'Tanggal awal tidak boleh melewati tanggal akhir.';
+        elseif ($toDate > $today) $error = 'Tanggal akhir tidak boleh melewati hari ini.';
+        elseif ($fromDate->diff($toDate)->days > 365) $error = 'Rentang tanggal maksimal 366 hari.';
+
+        return $error === ''
+            ? [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d'), '']
+            : [$defaultFrom, $defaultTo, $error];
+    }
+
     public function trafficAdmin($range = 30)
     {
         $allowedRanges = [7, 30, 90];
         $range = in_array((int)$range, $allowedRanges, true) ? (int)$range : 30;
-        $error = '';
+        [$fromDate, $toDate, $error] = $this->resolveTrafficDateRange($range);
 
         try {
-            $summary = $this->trackingModel->getTrafficSummary($range);
-            $dailyTraffic = $this->trackingModel->getDailyTraffic($range);
-            $topPages = $this->trackingModel->getTopPages($range, 10);
-            $recentVisits = $this->trackingModel->getRecentVisits(30);
+            $summary = $this->trackingModel->getTrafficSummaryForRange($fromDate, $toDate);
+            $dailyTraffic = $this->trackingModel->getDailyTrafficForRange($fromDate, $toDate);
+            $summary['today'] = 0;
+            foreach ($dailyTraffic as $day) {
+                if (($day['tanggal'] ?? '') === $toDate) $summary['today'] = (int) ($day['pageviews'] ?? 0);
+            }
+            $topPages = $this->trackingModel->getTopPagesForRange($fromDate, $toDate, 10);
+            $recentVisits = $this->trackingModel->getRecentVisitsForRange($fromDate, $toDate, 50);
         } catch (\Throwable $e) {
             log_message('error', 'Traffic admin failed: {message}', ['message' => $e->getMessage()]);
             $summary = [
@@ -8601,9 +8637,13 @@ class Pages extends BaseController
             $error = 'Data traffic belum bisa dibaca. Pastikan tabel tracking sudah tersedia.';
         }
 
+        $range = (new \DateTimeImmutable($fromDate))->diff(new \DateTimeImmutable($toDate))->days + 1;
+
         $data = [
             'title' => 'Traffic Pengunjung',
             'range' => $range,
+            'fromDate' => $fromDate,
+            'toDate' => $toDate,
             'summary' => $summary,
             'dailyTraffic' => $dailyTraffic,
             'topPages' => $topPages,
@@ -8612,6 +8652,62 @@ class Pages extends BaseController
         ];
 
         return view('pages/trafficAdmin', $data);
+    }
+
+    public function trafficAdminExport()
+    {
+        [$fromDate, $toDate, $error] = $this->resolveTrafficDateRange(30);
+        if ($error !== '') return $this->response->setStatusCode(400)->setBody($error);
+
+        try {
+            $summary = $this->trackingModel->getTrafficSummaryForRange($fromDate, $toDate);
+            $daily = $this->trackingModel->getDailyTrafficForRange($fromDate, $toDate);
+            $topPages = $this->trackingModel->getTopPagesForRange($fromDate, $toDate, 100);
+            $recent = $this->trackingModel->getRecentVisitsForRange($fromDate, $toDate, 10000);
+            $days = (new \DateTimeImmutable($fromDate))->diff(new \DateTimeImmutable($toDate))->days + 1;
+
+            $dailyRows = [
+                ['LUNAREA — TRAFFIC HARIAN'],
+                ['Periode ' . date('d/m/Y', strtotime($fromDate)) . ' sampai ' . date('d/m/Y', strtotime($toDate)) . ' WIB · ' . $days . ' hari'],
+                [],
+                ['Tanggal', 'Pageviews', 'Pengunjung unik', 'Rata-rata durasi (detik)'],
+            ];
+            foreach ($daily as $day) $dailyRows[] = [date('d/m/Y', strtotime($day['tanggal'])), (int)$day['pageviews'], (int)$day['visitors'], round((float)$day['avg_duration'], 1)];
+
+            $summaryRows = [
+                ['LUNAREA — RINGKASAN TRAFFIC'],
+                ['Periode ' . date('d/m/Y', strtotime($fromDate)) . ' sampai ' . date('d/m/Y', strtotime($toDate)) . ' WIB'],
+                [], ['Metrik', 'Nilai'],
+                ['Total pageviews', (int)$summary['pageviews']],
+                ['Pengunjung unik', (int)$summary['visitors']],
+                ['Rata-rata durasi (detik)', round((float)$summary['avg_duration'], 1)],
+                ['Lama periode (hari)', $days],
+                [], ['Tanggal', 'Pageviews', 'Pengunjung unik', 'Rata-rata durasi (detik)'],
+            ];
+            foreach ($daily as $day) $summaryRows[] = [date('d/m/Y', strtotime($day['tanggal'])), (int)$day['pageviews'], (int)$day['visitors'], round((float)$day['avg_duration'], 1)];
+
+            $pageRows = [['LUNAREA — HALAMAN TERPOPULER'], ['Periode ' . date('d/m/Y', strtotime($fromDate)) . ' sampai ' . date('d/m/Y', strtotime($toDate)) . ' WIB'], [], ['Path', 'Pageviews', 'Pengunjung unik', 'Rata-rata durasi (detik)']];
+            foreach ($topPages as $page) $pageRows[] = [(string)$page['path'], (int)$page['pageviews'], (int)$page['visitors'], round((float)$page['avg_duration'], 1)];
+
+            $visitRows = [['LUNAREA — DETAIL KUNJUNGAN'], ['Periode ' . date('d/m/Y', strtotime($fromDate)) . ' sampai ' . date('d/m/Y', strtotime($toDate)) . ' WIB · Maksimal 10.000 baris'], [], ['Waktu (WIB)', 'Alamat IP', 'Path', 'Durasi (detik)']];
+            foreach ($recent as $visit) $visitRows[] = [date('d/m/Y H:i:s', strtotime($visit['waktu'])), (string)$visit['ip'], (string)$visit['path'], round((float)$visit['durasi'], 1)];
+
+            $file = (new TrafficExcelExporter())->generate([
+                ['title' => 'Ringkasan', 'rows' => $summaryRows, 'widths' => [34, 20, 22, 26], 'headerRows' => [4, 10], 'numericColumns' => [2, 3, 4], 'filterHeaderRow' => 10],
+                ['title' => 'Harian', 'rows' => $dailyRows, 'widths' => [20, 18, 24, 28], 'headerRows' => [4], 'numericColumns' => [2, 3, 4], 'filterHeaderRow' => 4],
+                ['title' => 'Top Halaman', 'rows' => $pageRows, 'widths' => [64, 18, 22, 27], 'headerRows' => [4], 'numericColumns' => [2, 3, 4], 'filterHeaderRow' => 4],
+                ['title' => 'Kunjungan', 'rows' => $visitRows, 'widths' => [24, 22, 64, 20], 'headerRows' => [4], 'numericColumns' => [4], 'filterHeaderRow' => 4],
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Traffic Excel export failed: {message}', ['message' => $e->getMessage()]);
+            return $this->response->setStatusCode(500)->setBody('File Excel belum dapat dibuat. Pastikan ekstensi ZIP PHP tersedia.');
+        }
+
+        $filename = 'lunarea-traffic-' . $fromDate . '-sampai-' . $toDate . '.xlsx';
+        return $this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setHeader('Cache-Control', 'private, no-store, max-age=0')
+            ->setBody($file);
     }
 
     public function shippingAdmin()

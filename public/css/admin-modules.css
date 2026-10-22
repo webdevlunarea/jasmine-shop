@@ -138,6 +138,14 @@
 .admin-body :is(#modal-add, #modal-redeem, #modal-email, #modalnya) :is(input, select, button) { min-height: 44px; }
 .admin-body .admin-module-page .admin-data-table { min-width: 620px; }
 .admin-body .admin-module-page .admin-empty-state { padding: 32px 20px; text-align: center; font-size: 13px; color: var(--admin-muted); }
+.admin-body .admin-module-traffic-admin .traffic-filter { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px; padding: 16px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-surface); }
+.admin-body .admin-module-traffic-admin .traffic-filter__dates { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.admin-body .admin-module-traffic-admin .traffic-filter__field { display: grid; gap: 5px; min-width: 180px; margin: 0; color: var(--admin-muted); font-size: 11px; font-weight: 600; }
+.admin-body .admin-module-traffic-admin .traffic-filter__field input { min-height: 42px; padding: 8px 11px; border: 1px solid var(--admin-border); border-radius: 7px; background: var(--admin-surface); color: var(--admin-text); font: inherit; font-size: 13px; }
+.admin-body .admin-module-traffic-admin .traffic-filter__field input:focus { border-color: var(--admin-primary); outline: 3px solid color-mix(in srgb, var(--admin-primary) 15%, transparent); }
+.admin-body .admin-module-traffic-admin .traffic-filter__separator { padding-bottom: 10px; color: var(--admin-muted); }
+.admin-body .admin-module-traffic-admin .traffic-filter__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-body .admin-module-traffic-admin .traffic-filter__actions .btn { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding-inline: 14px; font-size: 12px; font-weight: 600; }
 @media (max-width: 1200px) {
     .admin-body .admin-module-shipping-admin .shipping-admin-grid { grid-template-columns: minmax(0, 1fr); }
     .admin-body .admin-module-page .flash-admin-grid { grid-template-columns: minmax(0, 1fr); }
@@ -175,6 +183,12 @@
     .admin-body .admin-module-page .traffic-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-body .admin-module-page .traffic-card { padding: 15px; }
     .admin-body .admin-module-page .traffic-card h3 { font-size: 20px; }
+    .admin-body .admin-module-traffic-admin .traffic-filter { align-items: stretch; }
+    .admin-body .admin-module-traffic-admin .traffic-filter__dates { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+    .admin-body .admin-module-traffic-admin .traffic-filter__separator { display: none; }
+    .admin-body .admin-module-traffic-admin .traffic-filter__field { min-width: 0; }
+    .admin-body .admin-module-traffic-admin .traffic-filter__actions { width: 100%; }
+    .admin-body .admin-module-traffic-admin .traffic-filter__actions .btn { flex: 1 1 auto; }
     .admin-body .admin-module-page .stok-table-card { max-width: 100%; }
 }
 

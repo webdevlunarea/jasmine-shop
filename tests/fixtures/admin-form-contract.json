@@ -1538,8 +1538,35 @@
     ]
   },
   "trafficAdmin": {
-    "forms": [],
-    "fields": []
+    "forms": [
+      {
+        "action": "PHP_1b00742df0c3",
+        "method": "get",
+        "enctype": ""
+      }
+    ],
+    "fields": [
+      {
+        "name": "from",
+        "type": "date",
+        "value": "PHP_8551162b1d3d",
+        "min": "",
+        "max": "PHP_1a012fea666a",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "to",
+        "type": "date",
+        "value": "PHP_1a012fea666a",
+        "min": "",
+        "max": "PHP_983fb06c1be4",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      }
+    ]
   },
   "settingWarna": {
     "forms": [

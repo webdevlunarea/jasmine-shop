@@ -32,12 +32,30 @@ foreach ($dailyTraffic as $day) {
             </div>
             <div class="traffic-range">
                 <?php foreach ([7, 30, 90] as $rangeOption) { ?>
-                    <a href="/trafficadmin/<?= $rangeOption; ?>" class="<?= $range == $rangeOption ? 'active' : ''; ?>">
+                    <a href="<?= site_url('/trafficadmin/' . $rangeOption); ?>" class="<?= $range == $rangeOption ? 'active' : ''; ?>">
                         <?= $rangeOption; ?> hari
                     </a>
                 <?php } ?>
             </div>
         </div>
+
+        <form method="get" action="<?= site_url('/trafficadmin'); ?>" class="traffic-filter mb-4">
+            <div class="traffic-filter__dates">
+                <label class="traffic-filter__field">
+                    <span>Dari tanggal</span>
+                    <input type="date" name="from" value="<?= esc($fromDate); ?>" max="<?= esc($toDate); ?>" required>
+                </label>
+                <span class="traffic-filter__separator" aria-hidden="true">—</span>
+                <label class="traffic-filter__field">
+                    <span>Sampai tanggal</span>
+                    <input type="date" name="to" value="<?= esc($toDate); ?>" max="<?= esc(date('Y-m-d', strtotime('+7 hours'))); ?>" required>
+                </label>
+            </div>
+            <div class="traffic-filter__actions">
+                <button type="submit" class="btn btn-primary">Terapkan</button>
+                <a class="btn btn-outline-secondary" href="<?= esc(site_url('/trafficadmin/export?from=' . rawurlencode($fromDate) . '&to=' . rawurlencode($toDate))); ?>">Unduh Excel</a>
+            </div>
+        </form>
 
         <?php if ($error) { ?>
             <div class="alert alert-warning"><?= esc($error); ?></div>
@@ -57,7 +75,7 @@ foreach ($dailyTraffic as $day) {
                 <h3><?= $formatDuration($summary['avg_duration']); ?></h3>
             </div>
             <div class="traffic-card">
-                <p>Hari Ini</p>
+                <p>Pageviews pada tanggal akhir</p>
                 <h3><?= $formatNumber($summary['today']); ?></h3>
             </div>
         </div>
@@ -65,7 +83,7 @@ foreach ($dailyTraffic as $day) {
         <div class="traffic-section mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0">Grafik Harian</h3>
-                <span class="text-muted"><?= $range; ?> hari terakhir</span>
+                <span class="text-muted"><?= esc(date('d M Y', strtotime($fromDate))); ?> – <?= esc(date('d M Y', strtotime($toDate))); ?></span>
             </div>
             <?php if (count($dailyTraffic) > 0) { ?>
                 <div class="traffic-chart">

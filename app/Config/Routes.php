@@ -217,6 +217,7 @@ $routes->post('/actioneditbanner/(:num)', 'Pages::actionEditBanner/$1', ['filter
 $routes->post('/activebanner/(:num)', 'Pages::activeBanner/$1', ['filter' => 'harusAdmin']);
 $routes->post('/deletebanner/(:num)', 'Pages::deleteBanner/$1', ['filter' => 'harusAdmin']);
 $routes->get('/trafficadmin', 'Pages::trafficAdmin', ['filter' => 'harusAdmin']);
+$routes->get('/trafficadmin/export', 'Pages::trafficAdminExport', ['filter' => 'harusAdmin']);
 $routes->get('/trafficadmin/(:num)', 'Pages::trafficAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/settingwarna', 'Pages::settingWarna', ['filter' => 'harusAdmin']);
 $routes->post('/settingwarna', 'Pages::actionSettingWarna', ['filter' => 'harusAdmin']);

@@ -58,6 +58,23 @@ class TrackingModel extends Model
         return $builder;
     }
 
+    /** Apply an inclusive calendar-date range while excluding admin traffic. */
+    protected function applyTrafficDateRange($builder, string $from, string $to)
+    {
+        $builder->where('waktu >=', $from . ' 00:00:00')
+            ->where('waktu <', date('Y-m-d', strtotime($to . ' +1 day')) . ' 00:00:00');
+
+        foreach ([
+            '/addtracking', '/listcustomer', '/invoiceadmin', '/addinvoiceadmin', '/listproduct',
+            '/listproducttable', '/addproduct', '/editproduct', '/findproductadmin', '/listbanner',
+            '/addbanner', '/editbanner', '/listvoucher', '/addvoucher', '/editvoucher', '/listredeem',
+            '/manageratingterjual', '/stokadmin', '/pdf', '/trafficadmin',
+        ] as $prefix) {
+            $builder->notLike('path', $prefix, 'after');
+        }
+        return $builder;
+    }
+
     public function getTrafficSummary($days = 30)
     {
         $builder = $this->builder();
@@ -79,6 +96,18 @@ class TrackingModel extends Model
         ];
     }
 
+    public function getTrafficSummaryForRange(string $from, string $to): array
+    {
+        $builder = $this->builder();
+        $this->applyTrafficDateRange($builder, $from, $to);
+        $row = $builder->select('COUNT(*) AS pageviews, COUNT(DISTINCT ip) AS visitors, AVG(durasi) AS avg_duration', false)->get()->getRowArray();
+        return [
+            'pageviews' => (int) ($row['pageviews'] ?? 0),
+            'visitors' => (int) ($row['visitors'] ?? 0),
+            'avg_duration' => (float) ($row['avg_duration'] ?? 0),
+        ];
+    }
+
     public function getDailyTraffic($days = 14)
     {
         $builder = $this->builder();
@@ -89,6 +118,17 @@ class TrackingModel extends Model
             ->orderBy('tanggal', 'asc')
             ->get()
             ->getResultArray();
+    }
+
+    public function getDailyTrafficForRange(string $from, string $to): array
+    {
+        $builder = $this->builder();
+        $this->applyTrafficDateRange($builder, $from, $to);
+        return $builder
+            ->select('DATE(waktu) AS tanggal, COUNT(*) AS pageviews, COUNT(DISTINCT ip) AS visitors, AVG(durasi) AS avg_duration', false)
+            ->groupBy('DATE(waktu)')
+            ->orderBy('tanggal', 'asc')
+            ->get()->getResultArray();
     }
 
     public function getTopPages($days = 30, $limit = 10)
@@ -104,6 +144,16 @@ class TrackingModel extends Model
             ->getResultArray();
     }
 
+    public function getTopPagesForRange(string $from, string $to, int $limit = 10): array
+    {
+        $builder = $this->builder();
+        $this->applyTrafficDateRange($builder, $from, $to);
+        return $builder
+            ->select('path, COUNT(*) AS pageviews, COUNT(DISTINCT ip) AS visitors, AVG(durasi) AS avg_duration', false)
+            ->groupBy('path')->orderBy('pageviews', 'desc')->limit(max(1, min($limit, 100)))
+            ->get()->getResultArray();
+    }
+
     public function getRecentVisits($limit = 30)
     {
         $builder = $this->builder();
@@ -114,5 +164,13 @@ class TrackingModel extends Model
             ->limit((int)$limit)
             ->get()
             ->getResultArray();
+    }
+
+    public function getRecentVisitsForRange(string $from, string $to, int $limit = 1000): array
+    {
+        $builder = $this->builder();
+        $this->applyTrafficDateRange($builder, $from, $to);
+        return $builder->select('waktu, ip, path, durasi')->orderBy('waktu', 'desc')
+            ->limit(max(1, min($limit, 10000)))->get()->getResultArray();
     }
 }
