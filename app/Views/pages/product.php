@@ -6,6 +6,11 @@ $wishlistKeys = is_array($wishlistKeys ?? null) ? $wishlistKeys : [];
 $stokVarianTampil = array_map('intval', explode(',', (string) ($produk['stok'] ?? '0')));
 $wishlistKeyFor = static fn($id, $variant) => (string)$id . '|' . mb_strtolower(trim((string)$variant));
 $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? ''), $wishlistKeys, true);
+$sizeFitMatches = [];
+preg_match_all('/\d+(?:[,.]\d+)?/', (string)($produk['dimensi'] ?? ''), $sizeFitMatches);
+$sizeFitDimensions = array_map(static fn($value) => (float)str_replace(',', '.', $value), $sizeFitMatches[0] ?? []);
+$sizeFitAvailable = count($sizeFitDimensions) === 3
+    && count(array_filter($sizeFitDimensions, static fn($value) => $value > 0 && $value <= 800)) === 3;
 ?>
 <main class="konten buyer-product-page">
     <div class="container">
@@ -248,6 +253,27 @@ $initialWishlistActive = in_array($wishlistKeyFor($produk['id'], $varian[0] ?? '
 
                 <h2 class="product-section-label product-description-label">Deskripsi produk</h2>
                 <div class="product-description"><?= $produk['deskripsi']; ?></div>
+                <?php if ($sizeFitAvailable) { ?>
+                    <section class="product-size-fit" data-product-size-fit>
+                        <div class="product-size-fit__intro">
+                            <div>
+                                <p class="product-size-fit__eyebrow">BANTUAN UKURAN</p>
+                                <h2>Cek ukuran &amp; kecocokan ruang</h2>
+                                <p>Bandingkan jejak ukuran furnitur dengan ruang yang tersedia.</p>
+                            </div>
+                            <button type="button" class="product-size-fit__toggle" data-size-fit-toggle aria-expanded="false" aria-controls="product-size-fit-panel">
+                                <span>Coba simulasi</span><span class="material-icons" aria-hidden="true">straighten</span>
+                            </button>
+                        </div>
+                        <div id="product-size-fit-panel" class="product-size-fit__panel" data-size-fit-root
+                            data-size-fit-module="<?= esc(base_url('js/product-size-fit.js?v=' . filemtime(FCPATH . 'js/product-size-fit.js')), 'attr'); ?>"
+                            data-size-width="<?= esc((string)$sizeFitDimensions[0], 'attr'); ?>"
+                            data-size-depth="<?= esc((string)$sizeFitDimensions[1], 'attr'); ?>"
+                            data-size-height="<?= esc((string)$sizeFitDimensions[2], 'attr'); ?>"
+                            data-product-name="<?= esc($produk['nama'], 'attr'); ?>" hidden></div>
+                        <p class="product-size-fit__note">Simulasi dasar berdasarkan dimensi produk. Sisakan ruang gerak dan periksa akses pintu serta jalur masuk.</p>
+                    </section>
+                <?php } ?>
                 <hr class="m-0">
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <div class="accordion-item">
@@ -664,4 +690,7 @@ if (imgProdukSelect.length > 0) {
     measurePurchaseBar();
     selectVariantByIndex(0, false);
 </script>
+<?php if ($sizeFitAvailable) { ?>
+<script defer src="<?= base_url('js/product-size-fit-loader.js?v=' . filemtime(FCPATH . 'js/product-size-fit-loader.js')); ?>"></script>
+<?php } ?>
 <?= $this->endSection(); ?>

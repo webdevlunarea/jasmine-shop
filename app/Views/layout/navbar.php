@@ -188,10 +188,10 @@ if ($isAdminNav) {
     <div class="container mobile-search-container" id="buyer-mobile-search" hidden>
         <form class="d-flex w-100 search-box" role="search" data-smart-search data-suggest-url="<?= esc(site_url('/search/suggest')); ?>">
             <div class="input-group">
-                <input required type="search" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-mobile-search-results">
+                <input required type="search" class="form-control search-input" placeholder="Cari produk impianmu" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-mobile-search-list">
                 <button class="btn btn-dark" type="submit" aria-label="Cari produk"><i class="material-icons" aria-hidden="true">search</i></button>
             </div>
-            <div class="smart-search-results" id="buyer-mobile-search-results" role="listbox" aria-label="Saran produk" hidden></div>
+            <div class="smart-search-results" id="buyer-mobile-search-results" hidden><div class="smart-search-heading"><span data-smart-search-heading></span><button type="button" data-search-history-clear hidden>Hapus riwayat</button></div><div class="smart-search-list" id="buyer-mobile-search-list" role="listbox" aria-label="Saran produk"></div></div>
         </form>
     </div>
 </nav>
@@ -277,10 +277,10 @@ if ($isAdminNav) {
             <?php if (!str_contains(strtolower($title), 'artikel')) { ?>
                 <form class="d-flex search-box" role="search" data-smart-search data-suggest-url="<?= esc(site_url('/search/suggest')); ?>">
                     <div class="input-group">
-                        <input required type="search" class="form-control search-input" placeholder="Cari produk" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-desktop-search-results">
+                        <input required type="search" class="form-control search-input" placeholder="Cari produk" aria-label="Cari produk" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="buyer-desktop-search-list">
                         <button class="btn btn-light" type="submit" aria-label="Cari produk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
                     </div>
-                    <div class="smart-search-results" id="buyer-desktop-search-results" role="listbox" aria-label="Saran produk" hidden></div>
+                    <div class="smart-search-results" id="buyer-desktop-search-results" hidden><div class="smart-search-heading"><span data-smart-search-heading></span><button type="button" data-search-history-clear hidden>Hapus riwayat</button></div><div class="smart-search-list" id="buyer-desktop-search-list" role="listbox" aria-label="Saran produk"></div></div>
                 </form>
             <?php } ?>
             <div class="buyer-desktop-actions">
