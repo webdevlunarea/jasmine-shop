@@ -1079,7 +1079,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             }
         }
     }
-    if (appLocked) BiometricAppLock(
+    if (appLocked && startupComplete) BiometricAppLock(
         onUnlocked = onAppUnlocked,
         onLoggedOut = { signedIn = false; tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU }
     )
@@ -4448,33 +4448,38 @@ private fun BiometricAppLock(onUnlocked: () -> Unit, onLoggedOut: () -> Unit) {
         )
     }
 
+    // Wait until the brand splash has fully faded before opening the system
+    // biometric sheet. Keep a full-screen lock surface behind it; no app modal.
     LaunchedEffect(Unit) { if (!requested) { requested = true; authenticate() } }
-    Dialog(onDismissRequest = {}, properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(.9f),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 2.dp
+    BackHandler(enabled = true) { }
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Lunarea terkunci", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                Text(
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Verifikasi dengan biometrik atau kunci layar perangkat untuk membuka aplikasi."
-                    else "Verifikasi dengan biometrik untuk membuka aplikasi.",
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-                Button(onClick = { message = null; authenticate() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                    Text("Verifikasi dan buka")
-                }
-                TextButton(onClick = {
-                    scope.launch {
-                        auth.logout()
-                        onLoggedOut()
-                        latestUnlock()
-                    }
-                }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Keluar dari akun di perangkat ini") }
+            Text("Lunarea terkunci", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Verifikasi dengan biometrik atau kunci layar perangkat untuk melanjutkan."
+                else "Verifikasi dengan biometrik untuk melanjutkan.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+            Button(onClick = { message = null; authenticate() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text("Coba verifikasi lagi")
             }
+            TextButton(onClick = {
+                scope.launch {
+                    auth.logout()
+                    onLoggedOut()
+                    latestUnlock()
+                }
+            }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Keluar dari akun di perangkat ini") }
         }
     }
 }
