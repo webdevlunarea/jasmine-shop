@@ -142,7 +142,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-header.navbar .navbar-nav { grid-column: 1 / -1; grid-row: 2; display: flex; flex: 0 0 auto; justify-content: center; align-items: center; gap: 6px; margin: 0 !important; }
     .buyer-desktop-header.navbar .nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 10px !important; font-size: .75rem; font-weight: 500; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; color: var(--theme-primary); }
     .buyer-desktop-header.navbar .nav-link::after { left: 10px; right: 10px; height: 1px; }
-    .buyer-desktop-header.navbar .search-box { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; margin: 0; }
+    .buyer-desktop-header.navbar .search-box { grid-column: 2; grid-row: 1; justify-self: center; width: 100%; max-width: 440px; min-width: 0; margin: 0; }
     .buyer-desktop-header .search-box .input-group { flex-wrap: nowrap; min-height: 44px; border: 1px solid var(--theme-soft-2); border-radius: 6px; background: var(--theme-soft); box-shadow: none; overflow: hidden; }
     .buyer-desktop-header .search-box .search-input { min-width: 0; height: 44px; padding-inline: 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; font-size: .8125rem; color: var(--theme-primary); }
     .buyer-desktop-header .search-box .search-input::placeholder { color: #737373; }
@@ -190,7 +190,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
 
 /* Tablet storefront: keep the desktop dual-brand identity and place search on
    its own row so neither logo nor existing actions get squeezed. */
-@media (min-width: 768px) and (max-width: 991.98px) {
+@media (min-width: 600px) and (max-width: 991.98px) {
     .buyer-desktop-header, .buyer-desktop-spacer { display: flex !important; }
     .buyer-desktop-spacer { display: block !important; }
     .navbar.buyer-desktop-header + .buyer-desktop-spacer.show-ke-hide { height: var(--buyer-header-bottom, 206px) !important; }
@@ -210,7 +210,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-header .navbar-toggler { display: none !important; }
     .buyer-desktop-header.navbar .navbar-nav { grid-column: 1 / -1; grid-row: 3; display: flex !important; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px; margin: 0 !important; }
     .buyer-desktop-header.navbar .nav-link { display: inline-flex; align-items: center; min-height: 40px; padding: 7px 10px !important; font-size: .75rem; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
-    .buyer-desktop-header.navbar .search-box { grid-column: 1 / -1; grid-row: 2; width: 100%; min-width: 0; margin: 0; }
+    .buyer-desktop-header.navbar .search-box { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%,clamp(300px,48vw,440px)); min-width: 0; margin: 0; }
     .buyer-desktop-header .search-box .input-group { display: flex; flex-wrap: nowrap; min-height: 42px; border: 1px solid var(--theme-soft-2); border-radius: 6px; background: var(--theme-soft); box-shadow: none; overflow: hidden; }
     .buyer-desktop-header .search-box .search-input { min-width: 0; height: 42px; padding-inline: 12px; border: 0; background: transparent; box-shadow: none; font-size: .875rem; }
     .buyer-desktop-header .buyer-desktop-actions { grid-column: 2; grid-row: 1; display: flex; align-items: center; gap: 2px; margin: 0; }
