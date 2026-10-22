@@ -1287,16 +1287,18 @@ class Pages extends BaseController
     }
     public function all($subkategori = '')
     {
+        $sort = $this->catalogSortKey((string) $this->request->getGet('sort'));
         if ($subkategori == 'diskon') {
-            $produk = $this->barangModel
+            $produkQuery = $this->barangModel
                 ->where(['active' => '1'])
-                ->where('diskon >', 0)
-                ->orderBy('nama', 'asc')
-                ->findAll(20, 0);
-        }else {
-            $produk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll(20, 0);
+                ->where('diskon >', 0);
+            $produk = $this->applyCatalogSort($produkQuery, $sort)->findAll(20, 0);
+            $semuaproduk = $this->barangModel->where(['active' => '1'])->where('diskon >', 0)->findAll();
+        } else {
+            $produkQuery = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both');
+            $produk = $this->applyCatalogSort($produkQuery, $sort)->findAll(20, 0);
+            $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->findAll();
         }
-        $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->orderBy('nama', 'asc')->findAll();
         if (count($produk) <= 0) return redirect()->to('/all');
         $meta = [
             'diskon' => [
@@ -1354,6 +1356,7 @@ class Pages extends BaseController
             'title' => $namaKategoriSeo,
             'produk' => $produk,
             'kategori' => $subkategori,
+            'sort' => $sort,
             'page' => 1,
             'nama' => false,
             'semuaProduk' => $semuaproduk,
@@ -1375,18 +1378,30 @@ class Pages extends BaseController
     public function allPage($page, $subkategori = false)
     {
         $pagination = (int)$page;
+        $sort = $this->catalogSortKey((string) $this->request->getGet('sort'));
+        $produkQuery = (new BarangModel())->where(['active' => '1']);
+        $semuaProdukQuery = (new BarangModel())->where(['active' => '1']);
+        if ($subkategori === 'diskon') {
+            $produkQuery->where('diskon >', 0);
+            $semuaProdukQuery->where('diskon >', 0);
+        } elseif ($subkategori) {
+            $produkQuery->where('subkategori', $subkategori);
+            $semuaProdukQuery->where('subkategori', $subkategori);
+        }
+        $produkQuery = $this->applyCatalogSort($produkQuery, $sort);
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, $hitungOffset);
+            $produk = $produkQuery->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll(20, 0);
+            $produk = $produkQuery->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->where(['active' => '1', 'subkategori' => $subkategori])->orderBy('nama', 'asc')->findAll();
+        $semuaproduk = $semuaProdukQuery->findAll();
         $namaKategoriSeo = $subkategori ? ucwords(str_replace('-', ' ', (string) $subkategori)) : 'Semua Produk';
         $data = [
             'title' => $namaKategoriSeo . ((int) $page > 1 ? ' - Halaman ' . (int) $page : ''),
             'produk' => $produk,
             'kategori' => $subkategori,
+            'sort' => $sort,
             'page' => $page,
             'nama' => false,
             'semuaProduk' => $semuaproduk,
@@ -1396,6 +1411,25 @@ class Pages extends BaseController
             $data['metaDeskripsi'] = 'Jelajahi koleksi ' . $namaKategoriSeo . ' dari Lunarea Furniture. Lihat pilihan produk dan informasi selengkapnya.';
         }
         return view('pages/all', $data);
+    }
+    private function catalogSortKey(string $sort): string
+    {
+        return in_array($sort, ['name_asc', 'price_desc', 'price_asc', 'newest'], true) ? $sort : '';
+    }
+
+    private function applyCatalogSort($query, string $sort)
+    {
+        switch ($sort) {
+            case 'price_desc':
+                return $query->orderBy('(harga * (100 - COALESCE(diskon, 0)) / 100)', 'DESC', false)->orderBy('nama', 'ASC');
+            case 'price_asc':
+                return $query->orderBy('(harga * (100 - COALESCE(diskon, 0)) / 100)', 'ASC', false)->orderBy('nama', 'ASC');
+            case 'newest':
+                return $query->orderBy('id', 'DESC');
+            case 'name_asc':
+            default:
+                return $query->orderBy('nama', 'ASC');
+        }
     }
     public function signup()
     {

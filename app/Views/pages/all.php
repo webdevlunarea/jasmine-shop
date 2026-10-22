@@ -1,6 +1,11 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<?php $categoryImages = $categoryImages ?? []; ?>
+<?php
+$categoryImages = $categoryImages ?? [];
+$sort = $sort ?? '';
+$catalogSortQuery = $sort !== '' ? '?sort=' . rawurlencode($sort) : '';
+$catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $kategori) : '/all';
+?>
 <div class="konten">
     <div class="container">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -167,6 +172,31 @@
         </div>
         <?php } ?>
 
+        <?php if (!$nama) { ?>
+        <details class="catalog-sort">
+            <summary aria-label="Atur urutan produk">
+                <span class="material-icons" aria-hidden="true">tune</span>
+                <span>Urutkan</span>
+                <?php if ($sort !== '') { ?>
+                <span class="catalog-sort-current">
+                    <?= $sort === 'name_asc' ? 'A–Z' : ($sort === 'price_desc' ? 'Harga tertinggi' : ($sort === 'price_asc' ? 'Harga terendah' : 'Produk terbaru')); ?>
+                </span>
+                <?php } ?>
+            </summary>
+            <form class="catalog-sort-panel" method="get" action="<?= esc($catalogSortAction, 'attr'); ?>">
+                <label for="catalog-sort-select">Urutkan berdasarkan</label>
+                <select id="catalog-sort-select" name="sort" class="form-select">
+                    <option value="" <?= $sort === '' ? 'selected' : ''; ?>>Urutan standar</option>
+                    <option value="name_asc" <?= $sort === 'name_asc' ? 'selected' : ''; ?>>Nama: A–Z</option>
+                    <option value="price_desc" <?= $sort === 'price_desc' ? 'selected' : ''; ?>>Harga: tertinggi</option>
+                    <option value="price_asc" <?= $sort === 'price_asc' ? 'selected' : ''; ?>>Harga: terendah</option>
+                    <option value="newest" <?= $sort === 'newest' ? 'selected' : ''; ?>>Produk terbaru</option>
+                </select>
+                <button class="btn btn-primary1" type="submit">Terapkan</button>
+            </form>
+        </details>
+        <?php } ?>
+
         <?php if (count($produk) <= 0) { ?>
         <p class="m-0 text-center">Barang tidak ditemukan</p>
         <?php } else { ?>
@@ -252,7 +282,7 @@
                 <?php if ((int)$page > 1) { ?>
                 <li class="page-item">
                     <a class="page-link text-dark"
-                        href="/page/<?= $kategori ? ((int)$page - 1) . "/" . $kategori : ((int)$page - 1); ?>"
+                        href="/page/<?= $kategori ? ((int)$page - 1) . "/" . $kategori : ((int)$page - 1); ?><?= esc($catalogSortQuery, 'attr'); ?>"
                         aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
@@ -262,12 +292,12 @@
                         for ($x = 1; $x <= $hitungGrupMax; $x++) {
                         ?>
                 <li class="page-item"><a class="page-link <?= $x == $page ? "aktif" : "" ?>"
-                        href="/page/<?= $kategori ? $x . "/" . $kategori : $x; ?>"><?= $x; ?></a></li>
+                        href="/page/<?= $kategori ? $x . "/" . $kategori : $x; ?><?= esc($catalogSortQuery, 'attr'); ?>"><?= $x; ?></a></li>
                 <?php } ?>
                 <?php if ((int)$page < $hitungGrupMax) { ?>
                 <li class="page-item">
                     <a class="page-link text-dark"
-                        href="/page/<?= $kategori ? ((int)$page + 1) . "/" . $kategori : ((int)$page + 1); ?>"
+                        href="/page/<?= $kategori ? ((int)$page + 1) . "/" . $kategori : ((int)$page + 1); ?><?= esc($catalogSortQuery, 'attr'); ?>"
                         aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
