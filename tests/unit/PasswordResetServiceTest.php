@@ -58,7 +58,7 @@ final class PasswordResetServiceTest extends CIUnitTestCase
         $user=$this->connection->table('user')->where('email','buyer@example.test')->get()->getRowArray();
         $this->assertTrue(password_verify('NewPassword456!',$user['sandi']));
         $this->assertFalse(password_verify('OldPassword123!',$user['sandi']));
-        $this->assertSame('google',$user['auth_provider']);
+        $this->assertSame('email',$user['auth_provider']);
         $this->assertSame('1',$user['active']);
         $this->assertSame($buyer,$this->connection->table('pembeli')->get()->getRowArray());
         $this->assertFalse($versions->matches('buyer@example.test',$old));

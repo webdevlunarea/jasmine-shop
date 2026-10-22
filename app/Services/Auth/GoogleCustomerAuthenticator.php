@@ -118,7 +118,8 @@ final class GoogleCustomerAuthenticator
                     'google_id' => $googleId,
                     'active' => '1',
                 ];
-                if (($user['auth_provider'] ?? 'email') === 'email') $update['auth_provider'] = 'google';
+                // Preserve an existing email/password sign-in method when linking
+                // Google. Provider metadata is used by account-security guidance.
                 $stage = 'link_google_account';
                 if (!$this->db->table('user')->where('email', $accountEmail)->update($update)) {
                     throw new RuntimeException('Akun Google tidak berhasil diperbarui.');

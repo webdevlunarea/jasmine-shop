@@ -12,7 +12,7 @@ final class CustomerPasswordChangeTest extends CIUnitTestCase
     {
         parent::setUp();
         $this->connection = \Config\Database::connect(['DBDriver' => 'SQLite3', 'database' => ':memory:', 'DBPrefix' => '', 'DBDebug' => true], false);
-        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT NOT NULL, role TEXT NOT NULL, active TEXT NOT NULL)');
+        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT NOT NULL, role TEXT NOT NULL, active TEXT NOT NULL, auth_provider TEXT NOT NULL DEFAULT "google")');
         $this->connection->query('CREATE TABLE customer_password_sessions (email_user TEXT PRIMARY KEY, version TEXT NOT NULL)');
         $this->connection->query('CREATE TABLE customer_api_tokens (id INTEGER PRIMARY KEY, email_user TEXT NOT NULL, revoked_at TEXT NULL)');
         $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'sandi' => password_hash('OldPass123', PASSWORD_DEFAULT), 'role' => '0', 'active' => '1']);
@@ -32,6 +32,7 @@ final class CustomerPasswordChangeTest extends CIUnitTestCase
         $user = $this->connection->table('user')->where('email', 'buyer@example.test')->get()->getRowArray();
         $session = $this->connection->table('customer_password_sessions')->where('email_user', 'buyer@example.test')->get()->getRowArray();
         $this->assertTrue(password_verify('NewSecure456', $user['sandi']));
+        $this->assertSame('email', $user['auth_provider']);
         $this->assertNotSame(str_repeat('a', 64), $session['version']);
         $this->assertSame(1, $this->connection->table('customer_api_tokens')->where('email_user', 'buyer@example.test')->where('revoked_at IS NOT NULL')->countAllResults());
         $this->assertSame(0, $this->connection->table('customer_api_tokens')->where('email_user', 'other@example.test')->where('revoked_at IS NOT NULL')->countAllResults());

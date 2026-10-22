@@ -411,6 +411,14 @@ class AuthController extends ApiController
         if (preg_match('/(?:\\?|&)at=(\\d{10})(?:&|$)/', (string)($profile['foto'] ?? ''), $match)) {
             $photoChangeAvailableAt = gmdate('c', (int)$match[1] + 604800);
         }
+        $authMethods = [];
+        if (($user['auth_provider'] ?? 'email') === 'email') $authMethods[] = 'email';
+        if (!empty($user['google_id'])) $authMethods[] = 'google';
+        $db = db_connect();
+        if ($db->tableExists('facebook_identities')
+            && $db->table('facebook_identities')->where('email_user', $email)->countAllResults() > 0) {
+            $authMethods[] = 'facebook';
+        }
         return $this->success(['customer' => [
             'email' => (string)$user['email'],
             'name' => (string)($profile['nama'] ?? ''),
@@ -418,6 +426,8 @@ class AuthController extends ApiController
             'tier' => (string)($profile['tier'] ?? ''),
             'photo_url' => $photoUrl,
             'photo_change_available_at' => $photoChangeAvailableAt,
+            'auth_methods' => array_values(array_unique($authMethods)),
+            'email_password_available' => in_array('email', $authMethods, true),
         ]]);
     }
 }

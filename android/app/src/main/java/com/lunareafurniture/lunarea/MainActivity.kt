@@ -3957,7 +3957,13 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     var sessionsLoading by remember { mutableStateOf(true) }
     var sessionsError by remember { mutableStateOf<String?>(null) }
     var sessionToRevoke by remember { mutableStateOf<CustomerSession?>(null) }
+    var signInMethods by remember { mutableStateOf<List<String>>(emptyList()) }
     LaunchedEffect(Unit) {
+        try {
+            val profileResponse = ApiClient.get(context).profile()
+            val customer = profileResponse.body()?.data?.getAsJsonObject("customer")
+            signInMethods = customer?.getAsJsonArray("auth_methods")?.mapNotNull { it.asString }.orEmpty()
+        } catch (_: Exception) { /* Keep existing security controls available offline. */ }
         try {
             val response = ApiClient.get(context).sessions()
             val body = response.body()
@@ -3974,6 +3980,22 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LunareaScreenHeader("Keamanan akun", onBack, "Atur kata sandi atau email akun")
+        if (signInMethods.isNotEmpty()) {
+            Text(
+                "Metode masuk terhubung: " + signInMethods.joinToString { method ->
+                    when (method) { "email" -> "Email & kata sandi"; "google" -> "Google"; "facebook" -> "Facebook"; else -> method }
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if ("email" !in signInMethods && ("google" in signInMethods || "facebook" in signInMethods)) {
+                Text(
+                    "Akun ini masuk melalui penyedia sosial. Untuk membuat kata sandi Lunarea, keluar lalu gunakan Lupa kata sandi dengan email akun; kode verifikasi akan dikirim ke email tersebut.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = mode == "password", onClick = { mode = "password"; message = null }, label = { Text("Kata sandi") })
             FilterChip(selected = mode == "email", onClick = { mode = "email"; message = null }, label = { Text("Email") })

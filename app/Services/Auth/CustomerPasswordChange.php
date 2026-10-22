@@ -36,7 +36,7 @@ class CustomerPasswordChange
                 throw new DomainException('Gunakan sandi baru yang berbeda dari sandi saat ini.');
             }
             $updated = $this->db->table('user')->where('email', $email)->where('role', '0')->where('active', '1')
-                ->update(['sandi' => password_hash($newPassword, PASSWORD_DEFAULT)]);
+                ->update(['sandi' => password_hash($newPassword, PASSWORD_DEFAULT), 'auth_provider' => 'email']);
             if (!$updated || $this->db->affectedRows() !== 1) throw new RuntimeException('Password update failed');
 
             $version = bin2hex(random_bytes(32));

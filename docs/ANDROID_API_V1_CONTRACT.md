@@ -33,6 +33,14 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | PUT | `/me/username` | Bearer | Atur/perbarui username; perubahan berikutnya dibatasi 6 bulan |
 
 `GET /me` mengembalikan `data.customer.photo_url`. Unggah foto memeriksa format MIME, ukuran, dan dimensi, lalu menyimpan blob profil serta referensi foto pelanggan dalam satu transaksi.
+
+Profil juga mengembalikan `customer.auth_methods` (`email`, `google`, dan/atau
+`facebook`) beserta `customer.email_password_available`. Reset sandi melalui OTP
+atau perubahan sandi terautentikasi mengaktifkan metode email/kata sandi tanpa
+menghapus tautan penyedia sosial. Menautkan Google ke akun lama mempertahankan
+metode masuk email yang sudah ada. Perubahan sandi mengirim pemberitahuan
+keamanan best-effort setelah transaksi berhasil; kegagalan SMTP tidak membatalkan
+perubahan sandi.
 | POST | `/auth/password/change` | Bearer | Ganti sandi dengan sandi lama; seluruh sesi dicabut dan login ulang diperlukan |
 | POST | `/auth/email/change/request` | Bearer | Minta perubahan email dengan sandi saat ini; kode dikirim ke email baru |
 | POST | `/auth/email/change/confirm` | Bearer | Konfirmasi kode dan sandi saat ini; ubah identitas akun dan wajib login ulang |

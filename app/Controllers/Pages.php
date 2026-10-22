@@ -2066,7 +2066,6 @@ class Pages extends BaseController
         } else {
             $this->userModel->where('email', $email)->set([
                 'google_id' => $googleId ?: ($user['google_id'] ?? ''),
-                'auth_provider' => ($user['auth_provider'] ?? 'email') === 'email' ? 'google' : ($user['auth_provider'] ?? 'google'),
                 'active' => '1',
             ])->update();
             $pembeli = $this->pembeliModel->getPembeli($email);

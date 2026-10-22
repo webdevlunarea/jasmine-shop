@@ -123,7 +123,10 @@ class PasswordResetService
             $this->db->table('customer_password_reset_codes')->where('email_user', $email)->where('request_id', $row['request_id'])
                 ->where('used', 0)->where('expires_at >', $this->now())->where('attempts <=', 5)->update(['used' => 1]);
             if ($this->db->affectedRows() !== 1) throw new \DomainException(self::INVALID_CODE);
-            $this->db->table('user')->where('email', $email)->where('role', '0')->update(['sandi' => $hash]);
+            $this->db->table('user')->where('email', $email)->where('role', '0')->update([
+                'sandi' => $hash,
+                'auth_provider' => 'email',
+            ]);
             if ($this->db->affectedRows() !== 1) throw new \DomainException(self::INVALID_CODE);
             $versions = $this->db->table('customer_password_sessions');
             $existing = $versions->where('email_user', $email)->get()->getRowArray();
