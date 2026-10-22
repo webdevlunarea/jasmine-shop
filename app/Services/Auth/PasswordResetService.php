@@ -134,6 +134,12 @@ class PasswordResetService
             $ok = $existing
                 ? $this->db->table('customer_password_sessions')->where('email_user', $email)->update(['version' => $version])
                 : $this->db->table('customer_password_sessions')->insert(['email_user' => $email, 'version' => $version]);
+            if ($this->db->tableExists('customer_totp_mfa')) {
+                $this->db->table('customer_totp_mfa')->where('email_user', $email)->update([
+                    'challenge_hash' => null, 'challenge_expires_at' => null,
+                    'challenge_device_name' => null, 'challenge_attempts' => 0,
+                ]);
+            }
             if (!$ok || !$this->db->transStatus() || !$this->db->transCommit()) throw new \RuntimeException('Reset update failed');
         } catch (\Throwable $e) {
             $this->db->transRollback();

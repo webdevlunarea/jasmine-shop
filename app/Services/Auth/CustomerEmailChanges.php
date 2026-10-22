@@ -115,6 +115,7 @@ class CustomerEmailChanges
             // Re-key only known account-owned references. Orders remain visible in the account history.
             foreach ([
                 'customer_usernames' => 'email_user', 'facebook_identities' => 'email_user',
+                'customer_totp_mfa' => 'email_user',
                 'customer_addresses' => 'email_user',
                 'customer_password_sessions' => 'email_user', 'voucher_claimed' => 'email_user',
                 'gambar_user' => 'email_user', 'shipping_quotes' => 'email_user', 'point_history' => 'email_user',
@@ -134,6 +135,12 @@ class CustomerEmailChanges
                     ->update(['revoked_at' => gmdate('Y-m-d H:i:s')])) {
                     throw new \RuntimeException('Active API sessions could not be revoked');
                 }
+            }
+            if ($this->db->tableExists('customer_totp_mfa')) {
+                if (!$this->db->table('customer_totp_mfa')->where('email_user', $newEmail)->update([
+                    'challenge_hash' => null, 'challenge_expires_at' => null,
+                    'challenge_device_name' => null, 'challenge_attempts' => 0,
+                ])) throw new \RuntimeException('MFA challenges could not be invalidated');
             }
             // Pending recovery codes are revoked at the identity change boundary.
             if ($this->db->tableExists('customer_password_reset_codes')) {

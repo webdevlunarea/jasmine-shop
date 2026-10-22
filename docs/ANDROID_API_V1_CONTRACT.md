@@ -21,6 +21,7 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | POST | `/auth/verification/resend` | Tidak | Kirim ulang OTP secara generik setelah cooldown |
 | POST | `/auth/login` | Tidak | Login pelanggan terverifikasi; memperoleh access/refresh token |
 | POST | `/auth/google` | Tidak | Verifikasi Google ID token di backend; pelanggan Google terverifikasi memperoleh token API Lunarea |
+| POST | `/auth/mfa/complete` | Tantangan sementara | Selesaikan login dengan kode TOTP enam digit |
 | POST | `/auth/refresh` | Refresh token di body | Rotasi refresh token; refresh token lama tidak boleh digunakan kembali |
 | POST | `/auth/logout` | Bearer | Cabut seluruh keluarga token sesi saat ini |
 | GET | `/auth/sessions` | Bearer | Daftar sesi aktif aplikasi Android milik akun; tanpa token atau alamat IP |
@@ -42,6 +43,10 @@ metode masuk email yang sudah ada. Perubahan sandi mengirim pemberitahuan
 keamanan best-effort setelah transaksi berhasil; kegagalan SMTP tidak membatalkan
 perubahan sandi.
 | POST | `/auth/password/change` | Bearer | Ganti sandi dengan sandi lama; seluruh sesi dicabut dan login ulang diperlukan |
+| GET | `/auth/mfa/status` | Bearer | Periksa dukungan dan status TOTP |
+| POST | `/auth/mfa/totp/setup` | Bearer | Siapkan secret TOTP setelah verifikasi sandi saat ini |
+| POST | `/auth/mfa/totp/confirm` | Bearer | Aktifkan TOTP setelah kode awal tervalidasi |
+| POST | `/auth/mfa/totp/disable` | Bearer | Nonaktifkan TOTP dengan sandi dan kode yang valid |
 | POST | `/auth/email/change/request` | Bearer | Minta perubahan email dengan sandi saat ini; kode dikirim ke email baru |
 | POST | `/auth/email/change/confirm` | Bearer | Konfirmasi kode dan sandi saat ini; ubah identitas akun dan wajib login ulang |
 | POST | `/auth/password-reset/request` | Tidak | Minta OTP pemulihan dengan respons anti-enumerasi |
@@ -82,6 +87,8 @@ Keluar dari perangkat lain memakai `POST /auth/sessions/revoke-others` tanpa bod
 Reset sandi memakai body request `{"identity":"email-atau-username","captcha_token":"..."}` lalu penyelesaian `{"identity":"...","code":"123456","password":"...","password_confirmation":"..."}`. Permintaan reset mengembalikan HTTP 202 generik untuk akun dikenal maupun tidak dikenal.
 
 Ganti sandi memakai `{"current_password":"...","password":"...","password_confirmation":"..."}`. Respons menyatakan `login_required: true`; hapus token lokal dan lakukan login kembali.
+
+Untuk MFA TOTP, jalankan sekali `docs/sql/customer_totp_mfa.sql` pada database produksi sebelum mengaktifkan fitur. Simpan secret yang ditampilkan aplikasi di authenticator; server menyimpan secret terenkripsi memakai `encryption.key`. Login yang MFA aktif menerima `mfa_required` dan `challenge_token`, lalu aplikasi mengirim challenge beserta kode ke `/auth/mfa/complete`. Challenge berlaku lima menit, dibatasi percobaannya, dan hanya dapat digunakan sekali. Sinkronkan waktu perangkat untuk kode TOTP.
 
 Perubahan email memakai `POST /auth/email/change/request` dengan `{"current_password":"...","new_email":"baru@example.com"}`. Kode verifikasi 6 digit dikirim ke alamat baru dan berlaku 10 menit; permintaan kode memiliki jeda minimal 1 menit dan email hanya bisa diganti setiap 6 bulan. Konfirmasi melalui `POST /auth/email/change/confirm` dengan `{"current_password":"...","verification_code":"123456"}`. Konfirmasi juga meminta sandi saat ini. Sukses mengembalikan email baru dan `login_required: true`; hapus access/refresh token lokal dan login kembali dengan email baru. Transaksi juga mencabut token API yang masih aktif dan merotasi versi sesi password.
 

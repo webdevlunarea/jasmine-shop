@@ -19,7 +19,11 @@ data class TokenPair(
     val refresh_expires_in: Long
 )
 
-data class AuthTokensResponse(val tokens: TokenPair)
+data class AuthTokensResponse(
+    val tokens: TokenPair? = null,
+    val mfa_required: Boolean = false,
+    val challenge_token: String? = null
+)
 
 data class LoginRequest(
     val identifier: String,

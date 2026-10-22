@@ -14,12 +14,15 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.content.pm.PackageManager
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
@@ -59,6 +62,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -259,7 +263,8 @@ private fun normalizeRegionLabel(value: String): String = Normalizer.normalize(v
     .replace("[^a-z0-9]+".toRegex(), " ")
     .trim()
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+    private var appLocked by mutableStateOf(false)
     private var pendingPushTap by mutableStateOf<PushTap?>(null)
     private var pendingReferralCode by mutableStateOf<String?>(null)
     private var pendingReferralProductId by mutableStateOf<String?>(null)
@@ -297,7 +302,7 @@ class MainActivity : ComponentActivity() {
                         pendingReferralCode = null
                         pendingReferralProductId = null
                         getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().remove("pending_code").remove("pending_product_id").apply()
-                    })
+                    }, appLocked, { window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE); appLocked = false })
                 }
             }
         }
@@ -317,10 +322,19 @@ class MainActivity : ComponentActivity() {
                 .putString("pending_product_id", pendingReferralProductId).apply()
         }
     }
+
+    override fun onStop() {
+        if (getSharedPreferences("lunarea_security", MODE_PRIVATE).getBoolean("biometric_app_lock", false)
+            && AuthRepository(this).isSignedIn()) {
+            appLocked = true
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        super.onStop()
+    }
 }
 
 @Composable
-private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, referralProductId: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit) {
+private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, referralProductId: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit, appLocked: Boolean, onAppUnlocked: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -345,6 +359,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var notificationsEnabled by remember { mutableStateOf(PushDeviceRegistration(context).isRegistered()) }
     var showNotificationIntro by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
+    var showMfaLogin by remember { mutableStateOf(false) }
     var pendingCartRemoval by remember { mutableStateOf<CartLine?>(null) }
     var notificationInboxOpen by remember { mutableStateOf(false) }
     var notificationsRefreshVersion by remember { mutableIntStateOf(0) }
@@ -950,7 +965,10 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                         busy = true
                         val result = auth.login(identifier, password)
                         signedIn = auth.isSignedIn()
-                        message = result.exceptionOrNull()?.message ?: if (result.isSuccess) "Berhasil masuk." else "Login belum berhasil."
+                        if (auth.pendingMfaChallenge != null) {
+                            showMfaLogin = true
+                            message = null
+                        } else message = result.exceptionOrNull()?.message ?: if (result.isSuccess) "Berhasil masuk." else "Login belum berhasil."
                         if (result.isSuccess) { password = ""; loadProducts("") }
                         busy = false
                     }
@@ -963,7 +981,10 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                         busy = true
                         val result = auth.loginWithGoogle(activity)
                         signedIn = auth.isSignedIn()
-                        message = result.exceptionOrNull()?.message ?: if (result.isSuccess) "Berhasil masuk dengan Google." else "Masuk dengan Google belum berhasil."
+                        if (auth.pendingMfaChallenge != null) {
+                            showMfaLogin = true
+                            message = null
+                        } else message = result.exceptionOrNull()?.message ?: if (result.isSuccess) "Berhasil masuk dengan Google." else "Masuk dengan Google belum berhasil."
                         if (result.isSuccess) { password = ""; loadProducts("") }
                         busy = false
                     }
@@ -1048,6 +1069,23 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 }
             }
         }
+    }
+    if (appLocked) BiometricAppLock(
+        onUnlocked = onAppUnlocked,
+        onLoggedOut = { signedIn = false; tab = AppTab.ACCOUNT; accountSection = AccountSection.MENU }
+    )
+    if (showMfaLogin) {
+        MfaLoginDialog(
+            auth = auth,
+            onComplete = {
+                showMfaLogin = false
+                signedIn = true
+                password = ""
+                message = "Berhasil masuk dengan verifikasi dua langkah."
+                loadProducts("")
+            },
+            onDismiss = { auth.clearPendingMfa(); showMfaLogin = false }
+        )
     }
 }
 
@@ -4000,6 +4038,8 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
             FilterChip(selected = mode == "password", onClick = { mode = "password"; message = null }, label = { Text("Kata sandi") })
             FilterChip(selected = mode == "email", onClick = { mode = "email"; message = null }, label = { Text("Email") })
         }
+        TotpMfaSection()
+        BiometricLockSettings()
         PasswordInputField(currentPassword, { currentPassword = it }, "Kata sandi saat ini", imeAction = ImeAction.Next)
         if (mode == "password") {
             PasswordInputField(newPassword, { newPassword = it }, "Kata sandi baru", imeAction = ImeAction.Next)
@@ -4166,6 +4206,296 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
             }
         )
     }
+}
+
+@Composable
+private fun TotpMfaSection() {
+    val context = LocalContext.current
+    val api = remember(context) { ApiClient.get(context) }
+    val scope = rememberCoroutineScope()
+    var available by remember { mutableStateOf(true) }
+    var enabled by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
+    var busy by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
+    var secret by remember { mutableStateOf("") }
+    var recoveryCodes by remember { mutableStateOf<List<String>>(emptyList()) }
+    var message by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val response = api.mfaStatus()
+            val data = response.body()?.data
+            if (response.isSuccessful && response.body()?.success == true && data != null) {
+                available = data.get("available")?.asBoolean ?: false
+                enabled = data.get("enabled")?.asBoolean ?: false
+            } else message = response.customerError("Status verifikasi dua langkah belum dapat dimuat.")
+        } catch (_: Exception) { message = "Koneksi belum tersedia untuk memeriksa verifikasi dua langkah." }
+        finally { loading = false }
+    }
+
+    Column(
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f), MaterialTheme.shapes.medium)
+            .padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("Verifikasi dua langkah", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text(
+            if (enabled) "Aktif — login memerlukan kode dari aplikasi autentikator."
+            else "Tambahkan kode sekali pakai dari Google Authenticator, Microsoft Authenticator, atau aplikasi TOTP lain.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
+        else if (!available) Text(
+            "Fitur menunggu tabel keamanan diterapkan pada database produksi.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error
+        ) else if (!enabled && secret.isBlank()) {
+            OutlinedTextField(password, { password = it }, Modifier.fillMaxWidth(), label = { Text("Kata sandi akun") }, singleLine = true, visualTransformation = PasswordVisualTransformation())
+            Button(enabled = !busy && password.isNotBlank(), onClick = {
+                scope.launch {
+                    busy = true; message = null
+                    try {
+                        val response = api.beginMfaSetup(JsonObject().apply { addProperty("current_password", password) })
+                        val data = response.body()?.data
+                        if (response.isSuccessful && response.body()?.success == true && data != null) {
+                            secret = data.get("secret")?.asString.orEmpty()
+                            message = if (secret.isNotBlank()) "Simpan kunci pemulihan ini di tempat aman, lalu masukkan kode enam digit dari aplikasi autentikator." else "Kunci tidak diterima. Coba lagi."
+                        } else message = response.customerError("Penyiapan belum berhasil.")
+                    } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
+                    finally { busy = false }
+                }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Siapkan autentikator") }
+        } else if (!enabled) {
+            Text("Kunci manual — masukkan ke aplikasi autentikator", style = MaterialTheme.typography.labelMedium)
+            SelectionContainer {
+                Text(secret, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            }
+            OutlinedButton(onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                clipboard?.setPrimaryClip(ClipData.newPlainText("Kunci autentikator Lunarea", secret))
+                message = "Kunci disalin. Simpan dengan aman dan jangan bagikan."
+            }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Salin kunci") }
+            OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, Modifier.fillMaxWidth(), label = { Text("Kode autentikator") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
+            Button(enabled = !busy && code.length == 6, onClick = {
+                scope.launch {
+                    busy = true; message = null
+                    try {
+                        val response = api.confirmMfaSetup(JsonObject().apply { addProperty("code", code) })
+                        val data = response.body()?.data
+                        if (response.isSuccessful && response.body()?.success == true && data != null) {
+                            recoveryCodes = data.getAsJsonArray("recovery_codes")?.mapNotNull { it.asString }.orEmpty()
+                            enabled = true; secret = ""; code = ""; password = ""
+                            message = "Verifikasi dua langkah aktif. Simpan kode pemulihan yang ditampilkan sekarang."
+                        } else message = response.customerError("Kode belum cocok. Periksa waktu perangkat dan coba lagi.")
+                    } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
+                    finally { busy = false }
+                }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Aktifkan verifikasi") }
+        } else {
+            OutlinedTextField(password, { password = it }, Modifier.fillMaxWidth(), label = { Text("Kata sandi akun") }, singleLine = true, visualTransformation = PasswordVisualTransformation())
+            OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, Modifier.fillMaxWidth(), label = { Text("Kode autentikator") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
+            OutlinedButton(enabled = !busy && password.isNotBlank() && code.length == 6, onClick = {
+                scope.launch {
+                    busy = true; message = null
+                    try {
+                        val response = api.disableMfa(JsonObject().apply { addProperty("current_password", password); addProperty("code", code) })
+                        if (response.isSuccessful && response.body()?.success == true) {
+                            enabled = false; code = ""; password = ""; message = "Verifikasi dua langkah dinonaktifkan."
+                        } else message = response.customerError("Verifikasi belum dapat dinonaktifkan.")
+                    } catch (_: Exception) { message = "Koneksi belum tersedia. Coba lagi." }
+                    finally { busy = false }
+                }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Nonaktifkan verifikasi") }
+        }
+        if (recoveryCodes.isNotEmpty()) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Text("Kode pemulihan sekali pakai", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("Simpan di tempat aman. Kode ini hanya ditampilkan sekarang dan masing-masing hanya dapat dipakai sekali.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            SelectionContainer {
+                Text(recoveryCodes.chunked(2).joinToString("\n") { it.joinToString("    ") }, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            }
+            OutlinedButton(onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                clipboard?.setPrimaryClip(ClipData.newPlainText("Kode pemulihan Lunarea", recoveryCodes.joinToString("\n")))
+                message = "Kode pemulihan disalin. Simpan dengan aman dan jangan bagikan."
+            }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Salin kode pemulihan") }
+        }
+        if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+        message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = if (it.contains("belum") || it.contains("gagal") || it.contains("menunggu")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
+}
+
+@Composable
+private fun MfaLoginDialog(auth: AuthRepository, onComplete: () -> Unit, onDismiss: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var code by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    AlertDialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        title = { Text("Verifikasi login") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Masukkan kode dari aplikasi autentikator atau salah satu kode pemulihan.")
+                OutlinedTextField(code, { code = it.filter { ch -> ch.isDigit() || ch.uppercaseChar() in 'A'..'F' }.take(10).uppercase() }, label = { Text("Kode verifikasi") }, singleLine = true)
+                message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = {
+            TextButton(enabled = !busy && (code.length == 6 || code.length == 10), onClick = {
+                scope.launch {
+                    busy = true
+                    val result = auth.completeMfaLogin(code)
+                    if (result.isSuccess) onComplete() else message = result.exceptionOrNull()?.message ?: "Kode belum berhasil diverifikasi."
+                    busy = false
+                }
+            }) { Text("Verifikasi") }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text("Batal") } }
+    )
+}
+
+@Composable
+private fun BiometricLockSettings() {
+    val context = LocalContext.current
+    val activity = context as? FragmentActivity
+    val preferences = remember(context) { context.getSharedPreferences("lunarea_security", android.content.Context.MODE_PRIVATE) }
+    var enabled by remember { mutableStateOf(preferences.getBoolean("biometric_app_lock", false)) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+
+    Column(
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f), MaterialTheme.shapes.medium)
+            .padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f)) {
+                Text("Kunci aplikasi dengan biometrik", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Minta biometrik atau kunci layar saat membuka kembali Lunarea."
+                    else "Minta biometrik saat membuka kembali Lunarea. Android versi ini tidak menyediakan fallback kunci layar di prompt.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(checked = enabled, onCheckedChange = { turnOn ->
+                feedback = null
+                if (!turnOn) {
+                    preferences.edit().putBoolean("biometric_app_lock", false).apply()
+                    enabled = false
+                } else if (activity == null) {
+                    feedback = "Biometrik belum tersedia pada aktivitas ini."
+                } else {
+                    val authenticators = biometricAuthenticators()
+                    val availability = BiometricManager.from(context).canAuthenticate(authenticators)
+                    if (availability != BiometricManager.BIOMETRIC_SUCCESS) {
+                        feedback = "Atur sidik jari atau kunci layar perangkat terlebih dahulu."
+                    } else {
+                        showBiometricPrompt(
+                            activity,
+                            "Aktifkan kunci Lunarea",
+                            "Konfirmasi identitas untuk mengaktifkan kunci aplikasi",
+                            onSuccess = {
+                                preferences.edit().putBoolean("biometric_app_lock", true).apply()
+                                enabled = true
+                                feedback = "Kunci biometrik aktif di perangkat ini."
+                            }
+                        )
+                    }
+                }
+            }, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
+        }
+        feedback?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
+}
+
+@Composable
+private fun BiometricAppLock(onUnlocked: () -> Unit, onLoggedOut: () -> Unit) {
+    val context = LocalContext.current
+    val activity = context as? FragmentActivity
+    val auth = remember(context) { AuthRepository(context) }
+    val scope = rememberCoroutineScope()
+    var message by remember { mutableStateOf<String?>(null) }
+    var requested by remember { mutableStateOf(false) }
+    val latestUnlock by rememberUpdatedState(onUnlocked)
+
+    fun authenticate() {
+        if (activity == null) {
+            message = "Buka ulang aplikasi untuk melanjutkan."
+            return
+        }
+        val capability = BiometricManager.from(context).canAuthenticate(biometricAuthenticators())
+        if (capability != BiometricManager.BIOMETRIC_SUCCESS) {
+            message = "Biometrik tidak tersedia. Aktifkan biometrik atau kunci layar perangkat."
+            return
+        }
+        showBiometricPrompt(
+            activity,
+            "Buka Lunarea",
+            "Verifikasi untuk melanjutkan",
+            onSuccess = { latestUnlock() },
+            onError = { error -> message = error }
+        )
+    }
+
+    LaunchedEffect(Unit) { if (!requested) { requested = true; authenticate() } }
+    Dialog(onDismissRequest = {}, properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(.9f),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 2.dp
+        ) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Lunarea terkunci", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Verifikasi dengan biometrik atau kunci layar perangkat untuk membuka aplikasi."
+                    else "Verifikasi dengan biometrik untuk membuka aplikasi.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                Button(onClick = { message = null; authenticate() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Text("Verifikasi dan buka")
+                }
+                TextButton(onClick = {
+                    scope.launch {
+                        auth.logout()
+                        onLoggedOut()
+                        latestUnlock()
+                    }
+                }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Keluar dari akun di perangkat ini") }
+            }
+        }
+    }
+}
+
+private fun biometricAuthenticators(): Int =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    else BiometricManager.Authenticators.BIOMETRIC_STRONG
+
+private fun showBiometricPrompt(
+    activity: FragmentActivity,
+    title: String,
+    subtitle: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit = {}
+) {
+    val prompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity), object : BiometricPrompt.AuthenticationCallback() {
+        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) = onSuccess()
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+            if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                onError("Verifikasi belum berhasil. Coba lagi atau gunakan kunci layar perangkat.")
+            }
+        }
+    })
+    val builder = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setAllowedAuthenticators(biometricAuthenticators())
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) builder.setNegativeButtonText("Batal")
+    prompt.authenticate(builder.build())
 }
 
 @Composable

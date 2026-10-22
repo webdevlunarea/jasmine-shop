@@ -18,9 +18,11 @@ final class PasswordResetServiceTest extends CIUnitTestCase
         $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT, role TEXT, active TEXT, auth_provider TEXT)');
         $this->connection->query('CREATE TABLE customer_usernames (username TEXT PRIMARY KEY, email_user TEXT UNIQUE)');
         $this->connection->query('CREATE TABLE pembeli (email_user TEXT PRIMARY KEY, keranjang TEXT, transaksi TEXT, poin TEXT)');
+        $this->connection->query('CREATE TABLE customer_totp_mfa (email_user TEXT PRIMARY KEY, challenge_hash TEXT NULL, challenge_expires_at TEXT NULL, challenge_device_name TEXT NULL, challenge_attempts INTEGER NOT NULL DEFAULT 0)');
         $this->connection->table('user')->insert(['email'=>'buyer@example.test','sandi'=>password_hash('OldPassword123!',PASSWORD_DEFAULT),'role'=>'0','active'=>'1','auth_provider'=>'google']);
         $this->connection->table('user')->insert(['email'=>'admin@example.test','sandi'=>'old-admin-hash','role'=>'1','active'=>'1']);
         $this->connection->table('pembeli')->insert(['email_user'=>'buyer@example.test','keranjang'=>'[123]','transaksi'=>'["OLD"]','poin'=>'[50]']);
+        $this->connection->table('customer_totp_mfa')->insert(['email_user'=>'buyer@example.test','challenge_hash'=>str_repeat('b',64),'challenge_expires_at'=>'2030-01-01 00:00:00','challenge_device_name'=>'Android','challenge_attempts'=>2]);
         require_once APPPATH . 'Database/Migrations/2026-10-17-000003_CreateCustomerPasswordResets.php';
         (new \App\Database\Migrations\CreateCustomerPasswordResets(\Config\Database::forge($this->connection)))->up();
         $this->mailer = new class extends PasswordResetMailer {
@@ -59,6 +61,9 @@ final class PasswordResetServiceTest extends CIUnitTestCase
         $this->assertTrue(password_verify('NewPassword456!',$user['sandi']));
         $this->assertFalse(password_verify('OldPassword123!',$user['sandi']));
         $this->assertSame('email',$user['auth_provider']);
+        $mfa=$this->connection->table('customer_totp_mfa')->where('email_user','buyer@example.test')->get()->getRowArray();
+        $this->assertNull($mfa['challenge_hash']);
+        $this->assertSame(0,(int)$mfa['challenge_attempts']);
         $this->assertSame('1',$user['active']);
         $this->assertSame($buyer,$this->connection->table('pembeli')->get()->getRowArray());
         $this->assertFalse($versions->matches('buyer@example.test',$old));

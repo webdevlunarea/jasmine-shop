@@ -47,6 +47,12 @@ class CustomerPasswordChange
             if (!$versionSaved) throw new RuntimeException('Password session invalidation failed');
             $revoked = $this->db->table('customer_api_tokens')->where('email_user', $email)->where('revoked_at', null)
                 ->update(['revoked_at' => gmdate('Y-m-d H:i:s')]);
+            if ($this->db->tableExists('customer_totp_mfa')) {
+                $this->db->table('customer_totp_mfa')->where('email_user', $email)->update([
+                    'challenge_hash' => null, 'challenge_expires_at' => null,
+                    'challenge_device_name' => null, 'challenge_attempts' => 0,
+                ]);
+            }
             if ($revoked === false || $this->db->transStatus() === false || !$this->db->transCommit()) {
                 throw new RuntimeException('Password session invalidation failed');
             }

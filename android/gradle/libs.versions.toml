@@ -20,6 +20,7 @@ firebaseBom = "35.0.2"
 coil = "2.7.0"
 recaptcha = "18.9.3"
 zxing = "3.5.3"
+biometric = "1.1.0"
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashScreen" }
@@ -49,6 +50,7 @@ googleid = { module = "com.google.android.libraries.identity.googleid:googleid",
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 google-recaptcha = { module = "com.google.android.recaptcha:recaptcha", version.ref = "recaptcha" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

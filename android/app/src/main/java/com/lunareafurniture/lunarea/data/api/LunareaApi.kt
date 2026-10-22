@@ -25,6 +25,9 @@ interface LunareaApi {
     @POST("auth/google")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<ApiEnvelope<AuthTokensResponse>>
 
+    @POST("auth/mfa/complete")
+    suspend fun completeMfaLogin(@Body body: JsonObject): Response<ApiEnvelope<AuthTokensResponse>>
+
     @POST("auth/register")
     suspend fun register(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 
@@ -57,6 +60,18 @@ interface LunareaApi {
 
     @POST("auth/sessions/revoke-others")
     suspend fun revokeOtherSessions(): Response<ApiEnvelope<JsonObject>>
+
+    @GET("auth/mfa/status")
+    suspend fun mfaStatus(): Response<ApiEnvelope<JsonObject>>
+
+    @POST("auth/mfa/totp/setup")
+    suspend fun beginMfaSetup(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
+    @POST("auth/mfa/totp/confirm")
+    suspend fun confirmMfaSetup(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
+    @POST("auth/mfa/totp/disable")
+    suspend fun disableMfa(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 
     @GET("catalog/products")
     suspend fun products(

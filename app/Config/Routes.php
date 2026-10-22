@@ -13,6 +13,7 @@ $routes->get('/ref/(:segment)', 'AndroidReferralLink::show/$1');
 $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
     $routes->post('auth/login', 'Api\\V1\\AuthController::login');
     $routes->post('auth/google', 'Api\\V1\\AuthController::googleLogin');
+    $routes->post('auth/mfa/complete', 'Api\\V1\\AuthController::completeMfaLogin');
     $routes->post('auth/refresh', 'Api\\V1\\AuthController::refresh');
     $routes->post('auth/register', 'Api\\V1\\AuthController::register');
     $routes->post('auth/verify-email', 'Api\\V1\\AuthController::verifyEmail');
@@ -38,6 +39,10 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->post('auth/sessions/(:segment)/revoke', 'Api\\V1\\AuthController::revokeSession/$1');
         $routes->post('auth/sessions/revoke-others', 'Api\\V1\\AuthController::revokeOtherSessions');
         $routes->post('auth/password/change', 'Api\\V1\\AuthController::changePassword');
+        $routes->get('auth/mfa/status', 'Api\\V1\\AuthController::mfaStatus');
+        $routes->post('auth/mfa/totp/setup', 'Api\\V1\\AuthController::beginMfaSetup');
+        $routes->post('auth/mfa/totp/confirm', 'Api\\V1\\AuthController::confirmMfaSetup');
+        $routes->post('auth/mfa/totp/disable', 'Api\\V1\\AuthController::disableMfa');
         $routes->post('auth/email/change/request', 'Api\\V1\\AuthController::requestEmailChange');
         $routes->post('auth/email/change/confirm', 'Api\\V1\\AuthController::confirmEmailChange');
         $routes->get('me', 'Api\\V1\\AuthController::me');

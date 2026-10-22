@@ -136,6 +136,9 @@ class AuthController extends ApiController
             return $this->failure('EMAIL_NOT_VERIFIED', 'Verifikasi email diperlukan sebelum masuk ke aplikasi.', 403);
         }
         try {
+            $deviceName = is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android';
+            $challenge = (new \App\Services\Auth\CustomerTotpMfa())->beginLogin((string)$user['email'], $deviceName);
+            if ($challenge !== null) return $this->success($challenge);
             $tokens = (new CustomerApiTokens())->issue((string)$user['email'], (string)($input['device_name'] ?? 'Android'));
         } catch (\Throwable $e) {
             log_message('error', 'Customer API token issue failed: ' . get_class($e));
@@ -165,6 +168,11 @@ class AuthController extends ApiController
         $stage = 'google_account_resolution';
         try {
             $customer = (new GoogleCustomerAuthenticator())->authenticate($idToken);
+            $stage = 'mfa_challenge';
+            $challenge = (new \App\Services\Auth\CustomerTotpMfa())->beginLogin(
+                $customer['email'], is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android'
+            );
+            if ($challenge !== null) return $this->success($challenge);
             $stage = 'customer_session_issue';
             $tokens = (new CustomerApiTokens())->issue(
                 $customer['email'],
@@ -204,6 +212,92 @@ class AuthController extends ApiController
         }
         return $this->success(['changed' => true, 'login_required' => true,
             'message' => 'Sandi berhasil diubah. Silakan masuk kembali di perangkat Anda.']);
+    }
+
+    public function mfaStatus()
+    {
+        try {
+            return $this->success((new \App\Services\Auth\CustomerTotpMfa())->status($this->authEmail()));
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API MFA status failed: ' . get_class($e));
+            return $this->failure('MFA_UNAVAILABLE', 'Pengaturan verifikasi dua langkah belum tersedia.', 503);
+        }
+    }
+
+    public function beginMfaSetup()
+    {
+        $email = $this->authEmail();
+        if (!$this->allowAuthAttempt('mfa-setup', $email, 5, 900)) return $this->failure('RATE_LIMITED', 'Terlalu banyak permintaan. Coba lagi nanti.', 429);
+        $password = $this->payload()['current_password'] ?? null;
+        if (!is_string($password) || $password === '') return $this->failure('VALIDATION_ERROR', 'Kata sandi saat ini wajib diisi.', 422);
+        try {
+            return $this->success((new \App\Services\Auth\CustomerTotpMfa())->beginSetup($email, $password));
+        } catch (\DomainException $e) {
+            return $this->failure('MFA_SETUP_REJECTED', $e->getMessage(), 422);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API MFA setup failed: ' . get_class($e));
+            return $this->failure('MFA_UNAVAILABLE', 'Penyiapan verifikasi dua langkah belum dapat dimulai.', 503);
+        }
+    }
+
+    public function confirmMfaSetup()
+    {
+        $email = $this->authEmail();
+        if (!$this->allowAuthAttempt('mfa-confirm', $email, 8, 900)) return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan. Coba lagi nanti.', 429);
+        $code = $this->payload()['code'] ?? null;
+        if (!is_string($code)) return $this->failure('VALIDATION_ERROR', 'Masukkan kode enam digit dari aplikasi autentikator.', 422);
+        try {
+            $result = (new \App\Services\Auth\CustomerTotpMfa())->confirmSetup($email, $code);
+            return $this->success(['enabled' => true, 'recovery_codes' => $result['recovery_codes'], 'message' => 'Verifikasi dua langkah berhasil diaktifkan.']);
+        } catch (\DomainException $e) {
+            return $this->failure('MFA_CODE_REJECTED', $e->getMessage(), 422);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API MFA confirmation failed: ' . get_class($e));
+            return $this->failure('MFA_UNAVAILABLE', 'Verifikasi belum dapat diaktifkan.', 503);
+        }
+    }
+
+    public function disableMfa()
+    {
+        $email = $this->authEmail();
+        if (!$this->allowAuthAttempt('mfa-disable', $email, 5, 900)) return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan. Coba lagi nanti.', 429);
+        $input = $this->payload();
+        if (!is_string($input['current_password'] ?? null) || !is_string($input['code'] ?? null)) {
+            return $this->failure('VALIDATION_ERROR', 'Kata sandi saat ini dan kode autentikator wajib diisi.', 422);
+        }
+        try {
+            (new \App\Services\Auth\CustomerTotpMfa())->disable($email, $input['current_password'], $input['code']);
+            return $this->success(['enabled' => false, 'message' => 'Verifikasi dua langkah telah dinonaktifkan.']);
+        } catch (\DomainException $e) {
+            return $this->failure('MFA_DISABLE_REJECTED', $e->getMessage(), 422);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API MFA disable failed: ' . get_class($e));
+            return $this->failure('MFA_UNAVAILABLE', 'Verifikasi dua langkah belum dapat dinonaktifkan.', 503);
+        }
+    }
+
+    public function completeMfaLogin()
+    {
+        $input = $this->payload();
+        $challenge = $input['challenge_token'] ?? null;
+        $code = $input['code'] ?? null;
+        if (!is_string($challenge) || !is_string($code) || $challenge === ''
+            || (!preg_match('/^[0-9]{6}$/D', $code) && !preg_match('/^[A-Fa-f0-9]{10}$/D', $code))) {
+            return $this->failure('VALIDATION_ERROR', 'Masukkan kode autentikator atau kode pemulihan yang valid.', 422);
+        }
+        if (!$this->allowAuthAttempt('mfa-login', hash('sha256', $challenge), 8, 300)) {
+            return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan kode. Mulai login kembali.', 429);
+        }
+        try {
+            $verified = (new \App\Services\Auth\CustomerTotpMfa())->completeLogin($challenge, $code);
+            $tokens = (new CustomerApiTokens())->issue($verified['email'], $verified['device_name']);
+            return $this->success(['tokens' => $tokens]);
+        } catch (\DomainException $e) {
+            return $this->failure('MFA_CODE_REJECTED', $e->getMessage(), 401);
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer API MFA login completion failed: ' . get_class($e));
+            return $this->failure('MFA_UNAVAILABLE', 'Verifikasi dua langkah terganggu. Mulai login kembali.', 503);
+        }
     }
 
     public function requestEmailChange()
