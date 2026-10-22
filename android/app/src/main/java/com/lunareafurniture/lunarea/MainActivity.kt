@@ -286,6 +286,15 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        // onStop locks the current Activity instance, but Android may kill the
+        // process after the task is dismissed. Re-establish the lock on a cold
+        // launch so clearing the app from Recents cannot bypass biometric auth.
+        if (savedInstanceState == null
+            && getSharedPreferences("lunarea_security", MODE_PRIVATE).getBoolean("biometric_app_lock", false)
+            && AuthRepository(this).isSignedIn()) {
+            appLocked = true
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        }
         pendingPushTap = PushTap.from(intent)
         val referralIntentCode = referralCodeFrom(intent)
         pendingReferralCode = referralIntentCode ?: getSharedPreferences("lunarea_referral", MODE_PRIVATE).getString("pending_code", null)
