@@ -374,28 +374,25 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
 
     <!-- tombol form dan wa -->
     <?php if (!$isAdminLayout && !$isAuthPage) { ?>
-    <div
-        class="container-melayang d-flex gap-2 align-items-end <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
-        <div id="container-greeting-card" class="d-none">
-            <div style="background-color: white; border-radius: 1em; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);"
-                class="p-4">
-                <div class="d-flex align-items-start justify-content-between">
-                    <p class="m-0">Hi, Teman Luna!👋</p>
-                    <p class="m-0" style="cursor: pointer;" onclick="closeGreetingCard()">x</p>
-                </div>
-                <p class="m-0">Kalau kamu butuh bantuan,<br>hubungi CS Lunarea via WhatsApp ya!</p>
-            </div>
-            <div style="height: 30px;"></div>
-        </div>
-        <div class="d-flex flex-column gap-2">
-            <a class="btn-circle" href="/form"><i class="material-icons">insert_comment</i></a>
-            <a class="btn-circle hijau" id="btn-wa"
-                href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Hallo%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....."
-                aria-label="Chat Customer Service Lunarea">
-                <i class="material-icons text-light">phone</i>
+    <details class="container-melayang <?= isset($geser_container_melayang) ? 'geser' : ''; ?>">
+        <summary class="floating-help-toggle" aria-label="Buka pilihan bantuan" title="Bantuan">
+            <i class="material-icons" aria-hidden="true">support_agent</i>
+            <span class="visually-hidden">Bantuan Lunarea</span>
+        </summary>
+        <div class="floating-help-panel" aria-label="Pilihan bantuan Lunarea">
+            <p class="floating-help-title">Ada yang bisa kami bantu?</p>
+            <a class="floating-help-action" href="https://api.whatsapp.com/send?phone=<?= LUNAREA_CS_WHATSAPP_E164; ?>&text=Hallo%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." aria-label="Chat Customer Service Lunarea melalui WhatsApp">
+                <i class="material-icons" aria-hidden="true">chat</i>
+                <span><strong>Chat WhatsApp</strong><small>Hubungi Customer Care</small></span>
+                <i class="material-icons floating-help-arrow" aria-hidden="true">arrow_outward</i>
+            </a>
+            <a class="floating-help-action" href="/form" aria-label="Kirim pertanyaan kepada Lunarea">
+                <i class="material-icons" aria-hidden="true">mail_outline</i>
+                <span><strong>Kirim pertanyaan</strong><small>Isi formulir bantuan</small></span>
+                <i class="material-icons floating-help-arrow" aria-hidden="true">arrow_forward</i>
             </a>
         </div>
-    </div>
+    </details>
     <?php } ?>
 
     <?php if (!$isAdminLayout) { ?>
@@ -603,20 +600,6 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
             window.location.href = "/find/" + encodeURIComponent(isinya);
         })
     })
-
-    const greetingCardElm = document.getElementById('container-greeting-card');
-    if (!window.sessionStorage.getItem('greeting-close')) {
-        if (greetingCardElm) {
-            greetingCardElm.classList.remove('d-none')
-        }
-    }
-
-    function closeGreetingCard() {
-        if (greetingCardElm) {
-            greetingCardElm.classList.add('d-none')
-        }
-        window.sessionStorage.setItem('greeting-close', true);
-    }
 
     // Tampilkan validasi formulir native dalam Bahasa Indonesia.
     document.addEventListener('invalid', function(event) {
