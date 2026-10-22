@@ -303,7 +303,17 @@ if ($isAdminNav) {
                     <?php if (session()->get('email') == 'tamu') { ?>
                         <a data-buyer-logout href="/keluar" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Keluar" aria-label="Keluar"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4H4v16h5M10 12h11m-4-4 4 4-4 4"/></svg></a>
                     <?php } else { ?>
-                        <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                        <div class="buyer-desktop-account-wrap">
+                            <a href="/account" class="btn" aria-label="Akun saya"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                            <div class="buyer-account-popover" aria-label="Pintasan akun">
+                                <p class="buyer-account-popover__eyebrow">Akun Lunarea</p>
+                                <p class="buyer-account-popover__copy">Akses cepat ke akun dan aktivitas belanjamu.</p>
+                                <a href="/account">Profil saya</a>
+                                <a href="/transaction">Pesanan saya</a>
+                                <a href="/point">Luna Poin</a>
+                                <a href="/wishlist">Produk favorit</a>
+                            </div>
+                        </div>
                     <?php } ?>
                 <?php } else { ?>
                     <!-- <a href="/listform" class="btn"><i class="material-icons">insert_comment</i></a> -->
@@ -318,7 +328,15 @@ if ($isAdminNav) {
                     <a href="/account" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Akun" aria-label="Akun"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
                 <?php } ?>
             <?php } else { ?>
-                <a href="/login" class="btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Masuk" aria-label="Masuk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                <div class="buyer-desktop-login-wrap">
+                    <a href="/login" class="btn" aria-label="Masuk"><svg class="buyer-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a>
+                    <div class="buyer-login-popover" id="buyer-login-popover">
+                        <p class="buyer-login-popover__eyebrow">Selamat datang di Lunarea</p>
+                        <p class="buyer-login-popover__copy">Masuk untuk menikmati pengalaman belanja yang lebih mudah.</p>
+                        <a class="buyer-login-popover__primary" href="/login">Masuk</a>
+                        <a class="buyer-login-popover__secondary" href="/signup">Buat akun</a>
+                    </div>
+                </div>
             <?php } ?>
             </div>
         </div>

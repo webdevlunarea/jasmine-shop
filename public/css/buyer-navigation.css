@@ -119,6 +119,7 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
 @media (prefers-reduced-motion: reduce) {
     .buyer-mobile-header *, .mobile-bottom-nav *, #buyer-account-menu * { transition: none !important; animation: none !important; }
     .buyer-brand-partnership__link img { transition: none; }
+    .buyer-login-popover { transition: none; }
 }
 
 /* Compact desktop storefront header, isolated from mobile and admin navigation. */
@@ -149,6 +150,24 @@ body:has(.buyer-mobile-header) .account-side-card { top: var(--buyer-header-bott
     .buyer-desktop-header .search-box + .buyer-desktop-actions { margin-left: 0; }
     .buyer-desktop-header.navbar :is(.buyer-desktop-actions,.search-box) .btn { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--theme-primary); box-shadow: none; }
     .buyer-desktop-header.navbar :is(.buyer-desktop-actions,.search-box) .btn:hover { color: var(--theme-primary-hover); background: transparent; }
+    .buyer-desktop-login-wrap { position: relative; display: inline-flex; flex: 0 0 44px; }
+    .buyer-desktop-account-wrap { position: relative; display: inline-flex; flex: 0 0 44px; }
+    .buyer-login-popover { position: absolute; z-index: 1090; top: calc(100% + 8px); right: 0; width: min(280px, calc(100vw - 24px)); padding: 18px; border: 1px solid var(--theme-soft-2); border-radius: 10px; background: var(--theme-background); box-shadow: 0 12px 32px rgb(38 43 39 / 14%); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(5px); transition: opacity .16s ease, transform .16s ease, visibility .16s; }
+    .buyer-login-popover::before, .buyer-account-popover::before { content: ""; position: absolute; right: 12px; top: -6px; width: 10px; height: 10px; border-top: 1px solid var(--theme-soft-2); border-left: 1px solid var(--theme-soft-2); background: var(--theme-background); transform: rotate(45deg); }
+    .buyer-desktop-login-wrap:hover .buyer-login-popover, .buyer-desktop-login-wrap:focus-within .buyer-login-popover { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+    .buyer-login-popover__eyebrow { margin: 0 0 5px; color: var(--theme-primary); font-size: .875rem; font-weight: 600; line-height: 1.45; }
+    .buyer-login-popover__copy { margin: 0 0 14px; color: #626a64; font-size: .78rem; line-height: 1.55; }
+    .buyer-desktop-header .buyer-login-popover :is(.buyer-login-popover__primary,.buyer-login-popover__secondary) { display: flex; min-height: 40px; align-items: center; justify-content: center; padding: 8px 12px; border-radius: 6px; font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .buyer-desktop-header .buyer-login-popover__primary { background: var(--theme-primary); color: #fff; }
+    .buyer-desktop-header .buyer-login-popover__primary:hover { background: var(--theme-primary-hover); color: #fff; }
+    .buyer-desktop-header .buyer-login-popover__secondary { margin-top: 5px; color: var(--theme-primary); }
+    .buyer-desktop-header .buyer-login-popover__secondary:hover { background: var(--theme-soft); }
+    .buyer-account-popover { position: absolute; z-index: 1090; top: calc(100% + 8px); right: 0; width: min(280px, calc(100vw - 24px)); padding: 18px; border: 1px solid var(--theme-soft-2); border-radius: 10px; background: var(--theme-background); box-shadow: 0 12px 32px rgb(38 43 39 / 14%); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(5px); transition: opacity .16s ease, transform .16s ease, visibility .16s; }
+    .buyer-desktop-account-wrap:hover .buyer-account-popover, .buyer-desktop-account-wrap:focus-within .buyer-account-popover { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+    .buyer-account-popover__eyebrow { margin: 0 0 5px; color: var(--theme-primary); font-size: .875rem; font-weight: 600; line-height: 1.45; }
+    .buyer-account-popover__copy { margin: 0 0 10px; color: #626a64; font-size: .78rem; line-height: 1.55; }
+    .buyer-desktop-header .buyer-account-popover a { display: flex; min-height: 40px; align-items: center; padding: 8px 10px; border-radius: 6px; color: var(--theme-primary); font-size: .8rem; font-weight: 500; text-decoration: none; }
+    .buyer-desktop-header .buyer-account-popover a:hover { background: var(--theme-soft); }
     .buyer-desktop-header .buyer-action-icon { width: 21px; height: 21px; }
     .buyer-desktop-header :is(a,button):focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
 }
