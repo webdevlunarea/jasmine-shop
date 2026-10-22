@@ -11,7 +11,8 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
 <footer class="buyer-footer buyer-footer--full d-print-none" aria-label="Informasi dan bantuan Lunarea">
     <div class="container">
         <div class="buyer-footer__main-grid">
-            <section class="buyer-footer__intro" aria-label="Lunarea Furniture">
+            <section class="buyer-footer__intro" aria-labelledby="footer-brand-heading">
+                <h2 id="footer-brand-heading" class="visually-hidden">Lunarea Furniture</h2>
                 <a href="/" class="buyer-footer__wordmark" aria-label="Lunarea Furniture — Beranda"><img src="/img/Logo Lunarea Bg Terang.png" width="180" height="19" alt="Lunarea Furniture" loading="lazy" decoding="async"></a>
                 <p class="buyer-footer__description">always your choice, always your furniture.</p>
                 <nav class="buyer-footer__socials" aria-label="Media sosial Lunarea">
@@ -35,33 +36,41 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
                             </svg></a>
                 </nav>
                 <div class="buyer-footer__brands">
-                    <p class="buyer-footer__caption">Brand kami</p>
+                    <h2 class="buyer-footer__caption">Brand kami</h2>
                     <div>
                         <a class="buyer-footer__brand-link" href="https://lunareafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Lunarea Furniture"><img src="/img/Logo Lunarea Bg Terang.png" width="152" height="16" alt="Lunarea Furniture" loading="lazy" decoding="async"></a>
                         <a class="buyer-footer__brand-link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Ilena Furniture"><img src="/img/logoilena.png" width="128" height="18" alt="Ilena Furniture" loading="lazy" decoding="async"></a>
                     </div>
                 </div>
             </section>
-            <section aria-labelledby="footer-help-heading">
-                <h2 id="footer-help-heading">Informasi & bantuan</h2>
-                <nav class="buyer-footer__full-menu" aria-label="Informasi toko">
-                    <a href="/about">Tentang Lunarea</a>
+            <section class="buyer-footer__shopping" aria-labelledby="footer-shopping-heading">
+                <h2 id="footer-shopping-heading">Belanja &amp; bantuan</h2>
+                <nav class="buyer-footer__full-menu" aria-label="Belanja dan bantuan">
+                    <a href="/all">Semua produk</a>
                     <a href="<?= session()->get('isLogin') ? '/account' : '/login'; ?>"><?= session()->get('isLogin') ? 'Akun saya' : 'Masuk'; ?></a>
                     <a href="/faq">Pertanyaan Umum</a>
                     <a href="/lacak-pengiriman">Lacak pengiriman</a>
-                    <a href="/contact">Hubungi kami</a>
                 </nav>
             </section>
-            <section aria-labelledby="footer-contact-heading">
-                <h2 id="footer-contact-heading">Kontak kami</h2>
+            <section class="buyer-footer__policies" aria-labelledby="footer-policies-heading">
+                <h2 id="footer-policies-heading">Tentang &amp; kebijakan</h2>
+                <nav class="buyer-footer__full-menu" aria-label="Tentang dan kebijakan Lunarea">
+                    <a href="/about">Tentang Lunarea</a>
+                    <a href="/kebijakan-privasi">Kebijakan Privasi</a>
+                    <a href="/syarat-dan-ketentuan">Syarat &amp; Ketentuan</a>
+                </nav>
+            </section>
+            <section class="buyer-footer__customer-care" aria-labelledby="footer-contact-heading">
+                <h2 id="footer-contact-heading">Customer Care</h2>
                 <div class="buyer-footer__hours">
                     <p>Senin - Jumat | 08.00 - 16.00 WIB</p>
                     <p>Sabtu | 08.00 - 14.00 WIB</p>
                 </div>
-                <nav class="buyer-footer__full-contact" aria-label="Layanan pelanggan">
+                <nav class="buyer-footer__full-contact" aria-label="Kontak Customer Care">
                     <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_CS_WHATSAPP_E164, 'attr'); ?>&amp;text=Hai%20CS%20*Lunarea*%2C%20saya%20ingin%20membeli%20furniture....." target="_blank" rel="noopener noreferrer">Layanan Pelanggan <span aria-hidden="true">↗</span></a>
                     <a href="https://api.whatsapp.com/send?phone=<?= esc(LUNAREA_RETURN_WHATSAPP_E164, 'attr'); ?>&amp;text=Halo%20Tim%20Retur%20%26%20Komplain%20*Lunarea*%2C%20saya%20butuh%20bantuan%20terkait%20pesanan%20saya....." target="_blank" rel="noopener noreferrer">Retur / Komplain <span aria-hidden="true">↗</span></a>
                     <a href="mailto:cs@lunareafurniture.com">cs@lunareafurniture.com</a>
+                    <a href="/contact">Formulir kontak</a>
                 </nav>
             </section>
         </div>
@@ -69,7 +78,7 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
             <section aria-labelledby="footer-payment-heading">
                 <h2 id="footer-payment-heading">Metode pembayaran</h2>
                 <div class="buyer-footer__payment-logos">
-                    <img src="/img/pembayaran/bca.webp" width="43.4" height="13.78" alt="BCA" loading="lazy" decoding="async">
+                    <img src="/img/pembayaran/bca.webp" width="44" height="14" alt="BCA" loading="lazy" decoding="async">
                     <img src="/img/pembayaran/bni.webp" width="43" height="16" alt="BNI" loading="lazy" decoding="async">
                     <img src="/img/pembayaran/bri.webp" width="43" height="10" alt="BRI" loading="lazy" decoding="async">
                     <img src="/img/pembayaran/mandiri.webp" width="43" height="13" alt="Mandiri" loading="lazy" decoding="async">
@@ -78,14 +87,14 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
                     <img src="/img/pembayaran/shopeepay.webp" width="43" height="20" alt="ShopeePay" loading="lazy" decoding="async">
                     <img src="/img/pembayaran/gopay.webp" width="43" height="9" alt="GoPay" loading="lazy" decoding="async">
                 </div>
-                <p class="buyer-footer__payment-provider">Pembayaran melalui <a href="https://midtrans.com" target="_blank" rel="noopener noreferrer" aria-label="Midtrans"><img src="/img/logo/midtrans 2.webp" width="80" alt="Midtrans" loading="lazy" decoding="async"></a></p>
+                <p class="buyer-footer__payment-provider">Pembayaran melalui <a href="https://midtrans.com" target="_blank" rel="noopener noreferrer" aria-label="Midtrans"><img src="/img/logo/midtrans 2.webp" width="80" height="28" alt="Midtrans" loading="lazy" decoding="async"></a></p>
             </section>
             <section class="buyer-footer__marketplaces" aria-labelledby="footer-marketplace-heading">
                 <h2 id="footer-marketplace-heading">Temukan juga di</h2>
                 <nav aria-label="Marketplace Lunarea">
-                    <a href="https://shopee.co.id/lunareafurniture_" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di Shopee"><img src="/img/logo/shopee_logo.webp" alt="Shopee" loading="lazy" decoding="async"></a>
-                    <a href="https://www.tokopedia.com/Lunareafurnitureofc" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di Tokopedia"><img src="/img/logo/tokped_logo.webp" alt="Tokopedia" loading="lazy" decoding="async"></a>
-                    <a href="https://www.tiktok.com/@lunareafurnitureofficial" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di TikTok"><img src="/img/logo/tiktok.webp" alt="TikTok" loading="lazy" decoding="async"></a>
+                    <a href="https://shopee.co.id/lunareafurniture_" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di Shopee"><img src="/img/logo/shopee_logo.webp" width="72" height="24" alt="Shopee" loading="lazy" decoding="async"></a>
+                    <a href="https://www.tokopedia.com/Lunareafurnitureofc" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di Tokopedia"><img src="/img/logo/tokped_logo.webp" width="72" height="24" alt="Tokopedia" loading="lazy" decoding="async"></a>
+                    <a href="https://www.tiktok.com/@lunareafurnitureofficial" target="_blank" rel="noopener noreferrer" aria-label="Lunarea di TikTok"><img src="/img/logo/tiktok.webp" width="72" height="24" alt="TikTok" loading="lazy" decoding="async"></a>
                 </nav>
             </section>
             <?php if ($showAndroidPlayStoreBadge) : ?>
@@ -99,10 +108,8 @@ $showAndroidPlayStoreBadge = strtolower((string) ($androidPlayStoreParts['scheme
         </div>
         <div class="buyer-footer__bottom">
             <p class="buyer-footer__copyright">&copy; <?= date('Y'); ?> Lunarea Furniture. Hak cipta dilindungi.</p>
-            <nav class="buyer-footer__legal" aria-label="Kebijakan toko">
-                <a href="/kebijakan-privasi">Kebijakan Privasi</a>
+            <nav class="buyer-footer__legal" aria-label="Preferensi privasi">
                 <button type="button" class="cookie-preferences-link" data-cookie-settings-open>Pengaturan cookie</button>
-                <a href="/syarat-dan-ketentuan">Syarat &amp; Ketentuan</a>
             </nav>
         </div>
     </div>
