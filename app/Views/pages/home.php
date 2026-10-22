@@ -289,14 +289,46 @@ function closeModalVoucherAll(index) {
         </div>
         <div class="container-kategori-scroll" id="section-produk-populer">
             <div class="container-kategori">
-                <a class="kategori" href="/all">
+                <div class="kategori-wrap has-dropdown">
+                    <a class="kategori" href="/all">
                         <img src="<?= esc($categoryImages['all'] ?? '/img/logo icon.png'); ?>" alt="Semua Kategori" width="50px">
                         <p>Semua Kategori</p>
                     </a>
-                <a class="kategori" href="/all/lemari-dewasa">
+                    <button type="button" class="kategori-arrow" aria-label="Buka semua kategori" aria-expanded="false">
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-dropdown-menu">
+                        <a href="/all"><img src="<?= esc($categoryImages['all'] ?? '/img/logo icon.png'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Semua Produk</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari Dewasa</span></a>
+                        <a href="/all/lemari-anak"><img src="<?= esc($categoryImages['lemari-anak'] ?? '/img/logokategori/Lemari_Anak.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari Anak</span></a>
+                        <a href="/all/meja-rias"><img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Rias</span></a>
+                        <a href="/all/meja-belajar"><img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Belajar</span></a>
+                        <a href="/all/meja-tv"><img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja TV</span></a>
+                        <a href="/all/meja-tulis"><img src="<?= esc($categoryImages['meja-tulis'] ?? '/img/logokategori/Meja_Tulis.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Tulis</span></a>
+                        <a href="/all/meja-komputer"><img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Komputer</span></a>
+                        <a href="/all/rak-sepatu"><img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Sepatu</span></a>
+                        <a href="/all/rak-besi"><img src="<?= esc($categoryImages['rak-besi'] ?? '/img/logokategori/Rak_Besi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Besi</span></a>
+                        <a href="/all/rak-serbaguna"><img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Serbaguna</span></a>
+                        <a href="/all/kursi"><img src="<?= esc($categoryImages['kursi'] ?? '/img/logokategori/Kursi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Kursi</span></a>
+                    </div>
+                </div>
+                <div class="kategori-wrap has-dropdown">
+                    <a class="kategori" href="/all/lemari-dewasa">
                         <img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="lemari dewasa" width="50px">
                         <p>Lemari Dewasa</p>
                     </a>
+                    <button type="button" class="kategori-arrow" aria-label="Buka sub kategori lemari dewasa" aria-expanded="false">
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-dropdown-menu">
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 1 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 2 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 3 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 4 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 5 Pintu</span></a>
+                        <a href="/all/lemari-dewasa"><img src="<?= esc($categoryImages['lemari-dewasa'] ?? '/img/logokategori/Lemari_Dewasa.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Lemari 6 Pintu</span></a>
+                    </div>
+                </div>
                 <a class="kategori" href="/all/lemari-anak">
                     <img src="<?= esc($categoryImages['lemari-anak'] ?? '/img/logokategori/Lemari_Anak.webp'); ?>" alt="lemari anak" width="50px">
                     <p>Lemari Anak</p>
@@ -305,10 +337,22 @@ function closeModalVoucherAll(index) {
                     <img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="meja rias" width="50px">
                     <p>Meja Rias</p>
                 </a>
-                <a class="kategori" href="/all/meja-belajar">
+                <div class="kategori-wrap has-dropdown">
+                    <a class="kategori" href="/all/meja-belajar">
                         <img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="meja belajar" width="50px">
                         <p>Meja Belajar</p>
                     </a>
+                    <button type="button" class="kategori-arrow" aria-label="Buka sub kategori meja" aria-expanded="false">
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-dropdown-menu">
+                        <a href="/all/meja-belajar"><img src="<?= esc($categoryImages['meja-belajar'] ?? '/img/logokategori/Meja_Belajar.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Belajar</span></a>
+                        <a href="/all/meja-tv"><img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja TV</span></a>
+                        <a href="/all/meja-tulis"><img src="<?= esc($categoryImages['meja-tulis'] ?? '/img/logokategori/Meja_Tulis.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Tulis</span></a>
+                        <a href="/all/meja-komputer"><img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Komputer</span></a>
+                        <a href="/all/meja-rias"><img src="<?= esc($categoryImages['meja-rias'] ?? '/img/logokategori/Meja_Rias.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Meja Rias</span></a>
+                    </div>
+                </div>
                 <a class="kategori" href="/all/meja-tv">
                     <img src="<?= esc($categoryImages['meja-tv'] ?? '/img/logokategori/Meja_TV.webp'); ?>" alt="meja tv" width="50px">
                     <p>Meja TV</p>
@@ -321,10 +365,20 @@ function closeModalVoucherAll(index) {
                     <img src="<?= esc($categoryImages['meja-komputer'] ?? '/img/logokategori/Meja_Komputer.webp'); ?>" alt="meja komputer" width="50px">
                     <p>Meja Komputer</p>
                 </a>
-                <a class="kategori" href="/all/rak-serbaguna">
+                <div class="kategori-wrap has-dropdown">
+                    <a class="kategori" href="/all/rak-serbaguna">
                         <img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="rak serbaguna" width="50px">
                         <p>Rak Serbaguna</p>
                     </a>
+                    <button type="button" class="kategori-arrow" aria-label="Buka sub kategori rak" aria-expanded="false">
+                        <i class="material-icons" aria-hidden="true">keyboard_arrow_down</i>
+                    </button>
+                    <div class="kategori-dropdown-menu">
+                        <a href="/all/rak-sepatu"><img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Sepatu</span></a>
+                        <a href="/all/rak-besi"><img src="<?= esc($categoryImages['rak-besi'] ?? '/img/logokategori/Rak_Besi.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Besi</span></a>
+                        <a href="/all/rak-serbaguna"><img src="<?= esc($categoryImages['rak-serbaguna'] ?? '/img/logokategori/Rak_Serbaguna.webp'); ?>" alt="" style="width:24px;height:24px;object-fit:contain;background:transparent;flex:0 0 24px;"><span>Rak Serbaguna</span></a>
+                    </div>
+                </div>
                 <a class="kategori" href="/all/rak-sepatu">
                     <img src="<?= esc($categoryImages['rak-sepatu'] ?? '/img/logokategori/Rak_Sepatu.webp'); ?>" alt="rak sepatu" width="50px">
                     <p>Rak Sepatu</p>
@@ -359,6 +413,114 @@ btnGeserKategoriElm.forEach(btn => {
         });
     })
 })
+
+const kategoriDropdownWraps = document.querySelectorAll('.kategori-wrap.has-dropdown');
+window.addEventListener('buyer-navigation-open', () => closeKategoriDropdowns());
+
+function syncKategoriDropdownState() {
+    document.body.classList.toggle('kategori-dropdown-open', document.querySelector('.kategori-wrap.show') !== null);
+}
+
+function closeKategoriDropdowns(exceptWrap = null) {
+    kategoriDropdownWraps.forEach(wrap => {
+        if (wrap !== exceptWrap) {
+            wrap.classList.remove('show');
+            wrap.querySelector('.kategori-arrow')?.setAttribute('aria-expanded', 'false');
+        }
+    });
+    syncKategoriDropdownState();
+}
+
+function positionKategoriDropdown(wrap) {
+    const menu = wrap.querySelector('.kategori-dropdown-menu');
+    const rect = wrap.getBoundingClientRect();
+    const gap = 6;
+    const viewport = window.visualViewport;
+    const viewportTop = viewport?.offsetTop || 0;
+    const viewportBottom = viewportTop + (viewport?.height || window.innerHeight);
+    const mobileHeader = document.querySelector('.buyer-mobile-header');
+    const headerBottom = mobileHeader && getComputedStyle(mobileHeader).display !== 'none'
+        ? mobileHeader.getBoundingClientRect().bottom : viewportTop;
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+    const bottomLimit = bottomNav && getComputedStyle(bottomNav).display !== 'none'
+        ? Math.min(viewportBottom, bottomNav.getBoundingClientRect().top) - 12 : viewportBottom - 12;
+    const topLimit = Math.max(viewportTop + 12, headerBottom + gap);
+    const menuWidth = Math.min(menu.offsetWidth || 235, window.innerWidth - 24);
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - menuWidth - 12));
+    const naturalHeight = Math.min(menu.scrollHeight, 320);
+    const spaceBelow = bottomLimit - rect.bottom - gap;
+    const spaceAbove = rect.top - gap - topLimit;
+    const placeAbove = spaceBelow < Math.min(naturalHeight, 160) && spaceAbove > spaceBelow;
+    const maxHeight = Math.max(0, Math.min(naturalHeight, placeAbove ? spaceAbove : spaceBelow));
+    const top = placeAbove ? rect.top - gap - maxHeight : Math.max(topLimit, rect.bottom + gap);
+
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    menu.style.maxHeight = `${maxHeight}px`;
+}
+
+kategoriDropdownWraps.forEach(wrap => {
+    const toggle = wrap.querySelector('.kategori-arrow');
+    toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const willOpen = !wrap.classList.contains('show');
+        closeKategoriDropdowns(wrap);
+        wrap.classList.toggle('show', willOpen);
+        toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+
+        if (willOpen) {
+            containeKategoriScrollElm.dataset.lockScrollLeft = containeKategoriScrollElm.scrollLeft;
+            positionKategoriDropdown(wrap);
+        }
+        syncKategoriDropdownState();
+    });
+});
+
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('.kategori-wrap') && !event.target.closest('.kategori-dropdown-menu')) {
+        closeKategoriDropdowns();
+    }
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closeKategoriDropdowns();
+    }
+});
+
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.kategori-wrap.show').forEach(positionKategoriDropdown);
+});
+
+containeKategoriScrollElm?.addEventListener('wheel', (event) => {
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+containeKategoriScrollElm?.addEventListener('touchmove', (event) => {
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+
+function preventPageScrollWhenKategoriOpen(event) {
+    if (!document.body.classList.contains('kategori-dropdown-open')) return;
+    if (event.target.closest('.kategori-dropdown-menu')) return;
+    event.preventDefault();
+}
+
+document.addEventListener('wheel', preventPageScrollWhenKategoriOpen, { passive: false, capture: true });
+document.addEventListener('touchmove', preventPageScrollWhenKategoriOpen, { passive: false, capture: true });
+
+containeKategoriScrollElm?.addEventListener('scroll', () => {
+    if (document.body.classList.contains('kategori-dropdown-open')) {
+        containeKategoriScrollElm.scrollLeft = containeKategoriScrollElm.dataset.lockScrollLeft || containeKategoriScrollElm.scrollLeft;
+    }
+});
 
 document.querySelectorAll('[data-flash-countdown]').forEach((timer) => {
     const endMs = Number(timer.dataset.end || 0) * 1000;
