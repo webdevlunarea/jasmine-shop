@@ -3,6 +3,8 @@
 <?php
 $categoryImages = $categoryImages ?? [];
 $sort = $sort ?? '';
+$sortLabels = ['name_asc' => 'Nama A sampai Z', 'price_desc' => 'Harga tertinggi', 'price_asc' => 'Harga terendah', 'newest' => 'Produk terbaru'];
+$sortLabel = $sortLabels[$sort] ?? '';
 $catalogSortQuery = $sort !== '' ? '?sort=' . rawurlencode($sort) : '';
 $catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $kategori) : '/all';
 ?>
@@ -166,22 +168,13 @@ $catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $katego
             <h5 class="jdl-section">
                 <?= $kategori ? ($kategori == 'meja-tv' ? 'Meja TV' : ucwords(str_replace('-', ' ', $kategori))) : "Semua Kategori"; ?>
             </h5>
-            <?php if ($kategori) { ?>
-            <a class="btn btn-primary1" href="/all">Semua Kategori</a>
-            <?php } ?>
         </div>
         <?php } ?>
 
         <?php if (!$nama) { ?>
-        <details class="catalog-sort">
-            <summary aria-label="Atur urutan produk">
+        <details class="catalog-sort <?= $sort !== '' ? 'catalog-sort--active' : ''; ?>">
+            <summary aria-label="<?= esc($sortLabel !== '' ? 'Urutan produk: ' . $sortLabel : 'Atur urutan produk', 'attr'); ?>" title="<?= esc($sortLabel !== '' ? 'Urutan: ' . $sortLabel : 'Atur urutan produk', 'attr'); ?>">
                 <span class="material-icons" aria-hidden="true">tune</span>
-                <span>Urutkan</span>
-                <?php if ($sort !== '') { ?>
-                <span class="catalog-sort-current">
-                    <?= $sort === 'name_asc' ? 'A–Z' : ($sort === 'price_desc' ? 'Harga tertinggi' : ($sort === 'price_asc' ? 'Harga terendah' : 'Produk terbaru')); ?>
-                </span>
-                <?php } ?>
             </summary>
             <form class="catalog-sort-panel" method="get" action="<?= esc($catalogSortAction, 'attr'); ?>">
                 <label for="catalog-sort-select">Urutkan berdasarkan</label>

@@ -17,10 +17,11 @@ body:not(.admin-body) .jdl-section + h1 { font-size: clamp(1.4rem, 1.1rem + 1vw,
 
 /* Compact catalog sorting directly below the category heading. */
 .catalog-sort { position: relative; display: flex; justify-content: flex-end; margin: 8px 0 20px; }
-.catalog-sort > summary { display: inline-flex; min-height: 44px; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--theme-soft-2, #ded8d1); border-radius: 6px; background: var(--theme-background, #fff); color: var(--theme-primary, var(--hijau)); cursor: pointer; list-style: none; font-size: .875rem; font-weight: 600; }
+.catalog-sort > summary { position: relative; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; padding: 0; border: 1px solid var(--theme-soft-2, #ded8d1); border-radius: 6px; background: var(--theme-background, #fff); color: var(--theme-primary, var(--hijau)); cursor: pointer; list-style: none; }
 .catalog-sort > summary::-webkit-details-marker { display: none; }
-.catalog-sort > summary .material-icons { font-size: 20px; }
-.catalog-sort-current { max-width: 170px; overflow: hidden; color: var(--theme-primary-hover, var(--hijau)); opacity: .78; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-sort > summary .material-icons { font-size: 22px; }
+.catalog-sort--active > summary { background: var(--theme-soft, var(--hijaumuda)); }
+.catalog-sort--active > summary::after { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--theme-primary, var(--hijau)); content: ''; }
 .catalog-sort-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; display: grid; width: min(300px, calc(100vw - 40px)); gap: 10px; padding: 16px; border: 1px solid var(--theme-soft-2, #ded8d1); border-radius: 8px; background: var(--theme-background, #fff); box-shadow: 0 8px 24px rgb(0 0 0 / 10%); }
 .catalog-sort-panel label { margin: 0; color: var(--theme-primary-hover, var(--hijau)); font-size: .875rem; font-weight: 500; }
 .catalog-sort-panel .form-select { width: 100%; min-height: 44px; border-color: var(--theme-soft-2, #ded8d1); font-size: .9rem; }
