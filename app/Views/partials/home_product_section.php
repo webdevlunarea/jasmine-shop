@@ -14,6 +14,9 @@
                     <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                     <img data-skeleton-image class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>"
                         alt="<?= esc($p['nama'], 'attr'); ?>">
+                    <?php if ((float) ($p['diskon'] ?? 0) > 0) { ?>
+                    <span class="product-image-discount">-<?= (int) $p['diskon']; ?>%</span>
+                    <?php } ?>
                     <?php
                     $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
                     if ($terjualTampil > 0) {
@@ -35,7 +38,6 @@
                                 style="text-decoration: line-through; color: grey; width:fit-content;">
                                 Rp
                                 <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                            <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
                         </div>
                         <p class="mb-0 harga">Rp
                             <?php

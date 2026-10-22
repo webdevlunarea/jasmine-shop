@@ -274,6 +274,9 @@
                     <div class="product-card-media image-skeleton" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img data-skeleton-image class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= esc($p['nama'], 'attr'); ?>">
+                        <?php if ((float) ($p['diskon'] ?? 0) > 0) { ?>
+                        <span class="product-image-discount">-<?= number_format((float) $p['diskon'], 2, '.', ''); ?>%</span>
+                        <?php } ?>
                     </div>
                     <div class="product-card-body">
                     <div class="product-card-heading">
@@ -286,7 +289,6 @@
                                     <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey; width:fit-content;">
                                         Rp
                                         <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                    <p class="diskon-bwh">-<?= number_format((float)$p['diskon'], 2, '.', ''); ?>%</p>
                                 </div>
                                 <p class="mb-0 harga">Rp
                                     <?php

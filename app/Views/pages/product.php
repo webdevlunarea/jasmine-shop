@@ -475,6 +475,9 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                     <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                         <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                         <img class="img-card1" loading="lazy" decoding="async" src="<?= esc(\App\Services\PublicCatalogImage::productUrl($p), 'attr'); ?>" alt="<?= $p['nama']; ?>">
+                        <?php if ((float) ($p['diskon'] ?? 0) > 0) { ?>
+                        <span class="product-image-discount">-<?= (int) $p['diskon']; ?>%</span>
+                        <?php } ?>
                         <?php
                         $terjualTampil = !empty($p['terjual_custom']) && $p['terjual_custom'] > 0 ? $p['terjual_custom'] : ($p['terjual'] ?? 0);
                         if ($terjualTampil > 0) {
@@ -500,7 +503,6 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                                 <div class="product-card-price-meta">
                                     <p class="mb-0 diskon-coret" style="text-decoration: line-through; font-size: small; color: grey;">Rp
                                     <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                    <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
                                 </div>
                             <?php } else { ?>
                                 <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>

@@ -20,6 +20,9 @@
                         <div class="product-card-media" style="position: relative; width: 100%; aspect-ratio: 1 / 1;">
                             <img class="img-card1-wm" src="<?= base_url('img/WM Black 300.webp'); ?>" alt="Watermark Lunarea">
                             <img class="img-card1" src="data:image/webp;base64,<?= base64_encode($p['wishlist_gambar'] ?? $p['gambar']); ?>" alt="<?= $p['nama']; ?>">
+                            <?php if ((float) ($p['diskon'] ?? 0) > 0) { ?>
+                            <span class="product-image-discount">-<?= (int) $p['diskon']; ?>%</span>
+                            <?php } ?>
                         </div>
                         <div class="product-card-body">
                     <div class="product-card-heading">
@@ -32,7 +35,6 @@
                                         <p class="mb-0 diskon-coret" style="text-decoration: line-through; color: grey; width:fit-content;">
                                             Rp
                                             <?= number_format($p['harga'], 0, ",", "."); ?></p>
-                                        <p class="diskon-bwh">-<?= (int)$p['diskon']; ?>%</p>
                                     </div>
                                     <p class="mb-0 harga">Rp
                                         <?php
