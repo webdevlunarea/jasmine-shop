@@ -7,6 +7,8 @@
     const historyKey = 'lunarea.search.history.v1';
     let activeForm = null;
     const panels = [];
+    const panelByForm = new WeakMap();
+    const getPanel = form => panelByForm.get(form) || null;
 
     const readHistory = () => {
         try {
@@ -25,7 +27,7 @@
     const searchUrl = query => `/find/${encodeURIComponent(query.trim().replace(/\s+/g, '-'))}`;
 
     const positionPanel = (form) => {
-        const panel = form.querySelector('.smart-search-results');
+        const panel = getPanel(form);
         const box = form.getBoundingClientRect();
         const mobileHeader = document.querySelector('.buyer-mobile-header');
         const desktopHeader = document.querySelector('.buyer-desktop-header');
@@ -41,7 +43,7 @@
 
     const hidePanel = (form) => {
         const input = form.querySelector('.search-input');
-        const panel = form.querySelector('.smart-search-results');
+        const panel = getPanel(form);
         if (!input || !panel) return;
         panel.hidden = true;
         input.setAttribute('aria-expanded', 'false');
@@ -51,7 +53,7 @@
 
     const showPanel = (form) => {
         const input = form.querySelector('.search-input');
-        const panel = form.querySelector('.smart-search-results');
+        const panel = getPanel(form);
         if (!input || !panel) return;
         forms.forEach(other => { if (other !== form) hidePanel(other); });
         activeForm = form;
@@ -62,7 +64,7 @@
 
     const renderHistory = (form) => {
         const input = form.querySelector('.search-input');
-        const panel = form.querySelector('.smart-search-results');
+        const panel = getPanel(form);
         const list = panel?.querySelector('.smart-search-list');
         const heading = panel?.querySelector('[data-smart-search-heading]');
         const clear = panel?.querySelector('[data-search-history-clear]');
@@ -97,7 +99,7 @@
     };
 
     const renderSuggestions = (form, items, query) => {
-        const panel = form.querySelector('.smart-search-results');
+        const panel = getPanel(form);
         const list = panel?.querySelector('.smart-search-list');
         const heading = panel?.querySelector('[data-smart-search-heading]');
         const clear = panel?.querySelector('[data-search-history-clear]');
@@ -153,6 +155,7 @@
         const input = form.querySelector('.search-input');
         const panel = form.querySelector('.smart-search-results');
         if (!input || !panel) return;
+        panelByForm.set(form, panel);
         // Render the dropdown in the page overlay layer, aligned to the search field but below the nav.
         document.body.append(panel);
         panels.push(panel);
