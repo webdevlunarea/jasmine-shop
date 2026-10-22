@@ -14,6 +14,7 @@ $isManualMode = ($settings['mode'] ?? 'auto') === 'manual';
         <?php } ?>
 
         <form action="/flashsaleadmin" method="post" class="flash-admin-grid">
+            <?= csrf_field(); ?>
             <input type="hidden" name="selected_product_ids_order" id="flash-selected-order" value="<?= esc(implode(',', array_keys($selectedIds))); ?>">
             <section class="flash-admin-panel">
                 <div class="flash-admin-panel__head">

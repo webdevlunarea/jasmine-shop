@@ -15,7 +15,7 @@ class CopyGambarController extends BaseController
         $this->gambarBarangModel = new GambarBarangModel();
     }
 
-    public function copyGambar()
+    private function copyGambar()
     {
         $produk = $this->barangModel->getBarang();
         foreach ($produk as $p) {

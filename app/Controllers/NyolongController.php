@@ -24,17 +24,17 @@ class NyolongController extends BaseController
         $this->kecamatanModel = new KecamatanModel();
         $this->kelurahanModel = new KelurahanModel();
     }
-    public function index()
+    private function index()
     {
         return view('pages/nyolong');
     }
-    public function provinsi()
+    private function provinsi()
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -42,7 +42,7 @@ class NyolongController extends BaseController
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                "key: " . (string) env('RAJAONGKIR_API_KEY', '')
             ),
         ));
         $response = curl_exec($curl);
@@ -65,18 +65,18 @@ class NyolongController extends BaseController
             'data' => $data['rajaongkir']['results']
         ]);
     }
-    public function getProvinsi()
+    private function getProvinsi()
     {
         $data = $this->provinsiModel->findAll();
         return $this->response->setJSON($data);
     }
-    public function kabupaten($provinsiId)
+    private function kabupaten($provinsiId)
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=" . $provinsiId,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -84,7 +84,7 @@ class NyolongController extends BaseController
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                "key: " . (string) env('RAJAONGKIR_API_KEY', '')
             ),
         ));
         $response = curl_exec($curl);
@@ -107,18 +107,18 @@ class NyolongController extends BaseController
             'panjang' => count($data['rajaongkir']['results']),
         ]);
     }
-    public function getKabupaten()
+    private function getKabupaten()
     {
         $data = $this->kabupatenModel->findAll();
         return $this->response->setJSON($data);
     }
-    public function kecamatan($kabupatenId)
+    private function kecamatan($kabupatenId)
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=" . $kabupatenId,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -126,7 +126,7 @@ class NyolongController extends BaseController
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                "key: 6bc9315fb7a163e74a04f9f54ede3c2c"
+                "key: " . (string) env('RAJAONGKIR_API_KEY', '')
             ),
         ));
         $response = curl_exec($curl);
@@ -152,7 +152,7 @@ class NyolongController extends BaseController
             'panjang' => count($data['rajaongkir']['results']),
         ]);
     }
-    public function getKecamatan($pag)
+    private function getKecamatan($pag)
     {
         $limit = 20;
         $offset = ($pag - 1) * $limit;
@@ -160,7 +160,7 @@ class NyolongController extends BaseController
         return $this->response->setJSON($data);
     }
 
-    public function kelurahan($kec)
+    private function kelurahan($kec)
     {
         $kec = str_replace('/', ' ', $kec);
 
@@ -173,14 +173,19 @@ class NyolongController extends BaseController
                 'received' => $body
             ]);
         }
-        $apiUrl = "https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=15f6a51696a8b034f9ce366a6dc22138&id=11022019000001&aKec=" . rawurlencode($kec);
+        $apiKey = trim((string) env('DAKOTA_API_KEY', ''));
+        $clientId = trim((string) env('DAKOTA_CLIENT_ID', ''));
+        if ($apiKey === '' || $clientId === '') {
+            return $this->response->setStatusCode(503)->setJSON(['success' => false, 'message' => 'Layanan alamat sementara tidak tersedia.']);
+        }
+        $apiUrl = 'https://dakotacargo.co.id/api/api_glb_M_kodepos.asp?key=' . rawurlencode($apiKey) . '&id=' . rawurlencode($clientId) . '&aKec=' . rawurlencode((string) $kec);
         set_time_limit(0);
         ini_set('max_execution_time', 0);
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => $apiUrl,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,

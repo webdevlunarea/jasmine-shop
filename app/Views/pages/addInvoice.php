@@ -3,6 +3,7 @@
 <div class="konten admin-module-page admin-module-add-invoice">
     <div class="container">
         <form action="/actionaddinvoiceadmin" method="post">
+            <?= csrf_field(); ?>
             <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Buat invoice', 'adminHeadingGroup'=>'Operasional', 'adminHeadingDescription'=>'Lengkapi penerima dan rincian produk sebelum menyimpan.', 'adminHeadingActions'=>[['label'=>'Kembali', 'href'=>'/invoiceadmin', 'icon'=>'arrow_back', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
 
 

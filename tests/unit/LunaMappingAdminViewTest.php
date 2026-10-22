@@ -50,7 +50,7 @@ final class LunaMappingAdminViewTest extends CIUnitTestCase
         $this->assertStringContainsString('LunaMappingReview::stock', $code);
         $this->assertStringContainsString('Sinkron stok awal dari MyLuna', $code);
         $routes=file_get_contents(APPPATH.'Config/Routes.php');
-        $this->assertStringContainsString("'/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => 'harusAdmin']",$routes);
+        $this->assertStringContainsString("'/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => ['harusAdmin', 'csrf']]",$routes);
     }
     public function testExportSyntheticPreviewWhenExplicitlyRequested(): void
     {

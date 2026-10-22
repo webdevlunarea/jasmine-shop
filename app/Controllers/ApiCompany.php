@@ -153,7 +153,7 @@ class ApiCompany extends BaseController
     }
 
     //-------------- olah database ------------- //
-    public function deskToLuna()
+    private function deskToLuna()
     {
         $semuaProduk = $this->barangModel->findAll();
         foreach ($semuaProduk as $produk) {
@@ -173,7 +173,7 @@ class ApiCompany extends BaseController
         ], false);
     }
 
-    public function isiPath()
+    private function isiPath()
     {
         //produk
         $produk = $this->barangModel->findAll();

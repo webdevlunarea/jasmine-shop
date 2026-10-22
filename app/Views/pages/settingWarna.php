@@ -293,6 +293,7 @@ $fields = [
         <div class="row g-4">
             <div class="col-lg-7">
                 <form action="/settingwarna" method="post" class="d-flex flex-column gap-3">
+                    <?= csrf_field(); ?>
                     <div class="color-field">
                         <label class="form-label mb-1" for="topPromoDesktop">Teks Promo Atas Desktop</label>
                         <p class="text-secondary small mb-2">Teks berjalan di bar paling atas untuk tampilan desktop/tablet.</p>

@@ -26,6 +26,7 @@
         <h4 class="m-0">Email Customer</h4>
         <p class="text-secondary mb-2" style="font-size: small;">Berikut list email customer yang dapat mengklaim</p>
         <form action="/voucher/addmember" method="post">
+            <?= csrf_field(); ?>
             <input type="text" name="counter" class="d-none">
             <input type="text" name="idvoucher" class="d-none">
             <div id="container-email" class="mb-2 d-flex flex-column gap-1">
@@ -153,6 +154,7 @@
         const loadingElm = document.querySelectorAll('.loading');
         const emailBroadcast = JSON.parse('<?= $emailBroadcastJson; ?>');
         const idVoucherBroadcast = <?= $broadcast; ?>;
+        let csrfHash = <?= json_encode($csrfHash, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         console.log(emailBroadcast)
         console.log(idVoucherBroadcast)
         async function broadcastSkuy() {
@@ -162,7 +164,8 @@
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfHash
                     },
                     body: JSON.stringify({
                         email: email,
@@ -174,6 +177,7 @@
                     loadingElm[i].innerHTML = 'done'
                 }
                 const responseJson = await response.json();
+                if (responseJson.csrfHash) csrfHash = responseJson.csrfHash;
             }
             statusProsesBroadcastElm.classList.remove('d-none');
         }

@@ -167,7 +167,7 @@ final class LunaOrderSyncTest extends CIUnitTestCase
     }
     public function testAdminRouteCsrfAndSnapshotGuardRemainPresent():void {
         $routes=file_get_contents(APPPATH.'Config/Routes.php');$source=file_get_contents(APPPATH.'Controllers/Pages.php');
-        $this->assertStringContainsString("'/syncorder/(:segment)', 'Pages::syncPaidOrderToLuna/$"."1', ['filter' => 'harusAdmin']",$routes);
+        $this->assertStringContainsString("'/syncorder/(:segment)', 'Pages::syncPaidOrderToLuna/$"."1', ['filter' => ['harusAdmin', 'csrf']]",$routes);
         $this->assertStringContainsString('Services::security()->verify($this->request)',$source);
         $source=substr($source,strpos($source,'private function syncOrderToLunaSistem'),strpos($source,'private function syncReturnToLunaSistem')-strpos($source,'private function syncOrderToLunaSistem'));
         $this->assertStringNotContainsString('barangModel',$source);$this->assertStringNotContainsString('->insert(',$source);

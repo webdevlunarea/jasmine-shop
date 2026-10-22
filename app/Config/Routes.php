@@ -138,13 +138,10 @@ $routes->post('/account/addresses/manage', 'CustomerAddresses::manage', ['filter
 $routes->post('/shipping/quote', 'Pages::shippingQuote', ['filter' => 'harusUser']);
 $routes->get('/gantikaca/(:any)', 'Pages::gantiKaca/$1', ['filter' => 'harusUser']);
 $routes->post('/getadminfee', 'Pages::getBiayaAdminMidtrans');
-$routes->post('/getalamat', 'Pages::getAllSelectAlamat');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
 $routes->get('/getkode/(:any)', 'Pages::getKode/$1', ['filter' => 'corsFilter']);
 $routes->get('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2');
-$routes->get('/getdakota', 'Pages::getDakota');
-$routes->get('/getpaket/(:any)/(:any)/(:any)/(:any)', 'Pages::getPaket/$1/$2/$3/$4');
 // $routes->post('/actioncheckout', 'Pages::actionCheckout');
 // $routes->post('/actionpay', 'Pages::actionPay');
 // $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
@@ -156,7 +153,7 @@ $routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusUser']
 $routes->post('/voucher/redeem', 'Pages::voucherRedeem', ['filter' => 'harusUser']);
 $routes->post('/voucher/redeem/checkout', 'Pages::voucherRedeemCheckout', ['filter' => 'harusUser']);
 $routes->post('/voucher/add', 'Pages::voucherAddCode', ['filter' => 'harusLogin']);
-$routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => 'harusAdmin']);
+$routes->post('/voucher/addmember', 'Pages::voucherAddMember', ['filter' => ['harusAdmin', 'csrf']]);
 
 $routes->get('/transaction', 'Pages::transaction', ['filter' => 'harusUser']);
 $routes->get('/retur/order/(:any)', 'Pages::returOrder/$1', ['filter' => 'harusUser']);
@@ -175,7 +172,7 @@ $routes->post('/integrations/luna-order-status', 'Pages::updateOrderStatusFromLu
 // $routes->get('/errorpay', 'Pages::errorPay');
 $routes->get('/order/(:any)', 'Pages::order/$1', ['filter' => 'harusLogin']);
 $routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1', ['filter' => 'harusLogin']);
-$routes->post('/payorder/(:any)/confirm/(:any)', 'Pages::payOrderConfirm/$1/$2', ['filter' => 'harusAdmin']);
+$routes->post('/payorder/(:any)/confirm/(:any)', 'Pages::payOrderConfirm/$1/$2', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/payorder/(:any)', 'Pages::payOrder/$1', ['filter' => 'harusLogin']);
 // $routes->get('/orderlocal', 'Pages::orderLocal');
 
@@ -200,44 +197,43 @@ $routes->get('/find/(:any)', 'Pages::productFilter/$1');
 $routes->get('/find/(:any)/(:any)', 'Pages::productFilter/$1/$2');
 
 $routes->post('/addrating/(:any)', 'Pages::addRating/$1', ['filter' => 'harusUser']);
-$routes->post('/delrating/(:num)', 'Pages::delRating/$1', ['filter' => 'harusAdmin']);
+$routes->post('/delrating/(:num)', 'Pages::delRating/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/manageratingterjual', 'Pages::manageRatingTerjual', ['filter' => 'harusAdmin']);
-$routes->post('/updateterjualadmin/(:any)', 'Pages::updateTerjualAdmin/$1', ['filter' => 'harusAdmin']);
-$routes->post('/editratingadmin/(:num)', 'Pages::editRatingAdmin/$1', ['filter' => 'harusAdmin']);
-$routes->post('/generatedummyratingterjual', 'Pages::generateDummyRatingTerjual', ['filter' => 'harusAdmin']);
-$routes->post('/freshgeneratedummyratingterjual', 'Pages::freshGenerateDummyRatingTerjual', ['filter' => 'harusAdmin']);
-$routes->post('/hapusdummyrating', 'Pages::hapusDummyRating', ['filter' => 'harusAdmin']);
+$routes->post('/updateterjualadmin/(:any)', 'Pages::updateTerjualAdmin/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/editratingadmin/(:num)', 'Pages::editRatingAdmin/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/generatedummyratingterjual', 'Pages::generateDummyRatingTerjual', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/freshgeneratedummyratingterjual', 'Pages::freshGenerateDummyRatingTerjual', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/hapusdummyrating', 'Pages::hapusDummyRating', ['filter' => ['harusAdmin', 'csrf']]);
 
 $routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
-$routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => 'harusAdmin']);
+$routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listbanner', 'Pages::listBanner', ['filter' => 'harusAdmin']);
 $routes->get('/addbanner', 'Pages::addBanner', ['filter' => 'harusAdmin']);
-$routes->post('/actionaddbanner', 'Pages::actionAddBanner', ['filter' => 'harusAdmin']);
+$routes->post('/actionaddbanner', 'Pages::actionAddBanner', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/editbanner/(:num)', 'Pages::editBanner/$1', ['filter' => 'harusAdmin']);
-$routes->post('/actioneditbanner/(:num)', 'Pages::actionEditBanner/$1', ['filter' => 'harusAdmin']);
-$routes->post('/activebanner/(:num)', 'Pages::activeBanner/$1', ['filter' => 'harusAdmin']);
-$routes->post('/deletebanner/(:num)', 'Pages::deleteBanner/$1', ['filter' => 'harusAdmin']);
+$routes->post('/actioneditbanner/(:num)', 'Pages::actionEditBanner/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/activebanner/(:num)', 'Pages::activeBanner/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/deletebanner/(:num)', 'Pages::deleteBanner/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/trafficadmin', 'Pages::trafficAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/trafficadmin/export', 'Pages::trafficAdminExport', ['filter' => 'harusAdmin']);
 $routes->get('/trafficadmin/(:num)', 'Pages::trafficAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/settingwarna', 'Pages::settingWarna', ['filter' => 'harusAdmin']);
-$routes->post('/settingwarna', 'Pages::actionSettingWarna', ['filter' => 'harusAdmin']);
+$routes->post('/settingwarna', 'Pages::actionSettingWarna', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/shippingadmin', 'Pages::shippingAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/lunamappingadmin', 'LunaMappingAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/lunamappingadmin/catalogue', 'LunaMappingAdmin::catalogue', ['filter' => 'harusAdmin']);
-$routes->post('/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => 'harusAdmin']);
-$routes->post('/shippingadmin', 'Pages::actionShippingAdmin', ['filter' => 'harusAdmin']);
-$routes->post('/shippingadmin/coverage/(:num)/deactivate', 'Pages::deactivateShippingCoverage/$1', ['filter' => 'harusAdmin']);
+$routes->post('/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/shippingadmin', 'Pages::actionShippingAdmin', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/shippingadmin/coverage/(:num)/deactivate', 'Pages::deactivateShippingCoverage/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listvoucher', 'Pages::listVoucher', ['filter' => 'harusAdmin']);
-$routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => 'harusAdmin']);
+$routes->post('/activevoucher/(:any)', 'Pages::activeVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/addvoucher', 'Pages::addVoucher', ['filter' => 'harusAdmin']);
-$routes->post('/actionaddvoucher', 'Pages::actionAddVoucher', ['filter' => 'harusAdmin']);
+$routes->post('/actionaddvoucher', 'Pages::actionAddVoucher', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/editvoucher/(:any)', 'Pages::editVoucher/$1', ['filter' => 'harusAdmin']);
-$routes->post('/actioneditvoucher/(:any)', 'Pages::actionEditVoucher/$1', ['filter' => 'harusAdmin']);
-$routes->post('/deletevoucher/(:any)', 'Pages::deleteVoucher/$1', ['filter' => 'harusAdmin']);
-$routes->get('/actionaddvoucherapi/(:any)', 'Pages::actionAddVoucherAPI/$1', ['filter' => 'corsFilter']);
-$routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$1', ['filter' => 'harusAdmin']);
-$routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail/$1', ['filter' => 'corsFilter']);
+$routes->post('/actioneditvoucher/(:any)', 'Pages::actionEditVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/deletevoucher/(:any)', 'Pages::deleteVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
@@ -252,38 +248,38 @@ $routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdm
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);
-$routes->post('/editresi', 'Pages::editResi', ['filter' => 'harusAdmin']);
-$routes->post('/syncorder/(:segment)', 'Pages::syncPaidOrderToLuna/$1', ['filter' => 'harusAdmin']);
-$routes->post('/shippingadmin/subsidy', 'ShippingSubsidyAdmin::save', ['filter' => 'harusAdmin']);
+$routes->post('/editresi', 'Pages::editResi', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/syncorder/(:segment)', 'Pages::syncPaidOrderToLuna/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/shippingadmin/subsidy', 'ShippingSubsidyAdmin::save', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listproduct', 'Pages::listProduct', ['filter' => 'harusAdmin']);
 $routes->get('/listproduct/(:any)', 'Pages::listProduct/$1', ['filter' => 'harusAdmin']);
 $routes->get('/category-image/(:segment)', 'Pages::categoryImageFile/$1');
 $routes->get('/flashsaleadmin', 'Pages::flashSaleAdmin', ['filter' => 'harusAdmin']);
-$routes->post('/flashsaleadmin', 'Pages::actionFlashSaleAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/flashsaleadmin', 'Pages::actionFlashSaleAdmin', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/categoryimagesadmin', 'Pages::categoryImagesAdmin', ['filter' => 'harusAdmin']);
-$routes->post('/categoryimagesadmin', 'Pages::actionCategoryImagesAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/categoryimagesadmin', 'Pages::actionCategoryImagesAdmin', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/addproduct', 'Pages::addProduct', ['filter' => 'harusAdmin']);
-$routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => 'harusAdmin']);
+$routes->post('/addproduct', 'Pages::actionAddProduct', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/editproduct/(:any)', 'Pages::editProduct/$1', ['filter' => 'harusAdmin']);
-$routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => 'harusAdmin']);
-$routes->post('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => 'harusAdmin']);
+$routes->post('/editproduct/(:any)', 'Pages::actionEditProduct/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/delproduct/(:any)', 'Pages::delProduct/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listproducttable', 'Pages::listProductTable', ['filter' => 'harusAdmin']);
-$routes->post('/activeproduct/(:any)', 'Pages::activeProduct/$1', ['filter' => 'harusAdmin']);
+$routes->post('/activeproduct/(:any)', 'Pages::activeProduct/$1', ['filter' => ['harusAdmin', 'csrf']]);
 // $routes->post('/delproduct/(:any)', 'Pages::actionDelProduct/$1', ['filter' => 'harusAdmin']);
-$routes->post('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => 'harusAdmin']);
-$routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/orderdone/(:any)', 'Pages::orderDone/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/findproductadmin', 'Pages::actionFindProductAdmin', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/findproductadmin/(:any)', 'Pages::findProductAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/findproductadmin/(:any)/(:any)', 'Pages::findProductAdmin/$1/$2', ['filter' => 'harusAdmin']);
 
 $routes->get('/invoiceadmin', 'Pages::invoiceAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/invoiceadmin/(:any)', 'Pages::invoiceAdmin/$1', ['filter' => 'harusAdmin']);
 $routes->get('/addinvoiceadmin', 'Pages::addInvoiceAdmin', ['filter' => 'harusAdmin']);
-$routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter' => 'harusAdmin']);
+$routes->post('/actionaddinvoiceadmin', 'Pages::activeAddInvoiceAdmin', ['filter' => ['harusAdmin', 'csrf']]);
 
 $routes->get('/stokadmin', 'Pages::stokAdmin', ['filter' => 'harusAdmin']);
 $routes->get('/stokadmin/(:any)/(:any)', 'Pages::stokAdmin/$1/$2', ['filter' => 'harusAdmin']);
-$routes->post('/stokadmin/(:any)', 'Pages::addStokAdmin/$1', ['filter' => 'harusAdmin']);
-$routes->post('/stokadminacc/(:any)/(:any)', 'Pages::accStokAdmin/$1/$2', ['filter' => 'harusAdmin']);
+$routes->post('/stokadmin/(:any)', 'Pages::addStokAdmin/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/stokadminacc/(:any)/(:any)', 'Pages::accStokAdmin/$1/$2', ['filter' => ['harusAdmin', 'csrf']]);
 // $routes->get('/apicomp', 'ApiCompany::index', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/getallbarang/(:any)', 'ApiCompany::getAllBarang/$1', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/barang/(:any)', 'ApiCompany::barang/$1', ['filter' => 'corsFilter']);
@@ -293,14 +289,9 @@ $routes->post('/stokadminacc/(:any)/(:any)', 'Pages::accStokAdmin/$1/$2', ['filt
 // $routes->get('/apicomp/gambar/(:any)', 'ApiCompany::gambar/$1', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/getgambarbarang/(:any)', 'ApiCompany::getGambarBarang/$1', ['filter' => 'corsFilter']);
 // $routes->get('/apicomp/getgambar/(:any)/(:any)', 'ApiCompany::getGambar/$1/$2', ['filter' => 'corsFilter']);
-$routes->get('/olahdb/desk', 'ApiCompany::deskToLuna', ['filter' => 'corsFilter']);
-$routes->get('/isipath', 'ApiCompany::isiPath', ['filter' => 'corsFilter']);
-$routes->get('/benerinstokluna', 'Pages::benerinStokLuna', ['filter' => 'corsFilter']);
-$routes->get('/cobaws', 'Pages::cobaWs', ['filter' => 'corsFilter']);
-
-//API Automatic
-$routes->get('/apiauto/autoclaimingvoucher', 'Pages::autoClaimingVoucher', ['filter' => 'corsFilter']);
-$routes->get('/apiauto/schedule', 'Pages::scheduleVoucher', ['filter' => 'corsFilter']);
+// Legacy one-off data migrations and automation endpoints are intentionally not
+// exposed over HTTP. Run approved maintenance through authenticated CLI commands.
+$routes->get('/benerinstokluna', 'Pages::benerinStokLuna', ['filter' => 'harusAdmin']);
 
 // GambarController
 $routes->get('/imgshare/(:any)', 'GambarController::tampilGambarShare/$1');
@@ -323,10 +314,10 @@ $routes->get('/article/(:any)', 'Pages::article/$1');
 $routes->post('/addlikearticle/(:any)', 'Pages::addLikeArticle/$1');
 $routes->post('/addsharearticle/(:any)', 'Pages::addShareArticle/$1');
 $routes->get('/addarticle', 'Pages::addArticle', ['filter' => 'harusAdmin']);
-$routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => 'harusAdmin']);
-$routes->post('/delarticle/(:any)', 'Pages::actionDeleteArticle/$1', ['filter' => 'harusAdmin']);
+$routes->post('/addarticle', 'Pages::actionAddArticle', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/delarticle/(:any)', 'Pages::actionDeleteArticle/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/editarticle/(:any)', 'Pages::editArticle/$1', ['filter' => 'harusAdmin']);
-$routes->post('/editarticle/(:any)', 'Pages::actionEditArticle/$1', ['filter' => 'harusAdmin']);
+$routes->post('/editarticle/(:any)', 'Pages::actionEditArticle/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
 $routes->post('/addkomen/(:any)', 'Pages::addKomen/$1');
 $routes->post('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2');
@@ -337,33 +328,14 @@ $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'c
 // $routes->post('/closegreeting', 'TrackingController::closeGreeting', ['filter' => 'corsFilter']);
 // $routes->post('/trackpop', 'TrackingController::trackPop', ['filter' => 'corsFilter']);
 
-// CopyGambarController
-$routes->get('/copygambar', 'CopyGambarController::copyGambar');
-
-//benerin format data
-$routes->get('/fixisiartikel', 'Pages::fixIsiArtikel');
-$routes->get('/fixkurir', 'Pages::fixKurir');
-$routes->get('/isigambarartikel', 'Pages::isiGambarArtikel');
-$routes->get('/gantiukuran/(:any)', 'Pages::gantiUkuran/$1');
-$routes->get('/gantiukuranartikel', 'Pages::gantiUkuranArtikel');
-$routes->get('/isitier/(:any)', 'Pages::isitier/$1');
-$routes->get('/cobaenv', 'Pages::cobaenv');
-
 //API SHEET
 $routes->post('/sheet/updatestok', 'ApiSheet::updateStok', ['filter' => 'corsFilter']);
 $routes->post('/integrations/luna-product-sync', 'ProductSyncController::syncFromLuna', ['filter' => 'corsFilter']);
 
 $routes->get('/cekdouble', 'Pages::cekDouble');
 
-// nyolong data
-$routes->get('/ro', 'NyolongController::index');
-$routes->get('/ro/provinsi', 'NyolongController::provinsi');
-$routes->get('/ro/get-provinsi', 'NyolongController::getProvinsi');
-$routes->get('/ro/kabupaten/(:any)', 'NyolongController::kabupaten/$1');
-$routes->get('/ro/get-kabupaten', 'NyolongController::getKabupaten');
-$routes->get('/ro/kecamatan/(:any)', 'NyolongController::kecamatan/$1');
-$routes->get('/ro/get-kecamatan/(:any)', 'NyolongController::getKecamatan/$1');
-$routes->post('/ro/kelurahan/(:any)', 'NyolongController::kelurahan/$1');
+// The legacy /ro address-data importer has been retired; it performed bulk
+// writes and used third-party credentials from a browser-accessible tool.
 
 
 $routes->get('(:any)', 'Pages::notFound');

@@ -1,0 +1,52 @@
+Security hardening verification — 2026-10-22
+Workspace: C:\xampp\htdocs\jasmine-shop
+Baseline tracked HEAD: f490be8 (before this security change)
+
+BASELINE
+Command: .\vendor\bin\phpunit
+Input: unchanged tracked source at f490be8; pre-existing repository tests.
+Literal result recorded before edits: Tests: 744, Assertions: 3443, Failures: 1, Skipped: 5.
+Exit status: 1.
+Existing failure: BuyerFooterTest::testCompactAndMinimalKeepHelpAndPolicyWithoutMarketing.
+
+MODIFIED — security-specific tests
+Command: .\vendor\bin\phpunit tests/unit/SecurityHardeningSurfaceTest.php
+Input: route source, controller source, shipping TLS/key configuration, voucher broadcast view.
+Literal output:
+PHPUnit 9.6.22 by Sebastian Bergmann and contributors.
+Warning: No code coverage driver available
+.... 4 / 4 (100%)
+OK (4 tests, 68 assertions)
+Exit status: 0.
+
+MODIFIED — complete suite
+Command: .\vendor\bin\phpunit
+Input: modified workspace, including 4 new security-surface tests.
+Literal result: Tests: 748, Assertions: 3511, Failures: 1, Skipped: 5.
+Exit status: 1.
+Only failure: BuyerFooterTest::testCompactAndMinimalKeepHelpAndPolicyWithoutMarketing (same unrelated footer issue as baseline).
+
+MODIFIED — syntax and whitespace checks
+Commands: php -l app/Config/Routes.php; php -l app/Controllers/Pages.php; php -l app/Controllers/ApiCompany.php; php -l app/Controllers/CopyGambarController.php; php -l app/Controllers/NyolongController.php; php -l app/Views/pages/listVoucher.php; git -c core.whitespace=cr-at-eol diff --check.
+Result: PHP syntax checks passed; diff whitespace check passed when treating CRLF as line endings.
+Exit status: 0 for each command.
+
+ROLLBACK COPY TEST
+Input: copy of each modified tracked file plus new test, stored temporarily under workspace; reverse-applied DIFF_FILE.patch with whitespace-tolerant matching.
+Command: git apply --reverse --ignore-whitespace --check DIFF_FILE.patch; then git apply --reverse --ignore-whitespace DIFF_FILE.patch (in temporary copy).
+Literal result: ROLLBACK_COPY_OK: 14 files byte-identical; Pages.php content restored (EOL-only normalization); new test removed.
+Exit status: 0.
+Restored behavior/status: tracked source in the temporary rollback copy matches original HEAD content; Pages.php differs only by line-ending normalization. The actual working source remains modified.
+
+CHANGES VERIFIED
+- Removed the credential-dumping /cobaenv endpoint and method.
+- Retired unauthenticated legacy bulk mutation/import routes; made corresponding maintenance methods non-public.
+- Removed unused voucher-data endpoint that returned full voucher records.
+- Added CSRF to admin POST actions and matching forms; secured voucher email broadcast with admin authorization and rotating token response.
+- Removed unused legacy address/shipping/debug routes and stopped exposing their actions; replaced embedded shipping provider credentials in source with environment lookups and enabled TLS certificate/hostname verification for cURL calls.
+- Android source was inspected; no Android file was changed in this patch.
+
+PRODUCTION ACTIONS NOT PERFORMED
+- Rotate provider credentials that were previously present in tracked source, and rotate the Midtrans production server key because the removed endpoint could reveal it if that route was reachable. Update server .env outside version control. Never paste secret values into chat/logs.
+- Restrict inbound MySQL (3306/33060) and OpenLiteSpeed admin (7080) to localhost or trusted admin IPs; disable root SSH password login only after a second key-authenticated session is confirmed; enable fail2ban. The server configuration was not changed by this local workspace patch.
+- Manually test admin forms, voucher email broadcast, checkout shipping, and existing maintenance/cron behavior before deploying.

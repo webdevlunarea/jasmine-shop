@@ -4,6 +4,7 @@
     <div style="background-color: white;" class="p-4 rounded-3">
         <h5 class="mb-2">Tambah kode</h5>
         <form action="/redeemcode" method="post">
+            <?= csrf_field(); ?>
             <div class="mb-1">
                 <label>Voucher</label>
                 <select name="voucher" class="form-select">

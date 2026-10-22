@@ -5,6 +5,7 @@
     <div class="bg-light p-4 rounded">
         <h5 class="mb-2">Tambah Mutasi</h5>
         <form action="" method="post" id="form-mutasi">
+            <?= csrf_field(); ?>
             <div class="mb-2">
                 <label>Jenis</label>
                 <select name="jenis" class="form-select">

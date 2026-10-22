@@ -90,7 +90,7 @@ final class BuyerInvoiceTest extends CIUnitTestCase
         $this->assertStringNotContainsString('https://', $html);
         $source = file_get_contents(APPPATH . 'Controllers/Pages.php');
         $start = strpos($source, 'public function invoice($id_mid)');
-        $end = strpos($source, 'public function fixIsiArtikel()', $start);
+        $end = strpos($source, 'private function fixIsiArtikel()', $start);
         $method = substr($source, $start, $end-$start);
         $this->assertStringContainsString('attachment; filename=', $method);
         $this->assertStringContainsString('private, no-store', $method);

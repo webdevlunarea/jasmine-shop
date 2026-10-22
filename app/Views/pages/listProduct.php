@@ -11,6 +11,7 @@
             Data utama produk seperti nama, harga, stok, varian, kategori, status aktif, berat, dan dimensi dikelola dari Luna Sistem. Admin website hanya untuk foto produk.
         </div>
         <form action="/findproductadmin" method="post" class="admin-module-search">
+            <?= csrf_field(); ?>
             <div class="mb-2 d-flex gap-3 align-items-center">
                 <label class="form-label m-0" for="admin-product-search">Cari produk</label>
                 <input type="search" id="admin-product-search" class="form-control" name="cari" value="<?= esc($cari ? str_replace('-', ' ', $cari) : ''); ?>"><button type="submit" class="btn btn-primary1">Cari</button>
