@@ -3,6 +3,7 @@ package com.lunareafurniture.lunarea.data.api
 import android.content.Context
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -56,8 +57,13 @@ class AuthRepository(context: Context) {
         val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
         val credentialResponse = try {
             CredentialManager.create(activity).getCredential(activity, request)
-        } catch (_: GetCredentialCancellationException) {
-            throw IllegalStateException("Proses masuk Google dibatalkan.")
+        } catch (error: GetCredentialCancellationException) {
+            // Credential Manager can report cancellation both when the user closes
+            // the chooser and when Google Play services cannot complete its account
+            // hand-off. Record only exception types (never account/token data) so
+            // the two cases can be diagnosed from device logs without exposing PII.
+            Log.w("LunareaGoogleAuth", "Credential Manager ended Google sign-in: ${error.javaClass.simpleName}; cause=${error.cause?.javaClass?.simpleName ?: "none"}")
+            throw IllegalStateException("Google belum menyelesaikan proses masuk. Coba lagi atau pilih metode masuk lain.")
         } catch (_: NoCredentialException) {
             throw IllegalStateException("Akun Google belum tersedia di perangkat ini. Tambahkan akun Google lalu coba lagi.")
         }

@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.Lunarea.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/lunarea_splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_white</item>
+        <item name="windowSplashScreenAnimationDuration">1</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lunarea</item>
+    </style>
+</resources>

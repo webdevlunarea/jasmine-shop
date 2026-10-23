@@ -440,6 +440,54 @@ class AuthController extends ApiController
         return $this->success(['logged_out' => true]);
     }
 
+    public function requestAccountDeletion()
+    {
+        $email = $this->authEmail();
+        if ($email === '' || !$this->allowAuthAttempt('account-deletion', $email, 2, 86400)) {
+            return $this->failure('RATE_LIMITED', 'Permintaan belum dapat diproses. Coba lagi besok.', 429);
+        }
+        $db = db_connect();
+        try {
+            if (!$db->tableExists('customer_account_deletion_requests')) {
+                return $this->failure('FEATURE_NOT_READY', 'Layanan penghapusan akun sedang disiapkan. Coba lagi nanti.', 503);
+            }
+            $pending = $db->table('customer_account_deletion_requests')
+                ->where('email_user', $email)->whereIn('status', ['pending', 'processing'])
+                ->countAllResults();
+            if ($pending === 0) {
+                $now = date('Y-m-d H:i:s');
+                if (!$db->table('customer_account_deletion_requests')->insert([
+                    'email_user' => $email,
+                    'status' => 'pending',
+                    'requested_at' => $now,
+                    'processed_at' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ])) {
+                    throw new \RuntimeException('Request insert failed.');
+                }
+            }
+            // Retain this response only after the request has been durably recorded.
+            // Revoke this app session and all other known sessions to prevent further use.
+            $tokens = new \App\Services\Auth\CustomerApiTokens();
+            $token = preg_replace('/^Bearer\\s+/i', '', trim($this->request->getHeaderLine('Authorization')));
+            $tokens->revokeOtherSessionsForAccess((string) $token);
+            $tokens->revokeFamilyForAccess((string) $token);
+            if ($db->tableExists('customer_push_devices')) {
+                $db->table('customer_push_devices')->where('email_user', $email)->update(['is_active' => 0]);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer account deletion request failed: ' . get_class($e));
+            return $this->failure('DELETION_REQUEST_UNAVAILABLE', 'Permintaan penghapusan belum tersimpan. Coba lagi nanti.', 503);
+        }
+        return $this->success([
+            'requested' => true,
+            'message' => $pending > 0
+                ? 'Permintaan penghapusan akun Anda sedang diproses. Anda telah keluar dari semua perangkat.'
+                : 'Permintaan penghapusan akun diterima. Anda telah keluar dari semua perangkat. Tim Lunarea akan meninjau data pesanan yang wajib disimpan sebelum menyelesaikan penghapusan.',
+        ], [], 202);
+    }
+
     public function revokeOtherSessions()
     {
         $email = $this->authEmail();

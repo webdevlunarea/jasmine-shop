@@ -11,6 +11,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.content.pm.PackageManager
@@ -26,6 +27,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -50,6 +52,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.layout.onSizeChanged
@@ -98,6 +101,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -128,12 +132,16 @@ import com.lunareafurniture.lunarea.ui.theme.LunareaTheme
 import com.lunareafurniture.lunarea.ui.theme.lunareaResponsiveFontSize
 import com.lunareafurniture.lunarea.ui.theme.LunareaGreenText
 import com.lunareafurniture.lunarea.ui.theme.LunareaSpacing
+import com.lunareafurniture.lunarea.ui.theme.recolorDarkWordmark
 import com.lunareafurniture.lunarea.ui.splash.LunareaStartup
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import java.time.Instant
 import kotlinx.coroutines.withContext
@@ -382,6 +390,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var notificationMessage by remember { mutableStateOf<String?>(null) }
     var authPromptMessage by remember { mutableStateOf<String?>(null) }
     var notificationsEnabled by remember { mutableStateOf(PushDeviceRegistration(context).isRegistered()) }
+    var notificationPermissionGranted by remember { mutableStateOf(PushDeviceRegistration(context).notificationsAllowed()) }
     var showNotificationIntro by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
     var showMfaLogin by remember { mutableStateOf(false) }
@@ -602,6 +611,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     }
 
     val requestNotificationPermission = rememberNotificationPermissionRequester { granted ->
+        notificationPermissionGranted = granted
         if (granted) {
             if (signedIn) {
                 scope.launch {
@@ -609,15 +619,15 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                     val result = registration.enableAndRegister()
                     notificationsEnabled = registration.isRegistered()
                     if (result.isFailure) PushDeviceRegistration.enqueueRetry(context)
-                    notificationMessage = if (result.isSuccess && result.getOrNull() == true) "Notifikasi pesanan telah diaktifkan." else result.exceptionOrNull()?.message ?: "Notifikasi belum dapat diaktifkan."
+                    notificationMessage = if (result.isSuccess && result.getOrNull() == true) "Notifikasi pesanan aktif." else result.exceptionOrNull()?.message ?: "Notifikasi belum aktif. Coba lagi."
                 }
             } else {
                 val registration = PushDeviceRegistration(context)
                 registration.rememberPermissionConsent()
                 notificationsEnabled = registration.isRegistered()
-                notificationMessage = "Izin notifikasi sudah diberikan. Masuk ke akun lalu aktifkan pemberitahuan pesanan."
+                notificationMessage = "Izin sudah aktif. Masuk untuk menerima kabar pesanan."
             }
-        } else notificationMessage = "Izin notifikasi belum diberikan."
+        } else notificationMessage = "Izin notifikasi belum aktif."
     }
 
     LaunchedEffect(Unit) {
@@ -649,11 +659,11 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                             Text("LUNAREA · KABAR PESANAN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = .6.sp)
-                            Text("Tetap terhubung", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                            Text("Aktifkan notifikasi pesanan", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                         }
                     }
-                    Text("Aktifkan notifikasi untuk menerima pembaruan status pesanan dan pengiriman.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Izin ini dapat diubah kapan saja melalui pengaturan perangkat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Terima kabar saat pembayaran atau pengiriman pesanan diperbarui.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Anda bisa mengubah izin ini kapan saja di setelan perangkat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f))
                     Button(
                         onClick = { showNotificationIntro = false; requestNotificationPermission() },
@@ -718,17 +728,17 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
         AlertDialog(
             onDismissRequest = { showLogoutConfirmation = false },
             icon = {
-                Surface(shape = CircleShape, color = Color(0xFFF3E5DF), modifier = Modifier.size(52.dp)) {
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(52.dp)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(painterResource(R.drawable.ic_logout), contentDescription = null, tint = Color(0xFFA65A50), modifier = Modifier.size(23.dp))
+                        Icon(painterResource(R.drawable.ic_logout), contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(23.dp))
                     }
                 }
             },
-            title = { Text("Keluar dari akun?", color = Color(0xFF262B27), fontWeight = FontWeight.SemiBold) },
+            title = { Text("Keluar dari akun?", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold) },
             text = {
                 Text(
                     "Anda akan keluar dari akun Lunarea di perangkat ini. Masuk kembali untuk melihat pesanan dan informasi akun.",
-                    color = Color(0xFF6B716D),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
@@ -762,7 +772,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                     }
                 },
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA65A50), contentColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = MaterialTheme.colorScheme.onSecondary),
                     contentPadding = PaddingValues(horizontal = 18.dp, vertical = 11.dp)
                 ) { Text("Ya, Keluar", fontWeight = FontWeight.SemiBold) }
             },
@@ -770,13 +780,13 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 OutlinedButton(
                     onClick = { showLogoutConfirmation = false },
                     shape = RoundedCornerShape(14.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD8D2CA)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF414741)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
                     contentPadding = PaddingValues(horizontal = 18.dp, vertical = 11.dp)
                 ) { Text("Batal", fontWeight = FontWeight.Medium) }
             },
             shape = RoundedCornerShape(24.dp),
-            containerColor = Color(0xFFFAF9F6),
+            containerColor = MaterialTheme.colorScheme.surface,
             tonalElevation = 2.dp
         )
     }
@@ -817,6 +827,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
         if (signedIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             registration.notificationsAllowed() && !registration.isExplicitlyDisabled()
         ) {
+            notificationPermissionGranted = true
             // Also repairs installs that granted Android permission in an earlier app build
             // but never completed server-side device registration.
             registration.rememberPermissionConsent()
@@ -1042,6 +1053,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 cachedDisplayName = cachedAccountDisplayName,
                 cachedPhotoUrl = cachedAccountPhotoUrl,
                 profileCached = accountProfileCached,
+                notificationPermissionGranted = notificationPermissionGranted,
                 onProfileLoaded = { name, photo -> cachedAccountDisplayName = name; cachedAccountPhotoUrl = photo; accountProfileCached = true },
                 identifier = identifier, password = password,
                 onIdentifier = { identifier = it }, onPassword = { password = it },
@@ -1344,12 +1356,7 @@ private fun NotificationInboxScreen(
 @Composable
 private fun AuthFlowHeader(title: String, subtitle: String, onBack: () -> Unit, showBack: Boolean = true) {
     Column(verticalArrangement = Arrangement.spacedBy(LunareaSpacing.xs)) {
-        Image(
-            painter = painterResource(R.drawable.logo_lunarea),
-            contentDescription = "Lunarea Furniture",
-            modifier = Modifier.width(136.dp).height(16.dp),
-            contentScale = ContentScale.Fit
-        )
+        LunareaHeaderWordmark(Modifier.width(136.dp).height(16.dp))
         if (showBack) {
             TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)) {
                 Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = null, modifier = Modifier.size(18.dp))
@@ -1359,6 +1366,47 @@ private fun AuthFlowHeader(title: String, subtitle: String, onBack: () -> Unit, 
         }
         Text(title, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
         Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun LunareaHeaderWordmark(modifier: Modifier) {
+    val context = LocalContext.current
+    val isDarkTheme = isSystemInDarkTheme()
+    var darkLogo by remember(isDarkTheme) { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(context, isDarkTheme) {
+        if (!isDarkTheme) return@LaunchedEffect
+        try {
+            val request = ImageRequest.Builder(context)
+                .data(R.drawable.logo_lunarea)
+                .size(960, 102)
+                .allowHardware(false)
+                .build()
+            val result = context.imageLoader.execute(request)
+            val drawable = result.drawable as? BitmapDrawable ?: return@LaunchedEffect
+            val bitmap = drawable.toBitmap(width = 960, height = 102)
+            darkLogo = withContext(Dispatchers.Default) {
+                // Keep the red brand mark untouched and make any dark pixels inside
+                // its N glyph white, matching the official Lunarea logo.
+                recolorDarkWordmark(bitmap, preserveMarkInterior = false).asImageBitmap()
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // Keep the rest of the header usable if the local logo asset cannot be decoded.
+        }
+    }
+
+    if (isDarkTheme) {
+        darkLogo?.let { Image(bitmap = it, contentDescription = "Lunarea Furniture", modifier = modifier, contentScale = ContentScale.Fit) }
+    } else {
+        Image(
+            painter = painterResource(R.drawable.logo_lunarea),
+            contentDescription = "Lunarea Furniture",
+            modifier = modifier,
+            contentScale = ContentScale.Fit
+        )
     }
 }
 
@@ -4226,6 +4274,7 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var confirmRevokeOtherSessions by remember { mutableStateOf(false) }
+    var confirmAccountDeletion by remember { mutableStateOf(false) }
     var activeSessions by remember { mutableStateOf<List<CustomerSession>>(emptyList()) }
     var sessionsLoading by remember { mutableStateOf(true) }
     var sessionsError by remember { mutableStateOf<String?>(null) }
@@ -4373,8 +4422,51 @@ private fun SecurityScreen(modifier: Modifier, onBack: () -> Unit, onSessionEnde
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             shape = MaterialTheme.shapes.medium
         ) { Text("Keluarkan semua sesi lain") }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Text("Hapus akun", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            "Ajukan penghapusan akun dan data terkait. Informasi transaksi yang wajib disimpan dapat dipertahankan sesuai ketentuan yang berlaku.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        TextButton(
+            enabled = !busy,
+            onClick = { confirmAccountDeletion = true },
+            modifier = Modifier.heightIn(min = 48.dp)
+        ) { Text("Ajukan penghapusan akun", color = MaterialTheme.colorScheme.error) }
         if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         message?.let { Text(it, color = LunareaGreenText, fontSize = lunareaResponsiveFontSize(13.sp)) }
+    }
+    if (confirmAccountDeletion) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) confirmAccountDeletion = false },
+            title = { Text("Ajukan penghapusan akun?") },
+            text = { Text("Permintaan akan dikirim ke Lunarea dan Anda akan keluar dari semua perangkat. Data transaksi tertentu dapat tetap disimpan jika diwajibkan. Penghapusan tidak dapat dibatalkan setelah diproses.") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    confirmAccountDeletion = false
+                    scope.launch {
+                        busy = true
+                        try {
+                            val response = ApiClient.get(context).requestAccountDeletion()
+                            val body = response.body()
+                            if (response.isSuccessful && body?.success == true) {
+                                auth.clearLocalSession()
+                                Toast.makeText(
+                                    context,
+                                    "Permintaan penghapusan akun diterima. Anda telah keluar dari semua perangkat.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                onSessionEnded()
+                            } else message = body?.error?.message ?: "Permintaan penghapusan belum berhasil. Coba lagi nanti."
+                        } catch (_: Exception) {
+                            message = "Koneksi belum tersedia. Permintaan penghapusan belum terkirim."
+                        } finally { busy = false }
+                    }
+                }) { Text("Ya, ajukan", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(enabled = !busy, onClick = { confirmAccountDeletion = false }) { Text("Batal") } }
+        )
     }
     if (confirmRevokeOtherSessions) {
         AlertDialog(
@@ -5553,12 +5645,7 @@ private fun CatalogScreen(
       Column(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 18.dp, vertical = 10.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(R.drawable.logo_lunarea),
-                    contentDescription = "Lunarea Furniture",
-                    modifier = Modifier.width(126.dp).height(16.dp),
-                    contentScale = ContentScale.Fit
-                )
+                LunareaHeaderWordmark(Modifier.width(126.dp).height(16.dp))
                 Spacer(Modifier.weight(1f))
                 if (!searchExpanded) {
                     IconButton(
@@ -6064,12 +6151,7 @@ private fun ProductDetailScreen(
                                 }
                             )
                         }
-                    } else Image(
-                        painter = painterResource(R.drawable.logo_lunarea),
-                        contentDescription = "Lunarea Furniture",
-                        modifier = Modifier.width(150.dp).height(18.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    } else LunareaHeaderWordmark(Modifier.width(150.dp).height(18.dp))
                     }
                 if (availableGallery.isNotEmpty()) Text(
                     "Foto ${pagerState.currentPage + 1} dari ${availableGallery.size}",
@@ -7070,6 +7152,7 @@ private fun tierBadgeResource(tierKey: String): Int = when (tierKey.lowercase())
 private fun AccountScreen(
     modifier: Modifier, signedIn: Boolean, busy: Boolean, identifier: String, password: String,
     cachedDisplayName: String, cachedPhotoUrl: String?, profileCached: Boolean, onProfileLoaded: (String, String?) -> Unit,
+    notificationPermissionGranted: Boolean,
     onIdentifier: (String) -> Unit, onPassword: (String) -> Unit, onLogin: () -> Unit, onGoogleLogin: () -> Unit, onLogout: () -> Unit,
     onEnableNotifications: () -> Unit, notificationsEnabled: Boolean, onDisableNotifications: () -> Unit,
     onOpenOrders: () -> Unit, onOpenFavorites: () -> Unit, onOpenAddresses: () -> Unit,
@@ -7224,7 +7307,8 @@ private fun AccountScreen(
                         )
                         Text(
                             if (notificationsEnabled) "Aktif di perangkat ini · ketuk untuk mengatur"
-                            else "Belum aktif · ketuk untuk menerima kabar pesanan",
+                            else if (!notificationPermissionGranted) "Izin belum diberikan · ketuk untuk mengaktifkan"
+                            else "Belum aktif · ketuk untuk mencoba lagi",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                             lineHeight = 17.sp
@@ -7248,13 +7332,17 @@ private fun AccountScreen(
                     ) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                             Text(
-                                "Jangan lewatkan kabar pesanan",
+                                if (!notificationPermissionGranted) "Izinkan notifikasi pesanan"
+                                else "Aktifkan notifikasi pesanan",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "Aktifkan notifikasi agar pembaruan pembayaran dan pengiriman lebih mudah diketahui. Anda tetap dapat memeriksa status kapan saja di menu Pesanan saya.",
+                                if (!notificationPermissionGranted)
+                                    "Izinkan notifikasi agar Anda menerima kabar pembayaran dan pengiriman."
+                                else
+                                    "Notifikasi belum siap. Coba lagi agar Anda menerima kabar pembayaran dan pengiriman.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 18.sp
@@ -7262,7 +7350,12 @@ private fun AccountScreen(
                             TextButton(
                                 onClick = onEnableNotifications,
                                 modifier = Modifier.align(Alignment.End).heightIn(min = 44.dp)
-                            ) { Text("Aktifkan sekarang", fontWeight = FontWeight.SemiBold) }
+                            ) {
+                                Text(
+                                    if (!notificationPermissionGranted) "Izinkan" else "Coba lagi",
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 }

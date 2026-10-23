@@ -3,9 +3,11 @@ package com.lunareafurniture.lunarea.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -16,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 private val LunareaColors = lightColorScheme(
-    // Use the accessible deeper brand tone for filled controls; official #03AC0E remains
-    // available for decorative brand accents where contrast is not carrying text.
-    primary = LunareaGreenText,
+    primary = LunareaGreen,
     onPrimary = LunareaWhite,
     primaryContainer = LunareaSoftOne,
     onPrimaryContainer = LunareaInk,
@@ -26,7 +26,7 @@ private val LunareaColors = lightColorScheme(
     onSecondary = LunareaWhite,
     secondaryContainer = LunareaSoftTwo,
     onSecondaryContainer = LunareaInk,
-    tertiary = LunareaGreenText,
+    tertiary = LunareaGreen,
     onTertiary = LunareaWhite,
     background = LunareaBackground,
     onBackground = LunareaInk,
@@ -36,6 +36,31 @@ private val LunareaColors = lightColorScheme(
     onSurfaceVariant = LunareaTextSecondary,
     outline = LunareaSoftTwo,
     outlineVariant = LunareaSoftTwo.copy(alpha = 0.72f)
+)
+
+private val LunareaDarkColors = darkColorScheme(
+    primary = LunareaDarkGreen,
+    onPrimary = LunareaDarkOnPrimary,
+    primaryContainer = LunareaDarkSoftOne,
+    onPrimaryContainer = LunareaDarkOnSurface,
+    secondary = LunareaDarkSecondary,
+    onSecondary = LunareaDarkOnPrimary,
+    secondaryContainer = LunareaDarkSoftTwo,
+    onSecondaryContainer = LunareaDarkOnSurface,
+    tertiary = LunareaDarkGreen,
+    onTertiary = LunareaDarkOnPrimary,
+    background = LunareaDarkBackground,
+    onBackground = LunareaDarkOnSurface,
+    surface = LunareaDarkSurface,
+    onSurface = LunareaDarkOnSurface,
+    surfaceVariant = LunareaDarkSoftOne,
+    onSurfaceVariant = LunareaDarkTextSecondary,
+    outline = LunareaDarkOutline,
+    outlineVariant = LunareaDarkOutline,
+    error = LunareaDarkError,
+    onError = LunareaDarkOnPrimary,
+    errorContainer = Color(0xFF5A2F2B),
+    onErrorContainer = Color(0xFFFFDAD5)
 )
 
 private val LunareaTypography = Typography(
@@ -64,10 +89,16 @@ private val LunareaShapes = Shapes(
 
 @Composable
 fun LunareaTheme(content: @Composable () -> Unit) {
+    val isDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val fontScale = responsiveFontScale(screenWidth)
     val typography = remember(fontScale) { scaleTypography(LunareaTypography, fontScale) }
-    MaterialTheme(colorScheme = LunareaColors, typography = typography, shapes = LunareaShapes, content = content)
+    MaterialTheme(
+        colorScheme = if (isDarkTheme) LunareaDarkColors else LunareaColors,
+        typography = typography,
+        shapes = LunareaShapes,
+        content = content
+    )
 }
 
 /** Scale presentation typography by available width while retaining system font scaling. */

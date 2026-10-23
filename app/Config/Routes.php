@@ -36,6 +36,7 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
 
     $routes->group('', ['filter' => 'apiCustomer'], static function ($routes) {
         $routes->post('auth/logout', 'Api\\V1\\AuthController::logout');
+        $routes->post('auth/account-deletion/request', 'Api\\V1\\AuthController::requestAccountDeletion');
         $routes->get('auth/sessions', 'Api\\V1\\AuthController::sessions');
         $routes->post('auth/sessions/(:segment)/revoke', 'Api\\V1\\AuthController::revokeSession/$1');
         $routes->post('auth/sessions/revoke-others', 'Api\\V1\\AuthController::revokeOtherSessions');
@@ -91,6 +92,7 @@ $routes->get('/search/suggest', 'Pages::searchSuggest');
 $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
 $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
+$routes->get('/hapus-akun', 'Pages::hapusAkun');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 $routes->get('/faq', 'Pages::faq');
 $routes->match(['get', 'post'], '/lacak-pengiriman', 'Pages::lacakPengiriman');
@@ -246,6 +248,7 @@ $routes->post('/notificationtestadmin/broadcast', 'PushNotificationAdmin::sendBr
 $routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/domain/remove', 'CustomerModerationAdmin::removeDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdmin::deleteExpiredUnverified', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customeradmin/account-deletion/complete', 'CustomerModerationAdmin::completeDeletionRequest', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);

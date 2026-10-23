@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -45,15 +47,17 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lunareafurniture.lunarea.R
+import com.lunareafurniture.lunarea.ui.theme.recolorDarkWordmark
 import coil.imageLoader
 import coil.request.ImageRequest
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
-private val LunareaWarmIvory = Color(0xFFFAF9F6)
 private const val LogoAspectRatio = 9.407f
 
 /** Keeps the app tree alive underneath the brand reveal so startup work can proceed. */
@@ -72,10 +76,10 @@ fun LunareaStartup(content: @Composable (startupComplete: Boolean) -> Unit) {
         }
     }
 }
-
 @Composable
 private fun LunareaBrandSplash(onFinished: () -> Unit) {
     val context = LocalContext.current
+    val isDarkTheme = isSystemInDarkTheme()
     val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
     val markAlpha = remember { Animatable(0f) }
     val markScale = remember { Animatable(0.92f) }
@@ -84,11 +88,12 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
     val taglineOffset = remember { Animatable(5f) }
     val overlayAlpha = remember { Animatable(1f) }
     var logo by remember { mutableStateOf<ImageBitmap?>(null) }
+    var ilenaLogo by remember { mutableStateOf<ImageBitmap?>(null) }
     var logoLoadFailed by remember { mutableStateOf(false) }
 
     // Decode a display-sized copy off the main thread instead of synchronously
     // decoding the 4713px source bitmap during first composition.
-    LaunchedEffect(context) {
+    LaunchedEffect(context, isDarkTheme) {
         val request = ImageRequest.Builder(context)
             .data(R.drawable.logo_lunarea)
             .size(960, 102)
@@ -98,7 +103,23 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
             val result = context.imageLoader.execute(request)
             val drawable = result.drawable as? BitmapDrawable
                 ?: error("Logo drawable was not a bitmap")
-            logo = drawable.toBitmap(width = 960, height = 102).asImageBitmap()
+            val brandBitmap = drawable.toBitmap(width = 960, height = 102)
+            logo = withContext(Dispatchers.Default) {
+                if (isDarkTheme) recolorDarkWordmark(brandBitmap, preserveMarkInterior = false) else brandBitmap
+            }.asImageBitmap()
+
+            val ilenaRequest = ImageRequest.Builder(context)
+                .data(R.drawable.ilena_wordmark)
+                .size(510, 72)
+                .allowHardware(false)
+                .build()
+            val ilenaResult = context.imageLoader.execute(ilenaRequest)
+            val ilenaDrawable = ilenaResult.drawable as? BitmapDrawable
+                ?: error("Ilena wordmark drawable was not a bitmap")
+            val ilenaBitmap = ilenaDrawable.toBitmap(width = 510, height = 72)
+            ilenaLogo = withContext(Dispatchers.Default) {
+                if (isDarkTheme) recolorDarkWordmark(ilenaBitmap, preserveMarkInterior = true) else ilenaBitmap
+            }.asImageBitmap()
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
@@ -107,7 +128,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
         }
     }
 
-    LaunchedEffect(animationsEnabled, logo, logoLoadFailed) {
+    LaunchedEffect(animationsEnabled, logo, ilenaLogo, logoLoadFailed) {
         if (!animationsEnabled) {
             onFinished()
             return@LaunchedEffect
@@ -116,7 +137,9 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
             onFinished()
             return@LaunchedEffect
         }
-        if (logo == null) return@LaunchedEffect
+        // Start the branded reveal only after both wordmarks are ready so the
+        // PART OF endorsement never appears without its matching Ilena logo.
+        if (logo == null || ilenaLogo == null) return@LaunchedEffect
 
         // Phase 1: the original N mark, cropped directly from the supplied logo.
         coroutineScope {
@@ -150,7 +173,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LunareaWarmIvory)
+            .background(MaterialTheme.colorScheme.background)
             .graphicsLayer { alpha = overlayAlpha.value }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
@@ -181,7 +204,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                         alpha = taglineAlpha.value
                         translationY = taglineOffset.value * density
                     },
-                    color = Color(0xFF6B716D),
+                    color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 11.sp,
                     letterSpacing = 0.65.sp,
@@ -189,27 +212,31 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                 )
             }
         }
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 28.dp)
-                .graphicsLayer { alpha = overlayAlpha.value },
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "PART OF",
-                color = Color(0xFF6B716D),
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 10.sp,
-                letterSpacing = 1.1.sp
-            )
-            Image(
-                painter = painterResource(R.drawable.ilena_wordmark),
-                contentDescription = "Ilena",
-                modifier = Modifier.width(74.dp).height(24.dp),
-                contentScale = ContentScale.Fit
-            )
+        if (ilenaLogo != null) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 28.dp)
+                    .graphicsLayer { alpha = overlayAlpha.value },
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "PART OF",
+                    color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 10.sp,
+                    letterSpacing = 1.1.sp
+                )
+                ilenaLogo?.let { image ->
+                    Image(
+                        bitmap = image,
+                        contentDescription = "Ilena",
+                        modifier = Modifier.width(74.dp).height(24.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
         }
     }
 }
@@ -234,7 +261,7 @@ private fun WhiteBrandMark(alpha: Float, scale: Float) {
 /** Reveals the supplied wordmark as equal-width slices, preserving original pixels and proportions. */
 @Composable
 private fun OriginalWordmark(logo: ImageBitmap, progress: Float) {
-    Canvas(Modifier.fillMaxSize().aspectRatio(LogoAspectRatio)) {
+    Canvas(Modifier.fillMaxWidth(0.96f).aspectRatio(LogoAspectRatio)) {
         val scale = size.width / logo.width
         val imageHeight = (logo.height * scale).roundToInt()
         val top = ((size.height - imageHeight) / 2f).roundToInt()

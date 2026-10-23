@@ -26,8 +26,13 @@ class CustomerModerationAdmin extends BaseController
         unset($user);
         $domains = $db->tableExists('customer_blocked_email_domains')
             ? $db->table('customer_blocked_email_domains')->orderBy('domain')->get()->getResultArray() : [];
+        $deletionRequests = $db->tableExists('customer_account_deletion_requests')
+            ? $db->table('customer_account_deletion_requests')->whereIn('status', ['pending', 'processing'])->orderBy('requested_at', 'ASC')->limit(200)->get()->getResultArray()
+            : [];
         return view('pages/customerModerationAdmin', [
             'title' => 'Akun & email spam', 'users' => $users, 'domains' => $domains,
+            'deletionRequests' => $deletionRequests,
+            'deletionRequestTableReady' => $db->tableExists('customer_account_deletion_requests'),
             'domainTableReady' => $db->tableExists('customer_blocked_email_domains'),
             'msg' => session()->getFlashdata('msg'),
         ]);
@@ -96,6 +101,19 @@ class CustomerModerationAdmin extends BaseController
         }
         log_message('info', 'Pembersihan akun belum terverifikasi oleh admin. Terhapus: {deleted}; dilewati: {skipped}', ['deleted' => $deleted, 'skipped' => $skipped]);
         return $this->back("Selesai. {$deleted} akun dihapus; {$skipped} dilewati karena status berubah atau memiliki riwayat.");
+    }
+
+    public function completeDeletionRequest()
+    {
+        $id = (int) $this->request->getPost('id');
+        $db = db_connect();
+        if (!$db->tableExists('customer_account_deletion_requests') || $id < 1) return $this->back('Permintaan tidak ditemukan.');
+        $now = date('Y-m-d H:i:s');
+        $db->table('customer_account_deletion_requests')->where(['id' => $id, 'status' => 'pending'])
+            ->update(['status' => 'completed', 'processed_at' => $now, 'updated_at' => $now]);
+        return $this->back($db->affectedRows() === 1
+            ? 'Permintaan ditandai selesai. Pastikan data akun sudah dihapus atau dipisahkan sebelum mengonfirmasi.'
+            : 'Status permintaan sudah berubah atau tidak ditemukan.');
     }
 
     private function back(string $message)

@@ -860,6 +860,11 @@ class Pages extends BaseController
         ];
         return view('pages/kebijakanprivasi', $data);
     }
+
+    public function hapusAkun()
+    {
+        return view('pages/hapusAkun', ['title' => 'Penghapusan akun | Lunarea Furniture']);
+    }
     public function syaratdanketentuan()
     {
         $voucher = $this->voucherModel

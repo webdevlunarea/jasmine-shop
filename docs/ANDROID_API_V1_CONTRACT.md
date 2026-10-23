@@ -24,6 +24,7 @@ Dokumen ini mengikuti route dan controller CI4 yang tersedia saat ini. API ini b
 | POST | `/auth/mfa/complete` | Tantangan sementara | Selesaikan login dengan kode TOTP enam digit |
 | POST | `/auth/refresh` | Refresh token di body | Rotasi refresh token; refresh token lama tidak boleh digunakan kembali |
 | POST | `/auth/logout` | Bearer | Cabut seluruh keluarga token sesi saat ini |
+| POST | `/auth/account-deletion/request` | Bearer | Catat permintaan penghapusan akun, nonaktifkan push dan cabut sesi akun |
 | GET | `/auth/sessions` | Bearer | Daftar sesi aktif aplikasi Android milik akun; tanpa token atau alamat IP |
 | POST | `/auth/sessions/{session_id}/revoke` | Bearer | Cabut satu sesi Android lain milik akun; sesi pemanggil tidak dapat dicabut |
 | POST | `/auth/sessions/revoke-others` | Bearer | Cabut seluruh sesi perangkat lain; sesi perangkat pemanggil tetap aktif |

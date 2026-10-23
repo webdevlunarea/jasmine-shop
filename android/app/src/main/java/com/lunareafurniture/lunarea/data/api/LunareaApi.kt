@@ -52,6 +52,9 @@ interface LunareaApi {
     @POST("auth/logout")
     suspend fun logout(): Response<ApiEnvelope<LogoutResponse>>
 
+    @POST("auth/account-deletion/request")
+    suspend fun requestAccountDeletion(): Response<ApiEnvelope<JsonObject>>
+
     @GET("auth/sessions")
     suspend fun sessions(): Response<ApiEnvelope<CustomerSessionPage>>
 

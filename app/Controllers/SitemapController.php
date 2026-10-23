@@ -36,6 +36,7 @@ class SitemapController extends BaseController
             'https://lunareafurniture.com/contact',
             'https://lunareafurniture.com/faq',
             'https://lunareafurniture.com/kebijakan-privasi',
+            'https://lunareafurniture.com/hapus-akun',
             'https://lunareafurniture.com/syarat-dan-ketentuan',
         ];
 

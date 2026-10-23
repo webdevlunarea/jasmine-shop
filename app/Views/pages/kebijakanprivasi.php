@@ -10,6 +10,8 @@
         </header>
         <article class="buyer-help-content">
 
+        <p>Anda dapat meminta penghapusan akun dan data terkait melalui aplikasi atau membaca langkah lengkapnya di <a href="/hapus-akun">halaman penghapusan akun Lunarea</a>. Permintaan ditangani paling lambat 30 hari; catatan transaksi tertentu dapat tetap disimpan selama diwajibkan untuk hukum, keamanan, penyelesaian sengketa, atau rekonsiliasi. Catatan permintaan dihapus 180 hari setelah penyelesaian.</p>
+
 <p>
             Lunarea Furniture selalu mengedepankan kepercayaan yang telah
             pelanggan berikan dengan cara menjaga dan melindungi informasi
