@@ -1,4 +1,11 @@
 /* Shared administration surfaces. Buyer pages and printable documents are excluded. */
+.admin-body .admin-role-page :is(.card, details) { min-width: 0; color: var(--admin-text); background: var(--admin-surface); border: 1px solid var(--admin-border) !important; box-shadow: none !important; }
+.admin-body .admin-role-page .admin-role-permission { min-height: 56px; border-color: var(--admin-border) !important; background: var(--admin-surface); cursor: pointer; transition: border-color .16s ease, background-color .16s ease; }
+.admin-body .admin-role-page .admin-role-permission:hover,
+.admin-body .admin-role-page .admin-role-permission:focus-within { border-color: var(--admin-primary) !important; background: var(--admin-primary-soft); }
+.admin-body .admin-role-page :is(.form-control, .form-select) { background-color: var(--admin-surface); color: var(--admin-text); }
+.admin-body .admin-role-page details > summary { cursor: pointer; color: var(--admin-text); }
+.admin-body .admin-role-page code { overflow-wrap: anywhere; }
 .admin-body .admin-module-page { min-width: 0; width: 100%; }
 .admin-body .admin-module-page > .container,
 .admin-body .admin-module-page > form > .container { max-width: 1440px; min-width: 0; width: 100%; padding: 26px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-surface); box-shadow: none; }

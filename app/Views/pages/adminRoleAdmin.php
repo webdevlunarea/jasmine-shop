@@ -1,14 +1,8 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
-<main class="container-fluid px-3 px-lg-4 py-4 admin-role-page">
-    <header class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
-        <div>
-            <p class="text-uppercase small fw-semibold mb-1" style="letter-spacing:.12em;color:var(--admin-primary)">Kontrol akses</p>
-            <h2 class="h3 mb-1">Peran &amp; hak akses</h2>
-            <p class="text-muted mb-0">Buat peran sesuai tugas, pilih izin yang diperlukan, lalu tetapkan ke akun admin.</p>
-        </div>
-        <span class="badge rounded-pill text-bg-dark px-3 py-2">DEV</span>
-    </header>
+<main class="konten admin-module-page">
+ <div class="container admin-role-page">
+    <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Peran & hak akses', 'adminHeadingGroup'=>'Pengaturan keamanan', 'adminHeadingDescription'=>'Buat peran sesuai tugas, pilih izin yang diperlukan, lalu tetapkan ke akun admin.'], ['saveData'=>false]); ?>
 
     <?php if (!empty($msg)): ?><div class="alert alert-info" role="status"><?= esc($msg); ?></div><?php endif; ?>
 
@@ -17,12 +11,13 @@
     <?php else: ?>
         <div class="row g-4">
             <div class="col-12 col-xl-7">
-                <section class="bg-white border rounded-4 p-3 p-lg-4 shadow-sm">
+                <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                         <div><h3 class="h5 mb-1"><?= $selectedRole ? 'Ubah peran kustom' : 'Buat peran kustom'; ?></h3><p class="small text-muted mb-0">Izin kritis seperti pengelolaan peran dan pemeliharaan sistem tetap khusus DEV.</p></div>
-                        <?php if ($selectedRole): ?><a class="btn btn-sm btn-outline-secondary" href="/admin/roles">Peran baru</a><?php endif; ?>
+                        <?php if ($selectedRole): ?><a class="btn orders-secondary" href="/admin/roles">Peran baru</a><?php endif; ?>
                     </div>
                     <form method="post" action="/admin/roles/save">
+                        <?= csrf_field(); ?>
                         <?php if ($selectedRole): ?><input type="hidden" name="role_key" value="<?= esc($selectedRole['role_key'], 'attr'); ?>"><?php endif; ?>
                         <label class="form-label" for="admin-role-label">Nama peran</label>
                         <input class="form-control mb-3" id="admin-role-label" name="label" maxlength="60" required value="<?= esc($selectedRole['label'] ?? '', 'attr'); ?>" placeholder="Contoh: Pengelola Katalog">
@@ -33,7 +28,7 @@
                             <div class="row g-2">
                                 <?php foreach ($permissionCatalog as $permission => $label): ?>
                                     <div class="col-12 col-md-6">
-                                        <label class="d-flex align-items-start gap-2 border rounded-3 p-2 h-100">
+                                        <label class="admin-role-permission d-flex align-items-start gap-2 border rounded-3 p-3 h-100">
                                             <input class="form-check-input mt-1" type="checkbox" name="permissions[]" value="<?= esc($permission, 'attr'); ?>" <?= in_array($permission, $selectedPermissions, true) ? 'checked' : ''; ?>>
                                             <span><strong class="small d-block"><?= esc($label); ?></strong><code class="small text-muted"><?= esc($permission); ?></code></span>
                                         </label>
@@ -41,16 +36,17 @@
                                 <?php endforeach; ?>
                             </div>
                         </fieldset>
-                        <button class="btn btn-primary mt-3" type="submit"><?= $selectedRole ? 'Simpan perubahan' : 'Buat peran'; ?></button>
+                        <button class="btn btn-primary1 mt-3" type="submit"><?= $selectedRole ? 'Simpan perubahan' : 'Buat peran'; ?></button>
                     </form>
                 </section>
             </div>
 
             <div class="col-12 col-xl-5">
-                <section class="bg-white border rounded-4 p-3 p-lg-4 shadow-sm mb-4">
+                <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
                     <h3 class="h5 mb-1">Tetapkan peran admin</h3>
                     <p class="small text-muted">Hanya akun dengan role admin website yang tersedia.</p>
                     <form method="post" action="/admin/roles/assign">
+                        <?= csrf_field(); ?>
                         <label class="form-label" for="admin-role-email">Akun admin</label>
                         <select class="form-select mb-3" id="admin-role-email" name="email" required>
                             <option value="">Pilih akun</option>
@@ -62,22 +58,22 @@
                             <?php foreach ($systemRoles as $roleKey => $roleLabel): ?><option value="<?= esc($roleKey, 'attr'); ?>"><?= esc($roleLabel); ?></option><?php endforeach; ?>
                             <?php foreach ($roles as $role): ?><option value="<?= esc($role['role_key'], 'attr'); ?>"><?= esc($role['label']); ?> (Kustom)</option><?php endforeach; ?>
                         </select>
-                        <button class="btn btn-outline-primary" type="submit">Simpan penetapan</button>
+                        <button class="btn orders-secondary" type="submit">Simpan penetapan</button>
                     </form>
                 </section>
 
-                <section class="bg-white border rounded-4 p-3 p-lg-4 shadow-sm">
+                <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
                     <h3 class="h5">Peran yang tersedia</h3>
                     <div class="d-grid gap-2">
                         <?php foreach ($systemRoles as $roleKey => $roleLabel): ?><div class="border rounded-3 p-2"><strong><?= esc($roleKey); ?></strong><span class="small text-muted d-block"><?= esc($roleLabel); ?></span></div><?php endforeach; ?>
-                        <?php foreach ($roles as $role): ?><div class="border rounded-3 p-2 d-flex justify-content-between gap-2"><span><strong><?= esc($role['label']); ?></strong><span class="small text-muted d-block"><?= esc($role['role_key']); ?> · <?= esc($role['description']); ?></span></span><a class="btn btn-sm btn-outline-secondary align-self-start" href="/admin/roles?edit=<?= rawurlencode($role['role_key']); ?>">Ubah</a></div><?php endforeach; ?>
+                        <?php foreach ($roles as $role): ?><div class="border rounded-3 p-2 d-flex justify-content-between gap-2"><span><strong><?= esc($role['label']); ?></strong><span class="small text-muted d-block"><?= esc($role['role_key']); ?> · <?= esc($role['description']); ?></span></span><a class="btn orders-secondary align-self-start" href="/admin/roles?edit=<?= rawurlencode($role['role_key']); ?>">Ubah</a></div><?php endforeach; ?>
                         <?php if (!$roles): ?><p class="small text-muted mb-0">Belum ada peran kustom.</p><?php endif; ?>
                     </div>
                 </section>
             </div>
         </div>
         <p class="small text-muted mt-3 mb-0">Perubahan akses aktif setelah admin terkait logout dan login kembali. Aktivitas pembuatan peran dan penetapan admin dicatat.</p>
-        <section class="bg-white border rounded-4 p-3 p-lg-4 shadow-sm mt-4" aria-labelledby="admin-activity-heading">
+        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-4" aria-labelledby="admin-activity-heading">
             <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
                 <div><h3 class="h5 mb-1" id="admin-activity-heading">Log aktivitas staf</h3><p class="small text-muted mb-0">Mencatat aksi perubahan melalui admin—tanpa menyimpan isi formulir atau alamat IP. Data dihapus otomatis setelah enam bulan.</p></div>
                 <span class="badge text-bg-light">Maks. 100 terbaru</span>
@@ -94,7 +90,7 @@
                 </tbody></table></div>
             <?php endif; ?>
         </section>
-        <details class="bg-white border rounded-4 p-3 p-lg-4 shadow-sm mt-3">
+        <details class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-3">
             <summary class="fw-semibold">Riwayat perubahan peran dan izin</summary>
             <?php if (!$roleLogs): ?><p class="small text-muted mt-3 mb-0">Belum ada perubahan peran yang tercatat.</p><?php else: ?>
                 <div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Waktu (UTC)</th><th>Pelaku</th><th>Peristiwa</th><th>Peran</th><th>Akun terkait</th><th>Rincian</th></tr></thead><tbody>
@@ -103,5 +99,6 @@
             <?php endif; ?>
         </details>
     <?php endif; ?>
+ </div>
 </main>
 <?= $this->endSection(); ?>
