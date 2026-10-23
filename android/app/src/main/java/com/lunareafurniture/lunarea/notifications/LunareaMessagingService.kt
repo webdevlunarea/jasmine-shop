@@ -150,6 +150,7 @@ class LunareaMessagingService : FirebaseMessagingService() {
             )
             .setAutoCancel(true)
             .build()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         notifications.notify(summaryId, summary)
     }
 

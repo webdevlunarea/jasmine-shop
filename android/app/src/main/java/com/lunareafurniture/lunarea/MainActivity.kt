@@ -940,6 +940,11 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        // Handle the status bar inset explicitly at the content root so the
+        // home header/actions never slide underneath Android's system icons.
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+        ),
         bottomBar = {
             AnimatedVisibility(
                 visible = !detailOpen && chromeVisible,
@@ -1000,7 +1005,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
         // Keep reading width comfortable on tablets and foldables, while leaving
         // compact phones completely edge-to-edge within their existing gutters.
         val pageContentMaxWidth = if (maxWidth >= 600.dp) 960.dp else maxWidth
-        val adaptivePageModifier = Modifier.padding(insets)
+        val adaptivePageModifier = Modifier.statusBarsPadding().padding(insets)
             .widthIn(max = pageContentMaxWidth)
             .fillMaxWidth()
             .align(Alignment.TopCenter)

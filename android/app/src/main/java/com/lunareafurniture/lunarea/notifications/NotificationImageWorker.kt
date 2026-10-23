@@ -70,6 +70,9 @@ class NotificationImageWorker(context: Context, parameters: WorkerParameters) : 
             .setGroup(group)
             .setAutoCancel(true)
             .build()
+        if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return@withContext Result.success()
+        }
         NotificationManagerCompat.from(applicationContext).notify(notificationId, notification)
         Result.success()
     }
