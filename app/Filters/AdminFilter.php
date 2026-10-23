@@ -26,6 +26,23 @@ class AdminFilter implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Do something here
+        if ((string) session('role') !== '1') return;
+        $method = strtoupper($request->getMethod());
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) return;
+
+        try {
+            $db = db_connect();
+            if (!$db->tableExists('admin_activity_logs')) return;
+            $db->table('admin_activity_logs')->insert([
+                'actor_email' => (string) session('email'),
+                'admin_role' => (string) (session('admin_role') ?: 'ADMIN'),
+                'http_method' => $method,
+                'route' => substr($request->getUri()->getPath(), 0, 255),
+                'response_code' => $response->getStatusCode(),
+                'created_at' => gmdate('Y-m-d H:i:s'),
+            ]);
+        } catch (\Throwable $error) {
+            log_message('error', 'Admin activity audit write failed: {type}', ['type' => get_class($error)]);
+        }
     }
 }

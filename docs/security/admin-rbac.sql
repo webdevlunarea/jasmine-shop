@@ -45,6 +45,19 @@ CREATE TABLE IF NOT EXISTS `admin_role_audit` (
     KEY `idx_admin_role_audit_target_date` (`target_email`, `created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `admin_activity_logs` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `actor_email` VARCHAR(254) NOT NULL,
+    `admin_role` VARCHAR(32) NOT NULL,
+    `http_method` VARCHAR(10) NOT NULL,
+    `route` VARCHAR(255) NOT NULL,
+    `response_code` SMALLINT UNSIGNED NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_admin_activity_created_at` (`created_at`),
+    KEY `idx_admin_activity_actor_date` (`actor_email`, `created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 UPDATE `user`
 SET `admin_role` = 'ADMIN'
 WHERE `role` = '1' AND (`admin_role` IS NULL OR `admin_role` = '');

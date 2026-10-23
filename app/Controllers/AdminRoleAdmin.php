@@ -19,6 +19,9 @@ final class AdminRoleAdmin extends BaseController
             && $db->tableExists('admin_role_audit') && $db->fieldExists('admin_role', 'user');
         $roles = $ready ? $db->table('admin_roles')->orderBy('label')->get()->getResultArray() : [];
         $admins = $ready ? $db->table('user')->select('email, admin_role')->where('role', '1')->orderBy('email')->limit(500)->get()->getResultArray() : [];
+        $activityLogs = $ready && $db->tableExists('admin_activity_logs')
+            ? $db->table('admin_activity_logs')->orderBy('created_at', 'DESC')->limit(100)->get()->getResultArray() : [];
+        $roleLogs = $ready ? $db->table('admin_role_audit')->orderBy('created_at', 'DESC')->limit(50)->get()->getResultArray() : [];
         $selected = null;
         $selectedPermissions = [];
         $editKey = strtoupper(trim((string) $this->request->getGet('edit')));
@@ -31,6 +34,7 @@ final class AdminRoleAdmin extends BaseController
             'title' => 'Peran & akses', 'ready' => $ready, 'roles' => $roles, 'admins' => $admins,
             'systemRoles' => AdminPermissions::assignableRoles(), 'permissionCatalog' => AdminPermissions::editablePermissions(),
             'selectedRole' => $selected, 'selectedPermissions' => $selectedPermissions,
+            'activityLogsReady' => $db->tableExists('admin_activity_logs'), 'activityLogs' => $activityLogs, 'roleLogs' => $roleLogs,
             'msg' => session()->getFlashdata('msg'),
         ]);
     }
