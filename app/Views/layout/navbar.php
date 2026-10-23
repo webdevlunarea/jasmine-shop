@@ -90,7 +90,11 @@ if ($isAdminNav) {
     </div>
     <div class="admin-topbar-actions">
         <a href="/" class="admin-store-link"><i class="material-icons" aria-hidden="true">storefront</i><span>Lihat toko</span></a>
-        <a href="/account" class="admin-icon-btn admin-profile-link" aria-label="Buka akun admin"><i class="material-icons" aria-hidden="true">person_outline</i></a>
+        <a href="/account" class="admin-icon-btn admin-profile-link" aria-label="Buka akun staf" title="Akun staf">
+            <?php $staffAvatar = (string)session('foto'); if ($staffAvatar !== '' && $staffAvatar !== '/imguser/ZGVmYXVsdA==') { ?>
+                <img class="admin-profile-avatar" src="<?= esc($staffAvatar, 'attr'); ?>" alt="">
+            <?php } else { ?><i class="material-icons" aria-hidden="true">person_outline</i><?php } ?>
+        </a>
     </div>
 </header>
 <?php return;

@@ -2520,12 +2520,16 @@ class Pages extends BaseController
             if ($cekSubmitEmail) session()->set('submitEmail', true);
         } else {
             $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole($getUser['admin_role'] ?? 'ADMIN');
+            $staffProfile = $this->pembeliModel->getPembeli($getUser['email']) ?: [];
             $ses_data = [
                 'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
                 'admin_role' => $adminRole,
                 'admin_permissions' => \App\Services\Auth\AdminPermissions::loadCustomPermissions($adminRole),
+                'nama' => trim((string)($getUser['display_name'] ?? '')) ?: (string)($staffProfile['nama'] ?? ''),
+                'nohp' => trim((string)($getUser['phone'] ?? '')) ?: (string)($staffProfile['nohp'] ?? ''),
+                'foto' => (string)($staffProfile['foto'] ?? '/imguser/ZGVmYXVsdA=='),
                 'isLogin' => true
             ];
             session()->set($ses_data);
