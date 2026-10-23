@@ -81,25 +81,18 @@
                                 </div>
                                 <?php if ($v['active']) { ?>
                                     <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="List customer" onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
-                                    <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Broadcast" onclick="triggerToast('Broadcast ke customer?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
+                                    <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Kirim email kepada pelanggan yang memilih menerima promosi" onclick="triggerToast('Jadwalkan email voucher hanya untuk pelanggan aktif yang telah memilih menerima promosi?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
+                                <?php } ?>
+                                <?php if (isset($voucherEmailCampaigns[(string)$v['id']])) { $campaign = $voucherEmailCampaigns[(string)$v['id']]; ?>
+                                    <span class="small text-secondary" role="status" title="Email terkirim <?= (int)$campaign['sent']; ?> dari <?= (int)$campaign['total']; ?>; antrean <?= (int)$campaign['pending']; ?>; gagal <?= (int)$campaign['failed']; ?>">
+                                        Email <?= (int)$campaign['sent']; ?>/<?= (int)$campaign['total']; ?> · antre <?= (int)$campaign['pending']; ?> · gagal <?= (int)$campaign['failed']; ?>
+                                    </span>
                                 <?php } ?>
                                 <a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit voucher" href="/editvoucher/<?= $v['id']; ?>" class="text-dark"><i class="material-icons">edit</i></a>
                                 <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete voucher" onclick="triggerToast('Hapus voucher <?= $v['nama']; ?>?','/deletevoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">delete_forever</i></div>
                             </div>
                         </div>
                     </div>
-                    <?php if ($broadcast == $v['id']) { ?>
-                        <div>
-                            <p class="fw-bold m-0">Proses Broadcasting</p>
-                            <?php foreach ($emailBroadcast as $e) { ?>
-                                <div class="d-flex gap-1">
-                                    <i class="material-icons loading">data_usage</i>
-                                    <p class="m-0"><?= $e['email_user']; ?></p>
-                                </div>
-                            <?php } ?>
-                            <p id="status-proses-broadcast" class="d-none m-0" style="color: var(--hijau);">Proses broadcast telah selesai</p>
-                        </div>
-                    <?php } ?>
                 </div>
             <?php } ?>
         </div>
@@ -148,40 +141,4 @@
         counterCodeInputElm.value = jmlCodeCur
     }
 </script>
-<?php if ($broadcast) { ?>
-    <script>
-        const statusProsesBroadcastElm = document.getElementById('status-proses-broadcast');
-        const loadingElm = document.querySelectorAll('.loading');
-        const emailBroadcast = JSON.parse('<?= $emailBroadcastJson; ?>');
-        const idVoucherBroadcast = <?= $broadcast; ?>;
-        let csrfHash = <?= json_encode($csrfHash, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-        console.log(emailBroadcast)
-        console.log(idVoucherBroadcast)
-        async function broadcastSkuy() {
-            for (let i = 0; i < emailBroadcast.length; i++) {
-                const email = emailBroadcast[i];
-                const response = await fetch('/actionbroadcastvoucheremail', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfHash
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        idVoucher: idVoucherBroadcast
-                    }),
-                })
-                if (response.status == 200) {
-                    loadingElm[i].classList.remove('loading')
-                    loadingElm[i].innerHTML = 'done'
-                }
-                const responseJson = await response.json();
-                if (responseJson.csrfHash) csrfHash = responseJson.csrfHash;
-            }
-            statusProsesBroadcastElm.classList.remove('d-none');
-        }
-        broadcastSkuy();
-    </script>
-<?php } ?>
 <?= $this->endSection(); ?>

@@ -8,6 +8,8 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Pages::index');
 $routes->get('/sitemap.xml', 'SitemapController::index');
 $routes->get('/ref/(:segment)', 'AndroidReferralLink::show/$1');
+$routes->get('/promosi/berhenti/(:segment)', 'MarketingUnsubscribe::show/$1');
+$routes->post('/promosi/berhenti/(:segment)', 'MarketingUnsubscribe::confirm/$1', ['filter' => 'csrf']);
 
 // Versioned JSON API for the native Android client. Authentication uses opaque
 // bearer tokens; state-changing API calls do not rely on browser cookies/CSRF.
@@ -48,6 +50,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
         $routes->post('auth/email/change/request', 'Api\\V1\\AuthController::requestEmailChange');
         $routes->post('auth/email/change/confirm', 'Api\\V1\\AuthController::confirmEmailChange');
         $routes->get('me', 'Api\\V1\\AuthController::me');
+        $routes->get('me/marketing-preferences', 'Api\\V1\\MarketingPreferencesController::show');
+        $routes->put('me/marketing-preferences', 'Api\\V1\\MarketingPreferencesController::update');
         $routes->patch('me', 'Api\\V1\\ProfileController::update');
         $routes->post('me/photo', 'Api\\V1\\ProfileController::uploadPhoto');
         $routes->get('me/username', 'Api\\V1\\UsernameController::show');
@@ -185,6 +189,7 @@ $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin'])
 // $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => ['harusLogin', 'csrf']]);
+$routes->post('/account/marketing-preferences', 'CustomerMarketingPreferences::saveWeb', ['filter' => ['harusUser', 'csrf']]);
 $routes->post('/account/email/request', 'CustomerEmail::requestChange', ['filter' => ['harusUser', 'csrf']]);
 $routes->post('/account/email/confirm', 'CustomerEmail::confirmChange', ['filter' => ['harusUser', 'csrf']]);
 $routes->post('/account/username', 'CustomerUsername::save', ['filter' => ['harusUser', 'csrf']]);
@@ -239,7 +244,6 @@ $routes->get('/editvoucher/(:any)', 'Pages::editVoucher/$1', ['filter' => 'harus
 $routes->post('/actioneditvoucher/(:any)', 'Pages::actionEditVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/deletevoucher/(:any)', 'Pages::deleteVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$1', ['filter' => ['harusAdmin', 'csrf']]);
-$routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customerdirectoryadmin', 'CustomerDirectoryAdmin::index', ['filter' => 'harusAdmin']);

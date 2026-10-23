@@ -101,6 +101,12 @@ class PushNotificationAdmin extends BaseController
             return $this->backBroadcast($queued . ' penerima masuk antrean. Pengiriman diproses bertahap oleh layanan notifikasi.');
         } catch (\Throwable $e) {
             if ($storedImagePath) @unlink($storedImagePath);
+            if ($e->getMessage() === 'GLOBAL_MARKETING_COOLDOWN') {
+                return $this->backBroadcast('Tunggu sebentar sebelum menjadwalkan kampanye promosi berikutnya.');
+            }
+            if ($e->getMessage() === 'GLOBAL_MARKETING_DAILY_LIMIT') {
+                return $this->backBroadcast('Batas lima kampanye promosi hari ini sudah tercapai. Coba lagi besok.');
+            }
             log_message('error', 'Admin push broadcast enqueue failed: ' . get_class($e));
             return $this->backBroadcast('Broadcast belum berhasil dijadwalkan. Periksa kesiapan tabel dan log server.');
         }

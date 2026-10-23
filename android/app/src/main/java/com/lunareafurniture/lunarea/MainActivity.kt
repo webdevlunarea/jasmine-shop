@@ -7340,9 +7340,15 @@ private fun AccountScreen(
     message: String?
 ) {
     val context = LocalContext.current
+    val preferenceScope = rememberCoroutineScope()
     val accountDisplayName = cachedDisplayName
     val accountPhotoUrl = cachedPhotoUrl
     var showDisableNotificationsConfirmation by remember { mutableStateOf(false) }
+    var emailPromotions by remember { mutableStateOf(false) }
+    var pushPromotions by remember { mutableStateOf(false) }
+    var marketingPreferencesLoading by remember { mutableStateOf(false) }
+    var marketingPreferencesSaving by remember { mutableStateOf(false) }
+    var marketingPreferencesMessage by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(signedIn, profileCached) {
         if (!signedIn || profileCached) return@LaunchedEffect
         runCatching {
@@ -7355,6 +7361,24 @@ private fun AccountScreen(
                 )
             }
         }
+    }
+    LaunchedEffect(signedIn) {
+        if (!signedIn) {
+            emailPromotions = false
+            pushPromotions = false
+            return@LaunchedEffect
+        }
+        marketingPreferencesLoading = true
+        try {
+            val response = ApiClient.get(context).marketingPreferences()
+            val data = response.body()?.data
+            if (response.isSuccessful && response.body()?.success == true && data != null) {
+                emailPromotions = data.get("email_promotions")?.asBoolean ?: false
+                pushPromotions = data.get("push_promotions")?.asBoolean ?: false
+            } else marketingPreferencesMessage = response.customerError("Preferensi promosi belum dapat dimuat.")
+        } catch (_: Exception) {
+            marketingPreferencesMessage = "Koneksi belum tersedia. Preferensi promosi belum dimuat."
+        } finally { marketingPreferencesLoading = false }
     }
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (!signedIn) {
@@ -7539,6 +7563,68 @@ private fun AccountScreen(
                     }
                 }
             }
+            AccountSettingsGroup("Preferensi promosi") {
+                Text("Pilihan ini opsional. Anda dapat mengubahnya kapan saja.", Modifier.padding(horizontal = 14.dp, vertical = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (marketingPreferencesLoading) {
+                    Text("Memuat preferensi…", Modifier.padding(horizontal = 14.dp, vertical = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    MarketingPreferenceRow(
+                        title = "Email voucher dan promo",
+                        checked = emailPromotions,
+                        enabled = !marketingPreferencesSaving,
+                        onCheckedChange = { next ->
+                            val oldEmail = emailPromotions
+                            val oldPush = pushPromotions
+                            emailPromotions = next
+                            marketingPreferencesSaving = true
+                            marketingPreferencesMessage = null
+                            preferenceScope.launch {
+                                try {
+                                    val response = ApiClient.get(context).updateMarketingPreferences(JsonObject().apply {
+                                        addProperty("email_promotions", next)
+                                        addProperty("push_promotions", oldPush)
+                                    })
+                                    if (!response.isSuccessful || response.body()?.success != true) {
+                                        emailPromotions = oldEmail
+                                        marketingPreferencesMessage = response.customerError("Pilihan belum tersimpan. Coba lagi.")
+                                    } else marketingPreferencesMessage = "Preferensi promosi berhasil disimpan."
+                                } catch (_: Exception) {
+                                    emailPromotions = oldEmail
+                                    marketingPreferencesMessage = "Koneksi belum tersedia. Pilihan belum tersimpan."
+                                } finally { marketingPreferencesSaving = false }
+                            }
+                        }
+                    )
+                    MarketingPreferenceRow(
+                        title = "Notifikasi promo di Android",
+                        checked = pushPromotions,
+                        enabled = !marketingPreferencesSaving,
+                        onCheckedChange = { next ->
+                            val oldEmail = emailPromotions
+                            val oldPush = pushPromotions
+                            pushPromotions = next
+                            marketingPreferencesSaving = true
+                            marketingPreferencesMessage = null
+                            preferenceScope.launch {
+                                try {
+                                    val response = ApiClient.get(context).updateMarketingPreferences(JsonObject().apply {
+                                        addProperty("email_promotions", oldEmail)
+                                        addProperty("push_promotions", next)
+                                    })
+                                    if (!response.isSuccessful || response.body()?.success != true) {
+                                        pushPromotions = oldPush
+                                        marketingPreferencesMessage = response.customerError("Pilihan belum tersimpan. Coba lagi.")
+                                    } else marketingPreferencesMessage = "Preferensi promosi berhasil disimpan."
+                                } catch (_: Exception) {
+                                    pushPromotions = oldPush
+                                    marketingPreferencesMessage = "Koneksi belum tersedia. Pilihan belum tersimpan."
+                                } finally { marketingPreferencesSaving = false }
+                            }
+                        }
+                    )
+                }
+                marketingPreferencesMessage?.let { Text(it, Modifier.padding(horizontal = 14.dp, vertical = 8.dp), style = MaterialTheme.typography.bodySmall, color = if (it.contains("berhasil")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error) }
+            }
             OutlinedButton(
                 onClick = onLogout,
                 enabled = !busy,
@@ -7597,6 +7683,18 @@ private fun AccountScreen(
             shape = RoundedCornerShape(24.dp),
             containerColor = MaterialTheme.colorScheme.surface
         )
+    }
+}
+
+@Composable
+private fun MarketingPreferenceRow(title: String, checked: Boolean, enabled: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(start = 14.dp, end = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
 

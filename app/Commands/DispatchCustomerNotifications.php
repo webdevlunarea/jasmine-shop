@@ -57,7 +57,49 @@ class DispatchCustomerNotifications extends BaseCommand
                 ]);
                 continue;
             }
-            $devices = $db->table('customer_push_devices')->where(['email_user' => $row['email_user'], 'is_active' => 1])->get()->getResultArray();
+            $isMarketing = str_starts_with((string)$row['notification_type'], 'broadcast_');
+            if ($isMarketing) {
+                if (!$db->tableExists('customer_marketing_preferences')) {
+                    $db->table('customer_push_notifications')->where('id', $row['id'])->update([
+                        'status' => 'cancelled', 'last_error' => 'MARKETING_PREFERENCES_UNAVAILABLE', 'updated_at' => $now,
+                    ]);
+                    continue;
+                }
+                $eligible = $db->table('user u')->select('u.email')
+                    ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(u.email)', 'inner', false)
+                    ->where('LOWER(u.email)', strtolower(trim((string)$row['email_user'])), false)->where('u.role', '0')->where('u.active', '1')
+                    ->where('p.push_promotions', 1)->get()->getRowArray();
+                if (!$eligible) {
+                    $db->table('customer_push_notifications')->where('id', $row['id'])->update([
+                        'status' => 'cancelled', 'last_error' => 'MARKETING_OPT_OUT_OR_INACTIVE', 'updated_at' => $now,
+                    ]);
+                    continue;
+                }
+                // Global marketing frequency cap: at most one email or FCM promo per customer per 24 hours.
+                $cutoff = gmdate('Y-m-d H:i:s', time() - 86400);
+                $lastPush = $db->table('customer_push_notifications')->selectMax('sent_at', 'last_sent')
+                    ->where('email_user', (string)$row['email_user'])->like('notification_type', 'broadcast_', 'after')
+                    ->where('status', 'sent')->where('sent_at >=', $cutoff)->where('id !=', $row['id'])
+                    ->get()->getRowArray()['last_sent'] ?? null;
+                $lastEmail = null;
+                if ($db->tableExists('customer_voucher_email_recipients')) {
+                    $lastEmail = $db->table('customer_voucher_email_recipients')->selectMax('sent_at', 'last_sent')
+                        ->where('email_hash', hash('sha256', strtolower(trim((string)$row['email_user']))))
+                        ->where('status', 'sent')->where('sent_at >=', $cutoff)->get()->getRowArray()['last_sent'] ?? null;
+                }
+                $recentSends = array_filter([(string)$lastPush, (string)$lastEmail]);
+                if ($recentSends) {
+                    $nextAttempt = gmdate('Y-m-d H:i:s', strtotime(max($recentSends) . ' UTC') + 86400);
+                    $db->table('customer_push_notifications')->where('id', $row['id'])->update([
+                        'status' => 'pending', 'next_attempt_at' => $nextAttempt,
+                        'last_error' => 'MARKETING_FREQUENCY_CAP', 'updated_at' => $now,
+                    ]);
+                    continue;
+                }
+            }
+            $deviceQuery = $db->table('customer_push_devices')->where(['email_user' => $row['email_user'], 'is_active' => 1]);
+            if ($isMarketing) $deviceQuery->where('platform', 'android');
+            $devices = $deviceQuery->get()->getResultArray();
             if (!$devices) {
                 // Preserve the message until a device registers. PushDeviceController wakes
                 // these rows when the customer later enables notifications on a device.
@@ -72,7 +114,7 @@ class DispatchCustomerNotifications extends BaseCommand
             $imageUrl = (string) ($data['image_url'] ?? '');
             $imageParts = $imageUrl !== '' ? parse_url($imageUrl) : false;
             $baseHost = strtolower((string) parse_url(base_url(), PHP_URL_HOST));
-            if (str_starts_with((string) $row['notification_type'], 'broadcast_')
+            if ($isMarketing
                 && is_array($imageParts)
                 && strtolower((string) ($imageParts['scheme'] ?? '')) === 'https'
                 && strtolower((string) ($imageParts['host'] ?? '')) === $baseHost

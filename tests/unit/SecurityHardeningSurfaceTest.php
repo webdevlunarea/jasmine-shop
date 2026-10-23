@@ -32,12 +32,15 @@ final class SecurityHardeningSurfaceTest extends CIUnitTestCase
         }
     }
 
-    public function testVoucherEmailBroadcastIsAdminAndCsrfProtected(): void
+    public function testVoucherEmailBroadcastUsesConsentCheckedDurableQueue(): void
     {
         $routes = file_get_contents(APPPATH . 'Config/Routes.php');
         $view = file_get_contents(APPPATH . 'Views/pages/listVoucher.php');
-        $this->assertStringContainsString("'/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail', ['filter' => ['harusAdmin', 'csrf']]", $routes);
-        $this->assertStringContainsString("'X-CSRF-TOKEN': csrfHash", $view);
+        $pages = file_get_contents(APPPATH . 'Controllers/Pages.php');
+        $this->assertStringNotContainsString('actionbroadcastvoucheremail', $routes);
+        $this->assertStringNotContainsString('broadcastSkuy', $view);
+        $this->assertStringContainsString('VoucherEmailBroadcastQueue', $pages);
+        $this->assertStringContainsString('email_promotions', $pages);
     }
 
     public function testShippingProviderKeysAreLoadedFromEnvironmentAndTlsVerificationIsEnabled(): void

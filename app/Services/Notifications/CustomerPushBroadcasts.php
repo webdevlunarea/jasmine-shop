@@ -22,11 +22,13 @@ final class CustomerPushBroadcasts
 
     public function activeAndroidRecipientCount(): int
     {
-        if (!$this->db->tableExists('customer_push_devices')) return 0;
+        if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('customer_marketing_preferences')) return 0;
 
-        $row = $this->db->table('customer_push_devices')
-            ->select('COUNT(DISTINCT LOWER(email_user)) AS total', false)
-            ->where(['is_active' => 1, 'platform' => 'android'])
+        $row = $this->db->table('customer_push_devices d')
+            ->select('COUNT(DISTINCT LOWER(d.email_user)) AS total', false)
+            ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(d.email_user)', 'inner', false)
+            ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
+            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'p.push_promotions' => 1, 'u.role' => '0', 'u.active' => '1'])
             ->get()->getRowArray();
 
         return (int) ($row['total'] ?? 0);
@@ -40,13 +42,16 @@ final class CustomerPushBroadcasts
         if (!isset(self::TYPES[$kind]) || $title === '' || mb_strlen($title) > 100 || $body === '' || mb_strlen($body) > 240) {
             throw new InvalidArgumentException('Broadcast content is invalid.');
         }
-        if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('customer_push_notifications')) {
+        if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('customer_push_notifications')
+            || !$this->db->tableExists('customer_marketing_preferences') || !$this->db->tableExists('customer_marketing_campaign_guard')) {
             throw new RuntimeException('Push broadcast storage is unavailable.');
         }
 
-        $audience = $this->db->table('customer_push_devices')
-            ->distinct()->select('email_user')
-            ->where(['is_active' => 1, 'platform' => 'android'])
+        $audience = $this->db->table('customer_push_devices d')
+            ->distinct()->select('d.email_user')
+            ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(d.email_user)', 'inner', false)
+            ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
+            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'p.push_promotions' => 1, 'u.role' => '0', 'u.active' => '1'])
             ->get()->getResultArray();
         $recipients = [];
         foreach ($audience as $row) {
@@ -95,6 +100,7 @@ final class CustomerPushBroadcasts
 
         $this->db->transBegin();
         try {
+            (new MarketingCampaignRateLimiter())->claim($this->db);
             foreach (array_chunk($rows, 200) as $batch) {
                 if ($this->db->table('customer_push_notifications')->insertBatch($batch) === false) {
                     throw new RuntimeException('Push broadcast queue insert failed.');

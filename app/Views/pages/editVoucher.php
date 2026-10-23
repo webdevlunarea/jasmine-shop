@@ -113,11 +113,11 @@
                 </div>
             </div>
             <hr>
-            <h5 class="m-0">Broadcast Email Customer</h5>
-            <p class="text-secondary mb-1" style="font-size: small;">Memberikan informasi ke customer mengenai voucher ini</p>
+            <h5 class="m-0">Email promosi voucher</h5>
+            <p class="text-secondary mb-1" style="font-size: small;">Simpan template email. Email baru dikirim setelah dijadwalkan dari daftar voucher, hanya kepada pelanggan yang memilih ikut.</p>
             <div class="d-flex gap-1 mb-2">
                 <input onchange="handleChangeBroadcast(event)" <?= $voucher['isi_email'] ? 'checked' : ''; ?> type="checkbox" name="broadcast" id="broadcast-checkbox">
-                <label for="broadcast-checkbox">Broadcast ke customer</label>
+                <label for="broadcast-checkbox">Siapkan email promosi</label>
             </div>
             <div id="form-broadcast" class="<?= $voucher['isi_email'] ? '' : 'd-none'; ?>">
                 <div class="mb-2">

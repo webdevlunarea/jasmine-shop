@@ -123,6 +123,12 @@ interface LunareaApi {
     @GET("me")
     suspend fun profile(): Response<ApiEnvelope<JsonObject>>
 
+    @GET("me/marketing-preferences")
+    suspend fun marketingPreferences(): Response<ApiEnvelope<JsonObject>>
+
+    @PUT("me/marketing-preferences")
+    suspend fun updateMarketingPreferences(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
+
     @PATCH("me")
     suspend fun updateProfile(@Body body: JsonObject): Response<ApiEnvelope<JsonObject>>
 

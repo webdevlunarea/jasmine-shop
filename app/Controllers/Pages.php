@@ -6801,6 +6801,7 @@ class Pages extends BaseController
             'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
             'usernameSettings' => $usernameSettings,
             'emailChangeSettings' => $emailChangeSettings,
+            'marketingPreferences' => ['email_promotions' => false, 'push_promotions' => false],
             'profileCompletion' => $profileCompletion,
             'activeOrders' => $activeOrders,
             'pendingPayment' => $pendingPayment,
@@ -6815,6 +6816,13 @@ class Pages extends BaseController
             'kurang_dari' => $waktuSelisih >= 0 ? true : false,
             'msg' => session()->get('msg') ? session()->get('msg') : false
         ];
+        if ((string)session('role') === '0' && db_connect()->tableExists('customer_marketing_preferences')) {
+            try {
+                $data['marketingPreferences'] = (new \App\Services\Notifications\CustomerMarketingPreferences())->get((string)$email);
+            } catch (\Throwable $e) {
+                // Account/profile remains usable before or during preference-storage rollout.
+            }
+        }
         return view('pages/account', $data);
     }
 
@@ -9254,18 +9262,21 @@ class Pages extends BaseController
     public function listVoucher()
     {
         $voucher = $this->voucherModel->findAll();
-        $broadcast = session()->getFlashdata('broadcast');
-        // $broadcast = 10;
-        $emailBroadcast = false;
+        $voucherEmailCampaigns = [];
+        $marketingDb = db_connect();
+        if ($marketingDb->tableExists('customer_voucher_email_campaigns') && $marketingDb->tableExists('customer_voucher_email_recipients')) {
+            $campaignRows = $marketingDb->table('customer_voucher_email_campaigns c')
+                ->select("c.voucher_id,c.status,COUNT(r.id) AS total,SUM(r.status='sent') AS sent,SUM(r.status IN ('pending','processing')) AS pending,SUM(r.status='failed') AS failed", false)
+                ->join('customer_voucher_email_recipients r', 'r.campaign_id = c.id', 'left')
+                ->groupBy('c.voucher_id,c.status')->get()->getResultArray();
+            foreach ($campaignRows as $campaignRow) $voucherEmailCampaigns[(string)$campaignRow['voucher_id']] = $campaignRow;
+        }
         foreach ($voucher as $ind_v => $v) {
             $voucher[$ind_v]['code'] = json_decode($v['code'], true);
             $voucher[$ind_v]['poster'] = '';
             $voucher[$ind_v]['poster_email'] = '';
             $voucher[$ind_v]['isi_email'] = '';
             $voucher[$ind_v]['syarat_ketentuan'] = '';
-            if ($v['id'] == $broadcast) {
-                $emailBroadcast = json_decode($v['code'], true);
-            }
             if ($v['jadwal']) {
                 $jadwal1  = date('d M Y', strtotime(explode('@', $v['jadwal'])[0]));
                 $jadwal2  = date('d M Y', strtotime(explode('@', $v['jadwal'])[1]));
@@ -9277,11 +9288,8 @@ class Pages extends BaseController
             'title' => 'List Voucher',
             'voucher' => $voucher,
             'voucherJson' => json_encode($voucher),
+            'voucherEmailCampaigns' => $voucherEmailCampaigns,
             'msg' => session()->getFlashdata('msg'),
-            'broadcast' => $broadcast,
-            'emailBroadcast' => $emailBroadcast,
-            'emailBroadcastJson' => $emailBroadcast ? json_encode($emailBroadcast) : '',
-            'csrfHash' => csrf_hash(),
         ];
         return view('pages/listVoucher', $data);
     }
@@ -9489,10 +9497,6 @@ class Pages extends BaseController
         // dd($insertData);
         $this->voucherModel->insert($insertData);
         session()->setFlashdata('msg', 'Voucher berhasil dibuat');
-        if ($insertData['active'] && $broadcast) {
-            $voucherCurr = $this->voucherModel->where(['nama' => $nama, 'keterangan' => $keterangan])->first();
-            session()->setFlashdata('broadcast', $voucherCurr['id']);
-        }
         return redirect()->to('/listvoucher');
     }
     public function editVoucher($id_voucher)
@@ -9707,62 +9711,28 @@ class Pages extends BaseController
     }
     public function actionBroadcastVoucher($id_voucher)
     {
-        session()->setFlashdata('broadcast', $id_voucher);
-        return redirect()->to('/listvoucher');
-    }
-    public function actionBroadcastVoucherEmail()
-    {
-        $body = $this->request->getJSON(true);
-        $email = is_array($body) ? trim((string) ($body['email'] ?? '')) : '';
-        $id_voucher = is_array($body) ? (int) ($body['idVoucher'] ?? 0) : 0;
-        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL) || $id_voucher < 1) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'success' => false,
-                'error' => 'Alamat email atau voucher tidak valid.',
-            ]);
+        try {
+            $queued = (new \App\Services\Notifications\VoucherEmailBroadcastQueue())->queue(
+                (int)$id_voucher,
+                (string)session('email')
+            );
+            $message = $queued > 0
+                ? "{$queued} pelanggan yang memilih menerima email promosi masuk antrean. Pengiriman dilakukan bertahap."
+                : 'Tidak ada penerima aktif yang memilih menerima email promosi untuk voucher ini.';
+            return redirect()->to('/listvoucher')->with('msg', $message);
+        } catch (\Throwable $error) {
+            $isDuplicate = str_contains(strtolower($error->getMessage()), 'duplicate')
+                || $error->getMessage() === 'VOUCHER_CAMPAIGN_ALREADY_QUEUED';
+            $isCooldown = $error->getMessage() === 'GLOBAL_MARKETING_COOLDOWN';
+            $dailyLimit = $error->getMessage() === 'GLOBAL_MARKETING_DAILY_LIMIT';
+            if (!$isDuplicate && !$isCooldown) log_message('error', 'Voucher email broadcast queue failed: ' . get_class($error));
+            return redirect()->to('/listvoucher')->with('msg', $isDuplicate
+                ? 'Broadcast voucher ini sudah pernah dijadwalkan; pengiriman ulang dicegah agar tidak terkirim ganda.'
+                : ($dailyLimit ? 'Batas kampanye promosi hari ini sudah tercapai. Coba lagi besok.'
+                : ($isCooldown ? 'Tunggu sebentar sebelum menjadwalkan kampanye promosi berikutnya.'
+                : 'Broadcast belum dapat dijadwalkan. Pastikan migration preferensi dan antrean sudah diterapkan.')));
         }
-        $voucherCurr = $this->voucherModel->getVoucher($id_voucher);
-        if (! is_array($voucherCurr) || $voucherCurr === []) {
-            return $this->response->setStatusCode(404)->setJSON([
-                'success' => false,
-                'error' => 'Voucher tidak ditemukan.',
-            ]);
-        }
-        $isiEmail  = $voucherCurr['isi_email'];
-        $nama = $voucherCurr['nama'];
-        $isinya = '
-        <div style="width: 100%">
-            <img
-                src="https://lunareafurniture.com/imgvoucher/email/' . $voucherCurr['id'] . '"
-                alt="banner"
-                style="width: 100%; border-radius: 5px"
-            />
-        </div>
-        <div style="height: 15px"></div>
-        <div
-            style="
-                background-color: white;
-                    padding-right: 20px;
-                    padding-left: 20px;
-                    padding-top: 20px;
-                    padding-bottom: 20px;
-                    border-radius: 10px;
-                "
-        >
-            <table>
-                <tbody>
-                    ' . $isiEmail . '
-                </tbody>
-            </table>
-        </div>
-        ';
-        $this->kirimPesanEmail($email, 'Lunarea Store - ' . $nama, $isinya);
-        return $this->response->setStatusCode(200)->setJSON([
-            'success' => true,
-            'csrfHash' => csrf_hash(),
-        ], false);
     }
-
     private function scheduleVoucher()
     {
         $getAllVoucher = $this->voucherModel->where('jadwal is NOT NULL')->findAll();
