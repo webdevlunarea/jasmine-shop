@@ -709,7 +709,7 @@ class Pages extends BaseController
     {
         $token = (string)($this->request->getHeaderLine('X-Luna-Webhook-Token') ?: $this->request->getHeaderLine('X-Webhook-Token'));
         $expectedToken = (string)env('LUNA_SYSTEM_WEB_ORDER_TOKEN', '');
-        if ($expectedToken === '' || $token !== $expectedToken) {
+        if ($expectedToken === '' || !hash_equals($expectedToken, $token)) {
             return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Invalid token']);
         }
 
@@ -731,14 +731,23 @@ class Pages extends BaseController
             ->orderBy('id', 'desc')
             ->first();
 
+        $alreadyApplied = false;
         if ($return) {
+            $previous = json_decode((string)($return['luna_response'] ?? ''), true);
+            $alreadyApplied = is_array($previous)
+                && (string)($previous['status'] ?? '') === $status
+                && (string)($previous['status_label'] ?? '') === $statusLabel
+                && (string)($previous['return_number'] ?? '') === $returnNumber
+                && (string)($previous['note'] ?? '') === $note;
             $this->returPengajuanModel->update($return['id'], [
                 'status' => $statusLabel,
                 'luna_response' => json_encode($body),
             ]);
         }
 
-        if ($order) {
+        // MyLuna may retry after a network timeout. Persist the latest payload,
+        // but do not send the same customer notification twice.
+        if ($order && !$alreadyApplied) {
             $emailBody = '<p>Halo ' . esc($order['nama_pen']) . ',</p>'
                 . '<p>Status retur untuk pesanan <b>' . esc($orderId) . '</b> sudah diperbarui.</p>'
                 . '<p><b>No Retur:</b> ' . esc($returnNumber ?: '-') . '<br><b>Status:</b> ' . esc($statusLabel) . '</p>'
@@ -748,7 +757,7 @@ class Pages extends BaseController
             $this->kirimWaRetur($order['hp_pen'] ?? '', "Update retur Lunarea\nPesanan: {$orderId}\nStatus: {$statusLabel}" . ($note ? "\nCatatan: {$note}" : ''));
         }
 
-        return $this->response->setJSON(['success' => true, 'message' => 'Status retur website diperbarui']);
+        return $this->response->setJSON(['success' => true, 'duplicate' => $alreadyApplied, 'message' => 'Status retur website diperbarui']);
     }
 
     public function index()
@@ -6541,37 +6550,6 @@ class Pages extends BaseController
         }
     }
 
-    public function updateTier()
-    {
-        $pembeli = $this->pembeliModel->findAll();
-        foreach ($pembeli as $p) {
-            $tier = json_decode($p['tier'], true);
-            $data = $tier['data'];
-            $dataBaru = [];
-            $jumlah = 0;
-            foreach ($data as $d) {
-                $waktuCurr = strtotime("+7 Hours");
-                $waktuCurrYmd = strtotime(date("Y-m-d", $waktuCurr));
-                if ($waktuCurrYmd <= strtotime($d['kadaluarsa'])) {
-                    $jumlah += (int)$d['nominal'];
-                    array_push($dataBaru, $d);
-                }
-            }
-            if ($jumlah < 10000000) {
-                $label = 'bronze';
-            } else if ($jumlah < 50000000) {
-                $label = 'silver';
-            } else if ($jumlah < 100000000) {
-                $label = 'gold';
-            } else if ($jumlah >= 100000000) {
-                $label = 'platinum';
-            }
-            $tier['label'] = $label;
-            $tier['data'] = $dataBaru;
-            $this->pembeliModel->where(['email_user' => $p['email_user']])->set(['tier' => json_encode($tier)])->update();
-        }
-        return $this->response->setJSON(['success' => true], false);
-    }
     public function point()
     {
         $tgl_lahir = session()->get('tgl_lahir');

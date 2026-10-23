@@ -194,7 +194,6 @@ $routes->get('/point', 'Pages::point', ['filter' => 'harusUser']);
 $routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusUser']);
 $routes->get("/point/use", 'Pages::pointUse', ['filter' => 'harusUser']);
 $routes->get("/point/cancel", 'Pages::pointCancel', ['filter' => 'harusUser']);
-$routes->get('/updatetier', 'Pages::updateTier', ['filter' => 'harusAdmin']);
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');
