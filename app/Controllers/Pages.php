@@ -9714,23 +9714,27 @@ class Pages extends BaseController
         try {
             $queued = (new \App\Services\Notifications\VoucherEmailBroadcastQueue())->queue(
                 (int)$id_voucher,
-                (string)session('email')
+                (string)session('email'),
+                (string)$this->request->getPost('audience'),
+                (int)$this->request->getPost('recipient_limit')
             );
             $message = $queued > 0
-                ? "{$queued} pelanggan yang memilih menerima email promosi masuk antrean. Pengiriman dilakukan bertahap."
-                : 'Tidak ada penerima aktif yang memilih menerima email promosi untuk voucher ini.';
+                ? "{$queued} pelanggan aktif yang belum berhenti berlangganan masuk antrean. Email dikirim bertahap, maksimal 25 dalam 24 jam."
+                : 'Tidak ada pelanggan aktif yang memenuhi pilihan penerima untuk kampanye ini.';
             return redirect()->to('/listvoucher')->with('msg', $message);
         } catch (\Throwable $error) {
             $isDuplicate = str_contains(strtolower($error->getMessage()), 'duplicate')
                 || $error->getMessage() === 'VOUCHER_CAMPAIGN_ALREADY_QUEUED';
             $isCooldown = $error->getMessage() === 'GLOBAL_MARKETING_COOLDOWN';
             $dailyLimit = $error->getMessage() === 'GLOBAL_MARKETING_DAILY_LIMIT';
+            $invalidAudience = $error->getMessage() === 'INVALID_MARKETING_AUDIENCE';
             if (!$isDuplicate && !$isCooldown) log_message('error', 'Voucher email broadcast queue failed: ' . get_class($error));
             return redirect()->to('/listvoucher')->with('msg', $isDuplicate
                 ? 'Broadcast voucher ini sudah pernah dijadwalkan; pengiriman ulang dicegah agar tidak terkirim ganda.'
+                : ($invalidAudience ? 'Pilihan penerima tidak valid. Muat ulang halaman lalu coba kembali.'
                 : ($dailyLimit ? 'Batas kampanye promosi hari ini sudah tercapai. Coba lagi besok.'
                 : ($isCooldown ? 'Tunggu sebentar sebelum menjadwalkan kampanye promosi berikutnya.'
-                : 'Broadcast belum dapat dijadwalkan. Pastikan migration preferensi dan antrean sudah diterapkan.')));
+                : 'Broadcast belum dapat dijadwalkan. Pastikan migration preferensi dan antrean sudah diterapkan.'))));
         }
     }
     private function scheduleVoucher()

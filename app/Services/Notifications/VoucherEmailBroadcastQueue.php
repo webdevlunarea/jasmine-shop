@@ -16,7 +16,7 @@ final class VoucherEmailBroadcastQueue
         $this->db = $db ?? Database::connect();
     }
 
-    public function queue(int $voucherId, string $adminEmail): int
+    public function queue(int $voucherId, string $adminEmail, string $audience = 'active_customers', int $recipientLimit = 100): int
     {
         if ($voucherId < 1 || !$this->db->tableExists('customer_marketing_preferences')
             || !$this->db->tableExists('customer_voucher_email_campaigns')
@@ -26,32 +26,51 @@ final class VoucherEmailBroadcastQueue
         }
         $voucher = $this->db->table('voucher')->where('id', $voucherId)->get()->getRowArray();
         if (!$voucher || empty($voucher['active']) || trim((string)($voucher['isi_email'] ?? '')) === '') return 0;
+        if (!in_array($audience, ['active_customers', 'voucher_recipients'], true)) {
+            throw new RuntimeException('INVALID_MARKETING_AUDIENCE');
+        }
+        // Bound queue size so a mistaken admin selection cannot create an oversized backlog.
+        $recipientLimit = max(1, min(500, $recipientLimit));
         if ($this->db->table('customer_voucher_email_campaigns')->where('voucher_id', $voucherId)->countAllResults() > 0) {
             throw new RuntimeException('VOUCHER_CAMPAIGN_ALREADY_QUEUED');
         }
 
 
-        $rawRecipients = json_decode((string)($voucher['code'] ?? ''), true);
-        if (!is_array($rawRecipients)) return 0;
-        $targets = [];
-        foreach ($rawRecipients as $recipient) {
-            $email = strtolower(trim((string)($recipient['email_user'] ?? '')));
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) $targets[$email] = true;
-        }
-        if (!$targets) return 0;
-
-        // Include active customers listed by the voucher; only explicit email unsubscriptions are excluded.
         $eligible = [];
-        foreach (array_chunk(array_keys($targets), 400) as $chunk) {
+        if ($audience === 'active_customers') {
+            // The admin can address the active customer base without manually maintaining voucher email lists.
             $rows = $this->db->table('user u')
                 ->select('u.email')
                 ->join('customer_marketing_preferences p', 'LOWER(u.email) = LOWER(p.email_user)', 'left', false)
                 ->where('u.role', '0')->where('u.active', '1')
                 ->where('p.email_unsubscribed_at', null)
-                ->whereIn('LOWER(u.email)', $chunk)->get()->getResultArray();
+                ->orderBy('u.email', 'ASC')->limit($recipientLimit)->get()->getResultArray();
             foreach ($rows as $row) {
                 $email = strtolower(trim((string)$row['email']));
-                if (isset($targets[$email])) $eligible[$email] = true;
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) $eligible[$email] = true;
+            }
+        } else {
+            $rawRecipients = json_decode((string)($voucher['code'] ?? ''), true);
+            if (!is_array($rawRecipients)) return 0;
+            $targets = [];
+            foreach ($rawRecipients as $recipient) {
+                $email = strtolower(trim((string)($recipient['email_user'] ?? '')));
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) $targets[$email] = true;
+            }
+            if (!$targets) return 0;
+
+            foreach (array_chunk(array_keys($targets), 400) as $chunk) {
+                $rows = $this->db->table('user u')
+                    ->select('u.email')
+                    ->join('customer_marketing_preferences p', 'LOWER(u.email) = LOWER(p.email_user)', 'left', false)
+                    ->where('u.role', '0')->where('u.active', '1')
+                    ->where('p.email_unsubscribed_at', null)
+                    ->whereIn('LOWER(u.email)', $chunk)->get()->getResultArray();
+                foreach ($rows as $row) {
+                    $email = strtolower(trim((string)$row['email']));
+                    if (isset($targets[$email])) $eligible[$email] = true;
+                    if (count($eligible) >= $recipientLimit) break 2;
+                }
             }
         }
         if (!$eligible) return 0;

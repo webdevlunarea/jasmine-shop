@@ -52,7 +52,7 @@ final class VoucherEmailBroadcastQueueTest extends CIUnitTestCase
     public function testQueueIncludesLegacyAccountsButExcludesExplicitUnsubscribesAndPreventsDuplicates(): void
     {
         $queue = new VoucherEmailBroadcastQueue($this->testDb);
-        $this->assertSame(1, $queue->queue(7, 'admin@example.test'));
+        $this->assertSame(1, $queue->queue(7, 'admin@example.test', 'voucher_recipients', 100));
         $recipient = $this->testDb->table('customer_voucher_email_recipients')->get()->getRowArray();
         $this->assertSame('legacy@example.test', $recipient['email_user']);
         $campaign = $this->testDb->table('customer_voucher_email_campaigns')->get()->getRowArray();
@@ -60,6 +60,18 @@ final class VoucherEmailBroadcastQueueTest extends CIUnitTestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('VOUCHER_CAMPAIGN_ALREADY_QUEUED');
-        $queue->queue(7, 'admin@example.test');
+        $queue->queue(7, 'admin@example.test', 'voucher_recipients', 100);
+    }
+
+    public function testQueueCanTargetActiveCustomersAndRespectAdminRecipientLimit(): void
+    {
+        $this->testDb->table('user')->insert(['email' => 'newbuyer@example.test', 'role' => '0', 'active' => '1']);
+        $this->testDb->table('user')->insert(['email' => 'inactive@example.test', 'role' => '0', 'active' => '0']);
+        $this->testDb->table('user')->insert(['email' => 'staff@example.test', 'role' => '1', 'active' => '1']);
+
+        $queue = new VoucherEmailBroadcastQueue($this->testDb);
+        $this->assertSame(1, $queue->queue(7, 'admin@example.test', 'active_customers', 1));
+        $recipient = $this->testDb->table('customer_voucher_email_recipients')->get()->getRowArray();
+        $this->assertSame('legacy@example.test', $recipient['email_user']);
     }
 }

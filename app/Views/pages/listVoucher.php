@@ -7,6 +7,15 @@
         border-radius: 1em;
     }
 
+    .voucher-broadcast-controls { display: flex; align-items: center; gap: .35rem; }
+    .voucher-broadcast-controls select, .voucher-broadcast-controls input { min-height: 34px; font-size: .8rem; }
+    .voucher-broadcast-controls select { max-width: 190px; }
+    .voucher-broadcast-controls input { width: 82px; }
+    @media (max-width: 767.98px) {
+        .voucher-broadcast-controls { flex-wrap: wrap; justify-content: flex-end; }
+        .voucher-broadcast-controls select { max-width: 160px; }
+    }
+
     .loading {
         animation: putarputar 2s linear infinite;
     }
@@ -52,6 +61,7 @@
                 <?= $msg; ?>
             </div>
         <?php } ?>
+        <p class="small text-secondary mb-3">Broadcast tidak perlu mengisi email satu per satu. Pilih pelanggan aktif atau penerima voucher, lalu tentukan batas penerima (maksimal 500). Email dikirim bertahap, maksimal 25 dalam 24 jam; pelanggan yang berhenti berlangganan dikecualikan.</p>
         <div class="d-flex flex-column gap-1">
             <?php foreach ($voucher as $ind_v => $v) { ?>
                 <div class="item-list-voucher">
@@ -81,7 +91,19 @@
                                 </div>
                                 <?php if ($v['active']) { ?>
                                     <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="List customer" onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
-                                    <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Kirim email kepada pelanggan aktif; pelanggan yang berhenti berlangganan dikecualikan" onclick="triggerToast('Jadwalkan email voucher untuk pelanggan aktif yang tercantum pada voucher dan belum berhenti berlangganan?','/actionbroadcastvoucher/<?= $v['id']; ?>')" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">contact_mail</i></div>
+                                    <?php if (!isset($voucherEmailCampaigns[(string)$v['id']])) { ?>
+                                        <form class="voucher-broadcast-controls" method="post" action="/actionbroadcastvoucher/<?= esc($v['id'], 'attr'); ?>" onsubmit="return confirm('Jadwalkan email voucher ke pelanggan aktif sesuai pilihan ini? Pelanggan yang berhenti berlangganan akan dikecualikan. Pengiriman dibatasi maksimal 25 email dalam 24 jam.');">
+                                            <?= csrf_field(); ?>
+                                            <label class="visually-hidden" for="broadcast-audience-<?= esc($v['id'], 'attr'); ?>">Penerima email</label>
+                                            <select class="form-select form-select-sm" id="broadcast-audience-<?= esc($v['id'], 'attr'); ?>" name="audience" aria-label="Pilih penerima email">
+                                                <option value="active_customers">Pelanggan aktif</option>
+                                                <option value="voucher_recipients">Penerima voucher ini</option>
+                                            </select>
+                                            <label class="visually-hidden" for="broadcast-limit-<?= esc($v['id'], 'attr'); ?>">Batas jumlah email</label>
+                                            <input class="form-control form-control-sm" id="broadcast-limit-<?= esc($v['id'], 'attr'); ?>" type="number" name="recipient_limit" min="1" max="500" value="100" aria-label="Batas penerima, maksimal 500">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Jadwalkan broadcast email"><i class="material-icons" aria-hidden="true">contact_mail</i><span class="visually-hidden">Jadwalkan email</span></button>
+                                        </form>
+                                    <?php } ?>
                                 <?php } ?>
                                 <?php if (isset($voucherEmailCampaigns[(string)$v['id']])) { $campaign = $voucherEmailCampaigns[(string)$v['id']]; ?>
                                     <span class="small text-secondary" role="status" title="Email terkirim <?= (int)$campaign['sent']; ?> dari <?= (int)$campaign['total']; ?>; antrean <?= (int)$campaign['pending']; ?>; gagal <?= (int)$campaign['failed']; ?>">

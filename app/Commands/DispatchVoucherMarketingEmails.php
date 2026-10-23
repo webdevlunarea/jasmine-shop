@@ -11,7 +11,7 @@ class DispatchVoucherMarketingEmails extends BaseCommand
 {
     protected $group = 'Marketing';
     protected $name = 'marketing:voucher-email-dispatch';
-    protected $description = 'Kirim antrean email voucher bertahap kepada pelanggan yang memilih ikut.';
+    protected $description = 'Kirim antrean email voucher bertahap kepada pelanggan aktif.';
     protected $options = ['--limit' => 'Jumlah email maksimum per eksekusi (1–20, default 10).'];
 
     public function run(array $params)
@@ -28,11 +28,12 @@ class DispatchVoucherMarketingEmails extends BaseCommand
         $emailDailyCutoff = gmdate('Y-m-d H:i:s', time() - 86400);
         $recentlySent = (int)$db->table('customer_voucher_email_recipients')->where('status', 'sent')
             ->where('sent_at >=', $emailDailyCutoff)->countAllResults();
-        if ($recentlySent >= 100) {
-            CLI::write('Batas aman 100 email promosi per 24 jam tercapai; antrean menunggu jendela pengiriman berikutnya.');
+        // Conservative application-level ceiling for low-quota SMTP plans.
+        if ($recentlySent >= 25) {
+            CLI::write('Batas aman 25 email promosi dalam 24 jam tercapai; antrean menunggu jendela pengiriman berikutnya.');
             return EXIT_SUCCESS;
         }
-        $limit = min($limit, 100 - $recentlySent);
+        $limit = min($limit, 25 - $recentlySent);
         $db->table('customer_voucher_email_recipients')->where('status', 'processing')
             ->where('updated_at <', gmdate('Y-m-d H:i:s', time() - 900))
             ->update(['status' => 'pending', 'updated_at' => $now]);
@@ -98,7 +99,7 @@ class DispatchVoucherMarketingEmails extends BaseCommand
                 $unsubscribeToken = (new \App\Services\Notifications\CustomerMarketingPreferences($db))->unsubscribeToken($email);
                 $unsubscribeUrl = rtrim(base_url(), '/') . '/promosi/berhenti/' . rawurlencode($unsubscribeToken);
                 $bodyHtml = (string)$row['body_html']
-                    . '<p style="margin-top:20px;font-size:12px;color:#68736b">Email promosi ini dikirim karena Anda memilih menerima kabar promosi Lunarea. <a href="' . esc($unsubscribeUrl) . '">Berhenti menerima email promosi</a>.</p>';
+                    . '<p style="margin-top:20px;font-size:12px;color:#68736b">Anda menerima email promosi dari Lunarea. <a href="' . esc($unsubscribeUrl) . '">Berhenti menerima email promosi</a>.</p>';
                 $message = view('emails/layout', [
                     'title' => (string)$row['subject'], 'preheader' => (string)$row['subject'],
                     'bodyHtml' => '<div style="color:#3f3b34;font-size:15px;line-height:1.75">' . $bodyHtml . '</div>',

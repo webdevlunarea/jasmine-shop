@@ -13,7 +13,7 @@
 
    This creates email unsubscribe preferences, the durable voucher email outbox, and the atomic global campaign guard. Existing explicit negative email choices from the former opt-in setting are preserved as unsubscribes; accounts without a saved preference remain subscribed until they unsubscribe.
 
-4. In `crontab -u nobody -e`, replace the existing `notifications:dispatch` line with the locked version below (do not keep both), and add the email worker line. The email worker is deliberately capped at two messages per run:
+4. In `crontab -u nobody -e`, replace the existing `notifications:dispatch` line with the locked version below (do not keep both), and add the email worker line. The email worker is capped at two messages per run and 25 promotional emails per rolling 24 hours:
 
    ```cron
    * * * * * cd /mine/lunareafurniture.com/jasmine-shop && /usr/bin/flock -n writable/notification-dispatch.lock /usr/local/lsws/lsphp83/bin/php spark notifications:dispatch --limit 100 >> writable/logs/notifications-dispatch.log 2>&1
@@ -35,9 +35,9 @@ Monitor `writable/logs/voucher-marketing-email.log`. The dispatch command sends 
 
 ## Safeguards
 
-- Email voucher broadcast is queued for active customer accounts listed on that voucher, except accounts that explicitly unsubscribed.
+- Email voucher broadcast can target active customer accounts or the voucher's recipient list. Admins can cap an audience at 500; accounts that explicitly unsubscribed are excluded.
 - Promotional FCM requires an active Android device registration, which is created only when notification permission is enabled in the app/device. There is no extra promotional opt-in toggle.
 - A database-atomic global guard allows at most one campaign per minute and five campaigns per UTC day across admin sessions and channels.
-- A customer receives no more than one marketing email/FCM promotion in a rolling 24-hour window. Email campaign sends are processed in small retryable batches, capped at 100 total promo emails per rolling 24 hours; repeated voucher campaign clicks are deduplicated. The configured cron processes at most 24 per hour, while the daily cap leaves headroom for transactional email on the existing SMTP account.
+- A customer receives no more than one marketing email/FCM promotion in a rolling 24-hour window. Email sends are processed in small retryable batches and capped at 25 promo emails per rolling 24 hours; repeated voucher campaign clicks are deduplicated. This app-side limit does not know the SMTP provider's separate quota or count transactional mail sent outside this worker. Check the provider's quota/usage dashboard before raising the cap.
 - Marketing email includes an unsubscribe confirmation link and account setting. Unsubscribing affects promotional email only, not transactional/security email.
 - Monitor campaign counts on `/listvoucher`; the FCM page displays the current eligible device audience.
