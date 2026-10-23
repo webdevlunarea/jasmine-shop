@@ -51,7 +51,11 @@ class CatalogController extends ApiController
 
     public function product(string $id)
     {
-        $row = (new BarangModel())->select('id,nama,path,harga,rate,stok,deskripsi,deskripsi_nonhtml,kategori,subkategori,diskon,berat,dimensi,varian,jml_varian,kaca')->where(['id' => $id, 'active' => '1'])->first();
+        $fields = 'id,nama,path,harga,rate,stok,deskripsi,deskripsi_nonhtml,kategori,subkategori,diskon,berat,dimensi,varian,jml_varian,kaca';
+        $row = (new BarangModel())->select($fields)->where(['id' => $id, 'active' => '1'])->first();
+        if (!$row) {
+            $row = (new BarangModel())->select($fields)->where(['path' => $id, 'active' => '1'])->orderBy('id', 'DESC')->first();
+        }
         if (!$row) return $this->failure('PRODUCT_NOT_FOUND', 'Produk tidak ditemukan.', 404);
         $product = $this->publicProduct($row, true);
         $product['images'] = $this->productImageUrls((string)$row['id']);

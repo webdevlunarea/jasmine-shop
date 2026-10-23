@@ -19,6 +19,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.fragment.app.FragmentActivity
@@ -180,7 +181,15 @@ private data class PushTap(val type: String, val orderId: String, val productId:
     companion object {
         fun from(intent: Intent?): PushTap? {
             if (intent == null) return null
-            val type = intent.getStringExtra("push_type") ?: intent.getStringExtra("type") ?: return null
+            val type = intent.getStringExtra("push_type") ?: intent.getStringExtra("type")
+            if (type == null) {
+                val uri = intent.data ?: return null
+                if (uri.scheme != "https" || uri.host != "lunareafurniture.com") return null
+                val path = uri.pathSegments
+                val slug = path.takeIf { it.size == 2 && it[0] == "product" }?.get(1)
+                    ?.takeIf { it.matches(Regex("[A-Za-z0-9_-]{1,120}")) } ?: return null
+                return PushTap("product_link", "", slug, "")
+            }
             return PushTap(
                 type = type,
                 orderId = intent.getStringExtra("push_order_id") ?: intent.getStringExtra("order_id").orEmpty(),
@@ -287,6 +296,38 @@ private fun normalizeRegionLabel(value: String): String = Normalizer.normalize(v
     .replace("[^a-z0-9]+".toRegex(), " ")
     .trim()
 
+private fun closestRecentSearch(query: String, history: List<String>): String? {
+    val normalized = query.trim().lowercase(Locale.ROOT).filter(Char::isLetterOrDigit)
+    if (normalized.length < 4) return null
+    val maxDistance = if (normalized.length >= 7) 2 else 1
+    return history.asSequence()
+        .map(String::trim)
+        .filter { it.isNotBlank() && !it.equals(query.trim(), ignoreCase = true) }
+        .map { candidate -> candidate to editDistance(normalized, candidate.lowercase(Locale.ROOT).filter(Char::isLetterOrDigit)) }
+        .filter { (_, distance) -> distance in 1..maxDistance }
+        .minByOrNull { it.second }
+        ?.first
+}
+
+private fun editDistance(first: String, second: String): Int {
+    if (first.isEmpty()) return second.length
+    if (second.isEmpty()) return first.length
+    var previous = IntArray(second.length + 1) { it }
+    for (i in first.indices) {
+        val current = IntArray(second.length + 1)
+        current[0] = i + 1
+        for (j in second.indices) {
+            current[j + 1] = minOf(
+                current[j] + 1,
+                previous[j + 1] + 1,
+                previous[j] + if (first[i] == second[j]) 0 else 1
+            )
+        }
+        previous = current
+    }
+    return previous[second.length]
+}
+
 class MainActivity : FragmentActivity() {
     private var appLocked by mutableStateOf(false)
     private var pendingPushTap by mutableStateOf<PushTap?>(null)
@@ -310,6 +351,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         // onStop locks the current Activity instance, but Android may kill the
         // process after the task is dismissed. Re-establish the lock on a cold
         // launch so clearing the app from Recents cannot bypass biometric auth.
@@ -447,7 +489,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             }
             tap.productId.isNotBlank() -> {
                 tab = AppTab.CATALOG
-                query = tap.productId
+                affiliateProductToOpen = tap.productId
             }
             tap.type == "notification_inbox" || tap.campaignId.isNotBlank() || tap.type.startsWith("broadcast_") || tap.type == "admin_test" -> {
                 // Campaign and account-wide announcements open the inbox so the
@@ -5802,11 +5844,30 @@ private fun CatalogScreen(
             }
         }
         if (loading && products.isEmpty()) LoadingStatePanel("Memuat produk…", Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-        if (message != null && products.isEmpty() && !loading) StatePanel(
-            title = "Produk belum dapat ditampilkan", message = message,
-            icon = R.drawable.ic_dialog_info,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        if (message != null && products.isEmpty() && !loading) {
+            val noSearchResults = query.isNotBlank() && message.startsWith("Tidak ada produk untuk")
+            val correction = if (noSearchResults) closestRecentSearch(query, recentSearches) else null
+            val actionLabel = when {
+                correction != null -> "Cari ‘$correction’"
+                noSearchResults -> "Hapus pencarian"
+                else -> "Coba lagi"
+            }
+            StatePanel(
+                title = if (noSearchResults) "Pencarian belum menemukan hasil" else "Produk belum dapat ditampilkan",
+                message = if (correction != null) "Tidak menemukan ‘${query.trim()}’. Coba kata yang pernah Anda cari: ‘$correction’." else message,
+                icon = if (noSearchResults) R.drawable.ic_search else R.drawable.ic_dialog_info,
+                isError = !noSearchResults,
+                actionLabel = actionLabel,
+                onAction = {
+                    when {
+                        correction != null -> { onQueryChange(correction); onSearch(correction) }
+                        noSearchResults -> { onQueryChange(""); onSearch("") }
+                        else -> onRefresh()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
         else if (message != null) InlineStatusMessage(message, isError = true)
         if (detailLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary)
         detailError?.let { InlineStatusMessage(it, isError = true) }

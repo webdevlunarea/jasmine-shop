@@ -98,7 +98,7 @@ Perubahan email memakai `POST /auth/email/change/request` dengan `{"current_pass
 | Method | Path | Query | Isi respons utama |
 |---|---|---|---|
 | GET | `/catalog/products` | `page` (default 1, maksimum 10.000), `per_page` (default 20, maks 40), opsional `q`, `category`, `sort` (`default`, `popular`, `newest`) | `data.products`; metadata paging di `meta`; urutan `popular` berdasarkan angka terjual yang ditampilkan, `newest` mengikuti ID produk aktif terbaru per slug; parameter tidak valid menghasilkan HTTP 422 |
-| GET | `/catalog/products/{id}` | — | `data.product`, termasuk deskripsi dan ketersediaan layanan kaca |
+| GET | `/catalog/products/{id}` | — | `data.product`, termasuk deskripsi dan ketersediaan layanan kaca. Segmen terakhir menerima ID produk atau slug publik aktif untuk mendukung Android App Links. |
 | GET | `/catalog/categories` | — | `data.categories` |
 | GET | `/regions/provinces` | — | `data.regions` |
 | GET | `/regions/cities?province_id={id}` | Province wajib | Kota/kabupaten dalam provinsi |
