@@ -11,6 +11,20 @@
     .voucher-broadcast-controls select, .voucher-broadcast-controls input { min-height: 34px; font-size: .8rem; }
     .voucher-broadcast-controls select { max-width: 190px; }
     .voucher-broadcast-controls input { width: 82px; }
+    .voucher-flash-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin: 0 0 14px;
+        padding: 11px 14px;
+        border: 1px solid var(--admin-border, var(--soft2, #e2ded5));
+        border-radius: 8px;
+        background: var(--admin-primary-soft, var(--hijaumuda, #f5f3ee));
+        color: var(--admin-text, var(--warna-text, #282e29));
+        font-size: 12px;
+        line-height: 1.65;
+    }
+    .voucher-flash-message .material-icons { flex: 0 0 auto; margin-top: 1px; color: var(--admin-primary, var(--hijau, #365b46)); font-size: 18px; }
     @media (max-width: 767.98px) {
         .voucher-broadcast-controls { flex-wrap: wrap; justify-content: flex-end; }
         .voucher-broadcast-controls select { max-width: 160px; }
@@ -57,8 +71,9 @@
         <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Voucher', 'adminHeadingGroup'=>'Promosi & konten', 'adminHeadingDescription'=>'Kelola potongan, periode berlaku, dan penerima voucher.', 'adminHeadingActions'=>[['label'=>'Tambah voucher', 'href'=>'/addvoucher', 'icon'=>'add', 'primary'=>true, 'external'=>false]]], ['saveData'=>false]); ?>
 
         <?php if ($msg) { ?>
-            <div class="alert alert-primary" role="alert">
-                <?= $msg; ?>
+            <div class="voucher-flash-message" role="status" aria-live="polite">
+                <i class="material-icons" aria-hidden="true">info</i>
+                <span><?= esc($msg); ?></span>
             </div>
         <?php } ?>
         <p class="small text-secondary mb-3">Broadcast tidak perlu mengisi email satu per satu. Pilih pelanggan aktif atau penerima voucher, lalu tentukan batas penerima (maksimal 500). Email dikirim bertahap, maksimal 25 dalam 24 jam; pelanggan yang berhenti berlangganan dikecualikan.</p>

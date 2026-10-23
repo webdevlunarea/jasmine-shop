@@ -35,7 +35,22 @@
 .admin-body .admin-module-page :is(.form-label, .form-label.fw-bold) { color: var(--admin-text); font-size: 12px; font-weight: 500 !important; margin-bottom: 7px; }
 .admin-body .admin-module-page :is(small, .small) { line-height: 1.7; font-size: 11px; }
 .admin-body .admin-module-page :is(.text-secondary, .text-muted) { color: var(--admin-muted) !important; }
-.admin-body .admin-module-page :is(.alert-info, .alert-primary) { background: var(--admin-primary-soft); border: 1px solid var(--admin-border); color: var(--admin-text); font-size: 12px; line-height: 1.7; border-radius: 8px; box-shadow: none; }
+.admin-body .alert {
+    margin-bottom: 14px;
+    padding: 11px 14px;
+    border: 1px solid var(--admin-border);
+    border-inline-start: 3px solid var(--admin-primary);
+    border-radius: 8px;
+    background: var(--admin-primary-soft);
+    color: var(--admin-text);
+    font-size: 12px;
+    line-height: 1.7;
+    box-shadow: none;
+}
+.admin-body .alert-success { border-inline-start-color: #3c7854; }
+.admin-body .alert-warning { border-inline-start-color: #a47b33; }
+.admin-body .alert-danger { border-inline-start-color: #a65a50; }
+.admin-body .alert :is(strong, b) { color: inherit; }
 .admin-body .admin-module-page .badge { padding: 5px 8px; border-radius: 5px !important; font-size: 10px; font-weight: 500; line-height: 1.5; white-space: normal; }
 .admin-body .admin-module-page .text-bg-success { background: var(--admin-primary-soft) !important; color: var(--admin-primary) !important; }
 .admin-body .admin-module-page :is(.admin-form-section, .flash-admin-panel, .shipping-admin-panel, .traffic-section, .color-field, .variant-image-map-section) { border: 1px solid var(--admin-border); border-radius: 10px; padding: 21px; box-shadow: none; background: var(--admin-surface); min-width: 0; }
