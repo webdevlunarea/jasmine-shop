@@ -15,8 +15,7 @@ final class CustomerMarketingPreferences extends BaseController
         try {
             (new Preferences(Database::connect()))->update(
                 (string)session('email'),
-                $this->request->getPost('email_promotions') === '1',
-                $this->request->getPost('push_promotions') === '1'
+                $this->request->getPost('email_promotions') === '1'
             );
             return redirect()->to('/account')->with('msg', 'Preferensi promosi berhasil disimpan.');
         } catch (\Throwable $error) {

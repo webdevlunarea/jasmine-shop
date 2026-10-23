@@ -6801,7 +6801,7 @@ class Pages extends BaseController
             'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
             'usernameSettings' => $usernameSettings,
             'emailChangeSettings' => $emailChangeSettings,
-            'marketingPreferences' => ['email_promotions' => false, 'push_promotions' => false],
+            'marketingPreferences' => ['email_promotions' => true],
             'profileCompletion' => $profileCompletion,
             'activeOrders' => $activeOrders,
             'pendingPayment' => $pendingPayment,

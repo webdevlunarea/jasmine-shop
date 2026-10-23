@@ -22,13 +22,12 @@ final class CustomerPushBroadcasts
 
     public function activeAndroidRecipientCount(): int
     {
-        if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('customer_marketing_preferences')) return 0;
+        if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('user')) return 0;
 
         $row = $this->db->table('customer_push_devices d')
             ->select('COUNT(DISTINCT LOWER(d.email_user)) AS total', false)
-            ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(d.email_user)', 'inner', false)
             ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
-            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'p.push_promotions' => 1, 'u.role' => '0', 'u.active' => '1'])
+            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'u.role' => '0', 'u.active' => '1'])
             ->get()->getRowArray();
 
         return (int) ($row['total'] ?? 0);
@@ -43,15 +42,14 @@ final class CustomerPushBroadcasts
             throw new InvalidArgumentException('Broadcast content is invalid.');
         }
         if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('customer_push_notifications')
-            || !$this->db->tableExists('customer_marketing_preferences') || !$this->db->tableExists('customer_marketing_campaign_guard')) {
+            || !$this->db->tableExists('customer_marketing_campaign_guard')) {
             throw new RuntimeException('Push broadcast storage is unavailable.');
         }
 
         $audience = $this->db->table('customer_push_devices d')
             ->distinct()->select('d.email_user')
-            ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(d.email_user)', 'inner', false)
             ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
-            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'p.push_promotions' => 1, 'u.role' => '0', 'u.active' => '1'])
+            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'u.role' => '0', 'u.active' => '1'])
             ->get()->getResultArray();
         $recipients = [];
         foreach ($audience as $row) {

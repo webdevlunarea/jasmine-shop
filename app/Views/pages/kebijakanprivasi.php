@@ -127,15 +127,13 @@
         </p>
         <h2 class="jdl-section mt-5">Promosi</h2>
         <p>
-            Setelah terjadi pembelian barang dan berlangganan newsletter
-            dari situs Lunarea Furniture, maka Anda akan terus mendapatkan
-            update produk terbaru, berita, dan penawaran spesial melalui
-            email. Anda memiliki hak untuk menerima atau menolak materi
-            promosi yang telah dikirimkan tersebut. Apabila dirasa ingin
-            berhenti untuk berlangganan newsletter, maka cukup dengan
-            melakukan klik unsubscribe pada bagian bawah setiap newsletter
-            atau email promosi yang Kami berikan secara khusus kepada Anda
-            sebagai pelanggan.
+            Kami dapat mengirim pembaruan produk, berita, dan penawaran
+            melalui email akun Anda. Anda dapat berhenti kapan saja melalui
+            tautan berhenti berlangganan pada email promosi atau pengaturan
+            akun. Email transaksi dan keamanan akun tetap dapat dikirim.
+            Notifikasi promosi pada Android hanya dikirim ke perangkat yang
+            terdaftar dengan izin notifikasi Lunarea aktif; izin tersebut
+            dapat diubah melalui pengaturan perangkat.
         </p>
         <h2 class="jdl-section mt-5">Pembaruan Kebijakan Privasi</h2>
         <p>

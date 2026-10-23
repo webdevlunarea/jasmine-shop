@@ -17,7 +17,7 @@ final class VoucherEmailBroadcastQueueTest extends CIUnitTestCase
         $this->testDb->query('CREATE TABLE user (email TEXT PRIMARY KEY, role TEXT NOT NULL, active TEXT NOT NULL)');
         $this->testDb->query('CREATE TABLE customer_marketing_preferences (
             email_user TEXT PRIMARY KEY, email_promotions INTEGER NOT NULL DEFAULT 0, push_promotions INTEGER NOT NULL DEFAULT 0,
-            email_consent_at TEXT NULL, push_consent_at TEXT NULL, updated_at TEXT NOT NULL
+            email_consent_at TEXT NULL, push_consent_at TEXT NULL, email_unsubscribed_at TEXT NULL, updated_at TEXT NOT NULL
         )');
         $this->testDb->query('CREATE TABLE customer_voucher_email_campaigns (
             id INTEGER PRIMARY KEY AUTOINCREMENT, voucher_id INTEGER NOT NULL UNIQUE, subject TEXT NOT NULL,
@@ -37,8 +37,9 @@ final class VoucherEmailBroadcastQueueTest extends CIUnitTestCase
         $this->testDb->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
         $this->testDb->table('user')->insert(['email' => 'legacy@example.test', 'role' => '0', 'active' => '1']);
         $this->testDb->table('customer_marketing_preferences')->insert([
-            'email_user' => 'buyer@example.test', 'email_promotions' => 1, 'push_promotions' => 0,
-            'email_consent_at' => gmdate('Y-m-d H:i:s'), 'push_consent_at' => null, 'updated_at' => gmdate('Y-m-d H:i:s'),
+            'email_user' => 'buyer@example.test', 'email_promotions' => 0, 'push_promotions' => 0,
+            'email_consent_at' => null, 'push_consent_at' => null,
+            'email_unsubscribed_at' => gmdate('Y-m-d H:i:s'), 'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
     }
 
@@ -48,12 +49,12 @@ final class VoucherEmailBroadcastQueueTest extends CIUnitTestCase
         parent::tearDown();
     }
 
-    public function testQueueExcludesExistingAccountsWithoutEmailOptInAndPreventsDuplicateVoucherCampaign(): void
+    public function testQueueIncludesLegacyAccountsButExcludesExplicitUnsubscribesAndPreventsDuplicates(): void
     {
         $queue = new VoucherEmailBroadcastQueue($this->testDb);
         $this->assertSame(1, $queue->queue(7, 'admin@example.test'));
         $recipient = $this->testDb->table('customer_voucher_email_recipients')->get()->getRowArray();
-        $this->assertSame('buyer@example.test', $recipient['email_user']);
+        $this->assertSame('legacy@example.test', $recipient['email_user']);
         $campaign = $this->testDb->table('customer_voucher_email_campaigns')->get()->getRowArray();
         $this->assertSame('queued', $campaign['status']);
 

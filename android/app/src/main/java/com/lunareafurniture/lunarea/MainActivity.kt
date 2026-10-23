@@ -7345,7 +7345,6 @@ private fun AccountScreen(
     val accountPhotoUrl = cachedPhotoUrl
     var showDisableNotificationsConfirmation by remember { mutableStateOf(false) }
     var emailPromotions by remember { mutableStateOf(false) }
-    var pushPromotions by remember { mutableStateOf(false) }
     var marketingPreferencesLoading by remember { mutableStateOf(false) }
     var marketingPreferencesSaving by remember { mutableStateOf(false) }
     var marketingPreferencesMessage by remember { mutableStateOf<String?>(null) }
@@ -7365,7 +7364,6 @@ private fun AccountScreen(
     LaunchedEffect(signedIn) {
         if (!signedIn) {
             emailPromotions = false
-            pushPromotions = false
             return@LaunchedEffect
         }
         marketingPreferencesLoading = true
@@ -7374,7 +7372,6 @@ private fun AccountScreen(
             val data = response.body()?.data
             if (response.isSuccessful && response.body()?.success == true && data != null) {
                 emailPromotions = data.get("email_promotions")?.asBoolean ?: false
-                pushPromotions = data.get("push_promotions")?.asBoolean ?: false
             } else marketingPreferencesMessage = response.customerError("Preferensi promosi belum dapat dimuat.")
         } catch (_: Exception) {
             marketingPreferencesMessage = "Koneksi belum tersedia. Preferensi promosi belum dimuat."
@@ -7564,17 +7561,16 @@ private fun AccountScreen(
                 }
             }
             AccountSettingsGroup("Preferensi promosi") {
-                Text("Pilihan ini opsional. Anda dapat mengubahnya kapan saja.", Modifier.padding(horizontal = 14.dp, vertical = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Email promosi dikirim ke email akun. Anda dapat berhenti kapan saja. Notifikasi Android mengikuti izin notifikasi perangkat.", Modifier.padding(horizontal = 14.dp, vertical = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (marketingPreferencesLoading) {
                     Text("Memuat preferensi…", Modifier.padding(horizontal = 14.dp, vertical = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     MarketingPreferenceRow(
-                        title = "Email voucher dan promo",
+                        title = "Terima email voucher dan promo",
                         checked = emailPromotions,
                         enabled = !marketingPreferencesSaving,
                         onCheckedChange = { next ->
                             val oldEmail = emailPromotions
-                            val oldPush = pushPromotions
                             emailPromotions = next
                             marketingPreferencesSaving = true
                             marketingPreferencesMessage = null
@@ -7582,7 +7578,6 @@ private fun AccountScreen(
                                 try {
                                     val response = ApiClient.get(context).updateMarketingPreferences(JsonObject().apply {
                                         addProperty("email_promotions", next)
-                                        addProperty("push_promotions", oldPush)
                                     })
                                     if (!response.isSuccessful || response.body()?.success != true) {
                                         emailPromotions = oldEmail
@@ -7590,33 +7585,6 @@ private fun AccountScreen(
                                     } else marketingPreferencesMessage = "Preferensi promosi berhasil disimpan."
                                 } catch (_: Exception) {
                                     emailPromotions = oldEmail
-                                    marketingPreferencesMessage = "Koneksi belum tersedia. Pilihan belum tersimpan."
-                                } finally { marketingPreferencesSaving = false }
-                            }
-                        }
-                    )
-                    MarketingPreferenceRow(
-                        title = "Notifikasi promo di Android",
-                        checked = pushPromotions,
-                        enabled = !marketingPreferencesSaving,
-                        onCheckedChange = { next ->
-                            val oldEmail = emailPromotions
-                            val oldPush = pushPromotions
-                            pushPromotions = next
-                            marketingPreferencesSaving = true
-                            marketingPreferencesMessage = null
-                            preferenceScope.launch {
-                                try {
-                                    val response = ApiClient.get(context).updateMarketingPreferences(JsonObject().apply {
-                                        addProperty("email_promotions", oldEmail)
-                                        addProperty("push_promotions", next)
-                                    })
-                                    if (!response.isSuccessful || response.body()?.success != true) {
-                                        pushPromotions = oldPush
-                                        marketingPreferencesMessage = response.customerError("Pilihan belum tersimpan. Coba lagi.")
-                                    } else marketingPreferencesMessage = "Preferensi promosi berhasil disimpan."
-                                } catch (_: Exception) {
-                                    pushPromotions = oldPush
                                     marketingPreferencesMessage = "Koneksi belum tersedia. Pilihan belum tersimpan."
                                 } finally { marketingPreferencesSaving = false }
                             }

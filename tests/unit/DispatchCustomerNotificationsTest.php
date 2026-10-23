@@ -106,4 +106,21 @@ final class DispatchCustomerNotificationsTest extends CIUnitTestCase
         $this->assertNull($notification['sent_at']);
         $this->assertSame('AWAITING_DEVICE', $notification['last_error']);
     }
+
+    public function testMarketingPushUsesEnabledAndroidDeviceWithoutSeparateMarketingPreference(): void
+    {
+        $now = gmdate('Y-m-d H:i:s');
+        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, role TEXT NOT NULL, active TEXT NOT NULL)');
+        $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
+        $this->connection->table('customer_push_notifications')->insert([
+            'email_user' => 'buyer@example.test', 'notification_type' => 'broadcast_voucher',
+            'title' => 'Voucher', 'body' => 'Promo tersedia.', 'payload' => '{"type":"broadcast_voucher"}',
+            'dedupe_key' => str_repeat('c', 64), 'status' => 'pending', 'attempts' => 0,
+            'next_attempt_at' => $now, 'sent_at' => null, 'last_error' => null, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $this->dispatch(['ok' => true, 'status' => 200, 'error_code' => null]);
+        $notification = $this->connection->table('customer_push_notifications')->where('notification_type', 'broadcast_voucher')->get()->getRowArray();
+        $this->assertSame('sent', $notification['status']);
+    }
 }

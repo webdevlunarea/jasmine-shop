@@ -6,7 +6,7 @@ use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use Config\Database;
 
-/** Sends opted-in voucher emails in small, retryable batches. */
+/** Sends voucher emails in small, retryable batches; explicit unsubscriptions are excluded. */
 class DispatchVoucherMarketingEmails extends BaseCommand
 {
     protected $group = 'Marketing';
@@ -51,9 +51,9 @@ class DispatchVoucherMarketingEmails extends BaseCommand
 
             $email = strtolower(trim((string)$row['email_user']));
             $eligible = $db->table('user u')->select('u.email')
-                ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(u.email)', 'inner', false)
-                ->where('u.active', '1')->where('u.role', '0')->where('p.email_promotions', 1)
-                ->where('LOWER(u.email)', $email, false)->get()->getRowArray();
+                ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(u.email)', 'left', false)
+                ->where('u.active', '1')->where('u.role', '0')->where('p.email_unsubscribed_at', null)
+                ->where('LOWER(u.email) = ' . $db->escape($email), null, false)->get()->getRowArray();
             $voucher = $db->table('voucher')->select('id, active')->where('id', $row['voucher_id'])->get()->getRowArray();
             if (!$eligible || !$voucher || empty($voucher['active'])) {
                 $db->table('customer_voucher_email_recipients')->where('id', $row['id'])->update([

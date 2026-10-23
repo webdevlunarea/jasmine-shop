@@ -50,8 +50,8 @@
                     <i class="material-icons" aria-hidden="true">campaign</i>
                 </span>
                 <div>
-                    <h2 class="h5 fw-bold mb-1">Broadcast untuk pelanggan Android yang memilih ikut</h2>
-                    <p class="text-secondary mb-0">Sampaikan kabar voucher, Flash Sale, atau acara kepada pelanggan aktif yang menyetujui promosi FCM.</p>
+                    <h2 class="h5 fw-bold mb-1">Broadcast ke perangkat Android aktif</h2>
+                    <p class="text-secondary mb-0">Sampaikan kabar voucher, Flash Sale, atau acara kepada pelanggan aktif yang mengaktifkan notifikasi Lunarea di perangkat.</p>
                 </div>
             </div>
 
@@ -60,15 +60,15 @@
             <?php } ?>
 
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-3 p-3 mb-3" style="background:#faf9f6;">
-                <span class="text-secondary">Akun aktif, setuju promosi, dan punya perangkat Android</span>
+                <span class="text-secondary">Akun aktif dengan perangkat Android dan notifikasi terdaftar</span>
                 <strong class="fs-5" style="color:#2f2d20;"><?= number_format((int) ($broadcastRecipientCount ?? 0), 0, ',', '.'); ?></strong>
             </div>
 
             <div class="alert alert-light border rounded-3" role="note">
-                Pesan hanya masuk antrean untuk akun pelanggan aktif yang memilih menerima promosi dan memiliki perangkat Android aktif. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam. Worker notifikasi perlu berjalan terjadwal.
+                Pesan hanya masuk antrean untuk akun pelanggan aktif dengan perangkat Android yang terdaftar melalui izin notifikasi aplikasi. Tidak ada persetujuan promosi terpisah untuk FCM. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam.
             </div>
 
-            <form method="post" action="/notificationtestadmin/broadcast" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> pelanggan yang memilih menerima promosi? Pastikan isi pesan dan promonya sudah benar.">
+            <form method="post" action="/notificationtestadmin/broadcast" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> perangkat Android aktif? Pastikan isi pesan dan promonya sudah benar.">
                 <?= csrf_field(); ?>
                 <div class="row g-3">
                     <div class="col-12 col-md-5">

@@ -6,7 +6,7 @@ use CodeIgniter\Database\BaseConnection;
 use Config\Database;
 use RuntimeException;
 
-/** Durable, deduplicated email outbox for explicitly opted-in voucher recipients. */
+/** Durable, deduplicated email outbox; accounts can stop messages via explicit unsubscribe. */
 final class VoucherEmailBroadcastQueue
 {
     private BaseConnection $db;
@@ -40,17 +40,17 @@ final class VoucherEmailBroadcastQueue
         }
         if (!$targets) return 0;
 
-        // Explicit consent and active customer account are required; legacy accounts have no preference row and are excluded.
+        // Include active customers listed by the voucher; only explicit email unsubscriptions are excluded.
         $eligible = [];
         foreach (array_chunk(array_keys($targets), 400) as $chunk) {
-            $rows = $this->db->table('customer_marketing_preferences p')
-                ->select('p.email_user')
-                ->join('user u', 'LOWER(u.email) = LOWER(p.email_user)', 'inner', false)
-                ->where('p.email_promotions', 1)
+            $rows = $this->db->table('user u')
+                ->select('u.email')
+                ->join('customer_marketing_preferences p', 'LOWER(u.email) = LOWER(p.email_user)', 'left', false)
                 ->where('u.role', '0')->where('u.active', '1')
-                ->whereIn('p.email_user', $chunk)->get()->getResultArray();
+                ->where('p.email_unsubscribed_at', null)
+                ->whereIn('LOWER(u.email)', $chunk)->get()->getResultArray();
             foreach ($rows as $row) {
-                $email = strtolower(trim((string)$row['email_user']));
+                $email = strtolower(trim((string)$row['email']));
                 if (isset($targets[$email])) $eligible[$email] = true;
             }
         }

@@ -59,19 +59,12 @@ class DispatchCustomerNotifications extends BaseCommand
             }
             $isMarketing = str_starts_with((string)$row['notification_type'], 'broadcast_');
             if ($isMarketing) {
-                if (!$db->tableExists('customer_marketing_preferences')) {
-                    $db->table('customer_push_notifications')->where('id', $row['id'])->update([
-                        'status' => 'cancelled', 'last_error' => 'MARKETING_PREFERENCES_UNAVAILABLE', 'updated_at' => $now,
-                    ]);
-                    continue;
-                }
-                $eligible = $db->table('user u')->select('u.email')
-                    ->join('customer_marketing_preferences p', 'LOWER(p.email_user) = LOWER(u.email)', 'inner', false)
-                    ->where('LOWER(u.email)', strtolower(trim((string)$row['email_user'])), false)->where('u.role', '0')->where('u.active', '1')
-                    ->where('p.push_promotions', 1)->get()->getRowArray();
+                $eligible = $db->table('user')->select('email')
+                    ->where('LOWER(email) = ' . $db->escape(strtolower(trim((string)$row['email_user']))), null, false)
+                    ->where('role', '0')->where('active', '1')->get()->getRowArray();
                 if (!$eligible) {
                     $db->table('customer_push_notifications')->where('id', $row['id'])->update([
-                        'status' => 'cancelled', 'last_error' => 'MARKETING_OPT_OUT_OR_INACTIVE', 'updated_at' => $now,
+                        'status' => 'cancelled', 'last_error' => 'CUSTOMER_INACTIVE_OR_UNAVAILABLE', 'updated_at' => $now,
                     ]);
                     continue;
                 }

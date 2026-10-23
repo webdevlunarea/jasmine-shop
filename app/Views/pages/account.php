@@ -236,7 +236,7 @@ $statusClass = function ($status) {
                 <?php if ($role == '0' && session()->get('active')) { ?>
                     <section class="account-card mt-3" aria-labelledby="marketing-preferences-title">
                         <h5 class="fw-bold mb-1" id="marketing-preferences-title">Preferensi promosi</h5>
-                        <p class="text-secondary small mb-3">Pilih kabar promosi yang ingin Anda terima. Pilihan ini opsional dan dapat diubah kapan saja.</p>
+                        <p class="text-secondary small mb-3">Email promosi dikirim ke email akun Anda. Nonaktifkan kapan saja jika tidak ingin menerimanya. Notifikasi Android mengikuti izin notifikasi perangkat.</p>
                         <?php if (!db_connect()->tableExists('customer_marketing_preferences')) { ?>
                             <p class="small text-secondary mb-0">Pengaturan promosi sedang disiapkan.</p>
                         <?php } else { ?>
@@ -244,11 +244,7 @@ $statusClass = function ($status) {
                                 <?= csrf_field(); ?>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" value="1" id="email-promotions" name="email_promotions" <?= !empty($marketingPreferences['email_promotions']) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label" for="email-promotions">Email voucher dan promo</label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" value="1" id="push-promotions" name="push_promotions" <?= !empty($marketingPreferences['push_promotions']) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label" for="push-promotions">Notifikasi promo di aplikasi Android</label>
+                                    <label class="form-check-label" for="email-promotions">Saya menerima email voucher dan promo</label>
                                 </div>
                                 <button type="submit" class="btn btn-sm btn-primary1">Simpan preferensi</button>
                             </form>

@@ -6,7 +6,7 @@ use CodeIgniter\Database\BaseConnection;
 use Config\Database;
 use InvalidArgumentException;
 
-/** Explicit, opt-in marketing channels. Existing accounts default to opted out. */
+/** Email marketing uses opt-out semantics; push delivery follows active Android notification registration. */
 final class CustomerMarketingPreferences
 {
     private BaseConnection $db;
@@ -21,16 +21,15 @@ final class CustomerMarketingPreferences
         $email = strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException('Email akun tidak valid.');
         if (!$this->db->tableExists('customer_marketing_preferences')) {
-            return ['email_promotions' => false, 'push_promotions' => false];
+            return ['email_promotions' => true];
         }
         $row = $this->db->table('customer_marketing_preferences')->where('email_user', $email)->get()->getRowArray();
         return [
-            'email_promotions' => (bool)($row['email_promotions'] ?? false),
-            'push_promotions' => (bool)($row['push_promotions'] ?? false),
+            'email_promotions' => !$row || empty($row['email_unsubscribed_at']),
         ];
     }
 
-    public function update(string $email, bool $emailPromotions, bool $pushPromotions): array
+    public function update(string $email, bool $emailPromotions): array
     {
         $email = strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException('Email akun tidak valid.');
@@ -39,12 +38,16 @@ final class CustomerMarketingPreferences
         }
         $now = gmdate('Y-m-d H:i:s');
         $existing = $this->db->table('customer_marketing_preferences')->where('email_user', $email)->get()->getRowArray();
+        if (!$this->db->fieldExists('email_unsubscribed_at', 'customer_marketing_preferences')) {
+            throw new \RuntimeException('Marketing unsubscribe migration is not deployed.');
+        }
         $data = [
             'email_user' => $email,
             'email_promotions' => $emailPromotions ? 1 : 0,
-            'push_promotions' => $pushPromotions ? 1 : 0,
-            'email_consent_at' => $emailPromotions ? (($existing['email_promotions'] ?? 0) ? ($existing['email_consent_at'] ?? $now) : $now) : null,
-            'push_consent_at' => $pushPromotions ? (($existing['push_promotions'] ?? 0) ? ($existing['push_consent_at'] ?? $now) : $now) : null,
+            'email_consent_at' => null,
+            'push_promotions' => 0,
+            'push_consent_at' => null,
+            'email_unsubscribed_at' => $emailPromotions ? null : ($existing['email_unsubscribed_at'] ?? $now),
             'email_unsubscribe_token_hash' => $emailPromotions ? ($existing['email_unsubscribe_token_hash'] ?? null) : null,
             'email_unsubscribe_token_encrypted' => $emailPromotions ? ($existing['email_unsubscribe_token_encrypted'] ?? null) : null,
             'updated_at' => $now,
@@ -54,14 +57,18 @@ final class CustomerMarketingPreferences
             : $this->db->table('customer_marketing_preferences')->insert($data);
         if ($saved === false) throw new \RuntimeException('Preference update failed.');
 
-        return ['email_promotions' => $emailPromotions, 'push_promotions' => $pushPromotions];
+        return ['email_promotions' => $emailPromotions];
     }
 
     public function unsubscribeToken(string $email): string
     {
         $email = strtolower(trim($email));
         $row = $this->db->table('customer_marketing_preferences')->where('email_user', $email)->get()->getRowArray();
-        if (!$row || !(bool)$row['email_promotions']) throw new \RuntimeException('Email promotions are not enabled.');
+        if (!$row) {
+            $this->update($email, true);
+            $row = $this->db->table('customer_marketing_preferences')->where('email_user', $email)->get()->getRowArray();
+        }
+        if (!$row || !empty($row['email_unsubscribed_at'])) throw new \RuntimeException('Email promotions are not enabled.');
         if (!empty($row['email_unsubscribe_token_hash']) && !empty($row['email_unsubscribe_token_encrypted'])) {
             $encoded = (string)$row['email_unsubscribe_token_encrypted'];
             $ciphertext = str_starts_with($encoded, 'b64:') ? base64_decode(substr($encoded, 4), true) : false;
@@ -86,6 +93,7 @@ final class CustomerMarketingPreferences
             ->update([
                 'email_promotions' => 0,
                 'email_consent_at' => null,
+                'email_unsubscribed_at' => gmdate('Y-m-d H:i:s'),
                 'email_unsubscribe_token_hash' => null,
                 'email_unsubscribe_token_encrypted' => null,
                 'updated_at' => gmdate('Y-m-d H:i:s'),

@@ -20,16 +20,14 @@ final class MarketingPreferencesController extends ApiController
     public function update()
     {
         $input = $this->payload();
-        foreach (['email_promotions', 'push_promotions'] as $key) {
-            if (!array_key_exists($key, $input) || !in_array($input[$key], [true, false, 0, 1, '0', '1'], true)) {
-                return $this->failure('VALIDATION_ERROR', 'Pilihan promosi belum valid.', 422);
-            }
+        if (!array_key_exists('email_promotions', $input)
+            || !in_array($input['email_promotions'], [true, false, 0, 1, '0', '1'], true)) {
+            return $this->failure('VALIDATION_ERROR', 'Pilihan email promosi belum valid.', 422);
         }
         try {
             $saved = (new Preferences(Database::connect()))->update(
                 $this->authEmail(),
-                in_array($input['email_promotions'], [true, 1, '1'], true),
-                in_array($input['push_promotions'], [true, 1, '1'], true)
+                in_array($input['email_promotions'], [true, 1, '1'], true)
             );
             return $this->success($saved);
         } catch (\Throwable $error) {

@@ -11,7 +11,7 @@
    runuser -u nobody -- /usr/local/lsws/lsphp83/bin/php spark migrate
    ```
 
-   This creates opt-in preferences (both channels default to off), the durable voucher email outbox, and the atomic global campaign guard. Existing accounts are not opted in by migration.
+   This creates email unsubscribe preferences, the durable voucher email outbox, and the atomic global campaign guard. Existing explicit negative email choices from the former opt-in setting are preserved as unsubscribes; accounts without a saved preference remain subscribed until they unsubscribe.
 
 4. In `crontab -u nobody -e`, replace the existing `notifications:dispatch` line with the locked version below (do not keep both), and add the email worker line. The email worker is deliberately capped at two messages per run:
 
@@ -35,10 +35,9 @@ Monitor `writable/logs/voucher-marketing-email.log`. The dispatch command sends 
 
 ## Safeguards
 
-- Email and promotional FCM both require a separate customer opt-in. Existing accounts are opted out until they choose in Account > Preferensi promosi.
-- Email voucher broadcast is queued only for active accounts that opted in and are listed on that voucher.
-- FCM voucher/event broadcast is limited to active opted-in accounts with active Android devices.
+- Email voucher broadcast is queued for active customer accounts listed on that voucher, except accounts that explicitly unsubscribed.
+- Promotional FCM requires an active Android device registration, which is created only when notification permission is enabled in the app/device. There is no extra promotional opt-in toggle.
 - A database-atomic global guard allows at most one campaign per minute and five campaigns per UTC day across admin sessions and channels.
 - A customer receives no more than one marketing email/FCM promotion in a rolling 24-hour window. Email campaign sends are processed in small retryable batches, capped at 100 total promo emails per rolling 24 hours; repeated voucher campaign clicks are deduplicated. The configured cron processes at most 24 per hour, while the daily cap leaves headroom for transactional email on the existing SMTP account.
-- Marketing email includes an unsubscribe confirmation link. Disabling email marketing does not disable transactional/security email.
+- Marketing email includes an unsubscribe confirmation link and account setting. Unsubscribing affects promotional email only, not transactional/security email.
 - Monitor campaign counts on `/listvoucher`; the FCM page displays the current eligible device audience.
