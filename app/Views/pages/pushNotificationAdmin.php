@@ -27,7 +27,7 @@
                 Notifikasi ini benar-benar dikirim ke perangkat. Pastikan akun sudah masuk di aplikasi, izin notifikasi aktif, dan perangkat terdaftar. Maksimal lima perangkat Android aktif akan menerima tes.
             </div>
 
-            <form method="post" action="/notificationtestadmin/send" onsubmit="return confirm('Kirim notifikasi tes ke perangkat Android untuk email ini?');">
+            <form method="post" action="/notificationtestadmin/send" data-confirm-submit data-confirm-message="Kirim notifikasi tes ke perangkat Android untuk akun ini?">
                 <?= csrf_field(); ?>
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-8">

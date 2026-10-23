@@ -762,6 +762,11 @@
         "action": "/voucher/addmember",
         "method": "post",
         "enctype": ""
+      },
+      {
+        "action": "/actionbroadcastvoucher/PHP_bdaf3bd4ef01",
+        "method": "post",
+        "enctype": ""
       }
     ],
     "fields": [
@@ -841,6 +846,26 @@
         "value": "",
         "min": "",
         "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "audience",
+        "type": "",
+        "value": "",
+        "min": "",
+        "max": "",
+        "step": "",
+        "maxlength": "",
+        "multiple": ""
+      },
+      {
+        "name": "recipient_limit",
+        "type": "number",
+        "value": "100",
+        "min": "1",
+        "max": "500",
         "step": "",
         "maxlength": "",
         "multiple": ""

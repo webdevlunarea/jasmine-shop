@@ -107,7 +107,7 @@
                                 <?php if ($v['active']) { ?>
                                     <div data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="List customer" onclick="openEmail('<?= $v['id']; ?>', <?= $ind_v; ?>)" style="cursor: pointer;" class="d-flex justify-content-center align-items-center"><i class="material-icons">people</i></div>
                                     <?php if (!isset($voucherEmailCampaigns[(string)$v['id']])) { ?>
-                                        <form class="voucher-broadcast-controls" method="post" action="/actionbroadcastvoucher/<?= esc($v['id'], 'attr'); ?>" onsubmit="return confirm('Jadwalkan email voucher ke pelanggan aktif sesuai pilihan ini? Pelanggan yang berhenti berlangganan akan dikecualikan. Pengiriman dibatasi maksimal 25 email dalam 24 jam.');">
+                                        <form class="voucher-broadcast-controls" method="post" action="/actionbroadcastvoucher/<?= esc($v['id'], 'attr'); ?>" data-confirm-submit data-confirm-message="Jadwalkan email voucher sesuai pilihan penerima? Pelanggan yang berhenti berlangganan dikecualikan. Maksimal 25 email dikirim dalam 24 jam.">
                                             <?= csrf_field(); ?>
                                             <label class="visually-hidden" for="broadcast-audience-<?= esc($v['id'], 'attr'); ?>">Penerima email</label>
                                             <select class="form-select form-select-sm" id="broadcast-audience-<?= esc($v['id'], 'attr'); ?>" name="audience" aria-label="Pilih penerima email">

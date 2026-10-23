@@ -5,19 +5,19 @@
         <div class="admin-module-heading d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h5 class="jdl-section m-0">Kelola Rating &amp; Terjual</h5>
             <div class="d-flex gap-2 flex-wrap">
-                <form action="/generatedummyratingterjual" method="post" onsubmit="return confirm('Generate Data Demo:\n\n- Terjual semua produk di-random 5-400\n- Produk yang BELUM punya rating dibuat 3-7 ulasan dummy\n- Produk yang SUDAH punya rating di-skip\n\nLanjutkan?');">
+                <form action="/generatedummyratingterjual" method="post" data-confirm-submit data-confirm-message="Buat data demo? Angka terjual akan diacak; rating dummy hanya dibuat untuk produk tanpa rating dan rating yang sudah ada dilewati.">
                     <button type="submit" class="btn btn-warning d-flex gap-1 align-items-center">
                         <i class="material-icons" style="font-size: 18px;">auto_awesome</i>
                         Generate
                     </button>
                 </form>
-                <form action="/freshgeneratedummyratingterjual" method="post" onsubmit="return confirm('FRESH GENERATE:\n\nSemua rating dummy (yg email-nya @dummymail.com) akan DIHAPUS, lalu di-generate ulang dengan komentar dan nama baru.\n\nRating dari pembeli ASLI tidak terpengaruh.\n\nLanjutkan?');">
+                <form action="/freshgeneratedummyratingterjual" method="post" data-confirm-submit data-confirm-message="Hapus dan buat ulang semua rating dummy? Rating asli pembeli tidak akan terpengaruh.">
                     <button type="submit" class="btn btn-danger d-flex gap-1 align-items-center">
                         <i class="material-icons" style="font-size: 18px;">refresh</i>
                         Fresh Generate
                     </button>
                 </form>
-                <form action="/hapusdummyrating" method="post" onsubmit="return confirm('Hapus SEMUA rating dummy (@dummymail.com)?\n\nRating asli pembeli tidak terhapus.');">
+                <form action="/hapusdummyrating" method="post" data-confirm-submit data-confirm-message="Hapus semua rating dummy (@dummymail.com)? Rating asli pembeli tetap tersimpan.">
                     <button type="submit" class="btn btn-outline-danger d-flex gap-1 align-items-center">
                         <i class="material-icons" style="font-size: 18px;">delete_sweep</i>
                         Hapus Dummy
@@ -169,7 +169,7 @@
                                     <button type="submit" class="btn btn-sm btn-primary1"><i class="material-icons" style="font-size: 14px;">save</i> Simpan</button>
                                 </div>
                             </form>
-                            <form action="/delrating/<?= $r['id']; ?>" method="post" onsubmit="return confirm('Hapus ulasan dari <?= esc($r['nama_pembeli']); ?>?');" class="mt-2">
+                            <form action="/delrating/<?= $r['id']; ?>" method="post" data-confirm-submit data-confirm-message="Hapus ulasan dari <?= esc($r['nama_pembeli'], 'attr'); ?>?" class="mt-2">
                                 <input type="hidden" name="from_admin" value="1">
                                 <button type="submit" class="btn btn-sm btn-outline-danger"><i class="material-icons" style="font-size: 14px;">delete</i> Hapus ulasan</button>
                             </form>

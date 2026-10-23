@@ -451,7 +451,7 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                                 <div class="tgl"><?= date('d M Y', strtotime($r['created_at'])); ?><?= $r['updated_at'] && $r['updated_at'] != $r['created_at'] ? ' (diedit)' : ''; ?></div>
                             </div>
                             <?php if (session()->get('isLogin') && session()->get('role') != 0) { ?>
-                                <form action="/delrating/<?= $r['id']; ?>" method="post" onsubmit="return confirm('Hapus ulasan ini?');">
+                                <form action="/delrating/<?= $r['id']; ?>" method="post" data-confirm-submit data-confirm-message="Hapus ulasan Anda dari produk ini?">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus ulasan">
                                         <i class="material-icons" style="font-size:16px;">delete</i>
                                     </button>
