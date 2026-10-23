@@ -51,12 +51,12 @@ final class AdminDashboard extends BaseController
 
         $shortcuts = [];
         $shortcutDefinitions = [
-            ['orders.read', 'Pesanan', 'Kelola dan pantau pesanan', 'receipt_long', '/listcustomer'],
-            ['customers.read', 'Pengguna', 'Cari akun pelanggan', 'group', '/customerdirectoryadmin'],
-            ['catalog.read', 'Produk', 'Atur katalog dan stok', 'inventory_2', '/listproduct'],
-            ['content.read', 'Promosi & konten', 'Kelola banner, artikel, dan voucher', 'campaign', '/listbanner'],
-            ['finance.read', 'Invoice', 'Lihat invoice dan pembayaran', 'description', '/invoiceadmin'],
-            ['settings.read', 'Traffic', 'Lihat ringkasan pengunjung', 'bar_chart', '/trafficadmin'],
+            ['orders.read', 'Pesanan', 'Lihat dan proses pesanan', 'receipt_long', '/listcustomer'],
+            ['customers.read', 'Pelanggan', 'Cari akun pelanggan', 'group', '/customerdirectoryadmin'],
+            ['catalog.read', 'Produk', 'Atur produk dan persediaan', 'inventory_2', '/listproduct'],
+            ['content.read', 'Promosi', 'Atur banner, artikel, dan voucher', 'campaign', '/listbanner'],
+            ['finance.read', 'Tagihan', 'Periksa tagihan dan pembayaran', 'description', '/invoiceadmin'],
+            ['settings.read', 'Pengunjung', 'Lihat jumlah pengunjung toko', 'bar_chart', '/trafficadmin'],
         ];
         foreach ($shortcutDefinitions as [$permission, $label, $description, $icon, $url]) {
             if (AdminPermissions::canAccess($role, $permission, $customPermissions)) {

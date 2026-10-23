@@ -7,6 +7,7 @@ $showMobileBottomNav = in_array($title, ['Beranda', 'Semua Produk', 'Artikel']);
 $isAdminNav = session()->get('role') == '1';
 if ($isAdminNav) {
     $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole(session('admin_role') ?: 'ADMIN');
+    $isDevAdmin = $adminRole === 'DEV';
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
         ['group'=>'Workspace', 'label' => 'Dashboard', 'icon' => 'dashboard', 'url' => '/admin/dashboard', 'permission'=>'admin.dashboard', 'match' => ['admin/dashboard']],
@@ -32,6 +33,22 @@ if ($isAdminNav) {
         ['group'=>'Promosi & konten', 'label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'permission'=>'content.read', 'match' => ['listbanner', 'addbanner', 'editbanner']],
     ];
     $adminNav[] = ['group'=>'Pengaturan', 'label'=>'Peran & akses', 'icon'=>'admin_panel_settings', 'url'=>'/admin/roles', 'permission'=>'admin.roles.manage', 'match'=>['admin/roles']];
+    if (!$isDevAdmin) {
+        $simpleNavLabels = [
+            'Dashboard' => 'Ringkasan', 'Pengguna' => 'Pelanggan', 'Invoice' => 'Tagihan',
+            'Akun & email spam' => 'Akun & pendaftaran', 'Suspend akun' => 'Batasi akun',
+            'Broadcast & notifikasi' => 'Notifikasi', 'Program Afiliasi' => 'Program berbagi',
+            'Traffic' => 'Pengunjung', 'Tema warna' => 'Tampilan toko', 'Pemetaan MyLuna' => 'Cocokkan produk',
+            'Gambar kategori' => 'Foto kategori', 'Rating & terjual' => 'Ulasan & penjualan',
+            'Flash Sale' => 'Promo kilat', 'Redeem' => 'Kode hadiah',
+        ];
+        $simpleNavGroups = ['Workspace' => 'Utama', 'Operasional' => 'Toko', 'Katalog' => 'Produk', 'Promosi & konten' => 'Promosi'];
+        foreach ($adminNav as &$adminNavItem) {
+            $adminNavItem['label'] = $simpleNavLabels[$adminNavItem['label']] ?? $adminNavItem['label'];
+            $adminNavItem['group'] = $simpleNavGroups[$adminNavItem['group']] ?? $adminNavItem['group'];
+        }
+        unset($adminNavItem);
+    }
     $adminNav = array_values(array_filter($adminNav, static fn($item) => \App\Services\Auth\AdminPermissions::canAccess($adminRole, $item['permission'], (array) session('admin_permissions'))));
 ?>
 <input type="checkbox" id="admin-menu-toggle" class="d-none">
@@ -39,7 +56,7 @@ if ($isAdminNav) {
     <div class="admin-brand-row">
         <a href="/admin/dashboard" class="admin-brand" aria-label="Lunarea, dashboard admin">
             <span class="admin-brand-mark" aria-hidden="true">L.</span>
-            <span class="admin-brand-copy"><strong>Lunarea</strong><small>Workspace admin</small></span>
+            <span class="admin-brand-copy"><strong>Lunarea</strong><small><?= $isDevAdmin ? 'Workspace admin' : 'Panel admin'; ?></small></span>
         </a>
         <button type="button" class="admin-icon-btn admin-drawer-close" data-admin-menu-close aria-label="Tutup menu admin"><i class="material-icons" aria-hidden="true">close</i></button>
     </div>
@@ -85,8 +102,10 @@ if ($isAdminNav) {
             <i class="material-icons" aria-hidden="true">menu</i>
         </button>
         <div>
-            <p class="admin-eyebrow m-0">Workspace / <?= $currentPath === 'listcustomer' || strpos($currentPath, 'listcustomer/') === 0 ? 'Operasional' : 'Administrasi'; ?></p>
-            <h1 class="admin-page-title m-0"><?= esc($title === 'List Customer' ? 'Pesanan pelanggan' : $title); ?></h1>
+            <?php $adminSectionLabel = $currentPath === 'listcustomer' || strpos($currentPath, 'listcustomer/') === 0 ? 'Pesanan' : 'Menu'; ?>
+            <p class="admin-eyebrow m-0"><?= $isDevAdmin ? 'Workspace / ' : 'Panel / '; ?><?= $adminSectionLabel; ?></p>
+            <?php $adminTitleLabels = ['Dashboard'=>'Ringkasan', 'List Customer'=>'Pesanan pelanggan', 'Invoice'=>'Tagihan', 'Program Afiliasi'=>'Program berbagi', 'Traffic'=>'Pengunjung']; ?>
+            <h1 class="admin-page-title m-0"><?= esc($isDevAdmin ? ($title === 'List Customer' ? 'Pesanan pelanggan' : $title) : ($adminTitleLabels[$title] ?? $title)); ?></h1>
         </div>
     </div>
     <div class="admin-topbar-actions">
