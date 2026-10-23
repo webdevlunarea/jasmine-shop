@@ -415,21 +415,17 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     // console.log('qdqwd');
     // document.onkeydown = function(e) {
     //     if (e.key == "F12") {
-    //         // alert('Akses diblokir');
     //         e.preventDefault();
     //     }
     //     // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
     //     if (e.ctrlKey && e.shiftKey && (e.key == "I" || e.key == "J")) {
-    //         // alert('Akses diblokir');
     //         e.preventDefault();
     //     }
     //     if (e.ctrlKey && e.key == "u") {
-    //         // alert('Akses diblokir');
     //         e.preventDefault();
     //     }
     // };
     // document.addEventListener('contextmenu', function(event) {
-    //     // alert('Akses diblokir');
     //     event.preventDefault();
     // });
     </script>

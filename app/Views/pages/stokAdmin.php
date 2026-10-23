@@ -398,7 +398,7 @@ const modalAddElm = document.getElementById('modal-add');
 const containerCariBarangElm = document.getElementById('container-cari-barang')
 
 function openTambal() {
-    window.alert('Stok website sudah wajib diperbarui dari Luna Sistem. Silakan ubah stok dari MyLuna, lalu jalankan sync produk ke website.');
+    triggerToast('Stok website diperbarui melalui Luna Sistem. Ubah stok di MyLuna, lalu jalankan sinkronisasi produk ke website.', '');
 }
 
 function openKofirm(index) {
@@ -452,7 +452,7 @@ function sinkronisasi(e) {
             const res = await fetch('/benerinstokluna');
             const resJson = await res.json();
             e.target.innerHTML = 'Info Sync'
-            window.alert(resJson.message || 'Stok website mengikuti Luna Sistem. Jalankan sync dari MyLuna untuk memperbarui data.')
+            triggerToast(resJson.message || 'Stok website mengikuti Luna Sistem. Jalankan sinkronisasi dari MyLuna untuk memperbarui data.', '')
         } catch (error) {
             e.target.innerHTML = 'Info Sync'
             console.log(error)
