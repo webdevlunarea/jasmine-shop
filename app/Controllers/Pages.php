@@ -1783,7 +1783,10 @@ class Pages extends BaseController
             'role' => '0',
             'otp' => $otp_number,
             'active' => '0',
-            'waktu_otp' => $d
+            'waktu_otp' => $d,
+            'auth_provider' => 'email',
+            'registration_method' => 'email',
+            'registered_at' => gmdate('Y-m-d H:i:s'),
         ]);
         $this->pembeliModel->insert([
             'nama' => $this->request->getVar('nama'),
@@ -2080,6 +2083,8 @@ class Pages extends BaseController
                 'waktu_otp' => '0',
                 'google_id' => $googleId,
                 'auth_provider' => 'google',
+                'registration_method' => 'google',
+                'registered_at' => gmdate('Y-m-d H:i:s'),
             ]);
             $this->pembeliModel->insert([
                 'nama' => $name ?: $email,

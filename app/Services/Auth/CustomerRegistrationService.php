@@ -34,7 +34,7 @@ class CustomerRegistrationService
         if (($this->emailBlocked)($email)) throw new DomainException('Gunakan alamat email permanen yang dapat Anda akses.');
         foreach (['user', 'pembeli'] as $table) if (!$this->db->tableExists($table)) throw new RuntimeException('Customer storage unavailable');
         $this->assertColumns([
-            'user' => ['email', 'sandi', 'role', 'otp', 'active', 'waktu_otp'],
+            'user' => ['email', 'sandi', 'role', 'otp', 'active', 'waktu_otp', 'registration_method', 'registered_at'],
             'pembeli' => ['email_user', 'nama', 'nohp', 'alamat', 'wishlist', 'keranjang', 'transaksi', 'poin', 'tier', 'foto'],
         ]);
         $this->assertColumnLength('user', 'email', $email);
@@ -54,6 +54,7 @@ class CustomerRegistrationService
             $inserted = $this->db->table('user')->insert([
                 'email' => $email, 'sandi' => password_hash($password, PASSWORD_DEFAULT),
                 'role' => '0', 'otp' => $code, 'active' => '0', 'waktu_otp' => (string)$expires,
+                'auth_provider' => 'email', 'registration_method' => 'email', 'registered_at' => gmdate('Y-m-d H:i:s'),
             ]);
             if (!$inserted) throw new RuntimeException('Customer account persistence failed');
             $inserted = $this->db->table('pembeli')->insert([

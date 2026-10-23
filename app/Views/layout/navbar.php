@@ -9,6 +9,7 @@ if ($isAdminNav) {
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
         ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
+        ['group'=>'Operasional', 'label' => 'Pengguna', 'icon' => 'group', 'url' => '/customerdirectoryadmin', 'match' => ['customerdirectoryadmin']],
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
@@ -169,6 +170,7 @@ if ($isAdminNav) {
                             <a href="/listbanner">Banner</a>
                             <a href="/listvoucher">List Voucher</a>
                             <a href="/listcustomer">List Customer</a>
+                            <a href="/customerdirectoryadmin">Direktori pengguna</a>
                             <a href="/customeradmin">Akun &amp; email spam</a>
                             <a href="/customersuspensionadmin">Suspend akun</a>
                             <a href="/notificationtestadmin">Tes notifikasi</a>

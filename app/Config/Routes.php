@@ -240,6 +240,7 @@ $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$
 $routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmail', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
+$routes->get('/customerdirectoryadmin', 'CustomerDirectoryAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/customersuspensionadmin', 'CustomerSuspensionAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);

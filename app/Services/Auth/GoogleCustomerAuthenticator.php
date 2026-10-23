@@ -88,7 +88,7 @@ final class GoogleCustomerAuthenticator
             }
 
             if ($user && (string) ($user['role'] ?? '') !== '0') {
-                throw new DomainException('Login Google hanya tersedia untuk akun pelanggan.');
+                throw new DomainException('Login belum berhasil. Periksa akun Google Anda atau gunakan metode masuk lain.');
             }
             if ($user && !empty($user['google_id']) && !hash_equals((string) $user['google_id'], $googleId)) {
                 throw new DomainException('Email ini sudah terhubung ke akun Google lain.');
@@ -103,6 +103,7 @@ final class GoogleCustomerAuthenticator
                     'sandi' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
                     'role' => '0', 'otp' => '0', 'active' => '1', 'waktu_otp' => '0',
                     'google_id' => $googleId, 'auth_provider' => 'google',
+                    'registration_method' => 'google', 'registered_at' => gmdate('Y-m-d H:i:s'),
                 ]);
                 $user = $this->users->getUser($email);
                 if (!$user) throw new RuntimeException('Akun Google tidak berhasil dibuat.');

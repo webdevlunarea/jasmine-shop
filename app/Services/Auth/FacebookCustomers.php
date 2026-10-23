@@ -78,6 +78,7 @@ class FacebookCustomers
         $user = [
             'email' => $email, 'sandi' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
             'role' => '0', 'active' => '1', 'otp' => '0', 'waktu_otp' => '0', 'auth_provider' => 'facebook',
+            'registration_method' => 'facebook', 'registered_at' => gmdate('Y-m-d H:i:s'),
         ];
         $name = is_string($profile['name'] ?? null) ? trim($profile['name']) : '';
         if (!$this->db->transBegin()) throw new FacebookAccountException('transaction_start');
