@@ -26,6 +26,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -136,6 +138,13 @@ import com.lunareafurniture.lunarea.ui.theme.LunareaGreenText
 import com.lunareafurniture.lunarea.ui.theme.LunareaSpacing
 import com.lunareafurniture.lunarea.ui.theme.recolorDarkWordmark
 import com.lunareafurniture.lunarea.ui.splash.LunareaStartup
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
 import coil.compose.AsyncImage
 import coil.imageLoader
 import coil.request.ImageRequest
@@ -330,6 +339,16 @@ private fun editDistance(first: String, second: String): Int {
 
 class MainActivity : FragmentActivity() {
     private var appLocked by mutableStateOf(false)
+    private var appUpdateDownloaded by mutableStateOf(false)
+    private var updatePromptDismissed = false
+    private var updateFlowInProgress = false
+    private lateinit var appUpdateManager: AppUpdateManager
+    private lateinit var appUpdateLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private val appUpdateListener = InstallStateUpdatedListener { state ->
+        if (state.installStatus() == InstallStatus.DOWNLOADED && !updatePromptDismissed) {
+            appUpdateDownloaded = true
+        }
+    }
     private var pendingPushTap by mutableStateOf<PushTap?>(null)
     private var pendingReferralCode by mutableStateOf<String?>(null)
     private var pendingReferralProductId by mutableStateOf<String?>(null)
@@ -352,6 +371,11 @@ class MainActivity : FragmentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        appUpdateLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            updateFlowInProgress = false
+        }
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+        appUpdateManager.registerListener(appUpdateListener)
         // onStop locks the current Activity instance, but Android may kill the
         // process after the task is dismissed. Re-establish the lock on a cold
         // launch so clearing the app from Recents cannot bypass biometric auth.
@@ -373,7 +397,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             LunareaTheme {
                 LunareaStartup { startupComplete ->
-                    LunareaApp(startupComplete, pendingPushTap, pendingReferralCode, pendingReferralProductId, { pendingPushTap = null }, {
+                    LunareaApp(startupComplete, pendingPushTap, pendingReferralCode, pendingReferralProductId, appUpdateDownloaded, { completeFlexibleUpdate() }, { deferFlexibleUpdateInstall() }, { pendingPushTap = null }, {
                         pendingReferralCode = null
                         pendingReferralProductId = null
                         getSharedPreferences("lunarea_referral", MODE_PRIVATE).edit().remove("pending_code").remove("pending_product_id").apply()
@@ -398,6 +422,53 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!::appUpdateManager.isInitialized || !::appUpdateLauncher.isInitialized) return
+        appUpdateManager.appUpdateInfo
+            .addOnSuccessListener { info ->
+                if (info.installStatus() == InstallStatus.DOWNLOADED) {
+                    if (!updatePromptDismissed) appUpdateDownloaded = true
+                    return@addOnSuccessListener
+                }
+                if (info.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
+                    !info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) || updateFlowInProgress
+                ) return@addOnSuccessListener
+
+                val preferences = getSharedPreferences("lunarea_play_updates", MODE_PRIVATE)
+                val availableVersion = info.availableVersionCode()
+                val lastPromptVersion = preferences.getInt("last_prompt_version", -1)
+                val lastPromptAt = preferences.getLong("last_prompt_at", 0L)
+                val promptCooldownElapsed = System.currentTimeMillis() - lastPromptAt >= 24L * 60L * 60L * 1000L
+                if (availableVersion == lastPromptVersion && !promptCooldownElapsed) return@addOnSuccessListener
+
+                preferences.edit()
+                    .putInt("last_prompt_version", availableVersion)
+                    .putLong("last_prompt_at", System.currentTimeMillis())
+                    .apply()
+                updateFlowInProgress = true
+                runCatching {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        appUpdateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+                    )
+                }.onFailure { updateFlowInProgress = false }
+            }
+    }
+
+    private fun deferFlexibleUpdateInstall() {
+        updatePromptDismissed = true
+        appUpdateDownloaded = false
+    }
+
+    private fun completeFlexibleUpdate() {
+        if (!::appUpdateManager.isInitialized) return
+        appUpdateManager.completeUpdate()
+            .addOnSuccessListener { appUpdateDownloaded = false }
+            .addOnFailureListener { appUpdateDownloaded = true }
+    }
+
     override fun onStop() {
         if (getSharedPreferences("lunarea_security", MODE_PRIVATE).getBoolean("biometric_app_lock", false)
             && AuthRepository(this).isSignedIn()) {
@@ -406,10 +477,15 @@ class MainActivity : FragmentActivity() {
         }
         super.onStop()
     }
+
+    override fun onDestroy() {
+        if (::appUpdateManager.isInitialized) appUpdateManager.unregisterListener(appUpdateListener)
+        super.onDestroy()
+    }
 }
 
 @Composable
-private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, referralProductId: String?, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit, appLocked: Boolean, onAppUnlocked: () -> Unit) {
+private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode: String?, referralProductId: String?, appUpdateDownloaded: Boolean, onInstallDownloadedUpdate: () -> Unit, onDeferDownloadedUpdate: () -> Unit, onPushTapHandled: () -> Unit, onReferralHandled: () -> Unit, appLocked: Boolean, onAppUnlocked: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val auth = remember { AuthRepository(context) }
@@ -510,24 +586,20 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
         try {
             val response = ApiClient.get(context).attributeReferral(JsonObject().apply { addProperty("code", code) })
             if (response.isSuccessful && response.body()?.success == true) {
-                message = "Tautan afiliasi berhasil dibuka. Komisi dihitung setelah pesanan memenuhi syarat selesai."
                 affiliateProductToOpen = referralProductId
                 if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
                 onReferralHandled()
             } else if (response.code() in 400..499) {
-                message = response.customerError("Kode ajak teman tidak dapat digunakan untuk akun ini.")
                 affiliateProductToOpen = referralProductId
                 if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
                 onReferralHandled()
             } else {
                 affiliateProductToOpen = referralProductId
                 if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
-                message = "Produk berhasil dibuka, tetapi kode afiliasi belum dapat ditautkan. Coba lagi dari Luna Poin."
             }
         } catch (_: Exception) {
             affiliateProductToOpen = referralProductId
             if (!referralProductId.isNullOrBlank()) tab = AppTab.CATALOG
-            message = "Produk berhasil dibuka. Kode afiliasi disimpan untuk dicoba kembali saat koneksi tersedia."
         }
     }
     LaunchedEffect(tab, detailOpen) { chromeVisible = true }
@@ -1259,6 +1331,19 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     }
     legalDocument?.let { document ->
         LegalDocumentDialog(document = document, onDismiss = { legalDocument = null })
+    }
+    if (appUpdateDownloaded && !appLocked) {
+        AlertDialog(
+            onDismissRequest = onDeferDownloadedUpdate,
+            title = { Text("Pembaruan siap dipasang") },
+            text = { Text("Versi terbaru Lunarea sudah diunduh. Pasang sekarang untuk menyelesaikan pembaruan aplikasi.") },
+            confirmButton = {
+                TextButton(onClick = onInstallDownloadedUpdate) { Text("Pasang sekarang") }
+            },
+            dismissButton = {
+                TextButton(onClick = onDeferDownloadedUpdate) { Text("Nanti") }
+            }
+        )
     }
 }
 

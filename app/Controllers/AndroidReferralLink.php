@@ -33,7 +33,10 @@ final class AndroidReferralLink extends BaseController
                 : base_url('/all');
             $userAgent = $this->request->getUserAgent()->getAgentString();
             $isLinkPreviewBot = preg_match('/facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Slackbot|Discordbot|LinkedInBot|Google-InspectionTool|Googlebot|bingbot/i', $userAgent) === 1;
-            if (is_array($product) && !$isLinkPreviewBot) {
+            // Human visitors should continue straight to the product (or the
+            // catalog for a code-only share link); keep the landing document
+            // only for social crawlers that need its Open Graph preview.
+            if (!$isLinkPreviewBot) {
                 return redirect()->to($productUrl);
             }
             return view('pages/androidReferralLink', [
