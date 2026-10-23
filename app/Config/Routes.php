@@ -84,8 +84,8 @@ $routes->group('api/v1', ['filter' => 'apiVersion'], static function ($routes) {
     });
 });
 
-$routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => 'harusLogin']);
-$routes->get('/kirimemail', 'Pages::kirimEmail', ['filter' => 'harusLogin']);
+$routes->post('/kirimotp', 'Pages::kirimOTP', ['filter' => ['harusLogin', 'csrf']]);
+$routes->post('/kirimemail', 'Pages::kirimEmail', ['filter' => ['harusLogin', 'csrf']]);
 $routes->get('/all', 'Pages::all');
 $routes->get('/all/(:any)', 'Pages::all/$1');
 $routes->get('/search/suggest', 'Pages::searchSuggest');
@@ -140,18 +140,18 @@ $routes->post('/delcart/(:any)', 'Pages::delCart/$1', ['filter' => 'harusUser'])
 $routes->get('/checkout', 'Pages::checkout', ['filter' => 'harusUser']);
 $routes->post('/account/addresses/manage', 'CustomerAddresses::manage', ['filter' => 'harusUser']);
 $routes->post('/shipping/quote', 'Pages::shippingQuote', ['filter' => 'harusUser']);
-$routes->get('/gantikaca/(:any)', 'Pages::gantiKaca/$1', ['filter' => 'harusUser']);
+$routes->post('/gantikaca/(:any)', 'Pages::gantiKaca/$1', ['filter' => ['harusUser', 'csrf']]);
 $routes->post('/getadminfee', 'Pages::getBiayaAdminMidtrans');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
 $routes->get('/getkode/(:any)', 'Pages::getKode/$1', ['filter' => 'corsFilter']);
-$routes->get('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2');
+$routes->post('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2', ['filter' => 'csrf']);
 // $routes->post('/actioncheckout', 'Pages::actionCheckout');
 // $routes->post('/actionpay', 'Pages::actionPay');
 // $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
 $routes->post('/actionpaycore', 'Pages::actionPayCore', ['filter' => 'harusUser']);
-$routes->get('/usevoucher/(:any)', 'Pages::useVoucher/$1');
-$routes->get('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1');
+$routes->post('/usevoucher/(:any)', 'Pages::useVoucher/$1', ['filter' => ['harusUser', 'csrf']]);
+$routes->post('/cancelvoucher/(:any)', 'Pages::cancelVoucher/$1', ['filter' => ['harusUser', 'csrf']]);
 $routes->get('/voucher', 'Pages::voucher', ['filter' => 'harusUser']);
 $routes->post('/voucher/claim', 'Pages::voucherClaim', ['filter' => 'harusUser']);
 $routes->post('/voucher/redeem', 'Pages::voucherRedeem', ['filter' => 'harusUser']);
@@ -192,8 +192,8 @@ $routes->get('/about', 'Pages::about');
 
 $routes->get('/point', 'Pages::point', ['filter' => 'harusUser']);
 $routes->get('/point/history', 'Pages::pointHistory', ['filter' => 'harusUser']);
-$routes->get("/point/use", 'Pages::pointUse', ['filter' => 'harusUser']);
-$routes->get("/point/cancel", 'Pages::pointCancel', ['filter' => 'harusUser']);
+$routes->post("/point/use", 'Pages::pointUse', ['filter' => ['harusUser', 'csrf']]);
+$routes->post("/point/cancel", 'Pages::pointCancel', ['filter' => ['harusUser', 'csrf']]);
 
 $routes->get('/product/(:any)', 'Pages::product/$1');
 $routes->get('/find/(:any)', 'Pages::productFilter/$1');

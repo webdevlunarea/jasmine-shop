@@ -28,6 +28,7 @@
             <div class="d-flex gap-1">
                 <p class="m-0">Belum mendapatkan kode OTP?</p>
                 <form action="/kirimotp" method="post" class="d-inline" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?">
+                    <?= csrf_field(); ?>
                     <button type="submit" style="color: var(--hijau); border: none; background: none;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kirim ulang</button>
                 </form>
             </div>

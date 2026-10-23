@@ -39,6 +39,10 @@
 .checkout-page-shell .tombol-pilih-kurir h5 { font-size: .875rem; line-height: 1.5; }
 .checkout-page-shell .container-pilih-voucher.buka { max-height: 260px; overflow-y: auto; }
 .checkout-page-shell .container-pilih-voucher .item-voucher { border-radius: 8px; margin-top: 8px; background: var(--theme-background); border-color: var(--checkout-line); }
+.checkout-page-shell .voucher-choice-form { margin: 0; }
+.checkout-page-shell .voucher-choice-form .item-voucher { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+.checkout-page-shell .glass-protection-toggle { margin: 0; }
+.checkout-page-shell .glass-protection-toggle > button { border-left: 0; border-right: 0; border-top: 0; background: transparent; font: inherit; cursor: pointer; }
 .checkout-page-shell .container-pilih-voucher .item-voucher h5 { font-size: .875rem; }
 .checkout-page-shell .container-pilih-voucher .item-voucher.active { background: var(--theme-soft-2); color: var(--theme-primary); }
 .checkout-page-shell .container-pilih-voucher .item-voucher.active h5 { color: inherit; }

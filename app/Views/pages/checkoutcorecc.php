@@ -529,8 +529,9 @@
                     </div>
                     <div class="container-pilih-voucher mb-2">
                         <?php foreach ($voucher as $v) { ?>
-                        <a class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>"
-                            href="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= $v['id']; ?>">
+                        <form class="voucher-choice-form" method="post" action="/<?= $activeVoucher == $v['id'] ? 'cancelvoucher' : 'usevoucher'; ?>/<?= rawurlencode((string)$v['id']); ?>">
+                            <?= csrf_field(); ?>
+                            <button type="submit" class="item-voucher <?= $activeVoucher == $v['id'] ? 'active' : ''; ?>">
                             <div>
                                 <h5 class="m-0"><?= $v['nama']; ?></h5>
                                 <p class="m-0" style="font-size: small;"><?= $v['keterangan'] ?></p>
@@ -544,7 +545,8 @@
                             <?php if ($activeVoucher == $v['id']) { ?>
                             <div><i class="material-icons">close</i></div>
                             <?php } ?>
-                        </a>
+                            </button>
+                        </form>
                         <?php } ?>
                     </div>
                     <script>
@@ -654,15 +656,17 @@
                     </div>
                     <?php } ?>
                     <?php if ($totalkaca > 0) { ?>
-                    <a href="/gantikaca/<?= $gantiKaca ? 'false' : 'true' ?>"
-                        class="d-flex justify-content-between border-bottom checkout-total-row"
-                        style="color: <?= $gantiKaca ? 'var(--hijau)' : 'gray'; ?>;">
+                    <form method="post" action="/gantikaca/<?= $gantiKaca ? 'false' : 'true' ?>" class="glass-protection-toggle">
+                        <?= csrf_field(); ?>
+                        <button type="submit" class="d-flex justify-content-between border-bottom checkout-total-row w-100 text-start"
+                            style="color: <?= $gantiKaca ? 'var(--hijau)' : 'gray'; ?>;">
                         <div class="d-flex gap-2 align-items-center">
                             <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 4h16v16H4V4Z"/><?php if ($gantiKaca) { ?><path d="m7 12 3 3 7-7"/><?php } ?></svg>
                             <p class="my-2">Proteksi Kaca:</p>
                         </div>
                         <p class="my-2"><b>Rp <?= number_format($totalkaca, 0, ",", "."); ?></b></p>
-                    </a>
+                        </button>
+                    </form>
                     <?php } ?>
                     <!-- <div class="d-flex justify-content-between border-bottom checkout-total-row">
                         <p class="my-2">Biaya Admin:</p>
