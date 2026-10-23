@@ -116,6 +116,8 @@ $routes->get('/auth/google/callback', 'Pages::googleCallback');
 $routes->get('/auth/facebook', 'Pages::facebookLogin');
 $routes->get('/auth/facebook/callback', 'Pages::facebookCallback');
 $routes->post('/auth/facebook/link', 'Pages::facebookLink', ['filter' => ['harusUser', 'csrf']]);
+// Client-side localStorage cleanup and safe same-site redirect after login.
+$routes->get('/hapuslocalstorage/(:any)', 'Pages::hapusLocalStorage/$1');
 $routes->post('/keluar', 'Pages::actionLogout', ['filter' => 'csrf']);
 $routes->post('/keluar/regist', 'Pages::actionLogoutRegist', ['filter' => 'csrf']);
 $routes->get('/verify/url/redirect/(:any)', 'Pages::verifyUrlRedirect/$1', ['filter' => 'harusLogin']);
