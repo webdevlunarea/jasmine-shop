@@ -180,30 +180,31 @@ $statusClass = function ($status) {
                 <div class="account-card">
                     <h5 class="fw-bold mb-1">Edit profil</h5>
                     <p class="text-secondary small mb-3">Profil yang lengkap membuat checkout, voucher, dan bantuan pesanan lebih mudah.</p>
-                    <?php if (session()->get('active')) { ?>
+                    <?php if (session()->get('active') || $role == '1') { ?>
                         <form class="row g-3" action="/account" method="post" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Simpan perubahan profil yang Anda masukkan sekarang?">
                             <?= csrf_field(); ?>
-                            <div class="col-12 text-center">
+                            <?php if ($role == '0' || !empty($canEditStaffPhoto)) { ?><div class="col-12 text-center">
                                 <div class="account-form-photo">
                                     <label for="input-file" class="icon-btn-change-pp" aria-label="Ganti foto profil"><i class="material-icons">edit</i></label>
                                     <input class="d-none" name="foto" id="input-file" type="file" accept="image/*">
                                     <img src="<?= esc($foto); ?>" alt="Preview foto profil" id="prev-file">
                                 </div>
                                 <div class="text-secondary small mt-2">Gunakan foto JPG/PNG/WebP agar akun mudah dikenali.</div>
-                            </div>
+                            </div><?php } ?>
                             <div class="col-12">
                                 <label for="inputPassword4" class="form-label">Sandi baru <span class="text-secondary small">(opsional)</span></label>
                                 <input name="sandi" type="password" class="form-control" id="inputPassword4" autocomplete="new-password" placeholder="Isi kalau ingin mengganti sandi">
                             </div>
-                            <?php if ($role == '0') { ?>
+                            <?php if ($role == '0' || !empty($canEditStaffProfile)) { ?>
                                 <div class="col-12">
-                                    <label class="form-label" for="profile-name">Nama lengkap</label>
+                                    <label class="form-label" for="profile-name"><?= $role == '1' ? 'Nama staf' : 'Nama lengkap'; ?></label>
                                     <input id="profile-name" name="nama" type="text" class="form-control" placeholder="Nama Lengkap" value="<?= esc($nama); ?>" required autocomplete="name">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="profile-phone">Nomor handphone</label>
+                                    <label class="form-label" for="profile-phone"><?= $role == '1' ? 'Nomor kontak' : 'Nomor handphone'; ?></label>
                                     <input id="profile-phone" name="nohp" type="tel" class="form-control" placeholder="No HP" value="<?= esc($nohp); ?>" required autocomplete="tel">
                                 </div>
+                                <?php if ($role == '0') { ?>
                                 <div class="col-12">
                                     <label class="form-label" for="profile-birthday">Tanggal lahir</label>
                                     <input id="profile-birthday" name="tgl_lahir" type="date" class="form-control" value="<?= esc($tgl_lahir); ?>" required>
@@ -211,10 +212,11 @@ $statusClass = function ($status) {
                                         <p class="m-0 text-secondary small">*tanggal lahir dapat diubah kembali setelah tanggal <?= esc($batas_tgl_lahir); ?></p>
                                     <?php } ?>
                                 </div>
-                                <div class="col-12 d-grid">
-                                    <button type="submit" class="btn btn-primary1">Simpan Profil</button>
-                                </div>
+                                <?php } ?>
+                            <?php } elseif ($role == '1') { ?>
+                                <div class="col-12"><p class="small text-secondary mb-0">Profil nama dan kontak belum tersedia untuk akun ini. Jalankan SQL <code>docs/sql/admin_staff_profile_fields.sql</code> agar data staf dapat disimpan. Sandi tetap dapat diperbarui.</p></div>
                             <?php } ?>
+                            <div class="col-12 d-grid"><button type="submit" class="btn btn-primary1">Simpan Profil</button></div>
                         </form>
                     <?php } else { ?>
                         <p class="mb-2 text-secondary">Biodata dapat diubah ketika akun telah diaktifkan.</p>

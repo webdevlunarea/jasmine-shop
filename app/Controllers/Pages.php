@@ -6684,6 +6684,14 @@ class Pages extends BaseController
         $email = session()->get("email");
         $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
         $getCurUser = $this->userModel->getUser($email) ?: [];
+        $hasStaffProfileFields = db_connect()->fieldExists('display_name', 'user') && db_connect()->fieldExists('phone', 'user');
+        $nama = $nama ?: ((string)session()->get('role') === '1'
+            ? (trim((string)($getCurUser['display_name'] ?? '')) ?: ($getCurPembeli['nama'] ?? ''))
+            : ($getCurPembeli['nama'] ?? ''));
+        $nohp = $nohp ?: ((string)session()->get('role') === '1'
+            ? (trim((string)($getCurUser['phone'] ?? '')) ?: ($getCurPembeli['nohp'] ?? ''))
+            : ($getCurPembeli['nohp'] ?? ''));
+        $foto = $foto ?: ($getCurPembeli['foto'] ?? '/imguser/ZGVmYXVsdA==');
         $waktuCurr = strtotime(date('Y-m-d', strtotime('+7 Hours')));
         $waktuBatas = !empty($getCurPembeli['batas_tgl_lahir']) ? strtotime($getCurPembeli['batas_tgl_lahir']) : 0;
         $waktuSelisih = $waktuBatas - $waktuCurr;
@@ -6782,6 +6790,8 @@ class Pages extends BaseController
             'foto' => $foto,
             'auth_provider' => $getCurUser['auth_provider'] ?? (!empty($getCurUser['google_id']) ? 'google' : 'email'),
             'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
+            'canEditStaffProfile' => (string) session()->get('role') === '1' && ($hasStaffProfileFields || !empty($getCurPembeli)),
+            'canEditStaffPhoto' => (string) session()->get('role') === '1' && !empty($getCurPembeli),
             'facebookLinkState' => (string)session('role') === '0' ? $this->facebookAccountLinkState() : 'disabled',
             'usernameSettings' => $usernameSettings,
             'emailChangeSettings' => $emailChangeSettings,
@@ -6811,6 +6821,17 @@ class Pages extends BaseController
         $nohp = (string)$this->request->getVar('nohp');
         $tgl_lahir = (string)$this->request->getVar('tgl_lahir');
         $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
+        $hasStaffProfileFields = db_connect()->fieldExists('display_name', 'user') && db_connect()->fieldExists('phone', 'user');
+        $canEditProfile = (string)$role === '0' || ((string)$role === '1' && ($hasStaffProfileFields || !empty($getCurPembeli)));
+        $canEditPhoto = (string)$role === '0' || ((string)$role === '1' && !empty($getCurPembeli));
+        if ((string)$role === '1' && $canEditProfile) {
+            $nama = trim($nama);
+            $nohp = trim($nohp);
+            if ($nama === '' || mb_strlen($nama) > 100 || mb_strlen($nohp) > 30) {
+                session()->setFlashdata('msg', 'Nama dan nomor kontak belum valid.');
+                return redirect()->to('/account');
+            }
+        }
 
         $uploadedPhoto = $this->request->getFile('foto');
         $foto = false;
@@ -6840,7 +6861,7 @@ class Pages extends BaseController
             }
         }
 
-        if (is_string($foto) && $foto !== '' && $role == '0') {
+        if (is_string($foto) && $foto !== '' && $canEditPhoto) {
             $db = db_connect();
             $db->transBegin();
             $photoTransaction = true;
@@ -6907,6 +6928,33 @@ class Pages extends BaseController
                 'tgl_lahir' => $tgl_lahir,
                 'foto' => $finalFoto
             ]);
+        } elseif ((string)$role === '1' && $canEditProfile) {
+            $currentFoto = (string)($getCurPembeli['foto'] ?? '/imguser/ZGVmYXVsdA==');
+            $localFotoPath = '/imguser/' . base64_encode($email);
+            if (is_string($foto) && $foto !== '' && $photoChangedAt !== null) {
+                $localFotoPath .= '?v=' . substr(hash('sha256', $foto), 0, 24) . '&at=' . $photoChangedAt;
+            }
+            $finalFoto = is_string($foto) && $foto !== '' ? $localFotoPath : $currentFoto;
+            if ($hasStaffProfileFields) {
+                $this->userModel->where('email', $email)->set(['display_name' => $nama, 'phone' => $nohp])->update();
+            }
+            if (!empty($getCurPembeli)) {
+                $this->pembeliModel->where('email_user', $email)->set(['nama' => $nama, 'nohp' => $nohp, 'foto' => $finalFoto])->update();
+                if (is_string($foto) && $foto !== '') {
+                    $existingImage = $this->gambarUserModel->getGambar($email);
+                    if ($existingImage) $this->gambarUserModel->where(['email_user' => $email])->set(['gambar' => $foto])->update();
+                    else $this->gambarUserModel->insert(['email_user' => $email, 'gambar' => $foto]);
+                    if ($photoTransaction) {
+                        if ($db->transStatus() === false) {
+                            $db->transRollback();
+                            session()->setFlashdata('msg', 'Foto profil belum dapat disimpan. Silakan coba kembali.');
+                            return redirect()->to('/account');
+                        }
+                        $db->transCommit();
+                    }
+                }
+            }
+            session()->set(['nama' => $nama, 'nohp' => $nohp, 'foto' => $finalFoto]);
         }
 
         session()->setFlashdata('msg', 'Akun Anda telah diperbarui');

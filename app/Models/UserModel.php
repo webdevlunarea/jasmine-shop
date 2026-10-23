@@ -17,7 +17,9 @@ class UserModel extends Model
         'google_id',
         'auth_provider',
         'registration_method',
-        'registered_at'
+        'registered_at',
+        'display_name',
+        'phone'
     ];
 
     public function getUser($email = false)
