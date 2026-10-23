@@ -123,12 +123,32 @@ class BarangModel extends Model
     }
     public function getBarangPageAdmin($page)
     {
-        // $hitungPag = floor($page / 20);
-        $hitungPag = 20 * ($page - 1);
-        if ($page > 1) {
-            return $this->orderBy('nama', 'asc')->findAll(20, $hitungPag);
-        } else {
-            return $this->orderBy('nama', 'asc')->findAll(20, 0);
+        return $this->orderBy('nama', 'asc')->findAll(20, max(0, ((int)$page - 1) * 20));
+    }
+
+    public function getBarangPageAdminSearch(int $page, ?string $search = null): array
+    {
+        $builder = $this->builder();
+        if ($search !== null && trim($search) !== '') {
+            $builder->like('nama', str_replace('-', ' ', trim($search)), 'both');
         }
+        return $builder->orderBy('nama', 'asc')->get(20, max(0, ($page - 1) * 20))->getResultArray();
+    }
+
+    public function countBarangAdmin(?string $search = null): int
+    {
+        $builder = $this->builder();
+        if ($search !== null && trim($search) !== '') {
+            $builder->like('nama', str_replace('-', ' ', trim($search)), 'both');
+        }
+        return (int)$builder->countAllResults();
+    }
+
+    public function getBarangAdminExport(): array
+    {
+        return $this->builder()
+            ->select('id, nama, deskripsi_nonhtml, stok, path, harga, varian')
+            ->orderBy('nama', 'asc')
+            ->get()->getResultArray();
     }
 }

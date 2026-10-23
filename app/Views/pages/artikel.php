@@ -73,13 +73,14 @@
     <div id="edit-komen" class="d-none justify-content-center align-items-center article-email-modal">
         <div class="article-email-dialog">
             <form action="/editkomen" method="post" id="form-edit">
+                <?= csrf_field(); ?>
                 <h5>Edit Komen</h5>
                 <div class="form-floating mb-1">
                     <input type="text" class="form-control" placeholder="name@example.com" name="nama_edit" required>
                     <label for="floatingInput">Nama</label>
                 </div>
                 <div class="form-floating mb-2">
-                    <input type="text" class="form-control" placeholder="name@example.com" name="isi_edit" required>
+                    <textarea class="form-control" placeholder="Isi komentar" name="isi_edit" maxlength="1500" required></textarea>
                     <label for="floatingInput">Isi</label>
                 </div>
                 <div class="d-flex gap-1">
@@ -209,14 +210,16 @@
     </div>
     <div class="container mb-5 article-comments">
         <h5 class="jdl-section mb-3">Komentar</h5>
+        <?php if ($commentMessage = session()->getFlashdata('msg')) { ?><div class="alert alert-info" role="status"><?= esc($commentMessage); ?></div><?php } ?>
         <form action="/addkomen/<?= $artikel['path']; ?>" method="post" data-confirm-submit data-confirm-message="Kirim komentar ini pada artikel? Pastikan isinya sudah sesuai.">
+            <?= csrf_field(); ?>
             <div class="mb-2">
-                <label for="">Nama</label>
-                <input type="text" class="form-control" name="nama" placeholder="Nama" required>
+                <label for="article-comment-name">Nama</label>
+                <input type="text" id="article-comment-name" class="form-control" name="nama" placeholder="Nama" maxlength="80" required>
             </div>
             <div class="mb-2">
-                <label for="">Komentar</label>
-                <textarea class="form-control" name="isi" id="" placeholder="Tulis komentar ..." required></textarea>
+                <label for="article-comment-body">Komentar</label>
+                <textarea class="form-control" name="isi" id="article-comment-body" placeholder="Tulis komentar ..." maxlength="1500" required></textarea>
             </div>
             <div class="d-flex justify-content-center">
                 <button type="submit" class="btn btn-primary1">Kirim</button>
@@ -227,13 +230,15 @@
             <?php foreach ($komen as $ind_k => $k) { ?>
                 <div class="d-flex align-items-start">
                     <div style="flex: 1">
-                        <p class="fw-bold mb-1"><?= $k['nama']; ?></p>
-                        <p><?= $k['isi']; ?></p>
+                        <p class="fw-bold mb-1"><?= esc($k['nama'] ?? ''); ?></p>
+                        <p><?= nl2br(esc($k['isi'] ?? '')); ?></p>
                     </div>
                     <?php if (session()->get('role') == 1) { ?>
                         <div style="width: fit-content;" class="d-flex gap-1">
-                            <button class="btn btn-light" onclick="openEditKomen('<?= $ind_k; ?>','<?= $artikel['path']; ?>')"><i class="material-icons">edit</i></button>
-                            <button class="btn btn-light" onclick="triggerToast('Komentar akan dihapus?', '/delkomen/<?= $ind_k; ?>/<?= $artikel['path']; ?>')"><i class="material-icons">delete_forever</i></button>
+                            <button type="button" class="btn btn-light" onclick="openEditKomen(<?= (int)$ind_k; ?>, <?= esc(json_encode((string)$artikel['path'], JSON_HEX_APOS | JSON_HEX_QUOT), 'attr'); ?>)" aria-label="Edit komentar"><i class="material-icons" aria-hidden="true">edit</i></button>
+                            <form action="/delkomen/<?= (int)$ind_k; ?>/<?= esc($artikel['path'], 'attr'); ?>" method="post" data-confirm-submit data-confirm-message="Hapus komentar ini? Tindakan ini tidak dapat dibatalkan.">
+                                <?= csrf_field(); ?><button type="submit" class="btn btn-light" aria-label="Hapus komentar"><i class="material-icons" aria-hidden="true">delete_forever</i></button>
+                            </form>
                         </div>
                     <?php } ?>
                 </div>
@@ -313,16 +318,15 @@
 <?php if (session()->get('role') == 1) { ?>
     <script>
         const editKomenElm = document.getElementById('edit-komen')
-        const komen = JSON.parse(<?= json_encode($komenJson); ?>);
+        const komen = <?= json_encode(json_decode((string)$komenJson, true) ?: [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
         const formEditElm = document.getElementById('form-edit');
-        console.log(komen)
 
         function openEditKomen(indKomen, judulArtikel) {
             editKomenElm.classList.remove('d-none')
             editKomenElm.classList.add('d-flex')
             document.querySelector('#form-edit input[name="nama_edit"]').value = komen[indKomen].nama;
-            document.querySelector('#form-edit input[name="isi_edit"]').value = komen[indKomen].isi;
-            formEditElm.action = '/editkomen/' + indKomen + "/" + judulArtikel
+            document.querySelector('#form-edit textarea[name="isi_edit"]').value = komen[indKomen].isi;
+            formEditElm.action = '/editkomen/' + encodeURIComponent(indKomen) + "/" + encodeURIComponent(judulArtikel)
         }
 
         function closeEditKomen() {

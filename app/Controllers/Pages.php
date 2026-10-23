@@ -1209,33 +1209,44 @@ class Pages extends BaseController
     public function addKomen($judul_article)
     {
         $artikel = $this->artikelModel->where(['path' => $judul_article])->first();
-        $komenCurr = json_decode($artikel['komen'], true);
-        array_push($komenCurr, [
-            'nama' => $this->request->getVar('nama'),
-            'isi' => $this->request->getVar('isi'),
-        ]);
-        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode($komenCurr)])->update();
-        return redirect()->to('/article/' . $judul_article);
+        if (!$artikel) return redirect()->to('/article')->with('msg', 'Artikel tidak ditemukan.');
+        $nama = trim((string)$this->request->getPost('nama'));
+        $isi = trim((string)$this->request->getPost('isi'));
+        if ($nama === '' || mb_strlen($nama) > 80 || $isi === '' || mb_strlen($isi) > 1500) {
+            return redirect()->to('/article/' . rawurlencode((string)$judul_article))->with('msg', 'Nama maksimal 80 karakter dan komentar maksimal 1.500 karakter.');
+        }
+        $komenCurr = json_decode((string)($artikel['komen'] ?? '[]'), true);
+        $komenCurr = is_array($komenCurr) ? $komenCurr : [];
+        $komenCurr[] = ['nama' => $nama, 'isi' => $isi];
+        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode($komenCurr, JSON_UNESCAPED_UNICODE)])->update();
+        return redirect()->to('/article/' . rawurlencode((string)$judul_article));
     }
     public function delKomen($ind_komen, $judul_artikel)
     {
         $artikel = $this->artikelModel->where(['path' => $judul_artikel])->first();
-        $komenCurr = json_decode($artikel['komen'], true);
-        unset($komenCurr[$ind_komen]);
-        $komenBaru = array_values($komenCurr);
-        $this->artikelModel->where(['path' => $judul_artikel])->set(['komen' => json_encode($komenBaru)])->update();
-        return redirect()->to('/article/' . $judul_artikel);
+        $komenCurr = json_decode((string)($artikel['komen'] ?? '[]'), true);
+        if (!$artikel || !is_array($komenCurr) || !ctype_digit((string)$ind_komen) || !array_key_exists((int)$ind_komen, $komenCurr)) {
+            return redirect()->to('/article/' . rawurlencode((string)$judul_artikel))->with('msg', 'Komentar tidak ditemukan.');
+        }
+        unset($komenCurr[(int)$ind_komen]);
+        $this->artikelModel->where(['path' => $judul_artikel])->set(['komen' => json_encode(array_values($komenCurr), JSON_UNESCAPED_UNICODE)])->update();
+        return redirect()->to('/article/' . rawurlencode((string)$judul_artikel));
     }
     public function editKomen($ind_komen, $judul_article)
     {
         $artikel = $this->artikelModel->where(['path' => $judul_article])->first();
-        $komenCurr = json_decode($artikel['komen'], true);
-        $komenCurr[$ind_komen] = [
-            'nama' => $this->request->getVar('nama_edit'),
-            'isi' => $this->request->getVar('isi_edit'),
-        ];
-        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode($komenCurr)])->update();
-        return redirect()->to('/article/' . $judul_article);
+        $komenCurr = json_decode((string)($artikel['komen'] ?? '[]'), true);
+        $nama = trim((string)$this->request->getPost('nama_edit'));
+        $isi = trim((string)$this->request->getPost('isi_edit'));
+        if (!$artikel || !is_array($komenCurr) || !ctype_digit((string)$ind_komen) || !array_key_exists((int)$ind_komen, $komenCurr)) {
+            return redirect()->to('/article/' . rawurlencode((string)$judul_article))->with('msg', 'Komentar tidak ditemukan.');
+        }
+        if ($nama === '' || mb_strlen($nama) > 80 || $isi === '' || mb_strlen($isi) > 1500) {
+            return redirect()->to('/article/' . rawurlencode((string)$judul_article))->with('msg', 'Nama maksimal 80 karakter dan komentar maksimal 1.500 karakter.');
+        }
+        $komenCurr[(int)$ind_komen] = ['nama' => $nama, 'isi' => $isi];
+        $this->artikelModel->where(['path' => $judul_article])->set(['komen' => json_encode(array_values($komenCurr), JSON_UNESCAPED_UNICODE)])->update();
+        return redirect()->to('/article/' . rawurlencode((string)$judul_article));
     }
     public function submitEmail($judul_article)
     {
@@ -7782,16 +7793,13 @@ class Pages extends BaseController
         ];
         if (!array_key_exists((string)$status, $allowedStatus)) $status = 'all';
 
-        $semuaTransaksiCus = $this->pemesananModel->getPemesanan();
-        $semuaTransaksiCus = array_values(array_filter($semuaTransaksiCus, fn($t) => !$this->isSandboxOrder($t)));
-        $semuaTransaksiCusFilter = array_values(array_filter($semuaTransaksiCus, function ($t) use ($allowedStatus, $status) {
-            $targetStatus = $allowedStatus[(string)$status] ?? null;
-            return $targetStatus === null || (string)($t['status'] ?? '') === $targetStatus;
-        }));
-        $totalFiltered = count($semuaTransaksiCusFilter);
+        $sandboxEmails = PaymentSafety::testAccountEmails();
+        $targetStatus = $allowedStatus[(string)$status] ?? null;
+        $totalFiltered = $this->pemesananModel->countAdminProductionOrders($sandboxEmails, $targetStatus);
+        $totalAllOrders = $this->pemesananModel->countAdminProductionOrders($sandboxEmails);
         $maxPage = max(1, (int)ceil($totalFiltered / $perPage));
         $page = min($page, $maxPage);
-        $transaksiCus = array_slice($semuaTransaksiCusFilter, ($page - 1) * $perPage, $perPage);
+        $transaksiCus = $this->pemesananModel->getAdminProductionOrdersPage($sandboxEmails, $targetStatus, $perPage, ($page - 1) * $perPage);
         $shipmentMap = $this->getShipmentMapForOrders($transaksiCus, true);
         $transaksiCusNoJSON = [];
         foreach ($transaksiCus as $transaksi) {
@@ -7818,13 +7826,14 @@ class Pages extends BaseController
         $data = [
             'title' => 'List Customer',
             'transaksiCus' => $transaksiCusNoJSON,
-            'semuaTransaksiCus' => $semuaTransaksiCusFilter,
+            'semuaTransaksiCus' => [],
             'transaksiJson' => $transaksiJson,
             'page' => $page,
             'status' => $status,
             'perPage' => $perPage,
             'totalFiltered' => $totalFiltered,
-            'totalAllOrders' => count($semuaTransaksiCus),
+            'totalAllOrders' => $totalAllOrders,
+            'actionCounts' => $this->pemesananModel->getAdminActionableOrderCounts($sandboxEmails),
             'wsUrl' => $ws_url
         ];
         return view('pages/listCustomer', $data);
@@ -8177,13 +8186,15 @@ class Pages extends BaseController
 
     public function listProduct($page = 1)
     {
-        $produk = $this->barangModel->getBarangPageAdmin($page);
-        $semuaproduk = $this->barangModel->getBarangAdmin();
+        $page = max(1, (int)$page);
+        $totalProduk = $this->barangModel->countBarangAdmin();
+        $page = min($page, max(1, (int)ceil($totalProduk / 20)));
+        $produk = $this->barangModel->getBarangPageAdminSearch($page);
         $data = [
             'title' => 'List Produk',
             'produk' => $produk,
             'page' => $page,
-            'semuaProduk' => $semuaproduk,
+            'totalProduk' => $totalProduk,
             'cari' => false
         ];
         return view('pages/listProduct', $data);
@@ -8359,7 +8370,8 @@ class Pages extends BaseController
     }
     public function listProductTable()
     {
-        $produk = $this->barangModel->getBarangAdmin();
+        // This endpoint is an explicit full-catalog export; the paginated admin list does not use it.
+        $produk = $this->barangModel->getBarangAdminExport();
         $data = [
             'title' => 'List Produk Tabel',
             'produk' => $produk
@@ -8376,20 +8388,15 @@ class Pages extends BaseController
     }
     public function findProductAdmin($cari, $pag = 1)
     {
-        // if ($cari = '') return redirect()->to('/listproduct');
-        // dd($cari);
-        $hitungPag = 20 * ($pag - 1);
-        if ($pag > 1) {
-            $produk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll(20, $hitungPag);
-        } else {
-            $produk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll(20, 0);
-        }
-        $semuaproduk = $this->barangModel->like('nama', str_replace('-', ' ', $cari), 'both')->orderBy('nama', 'asc')->findAll();
+        $pag = max(1, (int)$pag);
+        $totalProduk = $this->barangModel->countBarangAdmin((string)$cari);
+        $pag = min($pag, max(1, (int)ceil($totalProduk / 20)));
+        $produk = $this->barangModel->getBarangPageAdminSearch($pag, (string)$cari);
         $data = [
             'title' => 'List Produk',
             'produk' => $produk,
             'page' => $pag,
-            'semuaProduk' => $semuaproduk,
+            'totalProduk' => $totalProduk,
             'cari' => $cari
         ];
         // dd($data);
@@ -8674,20 +8681,51 @@ class Pages extends BaseController
         $data = [
             'title' => 'List Voucher',
             'redeem' => $redeem,
-            'voucher' => $voucher
+            'voucher' => $voucher,
+            'msg' => session()->getFlashdata('msg'),
         ];
         return view('pages/listRedeem', $data);
     }
     public function addRedeem()
     {
-        $voucher = $this->request->getVar('voucher');
-        $code = $this->request->getVar('code');
+        $voucher = trim((string)$this->request->getPost('voucher'));
+        $code = strtoupper(trim((string)$this->request->getPost('code')));
+        if (!$this->voucherModel->find($voucher) || $code === '' || strlen($code) > 80 || $this->voucherRedeemModel->where('code', $code)->countAllResults() > 0) {
+            return redirect()->to('/listredeem')->with('msg', 'Pilih voucher yang tersedia dan masukkan kode unik maksimal 80 karakter.');
+        }
         $this->voucherRedeemModel->insert([
             'id_voucher' => $voucher,
             'code' => $code,
             'email_user' => json_encode([])
         ]);
         return redirect()->to('/listredeem');
+    }
+
+    public function editRedeem($id)
+    {
+        $id = (int)$id;
+        $row = $this->voucherRedeemModel->find($id);
+        $voucher = trim((string)$this->request->getPost('voucher'));
+        $code = strtoupper(trim((string)$this->request->getPost('code')));
+        if (!$row || !$this->voucherModel->find($voucher) || $code === '' || strlen($code) > 80
+            || $this->voucherRedeemModel->where('code', $code)->where('id !=', $id)->countAllResults() > 0) {
+            return redirect()->to('/listredeem')->with('msg', 'Perubahan kode tidak valid atau kode sudah digunakan.');
+        }
+        $used = json_decode((string)($row['email_user'] ?? '[]'), true);
+        if (!is_array($used) || $used !== []) return redirect()->to('/listredeem')->with('msg', 'Kode yang sudah pernah diklaim atau memiliki catatan tidak valid tidak dapat diubah.');
+        $this->voucherRedeemModel->update($id, ['id_voucher' => $voucher, 'code' => $code]);
+        return redirect()->to('/listredeem')->with('msg', 'Kode redeem berhasil diperbarui.');
+    }
+
+    public function deleteRedeem($id)
+    {
+        $id = (int)$id;
+        $row = $this->voucherRedeemModel->find($id);
+        if (!$row) return redirect()->to('/listredeem')->with('msg', 'Kode redeem tidak ditemukan.');
+        $used = json_decode((string)($row['email_user'] ?? '[]'), true);
+        if (!is_array($used) || $used !== []) return redirect()->to('/listredeem')->with('msg', 'Kode yang sudah pernah diklaim atau memiliki catatan tidak valid tidak dapat dihapus.');
+        $this->voucherRedeemModel->delete($id);
+        return redirect()->to('/listredeem')->with('msg', 'Kode redeem berhasil dihapus.');
     }
     public function listBanner()
     {

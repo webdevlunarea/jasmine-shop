@@ -38,6 +38,12 @@ $rangeEnd = $totalRows ? $rangeStart + count($transaksiCus) - 1 : 0;
             <div><span>Sesuai filter</span><strong><?= number_format($totalRows, 0, ',', '.'); ?></strong></div>
             <div><span>Ditampilkan</span><strong><?= $rangeStart; ?>–<?= $rangeEnd; ?><small> / <?= $totalRows; ?></small></strong></div>
         </div>
+        <?php $actionCounts = $actionCounts ?? []; ?>
+        <div class="orders-overview orders-action-overview" aria-label="Pesanan yang memerlukan perhatian">
+            <div><span>Menunggu pembayaran</span><strong><?= number_format((int)($actionCounts['waiting_payment'] ?? 0), 0, ',', '.'); ?></strong></div>
+            <div><span>Perlu tinjau transfer</span><strong><?= number_format((int)($actionCounts['review_transfer'] ?? 0), 0, ',', '.'); ?></strong></div>
+            <div><span>Siap diproses</span><strong><?= number_format((int)($actionCounts['ready_to_process'] ?? 0), 0, ',', '.'); ?></strong></div>
+        </div>
         <section class="orders-workspace" aria-label="Daftar dan filter pesanan">
             <div class="orders-toolbar">
                 <div class="orders-search-field"><label for="orders-search">Cari di halaman ini</label><div class="orders-search-input"><i class="material-icons" aria-hidden="true">search</i><input id="orders-search" type="search" placeholder="Nama, email, atau nomor pesanan" autocomplete="off"></div></div>

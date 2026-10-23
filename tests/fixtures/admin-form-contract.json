@@ -1509,6 +1509,11 @@
   "listRedeem": {
     "forms": [
       {
+        "action": "/redeemcode/delete/PHP_8cd7c96d28da",
+        "method": "post",
+        "enctype": ""
+      },
+      {
         "action": "/redeemcode",
         "method": "post",
         "enctype": ""
@@ -1532,7 +1537,7 @@
         "min": "",
         "max": "",
         "step": "",
-        "maxlength": "",
+        "maxlength": "80",
         "multiple": ""
       }
     ]

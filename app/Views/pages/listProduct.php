@@ -1,5 +1,6 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<?php $totalProduk = (int)($totalProduk ?? count($semuaProduk ?? $produk ?? [])); ?>
 <div class="konten admin-module-page admin-module-list-product">
     <div class="container">
         <?= view('partials/admin_page_heading', ['adminHeadingTitle'=>'Produk', 'adminHeadingGroup'=>'Katalog', 'adminHeadingDescription'=>'Kelola foto produk website. Data utama tetap mengikuti MyLuna.', 'adminHeadingActions'=>[['label'=>'Ekspor', 'href'=>'/listproducttable', 'icon'=>'file_download', 'primary'=>false, 'external'=>false], ['label'=>'Gambar kategori', 'href'=>'/categoryimagesadmin', 'icon'=>'image', 'primary'=>false, 'external'=>false]]], ['saveData'=>false]); ?>
@@ -92,24 +93,30 @@
             <?php } ?>
         </div>
 
-        <?php if (count($semuaProduk) > count($produk)) { ?>
+        <?php if ((int)$totalProduk > count($produk)) {
+            $hitungGrupMax = (int)ceil((int)$totalProduk / 20);
+            $pageNumbers = array_values(array_unique(array_filter([1, (int)$page - 2, (int)$page - 1, (int)$page, (int)$page + 1, (int)$page + 2, $hitungGrupMax], static fn($number) => $number >= 1 && $number <= $hitungGrupMax)));
+            sort($pageNumbers);
+            $searchSegment = $cari ? rawurlencode((string)$cari) : '';
+            $pageUrl = static fn(int $number): string => $cari ? '/findproductadmin/' . $searchSegment . '/' . $number : '/listproduct/' . $number;
+        ?>
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
                     <?php if ((int)$page > 1) { ?>
                         <li class="page-item">
-                            <a class="page-link text-dark" href="<?= $cari ? '/findproductadmin/' . $cari . '/' . ((int)$page - 1) : '/listproduct/' . ((int)$page - 1); ?>" aria-label="Previous">
+                            <a class="page-link text-dark" href="<?= esc($pageUrl((int)$page - 1), 'attr'); ?>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     <?php }
-                    $hitungGrupMax = ceil(count($semuaProduk) / 20);
-                    for ($x = 1; $x <= $hitungGrupMax; $x++) {
-                    ?>
-                        <li class="page-item"><a class="page-link <?= $x == $page ? "aktif" : "" ?>" href="<?= $cari ? '/findproductadmin/' . $cari . '/' . $x : '/listproduct/' . $x; ?>"><?= $x; ?></a></li>
-                    <?php } ?>
+                    $previousPageNumber = 0;
+                    foreach ($pageNumbers as $x) {
+                        if ($previousPageNumber && $x > $previousPageNumber + 1) { ?><li class="page-item disabled"><span class="page-link" aria-hidden="true">…</span></li><?php } ?>
+                        <li class="page-item"><a class="page-link <?= $x == $page ? 'aktif' : ''; ?>" href="<?= esc($pageUrl($x), 'attr'); ?>" <?= $x == $page ? 'aria-current="page"' : ''; ?>><?= $x; ?></a></li>
+                    <?php $previousPageNumber = $x; } ?>
                     <?php if ((int)$page < $hitungGrupMax) { ?>
                         <li class="page-item">
-                            <a class="page-link text-dark" href="<?= $cari ? '/findproductadmin/' . $cari . '/' . ((int)$page + 1) : '/listproduct/' . ((int)$page + 1); ?>" aria-label="Next">
+                            <a class="page-link text-dark" href="<?= esc($pageUrl((int)$page + 1), 'attr'); ?>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>

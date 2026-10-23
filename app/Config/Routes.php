@@ -211,6 +211,8 @@ $routes->post('/hapusdummyrating', 'Pages::hapusDummyRating', ['filter' => ['har
 
 $routes->get('/listredeem', 'Pages::listRedeem', ['filter' => 'harusAdmin']);
 $routes->post('/redeemcode', 'Pages::addRedeem', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/redeemcode/edit/(:num)', 'Pages::editRedeem/$1', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/redeemcode/delete/(:num)', 'Pages::deleteRedeem/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listbanner', 'Pages::listBanner', ['filter' => 'harusAdmin']);
 $routes->get('/addbanner', 'Pages::addBanner', ['filter' => 'harusAdmin']);
 $routes->post('/actionaddbanner', 'Pages::actionAddBanner', ['filter' => ['harusAdmin', 'csrf']]);
@@ -328,9 +330,9 @@ $routes->post('/delarticle/(:any)', 'Pages::actionDeleteArticle/$1', ['filter' =
 $routes->get('/editarticle/(:any)', 'Pages::editArticle/$1', ['filter' => 'harusAdmin']);
 $routes->post('/editarticle/(:any)', 'Pages::actionEditArticle/$1', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/submitemail/(:any)', 'Pages::submitEmail/$1');
-$routes->post('/addkomen/(:any)', 'Pages::addKomen/$1');
-$routes->post('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2');
-$routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2');
+$routes->post('/addkomen/(:any)', 'Pages::addKomen/$1', ['filter' => 'csrf']);
+$routes->post('/delkomen/(:any)/(:any)', 'Pages::delKomen/$1/$2', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/editkomen/(:any)/(:any)', 'Pages::editKomen/$1/$2', ['filter' => ['harusAdmin', 'csrf']]);
 
 // TrackingController
 $routes->post('/addtracking', 'TrackingController::addTracking', ['filter' => 'corsFilter']);
