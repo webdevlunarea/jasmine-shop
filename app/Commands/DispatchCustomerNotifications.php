@@ -125,7 +125,13 @@ class DispatchCustomerNotifications extends BaseCommand
                     $hasDevice = true;
                     try { $deviceToken = $this->decryptDeviceToken((string)$device['device_token']); }
                     catch (\Throwable $e) { $invalid[] = $device['id']; $allOk = false; continue; }
-                    $result = $sender->send((string)$deviceToken, $notification, $data + ['type' => $row['notification_type']]);
+                    // A stable message id lets Android replace a redelivery instead of
+                    // showing a second copy when FCM accepted a send but the worker died
+                    // before it could mark the outbox row as sent.
+                    $result = $sender->send((string)$deviceToken, $notification, $data + [
+                        'type' => $row['notification_type'],
+                        'notification_id' => (string)$row['id'],
+                    ]);
                     if (!$result['ok']) {
                         $allOk = false;
                         if ($result['error_code'] === 'UNREGISTERED') $invalid[] = $device['id'];

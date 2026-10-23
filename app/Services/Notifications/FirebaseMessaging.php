@@ -55,6 +55,7 @@ final class FirebaseMessaging implements FirebaseMessageSender
         $payloadData = [];
         foreach ($data as $key => $value) $payloadData[(string)$key] = is_scalar($value) ? (string)$value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $type = strtolower((string)($payloadData['type'] ?? ''));
+        $notificationTag = (string)($payloadData['notification_id'] ?? $payloadData['campaign_id'] ?? $payloadData['order_id'] ?? '');
         $channelId = match (true) {
             str_starts_with($type, 'broadcast_'), $type === 'back_in_stock' => 'lunarea_promotions_v1',
             in_array($type, ['admin_test', 'account_security', 'account_update'], true) => 'lunarea_account_v1',
@@ -73,6 +74,7 @@ final class FirebaseMessaging implements FirebaseMessageSender
                         'icon' => 'ic_notification_small',
                         'color' => '#03AC0E',
                         'visibility' => 'PRIVATE',
+                        ...($notificationTag !== '' ? ['tag' => substr($notificationTag, 0, 128)] : []),
                     ],
                 ],
             ]],

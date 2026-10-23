@@ -51,7 +51,7 @@ class LunareaMessagingService : FirebaseMessagingService() {
         val tapIntent = Intent(this, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         // Preserve only routing metadata; never put credentials or personal data in an intent.
-        listOf("type", "order_id", "product_id", "variant", "campaign_id").forEach { key ->
+        listOf("type", "order_id", "product_id", "variant", "campaign_id", "notification_id").forEach { key ->
             data[key]?.takeIf(String::isNotBlank)?.let { tapIntent.putExtra("push_$key", it) }
         }
         val openApp = PendingIntent.getActivity(
@@ -79,7 +79,7 @@ class LunareaMessagingService : FirebaseMessagingService() {
             .setGroup(groupKeyFor(channelId))
             .setAutoCancel(true)
             .build()
-        val notificationKey = data["campaign_id"] ?: data["order_id"] ?: data["product_id"] ?: System.currentTimeMillis().toString()
+        val notificationKey = data["notification_id"] ?: data["campaign_id"] ?: data["order_id"] ?: data["product_id"] ?: System.currentTimeMillis().toString()
         val notificationId = notificationKey.hashCode().let { if (it == 0) 1 else it }
         val notifications = NotificationManagerCompat.from(this)
         notifications.notify(notificationId, notification)

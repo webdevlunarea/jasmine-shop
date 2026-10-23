@@ -43,7 +43,7 @@ class NotificationImageWorker(context: Context, parameters: WorkerParameters) : 
         val data = inputData.keyValueMap
         val tapIntent = Intent(applicationContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        listOf("type", "order_id", "product_id", "variant", "campaign_id").forEach { key ->
+        listOf("type", "order_id", "product_id", "variant", "campaign_id", "notification_id").forEach { key ->
             data[key]?.toString()?.takeIf(String::isNotBlank)?.let { tapIntent.putExtra("push_$key", it) }
         }
         val pendingIntent = PendingIntent.getActivity(
