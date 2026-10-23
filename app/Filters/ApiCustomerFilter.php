@@ -34,6 +34,17 @@ class ApiCustomerFilter implements FilterInterface
             ]);
         }
         if (!$customer) {
+            try {
+                if ((new CustomerApiTokens())->accountSuspendedForToken($matches[1])) {
+                    $message = (new CustomerApiTokens())->suspensionMessageForToken($matches[1]);
+                    return service('response')->setStatusCode(403)->setJSON([
+                        'success' => false,
+                        'error' => ['code' => 'ACCOUNT_SUSPENDED', 'message' => $message],
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Customer API suspension status lookup failed: ' . get_class($e));
+            }
             return service('response')->setStatusCode(401)->setJSON([
                 'success' => false,
                 'error' => ['code' => 'UNAUTHENTICATED', 'message' => 'Sesi aplikasi berakhir. Silakan masuk kembali.'],

@@ -119,6 +119,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Velocity
 import com.lunareafurniture.lunarea.data.api.ApiClient
 import com.lunareafurniture.lunarea.data.api.AuthRepository
+import com.lunareafurniture.lunarea.data.api.CustomerSuspensionSignals
 import com.lunareafurniture.lunarea.data.api.CustomerSession
 import com.lunareafurniture.lunarea.data.api.HomeBanner
 import com.lunareafurniture.lunarea.data.api.ProductSummary
@@ -422,6 +423,14 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var authFlowEmail by remember { mutableStateOf("") }
     var detailOpen by remember { mutableStateOf(false) }
     var chromeVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        CustomerSuspensionSignals.suspended.collect { suspensionMessage ->
+            signedIn = false
+            accountSection = AccountSection.MENU
+            tab = AppTab.ACCOUNT
+            message = suspensionMessage
+        }
+    }
     LaunchedEffect(pushTap) {
         val tap = pushTap ?: return@LaunchedEffect
         notificationInboxOpen = false

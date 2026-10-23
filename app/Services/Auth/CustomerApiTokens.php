@@ -68,6 +68,24 @@ class CustomerApiTokens
         return $this->users->getUser((string)$row['email_user']);
     }
 
+    public function accountSuspendedForToken(string $plainToken): bool
+    {
+        if (strlen($plainToken) < 32 || strlen($plainToken) > 128) return false;
+        $row = $this->db->table('customer_api_tokens')
+            ->select('email_user')->where('token_hash', hash('sha256', $plainToken))
+            ->get()->getRowArray();
+        return $row && (new CustomerAccountSuspensions($this->db))->isSuspended((string)$row['email_user']);
+    }
+
+    public function suspensionMessageForToken(string $plainToken): string
+    {
+        if (strlen($plainToken) < 32 || strlen($plainToken) > 128) return 'Akun Anda sedang dibatasi. Hubungi Lunarea melalui halaman bantuan.';
+        $row = $this->db->table('customer_api_tokens')->select('email_user')
+            ->where('token_hash', hash('sha256', $plainToken))->get()->getRowArray();
+        return $row ? (new CustomerAccountSuspensions($this->db))->userMessage((string)$row['email_user'])
+            : 'Akun Anda sedang dibatasi. Hubungi Lunarea melalui halaman bantuan.';
+    }
+
     public function rotate(string $plainRefresh): ?array
     {
         if (strlen($plainRefresh) < 32 || strlen($plainRefresh) > 128) return null;
@@ -339,7 +357,8 @@ class CustomerApiTokens
     private function eligibleCustomer(string $email): bool
     {
         $user = $this->users->getUser($email);
-        return $user && (string)($user['role'] ?? '') === '0' && (string)($user['active'] ?? '') === '1';
+        return $user && (string)($user['role'] ?? '') === '0' && (string)($user['active'] ?? '') === '1'
+            && !(new CustomerAccountSuspensions($this->db))->isSuspended($email);
     }
 
     /** API sessions must be bound to the password-reset version store; fail closed if missing. */

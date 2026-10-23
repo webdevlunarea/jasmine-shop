@@ -28,6 +28,8 @@ class FacebookCustomers
         $identity = $this->db->table('facebook_identities')->where('facebook_id', $id)->get()->getRowArray();
         if ($identity) {
             if (strcasecmp($identity['email_user'], $email) !== 0) throw new \DomainException('Facebook ini sudah tertaut ke akun lain. Tidak ada akun yang digabungkan.');
+            $suspensions = new CustomerAccountSuspensions($this->db);
+            if ($suspensions->isSuspended((string)$identity['email_user'])) throw new \DomainException($suspensions->userMessage((string)$identity['email_user']));
             return $user;
         }
         $facebookEmail = $profile['email'] ?? null;
@@ -58,6 +60,8 @@ class FacebookCustomers
             if (!$user || (string)$user['role'] !== '0' || (string)$user['active'] !== '1') {
                 throw new \DomainException('Akun belum aktif. Silakan masuk melalui email atau hubungi admin.');
             }
+            $suspensions = new CustomerAccountSuspensions($this->db);
+            if ($suspensions->isSuspended((string)$user['email'])) throw new \DomainException($suspensions->userMessage((string)$user['email']));
             return $user;
         }
         $email = $profile['email'] ?? '';
@@ -65,6 +69,8 @@ class FacebookCustomers
             throw new \DomainException('Email Facebook belum tersedia. Izinkan akses email atau daftar melalui email.');
         }
         $email = strtolower(trim($email));
+        $suspensions = new CustomerAccountSuspensions($this->db);
+        if ($suspensions->isSuspended($email)) throw new \DomainException($suspensions->userMessage($email));
         if ($this->db->table('user')->where('email', $email)->countAllResults() > 0) {
             // Facebook email is not proof of ownership of an existing local account.
             throw new \DomainException('Email sudah terdaftar. Masuk melalui email atau Google, lalu buka Akun Saya dan pilih Tautkan Facebook.');

@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
@@ -28,11 +29,28 @@ object ApiClient {
                 .build()
             chain.proceed(request)
         }
+        val suspensionDetector = Interceptor { chain ->
+            val response = chain.proceed(chain.request())
+            if (response.code == 403) {
+                val error = runCatching {
+                    JSONObject(response.peekBody(32 * 1024).string()).optJSONObject("error")
+                }.getOrNull()
+                if (error?.optString("code") == "ACCOUNT_SUSPENDED") {
+                    tokenStore.clear()
+                    CustomerSuspensionSignals.notifySuspended(
+                        error.optString("message").takeIf { it.isNotBlank() }
+                            ?: "Akun Anda sedang dibatasi. Hubungi Lunarea melalui halaman bantuan."
+                    )
+                }
+            }
+            response
+        }
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(25, TimeUnit.SECONDS)
             .writeTimeout(25, TimeUnit.SECONDS)
             .addInterceptor(authHeader)
+            .addInterceptor(suspensionDetector)
             .authenticator(SessionAuthenticator(tokenStore))
             .build()
         return Retrofit.Builder()

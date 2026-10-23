@@ -136,6 +136,15 @@ class AuthController extends ApiController
             return $this->failure('EMAIL_NOT_VERIFIED', 'Verifikasi email diperlukan sebelum masuk ke aplikasi.', 403);
         }
         try {
+            if ((new \App\Services\Auth\CustomerAccountSuspensions())->isSuspended((string)$user['email'])) {
+                $message = (new \App\Services\Auth\CustomerAccountSuspensions())->userMessage((string)$user['email']);
+                return $this->failure('ACCOUNT_SUSPENDED', $message, 403);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Customer suspension status check failed: ' . get_class($e));
+            return $this->failure('AUTH_UNAVAILABLE', 'Status akun belum dapat diperiksa. Coba lagi nanti.', 503);
+        }
+        try {
             $deviceName = is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android';
             $challenge = (new \App\Services\Auth\CustomerTotpMfa())->beginLogin((string)$user['email'], $deviceName);
             if ($challenge !== null) return $this->success($challenge);
@@ -168,6 +177,10 @@ class AuthController extends ApiController
         $stage = 'google_account_resolution';
         try {
             $customer = (new GoogleCustomerAuthenticator())->authenticate($idToken);
+            if ((new \App\Services\Auth\CustomerAccountSuspensions())->isSuspended((string)$customer['email'])) {
+                $message = (new \App\Services\Auth\CustomerAccountSuspensions())->userMessage((string)$customer['email']);
+                return $this->failure('ACCOUNT_SUSPENDED', $message, 403);
+            }
             $stage = 'mfa_challenge';
             $challenge = (new \App\Services\Auth\CustomerTotpMfa())->beginLogin(
                 $customer['email'], is_string($input['device_name'] ?? null) ? $input['device_name'] : 'Android'
@@ -290,6 +303,10 @@ class AuthController extends ApiController
         }
         try {
             $verified = (new \App\Services\Auth\CustomerTotpMfa())->completeLogin($challenge, $code);
+            if ((new \App\Services\Auth\CustomerAccountSuspensions())->isSuspended((string)$verified['email'])) {
+                $message = (new \App\Services\Auth\CustomerAccountSuspensions())->userMessage((string)$verified['email']);
+                return $this->failure('ACCOUNT_SUSPENDED', $message, 403);
+            }
             $tokens = (new CustomerApiTokens())->issue($verified['email'], $verified['device_name']);
             return $this->success(['tokens' => $tokens]);
         } catch (\DomainException $e) {
@@ -359,7 +376,11 @@ class AuthController extends ApiController
         $refresh = (string)($this->payload()['refresh_token'] ?? '');
         if ($refresh === '') return $this->failure('VALIDATION_ERROR', 'Token pembaruan wajib diisi.', 422);
         try {
-            $tokens = (new CustomerApiTokens())->rotate($refresh);
+            $service = new CustomerApiTokens();
+            if ($service->accountSuspendedForToken($refresh)) {
+                return $this->failure('ACCOUNT_SUSPENDED', $service->suspensionMessageForToken($refresh), 403);
+            }
+            $tokens = $service->rotate($refresh);
         } catch (\Throwable $e) {
             log_message('error', 'Customer API token rotation failed: ' . get_class($e));
             return $this->failure('AUTH_UNAVAILABLE', 'Layanan akun sementara terganggu. Coba lagi nanti.', 503);

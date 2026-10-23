@@ -861,6 +861,14 @@ class Pages extends BaseController
         return view('pages/kebijakanprivasi', $data);
     }
 
+    public function akunDibatasi()
+    {
+        return view('pages/akunDibatasi', [
+            'title' => 'Akun dibatasi | Lunarea Furniture',
+            'msg' => session()->getFlashdata('msg'),
+        ]);
+    }
+
     public function hapusAkun()
     {
         return view('pages/hapusAkun', ['title' => 'Penghapusan akun | Lunarea Furniture']);
@@ -2058,6 +2066,10 @@ class Pages extends BaseController
         $picture = (string)($googleUser['picture'] ?? '/imguser/ZGVmYXVsdA==');
 
         $user = $this->userModel->getUser($email);
+        if ($user && (string)($user['role'] ?? '') === '0'
+            && (new \App\Services\Auth\CustomerAccountSuspensions())->isSuspended((string)$user['email'])) {
+            return $user;
+        }
         if (!$user) {
             $this->userModel->insert([
                 'email' => $email,
@@ -2289,6 +2301,19 @@ class Pages extends BaseController
         }
 
         $user = $this->createGoogleCustomerIfNeeded($googleUser);
+        if ($user && (string)($user['role'] ?? '') === '0') {
+            try {
+                $suspensions = new \App\Services\Auth\CustomerAccountSuspensions();
+                if ($suspensions->isSuspended((string)$user['email'])) {
+                    session()->setFlashdata('msg', $suspensions->userMessage((string)$user['email']));
+                    return redirect()->to('/akun-dibatasi');
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Website Google suspension check failed: ' . get_class($e));
+                session()->setFlashdata('msg', 'Status akun belum dapat diperiksa. Coba lagi nanti.');
+                return redirect()->to('/login');
+            }
+        }
         if (!$user || !$this->loginUserSession($user)) {
             session()->setFlashdata('msg', 'Login Google gagal membuat sesi akun.');
             return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
@@ -2362,6 +2387,19 @@ class Pages extends BaseController
             session()->setFlashdata('isiEmail', $email);
             if ($redirect) session()->setFlashdata('redirect', $redirect);
             return redirect()->to('/login');
+        }
+        if ((string)($getUser['role'] ?? '') === '0') {
+            try {
+                $suspensions = new \App\Services\Auth\CustomerAccountSuspensions();
+                if ($suspensions->isSuspended((string)$getUser['email'])) {
+                    session()->setFlashdata('msg', $suspensions->userMessage((string)$getUser['email']));
+                    return redirect()->to('/akun-dibatasi');
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Website password suspension check failed: ' . get_class($e));
+                session()->setFlashdata('msg', 'Status akun belum dapat diperiksa. Coba lagi nanti.');
+                return redirect()->to('/login');
+            }
         }
         // Only verified credentials can establish an authenticated session.
         $email = (string)$getUser['email'];

@@ -93,6 +93,7 @@ $routes->get('/page/(:any)', 'Pages::allPage/$1'); //page, subkategori
 $routes->get('/page/(:any)/(:any)', 'Pages::allPage/$1/$2'); //page, subkategori
 $routes->get('/kebijakan-privasi', 'Pages::kebijakanprivasi');
 $routes->get('/hapus-akun', 'Pages::hapusAkun');
+$routes->get('/akun-dibatasi', 'Pages::akunDibatasi');
 $routes->get('/syarat-dan-ketentuan', 'Pages::syaratdanketentuan');
 $routes->get('/faq', 'Pages::faq');
 $routes->match(['get', 'post'], '/lacak-pengiriman', 'Pages::lacakPengiriman');
@@ -240,6 +241,7 @@ $routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmai
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
+$routes->get('/customersuspensionadmin', 'CustomerSuspensionAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/androidreferraladmin', 'AndroidReferralAdmin::index', ['filter' => 'harusAdmin']);
 $routes->post('/androidreferraladmin', 'AndroidReferralAdmin::save', ['filter' => ['harusAdmin', 'csrf']]);
@@ -249,6 +251,8 @@ $routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain'
 $routes->post('/customeradmin/domain/remove', 'CustomerModerationAdmin::removeDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdmin::deleteExpiredUnverified', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/account-deletion/complete', 'CustomerModerationAdmin::completeDeletionRequest', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customersuspensionadmin/suspend', 'CustomerSuspensionAdmin::suspend', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customersuspensionadmin/reinstate', 'CustomerSuspensionAdmin::reinstate', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer/(:any)/(:any)', 'Pages::listCustomer/$1/$2', ['filter' => 'harusAdmin']);
 $routes->get('/pdf/(:any)', 'Pages::pdf/$1', ['filter' => 'harusAdmin']);

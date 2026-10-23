@@ -82,6 +82,11 @@ final class GoogleCustomerAuthenticator
             $stage = 'find_email_account';
             $user = $byGoogle ?: $this->users->getUser($email);
 
+            $suspensions = new CustomerAccountSuspensions($this->db);
+            if ($user && $suspensions->isSuspended((string)$user['email'])) {
+                throw new DomainException($suspensions->userMessage((string)$user['email']));
+            }
+
             if ($user && (string) ($user['role'] ?? '') !== '0') {
                 throw new DomainException('Login Google hanya tersedia untuk akun pelanggan.');
             }

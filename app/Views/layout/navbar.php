@@ -12,6 +12,7 @@ if ($isAdminNav) {
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
         ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
+        ['group'=>'Operasional', 'label' => 'Suspend akun', 'icon' => 'person_off', 'url' => '/customersuspensionadmin', 'match' => ['customersuspensionadmin']],
         ['group'=>'Pengaturan', 'label' => 'Broadcast & notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'match' => ['notificationtestadmin']],
         ['group'=>'Pengaturan', 'label' => 'Program Afiliasi', 'icon' => 'group_add', 'url' => '/androidreferraladmin', 'match' => ['androidreferraladmin']],
         ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
@@ -169,6 +170,7 @@ if ($isAdminNav) {
                             <a href="/listvoucher">List Voucher</a>
                             <a href="/listcustomer">List Customer</a>
                             <a href="/customeradmin">Akun &amp; email spam</a>
+                            <a href="/customersuspensionadmin">Suspend akun</a>
                             <a href="/notificationtestadmin">Tes notifikasi</a>
                             <a href="/listproduct">List Products</a>
                             <a href="/flashsaleadmin">Flash Sale</a>

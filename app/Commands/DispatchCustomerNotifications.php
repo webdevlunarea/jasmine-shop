@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Services\Notifications\FirebaseMessaging;
 use App\Services\Notifications\FirebaseMessageSender;
+use App\Services\Auth\CustomerAccountSuspensions;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use CodeIgniter\Database\BaseConnection;
@@ -45,10 +46,17 @@ class DispatchCustomerNotifications extends BaseCommand
             ->update(['status' => 'pending', 'updated_at' => $now]);
         $rows = $db->table('customer_push_notifications')->where('status', 'pending')->where('next_attempt_at <=', $now)->orderBy('id', 'ASC')->limit($limit)->get()->getResultArray();
         $sender = $this->sender();
+        $suspensions = new CustomerAccountSuspensions($db);
         $sent = 0; $retried = 0; $empty = 0;
         foreach ($rows as $row) {
             $claimed = $db->table('customer_push_notifications')->where(['id' => $row['id'], 'status' => 'pending'])->update(['status' => 'processing', 'updated_at' => $now]);
             if (!$claimed || $db->affectedRows() !== 1) continue;
+            if ($suspensions->isSuspended((string)$row['email_user'])) {
+                $db->table('customer_push_notifications')->where('id', $row['id'])->update([
+                    'status' => 'cancelled', 'last_error' => 'ACCOUNT_SUSPENDED', 'updated_at' => $now,
+                ]);
+                continue;
+            }
             $devices = $db->table('customer_push_devices')->where(['email_user' => $row['email_user'], 'is_active' => 1])->get()->getResultArray();
             if (!$devices) {
                 // Preserve the message until a device registers. PushDeviceController wakes
