@@ -1197,7 +1197,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
                 visible = accountNotice != null,
                 enter = slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(240)) + fadeIn(tween(180)),
                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }, animationSpec = tween(180)) + fadeOut(tween(140)),
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, start = 16.dp, end = 12.dp).zIndex(20f)
+                modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 12.dp, start = 16.dp, end = 12.dp).zIndex(20f)
             ) {
                 accountNotice?.let { notice ->
                     val isError = listOf("gagal", "belum", "tidak", "periksa", "gangguan", "error")
@@ -1227,7 +1227,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             visible = tab == AppTab.CART && cartNoticeEvent != null,
             enter = slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(180)) + fadeIn(tween(160)),
             exit = slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(150)) + fadeOut(tween(130)),
-            modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 12.dp).zIndex(30f)
+            modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 12.dp, end = 12.dp).zIndex(30f)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(.84f).widthIn(max = 380.dp).semantics { liveRegion = LiveRegionMode.Polite },

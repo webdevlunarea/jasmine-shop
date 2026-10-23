@@ -81,7 +81,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
     val context = LocalContext.current
     val isDarkTheme = isSystemInDarkTheme()
     val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
-    val markAlpha = remember { Animatable(0f) }
+    val markAlpha = remember { Animatable(1f) }
     val markScale = remember { Animatable(0.92f) }
     val wordmarkProgress = remember { Animatable(0f) }
     val taglineAlpha = remember { Animatable(0f) }
@@ -100,25 +100,28 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
             .allowHardware(false)
             .build()
         try {
+            // Decode the small Ilena endorsement first. The N mark is already
+            // visible, so this makes both brands appear together while the larger
+            // Lunarea wordmark finishes loading.
+            val ilenaRequest = ImageRequest.Builder(context)
+                .data(R.drawable.ilena_wordmark)
+                .size(240, 34)
+                .allowHardware(false)
+                .build()
+            val ilenaResult = context.imageLoader.execute(ilenaRequest)
+            val ilenaDrawable = ilenaResult.drawable as? BitmapDrawable
+                ?: error("Ilena wordmark was not a bitmap")
+            val ilenaBitmap = ilenaDrawable.toBitmap(width = 240, height = 34)
+            ilenaLogo = withContext(Dispatchers.Default) {
+                if (isDarkTheme) recolorDarkWordmark(ilenaBitmap, preserveMarkInterior = true) else ilenaBitmap
+            }.asImageBitmap()
+
             val result = context.imageLoader.execute(request)
             val drawable = result.drawable as? BitmapDrawable
                 ?: error("Logo drawable was not a bitmap")
             val brandBitmap = drawable.toBitmap(width = 960, height = 102)
             logo = withContext(Dispatchers.Default) {
                 if (isDarkTheme) recolorDarkWordmark(brandBitmap, preserveMarkInterior = false) else brandBitmap
-            }.asImageBitmap()
-
-            val ilenaRequest = ImageRequest.Builder(context)
-                .data(R.drawable.ilena_wordmark)
-                .size(510, 72)
-                .allowHardware(false)
-                .build()
-            val ilenaResult = context.imageLoader.execute(ilenaRequest)
-            val ilenaDrawable = ilenaResult.drawable as? BitmapDrawable
-                ?: error("Ilena wordmark drawable was not a bitmap")
-            val ilenaBitmap = ilenaDrawable.toBitmap(width = 510, height = 72)
-            ilenaLogo = withContext(Dispatchers.Default) {
-                if (isDarkTheme) recolorDarkWordmark(ilenaBitmap, preserveMarkInterior = true) else ilenaBitmap
             }.asImageBitmap()
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -143,30 +146,30 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
 
         // Phase 1: the original N mark, cropped directly from the supplied logo.
         coroutineScope {
-            launch { markAlpha.animateTo(1f, tween(460, easing = FastOutSlowInEasing)) }
-            launch { markScale.animateTo(1f, tween(520, easing = FastOutSlowInEasing)) }
+            launch { markAlpha.animateTo(1f, tween(300, easing = FastOutSlowInEasing)) }
+            launch { markScale.animateTo(1f, tween(320, easing = FastOutSlowInEasing)) }
         }
 
         // Phase 2: reveal the original wordmark in seven source-image slices.
-        delay(80)
+        delay(50)
         coroutineScope {
             launch { markAlpha.animateTo(0f, tween(240, easing = FastOutSlowInEasing)) }
             // A single progress animation drives the staggered slices, avoiding
             // fourteen concurrently-running Animatables and excess recomposition.
             launch {
-                wordmarkProgress.animateTo(7f, tween(685, easing = LinearEasing))
+                wordmarkProgress.animateTo(7f, tween(520, easing = LinearEasing))
             }
         }
 
         // Phase 3: tagline rises gently into place.
         coroutineScope {
-            launch { taglineAlpha.animateTo(1f, tween(320, easing = FastOutSlowInEasing)) }
-            launch { taglineOffset.animateTo(0f, tween(320, easing = FastOutSlowInEasing)) }
+            launch { taglineAlpha.animateTo(1f, tween(220, easing = FastOutSlowInEasing)) }
+            launch { taglineOffset.animateTo(0f, tween(220, easing = FastOutSlowInEasing)) }
         }
 
         // Phase 4 and 5: brief brand hold, then a seamless fade to the app.
-        delay(460)
-        overlayAlpha.animateTo(0f, tween(320, easing = FastOutSlowInEasing))
+        delay(200)
+        overlayAlpha.animateTo(0f, tween(180, easing = FastOutSlowInEasing))
         onFinished()
     }
 
@@ -197,6 +200,9 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                         WhiteBrandMark(markAlpha.value, markScale.value)
                         OriginalWordmark(bitmap, wordmarkProgress.value)
                     }
+                    if (logo == null && !logoLoadFailed) {
+                        WhiteBrandMark(1f, markScale.value)
+                    }
                 }
                 Text(
                     text = "always your choice, always your furniture.",
@@ -222,7 +228,7 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "PART OF",
+                    text = "Part Of",
                     color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 10.sp,
