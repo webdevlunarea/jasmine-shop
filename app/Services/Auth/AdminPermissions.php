@@ -37,6 +37,7 @@ final class AdminPermissions
     public static function canAccess($role, string $permission, array $customPermissions = []): bool
     {
         $role = self::normalizeRole($role);
+        if ($permission === 'admin.dashboard') return $role !== 'INVALID';
         if ($role === 'DEV') return true;
         if ($role === 'SUPER_ADMIN') return $permission !== 'admin.roles.manage';
         if (strpos($role, 'CUSTOM_') === 0) {
@@ -93,6 +94,7 @@ final class AdminPermissions
         $path = '/' . trim(parse_url($path, PHP_URL_PATH) ?: $path, '/');
         $method = strtoupper($method);
         $rules = [
+            'admin.dashboard' => ['/admin/dashboard'],
             'system.maintenance' => ['/benerinstokluna'],
             'admin.roles.manage' => ['/admin/roles'],
             'finance' => ['/invoiceadmin', '/addinvoiceadmin', '/actionaddinvoiceadmin', '/payorder', '/pdf'],
@@ -107,6 +109,7 @@ final class AdminPermissions
         foreach ($rules as $category => $prefixes) {
             foreach ($prefixes as $prefix) {
                 if ($path === $prefix || strpos($path, $prefix . '/') === 0 || (substr($prefix, -1) === '/' && strpos($path, $prefix) === 0)) {
+                    if ($category === 'admin.dashboard') return $category;
                     if ($category === 'system.maintenance' || $category === 'admin.roles.manage') return $category;
                     if (in_array($path, ['/actionbroadcastvoucher', '/actionbroadcastvoucheremail'], true)
                         || strpos($path, '/actionbroadcastvoucher/') === 0) return 'settings.manage';

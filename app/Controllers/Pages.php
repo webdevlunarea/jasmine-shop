@@ -2349,7 +2349,8 @@ class Pages extends BaseController
         }
 
         session()->setFlashdata('msg', 'Berhasil masuk dengan Google.');
-        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: '/'));
+        $defaultRedirect = (string)($user['role'] ?? '0') === '1' ? '/admin/dashboard' : '/';
+        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: $defaultRedirect));
     }
     public function actionLoginSalah()
     {
@@ -2534,7 +2535,8 @@ class Pages extends BaseController
             ];
             session()->set($ses_data);
         }
-        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: '/'));
+        $defaultRedirect = (string)($getUser['role'] ?? '0') === '1' ? '/admin/dashboard' : '/';
+        return redirect()->to("/hapuslocalstorage/" . base64_encode($redirect ?: $defaultRedirect));
     }
     public function actionLoginTamuSalah($id_barang = false, $varian = false, $index_gambar = false)
     {

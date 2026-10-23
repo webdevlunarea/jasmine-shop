@@ -46,4 +46,13 @@ final class AdminPermissionsTest extends CIUnitTestCase
         $this->assertSame('admin.manage', AdminPermissions::requiredPermission('/unexpected-admin-path', 'GET'));
         $this->assertSame('admin.roles.manage', AdminPermissions::requiredPermission('/admin/roles/save', 'POST'));
     }
+
+    public function testDashboardIsAvailableToRecognizedStaffRolesOnly(): void
+    {
+        $this->assertSame('admin.dashboard', AdminPermissions::requiredPermission('/admin/dashboard', 'GET'));
+        foreach (['DEV', 'ADMIN', 'ORDER_ADMIN', 'CATALOG_ADMIN', 'CONTENT_ADMIN', 'FINANCE_ADMIN', 'CUSTOM_CONTENT_EDITOR'] as $role) {
+            $this->assertTrue(AdminPermissions::canAccess($role, 'admin.dashboard'));
+        }
+        $this->assertFalse(AdminPermissions::canAccess('UNKNOWN_ROLE', 'admin.dashboard'));
+    }
 }

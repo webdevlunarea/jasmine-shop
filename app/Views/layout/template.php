@@ -232,6 +232,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/admin-workspace.css?v=<?= filemtime(FCPATH . 'css/admin-workspace.css'); ?>">
     <link rel="stylesheet" href="/css/admin-modules.css?v=<?= filemtime(FCPATH . 'css/admin-modules.css'); ?>">
     <link rel="stylesheet" href="/css/admin-media.css?v=<?= filemtime(FCPATH . 'css/admin-media.css'); ?>">
+    <?php if (($title ?? '') === 'Dashboard') { ?><link rel="stylesheet" href="/css/admin-dashboard.css?v=<?= filemtime(FCPATH . 'css/admin-dashboard.css'); ?>"><?php } ?>
     <script defer src="/js/admin-media.js?v=<?= filemtime(FCPATH . 'js/admin-media.js'); ?>"></script>
     <script defer src="/js/admin-workspace.js?v=<?= filemtime(FCPATH . 'js/admin-workspace.js'); ?>"></script>
     <?php } ?>

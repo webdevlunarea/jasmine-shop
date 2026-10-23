@@ -9,6 +9,7 @@ if ($isAdminNav) {
     $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole(session('admin_role') ?: 'ADMIN');
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
+        ['group'=>'Workspace', 'label' => 'Dashboard', 'icon' => 'dashboard', 'url' => '/admin/dashboard', 'permission'=>'admin.dashboard', 'match' => ['admin/dashboard']],
         ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'permission'=>'orders.read', 'match' => ['listcustomer', 'order']],
         ['group'=>'Operasional', 'label' => 'Pengguna', 'icon' => 'group', 'url' => '/customerdirectoryadmin', 'permission'=>'customers.read', 'match' => ['customerdirectoryadmin']],
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'permission'=>'finance.read', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
@@ -36,7 +37,7 @@ if ($isAdminNav) {
 <input type="checkbox" id="admin-menu-toggle" class="d-none">
 <aside class="admin-sidebar" id="admin-navigation" aria-label="Menu administrator">
     <div class="admin-brand-row">
-        <a href="/listcustomer" class="admin-brand" aria-label="Lunarea, halaman pesanan">
+        <a href="/admin/dashboard" class="admin-brand" aria-label="Lunarea, dashboard admin">
             <span class="admin-brand-mark" aria-hidden="true">L.</span>
             <span class="admin-brand-copy"><strong>Lunarea</strong><small>Workspace admin</small></span>
         </a>
