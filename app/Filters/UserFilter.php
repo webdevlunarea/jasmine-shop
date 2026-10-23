@@ -23,7 +23,7 @@ class UserFilter implements FilterInterface
             return redirect()->to(site_url('login') . '?redirect=' . rawurlencode($target));
         }
         if (session("email") === "tamu") {
-            session()->remove(['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify']);
+            session()->remove(['email', 'role', 'admin_role', 'admin_permissions', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify']);
             session()->setFlashdata('msg', 'Checkout sekarang wajib memakai akun. Silakan masuk atau daftar terlebih dahulu.');
             return redirect()->to(site_url('login') . '?redirect=' . rawurlencode($target));
         }

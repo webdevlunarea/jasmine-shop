@@ -6,29 +6,32 @@ $notif = [
 $showMobileBottomNav = in_array($title, ['Beranda', 'Semua Produk', 'Artikel']);
 $isAdminNav = session()->get('role') == '1';
 if ($isAdminNav) {
+    $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole(session('admin_role') ?: 'ADMIN');
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
-        ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'match' => ['listcustomer', 'order']],
-        ['group'=>'Operasional', 'label' => 'Pengguna', 'icon' => 'group', 'url' => '/customerdirectoryadmin', 'match' => ['customerdirectoryadmin']],
-        ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
-        ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'match' => ['shippingadmin']],
-        ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'match' => ['customeradmin']],
-        ['group'=>'Operasional', 'label' => 'Suspend akun', 'icon' => 'person_off', 'url' => '/customersuspensionadmin', 'match' => ['customersuspensionadmin']],
-        ['group'=>'Pengaturan', 'label' => 'Broadcast & notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'match' => ['notificationtestadmin']],
-        ['group'=>'Pengaturan', 'label' => 'Program Afiliasi', 'icon' => 'group_add', 'url' => '/androidreferraladmin', 'match' => ['androidreferraladmin']],
-        ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'match' => ['trafficadmin']],
-        ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'match' => ['settingwarna']],
-        ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
-        ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'match' => ['stokadmin']],
-        ['group'=>'Katalog', 'label' => 'Pemetaan MyLuna', 'icon' => 'compare_arrows', 'url' => '/lunamappingadmin', 'match' => ['lunamappingadmin']],
-        ['group'=>'Katalog', 'label' => 'Gambar kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'match' => ['categoryimagesadmin']],
-        ['group'=>'Katalog', 'label' => 'Rating & terjual', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'match' => ['manageratingterjual']],
-        ['group'=>'Promosi & konten', 'label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'match' => ['flashsaleadmin']],
-        ['group'=>'Promosi & konten', 'label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
-        ['group'=>'Promosi & konten', 'label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'match' => ['listredeem']],
-        ['group'=>'Promosi & konten', 'label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'match' => ['article', 'addarticle', 'editarticle']],
-        ['group'=>'Promosi & konten', 'label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'match' => ['listbanner', 'addbanner', 'editbanner']],
+        ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'permission'=>'orders.read', 'match' => ['listcustomer', 'order']],
+        ['group'=>'Operasional', 'label' => 'Pengguna', 'icon' => 'group', 'url' => '/customerdirectoryadmin', 'permission'=>'customers.read', 'match' => ['customerdirectoryadmin']],
+        ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'permission'=>'finance.read', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
+        ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'permission'=>'shipping.read', 'match' => ['shippingadmin']],
+        ['group'=>'Operasional', 'label' => 'Akun & email spam', 'icon' => 'manage_accounts', 'url' => '/customeradmin', 'permission'=>'customers.manage', 'match' => ['customeradmin']],
+        ['group'=>'Operasional', 'label' => 'Suspend akun', 'icon' => 'person_off', 'url' => '/customersuspensionadmin', 'permission'=>'customers.manage', 'match' => ['customersuspensionadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Broadcast & notifikasi', 'icon' => 'notifications_active', 'url' => '/notificationtestadmin', 'permission'=>'settings.write', 'match' => ['notificationtestadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Program Afiliasi', 'icon' => 'group_add', 'url' => '/androidreferraladmin', 'permission'=>'settings.write', 'match' => ['androidreferraladmin']],
+        ['group'=>'Pengaturan', 'label' => 'Traffic', 'icon' => 'bar_chart', 'url' => '/trafficadmin', 'permission'=>'settings.read', 'match' => ['trafficadmin']],
+        ['group'=>'Pengaturan', 'label' => 'Tema warna', 'icon' => 'palette', 'url' => '/settingwarna', 'permission'=>'settings.write', 'match' => ['settingwarna']],
+        ['group'=>'Katalog', 'label' => 'Produk', 'icon' => 'inventory_2', 'url' => '/listproduct', 'permission'=>'catalog.read', 'match' => ['listproduct', 'addproduct', 'editproduct', 'findproductadmin']],
+        ['group'=>'Katalog', 'label' => 'Stok', 'icon' => 'unarchive', 'url' => '/stokadmin/all/1', 'permission'=>'catalog.read', 'match' => ['stokadmin']],
+        ['group'=>'Katalog', 'label' => 'Pemetaan MyLuna', 'icon' => 'compare_arrows', 'url' => '/lunamappingadmin', 'permission'=>'catalog.read', 'match' => ['lunamappingadmin']],
+        ['group'=>'Katalog', 'label' => 'Gambar kategori', 'icon' => 'image_search', 'url' => '/categoryimagesadmin', 'permission'=>'catalog.read', 'match' => ['categoryimagesadmin']],
+        ['group'=>'Katalog', 'label' => 'Rating & terjual', 'icon' => 'star_rate', 'url' => '/manageratingterjual', 'permission'=>'content.read', 'match' => ['manageratingterjual']],
+        ['group'=>'Promosi & konten', 'label' => 'Flash Sale', 'icon' => 'bolt', 'url' => '/flashsaleadmin', 'permission'=>'content.read', 'match' => ['flashsaleadmin']],
+        ['group'=>'Promosi & konten', 'label' => 'Voucher', 'icon' => 'confirmation_number', 'url' => '/listvoucher', 'permission'=>'content.read', 'match' => ['listvoucher', 'addvoucher', 'editvoucher']],
+        ['group'=>'Promosi & konten', 'label' => 'Redeem', 'icon' => 'redeem', 'url' => '/listredeem', 'permission'=>'content.read', 'match' => ['listredeem']],
+        ['group'=>'Promosi & konten', 'label' => 'Artikel', 'icon' => 'article', 'url' => '/article', 'permission'=>'content.read', 'match' => ['article', 'addarticle', 'editarticle']],
+        ['group'=>'Promosi & konten', 'label' => 'Banner', 'icon' => 'image', 'url' => '/listbanner', 'permission'=>'content.read', 'match' => ['listbanner', 'addbanner', 'editbanner']],
     ];
+    $adminNav[] = ['group'=>'Pengaturan', 'label'=>'Peran & akses', 'icon'=>'admin_panel_settings', 'url'=>'/admin/roles', 'permission'=>'admin.roles.manage', 'match'=>['admin/roles']];
+    $adminNav = array_values(array_filter($adminNav, static fn($item) => \App\Services\Auth\AdminPermissions::canAccess($adminRole, $item['permission'], (array) session('admin_permissions'))));
 ?>
 <input type="checkbox" id="admin-menu-toggle" class="d-none">
 <aside class="admin-sidebar" id="admin-navigation" aria-label="Menu administrator">

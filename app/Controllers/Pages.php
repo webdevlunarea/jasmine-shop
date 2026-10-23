@@ -2500,6 +2500,8 @@ class Pages extends BaseController
                 'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
+                'admin_role' => null,
+                'admin_permissions' => [],
                 'nama' => $getPembeli['nama'],
                 'tgl_lahir' => $getPembeli['tgl_lahir'],
                 'alamat' => json_decode($getPembeli['alamat'], true),
@@ -2517,10 +2519,13 @@ class Pages extends BaseController
             $cekSubmitEmail = $this->submitEmailModel->getEmail($email);
             if ($cekSubmitEmail) session()->set('submitEmail', true);
         } else {
+            $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole($getUser['admin_role'] ?? 'ADMIN');
             $ses_data = [
                 'active' => '1',
                 'email' => $getUser['email'],
                 'role' => $getUser['role'],
+                'admin_role' => $adminRole,
+                'admin_permissions' => \App\Services\Auth\AdminPermissions::loadCustomPermissions($adminRole),
                 'isLogin' => true
             ];
             session()->set($ses_data);
@@ -2552,7 +2557,7 @@ class Pages extends BaseController
     public function logout()
     {
         session()->remove(['checkout_address_id', 'checkout_address_owner', 'checkout_recipient', 'facebook_oauth', 'facebook_link_nonce', 'password_session_version', 'password_reset_email']);
-        $ses_data = ['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
+        $ses_data = ['email', 'role', 'admin_role', 'admin_permissions', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify'];
         session()->remove($ses_data);
     }
     public function actionLogout()

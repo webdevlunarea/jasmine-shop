@@ -20,7 +20,7 @@ class LogoutFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         if (session("email") === "tamu") {
-            session()->remove(['email', 'role', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify']);
+            session()->remove(['email', 'role', 'admin_role', 'admin_permissions', 'alamat', 'wishlist', 'keranjang', 'isLogin', 'active', 'transaksi', 'nama', 'nohp', 'submitEmail', 'voucher', 'tgl_lahir', 'tier', 'poin', 'usepoin', 'foto', 'gantiKaca', 'redirect_after_verify']);
             return;
         }
 

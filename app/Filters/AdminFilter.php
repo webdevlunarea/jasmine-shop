@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Services\Auth\AdminPermissions;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -15,6 +16,11 @@ class AdminFilter implements FilterInterface
         }
         if (session("role") != "1") {
             return redirect()->to(site_url('/'));
+        }
+
+        $permission = AdminPermissions::requiredPermission($request->getUri()->getPath(), $request->getMethod());
+        if (!AdminPermissions::canAccess(session('admin_role') ?: 'ADMIN', $permission, (array) session('admin_permissions'))) {
+            return service('response')->setStatusCode(403)->setBody('Akses ditolak untuk peran administrator Anda.');
         }
     }
 

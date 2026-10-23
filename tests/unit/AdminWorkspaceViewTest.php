@@ -4,7 +4,7 @@ use CodeIgniter\Test\CIUnitTestCase;
 
 final class AdminWorkspaceViewTest extends CIUnitTestCase
 {
-    protected function tearDown(): void { session()->remove(['isLogin', 'role', 'email']); parent::tearDown(); }
+    protected function tearDown(): void { session()->remove(['isLogin', 'role', 'email', 'admin_role']); parent::tearDown(); }
 
     private function render(string $file, array $data): string
     {
@@ -82,7 +82,19 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(4,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
-        foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna','/keluar'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
+        foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
+        $this->assertSame(1,$xp->query('//form[@action="/keluar"]//button')->length);
+    }
+
+    public function testRoleSpecificAdminMenuHidesUnavailableModules(): void
+    {
+        session()->set(['isLogin'=>true,'role'=>'1','admin_role'=>'ORDER_ADMIN']);
+        $html=$this->render('layout/navbar',['title'=>'List Customer']);
+        $dom=new DOMDocument(); @$dom->loadHTML($html); $xp=new DOMXPath($dom);
+        $this->assertGreaterThanOrEqual(1,$xp->query('//a[@href="/listcustomer"]')->length);
+        $this->assertSame(0,$xp->query('//a[@href="/listproduct"]')->length);
+        $this->assertSame(0,$xp->query('//a[@href="/invoiceadmin"]')->length);
+        $this->assertSame(1,$xp->query('//a[@href="/customerdirectoryadmin"]')->length);
     }
 
     public function testExportSyntheticPreviewWhenRequested(): void

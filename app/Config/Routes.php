@@ -241,6 +241,9 @@ $routes->post('/actionbroadcastvoucheremail', 'Pages::actionBroadcastVoucherEmai
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customerdirectoryadmin', 'CustomerDirectoryAdmin::index', ['filter' => 'harusAdmin']);
+$routes->get('/admin/roles', 'AdminRoleAdmin::index', ['filter' => 'harusAdmin']);
+$routes->post('/admin/roles/save', 'AdminRoleAdmin::saveRole', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/admin/roles/assign', 'AdminRoleAdmin::assignRole', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/customersuspensionadmin', 'CustomerSuspensionAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);
