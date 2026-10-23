@@ -34,7 +34,7 @@ $accountIconPaths = [
         <?php } ?>
     </nav>
     <div class="account-nav-logout">
-        <a data-buyer-logout class="account-nav-item text-danger" href="/hapuslocalstorage/<?= base64_encode('/keluar'); ?>">
+        <a data-buyer-logout class="account-nav-item text-danger" href="/keluar" data-clear-notification-preference>
             <i class="material-icons">logout</i><span>Keluar</span>
         </a>
     </div>

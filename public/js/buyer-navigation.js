@@ -171,7 +171,17 @@
     logoutDialog.querySelector('[data-logout-confirm]').addEventListener('click', event => {
         if (!logoutUrl || event.currentTarget.disabled) return;
         event.currentTarget.disabled = true;
-        window.location.assign(logoutUrl);
+        const target = new URL(logoutUrl, location.href);
+        if (target.origin !== location.origin || !['/keluar', '/keluar/regist'].includes(target.pathname)) return;
+        if (logoutTrigger?.hasAttribute('data-clear-notification-preference')) {
+            try { localStorage.removeItem('notifVoucher'); } catch (_) { /* Storage may be unavailable. */ }
+        }
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = target.pathname;
+        form.hidden = true;
+        document.body.append(form);
+        form.requestSubmit();
     });
     window.addEventListener('pageshow', () => {
         if (logoutDialog.open) logoutDialog.close();

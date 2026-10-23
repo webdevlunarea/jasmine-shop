@@ -587,7 +587,7 @@
                     </script>
                     <?php }
                     } else { ?>
-                    <a href="/hapuslocalstorage/<?= base64_encode('/keluar/regist'); ?>"
+                    <a data-buyer-logout href="/keluar/regist"
                         class="py-2 px-3 mb-1 d-flex gap-1 tmb-input-redeem">
                         <svg class="checkout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4V6Zm12 0v2m0 3v2m0 3v2"/></svg>
                         <p class="m-0">Daftar member untuk menggunakan voucher</p>

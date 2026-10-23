@@ -66,10 +66,12 @@ if ($isAdminNav) {
             <i class="material-icons" aria-hidden="true">person_outline</i>
             <span>Akun</span>
         </a>
-        <a href="/keluar" class="admin-nav-item danger">
-            <i class="material-icons" aria-hidden="true">logout</i>
-            <span>Keluar</span>
-        </a>
+        <form method="post" action="/keluar" class="m-0">
+            <button type="submit" class="admin-nav-item danger w-100 border-0 bg-transparent text-start">
+                <i class="material-icons" aria-hidden="true">logout</i>
+                <span>Keluar</span>
+            </button>
+        </form>
     </div>
 </aside>
 <button type="button" class="admin-menu-scrim" data-admin-menu-close aria-label="Tutup menu navigasi" tabindex="-1"></button>

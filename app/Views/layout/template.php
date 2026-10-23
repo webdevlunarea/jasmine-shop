@@ -46,6 +46,8 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     };
     </script>
     <meta charset="UTF-8">
+    <meta name="lunarea-csrf-name" content="<?= esc(csrf_token(), 'attr'); ?>">
+    <meta name="lunarea-csrf-hash" content="<?= esc(csrf_hash(), 'attr'); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Lunarea Furniture">
     <?php
@@ -629,6 +631,19 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
         if (event.target && typeof event.target.setCustomValidity === 'function') {
             event.target.setCustomValidity('');
         }
+    }, true);
+
+    // Ensure every browser POST form carries the route-level CSRF token,
+    // including forms submitted through existing JavaScript handlers.
+    document.addEventListener('submit', function(event) {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement) || (form.method || 'get').toLowerCase() !== 'post') return;
+        const name = document.querySelector('meta[name="lunarea-csrf-name"]')?.content;
+        const hash = document.querySelector('meta[name="lunarea-csrf-hash"]')?.content;
+        if (!name || !hash || form.elements.namedItem(name)) return;
+        const token = document.createElement('input');
+        token.type = 'hidden'; token.name = name; token.value = hash;
+        form.appendChild(token);
     }, true);
     </script>
     <?= view('partials/cookie_consent', [], ['saveData' => false]); ?>
