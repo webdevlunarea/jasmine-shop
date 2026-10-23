@@ -61,8 +61,9 @@
 
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-3 p-3 mb-3" style="background:#faf9f6;">
                 <span class="text-secondary">Akun aktif dengan perangkat Android dan notifikasi terdaftar</span>
-                <strong class="fs-5" style="color:#2f2d20;"><?= number_format((int) ($broadcastRecipientCount ?? 0), 0, ',', '.'); ?></strong>
+                <strong class="fs-5" style="color:#2f2d20;"><?= $broadcastRecipientCount === null ? '—' : number_format((int) $broadcastRecipientCount, 0, ',', '.'); ?></strong>
             </div>
+            <?php if ($broadcastRecipientCount === null) { ?><p class="small text-danger mb-3" role="status">Jumlah penerima belum dapat dimuat. Muat ulang halaman; jika masih terjadi, periksa log server.</p><?php } ?>
 
             <div class="alert alert-light border rounded-3" role="note">
                 Pesan hanya masuk antrean untuk akun pelanggan aktif dengan perangkat Android yang terdaftar melalui izin notifikasi aplikasi. Tidak ada persetujuan promosi terpisah untuk FCM. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam.
@@ -122,7 +123,7 @@
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-end">
-                        <button id="broadcast-submit" class="btn btn-primary1 px-4" type="submit" <?= (int) ($broadcastRecipientCount ?? 0) < 1 ? 'disabled' : ''; ?>>
+                        <button id="broadcast-submit" class="btn btn-primary1 px-4" type="submit" <?= $broadcastRecipientCount === null || (int) $broadcastRecipientCount < 1 ? 'disabled' : ''; ?>>
                             <i class="material-icons align-middle me-1" aria-hidden="true">send</i>Jadwalkan broadcast
                         </button>
                     </div>

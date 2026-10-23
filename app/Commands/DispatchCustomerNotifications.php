@@ -90,7 +90,12 @@ class DispatchCustomerNotifications extends BaseCommand
                     continue;
                 }
             }
-            $deviceQuery = $db->table('customer_push_devices')->where(['email_user' => $row['email_user'], 'is_active' => 1]);
+            $deviceQuery = $db->table('customer_push_devices')->where(['is_active' => 1]);
+            $deviceQuery->where(
+                'LOWER(TRIM(email_user)) = ' . $db->escape(strtolower(trim((string)$row['email_user']))),
+                null,
+                false
+            );
             if ($isMarketing) $deviceQuery->where('platform', 'android');
             $devices = $deviceQuery->get()->getResultArray();
             if (!$devices) {

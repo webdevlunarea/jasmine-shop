@@ -52,6 +52,7 @@ final class CustomerPushBroadcastsTest extends CIUnitTestCase
         $this->addDevice('buyer@example.test');
         $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
         $this->addDevice('BUYER@example.test');
+        $this->addDevice(' buyer@example.test ');
         $this->addDevice('inactive@example.test', 'android', 0);
         $this->addDevice('web@example.test', 'web', 1);
         $broadcasts = new CustomerPushBroadcasts($this->connection);

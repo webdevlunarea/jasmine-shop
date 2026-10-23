@@ -20,14 +20,25 @@ final class CustomerPushBroadcasts
     {
     }
 
+    private function normalizedEmailJoin(string $left, string $right): string
+    {
+        $comparison = 'LOWER(TRIM(' . $left . ')) = LOWER(TRIM(' . $right . '))';
+        if (stripos($this->db->DBDriver, 'mysql') !== false) {
+            // Production columns may use different utf8mb4 collations (e.g. general_ci and 0900_ai_ci).
+            $comparison = 'LOWER(TRIM(' . $left . ')) COLLATE utf8mb4_bin = LOWER(TRIM(' . $right . ')) COLLATE utf8mb4_bin';
+        }
+        return $comparison;
+    }
+
     public function activeAndroidRecipientCount(): int
     {
         if (!$this->db->tableExists('customer_push_devices') || !$this->db->tableExists('user')) return 0;
 
         $row = $this->db->table('customer_push_devices d')
-            ->select('COUNT(DISTINCT LOWER(d.email_user)) AS total', false)
-            ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
-            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'u.role' => '0', 'u.active' => '1'])
+            ->select('COUNT(DISTINCT LOWER(TRIM(d.email_user))) AS total', false)
+            ->join('user u', $this->normalizedEmailJoin('u.email', 'd.email_user'), 'inner', false)
+            ->where(['d.is_active' => 1, 'u.role' => '0', 'u.active' => '1'])
+            ->where("LOWER(TRIM(d.platform)) = 'android'", null, false)
             ->get()->getRowArray();
 
         return (int) ($row['total'] ?? 0);
@@ -48,8 +59,9 @@ final class CustomerPushBroadcasts
 
         $audience = $this->db->table('customer_push_devices d')
             ->distinct()->select('d.email_user')
-            ->join('user u', 'LOWER(u.email) = LOWER(d.email_user)', 'inner', false)
-            ->where(['d.is_active' => 1, 'd.platform' => 'android', 'u.role' => '0', 'u.active' => '1'])
+            ->join('user u', $this->normalizedEmailJoin('u.email', 'd.email_user'), 'inner', false)
+            ->where(['d.is_active' => 1, 'u.role' => '0', 'u.active' => '1'])
+            ->where("LOWER(TRIM(d.platform)) = 'android'", null, false)
             ->get()->getResultArray();
         $recipients = [];
         foreach ($audience as $row) {

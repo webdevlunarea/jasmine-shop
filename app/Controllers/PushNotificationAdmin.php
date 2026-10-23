@@ -11,11 +11,11 @@ class PushNotificationAdmin extends BaseController
 {
     public function index()
     {
-        $recipientCount = 0;
+        $recipientCount = null;
         try {
             $recipientCount = (new CustomerPushBroadcasts(Database::connect()))->activeAndroidRecipientCount();
         } catch (\Throwable $e) {
-            log_message('error', 'Push broadcast audience count failed: ' . get_class($e));
+            log_message('error', 'Push broadcast audience count failed: ' . get_class($e) . ' code=' . (string)$e->getCode());
         }
 
         return view('pages/pushNotificationAdmin', [
