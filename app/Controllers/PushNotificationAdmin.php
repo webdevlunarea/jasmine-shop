@@ -33,6 +33,22 @@ class PushNotificationAdmin extends BaseController
         $title = trim((string) $this->request->getPost('title'));
         $body = trim((string) $this->request->getPost('body'));
         $kind = trim((string) $this->request->getPost('kind'));
+        $scheduledLocal = trim((string) $this->request->getPost('send_at'));
+        $scheduledAtUtc = null;
+        if ($scheduledLocal !== '') {
+            $jakarta = new \DateTimeZone('Asia/Jakarta');
+            $scheduled = \DateTimeImmutable::createFromFormat('!Y-m-d\\TH:i', $scheduledLocal, $jakarta);
+            $dateErrors = \DateTimeImmutable::getLastErrors();
+            if (!$scheduled || ($dateErrors && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))
+                || $scheduled->format('Y-m-d\\TH:i') !== $scheduledLocal) {
+                return $this->backBroadcast('Periksa tanggal dan waktu pengiriman.');
+            }
+            $sendTimestamp = $scheduled->getTimestamp();
+            if ($sendTimestamp < time() + 60 || $sendTimestamp > time() + (30 * 86400)) {
+                return $this->backBroadcast('Pilih waktu mulai 1 menit dari sekarang, maksimal 30 hari ke depan.');
+            }
+            $scheduledAtUtc = $scheduled->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        }
         if (!in_array($kind, ['voucher', 'flash_sale', 'event', 'general'], true) || $title === '' || $body === '' || mb_strlen($title) > 100 || mb_strlen($body) > 240) {
             return $this->backBroadcast('Periksa kategori dan isi pesan. Judul maksimal 100 karakter, pesan maksimal 240 karakter.');
         }
@@ -91,14 +107,17 @@ class PushNotificationAdmin extends BaseController
         }
 
         try {
-            $queued = (new CustomerPushBroadcasts(Database::connect()))->queue($kind, $title, $body, $imageUrl);
+            $queued = (new CustomerPushBroadcasts(Database::connect()))->queue($kind, $title, $body, $imageUrl, $scheduledAtUtc);
             if ($queued < 1) {
                 if ($storedImagePath) @unlink($storedImagePath);
                 return $this->backBroadcast('Belum ada perangkat Android aktif dengan akun penerima valid.');
             }
             session()->set('push_broadcast_last_sent', time());
 
-            return $this->backBroadcast($queued . ' penerima masuk antrean. Pengiriman diproses bertahap oleh layanan notifikasi.');
+            $when = $scheduledAtUtc === null
+                ? 'segera'
+                : (new \DateTimeImmutable($scheduledAtUtc, new \DateTimeZone('UTC')))->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format('d-m-Y H:i WIB');
+            return $this->backBroadcast($queued . ' penerima dijadwalkan untuk dikirim ' . $when . '.');
         } catch (\Throwable $e) {
             if ($storedImagePath) @unlink($storedImagePath);
             if ($e->getMessage() === 'GLOBAL_MARKETING_COOLDOWN') {

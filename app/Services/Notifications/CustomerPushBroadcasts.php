@@ -44,7 +44,7 @@ final class CustomerPushBroadcasts
         return (int) ($row['total'] ?? 0);
     }
 
-    public function queue(string $kind, string $title, string $body, ?string $imageUrl = null): int
+    public function queue(string $kind, string $title, string $body, ?string $imageUrl = null, ?string $scheduledAtUtc = null): int
     {
         $kind = trim($kind);
         $title = trim($title);
@@ -71,6 +71,7 @@ final class CustomerPushBroadcasts
         if (!$recipients) return 0;
 
         $now = gmdate('Y-m-d H:i:s');
+        $sendAt = $scheduledAtUtc ?: $now;
         $campaignId = bin2hex(random_bytes(16));
         $type = self::TYPES[$kind];
         $payloadData = [
@@ -100,7 +101,7 @@ final class CustomerPushBroadcasts
                 'dedupe_key' => 'broadcast:' . $campaignId . ':' . hash('sha256', $email),
                 'status' => 'pending',
                 'attempts' => 0,
-                'next_attempt_at' => $now,
+                'next_attempt_at' => $sendAt,
                 'sent_at' => null,
                 'last_error' => null,
                 'created_at' => $now,

@@ -90,4 +90,18 @@ final class CustomerPushBroadcastsTest extends CIUnitTestCase
         $this->expectExceptionMessage('GLOBAL_MARKETING_COOLDOWN');
         $broadcasts->queue('event', 'Acara', 'Promo berikutnya.');
     }
+
+    public function testBroadcastCanBeScheduledForAdminSelectedUtcTime(): void
+    {
+        $this->addDevice('buyer@example.test');
+        $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
+        $scheduledAt = '2026-10-25 01:41:00';
+
+        $this->assertSame(1, (new CustomerPushBroadcasts($this->connection))->queue(
+            'general', 'Info', 'Pesan terjadwal.', null, $scheduledAt
+        ));
+
+        $queued = $this->connection->table('customer_push_notifications')->get()->getRowArray();
+        $this->assertSame($scheduledAt, $queued['next_attempt_at']);
+    }
 }

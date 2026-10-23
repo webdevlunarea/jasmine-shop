@@ -87,7 +87,7 @@
             <?php if ($broadcastRecipientCount === null) { ?><div class="push-admin-message push-admin-message--error" role="status" aria-live="polite"><i class="material-icons" aria-hidden="true">error_outline</i><span>Jumlah penerima belum dapat dimuat. Muat ulang halaman; jika masih terjadi, periksa log server.</span></div><?php } ?>
 
             <div class="push-admin-message" role="note">
-                <i class="material-icons" aria-hidden="true">tips_and_updates</i><span>Pesan hanya masuk antrean untuk akun pelanggan aktif dengan perangkat Android yang terdaftar melalui izin notifikasi aplikasi. Tidak ada persetujuan promosi terpisah untuk FCM. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam.</span>
+                <i class="material-icons" aria-hidden="true">tips_and_updates</i><span>Notifikasi dikirim ke akun aktif dengan izin notifikasi. Pengiriman FCM tidak menunggu batas 24 jam; batas keamanan tetap maksimal 5 kampanye per hari.</span>
             </div>
 
             <form method="post" action="/notificationtestadmin/broadcast" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> perangkat Android aktif? Pastikan isi pesan dan promonya sudah benar.">
@@ -101,6 +101,11 @@
                             <option value="event">Acara / event</option>
                             <option value="general">Informasi lainnya</option>
                         </select>
+                    </div>
+                    <div class="col-12 col-md-7">
+                        <label class="form-label fw-semibold" for="broadcast-send-at">Waktu pengiriman (WIB)</label>
+                        <input class="form-control" id="broadcast-send-at" name="send_at" type="datetime-local">
+                        <div class="form-text">Kosongkan untuk mengirim sesegera mungkin. Jadwalkan hingga 30 hari ke depan.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold" for="broadcast-title">Judul notifikasi</label>

@@ -123,4 +123,23 @@ final class DispatchCustomerNotificationsTest extends CIUnitTestCase
         $notification = $this->connection->table('customer_push_notifications')->where('notification_type', 'broadcast_voucher')->get()->getRowArray();
         $this->assertSame('sent', $notification['status']);
     }
+
+    public function testMarketingPushIsNotDelayedByRetiredTwentyFourHourCap(): void
+    {
+        $now = gmdate('Y-m-d H:i:s');
+        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, role TEXT NOT NULL, active TEXT NOT NULL)');
+        $this->connection->table('user')->insert(['email' => 'buyer@example.test', 'role' => '0', 'active' => '1']);
+        $this->connection->table('customer_push_notifications')->insert([
+            'email_user' => 'buyer@example.test', 'notification_type' => 'broadcast_general',
+            'title' => 'Info', 'body' => 'Pesan promosi.', 'payload' => '{"type":"broadcast_general"}',
+            'dedupe_key' => str_repeat('d', 64), 'status' => 'pending', 'attempts' => 0,
+            'next_attempt_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'sent_at' => null,
+            'last_error' => 'MARKETING_FREQUENCY_CAP', 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $this->dispatch(['ok' => true, 'status' => 200, 'error_code' => null]);
+        $notification = $this->connection->table('customer_push_notifications')->where('notification_type', 'broadcast_general')->get()->getRowArray();
+        $this->assertSame('sent', $notification['status']);
+        $this->assertNull($notification['last_error']);
+    }
 }

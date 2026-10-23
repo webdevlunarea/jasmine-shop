@@ -44,6 +44,11 @@ class DispatchCustomerNotifications extends BaseCommand
         $db->table('customer_push_notifications')->where('status', 'processing')
             ->where('updated_at <', gmdate('Y-m-d H:i:s', time() - 900))
             ->update(['status' => 'pending', 'updated_at' => $now]);
+        // Release broadcasts delayed by the retired cross-channel 24-hour cap.
+        $db->table('customer_push_notifications')->where('status', 'pending')
+            ->where('last_error', 'MARKETING_FREQUENCY_CAP')
+            ->like('notification_type', 'broadcast_', 'after')
+            ->update(['next_attempt_at' => $now, 'last_error' => null, 'updated_at' => $now]);
         $rows = $db->table('customer_push_notifications')->where('status', 'pending')->where('next_attempt_at <=', $now)->orderBy('id', 'ASC')->limit($limit)->get()->getResultArray();
         $sender = $this->sender();
         $suspensions = new CustomerAccountSuspensions($db);
@@ -65,27 +70,6 @@ class DispatchCustomerNotifications extends BaseCommand
                 if (!$eligible) {
                     $db->table('customer_push_notifications')->where('id', $row['id'])->update([
                         'status' => 'cancelled', 'last_error' => 'CUSTOMER_INACTIVE_OR_UNAVAILABLE', 'updated_at' => $now,
-                    ]);
-                    continue;
-                }
-                // Global marketing frequency cap: at most one email or FCM promo per customer per 24 hours.
-                $cutoff = gmdate('Y-m-d H:i:s', time() - 86400);
-                $lastPush = $db->table('customer_push_notifications')->selectMax('sent_at', 'last_sent')
-                    ->where('email_user', (string)$row['email_user'])->like('notification_type', 'broadcast_', 'after')
-                    ->where('status', 'sent')->where('sent_at >=', $cutoff)->where('id !=', $row['id'])
-                    ->get()->getRowArray()['last_sent'] ?? null;
-                $lastEmail = null;
-                if ($db->tableExists('customer_voucher_email_recipients')) {
-                    $lastEmail = $db->table('customer_voucher_email_recipients')->selectMax('sent_at', 'last_sent')
-                        ->where('email_hash', hash('sha256', strtolower(trim((string)$row['email_user']))))
-                        ->where('status', 'sent')->where('sent_at >=', $cutoff)->get()->getRowArray()['last_sent'] ?? null;
-                }
-                $recentSends = array_filter([(string)$lastPush, (string)$lastEmail]);
-                if ($recentSends) {
-                    $nextAttempt = gmdate('Y-m-d H:i:s', strtotime(max($recentSends) . ' UTC') + 86400);
-                    $db->table('customer_push_notifications')->where('id', $row['id'])->update([
-                        'status' => 'pending', 'next_attempt_at' => $nextAttempt,
-                        'last_error' => 'MARKETING_FREQUENCY_CAP', 'updated_at' => $now,
                     ]);
                     continue;
                 }
