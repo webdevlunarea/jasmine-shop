@@ -1,5 +1,26 @@
 <?= $this->extend('layout/template'); ?>
 <?= $this->section('content'); ?>
+<style>
+    .push-admin-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin: 0 0 14px;
+        padding: 11px 14px;
+        border: 1px solid var(--admin-border, #e2ded5);
+        border-inline-start: 3px solid var(--admin-primary, #365b46);
+        border-radius: 8px;
+        background: var(--admin-primary-soft, #f5f3ee);
+        color: var(--admin-text, #282e29);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+    .push-admin-message .material-icons { flex: 0 0 auto; margin-top: 1px; color: var(--admin-primary, #365b46); font-size: 18px; }
+    .push-admin-message--warning { border-inline-start-color: #a47b33; }
+    .push-admin-message--warning .material-icons { color: #a47b33; }
+    .push-admin-message--error { border-inline-start-color: #a65a50; }
+    .push-admin-message--error .material-icons { color: #a65a50; }
+</style>
 <main class="konten admin-module-page">
     <div class="container" style="max-width: 920px;">
         <?= view('partials/admin_page_heading', [
@@ -9,7 +30,7 @@
         ], ['saveData' => false]); ?>
 
         <?php if (!empty($msg)) { ?>
-            <div class="alert alert-info rounded-3" role="status"><?= esc($msg); ?></div>
+            <div class="push-admin-message" role="status" aria-live="polite"><i class="material-icons" aria-hidden="true">info</i><span><?= esc($msg); ?></span></div>
         <?php } ?>
 
         <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
@@ -23,8 +44,8 @@
                 </div>
             </div>
 
-            <div class="alert alert-warning rounded-3" role="note">
-                Notifikasi ini benar-benar dikirim ke perangkat. Pastikan akun sudah masuk di aplikasi, izin notifikasi aktif, dan perangkat terdaftar. Maksimal lima perangkat Android aktif akan menerima tes.
+            <div class="push-admin-message push-admin-message--warning" role="note">
+                <i class="material-icons" aria-hidden="true">info</i><span>Notifikasi ini benar-benar dikirim ke perangkat. Pastikan akun sudah masuk di aplikasi, izin notifikasi aktif, dan perangkat terdaftar. Maksimal lima perangkat Android aktif akan menerima tes.</span>
             </div>
 
             <form method="post" action="/notificationtestadmin/send" data-confirm-submit data-confirm-message="Kirim notifikasi tes ke perangkat Android untuk akun ini?">
@@ -56,17 +77,17 @@
             </div>
 
             <?php if (!empty($broadcastMsg)) { ?>
-                <div class="alert alert-info rounded-3" role="status"><?= esc($broadcastMsg); ?></div>
+                <div class="push-admin-message" role="status" aria-live="polite"><i class="material-icons" aria-hidden="true">info</i><span><?= esc($broadcastMsg); ?></span></div>
             <?php } ?>
 
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-3 p-3 mb-3" style="background:#faf9f6;">
                 <span class="text-secondary">Akun aktif dengan perangkat Android dan notifikasi terdaftar</span>
                 <strong class="fs-5" style="color:#2f2d20;"><?= $broadcastRecipientCount === null ? '—' : number_format((int) $broadcastRecipientCount, 0, ',', '.'); ?></strong>
             </div>
-            <?php if ($broadcastRecipientCount === null) { ?><p class="small text-danger mb-3" role="status">Jumlah penerima belum dapat dimuat. Muat ulang halaman; jika masih terjadi, periksa log server.</p><?php } ?>
+            <?php if ($broadcastRecipientCount === null) { ?><div class="push-admin-message push-admin-message--error" role="status" aria-live="polite"><i class="material-icons" aria-hidden="true">error_outline</i><span>Jumlah penerima belum dapat dimuat. Muat ulang halaman; jika masih terjadi, periksa log server.</span></div><?php } ?>
 
-            <div class="alert alert-light border rounded-3" role="note">
-                Pesan hanya masuk antrean untuk akun pelanggan aktif dengan perangkat Android yang terdaftar melalui izin notifikasi aplikasi. Tidak ada persetujuan promosi terpisah untuk FCM. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam.
+            <div class="push-admin-message" role="note">
+                <i class="material-icons" aria-hidden="true">tips_and_updates</i><span>Pesan hanya masuk antrean untuk akun pelanggan aktif dengan perangkat Android yang terdaftar melalui izin notifikasi aplikasi. Tidak ada persetujuan promosi terpisah untuk FCM. Maksimal satu promosi lintas email/FCM per akun setiap 24 jam.</span>
             </div>
 
             <form method="post" action="/notificationtestadmin/broadcast" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Jadwalkan broadcast ke <?= (int) ($broadcastRecipientCount ?? 0); ?> perangkat Android aktif? Pastikan isi pesan dan promonya sudah benar.">
