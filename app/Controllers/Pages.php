@@ -6783,7 +6783,7 @@ class Pages extends BaseController
         }
 
         $data = [
-            'title' => 'Akun Saya',
+            'title' => (string)session()->get('role') === '1' ? 'Akun Staf' : 'Akun Saya',
             'nama' => $nama,
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
@@ -6820,7 +6820,14 @@ class Pages extends BaseController
         $nama = (string)$this->request->getVar('nama');
         $nohp = (string)$this->request->getVar('nohp');
         $tgl_lahir = (string)$this->request->getVar('tgl_lahir');
+        $currentPassword = (string)$this->request->getPost('current_sandi');
         $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
+        if ((string)$role === '1' && ($this->request->getPost('email') !== null || $this->request->getPost('new_email') !== null)) {
+            $this->recordStaffPasswordAudit($email, 'EMAIL', 403, '/account/security/email');
+            log_message('alert', 'Staff account email change attempt blocked for {email}', ['email' => $email]);
+            session()->setFlashdata('msg', 'Email akun staf tidak dapat diubah sendiri. Hubungi DEV jika alamat email perlu diperbarui.');
+            return redirect()->to('/account');
+        }
         $hasStaffProfileFields = db_connect()->fieldExists('display_name', 'user') && db_connect()->fieldExists('phone', 'user');
         $canEditProfile = (string)$role === '0' || ((string)$role === '1' && ($hasStaffProfileFields || !empty($getCurPembeli)));
         $canEditPhoto = (string)$role === '0' || ((string)$role === '1' && !empty($getCurPembeli));
@@ -6883,7 +6890,65 @@ class Pages extends BaseController
             $photoChangedAt = $now;
         }
 
-        if ($sandi !== '') {
+        $staffPasswordVersionToActivate = null;
+        if ($sandi !== '' && (string)$role === '1') {
+            $db = db_connect();
+            if (!$db->tableExists('admin_activity_logs') || !$db->tableExists('customer_password_sessions')) {
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                session()->setFlashdata('msg', 'Pengaturan keamanan belum siap. Hubungi DEV sebelum mengganti sandi.');
+                return redirect()->to('/account');
+            }
+            if (strlen($sandi) < 12 || strlen($sandi) > 128) {
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                session()->setFlashdata('msg', 'Sandi baru harus terdiri dari 12 sampai 128 karakter.');
+                return redirect()->to('/account');
+            }
+            $windowStart = gmdate('Y-m-d H:i:s', time() - 900);
+            $failedAttempts = $db->table('admin_activity_logs')
+                ->where('actor_email', $email)->where('route', '/account/security/password')
+                ->where('http_method', 'FAIL')->where('created_at >=', $windowStart)->countAllResults();
+            if ($failedAttempts >= 5) {
+                $lockAlreadyLogged = $db->table('admin_activity_logs')
+                    ->where('actor_email', $email)->where('route', '/account/security/password')
+                    ->where('http_method', 'LOCK')->where('created_at >=', $windowStart)->countAllResults();
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                if (!$lockAlreadyLogged) $this->recordStaffPasswordAudit($email, 'LOCK', 429);
+                log_message('alert', 'Repeated staff password change attempts detected for {email}', ['email' => $email]);
+                session()->setFlashdata('msg', 'Perubahan sandi dikunci sementara karena terlalu banyak percobaan gagal. Coba lagi 15 menit kemudian.');
+                return redirect()->to('/account');
+            }
+            $user = $this->userModel->getUser($email);
+            if (!$user || !password_verify($currentPassword, (string)($user['sandi'] ?? ''))) {
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                $this->recordStaffPasswordAudit($email, 'FAIL', 401);
+                session()->setFlashdata('msg', 'Sandi saat ini tidak sesuai. Percobaan gagal dicatat untuk keamanan akun.');
+                return redirect()->to('/account');
+            }
+
+            $newSessionVersion = bin2hex(random_bytes(32));
+            $ownsPasswordTransaction = !$photoTransaction;
+            if ($ownsPasswordTransaction) $db->transBegin();
+            try {
+                $this->userModel->where('email', $email)->set(['sandi' => password_hash($sandi, PASSWORD_DEFAULT)])->update();
+                $versionRow = $db->table('customer_password_sessions')->where('email_user', $email)->get()->getRowArray();
+                if ($versionRow) $db->table('customer_password_sessions')->where('email_user', $email)->update(['version' => $newSessionVersion]);
+                else $db->table('customer_password_sessions')->insert(['email_user' => $email, 'version' => $newSessionVersion]);
+                if ($db->transStatus() === false) throw new \RuntimeException('Staff password update failed');
+                if ($ownsPasswordTransaction) {
+                    $db->transCommit();
+                    session()->set('password_session_version', $newSessionVersion);
+                    $this->recordStaffPasswordAudit($email, 'SUCCESS', 200);
+                    session()->regenerate(true);
+                } else {
+                    $staffPasswordVersionToActivate = $newSessionVersion;
+                }
+            } catch (\Throwable $error) {
+                if ($db->transDepth > 0) $db->transRollback();
+                log_message('error', 'Staff password update failed: {type}', ['type' => get_class($error)]);
+                session()->setFlashdata('msg', 'Sandi belum berhasil diperbarui. Silakan coba kembali.');
+                return redirect()->to('/account');
+            }
+        } elseif ($sandi !== '') {
             $this->userModel->where('email', $email)->set([
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
             ])->update();
@@ -6951,6 +7016,11 @@ class Pages extends BaseController
                             return redirect()->to('/account');
                         }
                         $db->transCommit();
+                        if ($staffPasswordVersionToActivate !== null) {
+                            session()->set('password_session_version', $staffPasswordVersionToActivate);
+                            $this->recordStaffPasswordAudit($email, 'SUCCESS', 200);
+                            session()->regenerate(true);
+                        }
                     }
                 }
             }
@@ -6959,6 +7029,24 @@ class Pages extends BaseController
 
         session()->setFlashdata('msg', 'Akun Anda telah diperbarui');
         return redirect()->to('/account');
+    }
+
+    private function recordStaffPasswordAudit(string $email, string $event, int $responseCode, string $route = '/account/security/password'): void
+    {
+        try {
+            $db = db_connect();
+            if (!$db->tableExists('admin_activity_logs')) return;
+            $db->table('admin_activity_logs')->insert([
+                'actor_email' => $email,
+                'admin_role' => (string)(session('admin_role') ?: 'ADMIN'),
+                'http_method' => $event,
+                'route' => $route,
+                'response_code' => $responseCode,
+                'created_at' => gmdate('Y-m-d H:i:s'),
+            ]);
+        } catch (\Throwable $error) {
+            log_message('error', 'Staff password security audit failed: {type}', ['type' => get_class($error)]);
+        }
     }
     public function contact()
     {

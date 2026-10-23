@@ -94,24 +94,26 @@ $statusClass = function ($status) {
         <div class="account-hero mb-3">
             <div class="row align-items-center g-3 position-relative" style="z-index:1;">
                 <div class="col-md-auto text-center text-md-start">
-                    <img src="<?= esc($foto); ?>" alt="Foto profil <?= esc($nama ?: 'Customer Lunarea'); ?>" class="account-avatar">
+                    <img src="<?= esc($foto); ?>" alt="Foto profil <?= esc($nama ?: ($role == '1' ? 'Staf Lunarea' : 'Customer Lunarea')); ?>" class="account-avatar">
                 </div>
                 <div class="col">
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                        <span class="account-badge"><i class="material-icons" style="font-size:18px;">verified_user</i><?= session()->get('active') ? 'Akun aktif' : 'Perlu aktivasi' ?></span>
+                        <span class="account-badge"><i class="material-icons" style="font-size:18px;"><?= $role == '1' ? 'admin_panel_settings' : 'verified_user'; ?></i><?= $role == '1' ? 'Akun staf' : (session()->get('active') ? 'Akun aktif' : 'Perlu aktivasi'); ?></span>
                         <span class="account-badge"><i class="material-icons" style="font-size:18px;"><?= $is_google_account ? 'account_circle' : 'mail_outline' ?></i><?= $is_google_account ? 'Masuk dengan Google' : 'Masuk dengan email' ?></span>
                     </div>
-                    <h1 class="mb-1">Halo, <?= esc($nama ?: 'Customer Lunarea'); ?></h1>
+                    <h1 class="mb-1"><?= $role == '1' ? 'Profil staf' : 'Halo, ' . esc($nama ?: 'Customer Lunarea'); ?></h1>
                     <p class="mb-3" style="opacity:.9;"><?= esc($email); ?></p>
-                    <div class="d-flex justify-content-between small fw-bold mb-1"><span>Kelengkapan profil</span><span><?= (int)$profileCompletion; ?>%</span></div>
-                    <div class="profile-progress"><div style="width: <?= (int)$profileCompletion; ?>%;"></div></div>
+                    <?php if ($role == '1') { ?><p class="mb-0" style="opacity:.9;">Akun ini digunakan untuk mengelola operasional Lunarea.</p><?php } else { ?>
+                        <div class="d-flex justify-content-between small fw-bold mb-1"><span>Kelengkapan profil</span><span><?= (int)$profileCompletion; ?>%</span></div>
+                        <div class="profile-progress"><div style="width: <?= (int)$profileCompletion; ?>%;"></div></div>
+                    <?php } ?>
                 </div>
-                <div class="col-md-auto d-grid gap-2">
+                <?php if ($role == '0') { ?><div class="col-md-auto d-grid gap-2">
                     <?php if (!empty($pendingPayment)) { ?>
                         <a href="/order/<?= esc($pendingPayment['id_midtrans']); ?>" class="btn btn-light fw-bold">Lanjutkan Pembayaran</a>
                     <?php } ?>
                     <a href="/all" class="btn btn-outline-light fw-bold">Belanja Lagi</a>
-                </div>
+                </div><?php } ?>
             </div>
         </div>
 
@@ -178,8 +180,8 @@ $statusClass = function ($status) {
 
             <div class="col-lg-5">
                 <div class="account-card">
-                    <h5 class="fw-bold mb-1">Edit profil</h5>
-                    <p class="text-secondary small mb-3">Profil yang lengkap membuat checkout, voucher, dan bantuan pesanan lebih mudah.</p>
+                    <h5 class="fw-bold mb-1"><?= $role == '1' ? 'Edit profil staf' : 'Edit profil'; ?></h5>
+                    <p class="text-secondary small mb-3"><?= $role == '1' ? 'Perbarui informasi akun untuk identitas dan kebutuhan operasional.' : 'Profil yang lengkap membuat checkout, voucher, dan bantuan pesanan lebih mudah.'; ?></p>
                     <?php if (session()->get('active') || $role == '1') { ?>
                         <form class="row g-3" action="/account" method="post" enctype="multipart/form-data" data-confirm-submit data-confirm-message="Simpan perubahan profil yang Anda masukkan sekarang?">
                             <?= csrf_field(); ?>
@@ -191,9 +193,17 @@ $statusClass = function ($status) {
                                 </div>
                                 <div class="text-secondary small mt-2">Gunakan foto JPG/PNG/WebP agar akun mudah dikenali.</div>
                             </div><?php } ?>
+                            <?php if ($role == '1') { ?>
+                                <div class="col-12">
+                                    <label for="currentPassword" class="form-label">Sandi saat ini</label>
+                                    <input name="current_sandi" type="password" class="form-control" id="currentPassword" autocomplete="current-password" placeholder="Wajib diisi jika mengganti sandi">
+                                    <div class="form-text">Email akun staf dikunci dan tidak dapat diganti sendiri.</div>
+                                </div>
+                            <?php } ?>
                             <div class="col-12">
                                 <label for="inputPassword4" class="form-label">Sandi baru <span class="text-secondary small">(opsional)</span></label>
-                                <input name="sandi" type="password" class="form-control" id="inputPassword4" autocomplete="new-password" placeholder="Isi kalau ingin mengganti sandi">
+                                <input name="sandi" type="password" class="form-control" id="inputPassword4" autocomplete="new-password" <?= $role == '1' ? 'minlength="12" maxlength="128"' : ''; ?> placeholder="<?= $role == '1' ? 'Minimal 12 karakter' : 'Isi kalau ingin mengganti sandi'; ?>">
+                                <?php if ($role == '1') { ?><div class="form-text">Sandi lama wajib diverifikasi. Lima percobaan gagal dalam 15 menit akan mengunci perubahan sementara.</div><?php } ?>
                             </div>
                             <?php if ($role == '0' || !empty($canEditStaffProfile)) { ?>
                                 <div class="col-12">
