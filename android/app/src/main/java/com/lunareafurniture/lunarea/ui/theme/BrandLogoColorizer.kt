@@ -1,6 +1,7 @@
 package com.lunareafurniture.lunarea.ui.theme
 
 import android.graphics.Bitmap
+import java.util.ArrayDeque
 
 /** Preserves the source mark and transparency while turning dark wordmark lettering white. */
 internal fun recolorDarkWordmark(source: Bitmap, preserveMarkInterior: Boolean = false): Bitmap {
@@ -23,6 +24,48 @@ internal fun recolorDarkWordmark(source: Bitmap, preserveMarkInterior: Boolean =
                 minRedY = minOf(minRedY, y)
                 maxRedX = maxOf(maxRedX, x)
                 maxRedY = maxOf(maxRedY, y)
+            }
+        }
+    }
+
+    // The Lunarea N in the source artwork is a transparent knockout inside the
+    // red circle. On dark surfaces that knockout exposes the dark background,
+    // so fill only transparent regions enclosed by the red mark with white.
+    // Exterior transparency is flood-filled from the bitmap edges and remains
+    // untouched; the Ilena mark keeps its black N through preserveMarkInterior.
+    val hasRedMark = maxRedX >= minRedX && maxRedY >= minRedY
+    if (!preserveMarkInterior && hasRedMark) {
+        val exteriorTransparent = BooleanArray(pixels.size)
+        val queue = ArrayDeque<Int>()
+        fun enqueueExterior(index: Int) {
+            if (!exteriorTransparent[index] && android.graphics.Color.alpha(pixels[index]) == 0) {
+                exteriorTransparent[index] = true
+                queue.addLast(index)
+            }
+        }
+        for (x in 0 until output.width) {
+            enqueueExterior(x)
+            enqueueExterior((output.height - 1) * output.width + x)
+        }
+        for (y in 0 until output.height) {
+            enqueueExterior(y * output.width)
+            enqueueExterior(y * output.width + output.width - 1)
+        }
+        while (queue.isNotEmpty()) {
+            val index = queue.removeFirst()
+            val x = index % output.width
+            val y = index / output.width
+            if (x > 0) enqueueExterior(index - 1)
+            if (x + 1 < output.width) enqueueExterior(index + 1)
+            if (y > 0) enqueueExterior(index - output.width)
+            if (y + 1 < output.height) enqueueExterior(index + output.width)
+        }
+        for (y in minRedY..maxRedY) {
+            for (x in minRedX..maxRedX) {
+                val index = y * output.width + x
+                if (android.graphics.Color.alpha(pixels[index]) == 0 && !exteriorTransparent[index]) {
+                    pixels[index] = android.graphics.Color.WHITE
+                }
             }
         }
     }

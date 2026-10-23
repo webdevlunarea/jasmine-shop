@@ -1,6 +1,8 @@
 package com.lunareafurniture.lunarea.ui.splash
 
 import android.animation.ValueAnimator
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -88,7 +90,17 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
     val taglineOffset = remember { Animatable(5f) }
     val overlayAlpha = remember { Animatable(1f) }
     var logo by remember { mutableStateOf<ImageBitmap?>(null) }
-    var ilenaLogo by remember { mutableStateOf<ImageBitmap?>(null) }
+    val ilenaLogo = remember(context, isDarkTheme) {
+        runCatching {
+            val source = BitmapFactory.decodeResource(context.resources, R.drawable.ilena_wordmark)
+                ?: error("Ilena wordmark was not a bitmap")
+            val scaled = Bitmap.createScaledBitmap(source, 240, 34, true)
+            if (scaled !== source) source.recycle()
+            val displayBitmap = if (isDarkTheme) recolorDarkWordmark(scaled, preserveMarkInterior = true) else scaled
+            if (displayBitmap !== scaled) scaled.recycle()
+            displayBitmap.asImageBitmap()
+        }.getOrNull()
+    }
     var logoLoadFailed by remember { mutableStateOf(false) }
 
     // Decode a display-sized copy off the main thread instead of synchronously
@@ -100,22 +112,6 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
             .allowHardware(false)
             .build()
         try {
-            // Decode the small Ilena endorsement first. The N mark is already
-            // visible, so this makes both brands appear together while the larger
-            // Lunarea wordmark finishes loading.
-            val ilenaRequest = ImageRequest.Builder(context)
-                .data(R.drawable.ilena_wordmark)
-                .size(240, 34)
-                .allowHardware(false)
-                .build()
-            val ilenaResult = context.imageLoader.execute(ilenaRequest)
-            val ilenaDrawable = ilenaResult.drawable as? BitmapDrawable
-                ?: error("Ilena wordmark was not a bitmap")
-            val ilenaBitmap = ilenaDrawable.toBitmap(width = 240, height = 34)
-            ilenaLogo = withContext(Dispatchers.Default) {
-                if (isDarkTheme) recolorDarkWordmark(ilenaBitmap, preserveMarkInterior = true) else ilenaBitmap
-            }.asImageBitmap()
-
             val result = context.imageLoader.execute(request)
             val drawable = result.drawable as? BitmapDrawable
                 ?: error("Logo drawable was not a bitmap")
@@ -234,14 +230,12 @@ private fun LunareaBrandSplash(onFinished: () -> Unit) {
                     fontSize = 10.sp,
                     letterSpacing = 1.1.sp
                 )
-                ilenaLogo?.let { image ->
-                    Image(
-                        bitmap = image,
-                        contentDescription = "Ilena",
-                        modifier = Modifier.width(74.dp).height(24.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                Image(
+                    bitmap = ilenaLogo,
+                    contentDescription = "Ilena",
+                    modifier = Modifier.width(74.dp).height(24.dp),
+                    contentScale = ContentScale.Fit
+                )
             }
         }
     }

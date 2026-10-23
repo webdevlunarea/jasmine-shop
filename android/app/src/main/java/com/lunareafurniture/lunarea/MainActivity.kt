@@ -4118,18 +4118,21 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit, onOpenLegal: (
                     Text("AKUN LUNAREA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
                     Text(name.ifBlank { "Akun Lunarea" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Text(email.ifBlank { "Email belum tersedia" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    TextButton(
-                        onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                        enabled = !photoBusy && photoChangeAvailableAt?.isAfter(Instant.now()) != true,
-                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-                        modifier = Modifier.heightIn(min = 44.dp)
-                    ) {
-                        if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                        else Text(if (photoUrl.isNullOrBlank()) "Tambahkan foto" else "Ganti foto")
-                    }
-                    photoChangeAvailableAt?.takeIf { it.isAfter(Instant.now()) }?.let { availableAt ->
+                    val photoLockedUntil = photoChangeAvailableAt?.takeIf { it.isAfter(Instant.now()) }
+                    if (photoLockedUntil == null) {
+                        TextButton(
+                            onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                            enabled = !photoBusy,
+                            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                            modifier = Modifier.heightIn(min = 44.dp)
+                        ) {
+                            if (photoBusy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                            else Text(if (photoUrl.isNullOrBlank()) "Tambahkan foto" else "Ganti foto")
+                        }
+                    } else {
+                        Text("Foto profil tersimpan", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(
-                            "Foto dapat diganti kembali ${formatLunareaDateTime(availableAt.toString())}",
+                            "Dapat diganti kembali ${formatLunareaDateTime(photoLockedUntil.toString())}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -4149,8 +4152,15 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit, onOpenLegal: (
                 Text("Gunakan username atau email dengan sandi akun yang sama.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (usernameAvailable) {
                     if (username.isNotBlank() && !usernameCanChange) {
-                        OutlinedTextField(username, {}, modifier = Modifier.fillMaxWidth(), label = { Text("Username saat ini") }, enabled = false, singleLine = true, shape = RoundedCornerShape(12.dp))
-                        usernameNextChangeLabel?.let { Text("Dapat diubah kembali mulai $it.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Text("Username saat ini", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("@$username", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                            Text(
+                                usernameNextChangeLabel?.let { "Dapat diubah kembali mulai $it." } ?: "Username sudah tersimpan dan belum dapat diubah.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     } else {
                         OutlinedTextField(
                             usernameInput,
@@ -4221,12 +4231,21 @@ private fun ProfileScreen(modifier: Modifier, onBack: () -> Unit, onOpenLegal: (
                 Text("Jenis kelamin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Text("Diperlukan saat melakukan pembelian. Anda dapat mengubah pilihan setiap 6 bulan.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val canChangeGender = gender.isBlank() || genderChangeAvailableAt?.isAfter(Instant.now()) != true
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(enabled = canChangeGender && !busy, selected = gender == "pria", onClick = { gender = "pria" }, label = { Text("Laki-laki") })
-                    FilterChip(enabled = canChangeGender && !busy, selected = gender == "wanita", onClick = { gender = "wanita" }, label = { Text("Perempuan") })
-                }
-                if (!canChangeGender) genderChangeAvailableAt?.let {
-                    Text("Pilihan dapat diubah kembali ${formatLunareaDateTime(it.toString())}.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (canChangeGender) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(enabled = !busy, selected = gender == "pria", onClick = { gender = "pria" }, label = { Text("Laki-laki") })
+                        FilterChip(enabled = !busy, selected = gender == "wanita", onClick = { gender = "wanita" }, label = { Text("Perempuan") })
+                    }
+                } else {
+                    Text(
+                        if (gender == "pria") "Laki-laki" else "Perempuan",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                    genderChangeAvailableAt?.let {
+                        Text("Dapat diubah kembali ${formatLunareaDateTime(it.toString())}.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
