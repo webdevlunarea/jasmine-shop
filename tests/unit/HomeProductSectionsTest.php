@@ -10,7 +10,7 @@ final class HomeProductSectionsTest extends CIUnitTestCase
         // Disposable in-memory database only; never use the default connection.
         $db = \Config\Database::connect(['DBDriver'=>'SQLite3','database'=>':memory:','DBPrefix'=>'','DBDebug'=>true],false);
         try {
-            $db->query('CREATE TABLE barang (id INTEGER PRIMARY KEY, active TEXT, tracking_pop INTEGER, path TEXT)');
+            $db->query('CREATE TABLE barang (id INTEGER PRIMARY KEY, active TEXT, tracking_pop INTEGER, path TEXT, nama TEXT, harga INTEGER, stok TEXT, diskon INTEGER, varian TEXT, terjual INTEGER, terjual_custom INTEGER)');
             for ($id=1;$id<=13;$id++) $db->table('barang')->insert(['id'=>$id,'active'=>$id===13?'0':'1','tracking_pop'=>1000-$id,'path'=>'produk-' . $id]);
             $db->table('barang')->insert(['id'=>14,'active'=>'1','tracking_pop'=>900,'path'=>'produk-12']);
             $model = new BarangModel($db);

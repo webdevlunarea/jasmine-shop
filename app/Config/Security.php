@@ -71,7 +71,9 @@ class Security extends BaseConfig
      *
      * Regenerate CSRF Token on every submission.
      */
-    public bool $regenerate = true;
+    // Keep a valid token stable across separate tabs/forms until cookie expiry.
+    // Route-level CSRF validation remains enabled for state-changing requests.
+    public bool $regenerate = false;
 
     /**
      * --------------------------------------------------------------------------

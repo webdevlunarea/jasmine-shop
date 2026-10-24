@@ -7,6 +7,7 @@ final class CsrfRouteConsistencyTest extends CIUnitTestCase
     public function testRouteFilteredActionsAreNotManuallyVerifiedAgain(): void
     {
         $routes = file_get_contents(APPPATH . 'Config/Routes.php');
+        $security = file_get_contents(APPPATH . 'Config/Security.php');
         $pages = file_get_contents(APPPATH . 'Controllers/Pages.php');
         $address = file_get_contents(APPPATH . 'Controllers/CustomerAddresses.php');
         $mapping = file_get_contents(APPPATH . 'Controllers/LunaMappingAdmin.php');
@@ -30,5 +31,11 @@ final class CsrfRouteConsistencyTest extends CIUnitTestCase
                 'A controller must not re-verify a token after the route CSRF filter.'
             );
         }
+
+        $this->assertMatchesRegularExpression(
+            '~public bool \\$regenerate = false;~',
+            $security,
+            'CSRF token should remain stable across tabs until its cookie expires.'
+        );
     }
 }

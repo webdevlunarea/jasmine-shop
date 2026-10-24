@@ -42,10 +42,11 @@ final class LunaMappingAdminViewTest extends CIUnitTestCase
             $this->assertStringNotContainsString('<error>',$html);
         }
     }
-    public function testControllerContainsIndependentAuthorizationCsrfAndSerializedSave(): void
+    public function testControllerAuthorizationAndRouteCsrfProtectSerializedSave(): void
     {
         $code=file_get_contents(APPPATH.'Controllers/LunaMappingAdmin.php');
-        foreach (['security()->verify($this->request)', 'GET_LOCK', 'FOR UPDATE', 'LunaMappingReview::revision', 'LunaMappingReview::fingerprint', 'transRollback', 'RELEASE_LOCK', 'saveLunaProductIdentity'] as $guard) $this->assertStringContainsString($guard,$code);
+        foreach (['GET_LOCK', 'FOR UPDATE', 'LunaMappingReview::revision', 'LunaMappingReview::fingerprint', 'transRollback', 'RELEASE_LOCK', 'saveLunaProductIdentity'] as $guard) $this->assertStringContainsString($guard,$code);
+        $this->assertStringNotContainsString('security()->verify($this->request)', $code);
         foreach (['PemesananModel','LUNA_PRODUCT_IDENTITY_ENABLED\', true', 'ALTER TABLE', 'INSERT INTO products'] as $forbidden) $this->assertStringNotContainsString($forbidden,$code);
         $this->assertStringContainsString('LunaMappingReview::stock', $code);
         $this->assertStringContainsString('Sinkron stok awal dari MyLuna', $code);

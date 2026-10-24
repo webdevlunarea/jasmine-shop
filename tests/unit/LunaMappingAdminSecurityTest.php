@@ -21,11 +21,13 @@ final class LunaMappingAdminSecurityTest extends CIUnitTestCase
             $this->assertSame(403,$this->controller('GET')->catalogue()->getStatusCode());
         }
     }
-    public function testAdminCannotSaveWithGetOrMissingCsrf(): void
+    public function testAdminSaveRequiresPostAndRouteOwnsCsrfValidation(): void
     {
         session()->set(['isLogin'=>true,'role'=>'1','email'=>'admin@example.test']);
         $this->assertSame(403,$this->controller('GET')->save()->getStatusCode());
-        $this->expectException(\CodeIgniter\Security\Exceptions\SecurityException::class);
-        $this->controller()->save();
+        // CSRF runs once in the explicit route filter, before the controller.
+        $this->assertSame(302,$this->controller()->save()->getStatusCode());
+        $routes=file_get_contents(APPPATH.'Config/Routes.php');
+        $this->assertStringContainsString("'/lunamappingadmin/save', 'LunaMappingAdmin::save', ['filter' => ['harusAdmin', 'csrf']]",$routes);
     }
 }
