@@ -232,6 +232,7 @@ if ($isAdminNav) {
     $buyerPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $buyerLinks = [
         ['url' => '/account', 'label' => 'Profilku', 'icon' => 'person_outline'],
+        ['url' => '/notifications', 'label' => 'Pemberitahuan', 'icon' => 'notifications_none'],
         ['url' => '/transaction', 'label' => 'Transaksi', 'icon' => 'receipt_long'],
         ['url' => '/point', 'label' => 'Luna Poin', 'icon' => 'stars'],
         ['url' => '/voucher', 'label' => 'Voucher', 'icon' => 'confirmation_number'],
@@ -359,6 +360,7 @@ if ($isAdminNav) {
                                 <p class="buyer-account-popover__eyebrow">Akun Lunarea</p>
                                 <p class="buyer-account-popover__copy">Akses cepat ke akun dan aktivitas belanjamu.</p>
                                 <a href="/account">Profil saya</a>
+                                <a href="/notifications">Pemberitahuan</a>
                                 <a href="/transaction">Pesanan saya</a>
                                 <a href="/point">Luna Poin</a>
                                 <a href="/wishlist">Produk favorit</a>

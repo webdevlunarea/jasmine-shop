@@ -2,6 +2,7 @@
 $activeAccountMenu = $activeAccountMenu ?? '';
 $accountMenu = [
     ['key' => 'account', 'label' => 'Profilku', 'url' => '/account', 'icon' => 'person_outline'],
+    ['key' => 'notifications', 'label' => 'Pemberitahuan', 'url' => '/notifications', 'icon' => 'notifications_none'],
     ['key' => 'transaction', 'label' => 'Transaksi', 'url' => '/transaction', 'icon' => 'receipt_long'],
     ['key' => 'point', 'label' => 'Luna Poin', 'url' => '/point', 'icon' => 'stars'],
     ['key' => 'voucher', 'label' => 'Voucher', 'url' => '/voucher', 'icon' => 'local_offer'],
@@ -10,6 +11,7 @@ $accountMenu = [
 ];
 $accountIconPaths = [
     'account' => 'M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+    'notifications' => 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
     'transaction' => 'M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6',
     'point' => 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z',
     'voucher' => 'M3 5h18v5a2 2 0 0 0 0 4v5H3v-5a2 2 0 0 0 0-4V5ZM15 5v3M15 11v2M15 16v3',

@@ -3276,6 +3276,18 @@ class Pages extends BaseController
     {
         $keranjang = session()->get('keranjang') ?: [];
         $email = session()->get('email');
+        if ((string) session('role') === '0' && $email && $email !== 'tamu') {
+            $db = db_connect();
+            if (!$db->fieldExists('gender', 'pembeli')) {
+                session()->setFlashdata('msg', 'Pengaturan profil sedang disiapkan. Silakan coba kembali nanti.');
+                return redirect()->to('/account');
+            }
+            $buyer = $this->pembeliModel->getPembeli((string) $email) ?: [];
+            if (!in_array((string) ($buyer['gender'] ?? ''), ['pria', 'wanita'], true)) {
+                session()->setFlashdata('msg', 'Pilih jenis kelamin di profil sebelum melanjutkan pembelian.');
+                return redirect()->to('/account');
+            }
+        }
         $addressBook = [];
         $addressBookAvailable = false;
         try {
@@ -4055,6 +4067,20 @@ class Pages extends BaseController
     {
         $email = session()->get('email');
         $pembayaran = $this->request->getVar('pembayaran');
+
+        // Server-side enforcement: never trust a checkout form to establish this profile value.
+        if ((string) session('role') === '0' && $email && $email !== 'tamu') {
+            $db = db_connect();
+            if (!$db->fieldExists('gender', 'pembeli')) {
+                session()->setFlashdata('msg', 'Pengaturan profil sedang disiapkan. Silakan coba kembali nanti.');
+                return redirect()->to('/account');
+            }
+            $buyer = $this->pembeliModel->getPembeli((string) $email) ?: [];
+            if (!in_array((string) ($buyer['gender'] ?? ''), ['pria', 'wanita'], true)) {
+                session()->setFlashdata('msg', 'Pilih jenis kelamin di profil sebelum melanjutkan pembelian.');
+                return redirect()->to('/account');
+            }
+        }
 
         if ($email == 'tamu') {
             if (!$this->validate([
@@ -6606,6 +6632,13 @@ class Pages extends BaseController
         $email = session()->get("email");
         $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
         $getCurUser = $this->userModel->getUser($email) ?: [];
+        $genderSchemaAvailable = db_connect()->fieldExists('gender', 'pembeli')
+            && db_connect()->fieldExists('gender_changed_at', 'pembeli');
+        $genderAvailableAt = null;
+        if ($genderSchemaAvailable && !empty($getCurPembeli['gender_changed_at'])) {
+            $lastGenderChange = strtotime((string) $getCurPembeli['gender_changed_at'] . ' UTC');
+            $genderAvailableAt = $lastGenderChange === false ? null : strtotime('+6 months', $lastGenderChange);
+        }
         $hasStaffProfileFields = db_connect()->fieldExists('display_name', 'user') && db_connect()->fieldExists('phone', 'user');
         $nama = $nama ?: ((string)session()->get('role') === '1'
             ? (trim((string)($getCurUser['display_name'] ?? '')) ?: ($getCurPembeli['nama'] ?? ''))
@@ -6678,6 +6711,7 @@ class Pages extends BaseController
             !empty($nama),
             !empty($email),
             !empty($nohp),
+            in_array((string) ($getCurPembeli['gender'] ?? ''), ['pria', 'wanita'], true),
             !empty($tgl_lahir),
             !empty($foto) && $foto !== '/imguser/ZGVmYXVsdA==',
         ];
@@ -6709,6 +6743,9 @@ class Pages extends BaseController
             'nama' => $nama,
             'nohp' => $nohp,
             'tgl_lahir' => $tgl_lahir,
+            'gender' => (string) ($getCurPembeli['gender'] ?? ''),
+            'genderSchemaAvailable' => $genderSchemaAvailable,
+            'genderChangeAvailableAt' => $genderAvailableAt,
             'foto' => $foto,
             'auth_provider' => $getCurUser['auth_provider'] ?? (!empty($getCurUser['google_id']) ? 'google' : 'email'),
             'is_google_account' => !empty($getCurUser['google_id']) || (($getCurUser['auth_provider'] ?? '') === 'google'),
@@ -6883,6 +6920,46 @@ class Pages extends BaseController
                 'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
             ])->update();
         }
+        $genderTransaction = false;
+        $genderChanges = [];
+        if ((string) $role === '0' && $this->request->getPost('gender') !== null) {
+            $db = db_connect();
+            if (!$db->fieldExists('gender', 'pembeli') || !$db->fieldExists('gender_changed_at', 'pembeli')) {
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                session()->setFlashdata('msg', 'Pengaturan jenis kelamin belum siap. Silakan coba kembali nanti.');
+                return redirect()->to('/account');
+            }
+            $newGender = strtolower(trim((string) $this->request->getPost('gender')));
+            if (!in_array($newGender, ['pria', 'wanita'], true)) {
+                if ($photoTransaction && $db->transDepth > 0) $db->transRollback();
+                session()->setFlashdata('msg', 'Pilih jenis kelamin sebelum menyimpan profil.');
+                return redirect()->to('/account');
+            }
+            if (!$photoTransaction) $db->transBegin();
+            $genderTransaction = true;
+            $lockedGender = $db->query(
+                'SELECT gender, gender_changed_at FROM pembeli WHERE email_user = ? FOR UPDATE',
+                [$email]
+            )->getRowArray();
+            if (!$lockedGender) {
+                $db->transRollback();
+                session()->setFlashdata('msg', 'Profil belum ditemukan. Silakan masuk kembali.');
+                return redirect()->to('/account');
+            }
+            $currentGender = (string) ($lockedGender['gender'] ?? '');
+            if ($newGender !== $currentGender) {
+                $changedAt = (string) ($lockedGender['gender_changed_at'] ?? '');
+                $lastChanged = $changedAt !== '' ? strtotime($changedAt . ' UTC') : false;
+                $availableAt = $lastChanged === false ? false : strtotime('+6 months', $lastChanged);
+                if ($availableAt !== false && $availableAt > time()) {
+                    $db->transRollback();
+                    session()->setFlashdata('msg', 'Jenis kelamin hanya dapat diubah setiap 6 bulan. Anda dapat mengubahnya kembali pada ' .
+                        (new \DateTimeImmutable('@' . $availableAt))->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format('d-m-Y H:i') . ' WIB.');
+                    return redirect()->to('/account');
+                }
+                $genderChanges = ['gender' => $newGender, 'gender_changed_at' => gmdate('Y-m-d H:i:s')];
+            }
+        }
         if ($role == '0') {
             $currentFoto = (string)(session()->get('foto') ?: ($getCurPembeli['foto'] ?? '/imguser/ZGVmYXVsdA=='));
             $localFotoPath = '/imguser/' . base64_encode($email);
@@ -6891,13 +6968,13 @@ class Pages extends BaseController
             }
             $finalFoto = $foto ? $localFotoPath : $currentFoto;
 
-            $this->pembeliModel->where('email_user', $email)->set([
+            $this->pembeliModel->where('email_user', $email)->set(array_merge([
                 'nama' => $nama,
                 'nohp' => $nohp,
                 'tgl_lahir' => $tgl_lahir,
                 'batas_tgl_lahir' => date("Y-m-d", strtotime('+1 year')),
                 'foto' => $finalFoto
-            ])->update();
+            ], $genderChanges))->update();
 
             if ($foto) {
                 $existingImage = $this->gambarUserModel->getGambar($email);
@@ -6908,7 +6985,7 @@ class Pages extends BaseController
                 }
             }
 
-            if ($photoTransaction) {
+            if ($photoTransaction || $genderTransaction) {
                 if ($db->transStatus() === false) {
                     $db->transRollback();
                     session()->setFlashdata('msg', 'Foto profil belum dapat disimpan. Silakan coba kembali.');
