@@ -251,6 +251,8 @@ $routes->post('/actionbroadcastvoucher/(:any)', 'Pages::actionBroadcastVoucher/$
 $routes->get('/listform', 'Pages::listForm', ['filter' => 'harusAdmin']);
 $routes->get('/listcustomer', 'Pages::listCustomer', ['filter' => 'harusAdmin']);
 $routes->get('/customerdirectoryadmin', 'CustomerDirectoryAdmin::index', ['filter' => 'harusAdmin']);
+$routes->post('/customerdirectoryadmin/detail', 'CustomerDirectoryAdmin::requestDetail', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->get('/customerdirectoryadmin/detail', 'CustomerDirectoryAdmin::detail', ['filter' => 'harusAdmin']);
 $routes->get('/admin/dashboard', 'AdminDashboard::index', ['filter' => 'harusAdmin']);
 $routes->get('/admin/activity-logs', 'AdminActivityLogs::index', ['filter' => 'harusAdmin']);
 $routes->get('/admin/returns', 'AdminReturnQueue::index', ['filter' => 'harusAdmin']);

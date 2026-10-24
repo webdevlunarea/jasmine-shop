@@ -95,6 +95,7 @@ final class AdminPermissions
     {
         $path = '/' . trim(parse_url($path, PHP_URL_PATH) ?: $path, '/');
         $method = strtoupper($method);
+        if ($path === '/customerdirectoryadmin/detail') return 'customers.read';
         $rules = [
             'admin.dashboard' => ['/admin/dashboard'],
             'system.maintenance' => ['/benerinstokluna'],

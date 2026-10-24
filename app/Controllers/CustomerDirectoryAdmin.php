@@ -6,6 +6,42 @@ use CodeIgniter\Database\BaseBuilder;
 
 class CustomerDirectoryAdmin extends BaseController
 {
+    public function requestDetail()
+    {
+        $email = $this->request->getPost('email');
+        if (!is_string($email) || !filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
+            session()->setFlashdata('msg', 'Data pelanggan tidak ditemukan.');
+            return redirect()->to(site_url('customerdirectoryadmin'));
+        }
+        session()->setFlashdata('customer_directory_detail_email', strtolower(trim($email)));
+        return redirect()->to(site_url('customerdirectoryadmin/detail'));
+    }
+
+    public function detail()
+    {
+        $email = session()->getFlashdata('customer_directory_detail_email');
+        $db = db_connect();
+        if (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)
+            || !$db->tableExists('user') || !$db->tableExists('pembeli')
+            || !$db->fieldExists('registration_method', 'user') || !$db->fieldExists('registered_at', 'user')) {
+            session()->setFlashdata('msg', 'Data pelanggan tidak ditemukan atau sudah kedaluwarsa.');
+            return redirect()->to(site_url('customerdirectoryadmin'));
+        }
+
+        $query = $db->table('user u')->select('u.email, u.active, u.registration_method, u.registered_at, p.nama, p.nohp')
+            ->join('pembeli p', 'p.email_user = u.email', 'left')->where('u.email', $email)->where('u.role', '0');
+        if ($db->fieldExists('admin_role', 'user')) $query->groupStart()->where('u.admin_role', null)->orWhere('u.admin_role', '')->groupEnd();
+        $customer = $query->get()->getRowArray();
+        if (!$customer) {
+            session()->setFlashdata('msg', 'Data pelanggan tidak ditemukan.');
+            return redirect()->to(site_url('customerdirectoryadmin'));
+        }
+
+        return view('pages/customerDirectoryDetailAdmin', [
+            'title' => 'Detail pelanggan', 'customer' => $customer,
+        ]);
+    }
+
     private function customerBuilder(string $method, string $status, string $query, bool $hasAdminRole): BaseBuilder
     {
         $db = db_connect();
@@ -86,6 +122,7 @@ class CustomerDirectoryAdmin extends BaseController
             'title' => 'Direktori pengguna', 'ready' => true, 'customers' => $customers,
             'total' => $total, 'page' => $page, 'perPage' => $perPage, 'pages' => $pages,
             'method' => $method, 'status' => $status, 'query' => $query, 'methodCounts' => $methodCounts,
+            'msg' => session()->getFlashdata('msg'),
         ]);
     }
 }

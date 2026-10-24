@@ -86,7 +86,8 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
         foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
-        $this->assertSame(1,$xp->query('//form[@action="/keluar"]//button')->length);
+        $this->assertSame(1,$xp->query('//form[@action="/keluar" and @data-admin-logout-form]//input[@name="csrf_test_name"]')->length);
+        $this->assertSame(1,$xp->query('//form[@action="/keluar"]//button[@aria-haspopup="dialog"]')->length);
     }
 
     public function testRoleSpecificAdminMenuHidesUnavailableModules(): void
@@ -115,6 +116,20 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(1,$xp->query('//a[@href="/admin/returns"]')->length);
         $this->assertSame(1,$xp->query('//a[@href="/customeradmin"]')->length);
         $this->assertStringContainsString('2 perlu ditinjau',$html);
+    }
+
+    public function testCustomerDetailShowsOnlyMinimalContactAndAccountData(): void
+    {
+        $html = $this->render('pages/customerDirectoryDetailAdmin', [
+            'title' => 'Detail pelanggan',
+            'customer' => ['nama' => 'Pelanggan Contoh', 'email' => 'pelanggan@example.test', 'nohp' => '081234567890',
+                'registration_method' => 'google', 'active' => '1', 'registered_at' => '2026-10-24 02:30:00'],
+        ]);
+        $this->assertStringContainsString('Pelanggan Contoh', $html);
+        $this->assertStringContainsString('pelanggan@example.test', $html);
+        $this->assertStringContainsString('081234567890', $html);
+        $this->assertStringContainsString('Alamat rumah, tanggal lahir, sandi, dan data pembayaran tidak ditampilkan.', $html);
+        $this->assertStringContainsString('Permintaan detail dicatat pada log aktivitas admin.', $html);
     }
 
     public function testExportSyntheticPreviewWhenRequested(): void

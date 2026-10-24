@@ -48,6 +48,8 @@ final class AdminPermissionsTest extends CIUnitTestCase
         $this->assertSame('settings.audit.read', AdminPermissions::requiredPermission('/admin/activity-logs', 'GET'));
         $this->assertSame('settings.audit.read', AdminPermissions::requiredPermission('/admin/activity-logs/', 'GET'));
         $this->assertSame('orders.read', AdminPermissions::requiredPermission('/admin/returns', 'GET'));
+        $this->assertSame('customers.read', AdminPermissions::requiredPermission('/customerdirectoryadmin/detail', 'GET'));
+        $this->assertSame('customers.read', AdminPermissions::requiredPermission('/customerdirectoryadmin/detail', 'POST'));
         $this->assertSame('admin.roles.manage', AdminPermissions::requiredPermission('/admin/staff/invite', 'POST'));
         $this->assertSame('admin.manage', AdminPermissions::requiredPermission('/staff/invite/opaque-token', 'GET'));
         $this->assertFalse(AdminPermissions::canAccess('SUPER_ADMIN', AdminPermissions::requiredPermission('/admin/staff/invite', 'POST')));
