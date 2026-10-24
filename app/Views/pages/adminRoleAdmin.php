@@ -73,23 +73,6 @@
             </div>
         </div>
         <p class="small text-muted mt-3 mb-0">Perubahan akses aktif setelah admin terkait logout dan login kembali. Aktivitas pembuatan peran dan penetapan admin dicatat.</p>
-        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-4" aria-labelledby="admin-activity-heading">
-            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
-                <div><h3 class="h5 mb-1" id="admin-activity-heading">Log aktivitas staf</h3><p class="small text-muted mb-0">Mencatat aksi perubahan melalui admin—tanpa menyimpan isi formulir atau alamat IP. Data dihapus otomatis setelah enam bulan.</p></div>
-                <span class="badge text-bg-light">Maks. 100 terbaru</span>
-            </div>
-            <?php if (!$activityLogsReady): ?>
-                <div class="alert alert-warning mb-0">Tabel log aktivitas belum tersedia. Jalankan ulang SQL RBAC terbaru untuk membuat tabelnya.</div>
-            <?php elseif (!$activityLogs): ?>
-                <p class="text-muted mb-0">Belum ada aksi staf yang tercatat.</p>
-            <?php else: ?>
-                <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Waktu (WIB)</th><th>Staf</th><th>Peran</th><th>Aksi</th><th>Rute</th><th>HTTP</th></tr></thead><tbody>
-                    <?php foreach ($activityLogs as $log): $logTime = null; try { $logTime = (new DateTimeImmutable($log['created_at'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('Asia/Jakarta'))->format('d M Y, H:i:s'); } catch (Throwable $e) {} ?>
-                        <tr><td><?= esc($logTime ? $logTime . ' WIB' : $log['created_at']); ?></td><td><?= esc($log['actor_email']); ?></td><td><?= esc($log['admin_role']); ?></td><td><span class="badge text-bg-light"><?= esc($log['http_method']); ?></span></td><td><code><?= esc($log['route']); ?></code></td><td><?= (int)$log['response_code']; ?></td></tr>
-                    <?php endforeach; ?>
-                </tbody></table></div>
-            <?php endif; ?>
-        </section>
         <details class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-3">
             <summary class="fw-semibold">Riwayat perubahan peran dan izin</summary>
             <?php if (!$roleLogs): ?><p class="small text-muted mt-3 mb-0">Belum ada perubahan peran yang tercatat.</p><?php else: ?>

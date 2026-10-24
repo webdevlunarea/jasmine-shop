@@ -78,8 +78,10 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         try { $html=$this->render('layout/navbar',['title'=>'List Customer']); }
         finally { if ($old===null) unset($_SERVER['REQUEST_URI']); else $_SERVER['REQUEST_URI']=$old; }
         $dom=new DOMDocument(); @$dom->loadHTML($html); $xp=new DOMXPath($dom);
-        $this->assertSame(20,$xp->query('//nav[@aria-label="Navigasi admin"]/a')->length);
-        $this->assertSame(4,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
+        $this->assertSame(23,$xp->query('//nav[@aria-label="Navigasi admin"]/a')->length);
+        $this->assertSame(1,$xp->query('//nav[@aria-label="Navigasi admin"]/a[@href="/admin/activity-logs"]')->length);
+        $this->assertSame(1,$xp->query('//nav[@aria-label="Navigasi admin"]/a[@href="/admin/returns"]')->length);
+        $this->assertSame(5,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
         foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
@@ -95,6 +97,23 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(0,$xp->query('//a[@href="/listproduct"]')->length);
         $this->assertSame(0,$xp->query('//a[@href="/invoiceadmin"]')->length);
         $this->assertSame(1,$xp->query('//a[@href="/customerdirectoryadmin"]')->length);
+    }
+
+    public function testDashboardShowsRoleScopedActionItems(): void
+    {
+        session()->set(['isLogin'=>true,'role'=>'1','admin_role'=>'ADMIN','nama'=>'Admin Fixture']);
+        $html=$this->render('pages/adminDashboard',[
+            'title'=>'Dashboard','roleLabel'=>'Administrator','metrics'=>[],'shortcuts'=>[],
+            'attentionItems'=>[
+                ['Pengajuan retur perlu ditinjau',2,'assignment_return','/admin/returns'],
+                ['Permintaan hapus akun baru',1,'manage_accounts','/customeradmin'],
+            ],
+        ]);
+        $this->assertStringContainsString('Perlu perhatian',$html);
+        $dom=new DOMDocument(); @$dom->loadHTML($html); $xp=new DOMXPath($dom);
+        $this->assertSame(1,$xp->query('//a[@href="/admin/returns"]')->length);
+        $this->assertSame(1,$xp->query('//a[@href="/customeradmin"]')->length);
+        $this->assertStringContainsString('2 perlu ditinjau',$html);
     }
 
     public function testExportSyntheticPreviewWhenRequested(): void

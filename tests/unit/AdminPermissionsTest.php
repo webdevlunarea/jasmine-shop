@@ -45,6 +45,18 @@ final class AdminPermissionsTest extends CIUnitTestCase
         $this->assertSame('system.maintenance', AdminPermissions::requiredPermission('/benerinstokluna', 'GET'));
         $this->assertSame('admin.manage', AdminPermissions::requiredPermission('/unexpected-admin-path', 'GET'));
         $this->assertSame('admin.roles.manage', AdminPermissions::requiredPermission('/admin/roles/save', 'POST'));
+        $this->assertSame('settings.audit.read', AdminPermissions::requiredPermission('/admin/activity-logs', 'GET'));
+        $this->assertSame('settings.audit.read', AdminPermissions::requiredPermission('/admin/activity-logs/', 'GET'));
+        $this->assertSame('orders.read', AdminPermissions::requiredPermission('/admin/returns', 'GET'));
+    }
+
+    public function testActivityLogsHaveASeparateReadPermission(): void
+    {
+        $this->assertTrue(AdminPermissions::canAccess('DEV', 'settings.audit.read'));
+        $this->assertTrue(AdminPermissions::canAccess('ADMIN', 'settings.audit.read'));
+        $this->assertFalse(AdminPermissions::canAccess('CONTENT_ADMIN', 'settings.audit.read'));
+        $this->assertTrue(AdminPermissions::canAccess('CUSTOM_AUDIT_VIEWER', 'settings.audit.read', ['settings.audit.read']));
+        $this->assertFalse(AdminPermissions::canAccess('CUSTOM_AUDIT_VIEWER', 'admin.roles.manage', ['settings.audit.read']));
     }
 
     public function testDashboardIsAvailableToRecognizedStaffRolesOnly(): void

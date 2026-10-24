@@ -11,7 +11,9 @@ if ($isAdminNav) {
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
         ['group'=>'Workspace', 'label' => 'Dashboard', 'icon' => 'dashboard', 'url' => '/admin/dashboard', 'permission'=>'admin.dashboard', 'match' => ['admin/dashboard']],
+        ['group'=>'Workspace', 'label' => 'Log aktivitas', 'icon' => 'history', 'url' => '/admin/activity-logs', 'permission'=>'settings.audit.read', 'match' => ['admin/activity-logs']],
         ['group'=>'Operasional', 'label' => 'Pesanan', 'icon' => 'receipt_long', 'url' => '/listcustomer', 'permission'=>'orders.read', 'match' => ['listcustomer', 'order']],
+        ['group'=>'Operasional', 'label' => 'Retur pelanggan', 'icon' => 'assignment_return', 'url' => '/admin/returns', 'permission'=>'orders.read', 'match' => ['admin/returns']],
         ['group'=>'Operasional', 'label' => 'Pengguna', 'icon' => 'group', 'url' => '/customerdirectoryadmin', 'permission'=>'customers.read', 'match' => ['customerdirectoryadmin']],
         ['group'=>'Operasional', 'label' => 'Invoice', 'icon' => 'description', 'url' => '/invoiceadmin', 'permission'=>'finance.read', 'match' => ['invoiceadmin', 'addinvoiceadmin']],
         ['group'=>'Operasional', 'label' => 'Pengiriman', 'icon' => 'local_shipping', 'url' => '/shippingadmin', 'permission'=>'shipping.read', 'match' => ['shippingadmin']],

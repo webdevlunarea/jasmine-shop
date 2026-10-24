@@ -32,7 +32,8 @@ final class AdminModulesViewTest extends CIUnitTestCase
             'coverages'=>[['id'=>1,'is_active'=>true,'kecamatan_label'=>'Ngaliyan','kabupaten_label'=>'Semarang','provinsi_label'=>'Jawa Tengah'],['id'=>2,'is_active'=>false,'kecamatan_label'=>'Mijen','kabupaten_label'=>'Semarang','provinsi_label'=>'Jawa Tengah']],
             'provinsi'=>[['id'=>33,'label'=>'Jawa Tengah']],'subsidyStorageReady'=>true,'categories'=>['meja'=>'Meja','kursi'=>'Kursi','lemari'=>'Lemari'],'images'=>[],
             'theme'=>\App\Models\KonstantaModel::defaultThemeWarna(),'topPromo'=>['desktop'=>'Harga khusus untuk pembelian pertama','mobile'=>'Pilihan furniture untuk Anda'],
-            'range'=>7,'fromDate'=>'2026-10-16','toDate'=>'2026-10-22','summary'=>['pageviews'=>1280,'visitors'=>840,'avg_duration'=>93,'today'=>182],'dailyTraffic'=>[],'topPages'=>[],'recentVisits'=>[],'broadcast'=>[],'emailBroadcast'=>[]];
+            'range'=>7,'fromDate'=>'2026-10-16','toDate'=>'2026-10-22','summary'=>['pageviews'=>1280,'visitors'=>840,'avg_duration'=>93,'today'=>182],'dailyTraffic'=>[],'topPages'=>[],'recentVisits'=>[],'broadcast'=>[],'emailBroadcast'=>[],
+            'ready'=>true,'errors'=>[],'logs'=>[],'filters'=>['from'=>null,'to'=>null,'actor'=>'','route'=>'','method'=>''],'queryString'=>'','pages'=>1,'total'=>0,'returns'=>[],'status'=>''];
         if (in_array($page,['stokAdmin','editProduct'],true)) $data['produk']=['id'=>'FIXTURE','nama'=>'Lunarea - Meja kerja putih','varian'=>'["Putih","Natural"]','jml_varian'=>2,'harga'=>900000,'diskon'=>10,'stok'=>'20,10','berat'=>15,'dimensi'=>'120X60X75','kategori'=>'Meja','subkategori'=>'Meja kerja','deskripsi'=>'Deskripsi fixture','deskripsi_nonhtml'=>'Deskripsi fixture','pencarian'=>'meja'];
         if ($page==='stokAdmin') $data['produk']['varian']=['Putih','Natural'];
         if ($page==='editVoucher') $data['voucher']=['id'=>1,'nama'=>'Promo fixture','nominal'=>10,'satuan'=>'persen','jenis'=>'diskon','durasi'=>30,'durasi_poin'=>30,'jadwal'=>'','all_user'=>1,'auto_claimed'=>0,'code'=>[],'isi_email'=>'','isi_email_input'=>'','kuota'=>100,'max_potongan'=>100000,'keterangan'=>'','syarat_ketentuan'=>'','tidak_gabung_voucher_baru'=>0];
@@ -43,7 +44,7 @@ final class AdminModulesViewTest extends CIUnitTestCase
 
     public static function pages(): array
     {
-        return array_map(static fn($page)=>[$page],['shippingAdmin','listInvoiceAdmin','addInvoice','listProduct','flashSaleAdmin','categoryImagesAdmin','addArtikel1','editArtikel','listBanner','addBanner','editBanner','listVoucher','addVoucher','editVoucher','manageRatingTerjual','stokAdmin','listRedeem','trafficAdmin','settingWarna','editProduct','addProduct','listForm','artikelAll']);
+        return array_map(static fn($page)=>[$page],['shippingAdmin','listInvoiceAdmin','addInvoice','listProduct','flashSaleAdmin','categoryImagesAdmin','addArtikel1','editArtikel','listBanner','addBanner','editBanner','listVoucher','addVoucher','editVoucher','manageRatingTerjual','stokAdmin','listRedeem','trafficAdmin','settingWarna','editProduct','addProduct','listForm','artikelAll','adminActivityLogs','adminReturnQueue']);
     }
 
     /** @dataProvider pages */

@@ -33,6 +33,24 @@
         </section>
         <?php endif; ?>
 
+        <?php if (!empty($attentionItems)): ?>
+        <section class="admin-dashboard-section" aria-labelledby="admin-dashboard-attention-title">
+            <div class="admin-dashboard-section-heading">
+                <div><p class="admin-dashboard-kicker">TINDAK LANJUT</p><h3 id="admin-dashboard-attention-title">Perlu perhatian</h3></div>
+                <p>Antrean yang dapat ditinjau sesuai akses akun Anda.</p>
+            </div>
+            <div class="admin-dashboard-shortcuts">
+                <?php foreach ($attentionItems as [$label, $value, $icon, $url]): ?>
+                    <a class="admin-dashboard-shortcut" href="<?= esc($url, 'attr'); ?>">
+                        <span class="admin-dashboard-shortcut-icon"><i class="material-icons" aria-hidden="true"><?= esc($icon); ?></i></span>
+                        <span class="admin-dashboard-shortcut-copy"><strong><?= esc($label); ?></strong><small><?= number_format((int)$value, 0, ',', '.'); ?> perlu ditinjau</small></span>
+                        <i class="material-icons admin-dashboard-arrow" aria-hidden="true">arrow_forward</i>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php endif; ?>
+
         <section class="admin-dashboard-section" aria-labelledby="admin-dashboard-shortcuts-title">
             <div class="admin-dashboard-section-heading">
                 <div><p class="admin-dashboard-kicker">MENU</p><h3 id="admin-dashboard-shortcuts-title">Akses cepat</h3></div>

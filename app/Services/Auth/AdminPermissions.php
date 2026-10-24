@@ -24,6 +24,7 @@ final class AdminPermissions
         'finance.read' => 'Lihat invoice dan pembayaran', 'finance.write' => 'Kelola invoice dan konfirmasi pembayaran',
         'shipping.read' => 'Lihat pengaturan pengiriman', 'shipping.write' => 'Ubah tarif dan subsidi pengiriman',
         'settings.read' => 'Lihat traffic dan pengaturan', 'settings.write' => 'Ubah pengaturan, referral, dan notifikasi', 'settings.manage' => 'Kirim broadcast dan promosi massal',
+        'settings.audit.read' => 'Lihat riwayat aktivitas staf',
     ];
 
     public static function normalizeRole($role): string
@@ -47,6 +48,7 @@ final class AdminPermissions
             return $action === 'read' && in_array($category . '.write', $customPermissions, true);
         }
         if (!array_key_exists($role, self::ROLE_CATEGORIES)) return false;
+        if ($permission === 'settings.audit.read') return in_array('settings', self::ROLE_CATEGORIES[$role], true);
 
         [$category, $action] = array_pad(explode('.', $permission, 2), 2, 'manage');
         if ($permission === 'system.maintenance' || $permission === 'admin.manage') return false;
@@ -98,12 +100,13 @@ final class AdminPermissions
             'system.maintenance' => ['/benerinstokluna'],
             'admin.roles.manage' => ['/admin/roles'],
             'finance' => ['/invoiceadmin', '/addinvoiceadmin', '/actionaddinvoiceadmin', '/payorder', '/pdf'],
-            'orders' => ['/listcustomer', '/orderdone', '/editresi', '/syncorder'],
+            'orders' => ['/listcustomer', '/orderdone', '/editresi', '/syncorder', '/admin/returns'],
             'customers' => ['/customerdirectoryadmin', '/customeradmin', '/customersuspensionadmin', '/listform', '/customeradmin/'],
             'catalog' => ['/listproduct', '/addproduct', '/editproduct', '/delproduct', '/activeproduct', '/findproductadmin', '/listproducttable', '/stokadmin', '/stokadminacc', '/lunamappingadmin', '/categoryimagesadmin'],
             'content' => ['/listbanner', '/addbanner', '/editbanner', '/actionaddbanner', '/actioneditbanner', '/activebanner', '/deletebanner', '/listvoucher', '/addvoucher', '/editvoucher', '/actionaddvoucher', '/actioneditvoucher', '/activevoucher', '/deletevoucher', '/actionbroadcastvoucher', '/actionbroadcastvoucheremail', '/voucher/addmember', '/listredeem', '/redeemcode', '/flashsaleadmin', '/addarticle', '/editarticle', '/delarticle', '/delkomen', '/editkomen', '/manageratingterjual', '/addrating', '/delrating', '/updateterjualadmin', '/editratingadmin', '/generatedummyratingterjual', '/freshgeneratedummyratingterjual', '/hapusdummyrating'],
             'shipping' => ['/shippingadmin'],
             'settings' => ['/trafficadmin', '/settingwarna', '/androidreferraladmin', '/notificationtestadmin', '/lunamappingadmin'],
+            'settings.audit' => ['/admin/activity-logs'],
         ];
 
         foreach ($rules as $category => $prefixes) {
@@ -115,6 +118,7 @@ final class AdminPermissions
                         || strpos($path, '/actionbroadcastvoucher/') === 0) return 'settings.manage';
                     if (in_array($path, ['/updateterjualadmin', '/generatedummyratingterjual', '/freshgeneratedummyratingterjual', '/hapusdummyrating'], true)
                         || strpos($path, '/updateterjualadmin/') === 0) return 'content.manage';
+                    if ($category === 'settings.audit') return 'settings.audit.read';
                     if (in_array($path, ['/customeradmin', '/customersuspensionadmin'], true) || strpos($path, '/customeradmin/') === 0) return 'customers.manage';
                     $isFormRoute = (bool) preg_match('#^/(add|edit)(product|banner|voucher|article|invoiceadmin)(/|$)#', $path);
                     $action = $method === 'GET' && !$isFormRoute ? 'read' : 'write';
