@@ -544,6 +544,19 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     LaunchedEffect(Unit) {
         CustomerSuspensionSignals.suspended.collect { suspensionMessage ->
             signedIn = false
+            favoriteKeys = emptySet()
+            unreadNotificationCount = 0
+            cartItems = emptyList()
+            cartSubtotal = 0L
+            cartMessage = null
+            notificationMessage = null
+            cachedAccountDisplayName = ""
+            cachedAccountPhotoUrl = null
+            accountProfileCached = false
+            pushOrderId = null
+            pendingCartRemoval = null
+            notificationInboxOpen = false
+            showMfaLogin = false
             accountSection = AccountSection.MENU
             tab = AppTab.ACCOUNT
             message = suspensionMessage
