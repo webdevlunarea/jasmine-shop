@@ -33,9 +33,11 @@
 .admin-body .admin-nav-item.active i { opacity: 1; }
 .admin-body .admin-sidebar-footer { padding: 10px 14px 16px; border-top: 1px solid rgb(255 255 255 / 10%); }
 .admin-body .admin-sidebar-footer .danger { color: #f0c5bd; }
-.admin-body .admin-sidebar-toggle { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; padding: 0; color: rgb(255 255 255 / 78%); }
-.admin-body .admin-sidebar-toggle:hover { background: rgb(255 255 255 / 9%); color: #fff; }
-.admin-body .admin-sidebar-toggle .material-icons { font-size: 21px; }
+.admin-body .admin-sidebar-collapse-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.admin-body .admin-sidebar-toggle { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 34px; margin: 0; color: rgb(255 255 255 / 62%); cursor: pointer; transition: color 150ms ease; }
+.admin-body .admin-sidebar-toggle:hover,
+.admin-body .admin-sidebar-collapse-input:focus-visible + .admin-sidebar-toggle { color: #fff; }
+.admin-body .admin-sidebar-toggle .material-icons { font-size: 20px; }
 .admin-body .admin-sidebar,
 .admin-body .admin-topbar,
 .admin-body .konten { transition: width 180ms ease, left 180ms ease, padding-left 180ms ease; }
@@ -308,7 +310,8 @@
 }
 @media (max-width: 992px) {
     .admin-body { --admin-topbar: 68px; --admin-sidebar: min(86vw, 280px); }
-    .admin-body .admin-sidebar-toggle { display: none; }
+    .admin-body .admin-sidebar-toggle,
+    .admin-body .admin-sidebar-collapse-input { display: none; }
     .admin-body .admin-menu-trigger, .admin-body .admin-drawer-close { display: inline-flex; }
     .admin-body .admin-drawer-close { color: #fff; flex-shrink: 0; }
     .admin-body .admin-drawer-close:hover { background: rgb(255 255 255 / 10%); }

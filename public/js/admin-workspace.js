@@ -12,10 +12,12 @@
         const isCollapsed = Boolean(collapsed) && desktop.matches;
         document.body.classList.toggle('admin-sidebar-collapsed', isCollapsed);
         if (sidebarToggle) {
-            sidebarToggle.setAttribute('aria-expanded', String(!isCollapsed));
+            sidebarToggle.checked = isCollapsed;
             sidebarToggle.setAttribute('aria-label', isCollapsed ? 'Perlebar menu admin' : 'Minimalkan menu admin');
             sidebarToggle.title = isCollapsed ? 'Perlebar menu admin' : 'Minimalkan menu admin';
-            const icon = sidebarToggle.querySelector('.material-icons');
+            const sidebarToggleLabel = document.querySelector('label[for="admin-sidebar-collapse-toggle"]');
+            if (sidebarToggleLabel) sidebarToggleLabel.title = sidebarToggle.title;
+            const icon = sidebarToggleLabel?.querySelector('.material-icons');
             if (icon) icon.textContent = isCollapsed ? 'chevron_right' : 'chevron_left';
         }
         if (persist) {
@@ -47,7 +49,7 @@
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
-    sidebarToggle?.addEventListener('click', () => setSidebarCollapsed(!document.body.classList.contains('admin-sidebar-collapsed')));
+    sidebarToggle?.addEventListener('change', () => setSidebarCollapsed(sidebarToggle.checked));
     desktop.addEventListener('change', event => {
         setMenu(false, false);
         setSidebarCollapsed(event.matches && getSidebarPreference(), false);

@@ -85,7 +85,8 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(['Utama','Penjualan','Pelanggan','Produk','Promosi','Laporan','Pengaturan'], array_map(static fn($node) => trim($node->textContent), iterator_to_array($xp->query('//nav[@aria-label="Navigasi admin"]/p'))));
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
-        $this->assertSame(1,$xp->query('//button[@data-admin-sidebar-toggle and @aria-controls="admin-navigation" and @aria-expanded="true"]')->length);
+        $this->assertSame(1,$xp->query('//input[@type="checkbox" and @data-admin-sidebar-toggle and @aria-controls="admin-navigation" and @aria-label="Minimalkan menu admin"]')->length);
+        $this->assertSame(1,$xp->query('//label[@for="admin-sidebar-collapse-toggle" and contains(@class,"admin-sidebar-toggle")]')->length);
         $this->assertSame(0,$xp->query('//header[contains(concat(" ",normalize-space(@class)," ")," admin-topbar ")]//a[@href="/" and contains(concat(" ",normalize-space(@class)," ")," admin-store-link ")]')->length);
         $this->assertSame(1,$xp->query('//button[@data-admin-notice-toggle and @aria-controls="admin-account-notice-panel"]')->length);
         $this->assertSame(1,$xp->query('//section[@id="admin-account-notice-panel" and @hidden]')->length);

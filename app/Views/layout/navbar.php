@@ -62,9 +62,10 @@ if ($isAdminNav) {
             <span class="admin-brand-mark" aria-hidden="true">L.</span>
             <span class="admin-brand-copy"><strong>Lunarea</strong><small><?= $isDevAdmin ? 'Workspace admin' : 'Panel admin'; ?></small></span>
         </a>
-        <button type="button" class="admin-icon-btn admin-sidebar-toggle" data-admin-sidebar-toggle aria-controls="admin-navigation" aria-expanded="true" aria-label="Minimalkan menu admin" title="Minimalkan menu admin">
+        <input type="checkbox" id="admin-sidebar-collapse-toggle" class="admin-sidebar-collapse-input" data-admin-sidebar-toggle aria-controls="admin-navigation" aria-label="Minimalkan menu admin" title="Minimalkan menu admin">
+        <label for="admin-sidebar-collapse-toggle" class="admin-sidebar-toggle" aria-hidden="true">
             <i class="material-icons" aria-hidden="true">chevron_left</i>
-        </button>
+        </label>
         <button type="button" class="admin-icon-btn admin-drawer-close" data-admin-menu-close aria-label="Tutup menu admin"><i class="material-icons" aria-hidden="true">close</i></button>
     </div>
     <nav class="admin-nav" aria-label="Navigasi admin">
