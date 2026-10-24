@@ -512,8 +512,9 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
         confirmScrollStyles = null;
     }
 
-    function triggerToast(text, linkAction, onConfirm) {
+    function triggerToast(text, linkAction, onConfirm, informationTitle) {
         const hasCallback = typeof onConfirm === 'function';
+        const informationOnly = !linkAction && !hasCallback;
         toastOkElm.onsubmit = hasCallback ? function(event) {
             event.preventDefault();
             hapusToast();
@@ -521,13 +522,16 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
         } : null;
         toastElm.classList.add("show")
         lockConfirmScroll();
-        toastTitleElm.textContent = 'Konfirmasi tindakan'
+        toastTitleElm.textContent = informationTitle || 'Konfirmasi tindakan'
         toastTeksElm.textContent = text
         toastOkElm.action = linkAction || ''
-        if (!linkAction && !hasCallback) {
+        toastElm.classList.toggle('confirm-dialog--security', informationOnly && !!informationTitle);
+        document.querySelector('.confirm-dialog__eyebrow').textContent = informationOnly ? 'Informasi akun' : 'Konfirmasi';
+        document.querySelector('.confirm-dialog__icon .material-icons').textContent = informationOnly ? 'info_outline' : 'help_outline';
+        if (informationOnly) {
             toastOkElm.classList.add('d-none');
             toastOkElm.setAttribute('disabled', '');
-            toastTitleElm.textContent = 'Informasi'
+            toastTitleElm.textContent = informationTitle || 'Informasi'
             toastCancelBtnElm.textContent = 'Mengerti';
         } else {
             toastOkElm.classList.remove('d-none');
@@ -571,6 +575,13 @@ $showTopPromo = !$isAdminLayout && !$isAuthPage && (
             }
         });
     }, true);
+    <?php $authSecurityNotice = session()->getFlashdata('auth_security_notice');
+    if (is_array($authSecurityNotice) && !empty($authSecurityNotice['title']) && !empty($authSecurityNotice['message'])) { ?>
+    window.addEventListener('DOMContentLoaded', function() {
+        triggerToast(<?= json_encode((string)$authSecurityNotice['message'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>, '', null,
+            <?= json_encode((string)$authSecurityNotice['title'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>);
+    });
+    <?php } ?>
 
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && toastElm.classList.contains('show')) {

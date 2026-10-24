@@ -30,8 +30,16 @@ class PasswordSessionFilter implements FilterInterface
             session()->regenerate(true);
             if ($suspended) {
                 session()->setFlashdata('msg', $notice);
+                session()->setFlashdata('auth_security_notice', [
+                    'title' => 'Akun dibatasi',
+                    'message' => 'Akses akun sedang dibatasi. Hubungi Lunarea jika perlu bantuan.',
+                ]);
                 return redirect()->to(site_url('akun-dibatasi'));
             }
+            session()->setFlashdata('auth_security_notice', [
+                'title' => 'Sesi berakhir',
+                'message' => 'Sesi akun ini sudah berakhir. Silakan masuk kembali.',
+            ]);
             return redirect()->to(site_url('login'));
         }
     }

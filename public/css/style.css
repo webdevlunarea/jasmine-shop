@@ -443,6 +443,29 @@ body {
     box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22);
 }
 
+.confirm-dialog--security .confirm-dialog__body {
+    border-color: var(--hijaumuda2, #ebe8df);
+    background: var(--hijaumuda, #faf9f6);
+}
+
+.confirm-dialog--security .confirm-dialog__content h5 {
+    color: #282e29;
+}
+
+.confirm-dialog--security .confirm-dialog__message {
+    color: #68736b;
+}
+
+.confirm-dialog--security .confirm-dialog__actions {
+    grid-template-columns: 1fr;
+}
+
+.confirm-dialog--security .confirm-dialog__cancel {
+    border-color: var(--hijaumuda2, #ebe8df);
+    background: #fff;
+    color: var(--hijau, #365b46);
+}
+
 .confirm-dialog__icon {
     width: 48px;
     height: 48px;

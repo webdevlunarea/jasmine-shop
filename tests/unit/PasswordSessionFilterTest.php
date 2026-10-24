@@ -31,6 +31,7 @@ final class PasswordSessionFilterTest extends CIUnitTestCase
         $response=$this->filter()->before(\Config\Services::request());
         $this->assertStringEndsWith('/login',$response->getHeaderLine('Location'));
         $this->assertFalse((bool)session('isLogin'));
+        $this->assertSame('Sesi berakhir', session()->getFlashdata('auth_security_notice')['title']);
     }
     public function testFreshVersionAndAnonymousRequestsPass(): void {
         $this->assertNull($this->filter()->before(\Config\Services::request()));
