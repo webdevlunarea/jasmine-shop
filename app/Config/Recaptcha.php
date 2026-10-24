@@ -16,10 +16,10 @@ class Recaptcha extends BaseConfig
     {
         parent::__construct();
         // Production defaults to fail-closed; configure valid keys before rollout.
-        $this->enabled = filter_var(env('RECAPTCHA_ENABLED', ENVIRONMENT === 'production'), FILTER_VALIDATE_BOOLEAN);
-        $this->siteKey = (string) env('RECAPTCHA_SITE_KEY', '');
-        $this->secretKey = (string) env('RECAPTCHA_SECRET_KEY', '');
-        $this->allowedHostnames = (string) env('RECAPTCHA_ALLOWED_HOSTNAMES', 'lunareafurniture.com,www.lunareafurniture.com');
+        $this->enabled = filter_var(env('RECAPTCHA_ENABLED', env('recaptcha.enabled', ENVIRONMENT === 'production')), FILTER_VALIDATE_BOOLEAN);
+        $this->siteKey = (string) env('RECAPTCHA_SITE_KEY', env('recaptcha.siteKey', ''));
+        $this->secretKey = (string) env('RECAPTCHA_SECRET_KEY', env('recaptcha.secretKey', ''));
+        $this->allowedHostnames = (string) env('RECAPTCHA_ALLOWED_HOSTNAMES', env('recaptcha.allowedHostnames', 'lunareafurniture.com,www.lunareafurniture.com'));
     }
 
     /** Native API checks are explicitly enabled independently from website CAPTCHA. */

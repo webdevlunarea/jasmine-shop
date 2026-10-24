@@ -16,6 +16,31 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
         return $config;
     }
 
+    public function testConfigReadsExistingDottedEnvironmentNames(): void
+    {
+        $keys = ['recaptcha.enabled', 'recaptcha.siteKey', 'recaptcha.secretKey', 'recaptcha.allowedHostnames'];
+        $saved = [];
+        foreach ($keys as $key) {
+            $saved[$key] = $_ENV[$key] ?? null;
+        }
+        $_ENV['recaptcha.enabled'] = 'true';
+        $_ENV['recaptcha.siteKey'] = 'test-public-key';
+        $_ENV['recaptcha.secretKey'] = 'test-private-key';
+        $_ENV['recaptcha.allowedHostnames'] = 'lunareafurniture.com';
+        try {
+            $config = new Recaptcha();
+            $this->assertTrue($config->enabled);
+            $this->assertSame('test-public-key', $config->siteKey);
+            $this->assertSame('test-private-key', $config->secretKey);
+            $this->assertSame('lunareafurniture.com', $config->allowedHostnames);
+        } finally {
+            foreach ($keys as $key) {
+                if ($saved[$key] === null) unset($_ENV[$key]);
+                else $_ENV[$key] = $saved[$key];
+            }
+        }
+    }
+
     private function client($body, int $status = 200)
     {
         return new class($body, $status) {
