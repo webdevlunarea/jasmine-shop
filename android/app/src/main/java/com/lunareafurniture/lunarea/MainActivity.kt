@@ -1760,6 +1760,16 @@ private fun NativeVerificationScreen(modifier: Modifier, initialEmail: String, o
     var code by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
+    var resendAvailableAt by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() + 60_000L) }
+    var countdownNow by rememberSaveable { mutableLongStateOf(System.currentTimeMillis()) }
+    val resendSeconds = ((resendAvailableAt - countdownNow).coerceAtLeast(0L) / 1000L).toInt()
+
+    LaunchedEffect(resendAvailableAt) {
+        while (System.currentTimeMillis() < resendAvailableAt) {
+            delay(1000)
+            countdownNow = System.currentTimeMillis()
+        }
+    }
 
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         AuthFlowHeader("Verifikasi email", "Masukkan kode 6 digit yang dikirim ke email pendaftaran Anda.", onBack)
@@ -1791,10 +1801,16 @@ private fun NativeVerificationScreen(modifier: Modifier, initialEmail: String, o
                     }
                     val response = ApiClient.get(context).resendVerification(payload)
                     message = if (response.isSuccessful && response.body()?.success == true) "Jika akun menunggu verifikasi dan jeda terpenuhi, kode baru akan dikirim." else response.customerError("Kode belum dapat dikirim ulang.")
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        resendAvailableAt = System.currentTimeMillis() + 60_000L
+                        countdownNow = System.currentTimeMillis()
+                    }
                 } catch (error: Exception) { message = error.message ?: "Koneksi belum tersedia. Coba kirim ulang nanti." }
                 finally { busy = false }
             }
-        }, enabled = !busy && email.contains('@'), modifier = Modifier.fillMaxWidth().height(48.dp), shape = MaterialTheme.shapes.medium) { Text("Kirim ulang kode") }
+        }, enabled = !busy && email.contains('@') && resendSeconds == 0, modifier = Modifier.fillMaxWidth().height(48.dp), shape = MaterialTheme.shapes.medium) {
+            Text(if (resendSeconds > 0) "Kirim ulang dalam ${resendSeconds / 60}:${(resendSeconds % 60).toString().padStart(2, '0')}" else "Kirim ulang kode")
+        }
     }
 }
 

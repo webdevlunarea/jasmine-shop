@@ -1749,11 +1749,10 @@ class Pages extends BaseController
         $waktuExpire = $this->userModel->getUser(session()->get('email'))['waktu_otp'];
         $waktuCurr = time();
         $waktuSelisih = $waktuExpire - $waktuCurr;
-        $waktu = false;
-        if ($waktuSelisih >= 0) $waktu = date("i:s", $waktuSelisih);
-        else {
-            return $this->kirimOTP();
-        }
+        $expired = $waktuSelisih <= 0;
+        // Keep the resend link unavailable for 60 seconds after a code is issued.
+        $resendAvailableAt = max(0, (int) $waktuExpire - 540);
+        $waktu = $expired ? '00:00' : date("i:s", $waktuSelisih);
         $data = [
             'title' => 'Verifikasi',
             'val' => [
@@ -1761,6 +1760,9 @@ class Pages extends BaseController
                 'val_verify' => session()->getFlashdata('val_verify')
             ],
             'waktu' => $waktu,
+            'expired' => $expired,
+            'resendAvailableAt' => $resendAvailableAt,
+            'resendWaitSeconds' => max(0, $resendAvailableAt - $waktuCurr),
             'waktuExp' => date("Y-m-d H:i:s", $waktuExpire),
             'waktuCurr' => date("Y-m-d H:i:s", $waktuCurr)
         ];

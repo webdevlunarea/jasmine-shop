@@ -24,12 +24,15 @@
             <input class="btn btn-primary1" type="submit" value="Verifikasi">
         </form>
         <div class="container mt-3 d-flex flex-column align-items">
-            <p class="m-0">Kode kadaluarsa dalam <b class="m-0" id="waktu"><?= $waktu; ?></b> detik</p>
+            <p class="m-0">Kode kedaluwarsa dalam <b class="m-0" id="waktu" role="timer" aria-live="off"><?= esc($waktu); ?></b></p>
+            <p class="m-0 text-secondary" id="verify-expired-message" role="status" <?= empty($expired) ? 'hidden' : ''; ?>>Kode sudah kedaluwarsa. Kirim ulang hanya jika Anda ingin menerima kode baru.</p>
             <div class="d-flex gap-1">
                 <p class="m-0">Belum mendapatkan kode OTP?</p>
-                <form action="/kirimotp" method="post" class="d-inline" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?">
+                <form action="/kirimotp" method="post" class="d-inline" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?" data-resend-available-at="<?= (int) ($resendAvailableAt ?? 0); ?>">
                     <?= csrf_field(); ?>
-                    <button type="submit" style="color: var(--hijau); border: none; background: none;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Kirim ulang</button>
+                    <button type="submit" data-verification-resend <?= !empty($resendWaitSeconds) ? 'disabled' : ''; ?> style="color: var(--hijau); border: none; background: none;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                        <?= !empty($resendWaitSeconds) ? 'Kirim ulang dalam ' . gmdate('i:s', (int) $resendWaitSeconds) : 'Kirim ulang'; ?>
+                    </button>
                 </form>
             </div>
         </div>
@@ -39,32 +42,45 @@
     const expiryTimeElm = document.getElementById("waktu");
     const de = new Date('<?= $waktuExp; ?>');
     const expireTime = de.getTime();
-    const dc = new Date('<?= $waktuCurr; ?>');
-
-    let reloadYok = false;
-    setInterval(() => {
+    const expiredMessage = document.getElementById('verify-expired-message');
+    const resendForm = document.querySelector('[data-resend-available-at]');
+    const resendButton = resendForm?.querySelector('[data-verification-resend]');
+    const resendAvailableAt = Number(resendForm?.dataset.resendAvailableAt || 0) * 1000;
+    let countdown;
+    let resendCountdown;
+    const updateExpiryCountdown = () => {
         const currTime = new Date().getTime();
         let dselisih = expireTime - currTime;
-        if (dselisih <= 0 && !reloadYok) {
-            reloadYok = true;
-            setTimeout(() => {
-                window.location.reload()
-            }, 3000);
+        if (dselisih <= 0) {
+            expiryTimeElm.textContent = '00:00';
+            expiredMessage.hidden = false;
+            if (countdown) clearInterval(countdown);
+            return;
         }
 
-        if (!reloadYok) {
-            const hours = String(Math.floor(dselisih / (1000 * 60 * 60))).padStart(2, '0');
-            dselisih %= (1000 * 60 * 60);
-            const minutes = String(Math.floor(dselisih / (1000 * 60))).padStart(2, '0');
-            dselisih %= (1000 * 60);
-            const seconds = String(Math.floor(dselisih / 1000)).padStart(2, '0');
-
-            expiryTimeElm.innerHTML = `${minutes}:${seconds}`;
-            if (Number(hours) < 0 && Number(minutes) < 0 && Number(seconds) < 0) {
-                window.location.reload();
-            }
-        }
-    }, 1000);
+        const minutes = String(Math.floor(dselisih / 60000)).padStart(2, '0');
+        dselisih %= 60000;
+        const seconds = String(Math.floor(dselisih / 1000)).padStart(2, '0');
+        expiryTimeElm.textContent = `${minutes}:${seconds}`;
+    };
+    if (expireTime <= Date.now()) {
+        expiryTimeElm.textContent = '00:00';
+        expiredMessage.hidden = false;
+    } else {
+        updateExpiryCountdown();
+        countdown = setInterval(updateExpiryCountdown, 1000);
+    }
+    const updateResendAvailability = () => {
+        if (!resendButton) return;
+        const secondsLeft = Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000));
+        resendButton.disabled = secondsLeft > 0;
+        resendButton.textContent = secondsLeft > 0
+            ? `Kirim ulang dalam ${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`
+            : 'Kirim ulang';
+        if (secondsLeft <= 0 && resendCountdown) clearInterval(resendCountdown);
+    };
+    updateResendAvailability();
+    if (resendButton?.disabled) resendCountdown = setInterval(updateResendAvailability, 1000);
 </script>
 <script>
     function handleChange(next, prev, e) {
