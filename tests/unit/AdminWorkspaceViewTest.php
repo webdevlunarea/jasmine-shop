@@ -81,7 +81,8 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(23,$xp->query('//nav[@aria-label="Navigasi admin"]/a')->length);
         $this->assertSame(1,$xp->query('//nav[@aria-label="Navigasi admin"]/a[@href="/admin/activity-logs"]')->length);
         $this->assertSame(1,$xp->query('//nav[@aria-label="Navigasi admin"]/a[@href="/admin/returns"]')->length);
-        $this->assertSame(5,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
+        $this->assertSame(7,$xp->query('//nav[@aria-label="Navigasi admin"]/p')->length);
+        $this->assertSame(['Utama','Penjualan','Pelanggan','Produk','Promosi','Laporan','Pengaturan'], array_map(static fn($node) => trim($node->textContent), iterator_to_array($xp->query('//nav[@aria-label="Navigasi admin"]/p'))));
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
         foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
