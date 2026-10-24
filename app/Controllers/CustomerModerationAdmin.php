@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\Auth\DisposableEmailPolicy;
+use App\Services\Auth\CustomerAccountDeletion;
 
 class CustomerModerationAdmin extends BaseController
 {
@@ -109,11 +110,40 @@ class CustomerModerationAdmin extends BaseController
         $db = db_connect();
         if (!$db->tableExists('customer_account_deletion_requests') || $id < 1) return $this->back('Permintaan tidak ditemukan.');
         $now = date('Y-m-d H:i:s');
-        $db->table('customer_account_deletion_requests')->where(['id' => $id, 'status' => 'pending'])
+        $db->table('customer_account_deletion_requests')->where(['id' => $id, 'status' => 'processing'])
             ->update(['status' => 'completed', 'processed_at' => $now, 'updated_at' => $now]);
         return $this->back($db->affectedRows() === 1
-            ? 'Permintaan ditandai selesai. Pastikan data akun sudah dihapus atau dipisahkan sebelum mengonfirmasi.'
+            ? 'Permintaan ditutup setelah peninjauan retensi selesai.'
             : 'Status permintaan sudah berubah atau tidak ditemukan.');
+    }
+
+    public function startDeletionReview()
+    {
+        try {
+            (new CustomerAccountDeletion())->startReview((int)$this->request->getPost('id'));
+            return $this->back('Peninjauan dimulai. Periksa riwayat transaksi dan masa simpan sebelum menghapus data.');
+        } catch (\DomainException $e) {
+            return $this->back($e->getMessage());
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin account deletion review could not start: ' . get_class($e));
+            return $this->back('Permintaan belum dapat diproses. Coba lagi nanti.');
+        }
+    }
+
+    public function deleteRequestedAccount()
+    {
+        try {
+            (new CustomerAccountDeletion())->deleteEligibleRequest((int)$this->request->getPost('id'));
+            log_message('info', 'Customer deletion request completed by admin. Request ID: {id}', [
+                'id' => (int)$this->request->getPost('id'),
+            ]);
+            return $this->back('Akun dan data profil yang dapat dihapus sudah dihapus. Catatan permintaan disimpan sementara sesuai jadwal retensi.');
+        } catch (\DomainException $e) {
+            return $this->back($e->getMessage());
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin account deletion failed: ' . get_class($e));
+            return $this->back('Akun belum dihapus. Data tetap utuh; periksa catatan sistem lalu coba lagi.');
+        }
     }
 
     private function back(string $message)

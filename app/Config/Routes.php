@@ -266,6 +266,8 @@ $routes->post('/customeradmin/domain/add', 'CustomerModerationAdmin::saveDomain'
 $routes->post('/customeradmin/domain/remove', 'CustomerModerationAdmin::removeDomain', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/delete-expired-unverified', 'CustomerModerationAdmin::deleteExpiredUnverified', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customeradmin/account-deletion/complete', 'CustomerModerationAdmin::completeDeletionRequest', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customeradmin/account-deletion/review', 'CustomerModerationAdmin::startDeletionReview', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/customeradmin/account-deletion/delete', 'CustomerModerationAdmin::deleteRequestedAccount', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customersuspensionadmin/suspend', 'CustomerSuspensionAdmin::suspend', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/customersuspensionadmin/reinstate', 'CustomerSuspensionAdmin::reinstate', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->get('/listcustomer/(:any)', 'Pages::listCustomer/$1', ['filter' => 'harusAdmin']);
