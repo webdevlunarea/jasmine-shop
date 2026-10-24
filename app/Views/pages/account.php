@@ -130,6 +130,7 @@ $statusClass = function ($status) {
 
         <?php if ($role == '0') { ?>
             <?= view('partials/account_email', ['emailChangeSettings' => $emailChangeSettings ?? []], ['saveData' => false]); ?>
+            <?= $this->include('partials/account_security'); ?>
             <?= view('partials/account_username', ['usernameSettings' => $usernameSettings ?? ['available' => false, 'username' => '']], ['saveData' => false]); ?>
             <?= view('partials/account_facebook', ['facebookLinkState' => $facebookLinkState ?? 'disabled'], ['saveData' => false]); ?>
         <?php } ?>
@@ -200,11 +201,11 @@ $statusClass = function ($status) {
                                     <div class="form-text">Email akun staf dikunci dan tidak dapat diganti sendiri.</div>
                                 </div>
                             <?php } ?>
-                            <div class="col-12">
+                            <?php if ($role == '1') { ?><div class="col-12">
                                 <label for="inputPassword4" class="form-label">Sandi baru <span class="text-secondary small">(opsional)</span></label>
                                 <input name="sandi" type="password" class="form-control" id="inputPassword4" autocomplete="new-password" <?= $role == '1' ? 'minlength="12" maxlength="128"' : ''; ?> placeholder="<?= $role == '1' ? 'Minimal 12 karakter' : 'Isi kalau ingin mengganti sandi'; ?>">
                                 <?php if ($role == '1') { ?><div class="form-text">Sandi lama wajib diverifikasi. Lima percobaan gagal dalam 15 menit akan mengunci perubahan sementara.</div><?php } ?>
-                            </div>
+                            </div><?php } ?>
                             <?php if ($role == '0' || !empty($canEditStaffProfile)) { ?>
                                 <div class="col-12">
                                     <label class="form-label" for="profile-name"><?= $role == '1' ? 'Nama staf' : 'Nama lengkap'; ?></label>

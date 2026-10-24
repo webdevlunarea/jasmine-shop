@@ -98,7 +98,9 @@ class CustomerEmailChanges
         if (strtotime($row['expires_at'] . ' UTC') < time()) throw new \DomainException('Kode sudah kedaluwarsa. Ajukan kode baru.');
         if ((int)$row['attempts'] >= 5) throw new \DomainException('Batas percobaan tercapai. Ajukan kode baru.');
         if (!preg_match('/^\d{6}$/', $code) || !password_verify($code, $row['otp_hash'])) {
-            $this->db->table('customer_email_changes')->where('email_user', $email)->update(['attempts' => (int)$row['attempts'] + 1]);
+            $this->db->table('customer_email_changes')->where('email_user', $email)
+                ->where('request_id', $row['request_id'])->where('otp_hash', $row['otp_hash'])
+                ->where('attempts <', 5)->set('attempts', 'attempts + 1', false)->update();
             throw new \DomainException('Kode verifikasi tidak sesuai.');
         }
         if ($this->db->table('user')->where('email', $row['pending_email'])->countAllResults() > 0) {
@@ -107,6 +109,14 @@ class CustomerEmailChanges
         $newEmail = (string)$row['pending_email'];
         if (!$this->db->transBegin()) throw new \RuntimeException('Email change transaction could not start');
         try {
+            // Claim the code once so parallel valid submissions cannot both change the account.
+            $claimed = $this->db->table('customer_email_changes')->where('email_user', $email)
+                ->where('request_id', $row['request_id'])->where('otp_hash', $row['otp_hash'])
+                ->where('attempts <', 5)->where('expires_at >=', gmdate('Y-m-d H:i:s'))
+                ->update(['otp_hash' => null]);
+            if (!$claimed || $this->db->affectedRows() !== 1) {
+                throw new \DomainException('Kode sudah digunakan atau kedaluwarsa. Ajukan kode baru.');
+            }
             $userUpdated = $this->db->table('user')->where('email', $email)->update(['email' => $newEmail]);
             if (!$userUpdated || $this->db->affectedRows() !== 1) throw new \RuntimeException('Account email could not be updated');
             $buyerUpdated = $this->db->table('pembeli')->where('email_user', $email)->update(['email_user' => $newEmail]);

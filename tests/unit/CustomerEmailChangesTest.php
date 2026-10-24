@@ -107,4 +107,19 @@ final class CustomerEmailChangesTest extends CIUnitTestCase
         $row = $this->connection->table('customer_email_changes')->where('email_user', 'old@example.test')->get()->getRowArray();
         $this->assertSame(1, (int)$row['attempts']);
     }
+
+    public function testOtpAttemptsAreAtomicallyCappedAtFive(): void
+    {
+        for ($attempt = 0; $attempt < 6; $attempt++) {
+            try {
+                $this->service()->confirm('old@example.test', 'CurrentPass123', '000000');
+                $this->fail('An incorrect OTP must not confirm the email change.');
+            } catch (DomainException) {
+                // Expected for every invalid attempt, including attempts after the cap.
+            }
+        }
+
+        $row = $this->connection->table('customer_email_changes')->where('email_user', 'old@example.test')->get()->getRowArray();
+        $this->assertSame(5, (int)$row['attempts']);
+    }
 }

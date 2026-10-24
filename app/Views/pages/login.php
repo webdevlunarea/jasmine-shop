@@ -11,6 +11,18 @@
                     <h1>Masuk ke akun</h1>
                     <p>Selamat datang kembali di Lunarea.</p>
                 </div>
+                <?php if (!empty($mfaPending)) { ?>
+                    <p>Masukkan kode 6 digit dari aplikasi autentikator Anda.</p>
+                    <form action="/masuk/mfa" method="post" class="auth-form">
+                        <?= csrf_field(); ?>
+                        <div class="auth-field">
+                            <label for="login-mfa-code">Kode verifikasi</label>
+                            <input id="login-mfa-code" class="form-control" name="verification_code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required autofocus>
+                        </div>
+                        <button class="btn btn-primary1 auth-submit" type="submit">Verifikasi dan masuk</button>
+                    </form>
+                    <p class="small text-muted mt-3">Kode berlaku selama 5 menit. Anda juga dapat memakai kode pemulihan.</p>
+                <?php } else { ?>
                 <a class="auth-google-btn" href="/auth/google<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>" aria-label="Masuk dengan Google">
                     <svg class="auth-google-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -43,6 +55,7 @@
                     <input class="btn btn-primary1 auth-submit" disabled type="submit" value="Masuk">
                 </form>
                 <div class="auth-switch">Belum punya akun? <a href="/signup<?= !empty($redirect) ? '?redirect=' . rawurlencode($redirect) : ''; ?>">Daftar sekarang</a></div>
+                <?php } ?>
             </section>
         </div>
     </div>
@@ -52,6 +65,7 @@
     const passInputElm = document.querySelector('input[name="sandi"]');
     const btnMasukElm = document.querySelector('.auth-submit');
 
+    if (emailInputElm && passInputElm && btnMasukElm) {
     document.addEventListener('lunarea:captcha', syncLoginButton);
 
     function syncLoginButton() {
@@ -72,5 +86,6 @@
             button.querySelector('.auth-eye-slash').classList.toggle('d-none', !show);
         });
     });
+    }
 </script>
 <?= $this->endSection(); ?>

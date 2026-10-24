@@ -1897,6 +1897,8 @@ class Pages extends BaseController
         $data = [
             'title' => 'Masuk',
             'redirect' => $redirect,
+            'mfaPending' => is_array(session()->get('pending_customer_mfa'))
+                && (int)(session()->get('pending_customer_mfa')['expires_at'] ?? 0) >= time(),
             'val' => [
                 'msg' => session()->getFlashdata('msg'),
                 'val_email' => session()->getFlashdata('val-email'),
@@ -2088,6 +2090,75 @@ class Pages extends BaseController
         return true;
     }
 
+    /** Require the same account MFA challenge for browser password and federated sign-ins. */
+    private function beginWebsiteMfa(array $user, ?string $redirect, string $provider)
+    {
+        if ((string)($user['role'] ?? '') !== '0' || (string)($user['active'] ?? '') !== '1') return null;
+        $challenge = (new \App\Services\Auth\CustomerTotpMfa())->beginLogin((string)$user['email'], $provider);
+        if ($challenge === null) return null;
+
+        session()->regenerate(true);
+        session()->remove(['isLogin', 'email', 'role', 'active', 'password_session_version']);
+        session()->set('pending_customer_mfa', [
+            'token' => $challenge['challenge_token'],
+            'email' => (string)$user['email'],
+            'redirect' => $this->cleanRedirectTarget($redirect),
+            'expires_at' => time() + (int)$challenge['expires_in'],
+        ]);
+        session()->setFlashdata('msg', 'Masukkan kode verifikasi dua langkah untuk melanjutkan.');
+        return redirect()->to('/login');
+    }
+
+    public function completeWebsiteMfa()
+    {
+        $pending = session()->get('pending_customer_mfa');
+        if (!is_array($pending) || empty($pending['token']) || empty($pending['email'])
+            || (int)($pending['expires_at'] ?? 0) < time()) {
+            session()->remove('pending_customer_mfa');
+            session()->setFlashdata('msg', 'Sesi verifikasi berakhir. Silakan masuk kembali.');
+            return redirect()->to('/login');
+        }
+
+        $throttler = service('throttler');
+        $ipKey = hash('sha256', (string)$this->request->getIPAddress());
+        $accountKey = hash('sha256', strtolower((string)$pending['email']));
+        if (!$throttler->check('web-mfa-ip-' . $ipKey, 10, 900)
+            || !$throttler->check('web-mfa-account-' . $accountKey, 5, 900)) {
+            session()->setFlashdata('msg', 'Terlalu banyak percobaan. Silakan coba lagi nanti.');
+            return redirect()->to('/login');
+        }
+
+        try {
+            $result = (new \App\Services\Auth\CustomerTotpMfa())->completeLogin(
+                (string)$pending['token'], (string)$this->request->getPost('verification_code')
+            );
+            if (strcasecmp((string)$result['email'], (string)$pending['email']) !== 0) {
+                throw new \DomainException('Verifikasi dua langkah gagal. Silakan masuk kembali.');
+            }
+            $user = $this->userModel->getUser((string)$result['email']);
+            if (!$user || (string)($user['role'] ?? '') !== '0' || (string)($user['active'] ?? '') !== '1') {
+                throw new \DomainException('Akun tidak dapat melanjutkan proses masuk.');
+            }
+            if ((new \App\Services\Auth\CustomerAccountSuspensions())->isSuspended((string)$user['email'])) {
+                session()->remove('pending_customer_mfa');
+                session()->setFlashdata('msg', 'Akun sedang dibatasi. Hubungi layanan pelanggan.');
+                return redirect()->to('/akun-dibatasi');
+            }
+            $redirect = $this->cleanRedirectTarget($pending['redirect'] ?? null);
+            session()->remove('pending_customer_mfa');
+            if (!$this->loginUserSession($user)) throw new \RuntimeException('Customer session could not be created.');
+            $this->prepareLoginVoucherNotification((string)$user['email']);
+            session()->setFlashdata('msg', 'Berhasil masuk.');
+            return redirect()->to('/hapuslocalstorage/' . base64_encode($redirect ?: '/'));
+        } catch (\DomainException $e) {
+            session()->setFlashdata('msg', $e->getMessage());
+        } catch (\Throwable $e) {
+            log_message('error', 'Website MFA completion failed: ' . get_class($e));
+            session()->setFlashdata('msg', 'Verifikasi belum dapat diproses. Coba lagi nanti.');
+        }
+        return redirect()->to('/login');
+    }
+
     private function nextVoucherClaimedId(int $offset = 0): string
     {
         $id = (int)strtotime('+7 Hours') + $offset;
@@ -2226,6 +2297,13 @@ class Pages extends BaseController
                 return redirect()->to('/login');
             }
         }
+        try {
+            if ($user && ($mfaResponse = $this->beginWebsiteMfa($user, $redirect, 'Google')) !== null) return $mfaResponse;
+        } catch (\Throwable $e) {
+            log_message('error', 'Website Google MFA check failed: ' . get_class($e));
+            session()->setFlashdata('msg', 'Verifikasi keamanan belum tersedia. Coba lagi nanti.');
+            return redirect()->to('/login');
+        }
         if (!$user || !$this->loginUserSession($user)) {
             session()->setFlashdata('msg', 'Login Google gagal membuat sesi akun.');
             return redirect()->to('/login' . ($redirect ? '?redirect=' . rawurlencode($redirect) : ''));
@@ -2334,6 +2412,14 @@ class Pages extends BaseController
             if ($redirect) session()->set('redirect_after_verify', $redirect);
             session()->setFlashdata('msg', "Email " . $email . " perlu diverifikasi");
             return redirect()->to('/verify');
+        }
+
+        try {
+            if (($mfaResponse = $this->beginWebsiteMfa($getUser, $redirect, 'Website')) !== null) return $mfaResponse;
+        } catch (\Throwable $e) {
+            log_message('error', 'Website password MFA check failed: ' . get_class($e));
+            session()->setFlashdata('msg', 'Verifikasi keamanan belum tersedia. Coba lagi nanti.');
+            return redirect()->to('/login');
         }
 
         //munculin notif ada voucher/promo
@@ -6783,12 +6869,17 @@ class Pages extends BaseController
     {
         $email = (string)session()->get("email");
         $role = session()->get("role");
-        $sandi = (string)$this->request->getVar('sandi');
+        $postedPassword = $this->request->getPost('sandi');
+        $sandi = is_string($postedPassword) ? $postedPassword : '';
         $nama = (string)$this->request->getVar('nama');
         $nohp = (string)$this->request->getVar('nohp');
         $tgl_lahir = (string)$this->request->getVar('tgl_lahir');
         $currentPassword = (string)$this->request->getPost('current_sandi');
         $getCurPembeli = $this->pembeliModel->getPembeli($email) ?: [];
+        if ((string) $role === '0' && $sandi !== '') {
+            session()->setFlashdata('msg', 'Gunakan bagian Keamanan akun untuk mengganti sandi.');
+            return redirect()->to('/account#account-security');
+        }
         if ((string)$role === '1' && ($this->request->getPost('email') !== null || $this->request->getPost('new_email') !== null)) {
             $this->recordStaffPasswordAudit($email, 'EMAIL', 403, '/account/security/email');
             log_message('alert', 'Staff account email change attempt blocked for {email}', ['email' => $email]);
@@ -6915,10 +7006,6 @@ class Pages extends BaseController
                 session()->setFlashdata('msg', 'Sandi belum berhasil diperbarui. Silakan coba kembali.');
                 return redirect()->to('/account');
             }
-        } elseif ($sandi !== '') {
-            $this->userModel->where('email', $email)->set([
-                'sandi' => password_hash($sandi, PASSWORD_DEFAULT),
-            ])->update();
         }
         $genderTransaction = false;
         $genderChanges = [];

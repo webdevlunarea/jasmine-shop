@@ -111,6 +111,7 @@ $routes->post('/daftar', 'Pages::actionSignup', ['filter' => ['harusLogout', 'cs
 $routes->post('/daftarcoba', 'Pages::actionSignupCoba', ['filter' => ['harusLogout', 'csrf']]);
 $routes->get('/login', 'Pages::login', ['filter' => 'harusLogout']);
 $routes->post('/masuk', 'Pages::actionLogin', ['filter' => ['harusLogout', 'csrf']]);
+$routes->post('/masuk/mfa', 'Pages::completeWebsiteMfa', ['filter' => ['harusLogout', 'csrf']]);
 $routes->get('/lupa-sandi', 'PasswordReset::requestForm');
 $routes->post('/lupa-sandi', 'PasswordReset::requestCode', ['filter' => 'csrf']);
 $routes->get('/reset-sandi', 'PasswordReset::resetForm');
@@ -189,6 +190,7 @@ $routes->get('/invoice/(:any)', 'Pages::invoice/$1', ['filter' => 'harusLogin'])
 // $routes->get('/qris/(:any)', 'Pages::qris/$1', ['filter' => 'harusLogin']);
 $routes->get('/account', 'Pages::account', ['filter' => 'harusLogin']);
 $routes->post('/account', 'Pages::editAccount', ['filter' => ['harusLogin', 'csrf']]);
+$routes->post('/account/password/change', 'CustomerPassword::change', ['filter' => ['harusUser', 'csrf']]);
 $routes->get('/notifications', 'CustomerNotifications::index', ['filter' => 'harusUser']);
 $routes->post('/notifications/read', 'CustomerNotifications::markRead', ['filter' => ['harusUser', 'csrf']]);
 $routes->post('/account/marketing-preferences', 'CustomerMarketingPreferences::saveWeb', ['filter' => ['harusUser', 'csrf']]);

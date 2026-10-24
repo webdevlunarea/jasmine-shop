@@ -11,9 +11,21 @@ class CustomerEmail extends BaseController
     {
         return session('isLogin') && is_string(session('email')) && session('email') !== 'tamu' && (string)session('role') === '0' && (string)session('active') === '1';
     }
+    private function allowAttempt(string $action, string $email, int $ipLimit, int $accountLimit, int $seconds): bool
+    {
+        $throttler = service('throttler');
+        $ip = hash('sha256', (string)$this->request->getIPAddress());
+        $account = hash('sha256', strtolower(trim($email)));
+        return $throttler->check('web-email-change-' . $action . '-ip-' . $ip, $ipLimit, $seconds)
+            && $throttler->check('web-email-change-' . $action . '-account-' . $account, $accountLimit, $seconds);
+    }
     public function requestChange()
     {
         if (!$this->guard()) return redirect()->to('/login');
+        if (!$this->allowAttempt('request', (string)session('email'), 10, 5, 3600)) {
+            session()->setFlashdata('email_change_error', 'Terlalu banyak permintaan. Coba lagi nanti.');
+            return redirect()->to('/account#account-email');
+        }
         try {
             $this->service()->request((string)session('email'), (string)$this->request->getPost('current_password'), (string)$this->request->getPost('new_email'));
             session()->setFlashdata('email_change_message', 'Kode verifikasi dikirim ke email baru. Masukkan kode sebelum 10 menit.');
@@ -24,6 +36,10 @@ class CustomerEmail extends BaseController
     public function confirmChange()
     {
         if (!$this->guard()) return redirect()->to('/login');
+        if (!$this->allowAttempt('confirm', (string)session('email'), 20, 8, 900)) {
+            session()->setFlashdata('email_change_error', 'Terlalu banyak percobaan. Coba lagi nanti.');
+            return redirect()->to('/account#account-email');
+        }
         try {
             $old = (string)session('email');
             $new = $this->service()->confirm($old, (string)$this->request->getPost('current_password'), (string)$this->request->getPost('verification_code'));

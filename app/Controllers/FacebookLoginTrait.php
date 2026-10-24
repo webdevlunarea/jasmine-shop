@@ -133,6 +133,13 @@ trait FacebookLoginTrait
             session()->setFlashdata('msg', 'Facebook berhasil ditautkan. Login Facebook berikutnya memakai akun, transaksi, dan poin yang sama.');
             return $this->facebookRedirect(site_url('account'));
         }
+        try {
+            if (method_exists($this, 'beginWebsiteMfa')
+                && ($mfaResponse = $this->beginWebsiteMfa($user, $target, 'Facebook')) !== null) return $mfaResponse;
+        } catch (\Throwable $e) {
+            log_message('error', 'Website Facebook MFA check failed: ' . get_class($e));
+            return $this->facebookFailure('Verifikasi keamanan belum tersedia. Coba lagi nanti.', $target);
+        }
         session()->regenerate(true);
         session()->remove(['voucher', 'submitEmail', 'redirect_after_verify', 'usepoin', 'gantiKaca']);
         if (!$this->loginUserSession($user)) return $this->facebookFailure('Data pembeli belum lengkap. Hubungi admin.', $target);
