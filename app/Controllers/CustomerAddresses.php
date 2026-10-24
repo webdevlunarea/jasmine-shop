@@ -14,7 +14,9 @@ class CustomerAddresses extends BaseController
             || (string)session('role') !== '0' || (string)session('active') !== '1') {
             return $this->response->setStatusCode(403)->setBody('Akses ditolak.');
         }
-        \Config\Services::security()->verify($this->request);
+        // The explicit POST route already runs the CSRF filter. Do not verify a
+        // second time here: with token regeneration enabled the first check
+        // rotates the cookie, so verifying the submitted token again rejects it.
         $email = (string)session('email');
         $db = \Config\Database::connect();
         if (!$db->tableExists('customer_addresses')) {
