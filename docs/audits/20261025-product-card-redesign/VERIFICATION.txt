@@ -1,0 +1,17 @@
+# Product-card redesign verification
+
+Changed branch/field: storefront product card appearance (`.store-product-card` in `public/css/storefront-catalog.css`): image ratio 1:1 → 4:5, subtle neutral media background, restrained typography/badges, reduced-motion support. Product data, routes, and behavior were not changed.
+
+Paths:
+- MODIFIED_FILE: `public/css/storefront-catalog.css`
+- DIFF_FILE: `docs/audits/20261025-product-card-redesign/product-card-redesign.diff`
+- VERIFICATION.txt: `docs/audits/20261025-product-card-redesign/VERIFICATION.txt`
+- ROLLBACK.sh: `docs/audits/20261025-product-card-redesign/ROLLBACK.sh`
+
+BASELINE — command: `git show HEAD:public/css/storefront-catalog.css | Set-Content $env:TEMP\product-card-rollback-test.css; (Get-Content $env:TEMP\product-card-rollback-test.css -Raw).Contains('aspect-ratio: 4 / 5 !important')`; input: committed stylesheet; literal output: `False`; exit status: 0. Baseline card CSS existed and did not include the redesign.
+
+MODIFIED — command: PowerShell checks for `aspect-ratio: 4 / 5 !important`, `font-weight: 500`, `prefers-reduced-motion`, and `background: #f4f1eb`; input: `public/css/storefront-catalog.css`; literal output: `MODIFIED PASS: 4 style assertions`; exit status: 0. `git diff --check` output: empty; exit status: 0.
+
+ROLLBACK — command: run `sh docs/audits/20261025-product-card-redesign/ROLLBACK.sh <temporary-copy>`; input: a separate copy of the stylesheet; literal result: `ROLLBACK COPY PASS: baseline content restored`; exit status: 0. Compared the temporary copy to committed HEAD behavior; the live `MODIFIED_FILE` remains changed.
+
+Modified-file SHA-256: `98B9F9DB4FE97A9D7C9C5714EABABFAF6ECE1EB592F98FE567EA2AA9D5A6D7A5`.
