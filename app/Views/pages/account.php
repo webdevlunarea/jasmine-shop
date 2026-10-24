@@ -216,19 +216,21 @@ $statusClass = function ($status) {
                                 </div>
                                 <?php if ($role == '0') { ?>
                                 <div class="col-12">
-                                    <label class="form-label" for="profile-gender">Jenis kelamin</label>
+                                    <div class="form-label" id="profile-gender-label">Jenis kelamin</div>
                                     <?php if (empty($genderSchemaAvailable)) { ?>
-                                        <p class="form-text mb-0">Pengaturan ini sedang disiapkan.</p>
+                                        <p class="form-text mb-0">Belum tersedia.</p>
                                     <?php } elseif (!empty($genderChangeAvailableAt) && $genderChangeAvailableAt > time()) { ?>
-                                        <input id="profile-gender" type="text" class="form-control" value="<?= esc(($gender ?? '') === 'pria' ? 'Pria' : 'Wanita'); ?>" readonly>
-                                        <div class="form-text">Pilihan ini dapat diubah kembali setelah <?= esc(date('d-m-Y', $genderChangeAvailableAt)); ?>.</div>
+                                        <div class="d-flex align-items-baseline flex-wrap gap-2" aria-label="Jenis kelamin saat ini">
+                                            <span class="fw-semibold"><?= esc(($gender ?? '') === 'pria' ? 'Pria' : 'Wanita'); ?></span>
+                                            <span class="form-text m-0">Bisa diubah lagi: <?= esc(date('d-m-Y', $genderChangeAvailableAt)); ?></span>
+                                        </div>
                                     <?php } else { ?>
-                                        <select id="profile-gender" name="gender" class="form-select" required>
+                                        <select id="profile-gender" name="gender" class="form-select" aria-labelledby="profile-gender-label" required>
                                             <option value="" disabled <?= empty($gender) ? 'selected' : ''; ?>>Pilih jenis kelamin</option>
                                             <option value="pria" <?= ($gender ?? '') === 'pria' ? 'selected' : ''; ?>>Pria</option>
                                             <option value="wanita" <?= ($gender ?? '') === 'wanita' ? 'selected' : ''; ?>>Wanita</option>
                                         </select>
-                                        <div class="form-text">Pilihan hanya dapat diubah kembali setiap 6 bulan.</div>
+                                        <div class="form-text">Perubahan tersedia setiap 6 bulan.</div>
                                     <?php } ?>
                                 </div>
                                 <div class="col-12">
