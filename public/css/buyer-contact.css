@@ -1,6 +1,7 @@
 /* Contact and enquiry form only: shared storefront theme, restrained editorial layout. */
 .buyer-contact-page { --contact-line: color-mix(in srgb, var(--theme-primary) 15%, transparent); --contact-muted: color-mix(in srgb, var(--theme-primary) 72%, var(--theme-background)); color: var(--theme-primary); padding-block: 24px 60px; }
 .buyer-contact-page *, .buyer-contact-page *::before, .buyer-contact-page *::after { box-sizing: border-box; }
+.contact-form-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .buyer-contact-page > .container { max-width: 1120px; }
 .buyer-contact-page a { color: inherit; }
 .buyer-contact-page :is(a,button,input,textarea):focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 4px; }

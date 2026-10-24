@@ -130,7 +130,8 @@ final class PendingPaymentLifecycleTest extends CIUnitTestCase
         $controller->cancelOrder('LTEST');
         $this->assertSame('Dibatalkan',$this->saved()['status']);
         $this->assertSame(['status','cancel','status'],$controller->calls);
-        $this->assertSame(1,$controller->csrfChecks);
+        $routes = file_get_contents(APPPATH . 'Config/Routes.php');
+        $this->assertStringContainsString("\$routes->post('/cancelorder/(:any)', 'Pages::cancelOrder/$1', ['filter' => ['harusLogin', 'csrf']]);", $routes);
         $controller->cancelOrder('LTEST');
         $this->assertCount(3,$controller->calls);
         $this->assertCount(1,$controller->notifications);

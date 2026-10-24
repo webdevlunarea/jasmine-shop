@@ -13,7 +13,7 @@ final class FacebookCustomersTest extends CIUnitTestCase
     {
         parent::setUp();
         $this->connection = \Config\Database::connect(['DBDriver' => 'SQLite3', 'database' => ':memory:', 'DBPrefix' => '', 'DBDebug' => true], false);
-        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT, role TEXT, active TEXT, otp TEXT, waktu_otp TEXT, auth_provider TEXT)');
+        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT, role TEXT, active TEXT, otp TEXT, waktu_otp TEXT, auth_provider TEXT, registration_method TEXT, registered_at TEXT)');
         $this->connection->query('CREATE TABLE pembeli (email_user TEXT PRIMARY KEY, nama TEXT, nohp TEXT, alamat TEXT, wishlist TEXT, keranjang TEXT, transaksi TEXT, poin TEXT, tier TEXT, foto TEXT)');
         require_once APPPATH . 'Database/Migrations/2026-10-17-000001_CreateFacebookIdentities.php';
         $this->migration = new \App\Database\Migrations\CreateFacebookIdentities(\Config\Database::forge($this->connection));

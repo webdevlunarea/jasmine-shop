@@ -31,7 +31,7 @@ final class StorefrontCatalogViewTest extends CIUnitTestCase
                 $this->assertSame(in_array($page, ['home', 'all', 'product'], true) ? 1 : 0, $xp->query('//div[contains(concat(" ",normalize-space(@class)," ")," product-card-media ")]//span[@class="terjual-badge"]')->length);
                 $this->assertSame(1, $xp->query('//div[@class="product-card-heading"]//h5')->length);
                 $this->assertSame(1, $xp->query('//div[@class="product-card-pricing"]//p[contains(@class,"harga")]')->length);
-                $this->assertSame($discount ? 1 : 0, $xp->query('//*[contains(concat(" ",normalize-space(@class)," ")," product-card-price-meta ")]//p[@class="diskon-bwh"]')->length);
+                $this->assertSame($discount ? 1 : 0, $xp->query('//div[contains(concat(" ",normalize-space(@class)," ")," product-card-media ")]//span[contains(concat(" ",normalize-space(@class)," ")," product-image-discount ")]')->length);
                 $this->assertStringNotContainsString('card-saving-voucher', $card);
                 $this->assertStringNotContainsString('TERLARIS', $card);
 

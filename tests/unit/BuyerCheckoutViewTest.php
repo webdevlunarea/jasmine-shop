@@ -67,7 +67,7 @@ final class BuyerCheckoutViewTest extends CIUnitTestCase
             $this->assertSame(1, $xp->query('//label[@for="' . $id . '"]')->length);
         }
         $this->assertSame(1, $xp->query('//button[@id="btn-checkout" and @disabled]')->length);
-        $this->assertSame(1, $xp->query('//button[@type="submit" and contains(@class,"w-100")]')->length);
+        $this->assertSame(1, $xp->query('//button[@id="payment-submit" and @type="submit" and contains(@class,"w-100")]')->length);
         $this->assertSame(1, $xp->query('//*[@id="modal-metode-bayar" and @role="dialog"]')->length);
         $this->assertStringContainsString('40,00 kg untuk estimasi ongkir', $html);
         $this->assertStringContainsString('checkout-shipping-audit', $html);

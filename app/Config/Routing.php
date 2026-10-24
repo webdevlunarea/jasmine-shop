@@ -90,6 +90,9 @@ class Routing extends BaseRouting
      */
     public bool $autoRoute = false;
 
+    /** Modern URI-to-controller translation; relevant only if auto-routing is enabled. */
+    public bool $translateUriToCamelCase = true;
+
     /**
      * If TRUE, will enable the use of the 'prioritize' option
      * when defining routes.

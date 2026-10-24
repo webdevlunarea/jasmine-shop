@@ -43,6 +43,9 @@ class App extends BaseConfig
      */
     public string $indexPage = '';
 
+    /** Character allowlist used when validating URI segments. */
+    public string $permittedURIChars = 'a-z 0-9~%.:_\\-';
+
     /**
      * --------------------------------------------------------------------------
      * URI PROTOCOL
