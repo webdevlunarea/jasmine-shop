@@ -8,6 +8,13 @@ $isAdminNav = session()->get('role') == '1';
 if ($isAdminNav) {
     $adminRole = \App\Services\Auth\AdminPermissions::normalizeRole(session('admin_role') ?: 'ADMIN');
     $isDevAdmin = $adminRole === 'DEV';
+    $staffName = trim((string) session('nama')) ?: 'Staf Lunarea';
+    $staffRoleLabels = [
+        'DEV' => 'Dev', 'SUPER_ADMIN' => 'Admin utama', 'ADMIN' => 'Administrator operasional',
+        'ORDER_ADMIN' => 'Pesanan & pelanggan', 'CATALOG_ADMIN' => 'Katalog & konten',
+        'CONTENT_ADMIN' => 'Konten & promosi', 'FINANCE_ADMIN' => 'Keuangan',
+    ];
+    $staffRoleLabel = $staffRoleLabels[$adminRole] ?? 'Staf Lunarea';
     $currentPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     $adminNav = [
         ['group'=>'Ringkasan', 'label' => 'Dashboard', 'icon' => 'dashboard', 'url' => '/admin/dashboard', 'permission'=>'admin.dashboard', 'match' => ['admin/dashboard']],
@@ -55,6 +62,9 @@ if ($isAdminNav) {
             <span class="admin-brand-mark" aria-hidden="true">L.</span>
             <span class="admin-brand-copy"><strong>Lunarea</strong><small><?= $isDevAdmin ? 'Workspace admin' : 'Panel admin'; ?></small></span>
         </a>
+        <button type="button" class="admin-icon-btn admin-sidebar-toggle" data-admin-sidebar-toggle aria-controls="admin-navigation" aria-expanded="true" aria-label="Minimalkan menu admin" title="Minimalkan menu admin">
+            <i class="material-icons" aria-hidden="true">chevron_left</i>
+        </button>
         <button type="button" class="admin-icon-btn admin-drawer-close" data-admin-menu-close aria-label="Tutup menu admin"><i class="material-icons" aria-hidden="true">close</i></button>
     </div>
     <nav class="admin-nav" aria-label="Navigasi admin">
@@ -69,23 +79,24 @@ if ($isAdminNav) {
             if ($lastAdminGroup !== $item['group']) { ?>
                 <p class="admin-nav-heading"><?= esc($item['group']); ?></p>
             <?php $lastAdminGroup = $item['group']; } ?>
-            <a href="<?= esc($item['url'], 'attr'); ?>" class="admin-nav-item <?= $active ? 'active' : ''; ?>" <?= $active ? 'aria-current="page"' : ''; ?>>
+            <a href="<?= esc($item['url'], 'attr'); ?>" class="admin-nav-item <?= $active ? 'active' : ''; ?>" aria-label="<?= esc($item['label'], 'attr'); ?>" title="<?= esc($item['label'], 'attr'); ?>" <?= $active ? 'aria-current="page"' : ''; ?>>
                 <i class="material-icons" aria-hidden="true"><?= $item['icon']; ?></i>
                 <span><?= esc($item['label']); ?></span>
             </a>
         <?php } ?>
     </nav>
     <div class="admin-sidebar-footer">
-        <a href="/" class="admin-nav-item">
+        <a href="/" class="admin-nav-item" aria-label="Lihat Toko" title="Lihat Toko">
             <i class="material-icons" aria-hidden="true">storefront</i>
             <span>Lihat Toko</span>
         </a>
-        <a href="/account" class="admin-nav-item">
+        <a href="/account" class="admin-nav-item" aria-label="Akun" title="Akun">
             <i class="material-icons" aria-hidden="true">person_outline</i>
             <span>Akun</span>
         </a>
-        <form method="post" action="/keluar" class="m-0">
-            <button type="submit" class="admin-nav-item danger w-100 border-0 bg-transparent text-start">
+        <form method="post" action="/keluar" data-admin-logout-form class="m-0">
+            <?= csrf_field(); ?>
+            <button type="submit" class="admin-nav-item danger w-100 border-0 bg-transparent text-start" aria-label="Keluar" title="Keluar" aria-haspopup="dialog">
                 <i class="material-icons" aria-hidden="true">logout</i>
                 <span>Keluar</span>
             </button>
@@ -106,7 +117,20 @@ if ($isAdminNav) {
         </div>
     </div>
     <div class="admin-topbar-actions">
-        <a href="/" class="admin-store-link"><i class="material-icons" aria-hidden="true">storefront</i><span>Lihat toko</span></a>
+        <div class="admin-account-notice">
+            <button type="button" class="admin-icon-btn admin-notice-trigger" data-admin-notice-toggle aria-expanded="false" aria-controls="admin-account-notice-panel" aria-label="Info akun staf" title="Info akun staf">
+                <i class="material-icons" aria-hidden="true">notifications_none</i>
+            </button>
+            <section class="admin-account-notice-panel" id="admin-account-notice-panel" data-admin-notice-panel hidden aria-labelledby="admin-account-notice-title">
+                <p class="admin-account-notice-eyebrow">Workspace admin</p>
+                <h2 id="admin-account-notice-title">Info akun staf</h2>
+                <div class="admin-account-notice-person">
+                    <span class="admin-account-notice-status" aria-hidden="true"></span>
+                    <div><strong><?= esc($staffName); ?></strong><span>Sesi aktif · <?= esc($staffRoleLabel); ?></span></div>
+                </div>
+                <a href="/account" class="admin-account-notice-link">Kelola akun <i class="material-icons" aria-hidden="true">arrow_forward</i></a>
+            </section>
+        </div>
         <a href="/account" class="admin-icon-btn admin-profile-link" aria-label="Buka akun staf" title="Akun staf">
             <?php $staffAvatar = (string)session('foto'); if ($staffAvatar !== '' && $staffAvatar !== '/imguser/ZGVmYXVsdA==') { ?>
                 <img class="admin-profile-avatar" src="<?= esc($staffAvatar, 'attr'); ?>" alt="">

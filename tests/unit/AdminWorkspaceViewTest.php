@@ -85,6 +85,11 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(['Utama','Penjualan','Pelanggan','Produk','Promosi','Laporan','Pengaturan'], array_map(static fn($node) => trim($node->textContent), iterator_to_array($xp->query('//nav[@aria-label="Navigasi admin"]/p'))));
         $this->assertSame(1,$xp->query('//a[@href="/listcustomer" and @aria-current="page"]')->length);
         $this->assertSame(1,$xp->query('//button[@aria-controls="admin-navigation" and @aria-expanded="false"]')->length);
+        $this->assertSame(1,$xp->query('//button[@data-admin-sidebar-toggle and @aria-controls="admin-navigation" and @aria-expanded="true"]')->length);
+        $this->assertSame(0,$xp->query('//header[contains(concat(" ",normalize-space(@class)," ")," admin-topbar ")]//a[@href="/" and contains(concat(" ",normalize-space(@class)," ")," admin-store-link ")]')->length);
+        $this->assertSame(1,$xp->query('//button[@data-admin-notice-toggle and @aria-controls="admin-account-notice-panel"]')->length);
+        $this->assertSame(1,$xp->query('//section[@id="admin-account-notice-panel" and @hidden]')->length);
+        $this->assertStringContainsString('Sesi aktif · Administrator operasional',$html);
         foreach (['/shippingadmin','/customeradmin','/notificationtestadmin','/androidreferraladmin','/listproduct','/lunamappingadmin','/stokadmin/all/1','/invoiceadmin','/listvoucher','/settingwarna'] as $path) $this->assertSame(1,$xp->query('//a[@href="'.$path.'"]')->length);
         $this->assertSame(1,$xp->query('//form[@action="/keluar" and @data-admin-logout-form]//input[@name="csrf_test_name"]')->length);
         $this->assertSame(1,$xp->query('//form[@action="/keluar"]//button[@aria-haspopup="dialog"]')->length);
@@ -116,6 +121,14 @@ final class AdminWorkspaceViewTest extends CIUnitTestCase
         $this->assertSame(1,$xp->query('//a[@href="/admin/returns"]')->length);
         $this->assertSame(1,$xp->query('//a[@href="/customeradmin"]')->length);
         $this->assertStringContainsString('2 perlu ditinjau',$html);
+    }
+
+    public function testDashboardLayoutOffsetsFixedAdminNavigationAtEveryBreakpoint(): void
+    {
+        $css = file_get_contents(FCPATH . 'css/admin-dashboard.css');
+        $this->assertStringContainsString('padding: calc(var(--admin-topbar) + 32px) 32px 48px calc(var(--admin-sidebar) + 32px)', $css);
+        $this->assertStringContainsString('@media (max-width: 992px) { .admin-body .admin-dashboard-page { padding: calc(var(--admin-topbar) + 25px) 20px 35px; } }', $css);
+        $this->assertStringContainsString('padding: calc(var(--admin-topbar) + 22px) 12px 28px', $css);
     }
 
     public function testCustomerDetailShowsOnlyMinimalContactAndAccountData(): void

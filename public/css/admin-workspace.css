@@ -33,6 +33,36 @@
 .admin-body .admin-nav-item.active i { opacity: 1; }
 .admin-body .admin-sidebar-footer { padding: 10px 14px 16px; border-top: 1px solid rgb(255 255 255 / 10%); }
 .admin-body .admin-sidebar-footer .danger { color: #f0c5bd; }
+.admin-body .admin-sidebar-toggle { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; padding: 0; color: rgb(255 255 255 / 78%); }
+.admin-body .admin-sidebar-toggle:hover { background: rgb(255 255 255 / 9%); color: #fff; }
+.admin-body .admin-sidebar-toggle .material-icons { font-size: 21px; }
+.admin-body .admin-sidebar,
+.admin-body .admin-topbar,
+.admin-body .konten { transition: width 180ms ease, left 180ms ease, padding-left 180ms ease; }
+@media (min-width: 993px) {
+    .admin-body.admin-sidebar-collapsed { --admin-sidebar: 76px; }
+    .admin-body.admin-sidebar-collapsed .admin-brand-row { flex-direction: column; gap: 8px; padding: 16px 8px 10px; }
+    .admin-body.admin-sidebar-collapsed .admin-brand { flex: 0 0 auto; justify-content: center; gap: 0; min-width: 44px; }
+    .admin-body.admin-sidebar-collapsed .admin-brand-copy,
+    .admin-body.admin-sidebar-collapsed .admin-nav-heading,
+    .admin-body.admin-sidebar-collapsed .admin-nav-item > span { display: none; }
+    .admin-body.admin-sidebar-collapsed .admin-nav { padding-inline: 10px; }
+    .admin-body.admin-sidebar-collapsed .admin-nav-item { justify-content: center; gap: 0; padding-inline: 0; }
+    .admin-body.admin-sidebar-collapsed .admin-sidebar-footer { padding-inline: 10px; }
+    .admin-body.admin-sidebar-collapsed .admin-sidebar-footer .admin-nav-item { justify-content: center; gap: 0; padding-inline: 0; }
+}
+.admin-logout-dialog { width: min(calc(100% - 32px), 440px); max-height: calc(100dvh - 32px); margin: auto; padding: 27px; border: 1px solid var(--admin-border); border-radius: 16px; background: var(--admin-surface); color: var(--admin-text); box-shadow: 0 24px 72px rgb(0 0 0 / 20%); }
+.admin-logout-dialog::backdrop { background: rgb(20 24 21 / 48%); }
+.admin-logout-dialog-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 16px; border-radius: 12px; background: var(--admin-primary-soft); color: var(--admin-primary); }
+.admin-logout-dialog-icon .material-icons { font-size: 21px; }
+.admin-logout-dialog h2 { margin: 0 0 7px; color: var(--admin-text); font-size: 18px; font-weight: 650; letter-spacing: -.35px; }
+.admin-logout-dialog p { margin: 0; color: var(--admin-muted); font-size: 13px; line-height: 1.65; }
+.admin-logout-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 23px; }
+.admin-logout-dialog-actions button { min-width: 94px; min-height: 44px; padding: 9px 15px; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-surface); color: var(--admin-text); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.admin-logout-dialog-actions [data-admin-logout-confirm] { border-color: var(--admin-primary); background: var(--admin-primary); color: #fff; }
+.admin-logout-dialog-actions button:hover { border-color: var(--admin-primary); }
+.admin-logout-dialog-actions [data-admin-logout-confirm]:hover { background: var(--theme-primary-hover); }
+.admin-logout-dialog-actions button:disabled { cursor: wait; opacity: .65; }
 
 /* Account moderation: calm, compact surfaces with clear destructive-action hierarchy. */
 .admin-body .customer-moderation { --moderation-ink: #2f2d20; --moderation-accent: #c7a78a; }
@@ -89,6 +119,21 @@
 .admin-body .admin-profile-link { background: var(--admin-primary-soft); color: var(--admin-primary); }
 .admin-body .admin-profile-link { border: 1px solid color-mix(in srgb, var(--admin-primary) 12%, white); }
 .admin-body .admin-profile-avatar { display: block; width: 30px; height: 30px; object-fit: cover; border-radius: 50%; border: 1px solid var(--admin-border); }
+.admin-body .admin-account-notice { position: relative; }
+.admin-body .admin-notice-trigger { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; color: var(--admin-muted); }
+.admin-body .admin-notice-trigger:hover,
+.admin-body .admin-notice-trigger[aria-expanded="true"] { background: var(--admin-primary-soft); color: var(--admin-primary); }
+.admin-body .admin-notice-trigger .material-icons { font-size: 21px; }
+.admin-body .admin-account-notice-panel { position: absolute; z-index: 1100; top: calc(100% + 10px); right: 0; width: min(310px, calc(100vw - 24px)); padding: 18px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-surface); color: var(--admin-text); box-shadow: 0 14px 38px rgb(24 34 27 / 14%); }
+.admin-body .admin-account-notice-eyebrow { margin: 0 0 4px; color: var(--admin-muted); font-size: 10px; font-weight: 650; letter-spacing: .75px; text-transform: uppercase; }
+.admin-body .admin-account-notice-panel h2 { margin: 0 0 14px; color: var(--admin-text); font-size: 15px; font-weight: 650; }
+.admin-body .admin-account-notice-person { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: 9px; background: var(--admin-primary-soft); }
+.admin-body .admin-account-notice-status { flex: 0 0 8px; width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--admin-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-primary) 16%, transparent); }
+.admin-body .admin-account-notice-person div { display: grid; min-width: 0; gap: 3px; }
+.admin-body .admin-account-notice-person strong { overflow-wrap: anywhere; color: var(--admin-text); font-size: 12px; font-weight: 650; }
+.admin-body .admin-account-notice-person div span { color: var(--admin-muted); font-size: 11px; }
+.admin-body .admin-account-notice-link { display: flex; align-items: center; justify-content: space-between; min-height: 42px; margin-top: 10px; color: var(--admin-primary); font-size: 12px; font-weight: 600; }
+.admin-body .admin-account-notice-link .material-icons { font-size: 17px; }
 .admin-body .admin-store-link { padding: 0 12px; border: 1px solid transparent; border-radius: 9px; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease; }
 .admin-body .admin-store-link:hover { border-color: var(--admin-border); background: var(--admin-surface); }
 .admin-body .admin-menu-trigger, .admin-body .admin-drawer-close { display: none; }
@@ -263,14 +308,14 @@
 }
 @media (max-width: 992px) {
     .admin-body { --admin-topbar: 68px; --admin-sidebar: min(86vw, 280px); }
+    .admin-body .admin-sidebar-toggle { display: none; }
     .admin-body .admin-menu-trigger, .admin-body .admin-drawer-close { display: inline-flex; }
     .admin-body .admin-drawer-close { color: #fff; flex-shrink: 0; }
     .admin-body .admin-drawer-close:hover { background: rgb(255 255 255 / 10%); }
     .admin-body .admin-brand-row { padding: 18px 16px 10px; }
     .admin-body .admin-topbar { left: 0; padding: 10px 18px; }
     .admin-body .admin-topbar-actions { display: flex; }
-    .admin-body .admin-store-link span { display: none; }
-    .admin-body .admin-store-link { justify-content: center; min-width: 44px; }
+    .admin-body .admin-account-notice-panel { right: -48px; }
     .admin-body .admin-sidebar { visibility: hidden; z-index: 1030; }
     .admin-body #admin-menu-toggle:checked ~ .admin-sidebar { visibility: visible; }
     .admin-body .admin-menu-scrim { border: 0; padding: 0; z-index: 1020; }
@@ -318,5 +363,5 @@
     .admin-body .admin-order-modal .modal-footer > form .btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .admin-body :is(.admin-sidebar, .admin-nav-item, .orders-detail-toggle i, .modal.fade .modal-dialog) { transition: none; }
+    .admin-body :is(.admin-sidebar, .admin-topbar, .konten, .admin-nav-item, .orders-detail-toggle i, .modal.fade .modal-dialog) { transition: none; }
 }
