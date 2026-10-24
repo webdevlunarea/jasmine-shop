@@ -316,7 +316,6 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                         <a href="<?= $produk['shopee'] ? $produk['shopee'] : 'https://shopee.co.id/jasminefurniture123'; ?>" title="Shopee" target="_blank" rel="noopener noreferrer"><img src="/img/logo/shopee_logo.webp" class="marketplace" alt="Shopee"></a>
                         <a href="<?= $produk['tokped'] ? $produk['tokped'] : 'https://www.tokopedia.com/jasminefurnitureofc'; ?>" title="Tokopedia" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tokped_logo.webp" class="marketplace" alt="Tokopedia"></a>
                         <a href="<?= $produk['tiktok'] ? $produk['tiktok'] : 'https://www.tiktok.com/@lunareafurnitureofficial'; ?>" title="Tiktok" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tiktok_logo.webp" class="marketplace" alt="TikTok"></a>
-                        <!-- <a href="<?= $produk['tiktok']; ?>" title="Tiktok" target="_blank" rel="noopener noreferrer"><img src="/img/logo/tiktokshop.webp" class="marketplace"></a> -->
                     </div>
                 </div>
 
@@ -489,7 +488,6 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                                 <p class="mb-0 harga">Rp <?= number_format($p['harga'], 0, ",", "."); ?></p>
                             <?php } ?>
                     </div>
-                        <!-- <p>★★★☆☆ (<?= $p['rate']; ?>)</p> -->
                     </div>
                 </a>
             <?php } ?>
