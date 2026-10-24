@@ -46,8 +46,7 @@
 </div>
 <script>
     const expiryTimeElm = document.getElementById("waktu");
-    const de = new Date('<?= $waktuExp; ?>');
-    const expireTime = de.getTime();
+    const expireTime = <?= json_encode((int) $waktuExp); ?> * 1000;
     const expiredMessage = document.getElementById('verify-expired-message');
     const resendStatus = document.getElementById('verify-resend-status');
     const resendForm = document.querySelector('[data-resend-available-at]');

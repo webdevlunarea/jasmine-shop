@@ -1763,7 +1763,9 @@ class Pages extends BaseController
             'expired' => $expired,
             'resendAvailableAt' => $resendAvailableAt,
             'resendWaitSeconds' => max(0, $resendAvailableAt - $waktuCurr),
-            'waktuExp' => date("Y-m-d H:i:s", $waktuExpire),
+            // Send an absolute Unix timestamp to the browser; parsing a server-local
+            // datetime string in the visitor's timezone can make the timer start expired.
+            'waktuExp' => (int) $waktuExpire,
             'waktuCurr' => date("Y-m-d H:i:s", $waktuCurr)
         ];
         return view('pages/verify', $data);
