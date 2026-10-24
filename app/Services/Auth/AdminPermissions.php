@@ -98,7 +98,7 @@ final class AdminPermissions
         $rules = [
             'admin.dashboard' => ['/admin/dashboard'],
             'system.maintenance' => ['/benerinstokluna'],
-            'admin.roles.manage' => ['/admin/roles'],
+            'admin.roles.manage' => ['/admin/roles', '/admin/staff'],
             'finance' => ['/invoiceadmin', '/addinvoiceadmin', '/actionaddinvoiceadmin', '/payorder', '/pdf'],
             'orders' => ['/listcustomer', '/orderdone', '/editresi', '/syncorder', '/admin/returns'],
             'customers' => ['/customerdirectoryadmin', '/customeradmin', '/customersuspensionadmin', '/listform', '/customeradmin/'],

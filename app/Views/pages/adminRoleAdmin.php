@@ -10,6 +10,24 @@
         <div class="alert alert-warning" role="alert"><strong>Setup database belum selesai.</strong> Jalankan SQL RBAC dari <code>docs/security/admin-rbac.sql</code> di database Lunarea, lalu logout dan login kembali.</div>
     <?php else: ?>
         <div class="row g-4">
+            <div class="col-12">
+                <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div><h3 class="h5 mb-1">Undang staf</h3><p class="small text-muted mb-0">Staf membuat sandinya sendiri melalui tautan undangan yang berlaku 48 jam.</p></div>
+                    </div>
+                    <?php if (empty($staffInvitationsReady)): ?>
+                        <p class="alert alert-warning mb-0">Jalankan SQL undangan staf sebelum menggunakan fitur ini.</p>
+                    <?php else: ?>
+                        <form method="post" action="/admin/staff/invite" class="row g-3 align-items-end">
+                            <?= csrf_field(); ?>
+                            <div class="col-12 col-md-5"><label class="form-label" for="staff-invite-email">Email staf</label><input class="form-control" type="email" id="staff-invite-email" name="email" maxlength="254" autocomplete="email" required></div>
+                            <div class="col-12 col-md-4"><label class="form-label" for="staff-invite-role">Akses awal</label><select class="form-select" id="staff-invite-role" name="admin_role" required><option value="">Pilih akses</option><?php foreach ($systemRoles as $roleKey => $roleLabel): if (in_array($roleKey, ['ADMIN', 'SUPER_ADMIN'], true)) continue; ?><option value="<?= esc($roleKey, 'attr'); ?>"><?= esc($roleLabel); ?></option><?php endforeach; ?><?php foreach ($roles as $role): ?><option value="<?= esc($role['role_key'], 'attr'); ?>"><?= esc($role['label']); ?></option><?php endforeach; ?></select></div>
+                            <div class="col-12 col-md-3"><button class="btn btn-primary1 w-100" type="submit">Kirim undangan</button></div>
+                        </form>
+                        <?php if (!empty($staffInvitations)): ?><div class="table-responsive mt-4"><table class="table table-sm align-middle mb-0"><thead><tr><th>Email</th><th>Akses</th><th>Status</th><th>Berlaku sampai (UTC)</th></tr></thead><tbody><?php foreach ($staffInvitations as $invite): ?><tr><td><?= esc($invite['email']); ?></td><td><?= esc($invite['role_key']); ?></td><td>Menunggu</td><td><?= esc($invite['expires_at']); ?></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?>
+                    <?php endif; ?>
+                </section>
+            </div>
             <div class="col-12 col-xl-7">
                 <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start gap-3 mb-3">

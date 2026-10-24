@@ -257,6 +257,9 @@ $routes->get('/admin/returns', 'AdminReturnQueue::index', ['filter' => 'harusAdm
 $routes->get('/admin/roles', 'AdminRoleAdmin::index', ['filter' => 'harusAdmin']);
 $routes->post('/admin/roles/save', 'AdminRoleAdmin::saveRole', ['filter' => ['harusAdmin', 'csrf']]);
 $routes->post('/admin/roles/assign', 'AdminRoleAdmin::assignRole', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->post('/admin/staff/invite', 'AdminStaffInvitations::create', ['filter' => ['harusAdmin', 'csrf']]);
+$routes->get('/staff/invite/(:segment)', 'AdminStaffInvitations::acceptForm/$1');
+$routes->post('/staff/invite/accept', 'AdminStaffInvitations::accept', ['filter' => 'csrf']);
 $routes->get('/customeradmin', 'CustomerModerationAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/customersuspensionadmin', 'CustomerSuspensionAdmin::index', ['filter' => 'harusAdmin']);
 $routes->get('/notificationtestadmin', 'PushNotificationAdmin::index', ['filter' => 'harusAdmin']);

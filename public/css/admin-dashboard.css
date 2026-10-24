@@ -1,6 +1,6 @@
-.admin-body .admin-dashboard-page { padding: 18px 24px 38px; }
-.admin-dashboard-wrap { width: min(100%, 1360px); margin: 0 auto; }
-.admin-dashboard-welcome { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 30px 32px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-surface, #fff); }
+.admin-body .admin-dashboard-page { min-width: 0; padding: 18px 24px 38px; }
+.admin-dashboard-wrap { width: min(100%, 1360px); min-width: 0; margin: 0 auto; }
+.admin-dashboard-welcome { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 30px 32px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-surface); }
 .admin-dashboard-kicker { margin: 0 0 8px; color: var(--admin-muted); font-size: 10px; font-weight: 600; letter-spacing: 1.45px; }
 .admin-dashboard-welcome h2 { margin: 0; color: var(--admin-text); font-size: clamp(22px, 3vw, 31px); font-weight: 600; letter-spacing: -.8px; }
 .admin-dashboard-welcome > div > p:last-child { margin: 8px 0 0; color: var(--admin-muted); font-size: 13px; }
@@ -9,8 +9,8 @@
 .admin-dashboard-store:hover { border-color: var(--theme-primary); color: var(--theme-primary); background: var(--admin-primary-soft); }
 .admin-dashboard-store .material-icons { font-size: 17px; }
 .admin-dashboard-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0 34px; }
-.admin-dashboard-metric { display: flex; align-items: center; min-width: 0; gap: 13px; padding: 18px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface, #fff); color: var(--admin-text); transition: border-color .16s ease, background-color .16s ease; }
-.admin-dashboard-metric:hover,.admin-dashboard-shortcut:hover { border-color: color-mix(in srgb, var(--theme-primary) 42%, var(--admin-border)); background: color-mix(in srgb, var(--theme-primary) 3%, var(--admin-surface, #fff)); color: var(--admin-text); }
+.admin-dashboard-metric { display: flex; align-items: center; min-width: 0; gap: 13px; padding: 18px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); color: var(--admin-text); transition: border-color .16s ease, background-color .16s ease; }
+.admin-dashboard-metric:hover,.admin-dashboard-shortcut:hover { border-color: color-mix(in srgb, var(--admin-primary) 42%, var(--admin-border)); background: color-mix(in srgb, var(--admin-primary) 3%, var(--admin-surface)); color: var(--admin-text); }
 .admin-dashboard-metric-icon,.admin-dashboard-shortcut-icon { display: grid; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; border-radius: 9px; background: var(--admin-primary-soft); color: var(--theme-primary); }
 .admin-dashboard-metric-icon .material-icons,.admin-dashboard-shortcut-icon .material-icons { font-size: 20px; }
 .admin-dashboard-metric-copy { display: grid; flex: 1; min-width: 0; gap: 2px; }
@@ -23,7 +23,7 @@
 .admin-dashboard-section-heading h3 { margin: 0; color: var(--admin-text); font-size: 19px; font-weight: 600; letter-spacing: -.35px; }
 .admin-dashboard-section-heading > p { margin: 0; color: var(--admin-muted); font-size: 12px; }
 .admin-dashboard-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.admin-dashboard-shortcut { display: flex; align-items: center; min-width: 0; min-height: 78px; gap: 12px; padding: 14px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-surface, #fff); color: var(--admin-text); transition: border-color .16s ease, background-color .16s ease; }
+.admin-dashboard-shortcut { display: flex; align-items: center; min-width: 0; min-height: 78px; gap: 12px; padding: 14px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-surface); color: var(--admin-text); transition: border-color .16s ease, background-color .16s ease; }
 .admin-dashboard-shortcut-copy { display: grid; flex: 1; min-width: 0; gap: 3px; }
 .admin-dashboard-shortcut-copy strong { color: var(--admin-text); font-size: 12px; font-weight: 600; }
 .admin-dashboard-shortcut-copy small { color: var(--admin-muted); font-size: 10px; line-height: 1.5; }

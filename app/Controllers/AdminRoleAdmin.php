@@ -20,6 +20,10 @@ final class AdminRoleAdmin extends BaseController
         $roles = $ready ? $db->table('admin_roles')->orderBy('label')->get()->getResultArray() : [];
         $admins = $ready ? $db->table('user')->select('email, admin_role')->where('role', '1')->orderBy('email')->limit(500)->get()->getResultArray() : [];
         $roleLogs = $ready ? $db->table('admin_role_audit')->orderBy('created_at', 'DESC')->limit(50)->get()->getResultArray() : [];
+        $staffInvitationsReady = $db->tableExists('admin_staff_invitations');
+        $staffInvitations = $staffInvitationsReady
+            ? $db->table('admin_staff_invitations')->select('email, role_key, status, expires_at, created_by, created_at')->where('status', 'pending')->orderBy('created_at', 'DESC')->limit(50)->get()->getResultArray()
+            : [];
         $selected = null;
         $selectedPermissions = [];
         $editKey = strtoupper(trim((string) $this->request->getGet('edit')));
@@ -33,6 +37,7 @@ final class AdminRoleAdmin extends BaseController
             'systemRoles' => AdminPermissions::assignableRoles(), 'permissionCatalog' => AdminPermissions::editablePermissions(),
             'selectedRole' => $selected, 'selectedPermissions' => $selectedPermissions,
             'roleLogs' => $roleLogs,
+            'staffInvitationsReady' => $staffInvitationsReady, 'staffInvitations' => $staffInvitations,
             'msg' => session()->getFlashdata('msg'),
         ]);
     }

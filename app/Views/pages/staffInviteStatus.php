@@ -1,0 +1,4 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow"><title>Status undangan · Lunarea Furniture</title>
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:#faf9f6;color:#282e29;font:15px/1.65 Arial,sans-serif}main{width:min(100%,460px);padding:28px;border:1px solid #e2ded5;border-radius:14px;background:#fff}h1{margin:0 0 10px;font-size:21px}p{margin:0;color:#68736b;font-size:14px}a{display:inline-block;margin-top:20px;color:#365b46;font-weight:600;text-decoration:none}</style></head>
+<body><main><h1><?= $success ? 'Selesai' : 'Undangan tidak dapat digunakan'; ?></h1><p><?= esc($message); ?></p><a href="<?= site_url('login'); ?>">Kembali ke halaman masuk</a></main></body></html>

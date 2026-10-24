@@ -58,6 +58,22 @@ CREATE TABLE IF NOT EXISTS `admin_activity_logs` (
     KEY `idx_admin_activity_actor_date` (`actor_email`, `created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `admin_staff_invitations` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(254) NOT NULL,
+    `token_hash` CHAR(64) NOT NULL,
+    `role_key` VARCHAR(32) NOT NULL,
+    `status` VARCHAR(16) NOT NULL DEFAULT 'pending',
+    `expires_at` DATETIME NOT NULL,
+    `created_by` VARCHAR(254) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `accepted_at` DATETIME NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_admin_staff_invite_email` (`email`),
+    UNIQUE KEY `uq_admin_staff_invite_token` (`token_hash`),
+    KEY `idx_admin_staff_invite_status_expiry` (`status`, `expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 UPDATE `user`
 SET `admin_role` = 'ADMIN'
 WHERE `role` = '1' AND (`admin_role` IS NULL OR `admin_role` = '');

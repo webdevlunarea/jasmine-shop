@@ -2,6 +2,7 @@
 .admin-body {
     --admin-sidebar: 248px;
     --admin-topbar: 72px;
+    --admin-surface: #fff;
     --admin-text: #282b28;
     --admin-muted: #687069;
     --admin-border: #e5e7e2;
