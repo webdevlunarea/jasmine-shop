@@ -13,7 +13,7 @@ final class CustomerRegistrationServiceTest extends CIUnitTestCase
     {
         parent::setUp();
         $this->connection = \Config\Database::connect(['DBDriver' => 'SQLite3', 'database' => ':memory:', 'DBPrefix' => '', 'DBDebug' => true], false);
-        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT NOT NULL, role TEXT NOT NULL, otp TEXT NOT NULL, active TEXT NOT NULL, waktu_otp TEXT NOT NULL)');
+        $this->connection->query('CREATE TABLE user (email TEXT PRIMARY KEY, sandi TEXT NOT NULL, role TEXT NOT NULL, otp TEXT NOT NULL, active TEXT NOT NULL, waktu_otp TEXT NOT NULL, auth_provider TEXT NULL, registration_method TEXT NULL, registered_at TEXT NULL)');
         $this->connection->query('CREATE TABLE pembeli (email_user TEXT PRIMARY KEY, nama TEXT NOT NULL, nohp TEXT NOT NULL, alamat TEXT NOT NULL, wishlist TEXT NOT NULL, keranjang TEXT NOT NULL, transaksi TEXT NOT NULL, poin TEXT NOT NULL, tier TEXT NOT NULL, foto TEXT NOT NULL)');
         $this->connection->query('CREATE TABLE voucher (id INTEGER PRIMARY KEY, active INTEGER NOT NULL, auto_claimed INTEGER NOT NULL, jadwal TEXT NULL, durasi TEXT NULL)');
         $this->connection->query('CREATE TABLE voucher_claimed (id TEXT PRIMARY KEY, id_voucher TEXT NOT NULL, kadaluarsa TEXT NULL, email_user TEXT NOT NULL, active INTEGER NOT NULL)');

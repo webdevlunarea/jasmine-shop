@@ -17,6 +17,10 @@
                 <?php } ?>
                 <form id="contact-message-form" action="/actionform" method="post" data-confirm-submit data-confirm-message="Pesan Anda akan dikirim ke tim Lunarea untuk ditindaklanjuti. Lanjutkan?">
                     <?= csrf_field(); ?>
+                    <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;" tabindex="-1">
+                        <label for="contact-website">Kosongkan kolom ini</label>
+                        <input id="contact-website" type="text" name="website" autocomplete="off" tabindex="-1">
+                    </div>
                     <div class="contact-field-row">
                         <div class="contact-field"><label for="contact-name">Nama lengkap</label><input id="contact-name" type="text" class="form-control" name="nama" autocomplete="name" placeholder="Nama Anda" required></div>
                         <div class="contact-field"><label for="contact-phone">Nomor HP</label><input id="contact-phone" type="tel" inputmode="tel" class="form-control" name="nohp" autocomplete="tel" placeholder="Contoh: 0812…" required></div>

@@ -83,23 +83,9 @@ class TrackingController extends BaseController
 
     protected function getClientIp()
     {
-        $keys = [
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_FORWARDED',
-            'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED',
-            'REMOTE_ADDR',
-        ];
-
-        foreach ($keys as $key) {
-            if (!empty($_SERVER[$key])) {
-                $value = explode(',', $_SERVER[$key])[0];
-                return substr(trim($value), 0, 45);
-            }
-        }
-
-        return 'UNKNOWN';
+        // CodeIgniter only uses forwarding headers configured as trusted proxies.
+        // Do not select X-Forwarded-For/Client-IP directly: clients can spoof them.
+        return substr((string) $this->request->getIPAddress(), 0, 45);
     }
 
     protected function isIgnoredPath($path)

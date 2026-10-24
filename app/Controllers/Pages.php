@@ -1286,12 +1286,40 @@ class Pages extends BaseController
         ];
         return view('pages/form', $data);
     }
+
+    /** Apply backend-only abuse limits to public website forms. */
+    private function allowPublicFormAttempt(string $scope, string $identity, int $ipLimit, int $identityLimit, int $window): bool
+    {
+        $throttler = service('throttler');
+        $ip = hash('sha256', (string) $this->request->getIPAddress());
+        $identity = mb_strtolower(trim($identity));
+        $identityKey = hash('sha256', $identity);
+
+        return $throttler->check('lunarea-web-' . $scope . '-ip-' . $ip, $ipLimit, $window)
+            && ($identity === '' || $throttler->check('lunarea-web-' . $scope . '-identity-' . $identityKey, $identityLimit, $window));
+    }
+
     public function actionForm()
     {
-        $nama = $this->request->getVar('nama');
-        $nohp = $this->request->getVar('nohp');
-        $alamat = $this->request->getVar('alamat');
-        $pesan = $this->request->getVar('pesan');
+        $nama = trim((string) $this->request->getPost('nama'));
+        $nohp = trim((string) $this->request->getPost('nohp'));
+        $alamat = trim((string) $this->request->getPost('alamat'));
+        $pesan = trim((string) $this->request->getPost('pesan'));
+
+        // Hidden honeypot: normal visitors never fill this field.
+        if (trim((string) $this->request->getPost('website')) !== '') {
+            session()->setFlashdata('form-thanks', true);
+            return redirect()->to('/formthanks');
+        }
+        if (!$this->allowPublicFormAttempt('contact', preg_replace('/\D+/', '', $nohp) ?: '', 5, 2, 600)) {
+            session()->setFlashdata('val-msg', 'Pesan terlalu sering dikirim. Silakan coba lagi beberapa saat.');
+            return redirect()->to('/form');
+        }
+        if ($nama === '' || mb_strlen($nama) > 120 || $nohp === '' || mb_strlen($nohp) > 30
+            || mb_strlen($alamat) > 500 || mb_strlen($pesan) > 5000) {
+            session()->setFlashdata('val-msg', 'Periksa kembali nama, nomor HP, dan panjang pesan Anda.');
+            return redirect()->to('/form')->withInput();
+        }
 
         $this->kirimPesanEmail('info@lunareafurniture.com', 'Lunarea Store - Formulir', "<div>
             <h1>Pengisian Formulir</h1
@@ -1716,6 +1744,12 @@ class Pages extends BaseController
     }
     public function actionSignup()
     {
+        $emailInput = $this->request->getPost('email');
+        $rateIdentity = is_string($emailInput) ? $emailInput : '';
+        if (!$this->allowPublicFormAttempt('register', $rateIdentity, 5, 3, 3600)) {
+            session()->setFlashdata('msg', 'Terlalu banyak percobaan membuat akun. Coba lagi nanti.');
+            return redirect()->to('/signup');
+        }
         if ($captchaError = (new \App\Services\Auth\RecaptchaVerifier())->error($this->request->getPost('g-recaptcha-response'))) {
             session()->setFlashdata('msg', $captchaError);
             $target = $this->cleanRedirectTarget($this->request->getPost('redirect'));
@@ -2359,6 +2393,12 @@ class Pages extends BaseController
     }
     public function actionLogin()
     {
+        $loginInput = $this->request->getPost('email');
+        $rateIdentity = is_string($loginInput) ? $loginInput : '';
+        if (!$this->allowPublicFormAttempt('login', $rateIdentity, 10, 5, 900)) {
+            session()->setFlashdata('msg', 'Terlalu banyak percobaan masuk. Coba lagi beberapa menit.');
+            return redirect()->to('/login');
+        }
         if ($captchaError = (new \App\Services\Auth\RecaptchaVerifier())->error($this->request->getPost('g-recaptcha-response'))) {
             session()->setFlashdata('msg', $captchaError);
             $target = $this->cleanRedirectTarget($this->request->getPost('redirect'));

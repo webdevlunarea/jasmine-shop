@@ -122,7 +122,10 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
                 $controller=new class extends \App\Controllers\Pages {
                     public function __construct() {
                         // Models intentionally absent: reaching account logic would fail the test.
-                        $this->request=new class { public function getPost($name) { return $name==='redirect' ? '/checkout' : null; } };
+                        $this->request=new class {
+                            public function getPost($name) { return $name==='redirect' ? '/checkout' : null; }
+                            public function getIPAddress() { return '192.0.2.10'; }
+                        };
                         $this->response=\Config\Services::response(null,false);
                     }
                 };
@@ -134,6 +137,35 @@ final class RecaptchaVerifierTest extends CIUnitTestCase
             }
         } finally {
             [$config->enabled,$config->siteKey,$config->secretKey,$config->allowedHostnames]=$saved;
+        }
+    }
+
+    public function testWebsiteRegistrationRateLimitRunsBeforeCaptchaAndAccountWork(): void
+    {
+        $config = config(Recaptcha::class);
+        $savedEnabled = $config->enabled;
+        $config->enabled = true;
+        $ip = '198.51.100.' . random_int(1, 250);
+        try {
+            $controller = new class($ip) extends \App\Controllers\Pages {
+                public function __construct(string $ip)
+                {
+                    $this->request = new class($ip) {
+                        public function __construct(private string $ip) {}
+                        public function getPost($name) { return $name === 'email' ? 'audit-' . $this->ip . '@example.test' : null; }
+                        public function getIPAddress() { return $this->ip; }
+                    };
+                    $this->response = \Config\Services::response(null, false);
+                }
+            };
+
+            for ($attempt = 0; $attempt < 5; ++$attempt) $controller->actionSignup();
+            $response = $controller->actionSignup();
+            $this->assertSame(302, $response->getStatusCode());
+            $this->assertStringEndsWith('/signup', $response->getHeaderLine('Location'));
+            $this->assertSame('Terlalu banyak percobaan membuat akun. Coba lagi nanti.', session()->getFlashdata('msg'));
+        } finally {
+            $config->enabled = $savedEnabled;
         }
     }
 

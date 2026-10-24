@@ -9,6 +9,7 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        service('cache')->clean();
         $this->captchaEnabled=config(\Config\Recaptcha::class)->enabled;
         config(\Config\Recaptcha::class)->enabled=false;
         session()->remove(['email','isLogin','active','role','msg','redirect','isiEmail','_ci_old_input','redirect_after_verify']);
@@ -27,11 +28,13 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
         return new class($post, $record, $downstream) extends \App\Controllers\Pages {
             public array $lookups=[];
             public function __construct(array $post, ?array $record, bool $downstream) {
-                $this->request=new class($post) {
+                $this->request=new class($post, '192.0.2.' . random_int(1, 250)) {
                     private array $post;
-                    public function __construct(array $post) { $this->post=$post; }
+                    private string $ip;
+                    public function __construct(array $post, string $ip) { $this->post=$post; $this->ip=$ip; }
                     public function getPost($key) { return $this->post[$key]??null; }
                     public function getVar($key) { throw new RuntimeException('Credentials must only come from POST'); }
+                    public function getIPAddress() { return $this->ip; }
                 };
                 $this->response=\Config\Services::response(null,false);
                 $this->userModel=new class($this, $record) {
@@ -115,7 +118,9 @@ final class PasswordLoginSecurityTest extends CIUnitTestCase
 
     public function testInactiveAccountStillRequiresCorrectPasswordAndGoesToVerification(): void
     {
-        $controller=$this->controller(['email'=>'buyer@example.test','sandi'=>'UnitPass123!','redirect'=>'/checkout'],$this->record('0','0'));
+        $record=$this->record('0','0');
+        $record['email']='inactive-'.bin2hex(random_bytes(4)).'@example.test';
+        $controller=$this->controller(['email'=>$record['email'],'sandi'=>'UnitPass123!','redirect'=>'/checkout'],$record);
         $this->assertStringEndsWith('/verify',$controller->actionLogin()->getHeaderLine('Location'));
         $this->assertSame('0',session()->get('active'));
         $this->assertSame('/checkout',session()->get('redirect_after_verify'));
