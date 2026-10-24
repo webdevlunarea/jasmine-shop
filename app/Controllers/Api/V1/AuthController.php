@@ -44,7 +44,9 @@ class AuthController extends ApiController
             || !in_array($input['consent'] ?? null, [true, 1, '1'], true)) {
             return $this->failure('VALIDATION_ERROR', 'Nama, email, nomor ponsel, dan persetujuan kebijakan wajib valid.', 422);
         }
-        if (!$this->allowAuthAttempt('register', $email, 6, 3600)) {
+        if (!(new \App\Services\Auth\RegistrationAttemptLimiter())->allow(
+            (string) $this->request->getIPAddress(), $email
+        )) {
             return $this->failure('RATE_LIMITED', 'Terlalu banyak percobaan pendaftaran. Coba lagi nanti.', 429);
         }
         if ($error = $this->captchaVerifier()->error($input['captcha_token'] ?? null, 'android', 'signup')) {

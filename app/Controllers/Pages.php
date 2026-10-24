@@ -1217,6 +1217,9 @@ class Pages extends BaseController
     }
     public function addKomen($judul_article)
     {
+        if (!service('throttler')->check('lunarea-article-comment-ip-' . hash('sha256', (string) $this->request->getIPAddress()), 5, 600)) {
+            return redirect()->to('/article/' . rawurlencode((string) $judul_article))->with('msg', 'Komentar terlalu sering dikirim. Coba lagi beberapa saat.');
+        }
         $artikel = $this->artikelModel->where(['path' => $judul_article])->first();
         if (!$artikel) return redirect()->to('/article')->with('msg', 'Artikel tidak ditemukan.');
         $nama = trim((string)$this->request->getPost('nama'));
@@ -1259,10 +1262,20 @@ class Pages extends BaseController
     }
     public function submitEmail($judul_article)
     {
-        $email = $this->request->getVar('email');
-        $this->submitEmailModel->insert(['email' => $email]);
+        $email = strtolower(trim((string) $this->request->getPost('email')));
+        $redirect = '/article/' . rawurlencode((string) $judul_article);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254) {
+            return redirect()->to($redirect)->with('msg', 'Masukkan alamat email yang valid.');
+        }
+        $throttler = service('throttler');
+        $ipKey = 'lunarea-article-subscribe-ip-' . hash('sha256', (string) $this->request->getIPAddress());
+        $emailKey = 'lunarea-article-subscribe-email-' . hash('sha256', $email);
+        if (!$throttler->check($ipKey, 5, 3600) || !$throttler->check($emailKey, 1, 86400)) {
+            return redirect()->to($redirect)->with('msg', 'Permintaan terlalu sering. Coba lagi nanti.');
+        }
+        if (!$this->submitEmailModel->getEmail($email)) $this->submitEmailModel->insert(['email' => $email]);
         session()->set('submitEmail', true);
-        return redirect()->to('/article/' . $judul_article);
+        return redirect()->to($redirect);
     }
     public function addLikeArticle($id_artikel)
     {
@@ -1608,133 +1621,23 @@ class Pages extends BaseController
     }
     public function kirimOTP()
     {
-        $emailUser = session()->get('email');
-        $otp_number = [rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)];
-        $d = strtotime("+425 minutes");
-        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
-
-        $isiOtp = '
-            <div style="display: flex">
-                <div style="width: 30px"></div>
-                <div style="width: 100%">
-                    <h1 style="color: {{THEME_PRIMARY}}">Verifikasi Email Kamu!</h1>
-                    <hr />
-                    <p>Masukan 6 kode OTP di bawah ini</p>
-                    <div style="background-color: {{THEME_PRIMARY}}; font-weight: bold">
-                        <div style="height: 30px"></div>
-                        <div style="display: flex">
-                            <div style="width: 100%"></div>
-                            <div style="display: flex">
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[0] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[1] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[2] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[3] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[4] . '
-                                </div>
-                                <div style="width: 5px"></div>
-                                <div
-                                    style="
-                                        border-radius: 10px;
-                                        background-color: {{THEME_SOFT}};
-                                        padding: 1em;
-                                        color: {{THEME_PRIMARY}};
-                                    "
-                                >
-                                    ' . $otp_number[5] . '
-                                </div>
-                            </div>
-                            <div style="width: 100%"></div>
-                        </div>
-                        <p style="color: white; text-align: center">Atau klik</p>
-                        <div style="display: flex">
-                            <div style="width: 100%"></div>
-                            <a
-                                href="https://lunareafurniture.com/verify/url/' . base64_encode(implode('', $otp_number)) . '"
-                                style="
-                                    color: {{THEME_PRIMARY}};
-                                    background-color: {{THEME_SOFT}};
-                                    text-decoration: none;
-                                    padding: 0.7em 1em;
-                                    border-radius: 0.3em;
-                                    transition: 0.2s;
-                                    width: 100%;
-                                    text-align: center;
-                                "
-                                >Aktivasi Email</a
-                            >
-                            <div style="width: 100%"></div>
-                        </div>
-                        <div style="height: 30px"></div>
-                    </div>
-                    <p>
-                        Kode ini hanya berlaku sampai dengan
-                        <b style="color: {{THEME_PRIMARY}}">' . $waktu_otp_tanggal . '</b>
-                    </p>
-                    <p>
-                        Jaga keamanan akun dengan tidak membagikan kode OTP ataupun
-                        link di atas kepada orang lain.
-                    </p>
-                </div>
-                <div style="width: 30px"></div>
-            </div>
-        ';
-        $this->kirimPesanEmail(session()->get('email'), 'Lunarea Store - Verifikasi OTP', $this->applyThemeWarnaToEmailHtml($isiOtp));
-
-        $this->userModel->where('email', $emailUser)->set([
-            'otp' => implode('', $otp_number),
-            'waktu_otp' => $d
-        ])->update();
-
-        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
+        $email = strtolower(trim((string) session()->get('email')));
+        $ipKey = 'lunarea-web-verification-resend-ip-' . hash('sha256', (string) $this->request->getIPAddress());
+        $emailKey = 'lunarea-web-verification-resend-email-' . hash('sha256', $email);
+        $throttler = service('throttler');
+        if (!$throttler->check($ipKey, 6, 3600) || !$throttler->check($emailKey, 3, 3600)) {
+            session()->setFlashdata('msg', 'Permintaan kode terlalu sering. Silakan tunggu sebelum mencoba lagi.');
+            return redirect()->to('/verify');
+        }
+        try {
+            $sent = (new \App\Services\Auth\CustomerRegistrationService())->resend($email);
+        } catch (\Throwable $error) {
+            log_message('error', 'Website verification resend failed: {type}', ['type' => get_class($error)]);
+            $sent = false;
+        }
+        session()->setFlashdata('msg', $sent
+            ? 'Kode verifikasi baru telah dikirim dan berlaku selama 10 menit.'
+            : 'Kode belum dapat dikirim. Jika baru meminta kode, tunggu sebentar lalu coba lagi.');
         return redirect()->to('/verify');
     }
     public function actionSignupSalah()
@@ -1746,7 +1649,7 @@ class Pages extends BaseController
     {
         $emailInput = $this->request->getPost('email');
         $rateIdentity = is_string($emailInput) ? $emailInput : '';
-        if (!$this->allowPublicFormAttempt('register', $rateIdentity, 5, 3, 3600)) {
+        if (!(new \App\Services\Auth\RegistrationAttemptLimiter())->allow((string) $this->request->getIPAddress(), $rateIdentity)) {
             session()->setFlashdata('msg', 'Terlalu banyak percobaan membuat akun. Coba lagi nanti.');
             return redirect()->to('/signup');
         }
@@ -1817,85 +1720,33 @@ class Pages extends BaseController
             return redirect()->to('/signup')->withInput();
         }
 
-        $otp_number = rand(100000, 999999);
-        // $waktu_otp = time() + 300;
-        $d = strtotime("+425 minutes");
-        $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        $waktu_otp_tanggal = date("d", $d) . " " . $bulan[date("m", $d) - 1] . " " . date("Y H:i:s", $d);
-
-        $isiOtp = '
-            <p>Berikut kode OTP verifikasi</p>
-            <h1>' . $otp_number . '</h1>
-            <p>Atau Anda dapat menekan tombol dibawah untuk aktivasi Email tanpa perlu memasukan kode OTP</p>
-            <a href="https://lunareafurniture.com/verify/url/' . base64_encode($otp_number) . '" style="color: white;background-color: {{THEME_PRIMARY}};text-decoration: none;padding: 0.7em 1em;border-radius: 0.3em;transition: 0.2s;" onmouseover="this.style.color=\'{{THEME_PRIMARY}}\'; this.style.backgroundColor=\'{{THEME_SOFT}}\'" onmouseout="this.style.color=\'white\'; this.style.backgroundColor=\'{{THEME_PRIMARY}}\'">Aktivasi Email</a>
-            <p>Kode beserta Link ini berlaku hingga ' . $waktu_otp_tanggal . '</p>';
-        $this->kirimPesanEmail($this->request->getVar('email'), 'Lunarea Store - Verifikasi OTP', $this->applyThemeWarnaToEmailHtml($isiOtp));
-
-        $this->userModel->insert([
-            'email' => $this->request->getVar('email'),
-            'sandi' => password_hash($this->request->getVar('sandi'), PASSWORD_DEFAULT),
-            'role' => '0',
-            'otp' => $otp_number,
-            'active' => '0',
-            'waktu_otp' => $d,
-            'auth_provider' => 'email',
-            'registration_method' => 'email',
-            'registered_at' => gmdate('Y-m-d H:i:s'),
-        ]);
-        $this->pembeliModel->insert([
-            'nama' => $this->request->getVar('nama'),
-            'email_user' => $this->request->getVar('email'),
-            'nohp' => $normalizedPhone,
-            'alamat' => json_encode([]),
-            'wishlist' => json_encode([]),
-            'keranjang' => json_encode([]),
-            'transaksi' => json_encode([]),
-            'poin' => json_encode([]),
-            'tier' => json_encode([
-                'label' => 'bronze',
-                'data' => []
-            ]),
-            'foto' => '/imguser/ZGVmYXVsdA=='
-        ]);
-
-        //klaimkan voucher yang auto klaim
-        $vouchers = $this->voucherModel->where(['active' => true])->findAll();
-        $counter = 0;
-        $waktuCurrYmd = date("Y-m-d", strtotime("+7 Hours"));
-        foreach ($vouchers as $v) {
-            $kadaluarsa = null;
-            $waktuCurr = (string)strtotime("+7 Hours") + (string)$counter;
-            if ($v['durasi']) {
-                $kadaluarsa = date("Y-m-d", strtotime($v['durasi'], strtotime($waktuCurrYmd)));
-            }
-                if ($v['auto_claimed']) {
-                    $this->voucherClaimedModel->insert([
-                        'id' => $this->nextVoucherClaimedId($counter),
-                        'id_voucher' => $v['id'],
-                        'kadaluarsa' => $kadaluarsa,
-                        'email_user' => $this->request->getVar('email'),
-                    'active' => true
-                ]);
-            }
-            $counter++;
+        $emailUser = strtolower(trim((string) $this->request->getPost('email')));
+        $password = (string) $this->request->getPost('sandi');
+        try {
+            $registration = (new \App\Services\Auth\CustomerRegistrationService())->register(
+                (string) $this->request->getPost('nama'), $emailUser, $password, $password, $normalizedPhone
+            );
+        } catch (\DomainException $error) {
+            session()->setFlashdata('msg', $error->getMessage());
+            if ($redirect) session()->setFlashdata('redirect', $redirect);
+            return redirect()->to('/signup')->withInput();
+        } catch (\Throwable $error) {
+            log_message('error', 'Website customer registration failed: {type}', ['type' => get_class($error)]);
+            session()->setFlashdata('msg', 'Pendaftaran sedang terganggu. Silakan coba lagi nanti.');
+            return redirect()->to('/signup')->withInput();
         }
-
-        $emailUser = $this->request->getVar('email');
-        $getUser = $this->userModel->getUser($emailUser);
-        $ses_data = [
-            'email' => $getUser['email'],
-            'active' => '0',
-            'isLogin' => true
-        ];
-        session()->set($ses_data);
+        session()->regenerate(true);
+        session()->set(['email' => $emailUser, 'active' => '0', 'isLogin' => true]);
         if ($redirect) session()->set('redirect_after_verify', $redirect);
-        session()->setFlashdata('msg', "OTP telah dikirim ke email " . $emailUser . " dan berlaku hingga " . $waktu_otp_tanggal);
+        session()->setFlashdata('msg', $registration['email_sent']
+            ? 'Kode verifikasi telah dikirim dan berlaku selama 10 menit.'
+            : 'Akun menunggu verifikasi. Gunakan kirim ulang kode setelah jeda yang ditentukan.');
         return redirect()->to('/verify');
     }
     public function verify()
     {
         $waktuExpire = $this->userModel->getUser(session()->get('email'))['waktu_otp'];
-        $waktuCurr = strtotime("+7 Hours");
+        $waktuCurr = time();
         $waktuSelisih = $waktuExpire - $waktuCurr;
         $waktu = false;
         if ($waktuSelisih >= 0) $waktu = date("i:s", $waktuSelisih);
@@ -1969,7 +1820,7 @@ class Pages extends BaseController
     {
         $email = session()->get('email');
         $getUser = $this->userModel->getUser($email);
-        $d = strtotime("+7 hours");
+        $d = time();
 
         if (base64_decode($code) != $getUser['otp'] || $d > (int)$getUser['waktu_otp']) {
             return redirect()->to('/verify/url/redirect/fail');
@@ -2204,6 +2055,7 @@ class Pages extends BaseController
 
     private function loginUserSession(array $user): bool
     {
+        session()->regenerate(true);
         if (($user['role'] ?? '') === '0') {
             $getPembeli = $this->pembeliModel->getPembeli($user['email']);
             if (!$getPembeli) return false;
@@ -3042,6 +2894,16 @@ class Pages extends BaseController
     }
     public function voucherClaim()
     {
+        try {
+            return (new \App\Services\Vouchers\VoucherMutationLock())->run('voucher-mutation-global', fn() => $this->voucherClaimUnlocked());
+        } catch (\Throwable $error) {
+            log_message('error', 'Voucher mutation lock failed: {type}', ['type' => get_class($error)]);
+            return redirect()->to('/voucher')->with('msg', 'Voucher sedang diproses. Coba lagi sebentar.');
+        }
+    }
+
+    private function voucherClaimUnlocked()
+    {
         $email = session()->get('email');
         $id_voucher = $this->request->getVar('id_voucher');
         $ind_user = $this->request->getVar('ind_user');
@@ -3106,6 +2968,16 @@ class Pages extends BaseController
     }
     public function voucherRedeem()
     {
+        try {
+            return (new \App\Services\Vouchers\VoucherMutationLock())->run('voucher-mutation-global', fn() => $this->voucherRedeemUnlocked());
+        } catch (\Throwable $error) {
+            log_message('error', 'Voucher mutation lock failed: {type}', ['type' => get_class($error)]);
+            return redirect()->to('/voucher')->with('msg', 'Voucher sedang diproses. Coba lagi sebentar.');
+        }
+    }
+
+    private function voucherRedeemUnlocked()
+    {
         $email = session()->get('email');
         if ($email == 'tamu') {
             session()->setFlashdata('msg', 'Login member untuk menggunakan voucher');
@@ -3164,6 +3036,16 @@ class Pages extends BaseController
         return redirect()->to('/voucher');
     }
     public function voucherRedeemCheckout()
+    {
+        try {
+            return (new \App\Services\Vouchers\VoucherMutationLock())->run('voucher-mutation-global', fn() => $this->voucherRedeemCheckoutUnlocked());
+        } catch (\Throwable $error) {
+            log_message('error', 'Voucher mutation lock failed: {type}', ['type' => get_class($error)]);
+            return redirect()->to('/checkout')->with('msg', 'Voucher sedang diproses. Coba lagi sebentar.');
+        }
+    }
+
+    private function voucherRedeemCheckoutUnlocked()
     {
         $email = session()->get('email');
         if ($email == 'tamu') {

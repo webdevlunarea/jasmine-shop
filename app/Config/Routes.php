@@ -150,7 +150,7 @@ $routes->post('/getadminfee', 'Pages::getBiayaAdminMidtrans');
 $routes->get('/getkota/(:any)', 'Pages::getKota/$1');
 $routes->get('/getkec/(:any)', 'Pages::getKec/$1');
 $routes->get('/getkode/(:any)', 'Pages::getKode/$1', ['filter' => 'corsFilter']);
-$routes->post('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2', ['filter' => 'csrf']);
+$routes->post('/updatealamat/(:any)/(:any)', 'Pages::updateAlamat/$1/$2', ['filter' => ['harusUser', 'csrf']]);
 // $routes->post('/actioncheckout', 'Pages::actionCheckout');
 // $routes->post('/actionpay', 'Pages::actionPay');
 // $routes->post('/actionpaysnap', 'Pages::actionPaySnap');
