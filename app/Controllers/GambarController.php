@@ -38,7 +38,8 @@ class GambarController extends BaseController
     {
         $product = $this->barangModel->select('gambar')->where('id', $idBarang)->first();
         return \App\Services\PublicCatalogImage::respond(
-            $this->response, $product['gambar'] ?? null, $this->request->getHeaderLine('If-None-Match')
+            $this->response, $product['gambar'] ?? null, $this->request->getHeaderLine('If-None-Match'),
+            method_exists($this->request, 'getGet') ? (string)$this->request->getGet('v') : ''
         );
     }
 
@@ -99,7 +100,10 @@ class GambarController extends BaseController
         $row = $this->gambarBarangModel->select($key)->where('id', $idBarang)->first();
         $bytes = $row[$key] ?? null;
         if (!$bytes && (int)$slot === 1) $bytes = $this->barangModel->select('gambar')->where('id', $idBarang)->first()['gambar'] ?? null;
-        return \App\Services\PublicCatalogImage::respond($this->response, $bytes, $this->request->getHeaderLine('If-None-Match'));
+        return \App\Services\PublicCatalogImage::respond(
+            $this->response, $bytes, $this->request->getHeaderLine('If-None-Match'),
+            method_exists($this->request, 'getGet') ? (string)$this->request->getGet('v') : ''
+        );
     }
 
     // public function tampilGambarVarian($idBarang, $urutan)

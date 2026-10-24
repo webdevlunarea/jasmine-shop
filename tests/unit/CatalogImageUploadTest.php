@@ -94,7 +94,7 @@ final class CatalogImageUploadTest extends CIUnitTestCase
     public function testVersionedSlotUrlsContainNoBlobAndChangeWhenImageChanges(): void
     {
         $url=CatalogImageUpload::slotUrl('P1',2,'first');
-        $this->assertMatchesRegularExpression('~^/imgproduct/P1/2\?v=[a-f0-9]{16}$~',$url);
+        $this->assertMatchesRegularExpression('~^/imgproduct/P1/2\?v=[a-f0-9]{32}$~',$url);
         $this->assertNotSame($url,CatalogImageUpload::slotUrl('P1',2,'second'));
         $this->assertSame('/img/nopic.jpg',CatalogImageUpload::slotUrl('P1',51,'first'));
         $this->assertSame('/img/nopic.jpg',CatalogImageUpload::slotUrl('P1',1,null));

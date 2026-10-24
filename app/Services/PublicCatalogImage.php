@@ -14,13 +14,18 @@ final class PublicCatalogImage
             return '/img/logo%20icon.png';
         }
 
-        return '/imgpic/' . rawurlencode($id) . '?v='
-            . substr(hash('sha256', (string) ($product['gambar'] ?? '')), 0, 16);
+        // Listing queries intentionally omit the image BLOB. The image endpoint
+        // remains the single source of truth and returns its own ETag.
+        return '/imgpic/' . rawurlencode($id);
     }
 
-    public static function respond(ResponseInterface $response, ?string $bytes, string $ifNoneMatch = ''): ResponseInterface
+    public static function respond(ResponseInterface $response, ?string $bytes, string $ifNoneMatch = '', string $version = ''): ResponseInterface
     {
-        // CI4 merges repeated headers: explicitly replace its default no-cache policy.
+        // CI4's Response constructor adds a no-cache header. Remove both queued
+        // and already queued PHP headers before applying the public-image policy.
+        if (function_exists('header_remove') && !headers_sent()) {
+            header_remove('Cache-Control');
+        }
         $response->removeHeader('Cache-Control');
         $info = $bytes ? @getimagesizefromstring($bytes) : false;
         $mime = $info['mime'] ?? '';
@@ -29,9 +34,12 @@ final class PublicCatalogImage
         }
 
         $etag = '"' . hash('sha256', $bytes) . '"';
-        // Short bounded freshness also protects callers using unversioned legacy URLs.
+        $hasCurrentVersion = preg_match('/^[a-f0-9]{32}$/i', $version) === 1
+            && hash_equals(substr(hash('sha256', $bytes), 0, 32), strtolower($version));
+        // Versioned gallery URLs are content-addressed; unversioned URLs retain
+        // a short TTL so edits are visible without cache-busting URLs.
         $response->setHeader('Content-Type', $mime)
-            ->setHeader('Cache-Control', 'public, max-age=300, must-revalidate')
+            ->setHeader('Cache-Control', $hasCurrentVersion ? 'public, max-age=31536000, immutable' : 'public, max-age=300, must-revalidate')
             ->setHeader('ETag', $etag)
             ->setHeader('X-Content-Type-Options', 'nosniff');
 

@@ -29,30 +29,11 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                 <div class="img-produk-besar">
                     <?php foreach ($gambar as $ind_g => $g) {
                         if ($g && $ind_g != 'id') { ?>
+                            <?php $galleryInfo = @getimagesizefromstring($g); ?>
                             <section class="img-produk-prev image-skeleton" id="img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>">
-                                <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                                <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url('<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>')"></figure>
+                                <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="" aria-hidden="true" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
+                                <img data-skeleton-image class="img-produk-prev-baru" src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" <?= !empty($galleryInfo[0]) && !empty($galleryInfo[1]) ? 'width="'.(int)$galleryInfo[0].'" height="'.(int)$galleryInfo[1].'"' : ''; ?> decoding="async" loading="<?= $ind_g === 'gambar1' ? 'eager' : 'lazy'; ?>" <?= $ind_g === 'gambar1' ? 'fetchpriority="high"' : ''; ?>>
                             </section>
-                            <script>
-                                const imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?> = document.getElementById('img-produk-prev-<?= (int)substr($ind_g, 6) + 1 ?>');
-                                imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mousemove', (e) => {
-                                    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-                                    const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
-                                    figureElm.style.backgroundSize = "auto"
-                                    const widthGambar = e.target.offsetWidth;
-                                    const gmbrPosition = [
-                                        (e.offsetX / widthGambar) * 100,
-                                        (e.offsetY / widthGambar) * 100,
-                                    ];
-                                    figureElm.style.backgroundPosition =
-                                        gmbrPosition[0] + "% " + gmbrPosition[1] + "%";
-                                })
-                                imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.addEventListener('mouseleave', (e) => {
-                                    const figureElm = imgProdukPrev<?= (int)substr($ind_g, 6) + 1 ?>.children[1]
-                                    figureElm.style.backgroundSize = "contain";
-                                    figureElm.style.backgroundPosition = "center";
-                                })
-                            </script>
                     <?php }
                     } ?>
                 </div>
@@ -60,7 +41,7 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                     <div class="mt-2">
                         <?php foreach ($gambar as $ind_g => $g) {
                             if ($g && $ind_g != 'id') { ?>
-                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img data-skeleton-image src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>"></div>
+                                <div role="button" tabindex="0" aria-label="Pilih foto produk" class="img-produk-select image-skeleton <?= $ind_g == 'gambar1' ? 'selected' : ''; ?>"><img data-skeleton-image src="<?= esc(\App\Services\CatalogImageUpload::slotUrl((string)$produk['id'], (int)substr($ind_g, 6), $g), 'attr'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" <?= !empty($galleryInfo[0]) && !empty($galleryInfo[1]) ? 'width="'.(int)$galleryInfo[0].'" height="'.(int)$galleryInfo[1].'"' : ''; ?> decoding="async" loading="<?= $ind_g === 'gambar1' ? 'eager' : 'lazy'; ?>"></div>
                         <?php }
                         } ?>
                     </div>
@@ -69,23 +50,23 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
                 <div class="img-produk-besar">
                     <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>)"></figure>
+                        <img data-skeleton-image class="img-produk-prev-baru" src="<?= base_url('img/Contoh/MB 812 SNM-PTH DISPLAY WM.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" decoding="async" fetchpriority="high">
                     </section>
                     <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>)"></figure>
+                        <img data-skeleton-image class="img-produk-prev-baru" src="<?= base_url('img/Contoh/MB 812 PTH-SNM Dalam.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" decoding="async" loading="lazy">
                     </section>
                     <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>)"></figure>
+                        <img data-skeleton-image class="img-produk-prev-baru" src="<?= base_url('img/Contoh/MB 812 PTH-SNM Depan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" decoding="async" loading="lazy">
                     </section>
                     <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>)"></figure>
+                        <img data-skeleton-image class="img-produk-prev-baru" src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kanan.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" decoding="async" loading="lazy">
                     </section>
                     <section class="img-produk-prev image-skeleton">
                         <img src="<?= base_url('img/WM Black 1000.webp'); ?>" alt="Watermark Lunarea" style="width: 100%; aspect-ratio: 1 / 1; position:absolute;">
-                        <figure data-skeleton-background role="img" aria-label="<?= esc($produk['nama'], 'attr'); ?>" class="img-produk-prev-baru" style="background-image: url(<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>)"></figure>
+                        <img data-skeleton-image class="img-produk-prev-baru" src="<?= base_url('img/Contoh/MB 812 PTH-SNM Kiri.webp'); ?>" alt="<?= esc($produk['nama'], 'attr'); ?>" decoding="async" loading="lazy">
                     </section>
                 </div>
                 <div class="img-produk mb-3" role="group" aria-label="Foto produk">
@@ -532,6 +513,22 @@ $sizeFitAvailable = count($sizeFitDimensions) === 3
     const varianArray = <?= json_encode(array_values($varian), JSON_UNESCAPED_UNICODE); ?>;
     const productGallery = document.querySelector('.product-gallery');
     const variantLabels = document.querySelectorAll('#varian-group > label');
+
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        imgProdukPrev.forEach((slide) => {
+            const image = slide.querySelector('.img-produk-prev-baru');
+            if (!image) return;
+            slide.addEventListener('mousemove', (event) => {
+                const rect = slide.getBoundingClientRect();
+                image.style.transformOrigin = `${((event.clientX - rect.left) / rect.width) * 100}% ${((event.clientY - rect.top) / rect.height) * 100}%`;
+                image.style.transform = 'scale(1.7)';
+            });
+            slide.addEventListener('mouseleave', () => {
+                image.style.transform = 'scale(1)';
+                image.style.transformOrigin = 'center';
+            });
+        });
+    }
 
     function wishlistKeyFor(variant) {
         return idProduk + '|' + String(variant || '').trim().toLowerCase();

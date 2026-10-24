@@ -245,7 +245,7 @@ $catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $katego
         </div>
         <?php } ?>
 
-        <?php if (count($semuaProduk) > count($produk)) { ?>
+        <?php if ((int)$semuaProduk > count($produk)) { ?>
         <nav aria-label="Page navigation example">
             <?php if ($nama) { ?>
             <ul class="pagination justify-content-center">
@@ -257,7 +257,7 @@ $catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $katego
                     </a>
                 </li>
                 <?php }
-                        $hitungGrupMax = ceil(count($semuaProduk) / 20);
+                        $hitungGrupMax = (int)ceil((int)$semuaProduk / 20);
                         for ($x = 1; $x <= $hitungGrupMax; $x++) {
                         ?>
                 <li class="page-item"><a class="page-link <?= $x == $page ? "aktif" : "" ?>"
@@ -283,7 +283,7 @@ $catalogSortAction = !empty($kategori) ? '/all/' . rawurlencode((string) $katego
                     </a>
                 </li>
                 <?php }
-                        $hitungGrupMax = ceil(count($semuaProduk) / 20);
+                        $hitungGrupMax = (int)ceil((int)$semuaProduk / 20);
                         for ($x = 1; $x <= $hitungGrupMax; $x++) {
                         ?>
                 <li class="page-item"><a class="page-link <?= $x == $page ? "aktif" : "" ?>"

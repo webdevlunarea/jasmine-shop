@@ -5,15 +5,23 @@ use CodeIgniter\Test\CIUnitTestCase;
 
 final class PublicCatalogImageTest extends CIUnitTestCase
 {
-    public function testImageUrlIsStableVersionedAndContainsNoImagePayload(): void
+    public function testImageUrlDoesNotRequireTheImageBlobInListingRows(): void
     {
         $product = ['id' => 27, 'gambar' => 'first image'];
         $url = PublicCatalogImage::productUrl($product);
         $this->assertSame($url, PublicCatalogImage::productUrl($product));
-        $this->assertMatchesRegularExpression('~^/imgpic/27\?v=[a-f0-9]{16}$~', $url);
+        $this->assertSame('/imgpic/27', $url);
         $product['gambar'] = 'new image';
-        $this->assertNotSame($url, PublicCatalogImage::productUrl($product));
+        $this->assertSame($url, PublicCatalogImage::productUrl($product));
         $this->assertSame('/img/logo%20icon.png', PublicCatalogImage::productUrl([]));
+    }
+
+    public function testMatchingContentVersionGetsLongImmutableCache(): void
+    {
+        $bytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9l0AAAAASUVORK5CYII=');
+        $version = substr(hash('sha256', $bytes), 0, 32);
+        $response = PublicCatalogImage::respond(\Config\Services::response(null, false), $bytes, '', $version);
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
     }
 
     public function testPublicImageReturnsActualMimeBytesAndBoundedCache(): void
@@ -51,7 +59,7 @@ final class PublicCatalogImageTest extends CIUnitTestCase
         $products = array_fill(0, 10, ['id'=>27, 'path'=>'lemari', 'nama'=>'Lemari', 'gambar'=>$image, 'varian'=>'[]', 'diskon'=>0, 'harga'=>1250000, 'rate'=>5, 'terjual'=>12]);
         $html = view('partials/home_product_section', ['sectionProducts'=>$products, 'sectionId'=>'test', 'sectionTitle'=>'Produk'], ['saveData'=>false]);
         $this->assertStringNotContainsString('data:image/', $html);
-        $this->assertSame(10, substr_count(html_entity_decode($html, ENT_QUOTES | ENT_HTML5), '/imgpic/27?v='));
+        $this->assertSame(10, substr_count(html_entity_decode($html, ENT_QUOTES | ENT_HTML5), '/imgpic/27'));
         $this->assertLessThan(strlen(base64_encode($image)) * 10, strlen($html));
         $this->assertSame(10, substr_count($html, 'loading="lazy" decoding="async"'));
     }

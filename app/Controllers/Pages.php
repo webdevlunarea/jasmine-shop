@@ -1366,12 +1366,12 @@ class Pages extends BaseController
             $produkQuery = $this->barangModel
                 ->where(['active' => '1'])
                 ->where('diskon >', 0);
-            $produk = $this->applyCatalogSort($produkQuery, $sort)->findAll(20, 0);
-            $semuaproduk = $this->barangModel->where(['active' => '1'])->where('diskon >', 0)->findAll();
+            $produk = $this->applyCatalogSort($produkQuery->select('id,nama,path,harga,diskon,varian,terjual,terjual_custom'), $sort)->findAll(20, 0);
+            $semuaproduk = $this->barangModel->where(['active' => '1'])->where('diskon >', 0)->countAllResults();
         } else {
             $produkQuery = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both');
-            $produk = $this->applyCatalogSort($produkQuery, $sort)->findAll(20, 0);
-            $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->findAll();
+            $produk = $this->applyCatalogSort($produkQuery->select('id,nama,path,harga,diskon,varian,terjual,terjual_custom'), $sort)->findAll(20, 0);
+            $semuaproduk = $this->barangModel->where(['active' => '1'])->like('subkategori', $subkategori, 'both')->countAllResults();
         }
         if (count($produk) <= 0) return redirect()->to('/all');
         $meta = [
@@ -1463,13 +1463,14 @@ class Pages extends BaseController
             $semuaProdukQuery->where('subkategori', $subkategori);
         }
         $produkQuery = $this->applyCatalogSort($produkQuery, $sort);
+        $produkQuery->select('id,nama,path,harga,diskon,varian,terjual,terjual_custom');
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
             $produk = $produkQuery->findAll(20, $hitungOffset);
         } else {
             $produk = $produkQuery->findAll(20, 0);
         }
-        $semuaproduk = $semuaProdukQuery->findAll();
+        $semuaproduk = $semuaProdukQuery->countAllResults();
         $namaKategoriSeo = $subkategori ? ucwords(str_replace('-', ' ', (string) $subkategori)) : 'Semua Produk';
         $data = [
             'title' => $namaKategoriSeo . ((int) $page > 1 ? ' - Halaman ' . (int) $page : ''),
@@ -7618,11 +7619,11 @@ class Pages extends BaseController
         $pagination = (int)$page;
         if ($pagination > 1) {
             $hitungOffset = 20 * ($pagination - 1);
-            $produk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, $hitungOffset);
+            $produk = $this->barangModel->select('id,nama,path,harga,diskon,varian,terjual,terjual_custom')->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, $hitungOffset);
         } else {
-            $produk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, 0);
+            $produk = $this->barangModel->select('id,nama,path,harga,diskon,varian,terjual,terjual_custom')->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll(20, 0);
         }
-        $semuaproduk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->orderBy('pencarian', 'asc')->findAll();
+        $semuaproduk = $this->barangModel->where(['active' => '1'])->like("pencarian", $nama, "both")->countAllResults();
 
         $data = [
             'title' => 'Produk',

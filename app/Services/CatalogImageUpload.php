@@ -57,7 +57,7 @@ final class CatalogImageUpload
     public static function slotUrl(string $productId, int $slot, ?string $bytes): string
     {
         if ($productId === '' || $slot < 1 || $slot > 50 || !$bytes) return '/img/nopic.jpg';
-        return '/imgproduct/'.rawurlencode($productId).'/'.$slot.'?v='.substr(hash('sha256', $bytes), 0, 16);
+        return '/imgproduct/'.rawurlencode($productId).'/'.$slot.'?v='.substr(hash('sha256', $bytes), 0, 32);
     }
 
     public static function slotCount(array $product, array $images): int

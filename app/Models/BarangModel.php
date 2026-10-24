@@ -58,20 +58,23 @@ class BarangModel extends Model
     }
     public function getBarangLimit()
     {
-        return $this->where(['active' => '1'])->orderBy('nama', 'asc')->findAll(10, 0);
+        return $this->select('id,nama,path,harga,stok,diskon,varian,terjual,terjual_custom')
+            ->where(['active' => '1'])->orderBy('nama', 'asc')->findAll(10, 0);
     }
     public function getBarangBaru()
     {
         // Product aliases/duplicate rows may share one public URL. Keep only the
         // newest active row for each path so homepage sections don't repeat it.
-        return $this->where(['active' => '1'])
+        return $this->select('id,nama,path,harga,stok,diskon,varian,terjual,terjual_custom')
+            ->where(['active' => '1'])
             ->where("barang.id = (SELECT MAX(terbaru.id) FROM barang AS terbaru WHERE terbaru.path = barang.path AND terbaru.active = '1')", null, false)
             ->orderBy('id', 'desc')
             ->findAll(10, 0);
     }
     public function getBarangPopuler()
     {
-        return $this->where(['active' => '1'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
+        return $this->select('id,nama,path,harga,stok,diskon,varian,terjual,terjual_custom,tracking_pop')
+            ->where(['active' => '1'])->orderBy('tracking_pop', 'desc')->findAll(10, 0);
     }
     public function getBarangFlashSale(int $limit = 12, array $productIds = [], bool $manual = false)
     {
@@ -84,7 +87,8 @@ class BarangModel extends Model
             }
 
             $limit = min(24, count($productIds));
-            $rows = $this->where(['active' => '1'])
+            $rows = $this->select('id,nama,path,harga,stok,diskon,varian,terjual,terjual_custom')
+                ->where(['active' => '1'])
                 ->where('diskon >', 0)
                 ->whereIn('id', $productIds)
                 ->findAll($limit, 0);
@@ -97,7 +101,8 @@ class BarangModel extends Model
             return $rows;
         }
 
-        return $this->where(['active' => '1'])
+        return $this->select('id,nama,path,harga,stok,diskon,varian,terjual,terjual_custom,tracking_pop')
+            ->where(['active' => '1'])
             ->where('diskon >', 0)
             ->orderBy('diskon', 'desc')
             ->orderBy('tracking_pop', 'desc')
