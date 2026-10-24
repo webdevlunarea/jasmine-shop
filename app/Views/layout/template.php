@@ -211,7 +211,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
     <link rel="stylesheet" href="/css/public-articles.css?v=<?= filemtime(FCPATH . 'css/public-articles.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-navigation.css?v=<?= filemtime(FCPATH . 'css/buyer-navigation.css'); ?>">
     <link rel="stylesheet" href="/css/buyer-footer.css?v=<?= filemtime(FCPATH . 'css/buyer-footer.css'); ?>">
-    <?php if (in_array($title, ['Masuk', 'Daftar', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true)) { ?>
+    <?php if (in_array($title, ['Masuk', 'Daftar', 'Verifikasi', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true)) { ?>
     <link rel="stylesheet" href="/css/buyer-auth.css?v=<?= filemtime(FCPATH . 'css/buyer-auth.css'); ?>">
     <?php } ?>
     <?php if (in_array($title, ['Kontak', 'Kontak Kami'], true)) { ?>
@@ -331,7 +331,7 @@ if (strlen($primaryHex) === 6 && ctype_xdigit($primaryHex)) {
 
 <?php
 $isAdminLayout = session()->get('role') == '1';
-$isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true);
+$isAuthPage = !$isAdminLayout && in_array($title, ['Masuk', 'Daftar', 'Verifikasi', 'Lupa sandi', 'Konfirmasi email pemulihan', 'Reset sandi'], true);
 $promoPath = '/' . trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
 $showTopPromo = !$isAdminLayout && !$isAuthPage && (
     $promoPath === '/' ||

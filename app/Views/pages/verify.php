@@ -25,13 +25,19 @@
         </form>
         <div class="container mt-3 d-flex flex-column align-items">
             <p class="m-0">Kode kedaluwarsa dalam <b class="m-0" id="waktu" role="timer" aria-live="off"><?= esc($waktu); ?></b></p>
-            <p class="m-0 text-secondary" id="verify-expired-message" role="status" <?= empty($expired) ? 'hidden' : ''; ?>>Kode sudah kedaluwarsa. Kirim ulang hanya jika Anda ingin menerima kode baru.</p>
-            <div class="d-flex gap-1">
-                <p class="m-0">Belum mendapatkan kode OTP?</p>
-                <form action="/kirimotp" method="post" class="d-inline" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?" data-resend-available-at="<?= (int) ($resendAvailableAt ?? 0); ?>">
+            <p class="verify-expired-message" id="verify-expired-message" role="status" <?= empty($expired) ? 'hidden' : ''; ?>>Kode sudah kedaluwarsa. Kirim ulang hanya jika Anda ingin menerima kode baru.</p>
+            <div class="verify-resend-card">
+                <div class="verify-resend-copy">
+                    <span class="verify-resend-icon" aria-hidden="true"><i class="material-icons">mark_email_unread</i></span>
+                    <div>
+                        <strong>Belum menerima kode?</strong>
+                        <span id="verify-resend-status" role="status" aria-live="polite"><?= !empty($resendWaitSeconds) ? 'Kirim ulang tersedia dalam ' . gmdate('i:s', (int) $resendWaitSeconds) : 'Periksa email, atau minta kode baru.'; ?></span>
+                    </div>
+                </div>
+                <form action="/kirimotp" method="post" data-confirm-submit data-confirm-message="Kirim ulang kode verifikasi ke email akun Anda?" data-resend-available-at="<?= (int) ($resendAvailableAt ?? 0); ?>">
                     <?= csrf_field(); ?>
-                    <button type="submit" data-verification-resend <?= !empty($resendWaitSeconds) ? 'disabled' : ''; ?> style="color: var(--hijau); border: none; background: none;" class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-                        <?= !empty($resendWaitSeconds) ? 'Kirim ulang dalam ' . gmdate('i:s', (int) $resendWaitSeconds) : 'Kirim ulang'; ?>
+                    <button type="submit" class="verify-resend-button" data-verification-resend <?= !empty($resendWaitSeconds) ? 'disabled' : ''; ?> aria-describedby="verify-resend-status">
+                        <i class="material-icons" aria-hidden="true">refresh</i><span>Kirim ulang</span>
                     </button>
                 </form>
             </div>
@@ -43,6 +49,7 @@
     const de = new Date('<?= $waktuExp; ?>');
     const expireTime = de.getTime();
     const expiredMessage = document.getElementById('verify-expired-message');
+    const resendStatus = document.getElementById('verify-resend-status');
     const resendForm = document.querySelector('[data-resend-available-at]');
     const resendButton = resendForm?.querySelector('[data-verification-resend]');
     const resendAvailableAt = Number(resendForm?.dataset.resendAvailableAt || 0) * 1000;
@@ -74,9 +81,9 @@
         if (!resendButton) return;
         const secondsLeft = Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000));
         resendButton.disabled = secondsLeft > 0;
-        resendButton.textContent = secondsLeft > 0
-            ? `Kirim ulang dalam ${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`
-            : 'Kirim ulang';
+        resendStatus.textContent = secondsLeft > 0
+            ? `Kirim ulang tersedia dalam ${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`
+            : 'Periksa email, atau minta kode baru.';
         if (secondsLeft <= 0 && resendCountdown) clearInterval(resendCountdown);
     };
     updateResendAvailability();

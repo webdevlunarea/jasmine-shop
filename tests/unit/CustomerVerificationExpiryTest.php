@@ -20,6 +20,8 @@ final class CustomerVerificationExpiryTest extends CIUnitTestCase
         self::assertStringContainsString('Kode sudah kedaluwarsa. Kirim ulang hanya jika Anda ingin menerima kode baru.', $view);
         self::assertStringContainsString('data-verification-resend', $view);
         self::assertStringContainsString('resendButton.disabled = secondsLeft > 0', $view);
+        self::assertStringContainsString('class="verify-resend-card"', $view);
+        self::assertStringContainsString('.verify-resend-button:disabled', file_get_contents(FCPATH . 'css/buyer-auth.css'));
 
         $registrationService = file_get_contents(APPPATH . 'Services/Auth/CustomerRegistrationService.php');
         self::assertStringContainsString("time() + 540", $registrationService);
