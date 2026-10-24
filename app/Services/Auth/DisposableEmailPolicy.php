@@ -36,6 +36,7 @@ class DisposableEmailPolicy
         foreach (self::BASELINE as $blocked) {
             if ($domain === $blocked || str_ends_with($domain, '.' . $blocked)) return true;
         }
+        if ((new DisposableEmailDomainList())->isListed($domain)) return true;
         try {
             $db = Database::connect();
             // Gmail ignores dots in the local part and treats googlemail.com as
@@ -50,13 +51,16 @@ class DisposableEmailPolicy
                 if ($existing) return true;
             }
             if (!$db->tableExists('customer_blocked_email_domains')) return false;
-            $rows = $db->table('customer_blocked_email_domains')->select('domain')->where('is_active', 1)->get()->getResultArray();
-            foreach ($rows as $row) {
-                $blocked = strtolower(trim((string) $row['domain'], ". \t\n\r\0\x0B@"));
-                if ($blocked !== '' && ($domain === $blocked || str_ends_with($domain, '.' . $blocked))) return true;
+            $candidates = [];
+            $candidate = $domain;
+            while (str_contains($candidate, '.')) {
+                $candidates[] = $candidate;
+                $candidate = substr($candidate, strpos($candidate, '.') + 1);
             }
+            if ($candidates && $db->table('customer_blocked_email_domains')->select('id')->where('is_active', 1)
+                ->whereIn('domain', $candidates)->limit(1)->get()->getRowArray()) return true;
         } catch (\Throwable $e) {
-            log_message('error', 'Pemeriksaan domain email terhenti: {message}', ['message' => $e->getMessage()]);
+            log_message('error', 'Pemeriksaan domain email tambahan gagal: {type}', ['type' => get_class($e)]);
         }
         return false;
     }
