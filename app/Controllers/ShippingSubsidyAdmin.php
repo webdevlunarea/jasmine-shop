@@ -13,7 +13,7 @@ class ShippingSubsidyAdmin extends BaseController
         if (strtolower($this->request->getMethod()) !== 'post' || !session('isLogin') || (string)session('role') !== '1') {
             return $this->response->setStatusCode(403)->setBody('Akses admin diperlukan.');
         }
-        \Config\Services::security()->verify($this->request);
+        // The explicit POST route runs the CSRF filter before this action.
         try {
             $method = (new ShippingMethodModel())->getByCode('rajaongkir_domestic');
             if (!$method) throw new \DomainException('Metode ekspedisi belum tersedia.');

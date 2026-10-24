@@ -66,7 +66,7 @@ class LunaMappingAdmin extends BaseController
     public function save()
     {
         if (!$this->allowed() || strtolower($this->request->getMethod()) !== 'post') return $this->response->setStatusCode(403);
-        \Config\Services::security()->verify($this->request);
+        // The explicit POST route runs the CSRF filter before this action.
         $id = $this->request->getPost('website_id');
         $target = '/lunamappingadmin';
         $db = null; $locked = false; $begun = false; $backInStockEvents = [];

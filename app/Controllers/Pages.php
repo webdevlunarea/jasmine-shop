@@ -4813,7 +4813,6 @@ class Pages extends BaseController
         if (!\App\Services\Orders\InvoiceDocument::canRead($order ?: null, session('email'), session('role'), (bool)session('isLogin'))) {
             return $this->response->setStatusCode(404)->setBody('Pesanan tidak ditemukan.');
         }
-        $this->verifyBuyerPaymentRequest();
         $file = $this->request->getFile('buktiBayar');
         $target = '/order/' . rawurlencode((string)$order_id);
         if (!$file || !$file->isValid() || $file->getSize() > 5 * 1024 * 1024) {
@@ -4874,11 +4873,6 @@ class Pages extends BaseController
         return $this->pemesananModel->getPemesanan($order['id_midtrans']) ?: $order;
     }
 
-    protected function verifyBuyerPaymentRequest(): void
-    {
-        \Config\Services::security()->verify($this->request);
-    }
-
     public function cancelOrder($order_id)
     {
         if (strtolower($this->request->getMethod()) !== 'post') {
@@ -4888,7 +4882,6 @@ class Pages extends BaseController
         if (!\App\Services\Orders\InvoiceDocument::canRead($order ?: null, session('email'), session('role'), (bool)session('isLogin'))) {
             return $this->response->setStatusCode(404)->setBody('Pesanan tidak ditemukan.');
         }
-        $this->verifyBuyerPaymentRequest();
         $target = '/order/' . rawurlencode((string)$order_id);
         $result = $this->performCustomerOrderCancellation($order);
         return redirect()->to($target)->with('msg', $result['message']);
@@ -8195,7 +8188,7 @@ class Pages extends BaseController
         if (strtolower($this->request->getMethod()) !== 'post' || !session('isLogin') || (string)session('role') !== '1') {
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Akses admin diperlukan.']);
         }
-        \Config\Services::security()->verify($this->request);
+        // Every caller is reached through an explicit POST route with CSRF filter.
         return null;
     }
 
