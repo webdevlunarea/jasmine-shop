@@ -544,6 +544,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var chromeVisible by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         CustomerSuspensionSignals.suspended.collect { suspensionMessage ->
+            if (suspensionMessage.isNullOrBlank()) return@collect
             signedIn = false
             favoriteKeys = emptySet()
             unreadNotificationCount = 0
@@ -561,6 +562,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             accountSection = AccountSection.MENU
             tab = AppTab.ACCOUNT
             suspensionDialogMessage = suspensionMessage
+            CustomerSuspensionSignals.consumeSuspended(suspensionMessage)
         }
     }
     suspensionDialogMessage?.let { suspensionMessage ->
@@ -580,39 +582,55 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Surface(
-                        modifier = Modifier.size(56.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_dialog_warning),
-                                contentDescription = "Peringatan akun ditangguhkan",
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(26.dp)
-                            )
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Surface(
+                            modifier = Modifier.size(68.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.errorContainer
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_dialog_warning),
+                                    contentDescription = "Peringatan akun ditangguhkan",
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
-                            text = "Akun ditangguhkan",
-                            style = MaterialTheme.typography.headlineSmall,
+                            text = "STATUS AKUN",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.2.sp
+                        )
+                        Text(
+                            text = "Akun sedang ditangguhkan",
+                            style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = suspensionMessage,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 24.sp
+                            lineHeight = 23.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                         Text(
-                            text = "Jika Anda merasa ini keliru, hubungi layanan pelanggan melalui website Lunarea.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "Perlu bantuan? Hubungi layanan pelanggan Lunarea.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                     Button(

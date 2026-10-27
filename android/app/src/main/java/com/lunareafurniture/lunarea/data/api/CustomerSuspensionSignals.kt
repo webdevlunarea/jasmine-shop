@@ -1,11 +1,18 @@
 package com.lunareafurniture.lunarea.data.api
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-/** One-shot signal used to return the UI to signed-out state after a server suspension. */
+/** Retained until consumed so suspension notices are not lost during UI transitions. */
 object CustomerSuspensionSignals {
-    private val mutableSuspended = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val suspended = mutableSuspended.asSharedFlow()
-    fun notifySuspended(message: String) { mutableSuspended.tryEmit(message) }
+    private val mutableSuspended = MutableStateFlow<String?>(null)
+    val suspended = mutableSuspended.asStateFlow()
+
+    fun notifySuspended(message: String) {
+        mutableSuspended.value = message
+    }
+
+    fun consumeSuspended(message: String) {
+        if (mutableSuspended.value == message) mutableSuspended.value = null
+    }
 }
