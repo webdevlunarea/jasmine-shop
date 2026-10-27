@@ -502,6 +502,7 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
     var catalogRequestGeneration by remember { mutableIntStateOf(0) }
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
+    var suspensionDialogMessage by remember { mutableStateOf<String?>(null) }
     var query by remember { mutableStateOf("") }
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -559,7 +560,85 @@ private fun LunareaApp(startupComplete: Boolean, pushTap: PushTap?, referralCode
             showMfaLogin = false
             accountSection = AccountSection.MENU
             tab = AppTab.ACCOUNT
-            message = suspensionMessage
+            suspensionDialogMessage = suspensionMessage
+        }
+    }
+    suspensionDialogMessage?.let { suspensionMessage ->
+        Dialog(
+            onDismissRequest = {},
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.92f).widthIn(max = 400.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp,
+                shadowElevation = 16.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Surface(
+                        modifier = Modifier.size(56.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_dialog_warning),
+                                contentDescription = "Peringatan akun ditangguhkan",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "Akun ditangguhkan",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = suspensionMessage,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 24.sp
+                        )
+                        Text(
+                            text = "Jika Anda merasa ini keliru, hubungi layanan pelanggan melalui website Lunarea.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            suspensionDialogMessage = null
+                            accountSection = AccountSection.MENU
+                            tab = AppTab.HOME
+                        },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text("Kembali ke beranda", fontWeight = FontWeight.SemiBold)
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            suspensionDialogMessage = null
+                            accountSection = AccountSection.MENU
+                            tab = AppTab.ACCOUNT
+                        },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text("Masuk dengan akun lain", fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
         }
     }
     LaunchedEffect(pushTap) {
@@ -7078,18 +7157,23 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
         }
     }
 
-    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 14.dp)) {
+    Column(
+        modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 18.dp, vertical = 14.dp)
+    ) {
         LunareaScreenHeader("Luna Poin", onBack, "Saldo, masa berlaku, dan aktivitas poin")
         Spacer(Modifier.height(18.dp))
 
         if (loading && data == null) {
-            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { LoadingStatePanel("Memuat Luna Poin…", Modifier.fillMaxWidth()) }
+            Box(Modifier.fillMaxWidth().heightIn(min = 220.dp), contentAlignment = Alignment.Center) { LoadingStatePanel("Memuat Luna Poin…", Modifier.fillMaxWidth()) }
         } else if (error != null && data == null) {
             StatePanel(
                 title = "Luna Poin belum dapat dimuat", message = error.orEmpty(),
                 icon = R.drawable.ic_refresh, isError = true,
                 actionLabel = "Coba lagi", onAction = { refreshKey++ },
-                modifier = Modifier.fillMaxWidth().weight(1f)
+                modifier = Modifier.fillMaxWidth().heightIn(min = 220.dp)
             )
         } else {
             val balance = data?.longOrNull("balance") ?: 0L
@@ -7187,7 +7271,7 @@ private fun PointsScreen(modifier: Modifier, onBack: () -> Unit) {
                     Text("Belum ada aktivitas Luna Poin.", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
-                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 440.dp), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
                     items(history) { item ->
                         val row = item.takeIf { it.isJsonObject }?.asJsonObject
                         val amount = row?.longOrNull("amount") ?: 0L
