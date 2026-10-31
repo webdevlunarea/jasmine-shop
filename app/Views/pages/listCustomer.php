@@ -38,6 +38,7 @@ $rangeEnd = $totalRows ? $rangeStart + count($transaksiCus) - 1 : 0;
             <div><span>Sesuai filter</span><strong><?= number_format($totalRows, 0, ',', '.'); ?></strong></div>
             <div><span>Ditampilkan</span><strong><?= $rangeStart; ?>–<?= $rangeEnd; ?><small> / <?= $totalRows; ?></small></strong></div>
         </div>
+        <p class="orders-helper">Pesanan sandbox disembunyikan. Pesanan lama tanpa penanda tetap tersedia sebagai riwayat dan tidak dapat diproses.</p>
         <?php $actionCounts = $actionCounts ?? []; ?>
         <div class="orders-overview orders-action-overview" aria-label="Pesanan yang memerlukan perhatian">
             <div><span>Menunggu pembayaran</span><strong><?= number_format((int)($actionCounts['waiting_payment'] ?? 0), 0, ',', '.'); ?></strong></div>
@@ -58,8 +59,10 @@ $rangeEnd = $totalRows ? $rangeStart + count($transaksiCus) - 1 : 0;
                 <?php foreach ($transaksiCus as $t_ind=>$t) {
                     $id = (string)$t['id_midtrans'];
                     $urlId = rawurlencode($id);
-                    $canEdit = in_array($t['status'], ['Proses', 'Dikirim'], true);
-                    $needsReview = $t['status'] === 'Menunggu Pembayaran Rekening' && !empty($t['bukti_bayar']);
+                    $isLegacy = !empty($t['is_legacy']);
+                    $isProduction = !empty($t['is_production']);
+                    $canEdit = $isProduction && in_array($t['status'], ['Proses', 'Dikirim'], true);
+                    $needsReview = $isProduction && $t['status'] === 'Menunggu Pembayaran Rekening' && !empty($t['bukti_bayar']);
                     $hasProof = !empty($t['bukti_bayar']);
                     $payment = $t['data_mid'] ?? [];
                     $statusLabel = $needsReview ? 'Perlu konfirmasi' : $t['status'];
@@ -71,7 +74,7 @@ $rangeEnd = $totalRows ? $rangeStart + count($transaksiCus) - 1 : 0;
                 <article class="list-customer <?= $needsReview ? 'need-confirm' : ''; ?>" data-order-index="<?= (int)$t_ind; ?>">
                     <div class="customer-order-summary">
                         <div class="orders-identity"><a class="orders-order-number" href="/order/<?= $urlId; ?>"><?= esc($id); ?><i class="material-icons" aria-hidden="true">north_east</i></a><strong class="nama"><?= esc($t['nama_pen']); ?></strong><span><?= esc($t['email_cus']); ?></span></div>
-                        <div class="orders-state"><span class="orders-status orders-status--<?= $statusTone($t['status']); ?>"><?= esc($statusLabel); ?></span><small><?= esc($courier && $courier !== 'kosong' ? $courier : 'Ekspedisi belum tersedia'); ?></small></div>
+                        <div class="orders-state"><?php if ($isLegacy) { ?><span class="orders-status orders-status--neutral">Riwayat · tanpa penanda</span><?php } ?><span class="orders-status orders-status--<?= $statusTone($t['status']); ?>"><?= esc($statusLabel); ?></span><small><?= esc($courier && $courier !== 'kosong' ? $courier : 'Ekspedisi belum tersedia'); ?></small></div>
                         <div class="orders-order-total"><strong><?= esc($money($payment['gross_amount'] ?? 0)); ?></strong><small><?= esc($transactionDate($payment['transaction_time'] ?? null)); ?></small></div>
                         <button type="button" class="orders-detail-toggle" aria-expanded="false" aria-controls="order-detail-<?= (int)$t_ind; ?>" aria-label="Detail pesanan <?= esc($id, 'attr'); ?>" data-order-toggle="<?= (int)$t_ind; ?>"><span>Detail</span><i class="material-icons" aria-hidden="true">expand_more</i></button>
                     </div>
@@ -101,11 +104,11 @@ $rangeEnd = $totalRows ? $rangeStart + count($transaksiCus) - 1 : 0;
                             <div class="orders-fulfillment-column">
                                 <section class="orders-detail-section"><h3>Informasi penerima</h3><p class="orders-recipient-name"><?= esc($t['nama_pen']); ?></p><p><?= nl2br(esc($t['alamat_pen'])); ?></p><p><?= esc($t['hp_pen']); ?></p><?php if ($t['note'] !== '') { ?><div class="orders-customer-note"><span>Catatan pembeli</span><p><?= nl2br(esc($t['note'])); ?></p></div><?php } ?></section>
                                 <section class="orders-detail-section"><div class="orders-section-heading"><h3>Pengiriman</h3><?php if ($canEdit) { ?><button type="button" class="btn orders-secondary" data-shipping-index="<?= (int)$t_ind; ?>">Atur resi</button><?php } ?></div><dl class="orders-shipping-data"><div><dt>Ekspedisi</dt><dd><?= esc($courier ?: 'Belum tersedia'); ?></dd></div><div><dt><?= $isInternal ? 'Resi toko' : 'Nomor resi'; ?></dt><dd class="resi"><?= esc($awb); ?></dd></div></dl>
-                                <?php if ($t['status'] === 'Proses') { ?>
+                                <?php if ($isProduction && $t['status'] === 'Proses') { ?>
                                     <form class="order-sync-form" method="post" action="/syncorder/<?= $urlId; ?>"><?= csrf_field(); ?><div class="orders-process-status"><i class="material-icons" aria-hidden="true"><?= $lunaStage === 'processed' ? 'task_alt' : 'schedule'; ?></i><p><?= esc(\App\Services\Integrations\LunaFulfillment::label($payment)); ?></p></div><label class="orders-review-check"><input type="checkbox" name="review_confirmed" value="1" required><span>Produk, varian, alamat, dan ekspedisi sudah saya periksa.</span></label><button type="submit" class="btn btn-primary1 orders-sync-button"><?= $lunaStage ? 'Periksa status MyLuna' : 'Teruskan ke MyLuna'; ?><i class="material-icons" aria-hidden="true"><?= $lunaStage ? 'sync' : 'arrow_forward'; ?></i></button><p class="orders-helper">Resi diisi setelah proses pusat. Pengiriman ulang tidak membuat pesanan baru.</p></form>
                                 <?php } ?>
-                                <?php if (in_array($t['status'], ['Dikirim', 'Selesai'], true) || ($t['shipment']['shipping_status'] ?? '') === 'Disiapkan') { ?><button type="button" class="btn orders-secondary orders-resync" data-shipping-retry="<?= (int)$t_ind; ?>"><i class="material-icons" aria-hidden="true">sync</i>Sinkron ulang pengiriman</button><?php } ?>
-                                <?php if ($t['status'] === 'Dikirim') { ?><button type="button" class="btn orders-secondary orders-complete" data-complete-index="<?= (int)$t_ind; ?>"><i class="material-icons" aria-hidden="true">check_circle</i>Konfirmasi pesanan diterima</button><?php } ?>
+                                <?php if ($isProduction && (in_array($t['status'], ['Dikirim', 'Selesai'], true) || ($t['shipment']['shipping_status'] ?? '') === 'Disiapkan')) { ?><button type="button" class="btn orders-secondary orders-resync" data-shipping-retry="<?= (int)$t_ind; ?>"><i class="material-icons" aria-hidden="true">sync</i>Sinkron ulang pengiriman</button><?php } ?>
+                                <?php if ($isProduction && $t['status'] === 'Dikirim') { ?><button type="button" class="btn orders-secondary orders-complete" data-complete-index="<?= (int)$t_ind; ?>"><i class="material-icons" aria-hidden="true">check_circle</i>Konfirmasi pesanan diterima</button><?php } ?>
                                 <?php if ($needsReview) { ?><button type="button" class="btn btn-primary1 orders-review-payment" data-proof-index="<?= (int)$t_ind; ?>">Tinjau bukti pembayaran</button><?php } ?>
                                 </section>
                             </div>

@@ -577,7 +577,7 @@ class Pages extends BaseController
             if ($this->request->getPost('review_confirmed') !== '1') throw new \DomainException('Konfirmasikan pemeriksaan rincian pesanan sebelum meneruskan ke MyLuna.');
             $order = $this->pemesananModel->getPemesanan((string)$id_midtrans);
             if (!$order) throw new \DomainException('Pesanan tidak ditemukan.');
-            if ($this->isSandboxOrder($order)) throw new \DomainException('Pesanan uji coba tidak dikirim ke MyLuna produksi.');
+        if (!PaymentSafety::isExplicitProductionOrder($order)) throw new \DomainException('Hanya pesanan produksi bertanda yang dapat dikirim ke MyLuna.');
             if (($order['status'] ?? '') !== 'Proses') throw new \DomainException('Sinkron pesanan hanya tersedia untuk status Proses.');
             $result = $this->performLunaOrderSync($order);
             log_message('info', 'Admin {admin} meminta sinkron order {order}; hasil {result}.', [
@@ -8010,13 +8010,14 @@ class Pages extends BaseController
         ];
         if (!array_key_exists((string)$status, $allowedStatus)) $status = 'all';
 
-        $sandboxEmails = PaymentSafety::testAccountEmails();
         $targetStatus = $allowedStatus[(string)$status] ?? null;
-        $totalFiltered = $this->pemesananModel->countAdminProductionOrders($sandboxEmails, $targetStatus);
-        $totalAllOrders = $this->pemesananModel->countAdminProductionOrders($sandboxEmails);
+        // Keep unmarked legacy orders visible as read-only history; explicit sandbox
+        // orders stay out of the production admin queue.
+        $totalFiltered = $this->pemesananModel->countAdminOrders($targetStatus);
+        $totalAllOrders = $this->pemesananModel->countAdminOrders();
         $maxPage = max(1, (int)ceil($totalFiltered / $perPage));
         $page = min($page, $maxPage);
-        $transaksiCus = $this->pemesananModel->getAdminProductionOrdersPage($sandboxEmails, $targetStatus, $perPage, ($page - 1) * $perPage);
+        $transaksiCus = $this->pemesananModel->getAdminOrdersPage($targetStatus, $perPage, ($page - 1) * $perPage);
         $shipmentMap = $this->getShipmentMapForOrders($transaksiCus, true);
         $transaksiCusNoJSON = [];
         foreach ($transaksiCus as $transaksi) {
@@ -8030,6 +8031,8 @@ class Pages extends BaseController
                 'id_midtrans' => $transaksi['id_midtrans'],
                 'items' => json_decode($transaksi['items'], true) ?: [],
                 'status' => $transaksi['status'],
+                'is_legacy' => PaymentSafety::storedEnvironment($transaksi) === null,
+                'is_production' => PaymentSafety::isExplicitProductionOrder($transaksi),
                 'kurir' => $transaksi['kurir'],
                 'data_mid' => json_decode($transaksi['data_mid'], true) ?: [],
                 'note' => $transaksi['note'],
@@ -8050,7 +8053,7 @@ class Pages extends BaseController
             'perPage' => $perPage,
             'totalFiltered' => $totalFiltered,
             'totalAllOrders' => $totalAllOrders,
-            'actionCounts' => $this->pemesananModel->getAdminActionableOrderCounts($sandboxEmails),
+            'actionCounts' => $this->pemesananModel->getAdminActionableOrderCounts(),
             'wsUrl' => $ws_url
         ];
         return view('pages/listCustomer', $data);
@@ -8063,8 +8066,8 @@ class Pages extends BaseController
             session()->setFlashdata('msg', 'Pesanan tidak ditemukan');
             return redirect()->to('/listcustomer')->withCookies();
         }
-        if ($this->isSandboxOrder($dataTransaksi_curr)) {
-            session()->setFlashdata('msg', 'Pesanan sandbox tidak masuk proses admin produksi.');
+        if (!PaymentSafety::isExplicitProductionOrder($dataTransaksi_curr)) {
+            session()->setFlashdata('msg', 'Pesanan lama atau sandbox hanya tersedia sebagai riwayat.');
             return redirect()->to('/listcustomer')->withCookies();
         }
         $oldStatus = (string)($dataTransaksi_curr['status'] ?? '');
@@ -8293,7 +8296,7 @@ class Pages extends BaseController
         if ($denied = $this->guardOrderAdminRequest()) return $denied;
         try {
             $order = $this->pemesananModel->getPemesanan($id_midtrans);
-            if (!$order || $this->isSandboxOrder($order)) throw new \DomainException('Pesanan produksi tidak ditemukan.');
+            if (!$order || !PaymentSafety::isExplicitProductionOrder($order)) throw new \DomainException('Pesanan lama atau sandbox hanya tersedia sebagai riwayat.');
             $result = (new \App\Services\Shipping\OrderShippingManager())->update((string)$id_midtrans, [], true);
             $synced = $this->syncShippingToLunaSistem($result['order'], $result['shipment']);
             $this->broadcastOrderUpdate($id_midtrans);
@@ -8313,7 +8316,7 @@ class Pages extends BaseController
             if (!is_array($body)) throw new \DomainException('Data pengiriman tidak valid.');
             $id = trim((string)($body['idMid'] ?? ''));
             $order = $this->pemesananModel->getPemesanan($id);
-            if (!$id || !$order || $this->isSandboxOrder($order)) throw new \DomainException('Pesanan produksi tidak ditemukan.');
+            if (!$id || !$order || !PaymentSafety::isExplicitProductionOrder($order)) throw new \DomainException('Pesanan lama atau sandbox hanya tersedia sebagai riwayat.');
             if (($body['retry_sync'] ?? false) === true) {
                 if (!in_array($order['status'], ['Proses', 'Dikirim', 'Selesai'], true)) throw new \DomainException('Pesanan belum masuk tahap pengiriman.');
                 $shipment = \Config\Database::connect()->tableExists('order_shipments') ? $this->orderShipmentModel->getByOrderId($id) : null;

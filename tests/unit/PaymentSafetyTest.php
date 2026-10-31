@@ -45,6 +45,20 @@ final class PaymentSafetyTest extends CIUnitTestCase
         $order['data_mid']='{}';$order['email_cus']=' BUYER@EXAMPLE.TEST ';
         $this->assertSame('sandbox',PaymentSafety::environment($order,['buyer@example.test'],'email_cus'));
     }
+    public function testStoredEnvironmentDistinguishesLegacyHistoryFromExplicitSandbox(): void
+    {
+        $this->assertNull(PaymentSafety::storedEnvironment(['data_mid' => '{}']));
+        $this->assertFalse(PaymentSafety::isExplicitProductionOrder(['data_mid' => '{}']));
+        $this->assertSame('sandbox', PaymentSafety::storedEnvironment([
+            'data_mid' => json_encode(['_app_payment_environment' => 'sandbox']),
+        ]));
+        $this->assertSame('production', PaymentSafety::storedEnvironment([
+            'data_mid' => json_encode(['_app_payment_environment' => 'production']),
+        ]));
+        $this->assertTrue(PaymentSafety::isExplicitProductionOrder([
+            'data_mid' => json_encode(['_app_payment_environment' => 'production']),
+        ]));
+    }
     public function testNativeTestingAccountIsRoutedToSandbox(): void
     {
         $this->assertTrue(PaymentSafety::isTestEmail('UUUA5021@gmail.com', PaymentSafety::testAccountEmails()));

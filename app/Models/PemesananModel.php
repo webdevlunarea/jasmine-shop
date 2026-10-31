@@ -60,37 +60,58 @@ class PemesananModel extends Model
         }
     }
 
-    private function adminProductionOrdersBuilder(array $sandboxEmails)
+    private function adminProductionOrdersBuilder()
     {
         $builder = $this->builder();
-        $environment = "JSON_UNQUOTE(JSON_EXTRACT(data_mid, '$._app_payment_environment'))";
-        $builder->notGroupStart()
-            ->where($environment, 'sandbox')
-            ->orGroupStart()
-                ->where("JSON_EXTRACT(data_mid, '$._app_payment_environment') IS NULL", null, false)
-                ->whereIn('email_cus', $sandboxEmails)
-            ->groupEnd()
-        ->groupEnd();
-        return $builder;
+        $jsonEnvironment = "JSON_EXTRACT(data_mid, '$._app_payment_environment')";
+        $environment = $this->db->DBDriver === 'SQLite3'
+            ? $jsonEnvironment
+            : "JSON_UNQUOTE({$jsonEnvironment})";
+        return $builder->where($environment, 'production');
     }
 
-    public function countAdminProductionOrders(array $sandboxEmails, ?string $status = null): int
+    public function countAdminProductionOrders(?string $status = null): int
     {
-        $builder = $this->adminProductionOrdersBuilder($sandboxEmails);
+        $builder = $this->adminProductionOrdersBuilder();
         if ($status !== null) $builder->where('status', $status);
         return (int)$builder->countAllResults();
     }
 
-    public function getAdminProductionOrdersPage(array $sandboxEmails, ?string $status, int $limit, int $offset): array
+    private function adminVisibleOrdersBuilder()
     {
-        $builder = $this->adminProductionOrdersBuilder($sandboxEmails);
+        $jsonEnvironment = "JSON_EXTRACT(data_mid, '$._app_payment_environment')";
+        $environment = $this->db->DBDriver === 'SQLite3'
+            ? $jsonEnvironment
+            : "JSON_UNQUOTE({$jsonEnvironment})";
+        return $this->builder()->where("COALESCE({$environment}, '') !=", 'sandbox');
+    }
+
+    /** Show production and unmarked legacy history; explicit sandbox orders stay hidden. */
+    public function countAdminOrders(?string $status = null): int
+    {
+        $builder = $this->adminVisibleOrdersBuilder();
+        if ($status !== null) $builder->where('status', $status);
+        return (int)$builder->countAllResults();
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function getAdminOrdersPage(?string $status, int $limit, int $offset): array
+    {
+        $builder = $this->adminVisibleOrdersBuilder();
         if ($status !== null) $builder->where('status', $status);
         return $builder->orderBy('id', 'desc')->get($limit, max(0, $offset))->getResultArray();
     }
 
-    public function getAdminActionableOrderCounts(array $sandboxEmails): array
+    public function getAdminProductionOrdersPage(?string $status, int $limit, int $offset): array
     {
-        $builder = $this->adminProductionOrdersBuilder($sandboxEmails);
+        $builder = $this->adminProductionOrdersBuilder();
+        if ($status !== null) $builder->where('status', $status);
+        return $builder->orderBy('id', 'desc')->get($limit, max(0, $offset))->getResultArray();
+    }
+
+    public function getAdminActionableOrderCounts(): array
+    {
+        $builder = $this->adminProductionOrdersBuilder();
         $row = $builder->select("SUM(CASE WHEN status = 'Menunggu Pembayaran' THEN 1 ELSE 0 END) AS waiting_payment", false)
             ->select("SUM(CASE WHEN status = 'Menunggu Pembayaran Rekening' AND bukti_bayar IS NOT NULL AND bukti_bayar <> '' THEN 1 ELSE 0 END) AS review_transfer", false)
             ->select("SUM(CASE WHEN status = 'Proses' THEN 1 ELSE 0 END) AS ready_to_process", false)

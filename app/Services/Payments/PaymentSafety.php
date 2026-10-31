@@ -32,12 +32,27 @@ final class PaymentSafety
 
     public static function environment(array $order, array $allowlist, string $emailField): string
     {
+        $persisted = self::storedEnvironment($order);
+        if ($persisted !== null) return $persisted;
+
+        $mid = $order['data_mid'] ?? [];
+        if (is_string($mid)) $mid = json_decode($mid, true);
+        // Legacy records keep their historical email-based routing until explicitly reconciled.
+        return self::isTestEmail((string)($order[$emailField] ?? ''), $allowlist) ? 'sandbox' : 'production';
+    }
+
+    /** Returns only a persisted marker; null means a legacy record without environment metadata. */
+    public static function storedEnvironment(array $order): ?string
+    {
         $mid = $order['data_mid'] ?? [];
         if (is_string($mid)) $mid = json_decode($mid, true);
         $saved = is_array($mid) ? ($mid['_app_payment_environment'] ?? null) : null;
-        if (in_array($saved, ['sandbox', 'production'], true)) return $saved;
-        // Legacy records keep their historical email-based routing until explicitly reconciled.
-        return self::isTestEmail((string)($order[$emailField] ?? ''), $allowlist) ? 'sandbox' : 'production';
+        return in_array($saved, ['sandbox', 'production'], true) ? $saved : null;
+    }
+
+    public static function isExplicitProductionOrder(array $order): bool
+    {
+        return self::storedEnvironment($order) === 'production';
     }
 
     private static function amount($value): ?string

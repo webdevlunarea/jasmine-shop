@@ -26,9 +26,7 @@ final class AdminDashboard extends BaseController
             $metrics['processingOrders'] = $this->safeProductionOrderCount('Proses');
             $metrics['shippedOrders'] = $this->safeProductionOrderCount('Dikirim');
             try {
-                $actionable = model(\App\Models\PemesananModel::class)->getAdminActionableOrderCounts(
-                    \App\Services\Payments\PaymentSafety::testAccountEmails()
-                );
+                $actionable = model(\App\Models\PemesananModel::class)->getAdminActionableOrderCounts();
                 $metrics['paymentReview'] = (int)($actionable['review_transfer'] ?? 0);
             } catch (\Throwable $error) {
                 $metrics['paymentReview'] = null;
@@ -125,10 +123,7 @@ final class AdminDashboard extends BaseController
     private function safeProductionOrderCount(string $status): ?int
     {
         try {
-            return model(\App\Models\PemesananModel::class)->countAdminProductionOrders(
-                \App\Services\Payments\PaymentSafety::testAccountEmails(),
-                $status
-            );
+            return model(\App\Models\PemesananModel::class)->countAdminProductionOrders($status);
         } catch (\Throwable $error) {
             log_message('error', 'Admin dashboard order count unavailable: ' . get_class($error));
             return null;
