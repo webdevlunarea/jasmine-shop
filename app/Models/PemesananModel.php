@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Payments\PaymentSafety;
 use CodeIgniter\Model;
 
 class PemesananModel extends Model
@@ -83,7 +84,22 @@ class PemesananModel extends Model
         $environment = $this->db->DBDriver === 'SQLite3'
             ? $jsonEnvironment
             : "JSON_UNQUOTE({$jsonEnvironment})";
-        return $this->builder()->where("COALESCE({$environment}, '') !=", 'sandbox');
+        $testEmails = array_map([PaymentSafety::class, 'normalizeEmail'], PaymentSafety::testAccountEmails());
+
+        return $this->builder()->groupStart()
+            // A persisted production marker is authoritative, even if an account
+            // later appears on the sandbox allowlist.
+            ->where($environment, 'production')
+            // Legacy test-account orders have no marker; match PaymentSafety's
+            // email fallback so they never leak into the production history list.
+            ->orGroupStart()
+                ->where("COALESCE({$environment}, '') !=", 'sandbox')
+                ->groupStart()
+                    ->whereNotIn('LOWER(email_cus)', $testEmails)
+                    ->orWhere('email_cus', null)
+                ->groupEnd()
+            ->groupEnd()
+        ->groupEnd();
     }
 
     /** Show production and unmarked legacy history; explicit sandbox orders stay hidden. */
