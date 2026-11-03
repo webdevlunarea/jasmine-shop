@@ -308,13 +308,10 @@ if ($isAdminNav) {
             </a>
             <div class="buyer-brand-partnership" aria-label="Lunarea bagian dari Ilena">
                 <span class="buyer-brand-partnership__divider" aria-hidden="true"></span>
-                <span class="buyer-brand-partnership__stack">
-                    <span class="buyer-brand-partnership__label">Part of</span>
-                    <a class="buyer-brand-partnership__link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Kunjungi website Ilena Furniture">
-                        <img src="<?= base_url('/img/logoilena.png'); ?>" class="buyer-brand-partnership__logo" width="100" height="16" alt="Ilena Furniture" decoding="async">
-                        <span class="buyer-brand-partnership__popover" aria-hidden="true">Kunjungi Ilena Furniture</span>
-                    </a>
-                </span>
+                <a class="buyer-brand-partnership__link" href="https://ilenafurniture.com" target="_blank" rel="noopener noreferrer" aria-label="Kunjungi website Ilena Furniture">
+                    <img src="<?= base_url('/img/logoilena.png'); ?>" class="buyer-brand-partnership__logo" width="100" height="16" alt="Ilena Furniture" decoding="async">
+                    <span class="buyer-brand-partnership__popover" aria-hidden="true">Kunjungi Ilena Furniture</span>
+                </a>
             </div>
         </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
