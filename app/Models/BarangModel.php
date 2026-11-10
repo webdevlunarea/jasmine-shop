@@ -42,6 +42,27 @@ class BarangModel extends Model
         }
         return $this->where(['id' => $id, 'active' => '1'])->first();
     }
+
+    /** Fetch active cart/wishlist products in one query, keyed by their IDs. */
+    public function getBarangByIds(array $ids, array $columns): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map(
+            static fn($id): string => is_scalar($id) ? trim((string)$id) : '',
+            $ids
+        ), static fn(string $id): bool => $id !== '')));
+
+        if ($ids === []) return [];
+
+        $columns = array_values(array_intersect($columns, $this->allowedFields));
+        if (!in_array('id', $columns, true)) array_unshift($columns, 'id');
+        $products = [];
+        foreach (array_chunk($ids, 500) as $idChunk) {
+            $rows = $this->builder()->select($columns)->where('active', '1')->whereIn('id', $idChunk)->get()->getResultArray();
+            foreach ($rows as $row) $products[(string)$row['id']] = $row;
+        }
+        return $products;
+    }
+
     public function getBarangAdmin($id = false)
     {
         if ($id == false) {

@@ -2613,6 +2613,11 @@ class Pages extends BaseController
     private function productVariantImageIndex(array $produk, string $variant): int
     {
         $map = $this->konstantaModel->getProductVariantImageMap($produk['id']);
+        return $this->resolveProductVariantImageIndex($produk, $variant, $map);
+    }
+
+    private function resolveProductVariantImageIndex(array $produk, string $variant, array $map): int
+    {
         if (isset($map[$variant])) return max(0, (int)$map[$variant]);
         return $this->defaultProductVariantImageIndex($produk, $variant);
     }
@@ -2623,24 +2628,45 @@ class Pages extends BaseController
         $produk = [];
         if (count($wishlist) > 0) {
             $ketemuProdukTdkAda = [];
+            $productIds = array_values(array_unique(array_column($wishlist, 'id')));
+            $productsById = $this->barangModel->getBarangByIds($productIds, [
+                'id', 'nama', 'path', 'harga', 'diskon', 'varian', 'jml_varian', 'gambar',
+            ]);
+            $variantMaps = $this->konstantaModel->getProductVariantImageMaps($productIds);
+            $prepared = [];
+            $imageColumnsById = [];
+
             foreach ($wishlist as $w) {
-                $produknya = $this->barangModel->getBarang($w['id']);
+                $productId = (string)$w['id'];
+                $produknya = $productsById[$productId] ?? null;
                 if ($produknya) {
                     $variants = json_decode($produknya['varian'] ?? '[]', true);
                     if (!is_array($variants) || count($variants) < 1) $variants = ['Default'];
                     if ($w['varian'] === '' || !in_array($w['varian'], $variants, true)) {
                         $w['varian'] = $variants[0];
                     }
-                    $w['index_gambar'] = $w['index_gambar'] > 0 ? $w['index_gambar'] : $this->productVariantImageIndex($produknya, $w['varian']);
-                    $gambarnya = $this->gambarBarangModel->getGambar($w['id']);
-                    $gambarKey = 'gambar' . ($w['index_gambar'] + 1);
-                    $produknya['wishlist_varian'] = $w['varian'];
-                    $produknya['wishlist_index_gambar'] = $w['index_gambar'];
-                    $produknya['wishlist_gambar'] = $gambarnya[$gambarKey] ?? ($produknya['gambar'] ?? null);
-                    array_push($produk, $produknya);
+                    $w['index_gambar'] = $w['index_gambar'] > 0
+                        ? $w['index_gambar']
+                        : $this->resolveProductVariantImageIndex($produknya, $w['varian'], $variantMaps[$productId] ?? []);
+                    $imageColumn = 'gambar' . ($w['index_gambar'] + 1);
+                    if (preg_match('/^gambar(?:[1-9]|[1-4][0-9]|50)$/D', $imageColumn)) {
+                        $imageColumnsById[$productId][] = $imageColumn;
+                    }
+                    $prepared[] = ['product' => $produknya, 'item' => $w, 'image_column' => $imageColumn];
                 } else {
-                    array_push($ketemuProdukTdkAda, $w);
+                    $ketemuProdukTdkAda[] = $w;
                 }
+            }
+
+            $imagesById = $this->gambarBarangModel->getSelectedImagesByProduct($imageColumnsById);
+            foreach ($prepared as $entry) {
+                $produknya = $entry['product'];
+                $w = $entry['item'];
+                $gambarnya = $imagesById[(string)$w['id']] ?? [];
+                $produknya['wishlist_varian'] = $w['varian'];
+                $produknya['wishlist_index_gambar'] = $w['index_gambar'];
+                $produknya['wishlist_gambar'] = $gambarnya[$entry['image_column']] ?? ($produknya['gambar'] ?? null);
+                array_push($produk, $produknya);
             }
 
             if (count($ketemuProdukTdkAda) > 0) {
@@ -2718,16 +2744,22 @@ class Pages extends BaseController
     public function wishlistToCart()
     {
         $wishlist = $this->normalizeWishlistItems(session()->get('wishlist'));
-        $keranjang = session()->get('keranjang');
+        $keranjang = session()->get('keranjang') ?: [];
         $email = session()->get('email');
+        $productIds = array_values(array_unique(array_column($wishlist, 'id')));
+        $productsById = $this->barangModel->getBarangByIds($productIds, ['id', 'varian', 'jml_varian']);
+        $variantMaps = $this->konstantaModel->getProductVariantImageMaps($productIds);
+
         foreach ($wishlist as $wishlistItem) {
             $id_barang = $wishlistItem['id'];
-            $produknya = $this->barangModel->getBarang($id_barang);
+            $produknya = $productsById[(string)$id_barang] ?? null;
             if (!$produknya) continue;
             $variants = json_decode($produknya['varian'] ?? '[]', true);
             if (!is_array($variants) || count($variants) < 1) $variants = ['Default'];
             $varian = in_array($wishlistItem['varian'], $variants, true) ? $wishlistItem['varian'] : $variants[0];
-            $indexGambar = $wishlistItem['index_gambar'] > 0 ? $wishlistItem['index_gambar'] : $this->productVariantImageIndex($produknya, $varian);
+            $indexGambar = $wishlistItem['index_gambar'] > 0
+                ? $wishlistItem['index_gambar']
+                : $this->resolveProductVariantImageIndex($produknya, $varian, $variantMaps[(string)$id_barang] ?? []);
             $ketemu = false;
             foreach ($keranjang as $index => $element) {
                 if ($element['id'] == $id_barang && $element['varian'] == $varian) {
@@ -2766,12 +2798,27 @@ class Pages extends BaseController
         $berat = 0;
         // dd($keranjang);
         if (!empty($keranjang)) {
+            $productIds = array_values(array_unique(array_column($keranjang, 'id')));
+            $productsById = $this->barangModel->getBarangByIds($productIds, [
+                'id', 'nama', 'path', 'harga', 'berat', 'stok', 'diskon', 'varian', 'gambar',
+            ]);
+            $imageColumnsById = [];
+            foreach ($keranjang as $element) {
+                $productId = (string)($element['id'] ?? '');
+                if (!isset($productsById[$productId])) continue;
+                $column = 'gambar' . ((int)($element['index_gambar'] ?? 0) + 1);
+                if (preg_match('/^gambar(?:[1-9]|[1-4][0-9]|50)$/D', $column)) $imageColumnsById[$productId][] = $column;
+            }
+            $imagesById = $this->gambarBarangModel->getSelectedImagesByProduct($imageColumnsById);
+
             foreach ($keranjang as $ind => $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
+                $productId = (string)($element['id'] ?? '');
+                $produknya = $productsById[$productId] ?? null;
                 if ($produknya) {
-                    $gambarnya = $this->gambarBarangModel->getGambar($element['id']);
+                    $gambarnya = $imagesById[$productId] ?? [];
                     array_push($produk, $produknya);
-                    array_push($gambar, $gambarnya["gambar" . ($element['index_gambar'] + 1)]);
+                    $imageColumn = 'gambar' . ((int)($element['index_gambar'] ?? 0) + 1);
+                    array_push($gambar, $gambarnya[$imageColumn] ?? ($produknya['gambar'] ?? null));
                     array_push($jumlah, $element['jumlah']);
                     // $item = array(
                     //     'id' => $produknya["id"],
@@ -2847,12 +2894,14 @@ class Pages extends BaseController
     }
     public function addCart($id_barang, $varian, $index_gambar, $redirect = false)
     {
-        $keranjang = session()->get('keranjang');
+        $keranjang = session()->get('keranjang') ?: [];
         $email = session()->get('email');
+        $getCurItem = $this->barangModel->getBarang($id_barang);
+        if (!$getCurItem) return redirect()->to('/all');
         $ketemu = false;
         foreach ($keranjang as $index => $element) {
             if ($element['id'] == $id_barang && $element['varian'] == $varian) {
-                $produknya = $this->barangModel->getBarang($element['id']);
+                $produknya = $getCurItem;
 
                 if (count(json_decode($produknya['varian'], true)) > count(explode(",", $produknya['stok'])))
                     $stokSelected = $produknya['stok'];
@@ -2879,7 +2928,6 @@ class Pages extends BaseController
         session()->set(['keranjang' => $keranjang]);
         if ($email != 'tamu')
             $this->pembeliModel->where('email_user', $email)->set(['keranjang' => json_encode($keranjang)])->update();
-        $getCurItem = $this->barangModel->getBarang($id_barang);
         session()->setFlashdata('notif-cart', "Produk berhasil masuk keranjang");
         return redirect()->to($redirect ? "/" . $redirect : '/product/' . $getCurItem['path']);
     }
@@ -3425,6 +3473,10 @@ class Pages extends BaseController
 
 
         $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
+        $preorderByProductId = [];
+        foreach ($preorder as $preorderRow) {
+            $preorderByProductId[(string)$preorderRow['id_barang']][] = $preorderRow;
+        }
         $potonganPreorder = 0;
 
         //cek apakah ada pesanan yang masih menunggu pembayaran
@@ -3436,8 +3488,11 @@ class Pages extends BaseController
         if ($pemesananTungguBayar) return redirect()->to('/order/' . $pemesananTungguBayar['id_midtrans']);
 
         if (!empty($keranjang)) {
+            $productsById = $this->barangModel->getBarangByIds(array_column($keranjang, 'id'), [
+                'id', 'nama', 'harga', 'berat', 'dimensi', 'stok', 'diskon', 'varian', 'kaca',
+            ]);
             foreach ($keranjang as $ind => $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
+                $produknya = $productsById[(string)($element['id'] ?? '')] ?? null;
                 if ($produknya) {
                     array_push($produk, $produknya);
                     array_push($jumlah, $element['jumlah']);
@@ -3478,15 +3533,12 @@ class Pages extends BaseController
                         if($produknya['kaca'] == true) {
                             $totalkaca += (int)$element['jumlah'] * 25000;
                         }
+
+                    foreach ($preorderByProductId[(string)$element['id']] ?? [] as $preorderRow) {
+                        $potonganPreorder += ((int)$produknya['harga'] - (int)$preorderRow['harga']) * (int)$element['jumlah'];
+                    }
                 } else {
                     array_push($indElementNotFound, $ind);
-                }
-
-                //masukin ke arrIdBarang untuk di cek masuk preorder atau tidak
-                foreach ($preorder as $p) {
-                    if ($p['id_barang'] == $element['id']) {
-                        $potonganPreorder += ((int)$produknya['harga'] - (int)$p['harga']) * (int)$element['jumlah'];
-                    }
                 }
             }
             $total = $subtotal;
@@ -3508,7 +3560,7 @@ class Pages extends BaseController
             return redirect()->to('/cart');
         }
 
-        $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang);
+        $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang, $productsById ?? []);
 
        
         // $curl = curl_init();
@@ -4042,6 +4094,18 @@ class Pages extends BaseController
             ]);
         }
 
+        $throttler = service('throttler');
+        $accountKey = hash('sha256', strtolower(trim((string)$email)));
+        $ipKey = hash('sha256', (string)$this->request->getIPAddress());
+        if (!$throttler->check('lunarea-web-shipping-quote-account-' . $accountKey, 12, 60)
+            || !$throttler->check('lunarea-web-shipping-quote-ip-' . $ipKey, 30, 60)
+        ) {
+            return $this->response->setStatusCode(429)->setJSON([
+                'success' => false,
+                'message' => 'Terlalu banyak permintaan ongkir. Tunggu sebentar lalu coba lagi.',
+            ]);
+        }
+
         $keranjang = session()->get('keranjang') ?: [];
         if (empty($keranjang)) {
             return $this->response->setStatusCode(400)->setJSON([
@@ -4100,12 +4164,15 @@ class Pages extends BaseController
         ];
     }
 
-    protected function calculateCartShippingWeightGrams(array $keranjang): int
+    protected function calculateCartShippingWeightGrams(array $keranjang, ?array $productsById = null): int
     {
+        if ($productsById === null) {
+            $productsById = $this->barangModel->getBarangByIds(array_column($keranjang, 'id'), ['id', 'berat']);
+        }
         $actualKg = 0.0;
 
         foreach ($keranjang as $element) {
-            $produknya = $this->barangModel->getBarang($element['id'] ?? '');
+            $produknya = $productsById[(string)($element['id'] ?? '')] ?? null;
             if (!$produknya) {
                 continue;
             }
@@ -4267,12 +4334,34 @@ class Pages extends BaseController
         $subtotal = 0;
         $itemDetails = [];
         $preorder = $this->preorderBarangModel->where(['email_customer' => $email])->findAll();
+        $preorderByProductId = [];
+        foreach ($preorder as $preorderRow) {
+            $preorderByProductId[(string)$preorderRow['id_barang']][] = $preorderRow;
+        }
         $potonganPreorder = 0;
         $totalkaca = 0;
 
         if (!empty($keranjang)) {
+            $productsById = $this->barangModel->getBarangByIds(array_column($keranjang, 'id'), [
+                'id', 'nama', 'harga', 'berat', 'kaca', 'diskon',
+            ]);
+            $lunaIdentityEnabled = filter_var(env('LUNA_PRODUCT_IDENTITY_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+            try {
+                $lunaIdentities = $lunaIdentityEnabled
+                    ? $this->konstantaModel->getLunaProductIdentities(array_keys($productsById))
+                    : [];
+            } catch (\Throwable $error) {
+                session()->setFlashdata('msg', 'Produk atau varian perlu diperiksa admin sebelum pesanan dilanjutkan.');
+                return redirect()->to('/checkout');
+            }
+
             foreach ($keranjang as $ind => $element) {
-                $produknya = $this->barangModel->getBarang($element['id']);
+                $productId = (string)($element['id'] ?? '');
+                $produknya = $productsById[$productId] ?? null;
+                if (!$produknya) {
+                    session()->setFlashdata('msg', 'Salah satu produk keranjang sudah tidak tersedia. Periksa kembali keranjang Anda.');
+                    return redirect()->to('/cart');
+                }
                 $persen = (100 - $produknya['diskon']) / 100;
                 $hasil = (int)round($persen * $produknya['harga']);
                 $subtotal += $hasil * (int)$element['jumlah'];
@@ -4282,9 +4371,9 @@ class Pages extends BaseController
                     'value' => $hasil,
                     'quantity' => (int)$element['jumlah'],
                 ];
-                if (filter_var(env('LUNA_PRODUCT_IDENTITY_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) {
+                if ($lunaIdentityEnabled) {
                     try {
-                        $identity = $this->konstantaModel->getLunaProductIdentity((string)$produknya['id']);
+                        $identity = $lunaIdentities[(string)$produknya['id']] ?? null;
                         if (!$identity) throw new \DomainException('Produk belum terhubung ke master MyLuna.');
                         $orderItem = \App\Services\Integrations\LunaProductIdentity::enrich($orderItem, $identity, (string)$element['varian']);
                     } catch (\Throwable $error) {
@@ -4304,10 +4393,8 @@ class Pages extends BaseController
                 array_push($itemDetails, $item);
 
                 //masukin ke arrIdBarang untuk di cek masuk preorder atau tidak
-                foreach ($preorder as $p) {
-                    if ($p['id_barang'] == $element['id']) {
-                        $potonganPreorder += ((int)$produknya['harga'] - (int)$p['harga']) * (int)$element['jumlah'];
-                    }
+                foreach ($preorderByProductId[$productId] ?? [] as $preorderRow) {
+                    $potonganPreorder += ((int)$produknya['harga'] - (int)$preorderRow['harga']) * (int)$element['jumlah'];
                 }
                 
                 //Hitung total kaca nya disini
@@ -4423,7 +4510,7 @@ class Pages extends BaseController
                 'kelurahan_id' => explode("-", $kode)[0] ?? 0,
                 'kodepos' => explode("-", $kode)[1] ?? '',
             ]);
-            $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang ?: []);
+            $shippingWeightGrams = $this->calculateCartShippingWeightGrams($keranjang ?: [], $productsById ?? null);
             $shippingService = new ShippingService();
             $shippingQuote = $shippingService->validateQuoteToken($shippingQuoteToken, $email, $keranjang ?: [], $shippingAddress, $shippingWeightGrams);
 

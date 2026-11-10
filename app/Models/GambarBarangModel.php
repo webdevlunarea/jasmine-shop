@@ -68,6 +68,32 @@ class GambarBarangModel extends Model
         }
         return $this->where(['id' => $id])->first();
     }
+
+    /** Fetch only the selected legacy image columns needed by a wishlist page. */
+    public function getSelectedImagesByProduct(array $columnsByProductId): array
+    {
+        $normalized = [];
+        $columns = [];
+        foreach ($columnsByProductId as $id => $requestedColumns) {
+            $id = is_scalar($id) ? trim((string)$id) : '';
+            if ($id === '' || !is_array($requestedColumns)) continue;
+            foreach ($requestedColumns as $column) {
+                if (!is_string($column) || !preg_match('/^gambar(?:[1-9]|[1-4][0-9]|50)$/D', $column)) continue;
+                $normalized[$id][] = $column;
+                $columns[$column] = $column;
+            }
+        }
+        if ($normalized === [] || $columns === []) return [];
+
+        $select = array_merge(['id'], array_values($columns));
+        $images = [];
+        foreach (array_chunk(array_keys($normalized), 500) as $idChunk) {
+            $rows = $this->builder()->select($select)->whereIn('id', $idChunk)->get()->getResultArray();
+            foreach ($rows as $row) $images[(string)$row['id']] = $row;
+        }
+        return $images;
+    }
+
     public function getGambarLimit()
     {
         return $this->findAll(10, 0);

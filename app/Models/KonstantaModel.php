@@ -33,6 +33,41 @@ class KonstantaModel extends Model
         return $identity;
     }
 
+    /** Load and validate MyLuna mappings for a cart in one query. */
+    public function getLunaProductIdentities(array $websiteIds): array
+    {
+        $prefix = \App\Services\Integrations\LunaProductIdentity::PREFIX;
+        $websiteIds = array_values(array_unique(array_filter(array_map(
+            static fn($id): string => is_scalar($id) ? trim((string)$id) : '',
+            $websiteIds
+        ), static fn(string $id): bool => $id !== '')));
+        if ($websiteIds === []) return [];
+
+        $labels = array_map(static fn(string $id): string => $prefix . $id, $websiteIds);
+        $rowsById = [];
+        foreach (array_chunk($labels, 500) as $labelChunk) {
+            $rows = $this->builder()->select('label, value')->whereIn('label', $labelChunk)->get()->getResultArray();
+            foreach ($rows as $row) {
+                $id = substr((string)$row['label'], strlen($prefix));
+                $rowsById[$id][] = $row;
+            }
+        }
+
+        $identities = [];
+        foreach ($websiteIds as $id) {
+            $matches = $rowsById[$id] ?? [];
+            if ($matches === []) {
+                $identities[$id] = null;
+                continue;
+            }
+            if (count($matches) !== 1) throw new \DomainException('Pemetaan MyLuna duplikat; perlu pemeriksaan admin.');
+            $identity = json_decode((string)$matches[0]['value'], true);
+            if (!is_array($identity)) throw new \DomainException('Pemetaan MyLuna tersimpan tidak valid.');
+            $identities[$id] = $identity;
+        }
+        return $identities;
+    }
+
     /** Caller holds the catalog advisory lock and transaction. No schema/primary-key changes. */
     public function saveLunaProductIdentity(string $websiteId, array $identity, bool $dryRun = false): void
     {
@@ -179,6 +214,29 @@ class KonstantaModel extends Model
         if (!$row || empty($row['value'])) return [];
         $decoded = json_decode($row['value'], true);
         return is_array($decoded) ? $decoded : [];
+    }
+
+    /** Load variant-image metadata for multiple products without one query per product. */
+    public function getProductVariantImageMaps(array $productIds): array
+    {
+        $prefix = 'product_variant_image_map_';
+        $productIds = array_values(array_unique(array_filter(array_map(
+            static fn($id): string => is_scalar($id) ? trim((string)$id) : '',
+            $productIds
+        ), static fn(string $id): bool => $id !== '')));
+        if ($productIds === []) return [];
+
+        $labels = array_map(static fn(string $id): string => $prefix . $id, $productIds);
+        $maps = [];
+        foreach (array_chunk($labels, 500) as $labelChunk) {
+            $rows = $this->builder()->select('label, value')->whereIn('label', $labelChunk)->get()->getResultArray();
+            foreach ($rows as $row) {
+                $id = substr((string)$row['label'], strlen($prefix));
+                $decoded = json_decode((string)($row['value'] ?? ''), true);
+                if ($id !== '' && is_array($decoded)) $maps[$id] = $decoded;
+            }
+        }
+        return $maps;
     }
 
     public function saveProductVariantImageMap($productId, array $map)
